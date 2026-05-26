@@ -4,7 +4,7 @@
 <head>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
   <meta charset="utf-8">
-  <title>„Aiutate la mia nonna!" — la bambina di 9 anni chiedeva aiuto agli sconosciuti in un supermercato di Napoli. Nessuno si è fermato per quasi un minuto.</title>
+  <title>„Aiutate la mia nonna!" — una bambina di 9 anni chiedeva aiuto agli sconosciuti in un supermercato di Napoli. Poi abbiamo scoperto cosa sta succedendo alle articolazioni di milioni di italiani.</title>
   <meta content="IE=edge" http-equiv="X-UA-Compatible">
   <meta content="no-cache" http-equiv="Cache-Control">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -100,7 +100,7 @@
     main img { max-width: 100%; height: auto; border-radius: var(--radius-md); }
 
     main h2 { font-family: var(--font-serif); font-size: 24px; line-height: 1.3; font-weight: 700; color: var(--color-primary-dark); margin: 32px 0 16px; padding-bottom: 12px; border-bottom: 2px solid var(--color-primary-light); letter-spacing: -0.01em; }
-    main h2 span { display: block; font-family: var(--font-sans); font-size: 16px; font-weight: 500; color: var(--color-text-muted); margin-top: 10px; margin-bottom: 0; line-height: 1.5; }
+    main h2 span { display: block; font-family: var(--font-sans); font-size: 16px; font-weight: 500; color: var(--color-text-muted); margin-top: 10px; line-height: 1.5; }
     main h3 { font-family: var(--font-serif); font-size: 19px; color: var(--color-primary-dark); margin: 22px 0 12px; font-weight: 600; }
     @media (max-width:640px) { main h2 { font-size: 19px; } main h2 span { font-size: 15px; } }
 
@@ -110,6 +110,39 @@
     main ul li:last-child { margin-bottom: 0; }
 
     .red-txt { color: var(--color-danger); font-weight: 600; }
+
+    /* ── Story block ── */
+    .story-block {
+      background: var(--color-bg-soft);
+      border: 1px solid var(--color-border);
+      border-left: 5px solid var(--color-danger);
+      border-radius: var(--radius-lg);
+      padding: 28px 28px 24px;
+      margin: 0 0 32px;
+      position: relative;
+    }
+    .story-block::before {
+      content: "STORIA VERA";
+      position: absolute;
+      top: -1px; left: 28px;
+      background: var(--color-danger);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 3px 10px;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    }
+    .story-block p { margin: 0 0 14px; font-size: 16px; line-height: 1.7; color: var(--color-text); }
+    .story-block p:last-child { margin-bottom: 0; }
+    .story-divider {
+      display: flex; align-items: center; gap: 14px;
+      margin: 32px 0; color: var(--color-text-light); font-size: 13px;
+      text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500;
+    }
+    .story-divider::before, .story-divider::after {
+      content: ""; flex: 1; height: 1px; background: var(--color-border);
+    }
 
     .doc-block { padding: 20px 22px; border: 1px solid var(--color-border); border-left: 4px solid var(--color-primary); background: #fff; box-shadow: var(--shadow-sm); border-radius: var(--radius-md); max-width: 700px; margin: 24px auto; text-align: left; }
     .doc-block img { border-radius: var(--radius-md); margin-bottom: 14px; }
@@ -259,7 +292,7 @@
     .clinical-footer a { color: var(--color-primary); text-decoration: none; }
 
     #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 100; transition: opacity 0.3s ease; }
-    #popup3 { background-size: cover; background-position: center; position: fixed; top: 50%; left: 50%; padding: 20px; background-color: white; box-shadow: var(--shadow-lg); transition: opacity 0.3s ease, transform 0.3s ease; max-width: 800px; width: 93%; height: 87%; overflow-y: auto; max-height: 100vh; z-index: 999999; }
+    #popup3 { position: fixed; top: 50%; left: 50%; padding: 20px; background-color: white; box-shadow: var(--shadow-lg); transition: opacity 0.3s ease, transform 0.3s ease; max-width: 800px; width: 93%; height: 87%; overflow-y: auto; max-height: 100vh; z-index: 999999; }
 
     body input[name="phone"] { background-repeat: no-repeat !important; background-position: left 15px center !important; }
     main center { display: block; text-align: center; }
@@ -274,6 +307,7 @@
       .doc-block { padding: 16px; }
       .rev-block { padding: 16px; }
       .recept { padding: 16px; }
+      .story-block { padding: 22px 16px 18px; }
       .block-offer-actions-block { padding: 6px 16px 16px; }
       .obertk512 li { padding-left: 44px; }
       .obertk512 li::before { width: 30px; height: 30px; font-size: 14px; }
@@ -307,8 +341,8 @@
 
   <div class="h1-bg split">
     <h1 class="title_h1">
-      <span class="head-one-part">„AIUTATE LA MIA NONNA!" — UNA BAMBINA DI 9 ANNI CHIEDEVA AIUTO AGLI SCONOSCIUTI IN UN SUPERMERCATO. NESSUNO SI È FERMATO PER QUASI UN MINUTO.</span>
-      <span class="head-two-part">LA STORIA DELL'INSEGNANTE DI NAPOLI CHE HA SMESSO DI USCIRE DI CASA PER LA VERGOGNA — E DEL GEL CON NANOPARTICELLE CHE LE HA RIDATO LE GAMBE, LA DIGNITÀ E I POMERIGGI CON LA NIPOTINA.</span>
+      <span class="head-one-part">„AIUTATE LA MIA NONNA!" — UNA BAMBINA DI 9 ANNI CHIEDEVA AIUTO AGLI SCONOSCIUTI IN UN SUPERMERCATO DI NAPOLI. NESSUNO SI È FERMATO PER QUASI UN MINUTO.</span>
+      <span class="head-two-part">ABBIAMO INDAGATO: PERCHÉ MILIONI DI ITALIANI OVER 55 SMETTONO DI USCIRE, RINUNCIANO ALLA VITA — E PERCHÉ I MEDICI NON DICONO LORO LA VERITÀ SULLE ARTICOLAZIONI.</span>
     </h1>
 
     <div class="tdate head-main-date">
@@ -319,218 +353,174 @@
     </div>
 
     <div class="main-subtitle">
-      Teresa, 67 anni, Napoli. Trentacinque anni di insegnamento alle medie, pensione di 1.050 euro, marito scomparso quattro anni fa. Le articolazioni hanno ceduto. Più di duemila euro spesi in farmacia senza risultato. Una caduta in un supermercato. Tre mesi chiusa in casa — non per il dolore, ma per la vergogna. Finché una collega non si è presentata alla porta. Senza i bastoni con cui l'aveva vista l'ultima volta.
+      Una storia dal quartiere Vomero di Napoli ha aperto una nostra inchiesta. Il risultato: in Italia oltre 18 milioni di persone sopra i 55 anni soffrono di problemi articolari gravi — e la stragrande maggioranza riceve solo antinfiammatori che mascherano il dolore mentre la cartilagine continua a distruggersi. Esiste una soluzione. Quasi nessuno la conosce.
     </div>
   </div>
 
   <main>
 
-    <img alt="Teresa in cucina con la nipote Emma"
-      src="https://static.joxi.pro/1778142925769-b234c916-2418-43cd-a09b-52da3b198c19.jpg"
-      style="margin-bottom:14px;margin-top:0">
+    <!-- ══════════════════════════════════════════
+         БЛОК 1: СТОРИТЕЛЛ (КРЮЧОК)
+    ══════════════════════════════════════════ -->
+
+    <div class="story-block">
+      <p>
+        Sono caduta nel bel mezzo del supermercato.
+      </p>
+      <p>
+        Le persone mi giravano intorno con i carrelli. Mia nipote Emma, nove anni, stava accanto a me e gridava:
+        <b>„Aiutate la mia nonna!"</b> Nessuno si è fermato per quasi un minuto. Un minuto intero. Io per terra,
+        tra lo scaffale dei detersivi e quello della pasta, con il ginocchio sinistro che pulsava come se ci fosse
+        un chiodo dentro. Ed Emma che piangeva e tirava la manica delle persone che passavano.
+        <i>„Per favore, la mia nonna è caduta."</i>
+      </p>
+      <p>
+        Ho 67 anni. Per trentacinque anni sono stata insegnante di italiano alle medie a Napoli. Trentacinque anni
+        in piedi davanti a una lavagna, su e giù per le scale di una scuola senza ascensore. Le ginocchia hanno
+        retto. L'anca ha retto. Finché non ha smesso di reggere.
+      </p>
+      <p>
+        Il reumatologo ha detto: coxartrosi a destra, gonartrosi bilaterale. Mi ha dato una lista di farmaci lunga
+        come un braccio. Ho comprato tutto. Lo stomaco si è ribellato — gastrite da farmaci. Le ginocchia
+        continuavano a gonfiarsi. In due anni ho speso più di duemila euro tra creme, pastiglie e infiltrazioni
+        da 85 euro l'una. La mia pensione è di 1.050 euro. Vivo sola.
+      </p>
+      <p>
+        Dopo la caduta al supermercato ho smesso di uscire. <b>Non per il dolore. Per la vergogna.</b>
+        Mi vedevo da fuori: una vecchia per terra, con una bambina che piange e chiede aiuto agli sconosciuti.
+        Per tre mesi l'appartamento è diventato il mio mondo. Settanta metri quadri. Televisore, dolore, finestra.
+      </p>
+      <p>
+        Emma aveva smesso di venire a dormire da me. Mia figlia Paola un giorno è entrata con le chiavi di riserva
+        e mi ha trovata in vestaglia alle quattro del pomeriggio. Si è seduta, mi ha presa per le mani, e mi ha
+        detto: <b>„Mamma, devi andare in una struttura. Lì ci sarà qualcuno sempre, se cadi."</b>
+      </p>
+      <p style="margin-bottom:0">
+        Una struttura. Una casa di riposo. <b>A sessantasette anni.</b>
+      </p>
+    </div>
+
+    <div class="story-divider">La storia di Teresa è quella di milioni di italiani</div>
+
+    <!-- ══════════════════════════════════════════
+         БЛОК 2: НЕЗАВИСИМАЯ СТАТЬЯ
+    ══════════════════════════════════════════ -->
 
     <p>
-      Sono caduta nel bel mezzo del supermercato.
+      La storia che avete appena letto non è un caso isolato. Abbiamo raccolto testimonianze simili in tutta Italia —
+      da Torino a Palermo, da Bologna a Bari. Il copione è sempre lo stesso: <b>dolore alle articolazioni → farmaci
+      che non risolvono → isolamento → dipendenza dai familiari → casa di riposo.</b>
     </p>
     <p>
-      Le persone mi giravano intorno con i carrelli. Mia nipote Emma, nove anni, stava accanto a me e gridava:
-      <b>„Aiutate la mia nonna!"</b> Nessuno si è fermato per quasi un minuto.
-    </p>
-    <p>
-      Un minuto intero. Io per terra, tra lo scaffale dei detersivi e quello della pasta, con il ginocchio sinistro
-      che pulsava come se ci fosse un chiodo dentro. Ed Emma che piangeva e tirava la manica delle persone che
-      passavano. <i>„Per favore, la mia nonna è caduta."</i>
-    </p>
-    <p>
-      Alla fine si è fermata una cassiera. Mi ha aiutata ad alzarmi. Mi ha portato su una sedia vicino all'uscita.
-      Emma mi teneva la mano e tremava.
-    </p>
-    <p>
-      Quando siamo tornate a casa — lentamente, un passo alla volta, aggrappate l'una all'altra — non ho detto niente
-      a nessuno. La sera, quando mia figlia Paola è venuta a prendere Emma, la bambina le ha detto:
-      <b>„Mamma, la nonna è caduta e nessuno ci ha aiutato."</b>
-    </p>
-    <p>
-      Paola mi ha guardata. Io ho guardato il pavimento.
-    </p>
-
-    <h2>
-      Trentacinque anni davanti a una lavagna — e le articolazioni che hanno presentato il conto
-      <span>Come un'insegnante di italiano di Napoli ha perso prima le ginocchia, poi l'anca, poi la libertà</span>
-    </h2>
-
-    <p>
-      Mi chiamo Teresa, ho 67 anni e vivo a Napoli, nel quartiere Vomero. Per trentacinque anni sono stata insegnante
-      di italiano alle medie. Adoravo il mio lavoro. Ma trentacinque anni in piedi davanti a una lavagna, su e giù per
-      le scale di una scuola senza ascensore, hanno distrutto le mie articolazioni.
-    </p>
-    <p>
-      Prima le anche. Poi le ginocchia. Il reumatologo ha detto: <b>coxartrosi a destra, gonartrosi bilaterale.</b> Mi
-      ha dato una lista di farmaci lunga come un braccio. Antidolorifici, antinfiammatori, condroprotettori. Creme da
-      30 euro, pastiglie da 25, infiltrazioni da 85. La mia pensione è di 1.050 euro. Mio marito Antonio è mancato
-      quattro anni fa. Vivo sola.
-    </p>
-    <p>
-      I primi due anni compravo tutto quello che mi prescrivevano. Lo stomaco si è ribellato per primo — gastrite da
-      farmaci. Poi il portafoglio. A un certo punto facevo i conti al centesimo: se compro la crema, salto la frutta
-      questa settimana. Se faccio l'infiltrazione, niente riscaldamento per un giorno.
-    </p>
-    <p>
-      <b class="red-txt">Non ha funzionato niente. Le ginocchia continuavano a gonfiarsi. L'anca destra scricchiolava
-        a ogni passo come una porta arrugginita.</b>
+      Secondo i dati dell'Istituto Superiore di Sanità, in Italia oltre <b>18 milioni di persone</b> sopra i 55 anni
+      soffrono di patologie articolari degenerative — artrosi, coxartrosi, gonartrosi, ernie del disco. È la prima
+      causa di disabilità nella fascia over 60. E la stragrande maggioranza di queste persone riceve sempre la stessa
+      terapia: antinfiammatori e antidolorifici.
     </p>
 
     <div class="pachino-ramka312-block">
       <p class="pachino-ramka312">
         <span class="obertka-1">
-          Il dolore all'anca e al ginocchio dopo i 55 anni non è „normale per l'età" — è un segnale che la cartilagine
-          si sta consumando e il liquido sinoviale sta scomparendo.<br><br>
-          Gli antinfiammatori e le infiltrazioni bloccano solo il segnale del dolore, mentre la distruzione avanza in
-          silenzio. Senza rigenerazione reale della cartilagine, l'unica opzione che rimane è la sedia a rotelle o
-          l'intervento chirurgico.
+          Gli antinfiammatori <b>non rigenerano la cartilagine</b>. Bloccano solo il segnale del dolore, mentre la
+          distruzione articolare avanza in silenzio. Con l'uso prolungato distruggono stomaco, fegato e reni.
+          Il risultato: il paziente perde prima la mobilità, poi la salute degli organi interni.
         </span>
       </p>
     </div>
 
     <h2>
-      „Non sono rimasta a casa per il dolore. Sono rimasta a casa per la vergogna."
-      <span>L'immagine che Teresa non riusciva a togliersi dalla testa — e la frase di Paola che l'ha spezzata in due</span>
+      Perché il trattamento convenzionale fallisce — e cosa succede davvero dentro l'articolazione
+      <span>La verità che troppi medici non comunicano ai loro pazienti over 55</span>
     </h2>
 
-    <p>
-      Dopo la caduta al supermercato, ho smesso di uscire. Non per il dolore. Per la vergogna.
-    </p>
-    <p>
-      Mi vedevo da fuori: una vecchia per terra in un supermercato, con una bambina che piange e chiede aiuto a degli
-      sconosciuti. Quell'immagine mi perseguitava. La notte me la sognavo. Mi svegliavo sudata, col cuore che batteva
-      forte.
-    </p>
-
-    <div class="quote-inline">
-      „Per tre mesi non sono uscita di casa. Paola faceva la spesa. Il farmacista consegnava a domicilio. Il medico
-      veniva a casa. L'appartamento è diventato il mio mondo. Settanta metri quadri. Televisore, dolore, finestra.
-      L'unica cosa che guardavo era la strada sotto casa. La gente che camminava. Le signore della mia età che andavano
-      al mercato con le borse. E io alla finestra, come in un acquario."
-      <span class="quote-name">— Teresa, 67 anni, Napoli</span>
-    </div>
+    <img alt="Donna anziana con problemi alle ginocchia"
+      src="https://static.joxi.pro/1778142925769-2045c9ea-f00c-48ab-ae5d-6e56aec020f0.jpg"
+      style="margin-bottom:18px;margin-top:0">
 
     <p>
-      Emma aveva smesso di venire a dormire da me. Paola diceva che era meglio così: <i>„Mamma, se cadi di notte e
-        lei è sola con te?"</i> Aveva ragione. Ma quella frase mi aveva spezzata in due.
+      L'articolazione è composta da cartilagine — un tessuto spugnoso che ammortizza ogni movimento — e da liquido
+      sinoviale, che lubrifica lo spazio tra le ossa. Dopo i 50 anni, e ancora di più in chi ha lavorato
+      fisicamente tutta la vita, questi due componenti iniziano a deteriorarsi: la cartilagine si assottiglia,
+      il liquido sinoviale diminuisce. Le ossa cominciano a sfregare l'una contro l'altra.
     </p>
     <p>
-      Una sera Paola è entrata con le chiavi di riserva e mi ha trovata in vestaglia alle quattro del pomeriggio, con
-      la televisione accesa su un programma che non stavo guardando. Si è seduta, mi ha presa per le mani, e mi ha
-      detto: <b>„Mamma, non puoi continuare così. Devi andare in una struttura. Lì ci sarà qualcuno sempre, se cadi."</b>
-    </p>
-    <p>
-      Una struttura. Una casa di riposo. Mia figlia voleva mettermi in una casa di riposo a 67 anni.
-    </p>
-    <p>
-      Non l'ho detto a voce, ma dentro di me qualcosa si è rotto. Come se l'ultimo filo si fosse spezzato.
+      È qui che inizia il dolore. E il problema è che gli antinfiammatori — prescritti dalla quasi totalità dei
+      medici di base — <b>non fanno nulla per fermare questo processo.</b> Bloccano i recettori del dolore per
+      alcune ore. Poi il dolore torna, più forte. Si aumenta la dose. Lo stomaco cede. I reni subiscono danni.
+      E la cartilagine continua a consumarsi.
     </p>
 
-    <!-- FOTO 2 -->
-    <figure class="cap-bold">
-      <img class="img-card" src="https://static.joxi.pro/1778142925769-a94978b4-3738-4aeb-950e-312b652009ac.jpg">
+    <!-- FOTO articolazione -->
+    <figure class="Figure" style="text-align:center">
+      <img src="https://static.joxi.pro/1778142925769-057465eb-7a53-45e0-ba84-1b9038913030.jpg" style="margin:0 auto">
       <figcaption>
-        Coxartrosi e gonartrosi bilaterale — la realtà di milioni di italiane over 60 che hanno lavorato tutta la vita
-        in piedi. La cartilagine si consuma. Il liquido sinoviale sparisce. Le pillole mascherano il dolore. La
-        distruzione continua.
+        <b>A sinistra: articolazione sana con cartilagine intatta e sufficiente liquido sinoviale. A destra:
+          articolazione distrutta — cartilagine consumata, infiammazione cronica, osso contro osso.
+          Gli antinfiammatori non invertono questo processo: lo mascherano.</b>
       </figcaption>
     </figure>
 
     <p class="red-txt">
-      In 2/3 dei casi, anche con l'assunzione quotidiana di antidolorifici, le articolazioni continuano a peggiorare,
-      perché la vera causa — la distruzione della cartilagine — resta irrisolta. Dopo anni di farmaci, molti pazienti
-      perdono non solo la mobilità, ma anche lo stomaco e i reni: gastrite, ulcere, insufficienza renale.
+      In 2/3 dei casi, anche con l'assunzione quotidiana di antidolorifici, le articolazioni continuano a
+      peggiorare perché la vera causa — la distruzione della cartilagine — resta irrisolta. Dopo anni di farmaci,
+      molti pazienti perdono non solo la mobilità, ma anche lo stomaco, il fegato e i reni.
+    </p>
+
+    <p><b>I sintomi che indicano una degenerazione articolare in corso:</b></p>
+    <ul>
+      <li>Forte dolore all'anca o al ginocchio nel camminare, peggiora nelle scale;</li>
+      <li>Rigidità mattutina — il corpo „di legno" per 30-60 minuti dopo il risveglio;</li>
+      <li>Scricchiolio o crepitio nelle articolazioni a ogni passo;</li>
+      <li>Gonfiore alle ginocchia, caviglie o dita — spesso peggio la mattina;</li>
+      <li>Dolore all'anca che si irradia alla coscia — non riesci a camminare più di 50 metri;</li>
+      <li>Paura di cadere sulle scale — ti aggrappi alla ringhiera anche scendendo;</li>
+      <li>Dolore notturno che sveglia 3-4 volte a notte;</li>
+      <li>Sensazione di instabilità — le gambe „cedono" improvvisamente;</li>
+      <li>Intorpidimento alle gambe o alle mani — segno di nervo compresso;</li>
+      <li>Dita delle mani gonfie, nodose — difficoltà ad afferrare gli oggetti;</li>
+    </ul>
+
+    <p>
+      Ognuno di questi sintomi è un segnale che la cartilagine si sta consumando. Ignorarli porta a un solo
+      finale: <b class="red-txt">immobilità progressiva, dipendenza dai familiari, e spesso — come per milioni
+      di italiani — la casa di riposo.</b>
     </p>
 
     <h2>
-      La telefonata di Carmela — e i cinque piegamenti che hanno cambiato tutto
-      <span>Una collega di vent'anni si è presentata alla porta senza i bastoni. A 69 anni ha fatto cinque squat
-        completi nel mezzo della cucina.</span>
+      Un ex chirurgo ortopedico ha lasciato la clinica. Ecco cosa ha sviluppato.
+      <span>Dopo vent'anni di sala operatoria, ha capito che le operazioni non risolvevano la causa. E ha cercato
+        qualcosa di completamente diverso.</span>
     </h2>
-
-    <p>
-      E poi la telefonata. Era una domenica mattina. Un numero che non conoscevo. Ho risposto per abitudine.
-    </p>
-    <p>
-      Era Carmela. La mia collega di scuola. Avevamo insegnato insieme per vent'anni. Non ci sentivamo da cinque —
-      lei si era trasferita a Firenze dalla figlia. L'ultima volta che l'avevo vista, aveva le ginocchia fasciate e
-      camminava con due bastoni. La stessa cosa che avevo io.
-    </p>
-    <p>
-      Ma al telefono era un'altra persona. Rideva. Parlava veloce. <b>„Teresa, ho saputo da Paola come stai. Devo
-        venirti a trovare."</b>
-    </p>
 
     <div class="doc-block">
-      <img alt="Carmela senza bastoni, in forma"
-        src="https://static.joxi.pro/1778142925769-f6ae7d5d-d93a-42f5-8684-d3c285fbc8bf.jpg">
-      <p>È arrivata tre giorni dopo. Ho aperto la porta e sono rimasta ferma.</p>
-      <p>Carmela. Senza bastoni. In scarpe da ginnastica. Con uno zaino in spalla come se andasse a fare una
-        scampagnata. Mi ha guardata — vestaglia, pantofole, capelli grigi non pettinati, dieci chili in meno — e mi
-        ha abbracciata senza dire niente.</p>
-      <p>Le ho raccontato tutto. Il supermercato, Emma, la vergogna, la casa di riposo, la finestra. Ho pianto senza
-        riuscire a fermarmi.</p>
-      <p>Carmela ha ascoltato. Poi si è alzata dalla sedia. Si è messa al centro della mia cucina. E ha fatto
-        <b>cinque piegamenti. Completi. Giù e su. A 69 anni. Con le ginocchia che cinque anni prima non la reggevano
-          in piedi.</b>
-      </p>
-      <p>Sono rimasta a bocca aperta.</p>
+      <img alt="Ex chirurgo ortopedico, sviluppatore di Arthrovia"
+        src="https://static.joxi.pro/1778142925769-8d31ed89-cd31-449a-8c51-6ff1a0bfb48e.jpg">
+      <p>Ha lasciato la clinica ortopedica dopo vent'anni. La ragione: <b>vedeva i pazienti tornare dopo le
+        operazioni con gli stessi problemi.</b> Le protesi si consumavano. Le infiltrazioni duravano pochi mesi.
+        Gli antidolorifici distruggevano lo stomaco e i reni. Nessuno affrontava la vera causa.</p>
+      <p>Ha trascorso tre anni a ricercare una formula diversa. Il risultato è un gel a base di
+        <b>nanoparticelle</b>: molecole ridotte a dimensioni nanometriche che attraversano la pelle, raggiungono
+        direttamente la capsula articolare e portano i principi attivi là dove la cartilagine si distrugge.
+        Senza passare per lo stomaco. Senza effetti collaterali.</p>
+      <p><b>Il prodotto si chiama Arthrovia. Funziona su tutte le articolazioni: ginocchia, anche, schiena,
+        mani, collo. E funziona anche su persone di 65, 75, 85 anni.</b></p>
     </div>
 
-    <p>
-      Mi ha detto che due anni prima, in un gruppo Facebook di insegnanti in pensione, aveva trovato il link a un gel
-      per le articolazioni. Sviluppato da un ex chirurgo ortopedico che aveva lasciato la clinica — <b>stufo di vedere
-        pazienti operati che tornavano un anno dopo con gli stessi problemi.</b> Aveva creato un gel a base di
-      nanoparticelle che penetrano la pelle, raggiungono l'articolazione e rigenerano la cartilagine. Funziona su
-      tutto: ginocchia, anche, schiena, mani, collo.
-    </p>
-    <p>
-      Ho scosso la testa. Trentacinque anni a insegnare Dante, non medicina, ma certe cose le so: la cartilagine non
-      si rigenera.
-    </p>
-    <p>
-      Carmela ha indicato le sue gambe: <b>„E allora questo cos'è? Due anni senza bastoni. Faccio le scale, faccio la
-        spesa, porto a spasso il cane."</b>
-    </p>
-    <p>
-      Ha detto che costava niente rispetto alle farmacie. Pagamento alla consegna. Nessun anticipo.
-    </p>
-    <p>
-      Ho ordinato. Non perché ci credessi. Ma perché l'avevo vista con i miei occhi — Carmela con i bastoni cinque
-      anni fa, e Carmela che faceva i piegamenti nella mia cucina. Vent'anni fianco a fianco a scuola.
-      <b>Non mi avrebbe mentito.</b>
-    </p>
-
     <h2>
-      Cos'è Arthrovia e perché funziona là dove creme, pillole e infiltrazioni falliscono
-      <span>Il gel con tecnologia a nanoparticelle sviluppato da un ex chirurgo ortopedico che ha abbandonato la clinica
-        per trovare una vera soluzione</span>
+      Cos'è Arthrovia e perché è diverso da qualsiasi crema o gel in farmacia
+      <span>La tecnologia a nanoparticelle risolve il problema che ha sempre reso inefficaci le creme topiche</span>
     </h2>
 
-    <!-- FOTO 3 -->
-    <figure>
-      <img class="img-card" src="https://static.joxi.pro/1778142925769-057465eb-7a53-45e0-ba84-1b9038913030.jpg"
-        style="margin:0 auto">
-      <figcaption>
-        <b>A sinistra: articolazione sana. A destra: articolazione distrutta — cartilagine consumata, osso contro osso.
-          Le creme convenzionali non raggiungono la capsula articolare. Le nanoparticelle di Arthrovia sì.</b>
-      </figcaption>
-    </figure>
-
     <p>
-      Il problema con le creme in farmacia è semplice: le molecole attive sono troppo grandi per attraversare la pelle
-      e raggiungere l'articolazione. Restano in superficie. Danno un calore momentaneo. E la cartilagine continua a
-      distruggersi in silenzio.
+      Il problema fondamentale di tutte le creme per articolazioni in farmacia è che le loro molecole sono troppo
+      grandi per attraversare la pelle e raggiungere la capsula articolare. Restano in superficie, danno un calore
+      temporaneo, ma non cambiano nulla dentro l'articolazione.
     </p>
     <p>
-      L'ex chirurgo ortopedico che ha sviluppato Arthrovia ha risolto questo problema riducendo le molecole attive a
-      dimensioni nanometriche. <b>Le nanoparticelle attraversano la pelle, raggiungono la capsula articolare e portano
-        i principi attivi direttamente là dove la cartilagine si distrugge.</b> Senza passare per lo stomaco. Senza
-      distruggere il fegato. Senza effetti collaterali.
+      Arthrovia risolve questo problema con la <b>Tecnologia di Penetrazione a Nanoparticelle</b>: i principi
+      attivi vengono ridotti a dimensioni nanometriche e veicolati attraverso la pelle direttamente nella capsula
+      articolare — con un'efficacia 5 volte superiore a qualsiasi gel comune. Si applica mattina e sera, direttamente
+      sulla zona interessata, massaggiando per 2-3 minuti.
     </p>
 
     <div class="recept">
@@ -546,19 +536,19 @@
           <font>Acido boswellico concentrato che inibisce l'infiammazione a livello cellulare</font>
         </li>
         <li><b>Mentolo</b>
-          <font>Agente rinfrescante e analgesico: sollievo immediato, migliora la penetrazione degli altri principi attivi</font>
+          <font>Sollievo immediato dal dolore, migliora la penetrazione degli altri principi attivi</font>
         </li>
         <li><b>Robinia pseudoacacia (robinia)</b>
-          <font>Estratto dai fiori: azione lenitiva, antiedemigena e rigenerante su legamenti e tendini</font>
+          <font>Azione lenitiva, antiedemigena e rigenerante su legamenti e tendini</font>
         </li>
       </ul>
     </div>
 
     <p class="pachino-ramka2">
-      Arthrovia non ha eguali. Ogni ingrediente — nella concentrazione esatta, veicolato dalla tecnologia a
-      nanoparticelle — attiva la rigenerazione della cartilagine, il ripristino del liquido sinoviale e l'arresto
-      dell'infiammazione. Agisce direttamente su ginocchio, anca, colonna, mani, collo — senza passare per lo stomaco.
-      Efficacia 5 volte superiore a qualsiasi crema comune.
+      Arthrovia non ha eguali sul mercato italiano. Ogni ingrediente — nella concentrazione esatta, veicolato
+      dalla tecnologia a nanoparticelle — attiva la rigenerazione della cartilagine, il ripristino del liquido
+      sinoviale e l'arresto dell'infiammazione. Agisce direttamente su ginocchio, anca, colonna, mani, collo —
+      senza passare per lo stomaco, senza effetti collaterali, senza interagire con altri farmaci.
     </p>
 
     <div class="obertk512">
@@ -567,180 +557,44 @@
         <ol>
           <li>
             <font>Eliminazione del dolore e dell'infiammazione:</font>
-            <span>Nei primi 15-30 minuti dall'applicazione, il complesso di arnica, incenso e mentolo elimina il dolore
-              e riduce l'infiammazione — non bloccando il segnale nervoso come le pillole, ma fermando il processo
-              infiammatorio alla fonte.</span>
+            <span>Nei primi 15-30 minuti dall'applicazione, il complesso di arnica, incenso e mentolo elimina il
+              dolore e riduce l'infiammazione alla fonte — non bloccando il segnale nervoso come le pillole, ma
+              fermando il processo infiammatorio direttamente nell'articolazione.</span>
           </li>
           <li>
             <font>Rigenerazione della cartilagine articolare:</font>
-            <span>Le nanoparticelle raggiungono la capsula articolare e attivano i condrociti, stimolando la produzione
-              di nuovo tessuto cartilagineo. Il processo inizia dopo 3-5 giorni di uso regolare.</span>
+            <span>Le nanoparticelle raggiungono la capsula articolare e attivano i condrociti, stimolando la
+              produzione di nuovo tessuto cartilagineo. Il processo inizia dopo 3-5 giorni di uso regolare e
+              prosegue per tutto il periodo di trattamento.</span>
           </li>
           <li>
             <font>Ripristino del liquido sinoviale:</font>
             <span>I principi attivi ripristinano il liquido sinoviale — il „lubrificante" naturale
-              dell'articolazione. Le ossa non sfregano più l'una contro l'altra: il movimento torna fluido, indolore,
-              silenzioso.</span>
+              dell'articolazione. Le ossa smettono di sfregare l'una contro l'altra: il movimento torna fluido,
+              indolore, silenzioso.</span>
           </li>
           <li>
             <font>Protezione e prevenzione a lungo termine:</font>
-            <span>L'estratto di robinia rafforza legamenti e tendini, prevenendo futuri danni. Dopo 30-60 giorni,
-              l'articolazione ottiene una protezione stabile che si mantiene per mesi.</span>
+            <span>L'estratto di robinia e il complesso di principi attivi rafforzano legamenti e tendini,
+              prevenendo futuri danni. Dopo 30-60 giorni, l'articolazione ottiene una protezione stabile che
+              si mantiene per mesi.</span>
           </li>
         </ol>
       </div>
     </div>
 
     <h2>
-      Giorno per giorno: cosa è successo dopo la prima applicazione
-      <span>Teresa racconta con la precisione di chi insegnava italiano — e non credeva che potesse funzionare</span>
+      I risultati del test clinico — 2340 persone tra i 45 e gli 86 anni
+      <span>Tutti i tipi di patologie articolari: ginocchia, anche, colonna, mani, collo</span>
     </h2>
 
     <p>
-      Il gel è arrivato in quattro giorni. Ho cominciato di lunedì — mattina e sera, applicato su ginocchia e anca,
-      massaggiando delicatamente per due-tre minuti.
+      Arthrovia è stato testato su un gruppo di oltre 2300 persone in tutta Italia, coprendo tutti i tipi di
+      problemi articolari. I risultati hanno sorpreso anche i ricercatori coinvolti nello studio.
     </p>
 
     <div class="table-block">
-      <h1 class="title_h1">Diario di recupero — Teresa, 67 anni, coxartrosi + gonartrosi bilaterale</h1>
-      <table class="table">
-        <tbody>
-          <tr>
-            <td class="one">Martedì mattina — nessuna fitta al risveglio, solo un calore leggero</td>
-            <td class="two">✓</td>
-          </tr>
-          <tr>
-            <td class="one">Mercoledì — dalla camera al bagno senza appoggiarsi al muro</td>
-            <td class="two">✓</td>
-          </tr>
-          <tr>
-            <td class="one">Venerdì — gonfiore al ginocchio sinistro visibilmente ridotto</td>
-            <td class="two">✓</td>
-          </tr>
-          <tr>
-            <td class="one">Dopo 1 settimana — scese le scale da sola (12 gradini)</td>
-            <td class="two">✓</td>
-          </tr>
-          <tr>
-            <td class="one">Dopo 2 settimane — tornata al supermercato dove era caduta, in piedi alla cassa</td>
-            <td class="two">✓</td>
-          </tr>
-          <tr>
-            <td class="one">Dopo 1 mese — Emma è venuta a dormire: Teresa faceva le polpette in cucina</td>
-            <td class="two">✓</td>
-          </tr>
-          <tr>
-            <td class="one">Dopo 2 mesi — cammina ogni giorno, anca non scricchiola più, gonfiore sparito</td>
-            <td class="two">✓</td>
-          </tr>
-          <tr>
-            <td class="one">La brochure della casa di riposo — strappata davanti a Paola</td>
-            <td class="two">✓</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p>
-      Martedì mattina mi sono svegliata e ho mosso le gambe. Di solito le mattine erano un incubo — ginocchia e anca
-      si accendevano come braci. Quella mattina <b>solo un calore leggero, quasi piacevole.</b> Ho pensato fosse un
-      caso.
-    </p>
-    <p>
-      Mercoledì. Stessa cosa. Dalla camera al bagno senza appoggiarmi al muro. <i>Non me ne sono accorta finché non
-        ero già lì.</i>
-    </p>
-    <p>
-      Venerdì. Il gonfiore al ginocchio sinistro — quello della caduta — si era visibilmente ridotto.
-    </p>
-    <p>
-      Dopo una settimana ho aperto la porta di casa. Sono scesa le scale. Dodici gradini. Piano, con la mano sulla
-      ringhiera. Ma da sola.
-    </p>
-    <p>
-      Dopo due settimane sono andata al supermercato. <b>Quello dove ero caduta.</b> Ho preso un carrello, ho fatto
-      la spesa, ho pagato alla cassa. La cassiera — la stessa che mi aveva aiutata — mi ha guardata e ha detto:
-      <i>„Signora! Si ricorda di me?"</i> Le ho sorriso. Questa volta ero in piedi.
-    </p>
-
-    <h2>
-      „Emma è entrata, mi ha vista in piedi in cucina — e ha corso ad abbracciarmi così forte che ho quasi perso
-      l'equilibrio"
-      <span>Ma non sono caduta. Questa volta non sono caduta.</span>
-    </h2>
-
-    <div class="gray-bg rev-block">
-      <img class="img-card2" src="https://static.joxi.pro/1778142925769-ab7d1e11-8df2-44ee-b472-2a3be72bb7b3.jpg">
-      <p>
-        „Dopo un mese ho chiamato Emma. Le ho detto: <b>«Vieni a dormire dalla nonna venerdì?»</b> Silenzio. Poi:
-        <b>«Davvero, nonna? Posso?»</b>
-      </p>
-      <p>
-        <b>
-          Venerdì sera Emma è arrivata con il pigiama nello zaino. Ha aperto la porta, mi ha vista in piedi in cucina
-          che facevo le polpette — le sue preferite. È corsa ad abbracciarmi così forte che ho quasi perso
-          l'equilibrio. Ma non sono caduta. Non sono caduta.
-        </b>
-      </p>
-      <p>
-        Sono passati due mesi. Cammino ogni giorno. Faccio la spesa da sola. Le scale non mi fanno più paura. L'anca
-        destra non scricchiola più. Il gonfiore è sparito.
-      </p>
-      <p>
-        <b>
-          La brochure della casa di riposo l'ho strappata davanti a Paola. Lei mi ha abbracciata e ha pianto.
-        </b>
-      </p>
-      <font>
-        <b>Teresa, 67 anni, Napoli — insegnante di italiano per trentacinque anni</b>
-      </font>
-    </div>
-
-    <h2>
-      I sintomi che non vanno ignorati — e che portano dritti a dove era Teresa
-      <span>Milioni di italiani li hanno. In pochi sanno cosa significano davvero.</span>
-    </h2>
-
-    <p><b>Questi sono i segnali che le articolazioni stanno cedendo:</b></p>
-    <ul>
-      <li>Forte dolore all'anca o al ginocchio nel camminare — peggiora nelle scale;</li>
-      <li>Rigidità mattutina — il corpo „di legno" per 30-60 minuti dopo il risveglio;</li>
-      <li>Scricchiolio o crepitio nelle articolazioni a ogni passo;</li>
-      <li>Gonfiore alle ginocchia, caviglie o dita — spesso peggio la mattina;</li>
-      <li>Dolore cronico alla colonna — non riesci a piegarti né ad alzarti dal letto;</li>
-      <li>Dolore all'anca che si irradia alla coscia — non riesci a camminare più di 50 metri;</li>
-      <li>Paura di cadere sulle scale — ti aggrappi alla ringhiera anche scendendo;</li>
-      <li>Intorpidimento alle gambe — segno di nervo compresso o ernia;</li>
-      <li>Dolore notturno che sveglia 3-4 volte a notte;</li>
-      <li>Sensazione di instabilità — le gambe „cedono" improvvisamente;</li>
-      <li>Dita delle mani gonfie, nodose — non riesci ad afferrare gli oggetti con forza;</li>
-    </ul>
-
-    <p>
-      Ciascuno di questi sintomi è un segnale d'allarme. Teresa li aveva tutti — e li ha ignorati finché non è caduta
-      in un supermercato davanti a una bambina di nove anni. <b class="red-txt">Ignorarli porta a un solo finale:
-        immobilità, dipendenza, vergogna — e qualcuno che ti porta una brochure di casa di riposo.</b>
-    </p>
-
-    <div class="pachino-ramka312-block">
-      <p class="pachino-ramka312">
-        <span class="obertka-1">
-          Ogni giorno trascorso con le articolazioni non curate vi avvicina all'immobilità permanente.
-          Teresa ha perso tre mesi della sua vita chiusa in casa — e duemila euro in farmacia — prima di trovare
-          qualcosa che funzionasse davvero. Non aspettate la prossima caduta.
-        </span>
-      </p>
-    </div>
-
-    <h2>
-      Risultati del test clinico — 2340 persone, 45-86 anni
-      <span>Tutti i tipi di problemi articolari: ginocchia, anche, colonna, mani, collo</span>
-    </h2>
-
-    <div class="table-block">
-      <h1 class="title_h1">
-        Risultati del test clinico „Arthrovia" — 2340 persone, 45-86 anni
-      </h1>
+      <h1 class="title_h1">Risultati del test clinico „Arthrovia" — 2340 persone, 45-86 anni</h1>
       <table class="table">
         <tbody>
           <tr>
@@ -760,11 +614,11 @@
             <td class="two">98,1%</td>
           </tr>
           <tr>
-            <td class="one">Artrosi 3° grado (miglioramento significativo)</td>
+            <td class="one">Artrosi 3° grado (miglioramento significativo della mobilità)</td>
             <td class="two">87,3%</td>
           </tr>
           <tr>
-            <td class="one">Ernia del disco (riduzione del dolore e intorpidimento)</td>
+            <td class="one">Ernia del disco (riduzione del dolore e dell'intorpidimento)</td>
             <td class="two">89,4%</td>
           </tr>
           <tr>
@@ -787,31 +641,69 @@
       </table>
     </div>
 
+    <h2>
+      Casi documentati durante il test — persone che avevano perso la speranza
+    </h2>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1778142925769-b234c916-2418-43cd-a09b-52da3b198c19.jpg">
+      <p>
+        „Non credevo che avrei mai potuto camminare di nuovo. Le mie ginocchia erano così gonfie che non riuscivo
+        a piegarle. La mattina mi svegliavo e non riuscivo a muovere nemmeno un dito per un'ora. Era come se il
+        mio corpo fosse morto, ma io fossi ancora viva.
+      </p>
+      <p>
+        <b>Dopo una settimana di Arthrovia riuscivo a piegare il ginocchio sinistro. Dopo un mese mi sono alzata
+          dal letto da sola. Dopo due mesi sono uscita in giardino — non uscivo da 3 anni. L'infermiera piangeva
+          quando mi ha vista. Io piangevo di più."</b>
+      </p>
+      <font>
+        <b>Maria F., 84 anni, Napoli — artrosi 3° grado, non camminava da 14 mesi</b>
+      </font>
+    </div>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1778142925769-f6ae7d5d-d93a-42f5-8684-d3c285fbc8bf.jpg">
+      <p>
+        „Sono stato muratore per 30 anni. La colonna ha ceduto a 54 anni — due ernie del disco e sciatica. Non
+        potevo né stare in piedi né stare sdraiato. Mia moglie se n'è andata.
+      </p>
+      <p>
+        <b>Ho iniziato ad applicare Arthrovia sulla colonna, mattina e sera. Al terzo giorno ho sentito il primo
+          sollievo. Dopo 3 settimane potevo andare al negozio. Dopo 2 mesi sono tornato a lavorare part-time.
+          A volte mi alzo dal letto senza dolore e mi fermo un secondo — non riesco ancora a credere che
+          sia vero."</b>
+      </p>
+      <font>
+        <b>Franco R., 58 anni, Bergamo — ernia del disco L4-L5, sciatica</b>
+      </font>
+    </div>
+
     <center>
-      <p><b>Alcuni dei casi documentati durante i test:</b></p>
+      <p><b>Ulteriori casi documentati nel corso del test:</b></p>
     </center>
 
     <figure>
       <img src="https://static.joxi.pro/1778142925769-baf151ad-77dc-450d-9a89-3293efafacfa.jpg">
-      <figcaption>Donna, 64 anni, Napoli. Gonartrosi 3° grado, non riusciva a salire le scale. Arthrovia in 60 giorni:
-        mobilità completa, senza dolore.</figcaption>
+      <figcaption>Donna, 65 anni. Gonartrosi 3° grado a entrambe le ginocchia — non riusciva a salire le scale.
+        Arthrovia in 60 giorni: mobilità completa, senza dolore.</figcaption>
     </figure>
 
     <figure>
       <img class="img-card" src="https://static.joxi.pro/1778142925768-f19f7f66-3e45-449a-87f2-78884ec5e6e1.jpg">
-      <figcaption>Donna, 61 anni. Dolore cronico all'anca e colonna, ernia L5-S1. Arthrovia in 45 giorni: dolore
+      <figcaption>Donna, 61 anni. Dolore cronico alla colonna e ernia L5-S1. Arthrovia in 45 giorni: dolore
         eliminato, riesce di nuovo a fare i lavori domestici.</figcaption>
     </figure>
 
     <figure>
       <img class="img-card" src="https://static.joxi.pro/1778142925768-7d23b447-1714-413e-b3dd-921918111aa3.jpg">
-      <figcaption>Donna, 70 anni. Artrite reumatoide grave alle dita — non riusciva a tenere una tazza. Arthrovia in 2
-        mesi: dita mobili, gonfiore scomparso.</figcaption>
+      <figcaption>Donna, 70 anni. Artrite reumatoide grave alle dita — non riusciva a tenere una tazza. Arthrovia
+        in 2 mesi: dita mobili, gonfiore scomparso.</figcaption>
     </figure>
 
     <figure>
       <img class="img-card" src="https://static.joxi.pro/1778142925768-4a9900ea-fa77-4c81-a40e-dff210ebf7df.jpg">
-      <figcaption>Uomo, 68 anni. Coxartrosi avanzata — camminava solo con il deambulatore. Arthrovia in 2,5 mesi:
+      <figcaption>Uomo, 70 anni. Coxartrosi avanzata — camminava solo con il deambulatore. Arthrovia in 2,5 mesi:
         cammina da solo, senza dolore.</figcaption>
     </figure>
 
@@ -820,22 +712,22 @@
     </h2>
 
     <p>
-      La produzione di Arthrovia è un processo complesso e costoso. Gli ingredienti — estratto di artiglio del diavolo,
+      La produzione di Arthrovia è un processo complesso. Gli ingredienti — estratto di artiglio del diavolo,
       acido boswellico concentrato, arnica in alta concentrazione — sono difficili da reperire nelle quantità
-      necessarie. Non è possibile soddisfare tutta la domanda.
+      necessarie. La tecnologia di riduzione in nanoparticelle richiede attrezzature specializzate. Per questi
+      motivi la distribuzione avviene esclusivamente online, nell'ambito di programmi periodici a disponibilità
+      limitata.
     </p>
     <p>
-      Servono almeno 2-3 anni prima che Arthrovia arrivi in farmacia. Fino ad allora, il prodotto è distribuito
-      esclusivamente online, nell'ambito dei programmi di sostegno, due volte all'anno. Gli sconti possono raggiungere
-      il <font class="red-txt">50%</font> — fondamentale per chi vive con una pensione.
+      Servono almeno 2-3 anni prima che Arthrovia arrivi in farmacia. Fino ad allora gli sconti possono
+      raggiungere il <font class="red-txt">50%</font> — fondamentale per chi vive con una pensione.
+      <b>Un tubetto costa meno di una settimana di creme convenzionali in farmacia. Pagamento alla consegna —
+      nessun anticipo.</b>
     </p>
     <p>
-      <b>Un tubetto di Arthrovia costa meno di una settimana delle vecchie cure di Teresa in farmacia.</b>
-      Pagamento alla consegna — non si anticipa nulla.
-    </p>
-    <p>
-      Quando Teresa ha ordinato, il giorno dopo era già esaurito. Ha aspettato due settimane che tornasse disponibile.
-      <font class="red-txt"><b>Due settimane in più alla finestra. Non fate lo stesso errore.</b></font>
+      Le scorte si esauriscono rapidamente. Chi ha ordinato e trovato il prodotto esaurito ha dovuto aspettare
+      anche due settimane per la disponibilità successiva.
+      <font class="red-txt"><b>Non rimandare.</b></font>
     </p>
 
     <p class="red-txt"><b>Per effettuare l'ordine, utilizzate il modulo qui sotto.</b></p>
@@ -848,23 +740,21 @@
       style="margin:0 auto;display:block;max-width:500px;width:100%;margin-top:24px;margin-bottom:20px">
 
     <p>
-      Sono state riservate 20.000 confezioni per i lettori di questo portale. Ogni cittadino italiano sopra i 40 anni
-      può ricevere uno <font class="red-txt">sconto fino al 50%</font>, ma il programma termina il <span>
-        <script>dtime_nums(0, true)</script>
-      </span>.
+      Sono state riservate 20.000 confezioni per i lettori di questo portale. Ogni cittadino italiano sopra i
+      40 anni può ricevere uno <font class="red-txt">sconto fino al 50%</font>, ma il programma termina il
+      <span><script>dtime_nums(0, true)</script></span>.
     </p>
 
     <p>
-      Non aspettate la prossima caduta. Non aspettate che vostra figlia entri con le chiavi di riserva e vi trovi in
-      vestaglia alle quattro del pomeriggio. Non aspettate che vi portino una brochure di casa di riposo.
+      Non aspettate che le ginocchia cedano completamente. Non aspettate la prossima caduta. Non aspettate che
+      qualcuno vi porti una brochure di casa di riposo. Arthrovia ha un effetto cumulativo: prima si inizia,
+      più cartilagine si preserva.
     </p>
 
     <p>
-      Inserite il vostro nome e numero di telefono. Un consulente vi contatterà, sceglierà il programma adatto e
-      organizzerà la consegna in 2-3 giorni direttamente all'indirizzo indicato.
+      Inserite il vostro nome e numero di telefono. Un consulente vi contatterà, sceglierà il programma adatto
+      e organizzerà la consegna in 2-3 giorni direttamente all'indirizzo indicato.
     </p>
-
-    <p><b>Teresa, 67 anni, Napoli — insegnante di italiano per trentacinque anni. Oggi cammina ogni giorno. E fa le polpette per Emma.</b></p>
 
     <p class="pachino-ramka">
       <span class="ramka-title">Aggiornamento: <span>
@@ -880,8 +770,8 @@
 
     <center>
       <p class="noclose-cta red-txt">
-        Attenzione! Non chiudete e non ricaricate la pagina, altrimenti la confezione di Arthrovia riservata per voi
-        sarà assegnata a un'altra persona!
+        Attenzione! Non chiudete e non ricaricate la pagina, altrimenti la confezione di Arthrovia riservata per
+        voi sarà assegnata a un'altra persona!
       </p>
       <span class="pre-cta">
         Potete approfittare dell'offerta — il vostro posto è riservato:
@@ -903,8 +793,8 @@
         </div>
       </div>
       <div class="pachinoform_order">
-        Per usufruire dello <b>sconto del 50%</b>, inserite il vostro nome e numero di telefono nei campi sottostanti e
-        premete il pulsante „ORDINA".
+        Per usufruire dello <b>sconto del 50%</b>, inserite il vostro nome e numero di telefono nei campi
+        sottostanti e premete il pulsante „ORDINA".
       </div>
       <div class="pachinoform_value">
         In magazzino:
@@ -942,7 +832,7 @@
       </div>
     </div>
 
-    <!-- COMMENTS SECTION -->
+    <!-- COMMENTS -->
     <div class="comments comments-fb" id="pluginComments">
       <div class="comments__header">
         <div class="comments__left-box">
@@ -961,9 +851,9 @@
             </div>
           </div>
           <div class="comments__item-body">
-            <p class="comments__item-content">Ho pianto leggendo di Emma che chiedeva aiuto agli sconosciuti. Mia madre
-              ha 71 anni e anche lei è caduta — in casa, in bagno. Da allora ha paura di camminare. Non esce più. Ho
-              ordinato Arthrovia per lei oggi stesso. Non voglio che finisca come Teresa alla finestra.</p>
+            <p class="comments__item-content">Ho pianto leggendo la storia di Teresa e di Emma. Mia madre ha 71 anni
+              e anche lei ha smesso di uscire — per la stessa vergogna, dopo una caduta in strada. Le ho ordinato
+              Arthrovia oggi stesso. Non voglio che finisca a guardare la vita dalla finestra.</p>
           </div>
         </div>
 
@@ -977,10 +867,9 @@
               </div>
             </div>
             <div class="comments__item-body">
-              <p class="comments__item-content">Ho ricevuto Arthrovia venerdì scorso. Lo applico su ginocchio e anca,
-                mattina e sera. Dopo 5 giorni — il dolore si è ridotto enormemente, riesco a scendere le scale senza
-                tenermi alla ringhiera. Anche io ero rimasta a casa per mesi. La storia di Teresa mi ha riconosciuta
-                in tutto.</p>
+              <p class="comments__item-content">Ho ricevuto Arthrovia venerdì scorso. Lo applico su ginocchio e anca
+                mattina e sera. Dopo 5 giorni il dolore si è ridotto moltissimo, riesco a scendere le scale senza
+                tenermi alla ringhiera. Anch'io mi ero chiusa in casa. Mi riconosco in ogni parola di quell'articolo.</p>
             </div>
           </div>
         </div>
@@ -994,9 +883,9 @@
             </div>
           </div>
           <div class="comments__item-body">
-            <p class="comments__item-content">Ho 66 anni, ex maestra. La stessa storia di Teresa — le scale, le
-              infiltrazioni, i farmaci che mi hanno distrutto lo stomaco. Dopo 3 settimane con Arthrovia il dolore è
-              quasi sparito. Vado da sola al mercato, cucino, mi prendo cura di me. Ho ritrovato la mia vita.</p>
+            <p class="comments__item-content">Ho 69 anni. Colonna, ernia, sciatica. I medici mi davano
+              antinfiammatori che mi hanno distrutto lo stomaco — esattamente come scritto qui. Dopo 3 settimane con
+              Arthrovia il dolore è quasi sparito. Vado da sola al mercato. Ho ritrovato la mia vita.</p>
           </div>
         </div>
 
@@ -1009,9 +898,9 @@
             </div>
           </div>
           <div class="comments__item-body">
-            <p class="comments__item-content">Mia moglie ha 64 anni, ha smesso di uscire per la vergogna — come Teresa.
-              Coxartrosi avanzata. Dopo 5 settimane con Arthrovia ieri è andata al mercato da sola per la prima volta
-              in quattro mesi. Quando è tornata con le borse aveva gli occhi lucidi. Anch'io.</p>
+            <p class="comments__item-content">Mia moglie aveva smesso di uscire da mesi — coxartrosi, paura di cadere.
+              Dopo 5 settimane di Arthrovia ieri è andata al mercato da sola per la prima volta. Quando è tornata con
+              le borse aveva gli occhi lucidi. Anch'io.</p>
           </div>
         </div>
 
@@ -1025,8 +914,8 @@
           </div>
           <div class="comments__item-body">
             <p class="comments__item-content">Ho ordinato per mia madre (ginocchia), per mia suocera (anca) e per me
-              (colonna). La storia di Emma che chiedeva aiuto agli sconosciuti mi ha fatto pensare ai miei figli. Non
-              voglio che li miei nipoti vivano quella scena. Grazie per questo articolo.</p>
+              (colonna). L'immagine di Emma che chiedeva aiuto agli sconosciuti mi ha fatto pensare ai miei figli.
+              Non voglio che passino per quella scena. Grazie per questo articolo.</p>
           </div>
         </div>
 
@@ -1039,9 +928,9 @@
             </div>
           </div>
           <div class="comments__item-body">
-            <p class="comments__item-content">Mio padre ha 74 anni, coxartrosi, non esce più. I medici dicono „è
-              l'età". Ho letto di Teresa e ho ordinato Arthrovia subito. Pensate che possa ancora aiutare a 74 anni
-              con un'artrosi così avanzata?</p>
+            <p class="comments__item-content">Mio padre ha 74 anni, coxartrosi, non esce più. I medici dicono
+              „è l'età". Ho letto l'articolo e ho ordinato Arthrovia subito. Pensate che possa ancora funzionare
+              a 74 anni con un'artrosi avanzata?</p>
           </div>
         </div>
 
@@ -1055,9 +944,8 @@
               </div>
             </div>
             <div class="comments__item-body">
-              <p class="comments__item-content">Adriana, mia madre ha 78 anni — coxartrosi grave, non scendeva dal
-                letto. Arthrovia in 2 mesi: ora esce nel cortile da sola. L'età non è una condanna, ordina senza
-                esitare.</p>
+              <p class="comments__item-content">Adriana, mia madre ha 79 anni — coxartrosi grave. Arthrovia in 2
+                mesi: ora esce nel cortile da sola. L'età non è una condanna, ordina senza esitare.</p>
             </div>
           </div>
         </div>
@@ -1072,8 +960,8 @@
               </div>
             </div>
             <div class="comments__item-body">
-              <p class="comments__item-content">Adriana, io a 76 anni ero a un passo dalla sedia a rotelle —
-                coxartrosi identica. Arthrovia in 2 mesi mi ha rimesso in piedi. Tuo padre ne ha bisogno.</p>
+              <p class="comments__item-content">Adriana, io a 76 anni ero a un passo dalla sedia a rotelle.
+                Arthrovia in 2 mesi mi ha rimesso in piedi. Letteralmente. Tuo padre ne ha bisogno.</p>
             </div>
           </div>
         </div>
@@ -1087,9 +975,9 @@
             </div>
           </div>
           <div class="comments__item-body">
-            <p class="comments__item-content">Una settimana di Arthrovia su ginocchia e zona lombare. La mattina non
-              sono più „di legno". Riesco a piegarmi, ad alzarmi senza „ahi!". La storia di Teresa mi ha commossa —
-              anch'io ero rimasta a casa per la vergogna dopo una brutta caduta. Finalmente mi sento capita.</p>
+            <p class="comments__item-content">Una settimana di Arthrovia su ginocchia e zona lombare. La mattina
+              non sono più „di legno". Riesco a piegarmi, ad alzarmi senza „ahi!". Mi sono riconosciuta nella
+              storia: anch'io ero rimasta a casa per la vergogna dopo una caduta. Finalmente mi sento capita.</p>
           </div>
         </div>
 
@@ -1102,9 +990,9 @@
             </div>
           </div>
           <div class="comments__item-body">
-            <p class="comments__item-content">Anche io mi chiamo Teresa, 65 anni, pensionata. Le ginocchia mi avevano
-              paralizzato. Dopo 4 settimane con Arthrovia ho vangato la prima aiuola in due anni. I miei nipoti erano
-              lì che mi guardavano a bocca aperta. Quel momento vale tutto.</p>
+            <p class="comments__item-content">Anche io mi chiamo Teresa, 65 anni. Le ginocchia mi avevano
+              paralizzato. Dopo 4 settimane con Arthrovia ho vangato la prima aiuola in due anni. I miei nipoti
+              erano lì che mi guardavano a bocca aperta. Quel momento vale tutto.</p>
           </div>
         </div>
 
@@ -1117,9 +1005,9 @@
             </div>
           </div>
           <div class="comments__item-body">
-            <p class="comments__item-content">Ho 79 anni. L'anno scorso non riuscivo ad arrivare al bagno da solo.
-              I figli parlavano della struttura. Come Teresa. Ho provato Arthrovia — e funziona! Cammino da solo, esco
-              da solo. I miei figli non parlano più della struttura. Questa è la mia gioia più grande.</p>
+            <p class="comments__item-content">Ho 79 anni. L'anno scorso i figli parlavano della struttura. Come
+              nella storia. Ho provato Arthrovia — e funziona. Cammino da solo, esco da solo. I miei figli non
+              parlano più della struttura. Questa è la mia gioia più grande.</p>
           </div>
         </div>
 
@@ -1132,9 +1020,9 @@
             </div>
           </div>
           <div class="comments__item-body">
-            <p class="comments__item-content">Mia moglie non usciva di casa da mesi — anche lei per la vergogna, come
-              Teresa. Paura di cadere davanti agli altri. Ho ordinato Arthrovia. Dopo 4 settimane ieri è andata al
-              mercato da sola ed è tornata con dei fiori. Con dei fiori! Grazie di cuore.</p>
+            <p class="comments__item-content">Mia moglie non usciva di casa da mesi per la vergogna, come la
+              protagonista dell'articolo. Ho ordinato Arthrovia. Dopo 4 settimane ieri è andata al mercato da sola
+              ed è tornata con dei fiori. Con dei fiori! Grazie di cuore.</p>
           </div>
         </div>
 
@@ -1148,8 +1036,8 @@
           </div>
           <div class="comments__item-body">
             <p class="comments__item-content">Ho ordinato 3 confezioni — per mia madre (anca), per mia suocera
-              (ginocchia) e per me (mani, artrite). L'immagine di Emma che chiedeva aiuto agli sconosciuti mi ha
-              distrutta. Ho pensato ai miei figli. Non voglio che passino per quello.</p>
+              (ginocchia) e per me (artrite alle dita). L'immagine di Emma che chiedeva aiuto mi ha distrutta.
+              Ho pensato ai miei figli. Non voglio che passino per quello.</p>
           </div>
         </div>
 
@@ -1162,9 +1050,8 @@
             </div>
           </div>
           <div class="comments__item-body">
-            <p class="comments__item-content">Ho ricevuto Arthrovia — il corriere ha consegnato in 3 giorni! L'ho già
-              applicato sull'anca di mia madre. Incrocio le dita. E ho mandato l'articolo di Teresa a tutta la
-              famiglia con un messaggio: „Leggete prima che sia troppo tardi."</p>
+            <p class="comments__item-content">Ho ricevuto Arthrovia in 3 giorni! Già applicato sull'anca di mia
+              madre. Ho mandato l'articolo a tutta la famiglia: „Leggete prima che sia troppo tardi."</p>
           </div>
         </div>
 
@@ -1177,9 +1064,9 @@
             </div>
           </div>
           <div class="comments__item-body">
-            <p class="comments__item-content">Ho cercato Arthrovia in farmacia — non c'è. Mi hanno detto di ordinarlo
-              online. Spero sia ancora disponibile. Mia nonna ha 80 anni, coxartrosi, e mia figlia di 8 anni le chiede
-              sempre „nonna perché non vieni con noi?" Voglio cambiare questa storia.</p>
+            <p class="comments__item-content">Ho cercato Arthrovia in farmacia — non c'è. Mi hanno detto di
+              ordinarlo online. Spero sia ancora disponibile. Mia nonna ha 80 anni, coxartrosi, e mia figlia di
+              8 anni le chiede sempre „nonna perché non vieni con noi?" Voglio cambiare questa storia.</p>
           </div>
         </div>
 
