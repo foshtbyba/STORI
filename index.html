@@ -5,15 +5,15 @@
     <meta content="IE=edge" http-equiv="X-UA-Compatible" />
     <meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport"/>
     <title>Special Giveaway</title>
-    <link href="css/styles.css" media="all" rel="stylesheet" />
-    <link href="css/css.css" media="all" rel="stylesheet" />
     <link rel="icon" href="favicon.ico" />
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
       referrerpolicy="no-referrer"
     ></script>
     <style>
+      /* hard reset — before anything from external CSS */
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      h1, h2, h3, h4, h5, h6, p { font-weight: inherit; font-size: inherit; margin: 0; }
 
       :root {
         --red: #cc0000;
@@ -21,7 +21,6 @@
         --border: #e0e0e0;
         --green: #2e7d32;
         --bg: #f2f2f2;
-        /* form palette — calmer tones */
         --form-accent: #b71c1c;
         --form-border: #d4d4d4;
         --form-bg: #fafafa;
@@ -38,12 +37,11 @@
         line-height: 1.6;
       }
 
-      /* ── FAKE NEWS HEADER ── */
+      /* ── NEWS HEADER ── */
       .news-header {
         background: #fff;
         border-bottom: 3px solid var(--red);
         box-shadow: 0 2px 6px rgba(0,0,0,.12);
-        margin-bottom: 0;
       }
       .news-header__inner {
         max-width: 900px;
@@ -63,11 +61,7 @@
       }
       .news-logo em  { color: var(--red); font-style: normal; }
       .news-logo span { color: var(--dark); }
-      .news-header__meta {
-        font-size: 11px;
-        color: #888;
-        text-align: right;
-      }
+      .news-header__meta { font-size: 11px; color: #888; text-align: right; }
       .news-nav {
         background: var(--dark);
         display: flex;
@@ -93,34 +87,24 @@
         max-width: 900px;
         margin: 0 auto;
         background: #fff;
-        padding: 0;
       }
 
-      /* ── CHEST / TOP BLOCK ── */
-      .chest {
-        border-bottom: 1px solid var(--border);
-      }
-      .top_block {
-        padding: 24px 22px 18px;
-        background: #fff;
-      }
-      .top_block h1 {
+      /* ── TOP BLOCK ── */
+      .top_block { padding: 22px 20px 16px; background: #fff; border-bottom: 1px solid var(--border); }
+      .top_block__headline {
         font-family: Georgia, 'Times New Roman', serif;
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 700;
-        line-height: 1.3;
+        line-height: 1.35;
         color: var(--dark);
-        margin-bottom: 10px;
+        margin-bottom: 12px;
       }
-      .top_block h1 .productName {
-        color: var(--red);
-        font-style: italic;
-      }
+      .top_block__headline .productName { color: var(--red); font-style: italic; }
       .vis_big {
         background: #fff8f8;
         border-left: 4px solid var(--red);
         padding: 10px 14px;
-        font-size: 15px;
+        font-size: 14px;
         color: #333;
         border-radius: 0 4px 4px 0;
       }
@@ -129,34 +113,28 @@
       /* ── SELECT BLOCK ── */
       .select_block {
         background: #f9f9f9;
-        border-top: 1px solid var(--border);
         border-bottom: 1px solid var(--border);
-        padding: 18px 22px;
+        padding: 16px 20px;
       }
       .select_block__title {
         font-family: Georgia, serif;
-        font-size: 17px;
+        font-size: 16px;
         font-weight: 700;
         color: var(--dark);
         margin-bottom: 8px;
-        line-height: 1.35;
+        line-height: 1.4;
       }
-      .select_block__title span[style] { color: var(--red) !important; }
-      .text_big {
-        font-size: 14px;
-        color: #555;
-        line-height: 1.65;
-      }
+      .select_block__title .alert-word { color: var(--red); }
+      .text_big { font-size: 14px; color: #555; line-height: 1.65; }
       .text_big .productName { color: var(--red); font-weight: 700; }
 
-      /* ── CHEST IMG PACK ── */
+      /* ── CHEST SECTION ── */
       .chest__img_pack {
-        padding: 24px 22px 30px;
+        padding: 24px 20px 30px;
         background: #fff;
         text-align: center;
+        border-bottom: 1px solid var(--border);
       }
-
-      .chest__title_wrap { margin-bottom: 18px; }
       .chest__title {
         font-family: Georgia, serif;
         font-size: 20px;
@@ -167,26 +145,23 @@
       .chest__subtitle {
         font-size: 15px;
         color: #555;
-        font-weight: 400;
+        margin-bottom: 22px;
       }
-      .chest__subtitle .danger-text {
-        color: var(--red);
-        font-weight: 700;
-      }
+      .chest__subtitle .danger-text { color: var(--red); font-weight: 700; }
 
-      /* chest button area */
+      /* static chest + button */
       .chest__button {
-        display: inline-flex;
+        display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 14px;
-        margin-bottom: 10px;
+        gap: 16px;
       }
       .chest__button .saleBox {
-        max-width: 220px;
+        max-width: 200px;
         width: 100%;
-        filter: drop-shadow(0 6px 18px rgba(204,0,0,.22));
+        filter: drop-shadow(0 6px 18px rgba(204,0,0,.2));
         transition: transform .2s;
+        cursor: pointer;
       }
       .chest__button .saleBox:hover { transform: scale(1.04); }
 
@@ -195,14 +170,14 @@
         color: #fff;
         border: none;
         border-radius: 6px;
-        padding: 14px 42px;
-        font-size: 16px;
+        padding: 14px 48px;
+        font-size: 17px;
         font-weight: 900;
         font-family: 'Arial Black', Arial, sans-serif;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
         cursor: pointer;
         text-transform: uppercase;
-        box-shadow: 0 4px 16px rgba(204,0,0,.35);
+        box-shadow: 0 4px 18px rgba(204,0,0,.38);
         transition: background .18s, transform .12s;
         position: relative;
         overflow: hidden;
@@ -213,61 +188,58 @@
         inset: 0;
         background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.18) 50%, transparent 65%);
         background-size: 200%;
-        animation: shine 2.8s infinite;
+        animation: shine 2.6s infinite;
       }
       @keyframes shine { 0%{background-position:200%} 100%{background-position:-200%} }
       #pushChest:hover { background: #a00000; transform: translateY(-2px); }
       #pushChest:active { transform: translateY(0); }
 
-      /* dynamic / opened states */
-      .chest__img--dinamic { display: none; }
-      .chest__coins { display: none; }
+      /* animation & opened states — hidden by default via inline style, revealed by JS */
+      .chest__anim { text-align: center; }
+      .chest__anim img { max-width: 300px; width: 100%; }
 
-      /* ── ORDER / FORM SECTION ── */
-      .chest__order { display: none; }
+      .chest__coins { text-align: center; margin-bottom: 24px; }
+      .chest__coins img { max-width: 300px; width: 100%; }
 
-      /* ── FORM — calmer palette ── */
+      /* ── ORDER FORM ── */
       .my_form {
         background: var(--form-bg);
         border: 1px solid var(--form-border);
         border-radius: 10px;
-        padding: 26px 22px;
-        max-width: 480px;
+        padding: 24px 20px;
+        max-width: 460px;
         margin: 0 auto;
         text-align: center;
-        box-shadow: 0 4px 20px rgba(0,0,0,.08);
+        box-shadow: 0 4px 20px rgba(0,0,0,.07);
       }
-
       .prodImg {
         display: block;
-        margin: 0 auto 16px;
+        margin: 0 auto 14px;
         filter: drop-shadow(0 4px 12px rgba(0,0,0,.12));
       }
-
       .text_popup {
         font-family: Georgia, serif;
-        font-size: 16px;
+        font-size: 15px;
         color: #444;
-        line-height: 1.55;
+        line-height: 1.6;
         margin-bottom: 6px;
       }
-      /* "Congratulations!" line */
       .text_popup .congrats-line {
         display: block;
-        font-size: 20px;
+        font-size: 19px;
         font-weight: 900;
         color: var(--form-success);
-        margin-bottom: 4px;
+        margin-bottom: 6px;
         font-family: 'Arial Black', Arial, sans-serif;
       }
       .text_popup .productName { color: #8b1c1c; font-weight: 700; font-style: italic; }
       .text_popup b { color: #8b1c1c; }
 
-      /* price tag inside form */
       .form-price-row {
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-wrap: wrap;
         gap: 8px;
         background: var(--form-price-bg);
         border: 1px solid var(--form-border);
@@ -275,9 +247,9 @@
         padding: 10px 14px;
         margin: 14px 0 18px;
       }
-      .form-price-row .p-old { text-decoration: line-through; color: #aaa; font-size: 14px; }
+      .form-price-row .p-old { text-decoration: line-through; color: #aaa; font-size: 13px; }
       .form-price-row .p-new { font-size: 26px; font-weight: 900; color: var(--form-accent); font-family: 'Arial Black', Arial, sans-serif; }
-      .form-price-row .p-cur { font-size: 14px; font-weight: 700; color: var(--form-accent); }
+      .form-price-row .p-cur { font-size: 13px; font-weight: 700; color: var(--form-accent); }
       .form-price-row .p-badge {
         background: var(--form-badge-bg);
         color: #fff;
@@ -287,7 +259,6 @@
         padding: 3px 10px;
       }
 
-      /* field labels */
       .field-lbl {
         display: block;
         text-align: left;
@@ -297,7 +268,6 @@
         margin-bottom: 5px;
         letter-spacing: .3px;
       }
-
       .input-roulette {
         width: 100%;
         border: 1px solid #d4d4d4;
@@ -306,11 +276,10 @@
         font-size: 15px;
         font-family: Arial, sans-serif;
         color: var(--dark);
-        margin-bottom: 12px;
         background: #fff;
+        margin-bottom: 12px;
         outline: none;
         transition: border-color .2s, box-shadow .2s;
-        appearance: none;
         display: block;
       }
       .input-roulette:focus {
@@ -326,7 +295,7 @@
         border: none;
         border-radius: 7px;
         padding: 16px;
-        font-size: 17px;
+        font-size: 16px;
         font-weight: 900;
         font-family: 'Arial Black', Arial, sans-serif;
         cursor: pointer;
@@ -349,7 +318,6 @@
       .submit-roulette:hover { background: #8b0000; transform: translateY(-1px); }
       .submit-roulette:active { transform: translateY(0); }
 
-      /* trust row */
       .trust-row {
         display: flex;
         justify-content: center;
@@ -357,18 +325,9 @@
         gap: 10px;
         margin-top: 14px;
       }
-      .trust-item {
-        font-size: 11px;
-        color: #999;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-      }
+      .trust-item { font-size: 11px; color: #999; display: flex; align-items: center; gap: 4px; }
 
-      /* ring loading */
-      .ring-loading { display: none; margin: 12px auto 0; }
-
-      /* ── CATEGORY LABEL (decorative) ── */
+      /* ── DECORATIVE ── */
       .art-label {
         display: inline-block;
         background: var(--red);
@@ -380,8 +339,6 @@
         padding: 3px 10px;
         margin-bottom: 10px;
       }
-
-      /* ── VERIFIED BADGE ── */
       .verified-badge {
         display: inline-flex;
         align-items: center;
@@ -404,18 +361,17 @@
         font-size: 11px;
         text-align: center;
         padding: 16px 18px;
-        margin-top: 0;
       }
       .site-footer a { color: #aaa; text-decoration: none; }
 
       /* ── RESPONSIVE ── */
       @media (max-width: 560px) {
-        .top_block h1 { font-size: 18px; }
-        .select_block__title { font-size: 15px; }
+        .top_block__headline { font-size: 17px; }
+        .select_block__title { font-size: 14px; }
         .news-logo { font-size: 18px; }
-        .news-nav a { font-size: 9px; padding: 7px 9px; }
+        .news-nav a { font-size: 9px; padding: 7px 8px; }
         .my_form { padding: 18px 14px; }
-        .form-price-row { flex-wrap: wrap; }
+        #pushChest { padding: 13px 36px; font-size: 16px; }
       }
     </style>
   </head>
@@ -432,49 +388,42 @@
         </div>
       </div>
       <nav class="news-nav">
-        <a href="#" class="nav-link">All News</a>
-        <a href="#" class="nav-link">Kenya</a>
-        <a href="#" class="nav-link active">Health</a>
-        <a href="#" class="nav-link">Medicine</a>
-        <a href="#" class="nav-link">Lifestyle</a>
-        <a href="#" class="nav-link">Science</a>
-        <a href="#" class="nav-link">World</a>
+        <a href="#">All News</a>
+        <a href="#">Kenya</a>
+        <a href="#" class="active">Health</a>
+        <a href="#">Medicine</a>
+        <a href="#">Lifestyle</a>
+        <a href="#">Science</a>
+        <a href="#">World</a>
       </nav>
     </header>
 
     <div class="container">
 
       <!-- TOP LABEL ROW -->
-      <div style="padding: 14px 22px 0; background:#fff;">
+      <div style="padding: 14px 20px 0; background:#fff;">
         <span class="art-label">Exclusive · Health &amp; Medicine</span>
         <span class="verified-badge">✔ Medically Reviewed</span>
       </div>
 
-      <div class="chest">
-        <div class="top_block">
-          <h1>
-            You have been registered for the promotion "<span
-              class="productName"
-              >ProstaGenix</span
-            >"!
-          </h1>
-          <p class="vis_big">
-            <span style="font-weight: 500">
-              Every participant has the chance to receive
-              a natural and effective product for only
-              <b class="new_price_val">6,750</b>&nbsp;<b class="new_price_cur"
-                >KES</b
-              >!</span
-            >
-          </p>
-        </div>
+      <!-- TOP BLOCK -->
+      <div class="top_block">
+        <p class="top_block__headline">
+          You have been registered for the promotion
+          "<span class="productName">ProstaGenix</span>"!
+        </p>
+        <p class="vis_big">
+          Every participant has the chance to receive a natural and effective product
+          for only <b class="new_price_val">6,750</b>&nbsp;<b class="new_price_cur">KES</b>!
+        </p>
       </div>
 
+      <!-- ATTENTION BLOCK -->
       <div class="select_block">
-        <h2 class="select_block__title">
-          <span style="color: red">Attention!</span> Due to the high number of applications,
+        <p class="select_block__title">
+          <span class="alert-word">Attention!</span> Due to the high number of applications,
           we are unable to process every request from every Kenyan citizen.
-        </h2>
+        </p>
         <p class="text_big">
           That is why this special contest was created. Winners are selected one at a time
           and given the exclusive chance to receive
@@ -482,78 +431,67 @@
         </p>
       </div>
 
+      <!-- CHEST SECTION -->
       <div class="chest__img_pack" id="chestImg">
-        <div class="chest__title_wrap">
-          <h3 class="chest__title">Try your luck!</h3>
-          <h3 class="chest__subtitle">
-            Click on the chest and claim your
-            <span class="danger-text">prize</span>!
-          </h3>
+
+        <!-- Title (hidden after open) -->
+        <div id="chestTitleWrap">
+          <p class="chest__title">Try your luck!</p>
+          <p class="chest__subtitle">
+            Click on the chest and claim your <span class="danger-text">prize</span>!
+          </p>
         </div>
 
+        <!-- STATE 1: static chest + button -->
         <div class="chest__button" id="chestButtonWrap">
-          <picture>
-            <source class="chest__img" srcset="images/chest.webp" type="image/webp" />
-            <img
-              src="images/chest.webp"
-              alt=""
-              class="saleBox"
-            />
-          </picture>
+          <img
+            src="images/chest.webp"
+            onerror="this.src='images/chest.png'"
+            alt="Treasure chest"
+            class="saleBox"
+            id="chestImg_static"
+          />
           <button id="pushChest">OPEN</button>
         </div>
 
-        <div class="chest__img--dinamic chest__img" id="chestAnim">
-          <picture>
-            <source srcset="images/chest_animation.webp" type="image/webp" />
-            <img
-              src="images/chest_animation.gif"
-              alt=""
-              style="max-width: 350px; width: 100%"
-            />
-          </picture>
+        <!-- STATE 2: opening animation (hidden) -->
+        <div class="chest__anim" id="chestAnim" style="display:none;">
+          <img
+            src="images/chest_animation.gif"
+            onerror="this.src='images/chest_animation.webp'"
+            alt=""
+          />
         </div>
 
-        <div class="chest__coins" id="chestCoins">
-          <picture class="chest__img chest__img--opened">
-            <source srcset="images/chest_opened.webp" type="image/webp" />
-            <img
-              src="images/chest_opened.png"
-              alt=""
-              style="max-width: 350px; width: 100%"
-            />
-          </picture>
-          <div class="chest__rotate">
-            <picture class="back">
-              <source srcset="images/coin2.webp" type="image/webp" />
-              <img src="images/coin2.png" alt="" style="max-width: 350px; width: 100%" />
-            </picture>
-            <picture class="front">
-              <source srcset="images/coin2.webp" type="image/webp" />
-              <img src="images/coin2.png" alt="" style="max-width: 350px; width: 100%" />
-            </picture>
-          </div>
+        <!-- STATE 3: opened chest (hidden) -->
+        <div class="chest__coins" id="chestCoins" style="display:none;">
+          <img
+            src="images/chest_opened.webp"
+            onerror="this.src='images/chest_opened.png'"
+            alt=""
+          />
         </div>
 
-        <div class="chest__order" id="chestOrder">
+        <!-- STATE 4: order form (hidden) -->
+        <div id="chestOrder" style="display:none;">
           <div class="my_form">
             <img
               src="images/product.png?=v5"
-              alt=""
+              alt="ProstaGenix"
               class="prodImg"
-              style="max-width: 200px"
+              style="max-width: 180px;"
             />
             <div class="text_popup">
               <span class="congrats-line">Congratulations!</span>
               You have just won the chance to receive a package of
-              <span class="productName"> ProstaGenix</span>
+              <span class="productName">ProstaGenix</span>
               for only <b class="new_price_val">6,750</b>&nbsp;<b class="new_price_cur">KES</b>!
             </div>
 
-            <!-- price tag -->
             <div class="form-price-row">
               <span class="p-old">13,500 KES</span>
-              <span class="p-new">6,750</span><span class="p-cur"> KES</span>
+              <span class="p-new">6,750</span>
+              <span class="p-cur">KES</span>
               <span class="p-badge">50% OFF</span>
             </div>
 
@@ -576,7 +514,7 @@
                 id="input-name"
                 placeholder="Enter your full name"
                 autocomplete="name"
-                required=""
+                required
               />
 
               <label class="field-lbl" for="input-phone">📱 Phone Number</label>
@@ -589,19 +527,16 @@
                 id="input-phone"
                 placeholder="Enter your phone number"
                 autocomplete="tel"
-                required=""
+                required
               />
 
               <input type="submit" class="submit-roulette" value="CLAIM NOW" />
 
-              <!-- trust badges -->
               <div class="trust-row">
                 <span class="trust-item">🔒 Secure</span>
                 <span class="trust-item">🚚 Free Delivery</span>
                 <span class="trust-item">💳 Pay on Delivery</span>
               </div>
-
-              <div class="ring-loading"></div>
             </form>
           </div>
         </div>
@@ -609,7 +544,6 @@
       </div><!-- /chest__img_pack -->
     </div><!-- /container -->
 
-    <!-- FOOTER -->
     <footer class="site-footer">
       © 2025 HealthNewsKE &nbsp;|&nbsp;
       <a href="#">Privacy Policy</a> &nbsp;|&nbsp;
@@ -630,59 +564,56 @@
     </script>
 
     <script>
-      /* ── CHEST OPEN LOGIC ── */
+      /* ── CHEST OPEN FLOW ── */
       document.getElementById('pushChest').addEventListener('click', function () {
-        var btnWrap  = document.getElementById('chestButtonWrap');
-        var anim     = document.getElementById('chestAnim');
-        var coins    = document.getElementById('chestCoins');
-        var order    = document.getElementById('chestOrder');
+        var btnWrap   = document.getElementById('chestButtonWrap');
+        var titleWrap = document.getElementById('chestTitleWrap');
+        var anim      = document.getElementById('chestAnim');
+        var coins     = document.getElementById('chestCoins');
+        var order     = document.getElementById('chestOrder');
 
-        /* step 1 — hide static chest, show animation */
-        btnWrap.style.display = 'none';
-        anim.style.display    = 'block';
+        /* step 1 — show animation */
+        btnWrap.style.display   = 'none';
+        titleWrap.style.display = 'none';
+        anim.style.display      = 'block';
 
-        /* step 2 — after animation plays (~1.6 s) reveal form */
+        /* step 2 — reveal result after animation (~1.6 s) */
         setTimeout(function () {
           anim.style.display  = 'none';
           coins.style.display = 'block';
           order.style.display = 'block';
-
-          /* smooth scroll to form */
-          var formEl = document.getElementById('chestOrder');
-          if (formEl) {
-            formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
+          order.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 1600);
       });
     </script>
 
     <script>
-      /* name field — letters only, max 2 words */
+      /* name input — letters only, max 2 words */
       document.getElementById('input-name').addEventListener('input', function () {
-        var val = this.value
+        var v = this.value
           .replace(/[^a-zA-Zа-яА-ЯёЁії ]/g, '')
           .replace(/^\s+/, '')
-          .replace(/\s\s+/g, ' ');
-        var parts = val.split(' ');
-        if (parts.length > 2) val = parts[0] + ' ' + parts[1];
-        this.value = val;
+          .replace(/\s{2,}/g, ' ');
+        var parts = v.split(' ');
+        if (parts.length > 2) v = parts[0] + ' ' + parts[1];
+        this.value = v;
       });
       document.getElementById('input-name').addEventListener('blur', function () {
         this.value = this.value.trim();
       });
 
-      /* phone field — digits only */
+      /* phone input — digits only */
       document.getElementById('input-phone').addEventListener('input', function () {
         this.value = this.value.replace(/\D/g, '');
         this.setAttribute('pattern', '[0-9]{6,}');
       });
     </script>
 
-    <script async="">
-      var LAZY = document.querySelectorAll('img');
-      for (var i = 0; i < LAZY.length; i++) {
-        LAZY[i].setAttribute('loading', 'lazy');
-      }
+    <script async>
+      /* lazy-load all images */
+      document.querySelectorAll('img').forEach(function (img) {
+        img.setAttribute('loading', 'lazy');
+      });
     </script>
 
   </body>
