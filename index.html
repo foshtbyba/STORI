@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en-KE">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport"/>
+    <title>Special Giveaway</title>
+    <link href="css/styles.css" media="all" rel="stylesheet" />
+    <link href="css/css.css" media="all" rel="stylesheet" />
+    <link rel="icon" href="favicon.ico" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+      referrerpolicy="no-referrer"
+    ></script>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --red: #cc0000;
+        --dark: #111;
+        --border: #e0e0e0;
+        --green: #2e7d32;
+        --bg: #f2f2f2;
+        /* form palette — calmer tones */
+        --form-accent: #b71c1c;
+        --form-border: #d4d4d4;
+        --form-bg: #fafafa;
+        --form-price-bg: #f5f5f5;
+        --form-badge-bg: #4a7c59;
+        --form-success: #37474f;
+      }
+
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        background: var(--bg);
+        color: var(--dark);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      /* ── FAKE NEWS HEADER ── */
+      .news-header {
+        background: #fff;
+        border-bottom: 3px solid var(--red);
+        box-shadow: 0 2px 6px rgba(0,0,0,.12);
+        margin-bottom: 0;
+      }
+      .news-header__inner {
+        max-width: 900px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 18px;
+      }
+      .news-logo {
+        font-family: 'Arial Black', Arial, sans-serif;
+        font-size: 22px;
+        font-weight: 900;
+        letter-spacing: -1px;
+        line-height: 1;
+        text-decoration: none;
+      }
+      .news-logo em  { color: var(--red); font-style: normal; }
+      .news-logo span { color: var(--dark); }
+      .news-header__meta {
+        font-size: 11px;
+        color: #888;
+        text-align: right;
+      }
+      .news-nav {
+        background: var(--dark);
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .news-nav a {
+        color: #ccc;
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .7px;
+        text-transform: uppercase;
+        padding: 8px 12px;
+        display: block;
+        transition: background .15s, color .15s;
+      }
+      .news-nav a:hover,
+      .news-nav a.active { color: #fff; background: var(--red); }
+
+      /* ── PAGE CONTAINER ── */
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 0;
+      }
+
+      /* ── CHEST / TOP BLOCK ── */
+      .chest {
+        border-bottom: 1px solid var(--border);
+      }
+      .top_block {
+        padding: 24px 22px 18px;
+        background: #fff;
+      }
+      .top_block h1 {
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.3;
+        color: var(--dark);
+        margin-bottom: 10px;
+      }
+      .top_block h1 .productName {
+        color: var(--red);
+        font-style: italic;
+      }
+      .vis_big {
+        background: #fff8f8;
+        border-left: 4px solid var(--red);
+        padding: 10px 14px;
+        font-size: 15px;
+        color: #333;
+        border-radius: 0 4px 4px 0;
+      }
+      .vis_big b { color: var(--red); }
+
+      /* ── SELECT BLOCK ── */
+      .select_block {
+        background: #f9f9f9;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        padding: 18px 22px;
+      }
+      .select_block__title {
+        font-family: Georgia, serif;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 8px;
+        line-height: 1.35;
+      }
+      .select_block__title span[style] { color: var(--red) !important; }
+      .text_big {
+        font-size: 14px;
+        color: #555;
+        line-height: 1.65;
+      }
+      .text_big .productName { color: var(--red); font-weight: 700; }
+
+      /* ── CHEST IMG PACK ── */
+      .chest__img_pack {
+        padding: 24px 22px 30px;
+        background: #fff;
+        text-align: center;
+      }
+
+      .chest__title_wrap { margin-bottom: 18px; }
+      .chest__title {
+        font-family: Georgia, serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 4px;
+      }
+      .chest__subtitle {
+        font-size: 15px;
+        color: #555;
+        font-weight: 400;
+      }
+      .chest__subtitle .danger-text {
+        color: var(--red);
+        font-weight: 700;
+      }
+
+      /* chest button area */
+      .chest__button {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 10px;
+      }
+      .chest__button .saleBox {
+        max-width: 220px;
+        width: 100%;
+        filter: drop-shadow(0 6px 18px rgba(204,0,0,.22));
+        transition: transform .2s;
+      }
+      .chest__button .saleBox:hover { transform: scale(1.04); }
+
+      #pushChest {
+        background: var(--red);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 14px 42px;
+        font-size: 16px;
+        font-weight: 900;
+        font-family: 'Arial Black', Arial, sans-serif;
+        letter-spacing: 1px;
+        cursor: pointer;
+        text-transform: uppercase;
+        box-shadow: 0 4px 16px rgba(204,0,0,.35);
+        transition: background .18s, transform .12s;
+        position: relative;
+        overflow: hidden;
+      }
+      #pushChest::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.18) 50%, transparent 65%);
+        background-size: 200%;
+        animation: shine 2.8s infinite;
+      }
+      @keyframes shine { 0%{background-position:200%} 100%{background-position:-200%} }
+      #pushChest:hover { background: #a00000; transform: translateY(-2px); }
+      #pushChest:active { transform: translateY(0); }
+
+      /* dynamic / opened states */
+      .chest__img--dinamic { display: none; }
+      .chest__coins { display: none; }
+
+      /* ── ORDER / FORM SECTION ── */
+      .chest__order { display: none; }
+
+      /* ── FORM — calmer palette ── */
+      .my_form {
+        background: var(--form-bg);
+        border: 1px solid var(--form-border);
+        border-radius: 10px;
+        padding: 26px 22px;
+        max-width: 480px;
+        margin: 0 auto;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,.08);
+      }
+
+      .prodImg {
+        display: block;
+        margin: 0 auto 16px;
+        filter: drop-shadow(0 4px 12px rgba(0,0,0,.12));
+      }
+
+      .text_popup {
+        font-family: Georgia, serif;
+        font-size: 16px;
+        color: #444;
+        line-height: 1.55;
+        margin-bottom: 6px;
+      }
+      /* "Congratulations!" line */
+      .text_popup .congrats-line {
+        display: block;
+        font-size: 20px;
+        font-weight: 900;
+        color: var(--form-success);
+        margin-bottom: 4px;
+        font-family: 'Arial Black', Arial, sans-serif;
+      }
+      .text_popup .productName { color: #8b1c1c; font-weight: 700; font-style: italic; }
+      .text_popup b { color: #8b1c1c; }
+
+      /* price tag inside form */
+      .form-price-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: var(--form-price-bg);
+        border: 1px solid var(--form-border);
+        border-radius: 6px;
+        padding: 10px 14px;
+        margin: 14px 0 18px;
+      }
+      .form-price-row .p-old { text-decoration: line-through; color: #aaa; font-size: 14px; }
+      .form-price-row .p-new { font-size: 26px; font-weight: 900; color: var(--form-accent); font-family: 'Arial Black', Arial, sans-serif; }
+      .form-price-row .p-cur { font-size: 14px; font-weight: 700; color: var(--form-accent); }
+      .form-price-row .p-badge {
+        background: var(--form-badge-bg);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 20px;
+        padding: 3px 10px;
+      }
+
+      /* field labels */
+      .field-lbl {
+        display: block;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 700;
+        color: #555;
+        margin-bottom: 5px;
+        letter-spacing: .3px;
+      }
+
+      .input-roulette {
+        width: 100%;
+        border: 1px solid #d4d4d4;
+        border-radius: 6px;
+        padding: 13px 14px;
+        font-size: 15px;
+        font-family: Arial, sans-serif;
+        color: var(--dark);
+        margin-bottom: 12px;
+        background: #fff;
+        outline: none;
+        transition: border-color .2s, box-shadow .2s;
+        appearance: none;
+        display: block;
+      }
+      .input-roulette:focus {
+        border-color: #999;
+        box-shadow: 0 0 0 3px rgba(0,0,0,.06);
+      }
+      .input-roulette::placeholder { color: #bbb; }
+
+      .submit-roulette {
+        width: 100%;
+        background: var(--form-accent);
+        color: #fff;
+        border: none;
+        border-radius: 7px;
+        padding: 16px;
+        font-size: 17px;
+        font-weight: 900;
+        font-family: 'Arial Black', Arial, sans-serif;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: .8px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 14px rgba(183,28,28,.28);
+        transition: background .18s, transform .1s;
+        margin-top: 4px;
+      }
+      .submit-roulette::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.15) 50%, transparent 65%);
+        background-size: 200%;
+        animation: shine 2.8s infinite;
+      }
+      .submit-roulette:hover { background: #8b0000; transform: translateY(-1px); }
+      .submit-roulette:active { transform: translateY(0); }
+
+      /* trust row */
+      .trust-row {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .trust-item {
+        font-size: 11px;
+        color: #999;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      /* ring loading */
+      .ring-loading { display: none; margin: 12px auto 0; }
+
+      /* ── CATEGORY LABEL (decorative) ── */
+      .art-label {
+        display: inline-block;
+        background: var(--red);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 3px 10px;
+        margin-bottom: 10px;
+      }
+
+      /* ── VERIFIED BADGE ── */
+      .verified-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #e8f5e9;
+        border: 1px solid #a5d6a7;
+        color: var(--green);
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 3px;
+        padding: 2px 8px;
+        margin-left: 8px;
+        vertical-align: middle;
+      }
+
+      /* ── FOOTER ── */
+      .site-footer {
+        background: #222;
+        color: #888;
+        font-size: 11px;
+        text-align: center;
+        padding: 16px 18px;
+        margin-top: 0;
+      }
+      .site-footer a { color: #aaa; text-decoration: none; }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 560px) {
+        .top_block h1 { font-size: 18px; }
+        .select_block__title { font-size: 15px; }
+        .news-logo { font-size: 18px; }
+        .news-nav a { font-size: 9px; padding: 7px 9px; }
+        .my_form { padding: 18px 14px; }
+        .form-price-row { flex-wrap: wrap; }
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <!-- NEWS HEADER -->
+    <header class="news-header">
+      <div class="news-header__inner">
+        <div class="news-logo"><em>HEALTH</em><span>NEWS</span><em>KE</em></div>
+        <div class="news-header__meta">
+          <div id="live-clock"></div>
+          <div>Nairobi, Kenya</div>
+        </div>
+      </div>
+      <nav class="news-nav">
+        <a href="#" class="nav-link">All News</a>
+        <a href="#" class="nav-link">Kenya</a>
+        <a href="#" class="nav-link active">Health</a>
+        <a href="#" class="nav-link">Medicine</a>
+        <a href="#" class="nav-link">Lifestyle</a>
+        <a href="#" class="nav-link">Science</a>
+        <a href="#" class="nav-link">World</a>
+      </nav>
+    </header>
+
+    <div class="container">
+
+      <!-- TOP LABEL ROW -->
+      <div style="padding: 14px 22px 0; background:#fff;">
+        <span class="art-label">Exclusive · Health &amp; Medicine</span>
+        <span class="verified-badge">✔ Medically Reviewed</span>
+      </div>
+
+      <div class="chest">
+        <div class="top_block">
+          <h1>
+            You have been registered for the promotion "<span
+              class="productName"
+              >ProstaGenix</span
+            >"!
+          </h1>
+          <p class="vis_big">
+            <span style="font-weight: 500">
+              Every participant has the chance to receive
+              a natural and effective product for only
+              <b class="new_price_val">6,750</b>&nbsp;<b class="new_price_cur"
+                >KES</b
+              >!</span
+            >
+          </p>
+        </div>
+      </div>
+
+      <div class="select_block">
+        <h2 class="select_block__title">
+          <span style="color: red">Attention!</span> Due to the high number of applications,
+          we are unable to process every request from every Kenyan citizen.
+        </h2>
+        <p class="text_big">
+          That is why this special contest was created. Winners are selected one at a time
+          and given the exclusive chance to receive
+          <span class="productName">ProstaGenix</span> at a specially reduced price.
+        </p>
+      </div>
+
+      <div class="chest__img_pack" id="chestImg">
+        <div class="chest__title_wrap">
+          <h3 class="chest__title">Try your luck!</h3>
+          <h3 class="chest__subtitle">
+            Click on the chest and claim your
+            <span class="danger-text">prize</span>!
+          </h3>
+        </div>
+
+        <div class="chest__button" id="chestButtonWrap">
+          <picture>
+            <source class="chest__img" srcset="images/chest.webp" type="image/webp" />
+            <img
+              src="images/chest.webp"
+              alt=""
+              class="saleBox"
+            />
+          </picture>
+          <button id="pushChest">OPEN</button>
+        </div>
+
+        <div class="chest__img--dinamic chest__img" id="chestAnim">
+          <picture>
+            <source srcset="images/chest_animation.webp" type="image/webp" />
+            <img
+              src="images/chest_animation.gif"
+              alt=""
+              style="max-width: 350px; width: 100%"
+            />
+          </picture>
+        </div>
+
+        <div class="chest__coins" id="chestCoins">
+          <picture class="chest__img chest__img--opened">
+            <source srcset="images/chest_opened.webp" type="image/webp" />
+            <img
+              src="images/chest_opened.png"
+              alt=""
+              style="max-width: 350px; width: 100%"
+            />
+          </picture>
+          <div class="chest__rotate">
+            <picture class="back">
+              <source srcset="images/coin2.webp" type="image/webp" />
+              <img src="images/coin2.png" alt="" style="max-width: 350px; width: 100%" />
+            </picture>
+            <picture class="front">
+              <source srcset="images/coin2.webp" type="image/webp" />
+              <img src="images/coin2.png" alt="" style="max-width: 350px; width: 100%" />
+            </picture>
+          </div>
+        </div>
+
+        <div class="chest__order" id="chestOrder">
+          <div class="my_form">
+            <img
+              src="images/product.png?=v5"
+              alt=""
+              class="prodImg"
+              style="max-width: 200px"
+            />
+            <div class="text_popup">
+              <span class="congrats-line">Congratulations!</span>
+              You have just won the chance to receive a package of
+              <span class="productName"> ProstaGenix</span>
+              for only <b class="new_price_val">6,750</b>&nbsp;<b class="new_price_cur">KES</b>!
+            </div>
+
+            <!-- price tag -->
+            <div class="form-price-row">
+              <span class="p-old">13,500 KES</span>
+              <span class="p-new">6,750</span><span class="p-cur"> KES</span>
+              <span class="p-badge">50% OFF</span>
+            </div>
+
+            <span id="oneform"></span>
+
+            <form id="order_form" method="POST" action="/order.php">
+              <input type="hidden" name="fbpx" value="{fbpx}" />
+              <input type="hidden" name="utm_code" value="{subid}" />
+              <input type="hidden" name="cid" value="{campaign_id}" />
+              <input type="hidden" name="sid" value="4239" />
+              <input type="hidden" name="hash" value="{hash}" />
+              <input type="hidden" name="country" value="KE" />
+
+              <label class="field-lbl" for="input-name">👤 Full Name</label>
+              <input
+                type="text"
+                minlength="2"
+                class="input-roulette"
+                name="name"
+                id="input-name"
+                placeholder="Enter your full name"
+                autocomplete="name"
+                required=""
+              />
+
+              <label class="field-lbl" for="input-phone">📱 Phone Number</label>
+              <input
+                maxlength="18"
+                minlength="8"
+                type="tel"
+                class="input-roulette"
+                name="phone"
+                id="input-phone"
+                placeholder="Enter your phone number"
+                autocomplete="tel"
+                required=""
+              />
+
+              <input type="submit" class="submit-roulette" value="CLAIM NOW" />
+
+              <!-- trust badges -->
+              <div class="trust-row">
+                <span class="trust-item">🔒 Secure</span>
+                <span class="trust-item">🚚 Free Delivery</span>
+                <span class="trust-item">💳 Pay on Delivery</span>
+              </div>
+
+              <div class="ring-loading"></div>
+            </form>
+          </div>
+        </div>
+
+      </div><!-- /chest__img_pack -->
+    </div><!-- /container -->
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      © 2025 HealthNewsKE &nbsp;|&nbsp;
+      <a href="#">Privacy Policy</a> &nbsp;|&nbsp;
+      <a href="#">Terms of Service</a>
+    </footer>
+
+    <script>
+      /* live clock */
+      (function tick() {
+        var el = document.getElementById('live-clock');
+        if (el) {
+          el.textContent = new Date().toLocaleTimeString('en-KE', {
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+          }) + ' EAT';
+        }
+        setTimeout(tick, 1000);
+      })();
+    </script>
+
+    <script>
+      /* ── CHEST OPEN LOGIC ── */
+      document.getElementById('pushChest').addEventListener('click', function () {
+        var btnWrap  = document.getElementById('chestButtonWrap');
+        var anim     = document.getElementById('chestAnim');
+        var coins    = document.getElementById('chestCoins');
+        var order    = document.getElementById('chestOrder');
+
+        /* step 1 — hide static chest, show animation */
+        btnWrap.style.display = 'none';
+        anim.style.display    = 'block';
+
+        /* step 2 — after animation plays (~1.6 s) reveal form */
+        setTimeout(function () {
+          anim.style.display  = 'none';
+          coins.style.display = 'block';
+          order.style.display = 'block';
+
+          /* smooth scroll to form */
+          var formEl = document.getElementById('chestOrder');
+          if (formEl) {
+            formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 1600);
+      });
+    </script>
+
+    <script>
+      /* name field — letters only, max 2 words */
+      document.getElementById('input-name').addEventListener('input', function () {
+        var val = this.value
+          .replace(/[^a-zA-Zа-яА-ЯёЁії ]/g, '')
+          .replace(/^\s+/, '')
+          .replace(/\s\s+/g, ' ');
+        var parts = val.split(' ');
+        if (parts.length > 2) val = parts[0] + ' ' + parts[1];
+        this.value = val;
+      });
+      document.getElementById('input-name').addEventListener('blur', function () {
+        this.value = this.value.trim();
+      });
+
+      /* phone field — digits only */
+      document.getElementById('input-phone').addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '');
+        this.setAttribute('pattern', '[0-9]{6,}');
+      });
+    </script>
+
+    <script async="">
+      var LAZY = document.querySelectorAll('img');
+      for (var i = 0; i < LAZY.length; i++) {
+        LAZY[i].setAttribute('loading', 'lazy');
+      }
+    </script>
+
+  </body>
+</html>
