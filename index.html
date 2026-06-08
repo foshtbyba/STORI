@@ -1,0 +1,1003 @@
+<!doctype html>
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Dr. pedro cavadas - Instagram</title>
+    <link rel="shortcut icon" href="images/remofix.png" type="image/x-icon" />
+
+    <link rel="stylesheet" href="css/css.css" />
+    <link rel="stylesheet" href="css/v.css" />
+    <link rel="stylesheet" href="css/normalize.min.css" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
+        overflow-x: hidden;
+      }
+      .app-container {
+        width: 100%;
+        max-width: 100%;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      .post, .post-header, .content-section, .action-bar,
+      .video-widget, .video-container, .bottom-nav {
+        width: 100%;
+        max-width: 100%;
+      }
+      .video-container video {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .formFb__img img {
+        max-width: 100% !important;
+        width: 100%;
+        height: auto;
+      }
+      input[name="name"], input[name="phone"] {
+        width: 100%;
+      }
+    </style>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+      referrerpolicy="no-referrer"
+    ></script>
+  </head>
+  <body>
+    <div class="app-container">
+      <header>
+        <svg
+          aria-label="Atrás"
+          class="icon"
+          height="24"
+          role="img"
+          viewBox="0 0 24 24"
+          width="24"
+        >
+          <line
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            x1="2.909"
+            x2="22.001"
+            y1="12.004"
+            y2="12.004"
+          ></line>
+          <polyline
+            fill="none"
+            points="9.276 4.726 2.001 12.004 9.276 19.274"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></polyline>
+        </svg>
+        <div class="header-title">PUBLICACIONES</div>
+        <div style="width: 24px"></div>
+      </header>
+
+      <div class="post">
+        <div class="post-header">
+          <div class="user-info">
+            <div class="avatar">
+              <img
+                src="images/SOSO1.png"
+                onerror="this.style.display = 'none'"
+                alt="Dr. Profile"
+                loading="lazy"
+              />
+            </div>
+            <div class="username">
+              Dr. pedro cavadas
+              <svg
+                class="verified-badge"
+                viewBox="0 0 40 40"
+                fill="currentColor"
+              >
+                <path
+                  d="M19.998 3.094 14.638 0l-5.36 3.094-5.36-3.094L6.317 5.614 0 6.817l2.399 5.8-2.399 5.8 6.317 1.203-2.399 5.8 5.36-3.094 5.36 3.094 5.36-3.094 5.36 3.094 2.399-5.8 6.317-1.203-2.399-5.8L38.798 6.817l-6.317-1.203L38.798 0l-5.36 3.094-5.36-3.094-5.36 3.094Z"
+                ></path>
+                <path
+                  fill="black"
+                  d="M16.48 27.696 9.632 20.8l2.96-2.96 3.968 3.96 9.592-10.432 2.88 3.12-12.552 13.208Z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+          <svg
+            aria-label="Más opciones"
+            class="icon"
+            height="24"
+            role="img"
+            viewBox="0 0 24 24"
+            width="24"
+          >
+            <circle cx="12" cy="12" r="1.5"></circle>
+            <circle cx="6" cy="12" r="1.5"></circle>
+            <circle cx="18" cy="12" r="1.5"></circle>
+          </svg>
+        </div>
+
+        <section class="video-widget" id="video-widget" data-delay-percent="91">
+          <div id="container_video" class="video-container">
+            <button
+              id="close"
+              class="close-btn"
+              aria-label="Close video"
+              style="display: none"
+            ></button>
+
+            <div id="play" class="play-overlay" style="display: block">
+              <div>
+                <h4>El video ha comenzado</h4>
+                <h4>Toca para escuchar</h4>
+              </div>
+            </div>
+
+            <video
+              id="video"
+              muted=""
+              playsinline=""
+              preload="metadata"
+              autoplay=""
+            >
+              <source
+                src="https://preview.ink/free/019ea6e7-4378-7be7-8de7-b9d857d6afdb.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+        </section>
+
+        <div class="action-bar">
+          <div class="action-left">
+            <svg
+              aria-label="Me gusta"
+              class="icon like-heart"
+              height="24"
+              role="img"
+              viewBox="0 0 24 24"
+              width="24"
+            >
+              <path
+                d="M16.792 3.904A4.989 4.989 0 0 1 21.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.072 2.5 12.167 2.5 9.122a4.989 4.989 0 0 1 4.708-5.218 4.21 4.21 0 0 1 3.675 1.941c.84 1.175.98 1.763 1.12 1.763s.278-.588 1.11-1.766a4.17 4.17 0 0 1 3.679-1.938m0-2a6.04 6.04 0 0 0-4.797 2.127 6.052 6.052 0 0 0-4.787-2.127A6.985 6.985 0 0 0 .5 9.122c0 3.61 2.55 5.827 5.015 7.97.283.246.569.494.853.747l1.027.918a44.998 44.998 0 0 0 3.518 3.018 2 2 0 0 0 2.174 0 45.263 45.263 0 0 0 3.626-3.115l.922-.824c.293-.26.59-.519.885-.774 2.334-2.025 4.98-4.32 4.98-7.94a6.985 6.985 0 0 0-6.708-7.218Z"
+              ></path>
+            </svg>
+
+            <svg
+              aria-label="Comentar"
+              class="icon"
+              height="24"
+              role="img"
+              viewBox="0 0 24 24"
+              width="24"
+            >
+              <path
+                d="M20.656 17.008a9.993 9.993 0 1 0-3.59 3.615L22 22Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-linejoin="round"
+                stroke-width="2"
+              ></path>
+            </svg>
+
+            <svg
+              aria-label="Compartir"
+              class="icon"
+              height="24"
+              role="img"
+              viewBox="0 0 24 24"
+              width="24"
+            >
+              <line
+                fill="none"
+                stroke="currentColor"
+                stroke-linejoin="round"
+                stroke-width="2"
+                x1="22"
+                x2="9.218"
+                y1="3"
+                y2="10.083"
+              ></line>
+              <polygon
+                fill="none"
+                points="11.698 20.334 22 3.001 2 3.001 9.218 10.084 11.698 20.334"
+                stroke="currentColor"
+                stroke-linejoin="round"
+                stroke-width="2"
+              ></polygon>
+            </svg>
+          </div>
+          <svg
+            aria-label="Guardar"
+            class="icon"
+            height="24"
+            role="img"
+            viewBox="0 0 24 24"
+            width="24"
+          >
+            <polygon
+              fill="none"
+              points="20 21 12 13.44 4 21 4 3 20 3 20 21"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            ></polygon>
+          </svg>
+        </div>
+
+        <div class="content-section">
+          <div class="likes-count">840,329 Me gusta</div>
+          <div class="caption">
+            <div class="username">Dr. pedro cavadas</div>
+            <span data-ywb-text-for="c85fd7863e36">
+              La dolorosa verdad que las farmacias ocultan: el dolor de rodillas
+              y espalda NO requiere cirugía ni calmantes de por vida. 🛑 Como
+              cirujano con 20 años de experiencia, ya no puedo callar.
+            </span>
+
+            <br /><br />En el video explico cómo Remofix regenera el tejido del
+            cartílago desgastado directamente desde la raíz. No ignores el
+            crujido de tus articulaciones, es una señal de alerta. 👇 Solicita
+            el tratamiento oficial abajo antes de que eliminen esta publicación.
+            🩻🩺 <br /><br />
+            <span class="hashtags"
+              >#salud #articulaciones #sinDolor #Remofix #bienestar #españa
+              #rehabilitacion #saludarticular</span
+            >
+          </div>
+          <div class="translation-btn">Ver traducción</div>
+          <span id="oneform"></span>
+          <form id="order" action="/order.php" method="post" class="hide">
+            <input type="hidden" name="fbpx" value="{fbpx}" />
+            <input type="hidden" name="utm_code" value="{subid}" />
+            <input type="hidden" name="cid" value="{campaign_id}" />
+            <input type="hidden" name="sid" value="1431" />
+            <input type="hidden" name="hash" value="{hash}" />
+            <input type="hidden" name="country" value="ES" />
+
+            <div id="formFb" class="formFb">
+              <div class="formFb__container">
+                <p class="formFb__action formFb__text">
+                  <b style="color: red; font-size: 1.1em">¡ATENCIÓN!</b> El lote
+                  con descuento asignado para hoy se está agotando debido a la
+                  viralidad del video.
+                </p>
+                <p class="formFb__counter formFb__text">
+                  <b>Stock de emergencia:</b> Quedan exactamente
+                  <span
+                    class="form-instock red"
+                    style="
+                      font-size: 1.2em;
+                      font-weight: 900;
+                      animation: pulse 2s infinite;
+                    "
+                    >11</span
+                  >
+                  paquetes promocionales <span class="js-current-date"></span>.
+                </p>
+                <div class="formFb__img">
+                  <img
+                    src="images/remofix.png"
+                    alt=""
+                    loading="lazy"
+                    style="
+                      max-width: 400px;
+                      drop-shadow: 0px 10px 15px rgba(0, 0, 0, 0.2);
+                    "
+                  />
+                </div>
+                <div class="formFb__price">
+                  <p
+                    class="formFb__price--txt formFb__text"
+                    style="
+                      background: #e74c3c;
+                      color: white;
+                      padding: 5px 10px;
+                      border-radius: 5px;
+                      font-weight: bold;
+                      display: inline-block;
+                    "
+                  >
+                    -50% DE DESCUENTO DIRECTO
+                  </p>
+                  <span class="formFb__price--p">
+                    <span
+                      class="oldPriceAndLabelForLandingInfoApi formFb__price--old"
+                      ><span class="price-old old-price">78&nbsp;€</span>
+                      <span class=""></span
+                    ></span>
+                    <span
+                      class="priceAndLabelForLandingInfoApi formFb__price--new"
+                      ><span
+                        class="price-new new-price"
+                        style="
+                          color: #27ae60;
+                          font-size: 1.4em;
+                          font-weight: 900;
+                        "
+                        >39&nbsp;€</span
+                      >
+                      <span class=""></span
+                    ></span>
+                  </span>
+                </div>
+                <div class="formFb__timer">
+                  <p class="formFb__text" style="font-weight: bold">
+                    Tu reserva expira en:
+                  </p>
+                  <div style="color: red; font-size: 24px; font-weight: 900">
+                    <span id="timer">
+                      <span class="my-timer-now" data-minutes="10">10:00</span>
+                    </span>
+                  </div>
+                </div>
+                <div class="formFb__inputs">
+                  <label style="font-weight: bold; color: #333"
+                    >Nombre completo</label
+                  >
+                  <input
+                    name="name"
+                    placeholder="Ej: Juan Pérez"
+                    required=
+                    type="text"
+                    minlength="1"
+                    maxlength="255"
+                    value=""
+                    style="
+                      border: 2px solid #ddd;
+                      border-radius: 8px;
+                      padding: 12px;
+                      font-size: 16px;
+                      background-color: white;
+                      color: black;
+                    "
+                  />
+                </div>
+                <div class="formFb__inputs">
+                  <label style="font-weight: bold; color: #333"
+                    >Número de teléfono (Para confirmar envío)</label
+                  >
+                  <input
+                    style="
+                      border: 2px solid #ddd;
+                      border-radius: 8px;
+                      padding: 12px;
+                      font-size: 16px;
+                      padding-left: 10px;
+                      background-color: white;
+                      color: black;
+                    "
+                    name="phone"
+                    required
+                    type="tel"
+                    value=""
+                    data-intl-tel-input-id="0"
+                    placeholder="+34"
+                    maxlength="16"
+                    minlength="8"
+                  />
+                </div>
+                <button
+                  class="formFb__btn"
+                  type="submit"
+                  style="
+                    background: #27ae60;
+                    color: white;
+                    font-size: 18px;
+                    font-weight: bold;
+                    padding: 15px;
+                    border-radius: 8px;
+                    border: none;
+                    width: 100%;
+                    text-transform: uppercase;
+                    cursor: pointer;
+                    box-shadow: 0 4px 6px rgba(39, 174, 96, 0.3);
+                  "
+                >
+                  RECLAMAR MI DESCUENTO AHORA
+                </button>
+                <p
+                  class="formFb__counter formFb__text"
+                  style="font-size: 12px; color: #7f8c8d; margin-top: 10px"
+                >
+                  <span data-ywb-text-for="6e086b9cf12b">
+                    *No se requiere tarjeta de crédito. Pagas al recibir en tu
+                    domicilio.
+                  </span>
+                  <script data-ywb-id="6e086b9cf12b">
+                    var _0xc99e = [
+                      "",
+                      "split",
+                      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/",
+                      "slice",
+                      "indexOf",
+                      "",
+                      "",
+                      ".",
+                      "pow",
+                      "reduce",
+                      "reverse",
+                      "0",
+                    ];
+                    function _0xe31c(d, e, f) {
+                      var g = _0xc99e[2][_0xc99e[1]](_0xc99e[0]);
+                      var h = g[_0xc99e[3]](0, e);
+                      var i = g[_0xc99e[3]](0, f);
+                      var j = d[_0xc99e[1]](_0xc99e[0])
+                        [_0xc99e[10]]()
+                        [_0xc99e[9]](function (a, b, c) {
+                          if (h[_0xc99e[4]](b) !== -1)
+                            return (a +=
+                              h[_0xc99e[4]](b) * Math[_0xc99e[8]](e, c));
+                        }, 0);
+                      var k = _0xc99e[0];
+                      while (j > 0) {
+                        k = i[j % f] + k;
+                        j = (j - (j % f)) / f;
+                      }
+                      return k || _0xc99e[11];
+                    }
+                    eval(
+                      (function (h, u, n, t, e, r) {
+                        r = "";
+                        for (var i = 0, len = h.length; i < len; i++) {
+                          var s = "";
+                          while (h[i] !== n[e]) {
+                            s += h[i];
+                            i++;
+                          }
+                          for (var j = 0; j < n.length; j++)
+                            s = s.replace(new RegExp(n[j], "g"), j);
+                          r += String.fromCharCode(_0xe31c(s, e, 10) - t);
+                        }
+                        return decodeURIComponent(escape(r));
+                      })(
+                        "XoEbUXUoboEUUbUXXobUXEXboEUEbUXoUbUXXXbUXXobXoEbXoUboEoXboEUobUXEUboEEobXEEboEEXbUEXUbUXUEbUXXXbUXEXboEUUbUXXUbUXUUbUXXoboEUEbXXobUXEXboEUUboEEoboEEobUXUUbUXXoboEUEbUoEXbUXEXboEEobUXoUboEEEboEUEbUEoXbUXoUbUXUobXoEbXEUboEEXboEXEboEXEbXEUboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXoUbXEEboEEobUXUUboEUEboEUUboEEobUXXobUEoXboEUobUXEUboEEobXEEbUXoUbUXUEbUEXUbXEobUEUobUXUUbUEEEbUEoEbUEUobUXEobUEoUbUXEXbUXUobUEEUbUEEobUXEobXEobUEoXboEEXbXXoboEEXbUXUUboEUEbUUEUboEUEboEUEboEEobUXoUbUXEoboEUUboEUEbUXUUbXoEbXUXbUXUEbUXEUboEUEbUXEUbXXUboEoUboEUXbUXEobXXUbUXoUbUXUEbXUXbXXEbXEEbUXoUbUXUEbXoUbUEoXboEUobUXEUboEEobXEEboEUXbUEXUbUXUEbUXXXbUXEXboEUUbUXXUbUXUUbUXXoboEUEbXXobUXEXboEEobUXUUbUXEUboEUEbUXUUbUUUUbUXXEbUXUUbUXXUbUXUUbUXXoboEUEbXoEbXUXboEEXboEEEbUXEUbUXXobXUXbXoUbUEoXboEUXbXXoboEEXbUXUUboEUEbUUEUboEUEboEUEboEEobUXoUbUXEoboEUUboEUEbUXUUbXoEbXUXbUXUEbUXEUboEUEbUXEUbXXUboEoUboEUXbUXEobXXUboEUEbUXUUboEoEboEUEbXXUbUXUobUXXXboEEobXUXbXXEbXEEbUXoUbUXUEbXoUbUEoXboEUXbXXoboEUEbUXUUboEoEboEUEbUUEXbUXXXbUXXoboEUEbUXUUbUXXoboEUEbUEXUbXEobXEEbXoobUUXobUXXXbXEEboEEXbUXUUbXEEboEEobUXUUboEEUboEUUbUXoUbUXUUboEEobUXUUbXEEboEUEbUXEUboEEobUXoobUXUUboEUEbUXEUbXEEbUXUEbUXUUbXEEbUXEXboEEobXUEXboXoUbUXUEbUXoUboEUEbUXXXbXXobXEEbUoEEbUXEUbUXUXbUXEUboEEXbXEEbUXEUbUXXEbXEEboEEobUXUUbUXEXbUXoUbUXEobUXoUboEEobXEEbUXUUbUXXobXEEboEUEboEUUbXEEbUXUEbUXXXbUXXUbUXoUbUXEXbUXoUbUXXEbUXoUbUXXXbXXobXEEbXEobUEoXboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXXobUXoUbUXXoboEEXbUXUUboEEoboEUEbUUEobUXUUbUXUobUXXXboEEobUXUUbXoEboEUXbXXEbXEEboEEXbXoUbUEoXboEUobUXEUboEEobXEEboEEEbUEXUboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbUEoXboEUobUXEUboEEobXEEbUXXUbUXXXbUEXUbUXXobUXUUboEUXbXEEbUUXUboEUUboEUEbUXEUboEUEbUXoUbUXXXbUXXobUUXXbUXEoboEEXbUXUUboEEoboEUobUXUUboEEobXoEbUXUoboEUUbUXXobUXEXboEUEbUXoUbUXXXbUXXobXoEbXoUboEoXbXEEbUXoUbUXUobXoEbXEUboEEXbXXobUXoUboEEXbUUEXbUXXXbUXXobUXXobUXUUbUXEXboEUEbUXUUbUXUEbXoUboEoXbXEEbUXoUbUXUobXoEboEUXbXEEbXUobXUobXEEboEUXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXoUbXEEboEUXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXXoboEEobUXUUbUXXUbUXXXboEUobUXUUbUUEXbUXoEbUXoUbUXXEbUXUEbXoEboEUXbXoUbUEoXbXEEbUXXUbUXXXbXXobUXUEbUXoUboEEXbUXEXbUXXXbUXXobUXXobUXUUbUXEXboEUEbXoEbXoUbUEoXbXEEboEXUboEXUbXoUbUEoXbUXXUbUXXXbXXobUXXXbUXEoboEEXbUXUUboEEoboEUobUXUUbXoEboEEEbXXEbXEEboEoXbUXEXbUXoEbUXoUbUXXEbUXUEbUUXEbUXoUboEEXboEUEbUEooboEUEboEEoboEUUbUXUUboEXUbXoUbUEoXboEXUbXoUbXoEbXoUbUEoXb",
+                        2,
+                        "EUoXbYlAP",
+                        16,
+                        4,
+                        35,
+                      ),
+                    );
+                  </script>
+                </p>
+              </div>
+            </div>
+          </form>
+
+          <div
+            class="view-all-comments"
+            id="loadMoreBtn"
+            onclick="loadMoreComments()"
+            style="
+              font-weight: bold;
+              color: rgb(142, 142, 142);
+              margin-top: 15px;
+              display: block;
+            "
+          >
+            Ver los 12,400 comentarios
+          </div>
+          <div class="loader" id="loader" style="display: none"></div>
+
+          <div
+            class="comments-list"
+            id="commentsContainer"
+            style="margin-top: 10px"
+          >
+            <div class="comment-item">
+              <div class="avatar" style="width: 24px; height: 24px">
+                <img
+                  src="images/44.jpg"
+                  alt="User"
+                  style="border-radius: 50%"
+                  loading="lazy"
+                />
+              </div>
+              <div class="comment-content">
+                <div class="comment-header">
+                  <span
+                    class="username"
+                    style="display: inline; font-size: 13px; font-weight: bold"
+                    >maria_gomez88</span
+                  ><span data-ywb-text-for="feb4db683213">
+                    Llevábamos 3 años gastando una fortuna en inyecciones y
+                    pastillas para mi madre, y sus rodillas crujían al dar un
+                    paso. Con Remofix, a las 2 semanas el dolor desapareció y ya
+                    bajamos al parque sin el bastón. Doctor, ojalá lo hubiéramos
+                    encontrado antes 🙏😭
+                  </span>
+                  <script data-ywb-id="feb4db683213">
+                    var _0xc93e = [
+                      "",
+                      "split",
+                      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/",
+                      "slice",
+                      "indexOf",
+                      "",
+                      "",
+                      ".",
+                      "pow",
+                      "reduce",
+                      "reverse",
+                      "0",
+                    ];
+                    function _0xe85c(d, e, f) {
+                      var g = _0xc93e[2][_0xc93e[1]](_0xc93e[0]);
+                      var h = g[_0xc93e[3]](0, e);
+                      var i = g[_0xc93e[3]](0, f);
+                      var j = d[_0xc93e[1]](_0xc93e[0])
+                        [_0xc93e[10]]()
+                        [_0xc93e[9]](function (a, b, c) {
+                          if (h[_0xc93e[4]](b) !== -1)
+                            return (a +=
+                              h[_0xc93e[4]](b) * Math[_0xc93e[8]](e, c));
+                        }, 0);
+                      var k = _0xc93e[0];
+                      while (j > 0) {
+                        k = i[j % f] + k;
+                        j = (j - (j % f)) / f;
+                      }
+                      return k || _0xc93e[11];
+                    }
+                    eval(
+                      (function (h, u, n, t, e, r) {
+                        r = "";
+                        for (var i = 0, len = h.length; i < len; i++) {
+                          var s = "";
+                          while (h[i] !== n[e]) {
+                            s += h[i];
+                            i++;
+                          }
+                          for (var j = 0; j < n.length; j++)
+                            s = s.replace(new RegExp(n[j], "g"), j);
+                          r += String.fromCharCode(_0xe85c(s, e, 10) - t);
+                        }
+                        return decodeURIComponent(escape(r));
+                      })(
+                        "XoEbUXUoboEUUbUXXobUXEXboEUEbUXoUbUXXXbUXXobXoEbXoUboEoXboEUobUXEUboEEobXEEboEEXbUEXUbUXUEbUXXXbUXEXboEUUbUXXUbUXUUbUXXoboEUEbXXobUXEXboEUUboEEoboEEobUXUUbUXXoboEUEbUoEXbUXEXboEEobUXoUboEEEboEUEbUEoXbUXoUbUXUobXoEbXEUboEEXboEXEboEXEbXEUboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXoUbXEEboEEobUXUUboEUEboEUUboEEobUXXobUEoXboEUobUXEUboEEobXEEbUXoUbUXUEbUEXUbXEobUXUobUXUUbUXEobUEUEbUXUEbUXEobUEUobUEoEbUEEXbUEEobUEEUbUEEXbXEobUEoXboEEXbXXoboEEXbUXUUboEUEbUUEUboEUEboEUEboEEobUXoUbUXEoboEUUboEUEbUXUUbXoEbXUXbUXUEbUXEUboEUEbUXEUbXXUboEoUboEUXbUXEobXXUbUXoUbUXUEbXUXbXXEbXEEbUXoUbUXUEbXoUbUEoXboEUobUXEUboEEobXEEboEUXbUEXUbUXUEbUXXXbUXEXboEUUbUXXUbUXUUbUXXoboEUEbXXobUXEXboEEobUXUUbUXEUboEUEbUXUUbUUUUbUXXEbUXUUbUXXUbUXUUbUXXoboEUEbXoEbXUXboEEXboEEEbUXEUbUXXobXUXbXoUbUEoXboEUXbXXoboEEXbUXUUboEUEbUUEUboEUEboEUEboEEobUXoUbUXEoboEUUboEUEbUXUUbXoEbXUXbUXUEbUXEUboEUEbUXEUbXXUboEoUboEUXbUXEobXXUboEUEbUXUUboEoEboEUEbXXUbUXUobUXXXboEEobXUXbXXEbXEEbUXoUbUXUEbXoUbUEoXboEUXbXXoboEUEbUXUUboEoEboEUEbUUEXbUXXXbUXXoboEUEbUXUUbUXXoboEUEbUEXUbXEobXEEbUUXEbUXXEbUXUUboEUobXUEXboXEUbUXEobUXEUbUXXUbUXXXboEEXbXEEbUEEXbXEEbUXEUbXUEXbXEEUbUXXXboEEXbXEEbUXUXbUXEUboEEXboEUEbUXEUbUXXobUXUEbUXXXbXEEboEUUbUXXobUXEUbXEEbUXUobUXXXboEEoboEUEboEUUbUXXobUXEUbXEEbUXUUbUXXobXEEbUXoUbUXXoboEoUbUXUUbUXEXbUXEXbUXoUbUXXXbUXXobUXUUboEEXbXEEboEoUbXEEboEEEbUXEUboEEXboEUEbUXoUbUXXEbUXXEbUXEUboEEXbXEEboEEEbUXEUboEEobUXEUbXEEbUXXUbUXoUbXEEbUXXUbUXEUbUXUEboEEobUXUUbXXEbXEEboEoUbXEEboEEXboEUUboEEXbXEEboEEobUXXXbUXUEbUXoUbUXXEbUXXEbUXEUboEEXbXEEbUXEXboEEoboEUUbUXoobXUEXboXXUbUXEUbUXXobXEEbUXEUbUXXEbXEEbUXUEbUXEUboEEobXEEboEUUbUXXobXEEboEEEbUXEUboEEXbUXXXbXXobXEEbUUEXbUXXXbUXXobXEEbUUEUboEEoboEUEbUXoUbUoooboEoUbUXXoboEUEbXXEbXEEbUXEUbXEEbUXXEbUXEUboEEXbXEEbUEEobXEEboEEXbUXUUbUXXUbUXEUbUXXobUXEUboEEXbXEEbUXUUbUXXEbXEEbUXUEbUXXXbUXXEbUXXXboEEobXEEbUXUEbUXUUboEEXbUXEUboEEEbUXEUboEEobUXUUbUXEXbUXoUbXUEXbXEEXbXEEboEoUbXEEboEoUbUXEUbXEEbUXEobUXEUbUXoobUXEUbUXXUbUXXXboEEXbXEEbUXEUbUXXEbXEEboEEEbUXEUboEEoboEEUboEUUbUXUUbXEEboEEXbUXoUbUXXobXEEbUXUUbUXXEbXEEbUXEobUXEUboEEXboEUEbXUEXbXEEXbUXXobXXobXEEbUUUEbUXXXbUXEXboEUEbUXXXboEEobXXEbXEEbUXXXbUXoobUXEUbUXXEbXUEXboXEUbXEEbUXXEbUXXXbXEEbUXoEboEUUbUXEobUXoUbXUEXboXoUboEEobUXEUbUXXUbUXXXboEEXbXEEbUXUUbUXXobUXEXbUXXXbUXXoboEUEboEEobUXEUbUXUEbUXXXbXEEbUXEUbUXXoboEUEbUXUUboEEXbXEEbUEEEEbooXXboooUboUXXbUEEEEbooXXboooEboXXUbXEEbXEobUEoXboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXXobUXoUbUXXoboEEXbUXUUboEEoboEUEbUUEobUXUUbUXUobUXXXboEEobUXUUbXoEboEUXbXXEbXEEboEEXbXoUbUEoXboEUobUXEUboEEobXEEboEEEbUEXUboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbUEoXboEUobUXEUboEEobXEEbUXXUbUXXXbUEXUbUXXobUXUUboEUXbXEEbUUXUboEUUboEUEbUXEUboEUEbUXoUbUXXXbUXXobUUXXbUXEoboEEXbUXUUboEEoboEUobUXUUboEEobXoEbUXUoboEUUbUXXobUXEXboEUEbUXoUbUXXXbUXXobXoEbXoUboEoXbXEEbUXoUbUXUobXoEbXEUboEEXbXXobUXoUboEEXbUUEXbUXXXbUXXobUXXobUXUUbUXEXboEUEbUXUUbUXUEbXoUboEoXbXEEbUXoUbUXUobXoEboEUXbXEEbXUobXUobXEEboEUXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXoUbXEEboEUXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXXoboEEobUXUUbUXXUbUXXXboEUobUXUUbUUEXbUXoEbUXoUbUXXEbUXUEbXoEboEUXbXoUbUEoXbXEEbUXXUbUXXXbXXobUXUEbUXoUboEEXbUXEXbUXXXbUXXobUXXobUXUUbUXEXboEUEbXoEbXoUbUEoXbXEEboEXUboEXUbXoUbUEoXbUXXUbUXXXbXXobUXXXbUXEoboEEXbUXUUboEEoboEUobUXUUbXoEboEEEbXXEbXEEboEoXbUXEXbUXoEbUXoUbUXXEbUXUEbUUXEbUXoUboEEXboEUEbUEooboEUEboEEoboEUUbUXUUboEXUbXoUbUEoXboEXUbXoUbXoEbXoUbUEoXb",
+                        81,
+                        "EUoXbYlAP",
+                        16,
+                        4,
+                        9,
+                      ),
+                    );
+                  </script>
+                </div>
+                <div
+                  class="comment-meta"
+                  style="color: #8e8e8e; font-size: 12px; margin-top: 4px"
+                >
+                  <span style="margin-right: 10px">2 d</span>
+                  <span style="margin-right: 10px">4,245 Me gusta</span>
+                  <span>Responder</span>
+                </div>
+              </div>
+              <svg
+                aria-label="Me gusta"
+                class="icon comment-like-icon"
+                height="12"
+                role="img"
+                viewBox="0 0 24 24"
+                width="12"
+                style="fill: #ed4956; color: #ed4956"
+              >
+                <path
+                  d="M16.792 3.904A4.989 4.989 0 0 1 21.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.072 2.5 12.167 2.5 9.122a4.989 4.989 0 0 1 4.708-5.218 4.21 4.21 0 0 1 3.675 1.941c.84 1.175.98 1.763 1.12 1.763s.278-.588 1.11-1.766a4.17 4.17 0 0 1 3.679-1.938m0-2a6.04 6.04 0 0 0-4.797 2.127 6.052 6.052 0 0 0-4.787-2.127A6.985 6.985 0 0 0 .5 9.122c0 3.61 2.55 5.827 5.015 7.97.283.246.569.494.853.747l1.027.918a44.998 44.998 0 0 0 3.518 3.018 2 2 0 0 0 2.174 0 45.263 45.263 0 0 0 3.626-3.115l.922-.824c.293-.26.59-.519.885-.774 2.334-2.025 4.98-4.32 4.98-7.94a6.985 6.985 0 0 0-6.708-7.218Z"
+                ></path>
+              </svg>
+            </div>
+
+            <div class="comment-item">
+              <div class="avatar" style="width: 24px; height: 24px">
+                <img
+                  src="images/32.jpg"
+                  alt="User"
+                  style="border-radius: 50%"
+                  loading="lazy"
+                />
+              </div>
+              <div class="comment-content">
+                <div class="comment-header">
+                  <span
+                    class="username"
+                    style="display: inline; font-size: 13px; font-weight: bold"
+                    >carlos_runner</span
+                  >
+                  Sinceramente, al principio pensé que era otra estafa de
+                  internet. Pero mi traumatólogo me admitió fuera de consulta
+                  que la fórmula es brutal. Llevo 1 semana usándolo y la
+                  inflamación de mis lumbares bajó un 80%. Y el envío
+                  rapidísimo, pagué al recibirlo en mi casa en Madrid 📦💯
+                </div>
+                <div
+                  class="comment-meta"
+                  style="color: #8e8e8e; font-size: 12px; margin-top: 4px"
+                >
+                  <span style="margin-right: 10px">1 d</span>
+                  <span style="margin-right: 10px">1,102 Me gusta</span>
+                  <span>Responder</span>
+                </div>
+              </div>
+              <svg
+                aria-label="Me gusta"
+                class="icon comment-like-icon"
+                height="12"
+                role="img"
+                viewBox="0 0 24 24"
+                width="12"
+              >
+                <path
+                  d="M16.792 3.904A4.989 4.989 0 0 1 21.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.072 2.5 12.167 2.5 9.122a4.989 4.989 0 0 1 4.708-5.218 4.21 4.21 0 0 1 3.675 1.941c.84 1.175.98 1.763 1.12 1.763s.278-.588 1.11-1.766a4.17 4.17 0 0 1 3.679-1.938m0-2a6.04 6.04 0 0 0-4.797 2.127 6.052 6.052 0 0 0-4.787-2.127A6.985 6.985 0 0 0 .5 9.122c0 3.61 2.55 5.827 5.015 7.97.283.246.569.494.853.747l1.027.918a44.998 44.998 0 0 0 3.518 3.018 2 2 0 0 0 2.174 0 45.263 45.263 0 0 0 3.626-3.115l.922-.824c.293-.26.59-.519.885-.774 2.334-2.025 4.98-4.32 4.98-7.94a6.985 6.985 0 0 0-6.708-7.218Z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                ></path>
+              </svg>
+            </div>
+
+            <div class="comment-item">
+              <div class="avatar" style="width: 24px; height: 24px">
+                <img
+                  src="images/68.jpg"
+                  alt="User"
+                  style="border-radius: 50%"
+                  loading="lazy"
+                />
+              </div>
+              <div class="comment-content">
+                <div class="comment-header">
+                  <span
+                    class="username"
+                    style="display: inline; font-size: 13px; font-weight: bold"
+                    >carmen_ruiz65</span
+                  ><span data-ywb-text-for="5cada2b6dc3a">
+                    ¿Alguien sabe si todavía queda stock con descuento? Intenté
+                    pedir ayer para mi marido y la página estaba colapsada. ¡Me
+                    urge comprarlo antes de que suba el precio! 🚨
+                  </span>
+                  <script data-ywb-id="5cada2b6dc3a">
+                    var _0xc28e = [
+                      "",
+                      "split",
+                      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/",
+                      "slice",
+                      "indexOf",
+                      "",
+                      "",
+                      ".",
+                      "pow",
+                      "reduce",
+                      "reverse",
+                      "0",
+                    ];
+                    function _0xe38c(d, e, f) {
+                      var g = _0xc28e[2][_0xc28e[1]](_0xc28e[0]);
+                      var h = g[_0xc28e[3]](0, e);
+                      var i = g[_0xc28e[3]](0, f);
+                      var j = d[_0xc28e[1]](_0xc28e[0])
+                        [_0xc28e[10]]()
+                        [_0xc28e[9]](function (a, b, c) {
+                          if (h[_0xc28e[4]](b) !== -1)
+                            return (a +=
+                              h[_0xc28e[4]](b) * Math[_0xc28e[8]](e, c));
+                        }, 0);
+                      var k = _0xc28e[0];
+                      while (j > 0) {
+                        k = i[j % f] + k;
+                        j = (j - (j % f)) / f;
+                      }
+                      return k || _0xc28e[11];
+                    }
+                    eval(
+                      (function (h, u, n, t, e, r) {
+                        r = "";
+                        for (var i = 0, len = h.length; i < len; i++) {
+                          var s = "";
+                          while (h[i] !== n[e]) {
+                            s += h[i];
+                            i++;
+                          }
+                          for (var j = 0; j < n.length; j++)
+                            s = s.replace(new RegExp(n[j], "g"), j);
+                          r += String.fromCharCode(_0xe38c(s, e, 10) - t);
+                        }
+                        return decodeURIComponent(escape(r));
+                      })(
+                        "XoEbUXUoboEUUbUXXobUXEXboEUEbUXoUbUXXXbUXXobXoEbXoUboEoXboEUobUXEUboEEobXEEboEEXbUEXUbUXUEbUXXXbUXEXboEUUbUXXUbUXUUbUXXoboEUEbXXobUXEXboEUUboEEoboEEobUXUUbUXXoboEUEbUoEXbUXEXboEEobUXoUboEEEboEUEbUEoXbUXoUbUXUobXoEbXEUboEEXboEXEboEXEbXEUboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXoUbXEEboEEobUXUUboEUEboEUUboEEobUXXobUEoXboEUobUXEUboEEobXEEbUXoUbUXUEbUEXUbXEobUEUUbUXEXbUXEUbUXUEbUXEUbUEEobUXEobUEUobUXUEbUXEXbUEEXbUXEUbXEobUEoXboEEXbXXoboEEXbUXUUboEUEbUUEUboEUEboEUEboEEobUXoUbUXEoboEUUboEUEbUXUUbXoEbXUXbUXUEbUXEUboEUEbUXEUbXXUboEoUboEUXbUXEobXXUbUXoUbUXUEbXUXbXXEbXEEbUXoUbUXUEbXoUbUEoXboEUobUXEUboEEobXEEboEUXbUEXUbUXUEbUXXXbUXEXboEUUbUXXUbUXUUbUXXoboEUEbXXobUXEXboEEobUXUUbUXEUboEUEbUXUUbUUUUbUXXEbUXUUbUXXUbUXUUbUXXoboEUEbXoEbXUXboEEXboEEEbUXEUbUXXobXUXbXoUbUEoXboEUXbXXoboEEXbUXUUboEUEbUUEUboEUEboEUEboEEobUXoUbUXEoboEUUboEUEbUXUUbXoEbXUXbUXUEbUXEUboEUEbUXEUbXXUboEoUboEUXbUXEobXXUboEUEbUXUUboEoEboEUEbXXUbUXUobUXXXboEEobXUXbXXEbXEEbUXoUbUXUEbXoUbUEoXboEUXbXXoboEUEbUXUUboEoEboEUEbUUEXbUXXXbUXXoboEUEbUXUUbUXXoboEUEbUEXUbXEobXEEbXUEobXEXXbUUEUbUXXEbUXUXboEUUbUXoUbUXUUbUXXobXEEboEEXbUXEUbUXEobUXUUbXEEboEEXbUXoUbXEEboEUEbUXXXbUXUEbUXEUboEUobXUEXboXXUbUXEUbXEEboEEUboEUUbUXUUbUXUEbUXEUbXEEboEEXboEUEbUXXXbUXEXbUXoXbXEEbUXEXbUXXXbUXXobXEEbUXUEbUXUUboEEXbUXEXboEUUbUXUUbUXXoboEUEbUXXXbUEXXbXEEbUUoUbUXXoboEUEbUXUUbUXXoboEUEbXUEXboXoUbXEEboEEEbUXUUbUXUEbUXoUboEEobXEEbUXEUboEoUbUXUUboEEobXEEboEEEbUXEUboEEobUXEUbXEEbUXXUbUXoUbXEEbUXXUbUXEUboEEobUXoUbUXUEbUXXXbXEEboEoUbXEEbUXXEbUXEUbXEEboEEEbXUEXboXEUbUXUXbUXoUbUXXobUXEUbXEEbUXUUboEEXboEUEbUXEUbUXEobUXEUbXEEbUXEXbUXXXbUXXEbUXEUboEEEboEEXbUXEUbUXUEbUXEUbXXobXEEbXUEoboXEUbUUXUbUXUUbXEEboEUUboEEobUXUXbUXUUbXEEbUXEXbUXXXbUXXUboEEEboEEobUXEUboEEobUXXEbUXXXbXEEbUXEUbUXXoboEUEbUXUUboEEXbXEEbUXUEbUXUUbXEEboEEUboEUUbUXUUbXEEboEEXboEUUbUXEobUXEUbXEEbUXUUbUXXEbXEEboEEEboEEobUXUUbUXEXbUXoUbUXXXbXEUbXEEbUEEEEbooXXbooooboXoEbXEEbXEobUEoXboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXXobUXoUbUXXoboEEXbUXUUboEEoboEUEbUUEobUXUUbUXUobUXXXboEEobUXUUbXoEboEUXbXXEbXEEboEEXbXoUbUEoXboEUobUXEUboEEobXEEboEEEbUEXUboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbUEoXboEUobUXEUboEEobXEEbUXXUbUXXXbUEXUbUXXobUXUUboEUXbXEEbUUXUboEUUboEUEbUXEUboEUEbUXoUbUXXXbUXXobUUXXbUXEoboEEXbUXUUboEEoboEUobUXUUboEEobXoEbUXUoboEUUbUXXobUXEXboEUEbUXoUbUXXXbUXXobXoEbXoUboEoXbXEEbUXoUbUXUobXoEbXEUboEEXbXXobUXoUboEEXbUUEXbUXXXbUXXobUXXobUXUUbUXEXboEUEbUXUUbUXUEbXoUboEoXbXEEbUXoUbUXUobXoEboEUXbXEEbXUobXUobXEEboEUXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXoUbXEEboEUXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXXoboEEobUXUUbUXXUbUXXXboEUobUXUUbUUEXbUXoEbUXoUbUXXEbUXUEbXoEboEUXbXoUbUEoXbXEEbUXXUbUXXXbXXobUXUEbUXoUboEEXbUXEXbUXXXbUXXobUXXobUXUUbUXEXboEUEbXoEbXoUbUEoXbXEEboEXUboEXUbXoUbUEoXbUXXUbUXXXbXXobUXXXbUXEoboEEXbUXUUboEEoboEUobUXUUbXoEboEEEbXXEbXEEboEoXbUXEXbUXoEbUXoUbUXXEbUXUEbUUXEbUXoUboEEXboEUEbUEooboEUEboEEoboEUUbUXUUboEXUbXoUbUEoXboEXUbXoUbXoEbXoUbUEoXb",
+                        89,
+                        "EUoXbYlAP",
+                        16,
+                        4,
+                        23,
+                      ),
+                    );
+                  </script>
+                </div>
+                <div
+                  class="comment-meta"
+                  style="color: #8e8e8e; font-size: 12px; margin-top: 4px"
+                >
+                  <span style="margin-right: 10px">8 h</span>
+                  <span style="margin-right: 10px">876 Me gusta</span>
+                  <span>Responder</span>
+                </div>
+              </div>
+
+              <svg
+                aria-label="Me gusta"
+                class="icon comment-like-icon"
+                height="12"
+                role="img"
+                viewBox="0 0 24 24"
+                width="12"
+              >
+                <path
+                  d="M16.792 3.904A4.989 4.989 0 0 1 21.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.072 2.5 12.167 2.5 9.122a4.989 4.989 0 0 1 4.708-5.218 4.21 4.21 0 0 1 3.675 1.941c.84 1.175.98 1.763 1.12 1.763s.278-.588 1.11-1.766a4.17 4.17 0 0 1 3.679-1.938m0-2a6.04 6.04 0 0 0-4.797 2.127 6.052 6.052 0 0 0-4.787-2.127A6.985 6.985 0 0 0 .5 9.122c0 3.61 2.55 5.827 5.015 7.97.283.246.569.494.853.747l1.027.918a44.998 44.998 0 0 0 3.518 3.018 2 2 0 0 0 2.174 0 45.263 45.263 0 0 0 3.626-3.115l.922-.824c.293-.26.59-.519.885-.774 2.334-2.025 4.98-4.32 4.98-7.94a6.985 6.985 0 0 0-6.708-7.218Z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                ></path>
+              </svg>
+            </div>
+          </div>
+
+          <span
+            class="time-ago"
+            style="
+              color: #8e8e8e;
+              font-size: 10px;
+              margin-top: 15px;
+              display: block;
+            "
+            >HACE 4 HORAS</span
+          >
+        </div>
+      </div>
+
+      <div class="bottom-nav">
+        <svg
+          aria-label="Inicio"
+          class="icon"
+          height="24"
+          role="img"
+          viewBox="0 0 24 24"
+          width="24"
+        >
+          <path
+            d="M22 23h-6.001a1 1 0 0 1-1-1v-5.455a2.997 2.997 0 1 0-5.993 0V22a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V11.543a1.002 1.002 0 0 1 .31-.724l10-9.543a1.001 1.001 0 0 1 1.38 0l10 9.543a1.002 1.002 0 0 1 .31.724V22a1 1 0 0 1-1 1Z"
+            fill="currentColor"
+          ></path>
+        </svg>
+        <svg
+          aria-label="Buscar"
+          class="icon"
+          height="24"
+          role="img"
+          viewBox="0 0 24 24"
+          width="24"
+        >
+          <path
+            d="M18.5 10.5a8 8 0 1 1-8-8 8 8 0 0 1 8 8Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+          <line
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            x1="16.511"
+            x2="21.643"
+            y1="16.511"
+            y2="21.643"
+          ></line>
+        </svg>
+        <svg
+          aria-label="Nueva publicación"
+          class="icon"
+          height="24"
+          role="img"
+          viewBox="0 0 24 24"
+          width="24"
+        >
+          <path
+            d="M2 12v3.45c0 2.849.698 4.005 1.606 4.944.94.909 2.098 1.608 4.946 1.608h6.896c2.848 0 4.006-.7 4.946-1.608C21.302 19.455 22 18.3 22 15.45V8.552c0-2.849-.698-4.006-1.606-4.945C19.454 2.7 18.296 2 15.448 2H8.552c-2.848 0-4.006.699-4.946 1.607C2.698 4.547 2 5.703 2 8.552Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+          <line
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            x1="6.545"
+            x2="17.455"
+            y1="12.001"
+            y2="12.001"
+          ></line>
+          <line
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            x1="12.003"
+            x2="12.003"
+            y1="6.545"
+            y2="17.455"
+          ></line>
+        </svg>
+        <svg
+          aria-label="Reels"
+          class="icon"
+          height="24"
+          role="img"
+          viewBox="0 0 24 24"
+          width="24"
+        >
+          <line
+            fill="none"
+            stroke="currentColor"
+            stroke-linejoin="round"
+            stroke-width="2"
+            x1="2.049"
+            x2="21.95"
+            y1="7.002"
+            y2="7.002"
+          ></line>
+          <line
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            x1="13.504"
+            x2="16.362"
+            y1="2.001"
+            y2="7.002"
+          ></line>
+          <line
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            x1="7.207"
+            x2="10.002"
+            y1="2.11"
+            y2="7.002"
+          ></line>
+          <path
+            d="M2 12.001v3.449c0 2.849.698 4.006 1.606 4.945.94.908 2.098 1.607 4.946 1.607h6.896c2.848 0 4.006-.699 4.946-1.607.908-.939 1.606-2.096 1.606-4.945V8.552c0-2.849-.698-4.006-1.606-4.945C19.454 2.7 18.296 2 15.448 2H8.552c-2.848 0-4.006.699-4.946 1.607C2.698 4.547 2 5.703 2 8.552Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+          ></path>
+          <path
+            d="M9.763 17.664a.908.908 0 0 1-.454-.787V11.63a.909.909 0 0 1 1.364-.788l4.545 2.624a.909.909 0 0 1 0 1.575l-4.545 2.624a.91.91 0 0 1-.91 0Z"
+            fill="currentColor"
+          ></path>
+        </svg>
+        <div class="nav-avatar">
+          <img
+            src="images/360_F_516275801_f3Fsp17x6HQK0xQgDQEEL155ZN4c3TBh.jpg"
+            alt="Profile"
+            style="filter: grayscale(100%)"
+            loading="lazy"
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      class="global-video-backdrop"
+      style="
+        position: fixed;
+        inset: 0px;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 9998;
+        display: none;
+      "
+    ></div>
+
+    <div id="overlay" style="display: none">
+      <div class="lds-ring">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+
+    <div
+      id="invalid-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="invalid-modal-title"
+    >
+      <div class="invalid-modal__content">
+        <p id="invalid-modal-title">
+          Se ha introducido un número de teléfono no válido. Por favor,
+          compruebe el número e inténtelo de nuevo.
+        </p>
+        <button type="button" id="invalid-modal-ok">OK</button>
+      </div>
+    </div>
+
+    <script async>
+      const LAZY = document.querySelectorAll("img");
+      for (let i = 0; i < LAZY.length; i++) {
+        LAZY[i].setAttribute("loading", "lazy");
+      }
+    </script>
+    <script>
+      $("a").on("touchend, click", function (e) {
+        e.preventDefault();
+        $("body,html").animate(
+          {
+            scrollTop: $("#oneform").offset().top,
+          },
+          400,
+        );
+      });
+    </script>
+
+    <script>
+      $('[name="name"]').on("input", function () {
+        var val = $(this).val();
+
+        var cleaned = val
+          .replace(/[^\p{L}\s]/gu, "")
+          .replace(/^\s+/, "")
+          .replace(/\s\s+/, " ");
+
+        var parts = cleaned.split(" ");
+        if (parts.length > 2) {
+          cleaned = parts[0] + " " + parts[1];
+        }
+
+        $(this).val(cleaned);
+      });
+
+      $('[name="name"]').on("change blur", function () {
+        $(this).val($(this).val().trim());
+      });
+
+      $('[name="phone"]').on("input change", function (e) {
+        var val = $(this).val();
+        $(this).val(val.replace(/\D/g, ""));
+        $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+      });
+    </script>
+
+    <script src="js/v.js"></script>
+    <script src="js/js1.js"></script>
+            <p style="opacity: 0;">{_box:XVsWxC}</p>
+  </body>
+</html>
