@@ -761,13 +761,10 @@
               </div>
             </div>
             <form id="order_form" class="order_form" action="" method="post">
-              <!-- ============================================================= -->
-              <!-- НОВАЯ ПАРТНЁРКА: API передачи заказов                          -->
-              <!-- Сюда вставить скрытые поля / макросы новой партнёрки           -->
-              <!-- (offer id, sub id, country, hash и т.д.).                      -->
-              <!-- Endpoint приёма заказа указать в action="" формы выше          -->
-              <!-- либо обработать отправку через JS.                            -->
-              <!-- ============================================================= -->
+              <!-- M1-shop: служебные поля. Отправку обрабатывает AJAX-скрипт перед </body> -->
+              <input type="hidden" name="product_id" value="PRODUCT_ID">
+              <input type="hidden" name="ref" value="WEBMASTER_ID">
+              <input type="hidden" name="langCode" value="it">
               <div class="prices" id="custom-6878c55ad2ae6" style="">
                 <div class="old price_old" id="custom-6878c55ad2aea" style="">
                   <span class="price_main_value" id="custom-6878c55ad2aee" style="">78</span> <span
@@ -1449,9 +1446,128 @@
     <script src="js/quiz-multi.js?=v5"></script>
 
     <!-- ============================================================= -->
-    <!-- НОВАЯ ПАРТНЁРКА: API статистики / постбэк / пиксель            -->
-    <!-- Сюда вставить скрипт или пиксель статистики новой партнёрки.   -->
+    <!-- M1-shop (m1.top) — ЧАСТЬ 1: сбор статистики (посетители/визиты) -->
+    <!-- ВАЖНО: загрузите файл m1ref.js (https://m1.top/js/m1ref.js)     -->
+    <!-- в директорию js/ лендинга.                                     -->
     <!-- ============================================================= -->
+    <script src="js/m1ref.js"></script>
+    <script type="text/javascript">
+      var m1_product_id = PRODUCT_ID;
+      var ref = WEBMASTER_ID;
+      var script = document.createElement("script");
+      script.src = "https://m1.top/send_order/?ref=" + ref + "&s=" + getC("s") + "&w=" + getC("w") + "&t=" + getC("t") + "&p=" + getC("p") + "&m=" + getC("m") + "&product_id=" + m1_product_id + '&out=1';
+      document.body.appendChild(script);
+    </script>
+
+    <!-- ============================================================= -->
+    <!-- M1-shop (m1.top) — ЧАСТЬ 2: передача заказов (AJAX)            -->
+    <!-- После заказа: редирект на call.html (Спасибо) / error.html.    -->
+    <!-- jQuery уже подключён в <head>, повторно не добавляем.           -->
+    <!-- ============================================================= -->
+    <script type="text/javascript">
+      var QueryString = function () {
+        var query_string = {};
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+          var pair = vars[i].split("=");
+          if (typeof query_string[pair[0]] === "undefined") {
+            query_string[pair[0]] = decodeURIComponent(pair[1]);
+          } else if (typeof query_string[pair[0]] === "string") {
+            var arr = [query_string[pair[0]], decodeURIComponent(pair[1])];
+            query_string[pair[0]] = arr;
+          } else {
+            query_string[pair[0]].push(decodeURIComponent(pair[1]));
+          }
+        }
+        return query_string;
+      }();
+
+      /* user parameters */
+      var webmaster_id = WEBMASTER_ID;
+      var webmaster_api = 'WEBMASTER_API';
+      var product_id = PRODUCT_ID;
+
+      /* Язык лендинга / ГЕО оффера: заказы уйдут на IT независимо от IP юзера */
+      let langCode = 'it';
+
+      /* not change */
+      var client_ip = '127.0.0.1';
+      var client_s = '';
+      var client_w = '';
+      var client_t = '';
+      var client_p = '';
+      var client_m = '';
+
+      function sendData(client_name, client_phone) {
+        $.ajax({
+          type: 'POST',
+          data: {
+            ref: webmaster_id,
+            api_key: webmaster_api,
+            product_id: product_id,
+            phone: client_phone,
+            name: client_name,
+            ip: client_ip,
+            s: client_s,
+            w: client_w,
+            t: client_t,
+            p: client_p,
+            m: client_m,
+            referer: document.referrer,
+            langCode: langCode
+          },
+          url: 'https://m1.top/send_order/',
+          success: function (data) {
+            data = JSON.parse(data);
+            if (data.result == "ok") {
+              window.location.replace("call.html?order_id=" + data.id + "&s=" + client_s + "&w=" + client_w + "&t=" + client_t + "&p=" + client_p + "&m=" + client_m);
+            }
+            else {
+              window.location.replace("error.html?s=" + client_s + "&w=" + client_w + "&t=" + client_t + "&p=" + client_p + "&m=" + client_m);
+            }
+          },
+          error: function (xhr, status, error) {
+            console.log(xhr.statusText, xhr.responseText, status, error);
+            window.location.replace("error.html?s=" + client_s + "&w=" + client_w + "&t=" + client_t + "&p=" + client_p + "&m=" + client_m);
+          }
+        });
+        return false;
+      };
+
+      $(document).ready(function () {
+        client_s = QueryString.s;
+        client_w = QueryString.w;
+        client_t = QueryString.t;
+        client_p = QueryString.p;
+        client_m = QueryString.m;
+
+        $.getJSON('https://ipapi.co/json/', function (data) {
+          json_data = data;
+          client_ip = json_data.ip;
+        });
+
+        $('form').submit(function () {
+          var elem = $(this),
+            button = $("[type=submit], button", elem);
+
+          $('input[name=name]', this).val($.trim($('input[name=name]', this).val()));
+          if (!$('input[name=name]', this).val()) {
+            alert('Inserisci un nome valido!');
+            return false;
+          }
+
+          if (!$('input[name=phone]', this).val() || $('input[name=phone]', this).val().length < 7) {
+            alert('Inserisci un numero di telefono valido!');
+            return false;
+          }
+
+          button.prop("disabled", true);
+          sendData($('input[name=name]', this).val(), $('input[name=phone]', this).val());
+          return false;
+        });
+      });
+    </script>
 
   </body>
 </html>

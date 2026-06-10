@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grazie per l'ordine!</title>
+  <link rel="shortcut icon" href="images/product.webp" type="image/x-icon">
+  <!-- ВНИМАНИЕ: на этой странице можно размещать метрики (Яндекс/Google/пиксели). -->
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f4f4;
+      color: #222;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .thanks {
+      background: #fff;
+      max-width: 520px;
+      margin: 20px;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, .08);
+    }
+
+    .thanks img {
+      max-width: 140px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    .thanks h1 {
+      color: #c31a20;
+      font-size: 28px;
+      margin: 0 0 12px;
+    }
+
+    .thanks p {
+      font-size: 17px;
+      line-height: 1.5;
+      margin: 8px 0;
+    }
+
+    .order-id {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #888;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="thanks">
+    <img src="images/product.webp" alt="DHT19" loading="lazy">
+    <h1>Grazie per il tuo ordine!</h1>
+    <p>Il tuo ordine è stato registrato con successo.</p>
+    <p>Il nostro operatore ti contatterà a breve per confermare la consegna.</p>
+    <div class="order-id" id="order-id"></div>
+  </div>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var id = params.get('order_id');
+      if (id) {
+        document.getElementById('order-id').textContent = 'Numero ordine: ' + id;
+      }
+    })();
+  </script>
+</body>
+
+</html>
