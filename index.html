@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DHT19</title>
+  <link rel="shortcut icon" href="images/product.webp" type="image/x-icon">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+
+  <link rel="stylesheet" href="css/quiz.css?=v1">
+  <link rel="stylesheet" href="css/header-footer.css">
+  <link rel="stylesheet" href="css/intlTelInput.css">
+  <link rel="stylesheet" href="css/isValidNumber.css">
+  <link rel="stylesheet" href="css/shit.css">
+</head>
+
+<body class="loaded">
+  <div id="preloader">
+    <div class="spinner" id="custom-6878c55ad2899" style=""></div>
+  </div>
+  <header class="header">
+    <div class="wrapper" id="custom-6878c55ad28c4" style="">
+      <div class="header__body" id="custom-6878c55ad28dc" style="">
+        <div class="header__top" id="custom-6878c55ad28e2" style="">
+          <ul class="header__social">
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" role="img" viewBox="0 0 24 24">
+                  <path
+                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                  <path
+                    d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75zm-.86 13.028h1.36L4.323 2.145H2.865l8.875 11.633z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" role="img" viewBox="0 0 24 24">
+                  <path
+                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" role="img" viewBox="0 0 24 24">
+                  <path
+                    d="m23.9765 6.4168c-.105 2.338-1.739 5.5429-4.894 9.6088-3.2679 4.247-6.0258 6.3699-8.2898 6.3699-1.409 0-2.578-1.294-3.553-3.881l-1.9179-7.1138c-.719-2.584-1.488-3.878-2.312-3.878-.179 0-.806.378-1.8809 1.132l-1.129-1.457a315.06 315.06 0 0 0 3.501-3.1279c1.579-1.368 2.765-2.085 3.5539-2.159 1.867-.18 3.016 1.1 3.447 3.838.465 2.953.789 4.789.971 5.5069.5389 2.45 1.1309 3.674 1.7759 3.674.502 0 1.256-.796 2.265-2.385 1.004-1.589 1.54-2.797 1.612-3.628.144-1.371-.395-2.061-1.614-2.061-.574 0-1.167.121-1.777.391 1.186-3.8679 3.434-5.7568 6.7619-5.6368 2.4729.06 3.6279 1.664 3.4929 4.7969z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" role="img" viewBox="0 0 24 24">
+                  <path
+                    d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" role="img" viewBox="0 0 24 24">
+                  <path
+                    d="M21.2666 21.2a.6141.6141 0 0 1-.6128.6128H3.3446a.614.614 0 0 1-.6128-.6128V8.1153a.6141.6141 0 0 1 .6128-.6128h17.3091a.6141.6141 0 0 1 .6128.6128V21.2zm-3.0315-3.4196v-1.1957a.0803.0803 0 0 0-.0803-.0803h-5.3725v1.3619h5.3725a.0817.0817 0 0 0 .0804-.083l-.0001-.0029zm.8171-2.5875v-1.2012a.0803.0803 0 0 0-.079-.0817h-6.191v1.3619h6.1896a.079.079 0 0 0 .0804-.0776v-.0041.0027zm-.8171-2.5875v-1.2066a.0803.0803 0 0 0-.0803-.0803h-5.3725v1.3619h5.3725a.0816.0816 0 0 0 .0803-.079v.004zM8.1492 14.0448v1.2257h1.7704c-.1457.749-.8049 1.2924-1.7704 1.2924-1.0906-.0405-1.9418-.9574-1.9013-2.048.0384-1.0338.8676-1.8629 1.9013-1.9013a1.77 1.77 0 0 1 1.2529.4903l.9342-.9329a3.1405 3.1405 0 0 0-2.1871-.8525c-1.8051 0-3.2684 1.4633-3.2684 3.2684 0 1.8051 1.4633 3.2684 3.2684 3.2684 1.8889 0 3.1323-1.3278 3.1323-3.1976a3.941 3.941 0 0 0-.0518-.6183l-3.0805.0054zM2.2701 7.6537a.6156.6156 0 0 1 .6128-.6128h12.1545l-1.2692-3.4904a.5952.5952 0 0 0-.7436-.3827L.3676 7.7749a.5938.5938 0 0 0-.3228.7749l2.2253 6.112V7.6537za.6156.6156 0 0 1 .6128-.6128h12.1545l-1.2692-3.4904a.5952.5952 0 0 0-.7436-.3827L.3676 7.7749a.5938.5938 0 0 0-.3228.7749l2.2253 6.112V7.6537zm21.3116-.3105l-8.803-2.3683.7517 2.0659h5.5836a.6141.6141 0 0 1 .6128.6128v8.7948l2.2471-8.3659a.5923.5923 0 0 0-.3922-.7393zm-4.4955-1.6738V2.7946a.6101.6101 0 0 0-.6115-.6074H5.5236a.6101.6101 0 0 0-.6156.6046v2.8368l8.3904-3.0519a.5937.5937 0 0 1 .7422.3895l.5447 1.498 4.5009 1.2052z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" role="img" viewBox="0 0 24 24">
+                  <path
+                    d="M19.199 24C19.199 13.467 10.533 4.8 0 4.8V0c13.165 0 24 10.835 24 24h-4.801zM3.291 17.415c1.814 0 3.293 1.479 3.293 3.295 0 1.813-1.485 3.29-3.301 3.29C1.47 24 0 22.526 0 20.71s1.475-3.294 3.291-3.295zM15.909 24h-4.665c0-6.169-5.075-11.245-11.244-11.245V8.09c8.727 0 15.909 7.184 15.909 15.91z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+          </ul>
+          <a href="#" class="header__logo">
+            <svg width="230" height="30" viewBox="0 0 230 30">
+              <path
+                d="M17.581 5.601V1.049h8.634v27.942h-9.222l-5.887-9.929a82.866 82.866 0 0 1-2.629-4.67c.104 2.616.157 5.965.157 10.046v4.553H0V1.049h9.222l5.769 9.928c.707 1.204 1.609 2.957 2.708 5.259-.078-2.328-.118-5.873-.118-10.635M50.336 1.049v7.613H36.287v2.747h12.99v7.339h-12.99v2.629h14.049v7.614H27.418V1.049h22.918ZM80.589 9.329l1.57-8.28h9.065l-7.378 27.942h-9.497l-1.845-8.516c-.392-1.701-.876-4.121-1.452-7.261a497.402 497.402 0 0 1-1.491 7.261l-1.844 8.516h-9.498L50.841 1.049h9.066l1.57 8.28c0 .079.065.465.196 1.158l.667 3.532c.314 1.662.628 3.382.942 5.161.889-4.788 1.504-8.071 1.844-9.851l1.649-8.28h8.516l1.648 8.28c.34 1.78.955 5.063 1.845 9.851.313-1.779.627-3.499.941-5.161l.668-3.532c.13-.693.196-1.079.196-1.158M111.686 26.989c-2.225 1.78-5.39 2.669-9.498 2.669-4.107 0-7.247-.889-9.418-2.669-2.198-1.779-3.349-4.173-3.454-7.181h8.752c.104 1.203.496 2.04 1.177 2.511.68.471 1.713.707 3.101.707 2.433 0 3.649-.641 3.649-1.924 0-.627-.288-1.111-.863-1.452-.576-.339-1.609-.614-3.101-.824l-3.375-.47c-2.747-.393-4.879-1.328-6.396-2.806-1.518-1.479-2.277-3.474-2.277-5.985 0-2.459.772-4.526 2.316-6.201 1.805-1.962 4.997-2.943 9.575-2.943 7.692 0 11.787 3.074 12.284 9.222h-8.202c-.105-.915-.445-1.589-1.02-2.021-.576-.432-1.492-.647-2.748-.647-2.25 0-3.375.602-3.375 1.805 0 1.02.877 1.648 2.63 1.884l3.375.47c3.505.498 6.069 1.439 7.692 2.826 1.622 1.387 2.433 3.323 2.433 5.808 0 3.035-1.086 5.442-3.257 7.221"
+                fill="#c31a20"></path>
+              <path
+                d="M124.493 22.162h5.455c1.464 0 2.197-.653 2.197-1.962 0-1.308-.733-1.962-2.197-1.962h-5.455v3.924Zm4.356-14.285h-4.356v3.925h4.356c1.465 0 2.197-.654 2.197-1.963 0-1.308-.732-1.962-2.197-1.962m7.692 6.122a7.107 7.107 0 0 1 3.473 2.669c.876 1.256 1.315 2.616 1.315 4.081 0 2.617-.883 4.644-2.649 6.083-1.766 1.44-4.39 2.159-7.869 2.159h-15.188V1.049h14.913c3.401 0 5.861.68 7.378 2.04 1.517 1.361 2.276 3.048 2.276 5.063 0 2.773-1.216 4.723-3.649 5.847M187.501 11.645l2.119-10.596h13.658v27.942h-8.634v-7.928c0-3.846.065-7.403.196-10.674a62.912 62.912 0 0 1-.864 3.806l-3.532 14.796h-7.22l-3.611-14.796-.373-1.569a39.483 39.483 0 0 1-.294-1.335c-.079-.392-.131-.614-.157-.667.131 3.192.196 6.672.196 10.439v7.928h-8.634V1.049h13.657l2.198 10.596.667 3.335c.288-1.674.497-2.786.628-3.335M213.164 22.162h5.455c1.465 0 2.198-.653 2.198-1.962 0-1.308-.733-1.962-2.198-1.962h-5.455v3.924Zm4.356-14.285h-4.356v3.925h4.356c1.465 0 2.198-.654 2.198-1.963 0-1.308-.733-1.962-2.198-1.962m7.692 6.122a7.098 7.098 0 0 1 3.473 2.669c.877 1.256 1.315 2.616 1.315 4.081 0 2.617-.883 4.644-2.649 6.083-1.766 1.44-4.389 2.159-7.868 2.159h-15.188V1.049h14.913c3.401 0 5.86.68 7.378 2.04 1.517 1.361 2.276 3.048 2.276 5.063 0 2.773-1.217 4.723-3.65 5.847">
+              </path>
+              <path
+                d="M155.428 22.834a8.168 8.168 0 1 1 0-16.336 8.168 8.168 0 0 1 0 16.336m0-22.492c-7.911 0-14.324 6.413-14.324 14.324 0 7.912 6.413 14.325 14.324 14.325s14.324-6.413 14.324-14.325c0-7.911-6.413-14.324-14.324-14.324">
+              </path>
+              <path d="M155.428 8.142a6.524 6.524 0 1 0 0 13.048 6.524 6.524 0 0 0 0-13.048" fill="#c31a20"></path>
+            </svg>
+          </a>
+          <a class="header__weather-link" href="#">
+            <span class="weather-temp" id="custom-6878c55ad28e6" style=""></span>
+            <div class="weater-icon" id="custom-6878c55ad28eb" style="">
+              <img src="fonts/sunny.svg" alt="sunny-icon" width="32" height="32" loading="lazy">
+            </div>
+          </a>
+        </div>
+        <div class="header__bootom" id="custom-6878c55ad28ef" style="">
+          <ul class="header__menu">
+            <li class="header__item">
+              <a class="header__link" href="#">TUTTE LE NOTIZIE</a>
+            </li>
+            <li class="header__item">
+              <a class="header__link" href="#">CIPRO</a>
+            </li>
+            <li class="header__item">
+              <a class="header__link" href="#">POLITICA</a>
+            </li>
+            <li class="header__item">
+              <a class="header__link" href="#">ECONOMIA</a>
+            </li>
+            <li class="header__item">
+              <a class="header__link" href="#">SALUTE</a>
+            </li>
+            <li class="header__item">
+              <a class="header__link" href="#">MONDO</a>
+            </li>
+            <li class="header__item">
+              <a class="header__link" href="#">SPORT</a>
+            </li>
+            <li class="header__item">
+              <a class="header__link" href="#">STILE DI VITA</a>
+            </li>
+            <li class="header__item">
+              <a class="header__link" href="#">METEO</a>
+            </li>
+            <li class="header__item">
+              <a class="header__link" href="#">PRIME PAGINE</a>
+            </li>
+            <li class="header__item">
+              <a class="header__link" href="#">ELENCO BREVE</a>
+            </li>
+          </ul>
+          <a class="btn-menu" href="#">
+            <svg id="icon-rich-menu" viewBox="0 0 32 32">
+              <path d="M11.389 8.032h-11.389v1.586h10.638c0.254-0.529 0.457-1.058 0.751-1.586z"></path>
+              <path d="M9.428 14.613v-0.742h-9.428v1.588h9.467c0-0.266-0.039-0.529-0.039-0.846z"></path>
+              <path d="M10.722 19.712h-10.722v1.587h11.472c-0.301-0.496-0.553-1.030-0.75-1.587z"></path>
+              <path d="M25.507 19.912l0.885-0.885 5.604 5.604-0.885 0.885-5.604-5.604z"></path>
+              <path
+                d="M21.068 22.751c-4.493 0-8.136-3.643-8.136-8.134 0-4.493 3.643-8.136 8.136-8.136s8.135 3.643 8.135 8.136c0.009 4.482-3.618 8.126-8.104 8.134-0.010 0-0.021 0-0.031 0zM21.068 7.733c-3.802 0-6.884 3.081-6.884 6.884 0 3.801 3.082 6.882 6.884 6.882s6.882-3.081 6.882-6.882c-0.004-3.801-3.084-6.88-6.882-6.884z">
+              </path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="container" id="custom-6878c55ad28f3" style="">
+    <h1 class="center" id="main_title">
+      <span class="red-txt" id="custom-6878c55ad28f6" style="">«In piedi dritto fino a 80 anni!»</span> Il Prof. Bove ha
+      rilasciato un'intervista aperta e ha spiegato come risolvere definitivamente i problemi di erezione senza l'uso
+      mortale del Viagra.
+    </h1>
+    <figure class="mob-show">
+      <img src="https://static.joxi.pro/1753865692841-0cd35c1c-d1e8-4e55-80c9-cf77d0545080.jpg" width="800" height="600"
+        loading="lazy">
+      <figcaption>
+        Prof. Pierluigi Bove: Professore associato in medicina, urologo-andrologo presso il Centro Regionale della
+        Salute in Italia.
+      </figcaption>
+    </figure>
+    <h2>
+      Prof. Pierluigi Bove: Professore associato in medicina, urologo-andrologo presso il Centro Regionale della Salute
+      in Italia.
+    </h2>
+    <p class="h2" id="custom-6878c55ad28fa" style="">
+      <i>Un mio amico è morto per un sovradosaggio di Viagra. Per questo motivo sento il dovere di parlare di argomenti
+        che spesso vengono taciuti in pubblico.</i>
+    </p>
+    <figure class="mob-hide">
+      <img src="https://static.joxi.pro/1753865692841-0cd35c1c-d1e8-4e55-80c9-cf77d0545080.jpg" width="800" height="600"
+        loading="lazy">
+      <figcaption>
+        Prof. Pierluigi Bove: «Dopo i 55 anni un uomo può avere un’erezione tale da soddisfare non solo la moglie, ma
+        anche l’amante. E tutto questo – senza sostanze chimiche.»
+      </figcaption>
+    </figure>
+    <p id="custom-6878c55ad28fe" style="">
+      È giunto il momento di parlare di un argomento delicato. Ogni giorno ricevo centinaia di messaggi con la domanda:
+      come ritrovare un’erezione forte? Ma ancora più uomini non osano chiedere, perché si vergognano. Recentemente un
+      mio conoscente è morto a causa di miti medici e pillole troppo pubblicizzate. Ecco perché ho deciso di spiegare
+      come ripristinare rapidamente e in modo sicuro la funzione erettile anche dopo i 55 anni – senza chimica, senza
+      operazioni e senza medici.
+    </p>
+    <p id="custom-6878c55ad2902" style=""><b>Leggete l’articolo fino alla fine per scoprire:</b></p>
+    <div class="yell-bg" id="custom-6878c55ad2906" style="">
+      <ul>
+        <li>Perché 9 uomini su 10 sopra i 35 anni perdono tono?</li>
+        <li>Quali sono i rischi nell’ignorare i sintomi della prostatite o del calo del desiderio?</li>
+        <li>Può questo portare all’impotenza? Quali segnali indicano che è ora di agire prima che sia troppo tardi?</li>
+        <li>Quali 6 alimenti aiutano gli uomini a rafforzarsi?</li>
+        <li>È possibile ripristinare la potenza in modo rapido ed economico senza andare dal medico o sottoporsi a
+          interventi?</li>
+        <li>Quali sono le soluzioni scientifiche moderne per migliorare l’erezione e perché non si trovano in farmacia?
+        </li>
+      </ul>
+    </div>
+    <p id="custom-6878c55ad290a" style="">
+      Guardate me: a 48 anni ho una vita sessuale attiva e mi sveglio al mattino con un’erezione che potrebbe sollevare
+      persino le coperte. Conoscete questa sensazione? Pensateci: i disturbi erettili colpiscono il 62%
+      <b class="red-txt">degli uomini a partire dai 30 anni.</b> E più invecchiamo, maggiore è il rischio di diventare
+      impotenti. Ma non è una condanna a morte, se siamo disposti ad agire.
+    </p>
+    <p id="custom-6878c55ad290e" style="">
+      Ma questa non è la parte più scioccante. Il vero shock è che Viagra, Sildenafil, Dinamiko, Maxigra, Cialis,
+      Vizarsin, Tadalafil, Impaza, Verona, Androgel e altri “potenziatori” sono ancora presenti nelle nostre farmacie.
+      Ironico, ma peggiorano solo i disturbi erettili, distruggono le ghiandole surrenali e letteralmente corrodono le
+      arterie del cuore.
+    </p>
+    <p id="custom-6878c55ad2912" style="">
+      Il mio amico è morto per un sovradosaggio di Viagra. Il suo cuore ha ceduto. La cosa peggiore è che avrei potuto
+      aiutarlo, ma non sapevo che fosse in pericolo. Per questo vi racconterò come eliminare definitivamente l’impotenza
+      senza sostanze nocive. Posso garantire che in 4 settimane dimenticherete i problemi in camera da letto.
+    </p>
+    <p class="red-txt" style="padding: 10px; border: 3px red solid">
+      <b>
+        P.S. La pubblicazione di questo articolo è stata bloccata. Le aziende farmaceutiche prima hanno minacciato, poi
+        hanno tentato di corrompermi. Ma per me la verità vale più del denaro.
+      </b>
+    </p>
+    <h2>«Un’erezione forte è possibile a qualsiasi età.»</h2>
+    <p id="custom-6878c55ad2916" style="">
+      Tutti conoscono le celebrità del mondo dello spettacolo che hanno giovani compagne anche in età avanzata. Non solo
+      riescono a fare l’amore per ore senza sostanze chimiche dannose, ma diventano anche padri dopo i 70 anni.
+    </p>
+    <img src="https://static.joxi.pro/1753865155536-d9edaffa-8823-4269-a2bf-a8ec2f84a38c.jpg" width="800" height="701"
+      loading="lazy">
+    <p class="center" id="custom-6878c55ad2950" style=""><b>Il noto attore e regista Michele Placido (stella della serie
+        La Piovra) è sposato con l'attrice Federica Vincenti, che è più giovane di lui di 37 anni!
+      </b></p>
+
+    <img src="https://static.joxi.pro/1753865155535-ca736196-26a0-4bc6-b894-b5e939e0bcac.jpg" width="800" height="701"
+      loading="lazy">
+    <p class="center" id="custom-6878c55ad2950" style=""><b>Il tenore di fama mondiale Andrea Bocelli ha conosciuto la
+        sua futura moglie Veronica nel 2002, quando lei aveva appena 18 anni. La differenza di età tra loro è di circa
+        25 anni!</b></p>
+
+    <p id="custom-6878c55ad291a" style="">Come ci riescono? Io conosco la risposta. Il segreto sta in un prodotto unico!
+    </p>
+    <p id="custom-6878c55ad291e" style="">
+      Negli anni ‘90 si poteva ottenere solo a caro prezzo. Oggi costa meno di una colazione al bar. E se si considerano
+      i risultati – è praticamente gratuito. Ma nessuno ne parla, perché è “vietato”. Per le farmacie è più redditizio
+      vendere Viagra, che funziona per 8 ore, invece di proporre un integratore naturale che può ripristinare la potenza
+      in sole 4 settimane. Parlo di un prodotto chiamato <a href="#">DHT19</a>.
+    </p>
+    <img src="images/product.webp" style="max-width: 180px" width="280" height="340" loading="lazy">
+
+    <div class="yell-bg" id="custom-6878c55ad2923" style="">
+      <center>
+        <b>NOTA DELLA REDAZIONE:</b><br>
+        <a href="#">DHT19</a> è 100% NATURALE E COMPLETAMENTE SICURO.
+        È ADATTO ANCHE PER CHI SOFFRE DI
+        PATOLOGIE CARDIOVASCOLARI E PUÒ ESSERE ASSUNTO CON ALCOL.
+      </center>
+    </div>
+
+    <p id="custom-6878c55ad2926" style="">
+      Fidatevi di me, tutte le star dello spettacolo assumono <a href="#">DHT19</a>. Non è solo il miglior prodotto, ma
+      l’unico che garantisce davvero un’erezione forte. Per questo lo raccomando senza riserve. Ai medici è stato
+      vietato parlarne, ma ho conservato queste immagini che SMASCHERANO LA TRUFFA DELLE FARMACIE.
+    </p>
+
+    <figure>
+      <img src="https://static.joxi.pro/1753865155536-3f5f8150-1762-428d-88a1-9c2fe14b9be8.jpg" width="800" height="449"
+        loading="lazy">
+      <figcaption> Renzo Arbore ha più volte dichiarato di essere un fan di <a href="#">DHT19</a>. </figcaption>
+    </figure>
+
+    <img src="https://static.joxi.pro/1753865155537-ab854d55-b96d-47b1-9f1e-bc027e42e1dd.jpg" width="800" height="533"
+      loading="lazy">
+    <center>
+      <p id="custom-6878c55ad292a" style="">
+        <b>Paolo Belli</b><br><i>«Attorno a me ci sono tanti scettici, e per qualche motivo tutti cercano di insegnarmi
+          come “vivere bene”. Ma non ho più 15 anni. So cosa voglio dalla vita e cosa posso fare. Da tempo ho imparato
+          ad ascoltare il mio corpo e dopo il ciclo con <a href="#">DHT19</a> ho sentito un’esplosione di energia e
+          virilità. Tutti i problemi da uomo sono scomparsi. Gli istinti si sono riaccesi, ho sentito il desiderio di
+          avere una donna giovane, sana e bella. Ho capito che POSSO FARLO – e l’ho fatto.»</i>
+      </p>
+    </center>
+
+    <img src="https://static.joxi.pro/1753865155536-0fd79281-447a-4133-87d2-7549f745bb87.jpg" width="800" height="661"
+      loading="lazy">
+    <center>
+      <p id="custom-6878c55ad292e" style="">
+        <b>Gianni Morandi</b>
+        <br>
+        <i>
+          Sua moglie: «Mio marito è impagabile! Qualunque uomo potrebbe trarre grande beneficio da questo aiuto. Sì,
+          abbiamo avuto dei problemi – non lo nego. Ma grazie a conoscenze comuni, siamo entrati in contatto con un
+          bravo medico che ci ha consigliato <a href="#">DHT19</a>. Non entrerò nei dettagli, ma il risultato è stato
+          sorprendente – ed è arrivato molto in fretta. “Lì sotto” tutto è tornato alla normalità, l’intero organismo si
+          è rigenerato. Ora stiamo di nuovo pianificando un bambino. Sono certa – non avremo più problemi in questo
+          ambito. A quanto pare, molti nel nostro giro conoscono già questo prodotto.»
+        </i>
+      </p>
+    </center>
+
+    <p id="custom-6878c55ad2932" style="">
+      Il mese scorso sul primo canale doveva andare in onda un programma con il noto urologo Stefano Antonelli, dove
+      parlava di <a href="#">DHT19</a> e non lasciava scampo né al Viagra né ad altri prodotti simili. Ma per qualche
+      ragione il programma non è mai stato trasmesso. Pochi giorni dopo abbiamo visto il dottore guidare una nuova
+      Lexus. Coincidenza? Difficile da credere...
+    </p>
+    <p id="custom-6878c55ad2936" style="">
+      Tuttavia ho conservato una foto dalle riprese e vorrei citarlo come vero esperto:
+    </p>
+    <figure>
+      <img src="https://static.joxi.pro/1753865692840-81a69fb6-5264-4e52-a663-fdf399b122ad.jpg" width="800" height="366"
+        loading="lazy">
+      <figcaption>
+        Prof. Pierluigi Bove: «<a href="#">DHT19</a> è l’unico prodotto sicuro che consente di ottenere una potenza
+        sessuale forte a qualsiasi età.»
+      </figcaption>
+    </figure>
+
+    <p id="custom-6878c55ad2947" style="">
+      Devo dire che <a href="#">DHT19</a> è molto popolare anche tra la gente comune. Durante le riprese, molti uomini
+      tra il pubblico hanno alzato la mano. Uno di loro ha accettato di mostrarsi in video. L’ho contattato via e-mail.
+      Ecco cosa mi ha risposto (con il consenso di Carlo, pubblico il messaggio):
+    </p>
+
+    <div class="gray-bg" id="custom-6878c55ad294c" style="">
+      <img src="https://static.joxi.pro/1753111403740-2c514c7b-c2cc-467e-8d5b-e77b10b848eb.jpg" width="800" height="373"
+        loading="lazy">
+      <p class="center" id="custom-6878c55ad2950" style=""><b>Carlo De Santis, 60 anni, Napoli</b></p>
+      <p id="custom-6878c55ad2954" style="">
+        Dopo tanti anni con mia moglie, ci siamo trovati ad affrontare un problema piuttosto delicato. In un primo
+        momento mi sono categoricamente rifiutato di consultare un medico! Era successo lo stesso a mio padre – e finì
+        male. Le cause della mia perdita di potenza sembravano ovvie – lavoro, stress continuo e altre banalità.
+      </p>
+      <p id="custom-6878c55ad2957" style="">
+        Alla fine mia moglie mi ha convinto ad andare dal dottore. Per fortuna, non mi sono lasciato convincere dalle
+        sue infinite raccomandazioni e non ho iniziato a prendere manciate di pillole su prescrizione. Ho perfino dovuto
+        chiedere un prestito per coprire le spese. Quando ho sentito parlare delle procedure che mi avrebbero fatto...
+        mi sono spaventato e ho perso il coraggio. Alla fine io e mia moglie ci siamo separati. Eppure nemmeno allora ho
+        ricevuto l’aiuto che cercavo.
+      </p>
+      <p id="custom-6878c55ad295b" style="">
+        In seguito, tramite una conoscenza, sono finito sul set di questa trasmissione. Mi hanno invitato anche sul
+        palco. Quando il Prof. Pierluigi Bove ha raccomandato <a href="#">DHT19</a> durante il programma, ho deciso di
+        provarlo – e tutti i problemi sono scomparsi da soli. Ho iniziato ad assumerlo, e in breve tempo la mia vita
+        sessuale è diventata semplicemente fantastica – non avevo mai provato tanto piacere. La mia salute è tornata
+        alla normalità, il corpo si è rigenerato. Sembro 20 anni più giovane e sono di nuovo in forma perfetta! Ora
+        faccio flessioni e trazioni senza problemi di respiro.
+      </p>
+      <p id="custom-6878c55ad295f" style="">
+        Consiglio <a href="#">DHT19</a> a tutti! Non esitate nemmeno un secondo!
+      </p>
+    </div>
+    <p id="custom-6878c55ad2963" style="">
+      Devo dire che Carlo è stato fortunato. Ha avuto l’opportunità di provare <a href="#">DHT19</a>, nessuno lo ha
+      scoraggiato, e così ha potuto ripristinare la sua potenza in modo sicuro e migliorare la salute.
+    </p>
+    <p id="custom-6878c55ad2968" style="">
+      Purtroppo, però, ci sono anche storie diverse. Un giorno ho ricevuto una lettera da un uomo di 48 anni, a cui
+      avevo anche consigliato <a href="#">DHT19</a>. Dopo alcuni mesi mi ha scritto che i suoi familiari lo avevano
+      dissuaso dall’assumerlo! Non credevano nella sua efficacia. Così il pover’uomo si è rivolto all’ospedale per
+      ricevere aiuto. Purtroppo ha dovuto chiedere un prestito perché non poteva permettersi l’operazione costosa – e
+      alla fine si è tolto la vita.
+    </p>
+    <p id="custom-6878c55ad296c" style="">
+      Sua moglie ha trovato la nostra corrispondenza e mi ha raccontato la tragedia che era successa. Si rammarica
+      profondamente di non aver creduto in me in quel momento. Se lui avesse iniziato ad assumere <a href="#">DHT19</a>
+      subito, quando ne aveva l’occasione – tutto ciò non sarebbe mai accaduto!
+    </p>
+    <p id="custom-6878c55ad2970" style="">
+      Come potete vedere, molti medici sono a conoscenza di questo trattamento. Mi vergogno di aver taciuto per tanti
+      anni. Ma ora voglio fare la cosa giusta, quindi salvate questo articolo finché è ancora online e ordinate <a
+        href="#">DHT19</a>.
+    </p>
+
+    <h2>Come funziona <a href="#">“DHT19”</a></h2>
+
+    <p id="custom-6878c55ad2974" style="">
+      <a href="#">DHT19</a> contiene ingredienti unici e altamente concentrati che aumentano significativamente il
+      livello di testosterone:
+    </p>
+    <ul>
+      <li><b>Saw Palmetto (Serenoa).</b> Ripristina la circolazione sanguigna nell’area pelvica e rafforza la struttura
+        della prostata.</li>
+      <li><b>Yohimbe.</b> Stimola la sintesi del testosterone, aiuta a ripristinare l’attività sessuale e regola il
+        metabolismo dei lipidi.</li>
+      <li><b>Chiodi di garofano.</b> Normalizzano il funzionamento della prostata e bloccano i processi infiammatori.
+      </li>
+      <li><b>Prugna africana.</b> Utilizzata frequentemente in urologia per la prevenzione e il trattamento delle
+        malattie del tratto urinario.</li>
+      <li><b>Estratto di asparagi.</b> Aumenta la libido, rafforza le pareti vascolari, favorisce l’erezione e la
+        funzione riproduttiva.</li>
+      <li><b>Germogli di semi.</b> Aiutano a controllare l’eiaculazione e migliorano il benessere generale.</li>
+    </ul>
+
+    <p id="custom-6878c55ad2978" style="">
+      È un prodotto 100% naturale che ripristina la funzione erettile al livello di un ventenne, anche se hai più di 55
+      anni.
+    </p>
+    <p id="custom-6878c55ad297c" style="">
+      <a href="#">DHT19</a> è un attivatore biologico. Ciò significa che contiene solo ingredienti naturali che
+      stimolano direttamente il flusso sanguigno nei corpi cavernosi (si verifica l’erezione – nota della redazione), e
+      favoriscono la produzione naturale di testosterone.
+    </p>
+    <p id="custom-6878c55ad2980" style="">
+      <b class="red-txt">IL TESTOSTERONE È LA CHIAVE DELLA FORZA MASCHILE.</b> Molto testosterone = uomo forte,
+      muscoloso, sessualmente attivo e resistente. Poco testosterone = uomo debole, con pancetta e problemi a letto.
+    </p>
+    <p id="custom-6878c55ad2985" style="">
+      <a href="#">DHT19</a> fornisce il livello ottimale di testosterone per avere erezioni forti, un corpo tonico e
+      rinnovata energia. Nessun effetto collaterale – solo benefici naturali.
+    </p>
+    <p id="custom-6878c55ad2989" style="">
+      Ovviamente, parlando di risultati, bisogna capire che <a href="#">DHT19</a> non è un farmaco per curare malattie,
+      ma aiuta a prevenire le cause che portano a questi disturbi. Farmaci come Cialis, Viagra o Levitra trattano i
+      sintomi della disfunzione erettile, ma hanno molti effetti collaterali e non sono adatti all’uso frequente.
+    </p>
+    <p class="red-txt" id="custom-6878c55ad298d" style="">
+      Per la prevenzione è raccomandato <a href="#">DHT19</a> – sicuro e 100% naturale. Il miglior rimedio contro i
+      disturbi dell’erezione.
+    </p>
+    <p id="custom-6878c55ad2991" style="">
+      Secondo l’urologo Stefano Antonelli, <a href="#">DHT19</a> va assunto ogni giorno per 30 giorni. Sono attive
+      anche offerte speciali, quindi il prodotto è molto accessibile. Il 90% degli uomini non ne ha mai sentito parlare,
+      ma se lo ordini ora – puoi ricevere <a href="#">DHT19</a> a prezzo scontato.
+    </p>
+    <img src="images/image9.webp" width="800" height="556" loading="lazy">
+    <p id="custom-6878c55ad2995" style="">
+      In altre parole, dopo l’assunzione di questo prodotto, l’erezione compare subito e dura diverse ore. Dopo 3-4
+      settimane, la funzione erettile si ripristina completamente e il tuo “attrezzo” funzionerà come quello di un
+      ventenne.
+    </p>
+    <div class="yell-bg" id="custom-6878c55ad2999" style="">
+      <center>
+        <p id="custom-6878c55ad299c" style="">
+          <b>FATTO INTERESSANTE: </b>
+          <br>
+          LA CARATTERISTICA ESCLUSIVA DI <a href="#">DHT19</a> È CHE PIÙ L’UOMO È MATURO, MIGLIORI SONO I RISULTATI.
+        </p>
+        <b>CONSIGLIO DELLA REDAZIONE: </b>
+        <br>
+        PER RIPRISTINARE L’EREZIONE IN UNA SETTIMANA, <a href="#">DHT19</a> DEVE ESSERE ASSUNTO A STOMACO VUOTO.
+      </center>
+    </div>
+
+    <p id="custom-6878c55ad29a0" style="">
+      <b>Caratteristiche di <a href="#">DHT19</a>:</b>
+    </p>
+
+    <ul style="border: 1px #000 solid; padding: 10px 10px 10px 30px">
+      <li>Erezione potenziata e eccitazione immediata dopo l’assunzione.</li>
+      <li>Aumento del desiderio sessuale.</li>
+      <li>Ripristino della produzione di testosterone.</li>
+      <li>Leggero aumento delle dimensioni del pene (2–4 cm durante il ciclo).</li>
+      <li>Maggior vitalità dello sperma (se non desideri figli dopo i 55 anni – usa protezione).</li>
+    </ul>
+
+    <p id="custom-6878c55ad29a5" style="">
+      È l’unico integratore che ripristina la produzione di testosterone senza sostanze chimiche dannose – confermato
+      anche da uno studio dell’Istituto Italiano di Andrologia. Allo studio hanno partecipato 3700 uomini dai 55 ai 73
+      anni. Il 98% ha confermato che <a href="#">DHT19</a> ha risolto completamente i loro problemi intimi.
+    </p>
+
+    <p id="custom-6878c55ad29a8" style="">
+      L’assunzione di <a href="#">DHT19</a> ripristina l’erezione in 4 fasi:
+    </p>
+
+    <ul>
+      <li>Dopo 7 minuti dall’assunzione, compare un’erezione stabile anche nei casi di impotenza totale.</li>
+      <li>Dopo 15 minuti si rafforzano i muscoli del pavimento pelvico, responsabili della durata dell’atto sessuale.
+      </li>
+      <li>Dopo 60–70 minuti aumenta la sensibilità del pene (torna alla normalità, come in un corpo giovane), garantendo
+        un orgasmo intenso.</li>
+      <li>Dopo 5 ore il desiderio sessuale si riduce leggermente, ma resta elevato per altre 36 ore.</li>
+    </ul>
+
+    <p id="custom-6878c55ad29ad" style="">
+      <i><b>P.S.</b> Dopo un’assunzione regolare da 8 a 28 giorni, si manifesta l’erezione mattutina – segno che i
+        livelli di testosterone si sono ristabiliti.</i>
+    </p>
+
+    <div class="yell-bg" id="custom-6878c55ad29b1" style="">
+      <center>
+        <b>Prof. Pierluigi Bove:</b><br>
+        RISPONDO A UN’ALTRA DOMANDA IMPORTANTE: SÌ, DOPO IL TRATTAMENTO CON <a href="#">DHT19</a> IL PENE AUMENTA
+        DAVVERO DI 2–4 CM GRAZIE ALLA CIRCOLAZIONE SANA NELL’AREA PELVICA. L’EFFETTO È PERMANENTE, MA CON UN USO
+        RIPETUTO NON SI ACCUMULA ULTERIORMENTE!
+      </center>
+    </div>
+
+    <p id="custom-6878c55ad29b5" style="">
+      Vorrei rivolgermi anche alle donne! Se il vostro partner non vi soddisfa a letto, se l’erezione è debole o
+      l’eiaculazione troppo precoce – non affrettatevi a sostituirlo! Proporgli di provare <a href="#">DHT19</a>, e
+      presto sarete più che soddisfatte della vostra vita intima – garantito!
+    </p>
+
+    <p id="custom-6878c55ad29b9" style="">
+      L’uso regolare di <a href="#">DHT19</a> innesca una catena di cambiamenti positivi in tutto il corpo. Risolvendo
+      un problema importante, l’organismo inizia da solo a sistemare anche gli altri – è quello che si chiama “effetto
+      domino”.
+    </p>
+    <img src="images/image10.webp" width="800" height="444" loading="lazy">
+
+    <p class="h2 color2" id="custom-6878c55ad29bc" style=""><b>1. Prostata sana</b></p>
+    <p id="custom-6878c55ad29c0" style="">
+      Dopo l’intero ciclo di <a href="#">DHT19</a>, la funzione prostatica si ripristina completamente. L’infiammazione
+      scompare, la circolazione sanguigna nell’organo migliora. Dolore, bruciore e altri fastidi spariscono.
+    </p>
+
+    <p class="h2 color2" id="custom-6878c55ad29c3" style=""><b>2. Ripristino della funzione urinaria</b></p>
+    <p id="custom-6878c55ad29c7" style="">
+      <a href="#">DHT19</a> ripristina la minzione normale, migliora l’urodinamica e riduce il volume di urina. Gli
+      utenti riferiscono che:
+    </p>
+    <ul>
+      <li>Scomparsi dolore e bruciore durante la minzione.</li>
+      <li>Non è più necessario correre in bagno ogni cinque minuti.</li>
+      <li>La vescica funziona come un orologio.</li>
+      <li>Sono spariti i sintomi della vescica iperattiva e la sensazione costante di “pieno”.</li>
+    </ul>
+
+    <p class="h2 color2" id="custom-6878c55ad29cb" style=""><b>3. Erezione “forte” a qualsiasi età!</b></p>
+    <p id="custom-6878c55ad29ce" style="">
+      <a href="#">DHT19</a> migliora significativamente la funzione erettile. I suoi ingredienti ripristinano la
+      circolazione nella zona pelvica:
+    </p>
+    <ul>
+      <li>L’erezione diventa regolare e stabile.</li>
+      <li>Aumenta la durata del rapporto sessuale.</li>
+      <li>Migliora la qualità dello sperma.</li>
+      <li>Le sensazioni durante l’intimità diventano più intense.</li>
+    </ul>
+
+    <p class="h2 color2" id="custom-6878c55ad29d2" style=""><b>4. Eliminazione dei gonfiori</b></p>
+    <p id="custom-6878c55ad29d6" style="">
+      Con l’uso regolare di <a href="#">DHT19</a>, si ripristina la funzione renale e il metabolismo dei liquidi. I
+      reni non trattengono più acqua e non è più necessario assumere diuretici.
+    </p>
+    <ul>
+      <li>Niente più dolore o gonfiore alle gambe.</li>
+      <li>L’addome si riduce grazie alla diminuzione del gonfiore degli organi.</li>
+      <li>I liquidi si eliminano dai polmoni – la respirazione migliora.</li>
+    </ul>
+
+    <p class="h2 color2" id="custom-6878c55ad29da" style=""><b>5. Addio al disagio da emorroidi</b></p>
+    <p id="custom-6878c55ad29de" style="">
+      Con la migliorata circolazione e il rafforzamento delle pareti venose, le emorroidi si riducono e non causano più
+      fastidi.
+    </p>
+
+    <p class="h2 color2" id="custom-6878c55ad29e3" style=""><b>6. Ripristino dell’attività cardiaca</b></p>
+    <p id="custom-6878c55ad29e7" style="">
+      Gli ingredienti dell’integratore migliorano il tono del muscolo cardiaco. Nel 93% dei casi scompare la
+      tachicardia, nel 99% l’ischemia.
+    </p>
+    <ul>
+      <li>La pressione sanguigna e il ritmo cardiaco si normalizzano.</li>
+      <li>Scompaiono i dolori al cuore.</li>
+      <li>Il rischio di infarto si riduce di 17 volte.</li>
+    </ul>
+
+    <p class="h2 color2" id="custom-6878c55ad29eb" style=""><b>7. Rafforzamento del sistema immunitario</b></p>
+    <p id="custom-6878c55ad29ef" style="">
+      Migliora la circolazione nel midollo osseo, responsabile della produzione delle cellule immunitarie. Il sistema di
+      difesa dell’organismo diventa più forte.
+    </p>
+
+    <div class="yell-bg" style="text-transform: uppercase">
+      È DIMOSTRATO CHE APRILE E MAGGIO SONO I MESI MIGLIORI PER INIZIARE A PRENDERE
+      <a href="#">DHT19</a>. IN QUESTO PERIODO, GRAZIE AI CAMBIAMENTI NATURALI NEL METABOLISMO, L’EFFICACIA DEL
+      PRODOTTO È SUPERIORE DEL 42%.
+    </div>
+
+    <p class="h2" id="custom-6878c55ad29f4" style="">
+      <b>
+        <span class="red-txt" id="custom-6878c55ad29f8" style="">Attenzione!</span> <a href="#">DHT19</a> non è
+        disponibile in farmacia.
+        I cittadini italiani possono ordinare <a href="#">DHT19</a> online direttamente dal produttore.
+      </b>
+    </p>
+
+    <p id="custom-6878c55ad29fc" style="">
+      Per evitare speculazioni, è importante chiarire che il produttore non ha stipulato accordi con le catene
+      farmaceutiche e ha scelto di vendere esclusivamente online. Una decisione assolutamente giusta.
+    </p>
+
+    <p id="custom-6878c55ad2a00" style="">
+      Pensateci: non ci sono costi di affitto per i punti vendita, né commissioni alle farmacie per lo spazio sugli
+      scaffali. Per questo <a href="#">DHT19</a> è molto più accessibile rispetto ai farmaci tradizionali.
+    </p>
+
+    <p id="custom-6878c55ad2a04" style=""><b>Ed è importante per tre motivi:</b></p>
+    <ol>
+      <li><b>Garanzia di qualità.</b> <a href="#">DHT19</a> viene spedito direttamente dalla fabbrica al cliente.</li>
+      <li><b>Protezione contro gli intermediari.</b> Per evitare truffe e non pagare 10–20–30 mila euro a causa dei
+        rivenditori.</li>
+      <li>Viene garantita anche una consegna rapida a domicilio.</li>
+    </ol>
+
+    <p id="custom-6878c55ad2a07" style="">
+      Ora potete acquistare <a href="#">DHT19</a> con uno sconto fino al 50 %. Vi ricordiamo che le confezioni scontate
+      sono limitate e si esauriscono in fretta – quindi affrettatevi.
+    </p>
+
+    <div class="yell-bg" id="custom-6878c55ad2a0b" style="">
+      <p class="center" id="custom-6878c55ad2a0f" style=""><b>Condizioni per ottenere lo sconto:</b></p>
+      <ol>
+        <li>
+          <b>Possono partecipare solo cittadini italiani maggiorenni (18+).</b><br>
+          I prodotti in promozione sono disponibili esclusivamente per adulti residenti in Italia.
+        </li>
+        <li>
+          <b>Acquisto valido solo per uso personale.</b><br>
+          Questa regola serve a prevenire la rivendita non autorizzata.
+        </li>
+        <li>
+          <b>Disponibile solo tramite il concorso ufficiale.</b><br>
+          A causa della disponibilità limitata, il prodotto è venduto solo attraverso la selezione ufficiale qui sotto
+          su questa pagina.
+        </li>
+      </ol>
+    </div>
+
+    <span id="oneform"></span>
+
+    <div class="container" id="custom-6878c55ad2a13" style="">
+      <div class="quiz_wrap" id="scroll">
+        <div class="quiz-header" id="custom-6878c55ad2a17" style="">
+          <div class="quiz-title" id="custom-6878c55ad2a1b" style="">
+            Rispondi a 3 domande e ottieni il 50% di sconto su DHT19!
+          </div>
+          <div class="order-title" id="custom-6878c55ad2a1f" style="">
+            Compila il campo qui sotto e clicca su “Ordina ora”
+          </div>
+        </div>
+
+        <div class="quiz-body" id="custom-6878c55ad2a23" style="">
+          <quiz class="quiz-step active" style="display: block;">
+            <div class="quiz-question" id="custom-6878c55ad2a26" style="">1. Quanti anni hai?</div>
+            <div class="quiz_options" id="custom-6878c55ad2a2a" style="">
+              <div class="option" id="custom-6878c55ad2a2e" style="">
+                <div class="option-radio" id="custom-6878c55ad2a32" style="">
+                  <div class="circle" id="custom-6878c55ad2a36" style=""></div>
+                </div>
+                Fino a 40 anni
+              </div>
+              <div class="option" id="custom-6878c55ad2a39" style="">
+                <div class="option-radio" id="custom-6878c55ad2a3e" style="">
+                  <div class="circle" id="custom-6878c55ad2a42" style=""></div>
+                </div>
+                40–50 anni
+              </div>
+              <div class="option" id="custom-6878c55ad2a45" style="">
+                <div class="option-radio" id="custom-6878c55ad2a49" style="">
+                  <div class="circle" id="custom-6878c55ad2a4d" style=""></div>
+                </div>
+                51–60 anni
+              </div>
+              <div class="option" id="custom-6878c55ad2a51" style="">
+                <div class="option-radio" id="custom-6878c55ad2a55" style="">
+                  <div class="circle" id="custom-6878c55ad2a5a" style=""></div>
+                </div>
+                Più di 60 anni
+              </div>
+            </div>
+          </quiz>
+
+          <quiz class="quiz-step quiz-step-2" style="display: none;">
+            <div class="quiz-question" id="custom-6878c55ad2a5e" style="">2. Quale problema ti preoccupa di più?</div>
+            <div class="quiz-title" id="custom-6878c55ad2a63" style="">(Puoi selezionare più di un’opzione)</div>
+            <div class="quiz_options" id="custom-6878c55ad2a67" style="">
+              <label class="label" for="id1">
+                <div class="option" id="custom-6878c55ad2a6c" style="">
+                  <input class="input-checkbox" type="checkbox" name="id1" id="id1">
+                  <div class="option-radio" id="custom-6878c55ad2a70" style="">
+                    <div class="circle" id="custom-6878c55ad2a74" style=""></div>
+                  </div>
+                  Erezione debole
+                </div>
+              </label>
+              <label class="label" for="id2">
+                <div class="option" id="custom-6878c55ad2a78" style="">
+                  <input class="input-checkbox" type="checkbox" name="id2" id="id2">
+                  <div class="option-radio" id="custom-6878c55ad2a7d" style="">
+                    <div class="circle" id="custom-6878c55ad2a81" style=""></div>
+                  </div>
+                  Eiaculazione precoce
+                </div>
+              </label>
+              <label class="label" for="id3">
+                <div class="option" id="custom-6878c55ad2a85" style="">
+                  <input class="input-checkbox" type="checkbox" name="id3" id="id3">
+                  <div class="option-radio" id="custom-6878c55ad2a89" style="">
+                    <div class="circle" id="custom-6878c55ad2a8d" style=""></div>
+                  </div>
+                  Basso desiderio sessuale
+                </div>
+              </label>
+              <label class="label" for="id4">
+                <div class="option" id="custom-6878c55ad2a92" style="">
+                  <input class="input-checkbox" type="checkbox" name="id4" id="id4">
+                  <div class="option-radio" id="custom-6878c55ad2a96" style="">
+                    <div class="circle" id="custom-6878c55ad2a9a" style=""></div>
+                  </div>
+                  Problemi alla prostata
+                </div>
+              </label>
+            </div>
+          </quiz>
+
+          <quiz class="quiz-step" style="display: none;">
+            <div class="quiz-question" id="custom-6878c55ad2a9f" style="">3. Da quanto tempo avverti questi sintomi?
+            </div>
+            <div class="quiz_options" id="custom-6878c55ad2aa3" style="">
+              <div class="option" id="custom-6878c55ad2aa6" style="">
+                <div class="option-radio" id="custom-6878c55ad2aaa" style="">
+                  <div class="circle" id="custom-6878c55ad2aae" style=""></div>
+                </div>
+                Meno di un mese
+              </div>
+              <div class="option" id="custom-6878c55ad2ab2" style="">
+                <div class="option-radio" id="custom-6878c55ad2ab6" style="">
+                  <div class="circle" id="custom-6878c55ad2aba" style=""></div>
+                </div>
+                1–6 mesi
+              </div>
+              <div class="option" id="custom-6878c55ad2abe" style="">
+                <div class="option-radio" id="custom-6878c55ad2ac3" style="">
+                  <div class="circle" id="custom-6878c55ad2ac7" style=""></div>
+                </div>
+                Più di 6 mesi
+              </div>
+              <div class="option" id="custom-6878c55ad2acb" style="">
+                <div class="option-radio" id="custom-6878c55ad2ad0" style="">
+                  <div class="circle" id="custom-6878c55ad2ad4" style=""></div>
+                </div>
+                Da molti anni
+              </div>
+            </div>
+          </quiz>
+
+          <div class="quiz-step quiz-form" id="custom-6878c55ad2ad8" style="display: none;">
+            <img src="images/product.webp" alt="" width="381" height="463" loading="lazy">
+            <div class="quiz-timer" id="custom-6878c55ad2adc" style="">
+              L’offerta scade tra:
+              <div class="timer" id="custom-6878c55ad2adf" style="">
+                <span id="mins">10</span>
+                :
+                <span id="secs">00</span>
+              </div>
+            </div>
+            <form id="order_form" class="order_form" action="" method="post">
+              <!-- ============================================================= -->
+              <!-- НОВАЯ ПАРТНЁРКА: API передачи заказов                          -->
+              <!-- Сюда вставить скрытые поля / макросы новой партнёрки           -->
+              <!-- (offer id, sub id, country, hash и т.д.).                      -->
+              <!-- Endpoint приёма заказа указать в action="" формы выше          -->
+              <!-- либо обработать отправку через JS.                            -->
+              <!-- ============================================================= -->
+              <div class="prices" id="custom-6878c55ad2ae6" style="">
+                <div class="old price_old" id="custom-6878c55ad2aea" style="">
+                  <span class="price_main_value" id="custom-6878c55ad2aee" style="">78</span> <span
+                    class="price_main_currency" id="custom-6878c55ad2af1" style="">EUR</span>
+                </div>
+                <div class="new price_main" id="custom-6878c55ad2af5" style="">
+                  <span class="price_main_value" id="custom-6878c55ad2af9" style="">39</span> <span
+                    class="price_main_currency" id="custom-6878c55ad2afd" style="">EUR</span>
+                </div>
+              </div>
+              <input type="text" name="name" placeholder="Nome" required="">
+              <div class="error-box"></div>
+              <div class="iti iti--allow-dropdown iti--separate-dial-code">
+                <input type="tel" name="phone" required="" class="phone" autocomplete="off" data-intl-tel-input-id="0"
+                  placeholder="Telefono">
+              </div>
+              <div class="error-box"></div>
+              <button type="submit" class="button order-form__button">
+                <span class="submit-text" id="custom-6878c55ad2b01" style="">Ordina ora</span>
+                <div class="preloader" id="custom-6878c55ad2b05" style="">
+                  <span class="dot dot1" id="custom-6878c55ad2b09" style=""></span>
+                  <span class="dot dot2" id="custom-6878c55ad2b0d" style=""></span>
+                  <span class="dot dot3" id="custom-6878c55ad2b11" style=""></span>
+                  <span class="dot dot4" id="custom-6878c55ad2b15" style=""></span>
+                </div>
+              </button>
+
+            </form>
+          </div>
+        </div>
+        <div class="quiz-nums" id="custom-6878c55ad2b19" style="">
+          <div class="num active" id="custom-6878c55ad2b1e" style=""><span id="custom-6878c55ad2b21" style="">1</span>
+          </div>
+          <div class="num" id="custom-6878c55ad2b25" style=""><span id="custom-6878c55ad2b2a" style="">2</span></div>
+          <div class="num" id="custom-6878c55ad2b2e" style=""><span id="custom-6878c55ad2b32" style="">3</span></div>
+        </div>
+        <div class="quiz-footer" id="custom-6878c55ad2b37" style="">
+          Rimangono confezioni scontate:
+          <div class="pcs" id="custom-6878c55ad2b3a" style=""><span id="pcs-left" class="pack_count">46</span> pezzi
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="quiz-popup" id="custom-6878c55ad2b3f" style="">
+      <div class="popup__text" id="custom-6878c55ad2b44" style="">Seleziona almeno un’opzione, per favore.</div>
+    </div>
+
+    <p class="h2" id="custom-6878c55ad2b48" style=""><b>Commenti:</b></p>
+
+    <div class="b-comments" id="comm-flag">
+      <div class="b-comments__comment" id="custom-6878c55ad2b4d" style="">
+        <img src="images/m2.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2b52" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2b56" style="">Stefano Mancini (Modena)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2b5b" style="">
+            Ho avuto problemi di potenza per tutta la vita. I medici dicevano solo: “È il tuo corpo, devi accettarlo.” E
+            allora? Così dovrei vivere?
+            Non sono riuscito a creare una famiglia, anche se lo desideravo tanto. Sono una persona ordinata, con un
+            buon lavoro, ma le delusioni a letto
+            mi hanno fatto lasciare da tutte le donne. Alla fine mi sono isolato. <a href="#">DHT19</a> è la mia ultima
+            speranza.
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments reply" id="custom-6878c55ad2b5e" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2b62" style="">
+        <img src="images/m3.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2b66" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2b6a" style="">Paolo Ricci (Parma)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2b6e" style="">
+            Stefano, amico! Non è la fine del mondo! Te lo dico da medico – ordina <a href="#">DHT19</a> e tutti i
+            problemi spariranno.
+            Andrà tutto bene, vedrai che saranno le donne a cercarti! In bocca al lupo!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2b72" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2b76" style="">
+        <img src="images/w1.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2b7a" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2b7f" style="">Maria (Torino)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2b83" style="">
+            L’ho ordinato per mio marito prima che uscisse l’offerta. Non ho parole per descrivere quello che stiamo
+            vivendo! Grazie per l’informazione! :))
+            Mio marito è una macchina – così energico non lo vedevo da 10 anni. Siamo sempre a letto. :))
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2b88" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2b8c" style="">
+        <img src="images/m4.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2b8f" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2b94" style="">Carlo De Angelis (Genova)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2b98" style="">
+            Con la mia prima moglie avevamo dei problemi – non era pienamente soddisfatta. Le mie “prestazioni” erano
+            medie, e il rapporto breve.
+            Avevo persino pensato all’operazione, ma lei mi ha lasciato. Ora spero che <a href="#">DHT19</a> mi aiuti.
+            L’ho messo in bella vista così non dimentico di prenderlo.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2b9c" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2ba0" style="">
+        <img src="images/m5.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2ba5" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2ba8" style="">Salvatore Corti (Roma)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2bad" style="">
+            Grazie per l’informazione! È davvero rilevante per me in questo momento. Da quanto ho letto sul Viagra – il
+            principio attivo, sildenafil, dilata solo i vasi sanguigni.
+            Sì, il sangue affluisce, ma il desiderio non aumenta, e gli effetti collaterali sono enormi: per fegato,
+            pressione, cuore.
+            Invece <a href="#">DHT19</a> è completamente sicuro per l’organismo!
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="b-comments reply" id="custom-6878c55ad2bb1" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2bb5" style="">
+        <img src="https://static.joxi.pro/1753865843870-8bafc0e7-c296-418a-9800-995b485b8b67.webp"
+          class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2bb9" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2bbd" style="">Prof. Pierluigi Bove (Roma)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2bc2" style="">
+            Salvatore, ti auguro tanta salute! Sono molto felice, spero davvero che questo prodotto cambi la vita di
+            molte persone. Con rispetto – Prof. Bove.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2bc6" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2bca" style="">
+        <img src="images/xav4.jpg.pagespeed.ic.ONnFKU6bf1.webp" class="b-comments__item-avatar" width="800" height="800"
+          loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2bce" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2bd1" style="">Giulia Petroni (Pescara)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2bd5" style="">
+            Ho deciso di unirmi alla conversazione perché ho qualcosa da dire. Abbiamo ordinato il prodotto anche per
+            mio marito, e sì, all’epoca costava parecchio. Ma ce lo ha consigliato il nostro medico – mio marito aveva
+            problemi di erezione. Dopo una settimana tutto è tornato alla normalità. Ora siamo felicissimi! Nessun
+            problema da allora. Posso dirlo da donna – le dimensioni sono decisamente aumentate, soprattutto quando è
+            eccitato. Lui si vergogna ad ammetterlo, ma io lo vedo!
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2bd9" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2bdc" style="">
+        <img src="images/m8.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2be0" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2be5" style="">Paolo Gualtieri (Frosinone)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2be9" style="">
+            Io e mia moglie cerchiamo da anni di avere figli – ma senza successo. Lo stress mi aveva quasi fatto perdere
+            la potenza. Abbiamo visto tanti medici – ognuno prescriveva qualcosa di diverso, ma niente ha funzionato.
+            Poi per caso ho trovato questo articolo. Lo proverò. Speriamo funzioni.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments reply" id="custom-6878c55ad2bee" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2bf2" style="">
+        <img src="images/w44.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2bf6" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2bfa" style="">Claudia Terranova (Savona)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2bfe" style="">
+            Paolo, fidati, funzionerà! Provalo! <a href="#">DHT19</a> è un ottimo prodotto! Anche noi abbiamo avuto
+            difficoltà ad avere figli. Un medico aveva persino detto che mio marito era sterile. Dopo due mesi di
+            trattamento sono rimasta incinta – ora aspettiamo due gemelli! Mio marito sta per compiere 56 anni!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2c02" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2c06" style="">
+        <img src="images/w3.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2c0a" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2c0e" style="">Anna Rinaldi (Verona)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2c12" style="">
+            Concordo con tutto quello che è stato detto! Ho scoperto <a href="#">DHT19</a> per caso e ora lo consiglio
+            a tutti! Mio marito fa l'autista di camion. A causa delle vibrazioni ha iniziato ad avere problemi, anche se
+            prima andava tutto bene. Per fortuna esiste <a href="#">DHT19</a>! Sono passati sei mesi da quando lo usa –
+            e a letto tutto è perfetto :) L’ho ordinato dal sito ufficiale e ho ricevuto il prodotto gratis con la
+            promozione. Fate attenzione alle truffe!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2c17" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2c1b" style="">
+        <img src="images/m10.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2c1e" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2c23" style="">Nicola D'Amico (Bari)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2c27" style="">
+            Questo integratore mi ha aiutato a recuperare la potenza qualche mese fa. Il mio “orgoglio” è aumentato
+            visibilmente. Ora sono finalmente felice! Restiamo a letto per ore, abbiamo provato anche in posti insoliti.
+            Il mio “strumento” è come un palo! Mia moglie è al settimo cielo! Lo consiglio davvero!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2c2b" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2c2f" style="">
+        <img src="images/m11.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2c34" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2c38" style="">Roberto Rinaldi (Asti)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2c3b" style="">
+            Anche io ho acquistato le capsule <a href="#">DHT19</a>. Funzionano davvero. Ho ordinato con lo sconto! È
+            arrivato dopo 6 giorni. All’inizio l’ho preso per curiosità, non credevo che potesse migliorare l’erezione e
+            soprattutto prolungare il rapporto. Tornato a casa dal lavoro ho trovato il pacco, ho letto le istruzioni –
+            dice che si può assumere anche con alcol. Lei ha bevuto del vino, io un goccio di brandy, e l’azione è
+            durata quasi 2 ore. Volevamo guardare un film per rilassarci, ma appena iniziate le pubblicità… di nuovo uno
+            sopra l’altra.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2c3f" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2c43" style="">
+        <img src="images/xav2.jpg.pagespeed.ic.hJAAK9k7nY.webp" class="b-comments__item-avatar" width="800" height="816"
+          loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2c47" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2c4b" style="">Marco Bellini (Eur, Roma)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2c4e" style="">
+            Sono un allenatore sportivo. Avevo sentito parlare di integratori simili per uomini, ma ero sempre scettico.
+            Pensavo fosse solo una truffa e potessero danneggiare la potenza. Ma l’articolo del Prof. Pierluigi Bove mi
+            ha convinto! Avevo un problema – duravo solo 10 minuti. Ho deciso di provare <a href="#">DHT19</a>.
+            Ragazzi, non ci crederete – la resistenza è aumentata di 5 volte, fino a un’ora! E non è ancora il limite!
+            Lo uso da due mesi – tutto perfetto!
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2c52" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2c56" style="">
+        <img src="images/m12.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2c5a" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2c5e" style="">Luca Rinaldi (Navigli, Milano)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2c62" style="">
+            Marco, anch’io avevo dubbi se avrebbe funzionato. Sembrava la solita pubblicità. Ma mi sbagliavo. Ora uso <a
+              href="#">DHT19</a> come prevenzione. All’inizio non avevo speranze – nessun altro prodotto aveva aiutato.
+            Ma dopo due settimane tutto a letto è migliorato. L’intimità dura di più, l’erezione è più forte e stabile,
+            e persino il pene è leggermente aumentato.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2c66" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2c6a" style="">
+        <img src="images/m13.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2c6f" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2c72" style="">Davide Romano (Scampia, Napoli)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2c77" style="">
+            Dopo i trenta ho perso la potenza. Sembrava che la vita fosse finita. Per fortuna mia moglie ha scoperto <a
+              href="#">DHT19</a> e lo ha ordinato. Lo sto usando da due settimane – mi sento come a 25 anni. Grazie per
+            aver condiviso l’informazione.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2c7b" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2c7f" style="">
+        <img src="images/w4.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2c83" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2c87" style="">Giulia Ferri (Catania)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2c8a" style="">
+            Mio marito ha 42 anni, io 33. Stiamo insieme da 8 anni, ma negli ultimi anni abbiamo trascorso sempre meno
+            tempo insieme e discusso più spesso. Dopo un grande litigio, siamo quasi arrivati alla separazione. Ho
+            vissuto tre mesi da mia madre. Sei mesi fa, in un forum su “Come salvare un matrimonio”, ho trovato <a
+              href="#">DHT19</a>. Lo usiamo spesso e a lungo, perché non influisce sul cuore. E io sono ancora giovane
+            – voglio dei figli.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2c8f" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2c93" style="">
+        <img src="images/xav8.jpg.pagespeed.ic.slfSn1ne1-.webp" class="b-comments__item-avatar" width="800" height="800"
+          loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2c97" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2c9b" style="">V. Enrico (Bari)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2c9f" style="">
+            Sono sempre stato a favore del naturale. Ma ho capito che la massa muscolare non cresce da sola. Poi ho
+            trovato un articolo su <a href="#">DHT19</a>. Lì famosi allenatori condividevano le loro esperienze su come
+            si sono curati e hanno sviluppato muscoli. Dateci un’occhiata!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2ca3" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2ca7" style="">
+        <img src="images/m15.webp" class="b-comments__item-avatar" width="459" height="459" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2cab" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2caf" style="">Matteo (Torino)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2cc5" style="">
+            Grazie per l’articolo interessante. Lo ordinerò sicuramente!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2cc9" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2ccd" style="">
+        <img src="images/m16.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2cd2" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2cd6" style="">Stefano Greco (Salerno)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2cda" style="">
+            Sono d'accordo con ogni parola! Ho scoperto <a href="#">DHT19</a> sui social e ho deciso di provarlo,
+            perché il “mezzo” non era molto affidabile. Ho ordinato il ciclo completo – e non me ne pento. Dopo qualche
+            settimana ho iniziato ad allenarmi, ho ritrovato tanta energia. Anche mia moglie è soddisfatta!
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="b-comments" id="custom-6878c55ad2cde" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2ce2" style="">
+        <img src="images/m17.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2ce7" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2cea" style="">Giorgio Fabbri (Trento)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2cee" style="">
+            Ho sentito parlare di questo prodotto in TV. E anche il Prof. Pierluigi Bove lo consiglia. Solo non capisco
+            – bisogna pagare in anticipo o come funziona il pagamento?
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments reply" id="custom-6878c55ad2cf2" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2cf6" style="">
+        <img src="images/m18.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2cfa" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2cfd" style="">Gianni (Velletri)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2d01" style="">
+            Non serve pagare in anticipo – è proprio questo il bello. Si paga solo alla consegna. C’è anche uno sconto
+            fino al 50%! E la confezione è completamente discreta – nessun riferimento alla potenza maschile.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments reply" id="custom-6878c55ad2d05" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2d09" style="">
+        <img src="https://static.joxi.pro/1753865843870-8bafc0e7-c296-418a-9800-995b485b8b67.webp"
+          class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2d0d" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2d11" style="">Prof. Pierluigi Bove (Roma)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2d16" style="">
+            Gianni ha ragione – ordinate senza timori! Ha già aiutato moltissime persone! Lo consiglio a tutti, senza
+            eccezioni. Come detto, nessun pagamento anticipato – si paga solo al corriere alla consegna.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2d19" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2d1e" style="">
+        <img src="images/w10.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2d21" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2d25" style="">Barbara Conti (Bologna)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2d2a" style="">
+            Mio marito ha 48 anni, e la “misura” non è mai stata eccezionale, ma il sesso appassionato compensava.
+            Purtroppo, dopo i 35 anni, tutto è peggiorato – il rapporto durava solo 5 minuti. Non provo più piacere. Lui
+            è una brava persona, abbiamo figli, non voglio lasciarlo, ma vivere così è difficile. Sono ancora giovane,
+            desidero amore. Penso ad altri uomini, ma ho paura di fare quel passo. Così ho comprato <a
+              href="#">DHT19</a> per mio marito – spero che aiuti a cambiare le cose.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2d2e" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2d32" style="">
+        <img src="images/w11.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2d36" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2d3b" style="">Alessandra (Pescara)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2d3f" style="">
+            Difficile da credere... ma se così tante persone dicono che funziona – allora funziona davvero. Ho parlato
+            con mio marito, è pronto a provarlo. Aspetto i risultati, come quando avevo 20 anni!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2d43" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2d48" style="">
+        <img src="images/m20.webp" class="b-comments__item-avatar" width="800" height="832" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2d4c" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2d50" style="">Giovanni (Matera)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2d55" style="">
+            Un vero miracolo! Ho ordinato <a href="#">DHT19</a> non appena ho sentito della promozione. L’unico
+            rimpianto – che non sia stato creato cinque anni fa!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2d59" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2d5e" style="">
+        <img src="images/m21.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2d61" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2d65" style="">Riccardo De Santis (Foggia)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2d6b" style="">
+            <a href="#">DHT19</a> mi ha aiutato. Ho rischiato la vita con il “Viagra”! Avevo problemi di erezione,
+            pensavo che “Viagra” fosse la soluzione, ma è stato quasi un disastro. Ho iniziato a cercare alternative. Ho
+            provato molte cose, ma senza risultati. Poi ho provato <a href="#">DHT19</a> – all’inizio niente, ma non ho
+            smesso. Poco a poco è migliorato. Ora sono completamente soddisfatto. Lo consiglio!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2d6f" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2d73" style="">
+        <img src="images/w14.webp" class="b-comments__item-avatar" width="767" height="767" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2d77" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2d7b" style="">Caterina (Modica)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2d7f" style="">
+            Ciao a tutti! L’ho ordinato per mio marito... ora aspetto il pacco. :)
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="b-comments" id="custom-6878c55ad2d83" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2d87" style="">
+        <img src="images/xav12.jpg.pagespeed.ic.H5bku70nS8.webp" class="b-comments__item-avatar" width="800"
+          height="816" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2d8c" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2d90" style="">Niccolò Martelli (Belluno)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2d95" style="">
+            Ho avuto questo problema per tutta la vita, pensavo che nulla potesse aiutarmi – le ragazze mi lasciavano.
+            Alla fine ho comprato <a href="#">DHT19</a> per l’ingrandimento del pene. E poi hanno iniziato a crescere
+            anche i muscoli – doppio effetto! Consigliatissimo!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments reply" id="custom-6878c55ad2d99" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2d9e" style="">
+        <img src="images/xav13.jpg.pagespeed.ic.cV317eogVp.webp" class="b-comments__item-avatar" width="800"
+          height="816" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2da2" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2da6" style="">Leonardo Serra (Oristano)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2daa" style="">
+            Il mio caso è l’opposto – ero sovrappeso, ma dopo un ciclo con <a href="#">DHT19</a> i muscoli hanno
+            iniziato a formarsi e il mio corpo è cambiato completamente.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2dae" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2db2" style="">
+        <img src="images/w13.webp" class="b-comments__item-avatar" width="529" height="529" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2db6" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2dba" style="">Elena Rizzo (Benevento)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2dbe" style="">
+            Stimo moltissimo un medico che ha il coraggio di parlare apertamente di questi temi :)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2dc2" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2dc6" style="">
+        <img src="images/m24.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2dcb" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2dce" style="">Marco (Caltanissetta)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2dd2" style="">
+            Solo <a href="#">DHT19</a> mi ha davvero aiutato. L’ho preso in offerta – non lo trovate in farmacia. Ero
+            incerto finché non ho contattato un tizio che scriveva recensioni negative online. Scoperto che era della
+            Georgia, scriveva solo per soldi e non l’aveva nemmeno provato! Gente così va ignorata – solo bugie.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments reply" id="custom-6878c55ad2dd7" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2dda" style="">
+        <img src="images/m25.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2ddd" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2de1" style="">Pasquale Vitale (Taranto)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2de5" style="">
+            Ciao Marco! Sì, ci sono un sacco di siti del genere. Hanno studiato di recente da dove viene tutto ciò – e
+            indovina? Ancora dalla Georgia. Ormai scrivono di tutto, pur di metterci in cattiva luce.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2de9" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2dec" style="">
+        <img src="images/m34.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2df0" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2df4" style="">Domenico Lanza (Asti)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2df8" style="">
+            Ho ordinato <a href="#">DHT19</a> per aumentare le dimensioni – ne sentivo parlare da tempo. E funziona
+            davvero! I problemi sono spariti, anche se avevo perso le speranze. Con mia moglie facevamo l’amore solo
+            poche volte all’anno – ora ogni giorno! E il pene è cresciuto di 3 cm. Incredibile!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments reply" id="custom-6878c55ad2dfc" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2e01" style="">
+        <img src="images/w20.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2e04" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2e08" style="">Giovanna Foti (Avellino)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2e0d" style="">
+            Le tue ragazze sono davvero fortunate. Ti invidio. Anche io sogno qualcosa di lungo, grosso e potente.
+            Scrivimi se ti interessa. ;-)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2e11" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2e15" style="">
+        <img src="images/m38.webp" class="b-comments__item-avatar" width="648" height="648" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2e1a" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2e1d" style="">Gabriele (Civitanova Marche)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2e21" style="">
+            Grazie per l’articolo chiaro e informativo su <a href="#">DHT19</a>. Lo ordinerò sicuramente!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2e25" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2e29" style="">
+        <img src="images/m26.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2e2d" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2e30" style="">Rino (Agrigento)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2e35" style="">
+            Ragazzi! Qualcuno ha notato che cambia anche il sapore dello sperma? Le ragazze lo adorano! Dopo <a
+              href="#">DHT19</a> vogliono solo il sesso orale. A me piace un sacco. Consigliato a tutti. E per quanto
+            riguarda le dimensioni – perfette, nessuna è mai riuscita a “prenderlo tutto”.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2e39" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2e3d" style="">
+        <img src="images/m27.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2e41" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2e45" style="">Daniele Spina (Avigliano)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2e48" style="">
+            Prima della promozione ho cercato di risparmiare e ho ordinato da un altro sito – costava meno. Ho ricevuto
+            una totale fregatura. Mi sono arrabbiato con me stesso e poi ho ordinato tramite il concorso ufficiale – ho
+            avuto uno sconto del 25%. Peccato non fosse del 50%, ma comunque bene! Grazie! Sono stato tirchio e ho preso
+            una ciofeca :(((((
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments reply" id="custom-6878c55ad2e4d" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2e51" style="">
+        <img src="https://static.joxi.pro/1753865843870-8bafc0e7-c296-418a-9800-995b485b8b67.webp"
+          class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2e55" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2e58" style="">Prof. Pierluigi Bove (Roma)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2e5d" style="">
+            Ricordo ancora una volta – <a href="#">DHT19</a> deve essere ordinato SOLO tramite il concorso ufficiale.
+            Attenzione alle imitazioni!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-comments" id="custom-6878c55ad2e61" style="">
+      <div class="b-comments__comment" id="custom-6878c55ad2e65" style="">
+        <img src="images/m22.webp" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+        <div class="b-comments__item-ind" id="custom-6878c55ad2e69" style="">
+          <div class="b-comments__item-head" id="custom-6878c55ad2e6d" style="">Gianluca (Bresso)</div>
+          <div class="b-comments__item-text" id="custom-6878c55ad2e71" style="">
+            Se lo usate regolarmente – i risultati arrivano! Il diametro del mio pene in erezione è aumentato di ben 4
+            cm (sì, ho misurato). Ho scoperto che prima l’erezione era debole. Ora con la mia ragazza siamo felici – il
+            sesso dura di più, lei arriva per prima e io posso gestire il ritmo. Ne ho ordinato ancora – per tenerne una
+            scorta.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <a href="#" class="link-btn">Acquista DHT19 con lo sconto</a>
+
+    <div class="footer-mid" id="custom-6878c55ad2e7f" style="">
+      <a href="#">
+        <img src="fonts/healthstat.svg" alt="healthstat" width="479" height="35" loading="lazy">
+      </a>
+      <a href="#">
+        <img src="fonts/ienergeia.svg" alt="ienergeia" width="427" height="35" loading="lazy">
+      </a>
+    </div>
+
+    <div class="footer-bot" id="custom-6878c55ad2e82" style="">
+      <div class="footer-bot__copyright" id="custom-6878c55ad2e87" style="">
+        Copyright © 2018 - 2025 NEWSROOM Α.Ε. All rights reserved.
+      </div>
+      <div class="footer-bot__developer" id="custom-6878c55ad2e8c" style="">
+        Developed by <a href="#">Nuevvo</a>.
+      </div>
+    </div>
+    </footer>
+    <script>
+      $(function () {
+        var timerIdPackCountNumber = 49;
+        $(".pack_count").html(timerIdPackCountNumber);
+        var timerIdPackCount = setTimeout(function tick() {
+          timerIdPackCountNumber--;
+          $(".pack_count").html(timerIdPackCountNumber);
+          if (timerIdPackCountNumber > 5) {
+            timerIdPackCount = setTimeout(tick, 60000);
+          }
+        }, 0);
+      });
+    </script>
+    <script
+      async=""> const LAZY = document.querySelectorAll('img'); for (let i = 0; i < LAZY.length; i++) { LAZY[i].setAttribute('loading', 'lazy'); } </script>
+    <script>
+      $("a").on("touchend, click", function (e) {
+        e.preventDefault();
+        $('body,html').animate({
+          scrollTop: $('#oneform').offset().top
+        }, 400);
+      });
+    </script>
+    <script>
+      $('[name="name"]').on("input", function () {
+        var val = $(this).val();
+        var cleaned = val
+          .replace(/[^a-zA-Zа-яА-ЯёЁії ]/g, "")
+          .replace(/^\s+/, "")
+          .replace(/\s\s+/, " ");
+        var parts = cleaned.split(" ");
+        if (parts.length > 2) {
+          cleaned = parts[0] + " " + parts[1];
+        }
+        $(this).val(cleaned);
+      });
+      $('[name="name"]').on("change blur", function () {
+        $(this).val($(this).val().trim());
+      });
+      $('[name="phone"]').on("input change", function (e) {
+        var val = $(this).val();
+        $(this).val(val.replace(/\D/g, ""));
+        $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+      });
+    </script>
+    <script src="js/quiz-multi.js?=v5"></script>
+
+    <!-- ============================================================= -->
+    <!-- НОВАЯ ПАРТНЁРКА: API статистики / постбэк / пиксель            -->
+    <!-- Сюда вставить скрипт или пиксель статистики новой партнёрки.   -->
+    <!-- ============================================================= -->
+
+  </body>
+</html>
