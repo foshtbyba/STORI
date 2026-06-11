@@ -163,6 +163,9 @@ $('[name="phone"]').on("input change",function(e){var val=$(this).val();$(this).
 
       let langCode = 'it';
 
+      var keitaro_subid = '{subid}';
+      if (keitaro_subid.indexOf('{') !== -1) keitaro_subid = '';
+
       var client_ip = '127.0.0.1';
       var client_s = '';
       var client_w = '';
@@ -207,7 +210,7 @@ $('[name="phone"]').on("input change",function(e){var val=$(this).val();$(this).
       };
 
       $(document).ready(function () {
-         client_s = QueryString.s;
+         client_s = QueryString.s || keitaro_subid;
          client_w = QueryString.w;
          client_t = QueryString.t;
          client_p = QueryString.p;
