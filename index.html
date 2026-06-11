@@ -762,7 +762,6 @@
               </div>
             </div>
             <form id="order_form" class="order_form" action="" method="post">
-              <!-- M1-shop: служебные поля. Отправку обрабатывает AJAX-скрипт перед </body> -->
               <input type="hidden" name="product_id" value="15883">
               <input type="hidden" name="ref" value="1029931">
               <input type="hidden" name="langCode" value="it">
@@ -1448,11 +1447,6 @@
     </script>
     <script src="js/quiz-multi.js?=v5"></script>
 
-    <!-- ============================================================= -->
-    <!-- M1-shop (m1.top) — ЧАСТЬ 1: сбор статистики (посетители/визиты) -->
-    <!-- ВАЖНО: загрузите файл m1ref.js (https://m1.top/js/m1ref.js)     -->
-    <!-- в директорию js/ лендинга.                                     -->
-    <!-- ============================================================= -->
     <script src="js/m1ref.js"></script>
     <script type="text/javascript">
       var m1_product_id = 15883;
@@ -1462,11 +1456,6 @@
       document.body.appendChild(script);
     </script>
 
-    <!-- ============================================================= -->
-    <!-- M1-shop (m1.top) — ЧАСТЬ 2: передача заказов (AJAX)            -->
-    <!-- После заказа: редирект на call.html (Спасибо) / error.html.    -->
-    <!-- jQuery уже подключён в <head>, повторно не добавляем.           -->
-    <!-- ============================================================= -->
     <script type="text/javascript">
       var QueryString = function () {
         var query_string = {};
@@ -1486,15 +1475,12 @@
         return query_string;
       }();
 
-      /* user parameters */
       var webmaster_id = 1029931;
       var webmaster_api = '2188aad9cfb9f55626bf1d64cf4e95e0';
       var product_id = 15883;
 
-      /* Язык лендинга / ГЕО оффера: заказы уйдут на IT независимо от IP юзера */
       let langCode = 'it';
 
-      /* not change */
       var client_ip = '127.0.0.1';
       var client_s = '';
       var client_w = '';
@@ -1572,9 +1558,7 @@
       });
     </script>
 
-    <!-- EXIT-INTENT (демонетизация) через бокс трекера. -->
-    <!-- Трекер сам подставит сюда редирект на поток с сундуком. -->
-    <p style="opacity: 0;">{_box:XVsWxC}</p>
+    <p style="opacity: 0;">{_box:VXsVxCX}</p>
 
   </body>
 </html>

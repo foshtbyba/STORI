@@ -1,5 +1,4 @@
 $(document).ready(function () {
-  // Quiz Pcs Counter
   var number = 48;
   var value = localStorage.getItem("counter") || number;
   if (value <= 0) value = number;
@@ -13,7 +12,6 @@ $(document).ready(function () {
   };
   var interval = setInterval(counter, 30000);
 
-  // Таймер
   let n = 600;
   let o;
   function c() {
@@ -54,15 +52,12 @@ $(document).ready(function () {
     }
   }
 
-  // INIT
   goToStep(0);
 
-  // MULTI SELECT on Step 2
   $(".quiz-step").eq(1).addClass("quiz-step-2");
   $(".quiz-step-2 .option").on("change", function () {
     $(this).toggleClass("active");
   });
-  // Add continue button to step 2
   const continueBtn = $('<button class="button continue-button">Continua</button>');
   $(".quiz-step-2").append(continueBtn);
 
@@ -78,7 +73,6 @@ $(document).ready(function () {
     goToStep(2);
   });
 
-  // SINGLE SELECT on steps 1 and 3
   $(".quiz-step")
     .not(".quiz-step-2")
     .find(".option")

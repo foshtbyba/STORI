@@ -1,7 +1,3 @@
-/**
- * M1 referal save
- */
-
 function getC(name) {
     var cookie = " " + document.cookie;
     var search = " " + name + "=";
