@@ -1572,5 +1572,31 @@
       });
     </script>
 
+    <!-- ============================================================= -->
+    <!-- EXIT-INTENT (демонетизация): при попытке уйти без заказа        -->
+    <!-- — редирект на сундук chest.html.                               -->
+    <!-- Срабатывает 1 раз за сессию: курсор за верхний край окна        -->
+    <!-- (десктоп) или кнопка/свайп "назад" (моб + десктоп).            -->
+    <!-- ============================================================= -->
+    <script>
+      (function () {
+        var CHEST_URL = 'chest.html';
+        function leaveToChest() {
+          if (sessionStorage.getItem('exitToChest')) return;
+          sessionStorage.setItem('exitToChest', '1');
+          window.location.href = CHEST_URL;
+        }
+        // Десктоп: курсор уходит за верхний край окна (к адресной строке/крестику)
+        document.addEventListener('mouseout', function (e) {
+          if (!e.relatedTarget && e.clientY <= 0) leaveToChest();
+        });
+        // Кнопка "назад" / свайп назад (мобильные + десктоп)
+        history.pushState(null, '', location.href);
+        window.addEventListener('popstate', function () {
+          leaveToChest();
+        });
+      })();
+    </script>
+
   </body>
 </html>
