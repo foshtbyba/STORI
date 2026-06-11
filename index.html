@@ -1561,35 +1561,9 @@
       });
     </script>
 
-    <p id="exitBox" style="opacity: 0;">{_box:VXsVxCX}</p>
-    <script>
-      (function () {
-        var FALLBACK = 'https://nutrivition.top/VXsVxCX?ad_campaign_id=2';
-        function getTarget() {
-          var el = document.getElementById('exitBox');
-          if (el) {
-            var a = el.querySelector('a[href]');
-            if (a && a.getAttribute('href')) return a.getAttribute('href');
-            var v = (el.textContent || '').trim();
-            if (v && v.indexOf('{_box') === -1) return v;
-          }
-          return FALLBACK;
-        }
-        var timePassed = false, scrolled = false;
-        setTimeout(function () { timePassed = true; }, 4000);
-        window.addEventListener('scroll', function () { scrolled = true; }, { passive: true });
-        function ready() { return timePassed && scrolled; }
-        function leave() {
-          if (!ready() || sessionStorage.getItem('exitToChest')) return;
-          sessionStorage.setItem('exitToChest', '1');
-          window.location.href = getTarget();
-        }
-        document.addEventListener('mouseout', function (e) {
-          if (!e.relatedTarget && e.clientY <= 0) leave();
-        });
-        history.pushState(null, '', location.href);
-        window.addEventListener('popstate', function () { leave(); });
-      })();
+    <script src="js/ywbackfix.js"
+      data-redirect="true"
+      data-backlink="https://nutrivition.top/VXsVxCX?ad_campaign_id=2">
     </script>
 
   </body>
