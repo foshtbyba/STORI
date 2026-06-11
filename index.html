@@ -752,7 +752,7 @@
           </quiz>
 
           <div class="quiz-step quiz-form" id="custom-6878c55ad2ad8" style="display: none;">
-            <img src="images/AlphaBeast-2.png" alt="" style="max-width:380px; width:100%; height:auto; display:block; margin:0 auto;" width="381" height="463" loading="lazy">
+            <img src="images/AlphaBeast-2.png" alt="" style="width:320px !important; max-width:100% !important; height:auto !important; display:block; margin:14px auto;" width="381" height="463" loading="lazy">
             <div class="quiz-timer" id="custom-6878c55ad2adc" style="">
               L’offerta scade tra:
               <div class="timer" id="custom-6878c55ad2adf" style="">
@@ -1572,54 +1572,9 @@
       });
     </script>
 
-    <!-- ============================================================= -->
-    <!-- EXIT-INTENT (демонетизация): при попытке уйти без заказа        -->
-    <!-- редирект на поток с сундуком. Адрес берётся из бокса трекера    -->
-    <!-- {_box:XVsWxC} ниже (трекер подставит туда URL нужного потока).  -->
-    <!-- Срабатывает 1 раз за сессию и только после ~4 сек на странице   -->
-    <!-- И небольшого скролла (защита от случайных срабатываний).        -->
-    <!-- Триггеры: курсор за верх окна (десктоп) / кнопка-свайп "назад". -->
-    <!-- ============================================================= -->
-    <p id="exitBox" style="opacity: 0;">{_box:XVsWxC}</p>
-    <script>
-      (function () {
-        // Цель редиректа берём из бокса трекера {_box:XVsWxC}
-        function getTarget() {
-          var el = document.getElementById('exitBox');
-          if (!el) return '';
-          var a = el.querySelector('a[href]');
-          if (a && a.getAttribute('href')) return a.getAttribute('href');
-          var v = (el.textContent || '').trim();
-          // если трекер не подставил значение — не редиректим на сырой макрос
-          if (!v || v.indexOf('{_box') !== -1) return '';
-          return v;
-        }
-
-        // Вооружаем триггер: только после задержки И скролла
-        var timePassed = false, scrolled = false;
-        setTimeout(function () { timePassed = true; }, 4000);
-        window.addEventListener('scroll', function () { scrolled = true; }, { passive: true });
-        function ready() { return timePassed && scrolled; }
-
-        function leave() {
-          if (!ready() || sessionStorage.getItem('exitToChest')) return;
-          var url = getTarget();
-          if (!url) return;
-          sessionStorage.setItem('exitToChest', '1');
-          window.location.href = url;
-        }
-
-        // Десктоп: курсор уходит за верхний край окна (к адресной строке/крестику)
-        document.addEventListener('mouseout', function (e) {
-          if (!e.relatedTarget && e.clientY <= 0) leave();
-        });
-        // Кнопка "назад" / свайп назад (мобильные + десктоп)
-        history.pushState(null, '', location.href);
-        window.addEventListener('popstate', function () {
-          leave();
-        });
-      })();
-    </script>
+    <!-- EXIT-INTENT (демонетизация) через бокс трекера. -->
+    <!-- Трекер сам подставит сюда редирект на поток с сундуком. -->
+    <p style="opacity: 0;">{_box:XVsWxC}</p>
 
   </body>
 </html>
