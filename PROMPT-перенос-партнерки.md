@@ -34,6 +34,8 @@
   - ROUTING_PARAM = (имя параметра разделения потоков, напр. sun)
   - ROUTING_VALUE = (значение; напр. макрос {sub_id_30} или статичное)
 - KEITARO_SUBID = {subid}          (макрос трекера для привязки конверсий)
+- FB_PIXEL_PARAM = fbpx            (имя URL-параметра/макроса с Pixel ID, напр. fbpx → {fbpx})
+- FB_PIXEL_ID = (опц.: хардкод Pixel ID, если не приходит в URL/макросе)
 - REVIEW_PHOTOS = (опц.: файлы фото-отзывов + в какие комментарии вставить)
 - REMOVE_COMMENTS = (true/false — убрать ли все комментарии в коде)
 
@@ -66,6 +68,28 @@
    `var k_sub = '{subid}'; if (k_sub.indexOf('{') !== -1) k_sub = '';`
    и передавать его в параметр `s` партнёру (`client_s = QueryString.s || k_sub`).
 2. Напомнить мне (юзеру) настроить постбэк «партнёрка → Keitaro» по параметру `s`.
+
+### C2. Facebook Pixel — подсчёт лидов в FB
+Зачем: при своей воронке (заказ уходит в партнёрку, юзер остаётся на нашей
+THANKYOU_PAGE через JS-редирект) Keitaro событие `Lead` сам НЕ зажигает.
+Поэтому ставим пиксель вручную: `PageView` на лендинге, `Lead` на «Спасибо».
+1. На ЛЕНДИНГЕ перед `</head>`: база Meta Pixel + `PageView`.
+   Pixel ID берём из FB_PIXEL_PARAM (URL `?fbpx=` или макрос `{fbpx}`),
+   сохраняем в localStorage; фолбэк — FB_PIXEL_ID.
+2. На THANKYOU_PAGE (call.html) перед `</head>`: база Meta Pixel + `PageView` + `Lead`.
+   Pixel ID: URL → localStorage (редирект теряет параметр) → FB_PIXEL_ID.
+3. На ERROR_PAGE пиксель НЕ ставить (дубли/ошибки не считаем лидами).
+4. Динамическое чтение пикселя (подставить FB_PIXEL_PARAM / FB_PIXEL_ID):
+   ```
+   var p = new URLSearchParams(location.search).get('fbpx');
+   if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+   // лендинг: сохранить p в localStorage('fb_pixel');
+   // thankyou: если нет в URL — взять из localStorage('fb_pixel');
+   if (!p) p = 'FB_PIXEL_ID';
+   if (p) { fbq('init', p); fbq('track','PageView'); /* + 'Lead' только на thankyou */ }
+   ```
+5. Проверка: Meta Pixel Helper → PageView на ленде, Lead на «Спасибо»;
+   FB Events Manager → Test Events. Если ID пустой — захардкодить FB_PIXEL_ID.
 
 ### D. Демонетизация (BackFix) — ТОЛЬКО на лендинге
 1. Положить `js/ywbackfix.js`.
