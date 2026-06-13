@@ -25,11 +25,10 @@
       s.parentNode.insertBefore(t, s)
     }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
     (function () {
-      var PIXEL_FALLBACK = '';
-      var p = new URLSearchParams(window.location.search).get('fb_pixel');
+      var p = new URLSearchParams(window.location.search).get('fbpx');
+      if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
       if (p) { try { localStorage.setItem('fb_pixel', p); } catch (e) {} }
       if (!p) { try { p = localStorage.getItem('fb_pixel'); } catch (e) {} }
-      if (!p) p = PIXEL_FALLBACK;
       if (p) { fbq('init', p); fbq('track', 'PageView'); }
     })();
   </script>
