@@ -1,0 +1,2811 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+  <meta charset="utf-8">
+  <title>„Visito quelli che nessuno visita più" — il giovane medico italiano che cura le articolazioni degli anziani
+    abbandonati nelle case di riposo</title>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="no-cache" http-equiv="Cache-Control">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="telephone=no" name="format-detection">
+  <meta content="no-referrer" name="referrer">
+  <meta content="noindex, nofollow" name="robots">
+
+  <link rel="icon" href="images/product.png?=v1">
+
+  <style>
+    :root {
+      --color-primary: #0a5c9e;
+      --color-primary-dark: #084678;
+      --color-primary-light: #e8f2fa;
+      --color-accent: #0284c7;
+      --color-danger: #c0392b;
+      --color-danger-light: #fdecea;
+      --color-success: #1e8449;
+      --color-success-light: #e8f5ee;
+      --color-warning: #b7791f;
+      --color-text: #1a2b42;
+      --color-text-muted: #4a5a70;
+      --color-text-light: #6b7a8f;
+      --color-bg: #ffffff;
+      --color-bg-soft: #f7fafc;
+      --color-bg-alt: #eef4f9;
+      --color-border: #d9e2ec;
+      --color-border-soft: #e4ebf2;
+      --shadow-sm: 0 1px 2px rgba(10, 92, 158, 0.04), 0 1px 3px rgba(10, 92, 158, 0.06);
+      --shadow-md: 0 4px 12px rgba(10, 92, 158, 0.08), 0 2px 4px rgba(10, 92, 158, 0.04);
+      --shadow-lg: 0 10px 25px rgba(10, 92, 158, 0.10), 0 4px 10px rgba(10, 92, 158, 0.05);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-serif: 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--color-text);
+      background: var(--color-bg-soft);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .clinical-topbar {
+      background: var(--color-primary-dark);
+      color: #fff;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .clinical-topbar::before {
+      content: "⚕ ";
+      margin-right: 6px;
+    }
+
+    .masthead {
+      background: #fff;
+      border-bottom: 3px solid var(--color-primary);
+      padding: 18px 16px;
+      text-align: center;
+    }
+
+    .masthead-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .masthead-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-serif);
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--color-primary-dark);
+      letter-spacing: -0.01em;
+    }
+
+    .masthead-logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--color-primary);
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .masthead-tagline {
+      font-size: 12px;
+      color: var(--color-text-light);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-left: 1px solid var(--color-border);
+      padding-left: 14px;
+      font-weight: 500;
+    }
+
+    @media (max-width:560px) {
+      .masthead-tagline {
+        border-left: 0;
+        padding-left: 0;
+        font-size: 11px;
+        width: 100%;
+        border-top: 1px solid var(--color-border);
+        padding-top: 8px;
+        margin-top: 4px;
+      }
+    }
+
+    header {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    .bg-image {
+      text-align: center;
+    }
+
+    .bg-image img {
+      max-width: 100%;
+      height: auto;
+      display: inline-block;
+    }
+
+    .text-container {
+      display: block;
+    }
+
+    .h1-bg {
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 22px 20px;
+      background: #fff;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .h1-bg::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    }
+
+    .title_h1 {
+      font-family: var(--font-serif);
+      font-size: 26px;
+      line-height: 1.25;
+      color: var(--color-text);
+      font-weight: 700;
+      margin: 0 0 14px;
+      letter-spacing: -0.01em;
+    }
+
+    .head-one-part {
+      color: var(--color-danger);
+    }
+
+    .head-two-part {
+      display: block;
+    }
+
+    .head-main-date {
+      font-size: 13px;
+      color: var(--color-text-light);
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed var(--color-border);
+    }
+
+    .head-main-date::before {
+      content: "📅";
+      font-size: 14px;
+    }
+
+    .head-main-date-title {
+      display: inline;
+      font-style: normal;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 500;
+    }
+
+    .main-subtitle {
+      display: block;
+      padding: 16px 18px;
+      color: var(--color-text);
+      font-size: 17px;
+      border-radius: var(--radius-md);
+      font-weight: 500;
+      border-left: 4px solid var(--color-primary);
+      background: var(--color-primary-light);
+      line-height: 1.55;
+      font-style: normal;
+      margin: 0;
+      box-shadow: none;
+    }
+
+    @media (max-width:640px) {
+      .title_h1 {
+        font-size: 20px;
+      }
+
+      .main-subtitle {
+        font-size: 15px;
+        padding: 14px 14px;
+      }
+
+      .h1-bg {
+        padding: 22px 16px 18px;
+      }
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 22px 40px;
+      background: #fff;
+      border-left: 1px solid var(--color-border-soft);
+      border-right: 1px solid var(--color-border-soft);
+    }
+
+    @media (max-width:640px) {
+      main {
+        padding: 18px 14px 30px;
+      }
+    }
+
+    main p {
+      margin: 0 0 16px;
+      color: var(--color-text);
+    }
+
+    main img {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--radius-md);
+    }
+
+    main h2 {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      line-height: 1.3;
+      font-weight: 700;
+      color: var(--color-primary-dark);
+      margin: 32px 0 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--color-primary-light);
+      letter-spacing: -0.01em;
+    }
+
+    main h2 span {
+      display: block;
+      font-family: var(--font-sans);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      margin-top: 10px;
+      margin-bottom: 0;
+      line-height: 1.5;
+    }
+
+    main h3 {
+      font-family: var(--font-serif);
+      font-size: 19px;
+      color: var(--color-primary-dark);
+      margin: 22px 0 12px;
+      font-weight: 600;
+    }
+
+    @media (max-width:640px) {
+      main h2 {
+        font-size: 19px;
+      }
+
+      main h2 span {
+        font-size: 15px;
+      }
+    }
+
+    main ul {
+      padding-left: 0;
+      list-style: none;
+      margin: 16px 0;
+      background: var(--color-bg-soft);
+      border: 1px solid var(--color-border-soft);
+      border-radius: var(--radius-md);
+      padding: 14px 18px 14px 20px;
+    }
+
+    main ul li {
+      position: relative;
+      padding-left: 22px;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    main ul li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 10px;
+      height: 10px;
+      border: 2px solid var(--color-primary);
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    main ul li:last-child {
+      margin-bottom: 0;
+    }
+
+    .red-txt {
+      color: var(--color-danger);
+      font-weight: 600;
+    }
+
+    .doc-block {
+      padding: 20px 22px;
+      border: 1px solid var(--color-border);
+      border-left: 4px solid var(--color-primary);
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-md);
+      max-width: 700px;
+      margin: 24px auto;
+      text-align: left;
+    }
+
+    .doc-block img {
+      border-radius: var(--radius-md);
+      margin-bottom: 14px;
+    }
+
+    .doc-block p {
+      padding: 0;
+      margin: 0 0 12px;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .doc-block p:last-child {
+      margin-bottom: 0;
+    }
+
+    .doc-block p b {
+      color: var(--color-primary-dark);
+    }
+
+    figure {
+      margin: 22px 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    figure img {
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      max-width: 100%;
+      height: auto;
+    }
+
+    figure figcaption {
+      margin-top: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--color-text-muted);
+      background: var(--color-bg-soft);
+      border-left: 3px solid var(--color-primary);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      text-align: left;
+      font-style: italic;
+    }
+
+    figure.cap-bold figcaption {
+      font-style: normal;
+      font-weight: 500;
+      color: var(--color-text);
+    }
+
+    .img-card {
+      border: 1px solid var(--color-border);
+      padding: 6px;
+      background: #fff;
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-md);
+    }
+
+    .img-card2 {
+      border: 1px solid var(--color-border);
+      padding: 6px;
+      background: #fff;
+      border-radius: var(--radius-md);
+    }
+
+    .pachino-ramka312-block {
+      margin: 24px 0;
+    }
+
+    .pachino-ramka312 {
+      background: var(--color-danger-light);
+      border: 1px solid rgba(192, 57, 43, 0.25);
+      border-left: 4px solid var(--color-danger);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      color: var(--color-text);
+      font-weight: 500;
+      box-shadow: none;
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    .pachino-ramka312::before {
+      content: "⚠";
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      color: var(--color-danger);
+      font-size: 22px;
+      opacity: 0.7;
+    }
+
+    .pachino-ramka312 .obertka-1 {
+      display: block;
+    }
+
+    .rev-block {
+      margin: 24px 0;
+      padding: 20px 22px;
+      background: var(--color-primary-light);
+      border: 1px solid rgba(10, 92, 158, 0.15);
+      border-left: 4px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      box-shadow: none;
+    }
+
+    .rev-block p {
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .rev-block img {
+      border-radius: var(--radius-md);
+      margin-bottom: 14px;
+      max-width: 100%;
+    }
+
+    .rev-block font {
+      display: block;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(10, 92, 158, 0.15);
+      color: var(--color-primary-dark);
+      font-size: 15px;
+    }
+
+    .rev-block font b {
+      font-weight: 600;
+    }
+
+    .recept {
+      background: #fff;
+      padding: 20px 22px;
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      border-top: 4px solid var(--color-success);
+      margin: 24px 0;
+      position: relative;
+    }
+
+    .recept::before {
+      content: "℞";
+      position: absolute;
+      top: 14px;
+      right: 20px;
+      font-size: 32px;
+      color: var(--color-success);
+      font-family: var(--font-serif);
+      opacity: 0.4;
+      line-height: 1;
+    }
+
+    .recept p b {
+      color: var(--color-primary-dark);
+      font-size: 16px;
+    }
+
+    .my-ul-0-green {
+      margin: 12px 0 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      list-style: none;
+    }
+
+    .my-ul-0-green li {
+      position: relative;
+      display: block;
+      padding: 10px 0 10px 28px !important;
+      margin: 0 !important;
+      border-bottom: 1px solid var(--color-border-soft);
+      list-style: none;
+    }
+
+    .my-ul-0-green li::before {
+      content: "✓" !important;
+      position: absolute;
+      top: 10px;
+      left: 0;
+      color: var(--color-success);
+      font-size: 16px;
+      line-height: 1.5;
+      font-weight: 700;
+      border: 0 !important;
+      background: transparent !important;
+      width: auto !important;
+      height: auto !important;
+      border-radius: 0 !important;
+    }
+
+    .my-ul-0-green li:last-child {
+      border-bottom: 0;
+    }
+
+    .my-ul-0-green li b {
+      color: var(--color-primary-dark);
+      font-size: 16px;
+    }
+
+    .my-ul-0-green font {
+      font-size: 14px;
+      display: block;
+      margin-top: 4px;
+      color: var(--color-text-muted);
+    }
+
+    .obertk512 {
+      display: block;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--color-border);
+      max-width: 780px;
+      margin: 28px auto;
+      padding: 0;
+      line-height: 1.5;
+      color: var(--color-text);
+      background: #fff;
+      border-radius: var(--radius-md);
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .obertk512 h1 {
+      font-family: var(--font-serif);
+      line-height: 1.3;
+      margin: 0;
+      color: #fff;
+      font-size: 18px;
+      padding: 16px 20px;
+      font-weight: 600;
+      background: var(--color-primary);
+      border: 0;
+      border-radius: 0;
+    }
+
+    .block-offer-actions-block {
+      padding: 10px 22px 22px;
+      border: 0;
+    }
+
+    .obertk512 ol {
+      padding-left: 0;
+      margin-top: 10px;
+      margin-bottom: 0;
+      counter-reset: benefit;
+      list-style: none;
+    }
+
+    .obertk512 li {
+      line-height: 1.4;
+      padding: 16px 0 16px 50px;
+      border-bottom: 1px solid var(--color-border-soft);
+      position: relative;
+      counter-increment: benefit;
+    }
+
+    .obertk512 li::before {
+      content: counter(benefit);
+      position: absolute;
+      left: 0;
+      top: 14px;
+      width: 36px;
+      height: 36px;
+      background: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--color-primary);
+    }
+
+    .obertk512 li::marker {
+      content: none;
+    }
+
+    .obertk512 li:last-child {
+      border-bottom: 0;
+    }
+
+    .obertk512 li font {
+      line-height: 1.3;
+      color: var(--color-primary-dark);
+      text-align: left;
+      font-weight: 600;
+      font-size: 17px;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .block-offer-actions-block li span {
+      display: block;
+      font-size: 15px;
+      line-height: 1.5;
+      font-weight: 400;
+      color: var(--color-text-muted);
+      margin: 0;
+      padding: 0;
+      border-bottom: 0;
+    }
+
+    .table-block {
+      display: block;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      max-width: 700px;
+      margin: 28px auto;
+      padding: 0;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--color-text);
+      background: #fff;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .table-block h1 {
+      font-family: var(--font-serif);
+      line-height: 1.35;
+      margin: 0;
+      color: #fff;
+      font-size: 17px;
+      padding: 16px 20px;
+      font-weight: 600;
+      background: var(--color-primary);
+      border: 0;
+      border-radius: 0;
+    }
+
+    .table {
+      width: 100%;
+      max-width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-sans);
+      margin: 0;
+      background: #fff;
+    }
+
+    .table tr:nth-child(even) td {
+      background: var(--color-bg-soft) !important;
+    }
+
+    .table td {
+      border: 0 !important;
+      border-bottom: 1px solid var(--color-border-soft) !important;
+      padding: 12px 16px !important;
+      vertical-align: middle;
+      background: #fff !important;
+    }
+
+    .table tr:last-child td {
+      border-bottom: 0 !important;
+    }
+
+    .table td.one {
+      text-align: left;
+      width: 75%;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--color-text);
+    }
+
+    .table td.two {
+      font-size: 18px;
+      color: var(--color-success);
+      text-align: right;
+      font-weight: 700;
+      width: 25%;
+      white-space: nowrap;
+    }
+
+    @media (max-width:560px) {
+      .table td.one {
+        font-size: 14px;
+      }
+
+      .table td.two {
+        font-size: 16px;
+      }
+
+      .table td {
+        padding: 10px 12px !important;
+      }
+    }
+
+    .pachino-ramka2 {
+      text-align: left;
+      color: var(--color-success);
+      font-weight: 600;
+      border: 1px solid rgba(30, 132, 73, 0.25);
+      border-left: 4px solid var(--color-success);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      background: var(--color-success-light);
+      box-shadow: none;
+      margin: 20px 0;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .pachino-ramka {
+      border: 1px solid rgba(183, 121, 31, 0.3);
+      border-left: 4px solid var(--color-warning);
+      padding: 18px 20px;
+      border-radius: var(--radius-md);
+      background: #fff9ef;
+      margin: 20px 0;
+      font-size: 16px;
+      line-height: 1.55;
+      position: relative;
+    }
+
+    .pachino-ramka::before {
+      content: "🕐";
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      font-size: 22px;
+      opacity: 0.8;
+    }
+
+    .ramka-title {
+      display: block;
+      color: var(--color-warning);
+      padding: 0;
+      margin-bottom: 10px;
+      font-weight: 700 !important;
+      background: transparent;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+    }
+
+    .pachino-ramka font {
+      color: var(--color-danger);
+      font-weight: 600;
+    }
+
+    .noclose-cta {
+      font-size: 15px;
+      max-width: 780px;
+      margin: 16px auto;
+      display: block;
+      background: var(--color-danger-light);
+      border: 1px solid rgba(192, 57, 43, 0.2);
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      line-height: 1.5;
+    }
+
+    .pre-cta {
+      display: block;
+      color: var(--color-success);
+      font-weight: 500;
+      font-size: 16px;
+      margin-top: 12px;
+    }
+
+    .nowrap {
+      white-space: nowrap;
+    }
+
+    .pachinoform {
+      padding: 0;
+      font-size: 17px;
+      line-height: 1.5;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+      background: #fff;
+      display: block;
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 780px;
+      margin: 24px auto;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    .pachinoform_title {
+      display: flex;
+      gap: 16px;
+      max-width: none;
+      align-self: stretch;
+      text-align: left;
+      background: var(--color-primary);
+      color: #fff;
+      padding: 20px 24px;
+      align-items: center;
+    }
+
+    .pachinoform_title_logo {
+      flex-shrink: 0;
+      background: #fff;
+      padding: 6px;
+      border-radius: 50%;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pachinoform_title_logo img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .pachinoform_title_text {
+      align-self: center;
+      color: #fff;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .pachinoform_title_text>b {
+      display: block;
+      line-height: 1.3;
+      font-size: 17px;
+      margin-bottom: 4px;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .pachinoform_order {
+      max-width: none;
+      font-weight: 500;
+      font-size: 15px;
+      margin: 0;
+      text-align: center;
+      padding: 16px 24px;
+      background: var(--color-primary-light);
+      border-bottom: 1px solid var(--color-border-soft);
+      color: var(--color-text);
+      line-height: 1.5;
+    }
+
+    .pachinoform_order>b {
+      color: var(--color-danger);
+      font-weight: 700;
+    }
+
+    .pachinoform_value {
+      display: flex;
+      color: var(--color-text);
+      font-weight: 600;
+      font-size: 15px;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 24px 0;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pachinoform_value_current {
+      border: 2px solid var(--color-danger);
+      color: var(--color-danger);
+      line-height: 1;
+      font-size: 22px;
+      padding: 6px 18px;
+      margin: 0 6px;
+      border-radius: var(--radius-sm);
+      background: var(--color-danger-light);
+      font-weight: 700;
+    }
+
+    .pachinoform_value_total {
+      font-size: 18px;
+      color: var(--color-text-muted);
+    }
+
+    .pachinoform_price {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin: 20px 0 0;
+      padding: 0 24px;
+    }
+
+    .pachinoform_price_old span {
+      display: block;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: var(--color-text-light);
+      position: relative;
+      line-height: 1;
+    }
+
+    .pachinoform_price_old span::before {
+      position: absolute;
+      content: "";
+      left: -4px;
+      top: 50%;
+      right: -4px;
+      border-top: 2px solid var(--color-danger);
+      transform: rotate(-12deg);
+    }
+
+    .pachinoform_price_new span {
+      display: inline-block;
+      background: var(--color-success);
+      color: #fff;
+      text-shadow: none;
+      font-size: 32px;
+      padding: 8px 20px;
+      font-weight: 700;
+      line-height: 1;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 4px 12px rgba(30, 132, 73, 0.25);
+    }
+
+    .pachinoform form {
+      padding: 22px 24px 20px;
+    }
+
+    .pachinoform .name-input,
+    .pachinoform .phone-input {
+      color: var(--color-text);
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+
+    .pachinoform .name-input label,
+    .pachinoform .phone-input label {
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--color-text-muted);
+      margin-bottom: 6px;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .pachinoform .name-input input,
+    .pachinoform .phone-input input {
+      font: inherit;
+      color: var(--color-text);
+      box-sizing: border-box;
+      width: 100%;
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      min-width: 0;
+      background: #fff;
+      border: 1.5px solid var(--color-border);
+      font-size: 16px !important;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .pachinoform .name-input input:focus,
+    .pachinoform .phone-input input:focus,
+    .pachinoform input:focus {
+      outline: 0;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(10, 92, 158, 0.15);
+    }
+
+    .pachinoform .button-submit {
+      text-align: center;
+      width: 100%;
+      margin: 6px auto 0;
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      border: 0;
+      padding: 16px 20px;
+      cursor: pointer;
+      background: var(--color-primary);
+      font-size: 17px;
+      line-height: 1.3;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      transition: background 0.15s ease, transform 0.05s ease;
+      box-shadow: 0 4px 12px rgba(10, 92, 158, 0.25);
+      font-family: var(--font-sans);
+    }
+
+    .pachinoform .button-submit:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .pachinoform .button-submit:active {
+      transform: translateY(1px);
+    }
+
+    .pachinoform .button-submit:focus {
+      outline: 0;
+      box-shadow: 0 0 0 3px rgba(10, 92, 158, 0.25);
+    }
+
+    .pachinoform ::placeholder {
+      color: var(--color-text-light);
+      opacity: 1;
+      font-size: 15px !important;
+    }
+
+    .pachinoform_footer {
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 13px;
+      padding: 14px 24px 20px;
+      background: var(--color-bg-soft);
+      border-top: 1px solid var(--color-border-soft);
+      line-height: 1.5;
+    }
+
+    .pachinoform_footer img {
+      margin-top: 10px;
+      max-width: 100%;
+      height: auto;
+      opacity: 0.85;
+    }
+
+    @media (max-width:500px) {
+      .pachinoform_title {
+        gap: 10px;
+        padding: 16px 18px;
+      }
+
+      .pachinoform_title_text {
+        font-size: 13px;
+      }
+
+      .pachinoform_title_text>b {
+        font-size: 15px;
+      }
+
+      .pachinoform_value {
+        flex-wrap: wrap;
+        justify-content: center;
+        font-size: 14px;
+      }
+
+      .pachinoform_price_new span {
+        font-size: 26px;
+      }
+
+      .pachinoform_price_old span {
+        font-size: 20px;
+      }
+
+      .pachinoform form {
+        padding: 18px 18px 18px;
+      }
+
+      .pachinoform_order {
+        padding: 14px 18px;
+        font-size: 14px;
+      }
+
+      .blc-pck {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin-top: 8px;
+      }
+
+      .pachinoform_value_current {
+        margin: 0;
+      }
+    }
+
+    .comments {
+      max-width: 900px;
+      margin: 32px auto 20px;
+      background: #fff;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      overflow: hidden;
+    }
+
+    .comments__header {
+      padding: 16px 20px;
+      background: var(--color-primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .comments__header-title {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+      color: #fff;
+      letter-spacing: 0.02em;
+    }
+
+    .comments__item-list {
+      padding: 8px 20px;
+    }
+
+    .comments__item {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--color-border-soft);
+    }
+
+    .comments__item:last-child {
+      border-bottom: 0;
+    }
+
+    .comments__item-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .comments__item-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid var(--color-border);
+    }
+
+    .comments__item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .comments__item-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--color-primary-dark);
+      margin: 0 0 2px;
+    }
+
+    .comments__item-info p:last-child,
+    .comments__item-info .startdate,
+    .comments__item-info .nowdate {
+      font-size: 12px;
+      color: var(--color-text-light);
+      margin: 0;
+    }
+
+    .comments__item-body {
+      padding-left: 56px;
+    }
+
+    .comments__item-content {
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--color-text);
+      margin: 0;
+    }
+
+    .comments__item-content img {
+      border-radius: var(--radius-sm);
+      margin-top: 10px;
+    }
+
+    .comm-obert-reply {
+      padding-left: 28px;
+      border-left: 2px solid var(--color-primary-light);
+      margin-left: 8px;
+    }
+
+    .comm-obert-reply .comments__item.reply {
+      border-bottom: 1px solid var(--color-border-soft);
+    }
+
+    @media (max-width:560px) {
+      .comments__item-body {
+        padding-left: 0;
+      }
+
+      .comm-obert-reply {
+        padding-left: 16px;
+      }
+    }
+
+    .form-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .custom-form {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 18px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-border);
+      box-sizing: border-box;
+      font-family: var(--font-sans) !important;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: var(--color-bg-soft);
+      border-radius: var(--radius-md);
+    }
+
+    .custom-form__top-field {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .custom-form__ava-block {
+      position: relative;
+      width: 54px;
+      height: 54px;
+      overflow: hidden;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px dashed var(--color-border);
+      transition: 0.2s;
+      flex: 0 0 auto;
+      background: #fff;
+    }
+
+    .custom-form__ava-label {
+      font-size: 11px;
+      text-align: center;
+      line-height: 1.2;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 400;
+      color: var(--color-text-light);
+      padding: 4px;
+    }
+
+    .custom-form__ava-label_red-text {
+      color: var(--color-danger);
+    }
+
+    .custom-form__name {
+      width: 100%;
+      max-width: 320px;
+      display: inline-block;
+      outline: none;
+      border: 1.5px solid var(--color-border);
+      padding: 10px 14px;
+      font-size: 14px;
+      height: 42px;
+      box-sizing: border-box;
+      font-family: inherit;
+      border-radius: var(--radius-sm);
+      background: #fff;
+    }
+
+    .custom-form__message {
+      resize: none;
+      width: 100%;
+      outline: none;
+      border: 1.5px solid var(--color-border);
+      padding: 12px 14px;
+      min-height: 90px;
+      font-size: 14px;
+      line-height: 1.5;
+      font-family: inherit;
+      box-sizing: border-box;
+      border-radius: var(--radius-sm);
+      background: #fff;
+    }
+
+    .custom-form__bottom-field {
+      display: flex;
+      flex-direction: row;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .custom-form__btn {
+      outline: none;
+      padding: 10px 24px;
+      background: var(--color-primary);
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.15s ease;
+      cursor: pointer;
+      text-transform: uppercase;
+      border: 0;
+      font-family: var(--font-sans);
+      border-radius: var(--radius-sm);
+      text-decoration: none !important;
+      letter-spacing: 0.04em;
+    }
+
+    .custom-form__btn:hover {
+      background: var(--color-primary-dark);
+    }
+
+    .custom-form__photo-label {
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 400;
+      border: none;
+      color: var(--color-primary);
+      text-decoration: underline;
+    }
+
+    .trust-strip {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid var(--color-border-soft);
+      border-top: 0;
+      padding: 20px 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    .trust-item-icon {
+      color: var(--color-primary);
+      font-size: 18px;
+    }
+
+    .clinical-footer {
+      max-width: 900px;
+      margin: 0 auto 0;
+      padding: 24px 22px 36px;
+      background: #fff;
+      border: 1px solid var(--color-border-soft);
+      border-top: 1px solid var(--color-border);
+      text-align: center;
+      font-size: 12px;
+      color: var(--color-text-light);
+      line-height: 1.6;
+    }
+
+    .clinical-footer a {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .product-center {
+      display: block;
+      max-width: 220px;
+      width: 100%;
+      margin: 16px auto;
+    }
+
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      transition: opacity 0.3s ease;
+    }
+
+    #popup3 {
+      background-size: cover;
+      background-position: center;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      padding: 20px;
+      background-color: white;
+      box-shadow: var(--shadow-lg);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      max-width: 800px;
+      width: 93%;
+      height: 87%;
+      overflow-y: auto;
+      max-height: 100vh;
+      z-index: 999999;
+    }
+
+    body input[name="phone"] {
+      background-repeat: no-repeat !important;
+      background-position: left 15px center !important;
+    }
+
+    main center {
+      display: block;
+      text-align: center;
+    }
+
+    .sf-hidden {
+      display: none !important;
+    }
+
+    .quote-inline {
+      margin: 20px 0;
+      padding: 16px 20px;
+      background: var(--color-bg-soft);
+      border-left: 4px solid var(--color-text-light);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      font-style: italic;
+      color: var(--color-text-muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .quote-inline .quote-name {
+      display: block;
+      margin-top: 10px;
+      font-style: normal;
+      font-weight: 600;
+      color: var(--color-primary-dark);
+      font-size: 14px;
+    }
+
+    @media (max-width:480px) {
+      body {
+        font-size: 16px;
+      }
+
+      main p {
+        font-size: 16px;
+      }
+
+      .doc-block {
+        padding: 16px;
+      }
+
+      .rev-block {
+        padding: 16px;
+      }
+
+      .recept {
+        padding: 16px;
+      }
+
+      .block-offer-actions-block {
+        padding: 6px 16px 16px;
+      }
+
+      .obertk512 li {
+        padding-left: 44px;
+      }
+
+      .obertk512 li::before {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+      }
+    }
+
+    @keyframes example {
+      0% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes blinker {
+      from {
+        opacity: 1.0;
+      }
+
+      to {
+        opacity: 0.7;
+      }
+    }
+  </style>
+
+  <script src="js/dtime.js"></script>
+  <!-- Meta Pixel -->
+  <script>
+    !function (f, b, e, v, n, t, s) {
+      if (f.fbq) return; n = f.fbq = function () { n.callMethod ?
+        n.callMethod.apply(n, arguments) : n.queue.push(arguments) };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+      n.queue = []; t = b.createElement(e); t.async = !0;
+      t.src = v; s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s)
+    }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+    (function () {
+      var p = new URLSearchParams(window.location.search).get('fbpx');
+      if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+      if (p) { try { localStorage.setItem('fb_pixel', p); } catch (e) {} }
+      if (!p) { try { p = localStorage.getItem('fb_pixel'); } catch (e) {} }
+      if (p) { fbq('init', p); fbq('track', 'PageView'); }
+    })();
+  </script>
+  <!-- End Meta Pixel -->
+</head>
+
+<body>
+
+  <div class="clinical-topbar">Reportage speciale · Salute e Società</div>
+
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div class="masthead-logo">
+        <span class="masthead-logo-icon">+</span>
+        <span>SaluteInfo Italia</span>
+      </div>
+      <div class="masthead-tagline">Reportage dal mondo della salute pubblica</div>
+    </div>
+  </div>
+
+  <header>
+    <div class="bg-image"></div>
+  </header>
+  <div class="text-container"></div>
+  <div class="h1-bg split">
+    <h1 class="title_h1">
+      <span class="head-one-part">„QUANDO NON PUOI PIÙ CAMMINARE, LA FAMIGLIA TI DIMENTICA."</span>
+      <span class="head-two-part">IL GIOVANE MEDICO CHE VIAGGIA PER LE CASE DI RIPOSO E RESTITUISCE AGLI ANZIANI
+        ABBANDONATI CIÒ CHE NESSUN ALTRO PUÒ: LE ARTICOLAZIONI E LA DIGNITÀ. IL SUO METODO HA SORPRESO L'INTERA COMUNITÀ
+        MEDICA.</span>
+    </h1>
+
+    <div class="tdate head-main-date">
+      <span class="head-main-date-title">Pubblicato: </span>
+      <span class="startdate">
+        <script>dtime_nums(-3, true)</script>, 09:36
+      </span>
+    </div>
+
+    <div class="main-subtitle">
+      Come un medico di 30 anni, il dott. Riccardo Bianchi, ha rinunciato a una carriera in una clinica privata di Roma
+      per aiutare i pensionati dimenticati nelle case di riposo — anziani abbandonati dalle famiglie proprio perché non
+      potevano più camminare, non potevano più stare in piedi, non potevano più fare nulla da soli. E come il metodo che
+      ha sviluppato insieme a un centro scientifico ha restituito loro la mobilità, senza operazioni e senza pillole a
+      vita.
+    </div>
+  </div>
+
+  <main>
+
+    <!-- 📸 ФОТО 1 -->
+    <img alt="Il dott. Riccardo Bianchi esamina il ginocchio di una paziente in una casa di riposo"
+      src="https://static.joxi.pro/1778142925769-2045c9ea-f00c-48ab-ae5d-6e56aec020f0.jpg"
+      style="margin-bottom:14px;margin-top:0">
+
+    <p>
+      Siamo arrivati a Cortona, in provincia di Arezzo, in un martedì mattina. La strada per la casa di riposo passa per
+      una via di campagna, accanto a case con vecchi cancelli e cani che abbaiano. „Cercate il giovane dottore?" — ci ha
+      chiesto una donna dal negozio del paese. „Viene ogni giovedì. Gli anziani lo aspettano al cancello. Alcuni
+      piangono quando lo vedono."
+    </p>
+    <p>
+      È così che abbiamo sentito parlare per la prima volta del dott. Riccardo Bianchi — un medico di 30 anni che ha
+      lasciato un posto in una clinica privata di Roma per fare ciò che nessun altro medico voleva: viaggiare per le
+      case di riposo di tutta Italia e curare i pensionati abbandonati dalle famiglie.
+    </p>
+    <p>
+      Il motivo dell'abbandono? Quasi sempre lo stesso: <b>gli anziani non potevano più camminare.</b> Le ginocchia
+      hanno ceduto. La colonna si è curvata. Le mani tremavano così tanto che non riuscivano a tenere un cucchiaio. E in
+      quel momento — proprio quando avevano più bisogno di aiuto — le famiglie hanno deciso che era troppo. Troppo
+      difficile. Troppo costoso. E li hanno portati in casa di riposo.
+    </p>
+
+    <div class="quote-inline">
+      „Mio figlio mi ha detto: «Mamma, non riesco ad alzarti dalla sedia ogni volta. Non ce la faccio.» Mi ha portato in
+      casa di riposo il giorno dopo. Non mi ha più visitato da 3 anni."
+      <span class="quote-name">— Signora Teresa, 79 anni, casa di riposo a Cortona</span>
+    </div>
+
+    <div class="quote-inline">
+      „Quando le mie ginocchia si sono bloccate completamente, mia moglie ha detto che non poteva vivere con un
+      invalido. Se n'è andata. I figli hanno preso le sue parti. Mi hanno portato qui e sono spariti."
+      <span class="quote-name">— Signor Paolo, 73 anni, casa di riposo in prov. di Perugia</span>
+    </div>
+
+    <h2>
+      „Ho visto com'è l'abbandono. E ho deciso che non potevo restare a guardare"
+      <span>Intervista esclusiva con il dott. Riccardo Bianchi — il medico che ha rinunciato a uno stipendio di 3.500 € al
+        mese per aiutare chi non ha più nessuno</span>
+    </h2>
+
+    <!-- 📸 ФОТО 2 -->
+    <div class="doc-block">
+      <img alt="Dott. Riccardo Bianchi"
+        src="https://static.joxi.pro/1778142925769-8d31ed89-cd31-449a-8c51-6ff1a0bfb48e.jpg">
+      <p>Dott. Riccardo Bianchi: „La prima volta sono entrato in una casa di riposo come volontario, a 28 anni. E non ero
+        preparato a quello che ho visto. Una donna, 76 anni, la signora Rosa, sedeva sul bordo del letto con le gambe
+        gonfie e le ginocchia che non si piegavano più. Non usciva dalla stanza da 4 mesi. Mi ha preso la mano e mi ha
+        detto:
+        <b>«Dottore, mia figlia mi ha portato qui quando non riuscivo più a scendere le scale. Ha detto che non poteva
+          prendersi cura di me. Era due anni fa. Da allora non è più venuta.»</b>
+      </p>
+      <p><b>IN QUEL MOMENTO HO CAPITO CHE QUESTE SONO LE PERSONE CHE HANNO PIÙ BISOGNO DI ME —
+          <span class="red-txt">QUELLE CHE IL MONDO INTERO HA DIMENTICATO PROPRIO PERCHÉ NON POSSONO PIÙ
+            CAMMINARE."</span></b>
+      </p>
+    </div>
+
+    <p>
+      Il dott. Bianchi racconta con calma, ma con un'intensità che non si può ignorare. Da due anni viaggia per le case
+      di riposo di tutta Italia — dalla Lombardia alla Sicilia, dal Piemonte alla Puglia. E ovunque trova la stessa
+      immagine spaventosa: anziani con le articolazioni distrutte, che non ricevono alcun trattamento reale, solo
+      antinfiammatori che distruggono stomaco e reni.
+    </p>
+
+    <p>
+      „La maggior parte di queste persone è finita qui a causa delle articolazioni. Le ginocchia hanno ceduto. La
+      colonna si è bloccata. L'anca si è consumata. E nel momento in cui non potevano più camminare da soli, le famiglie
+      hanno deciso che erano un peso. Questa è la parola che sento più spesso nelle case di riposo: <b>«peso»</b>.
+      Descrivono i propri genitori come un peso."
+    </p>
+
+    <div class="quote-inline">
+      „Non mi hanno portato qui perché non mi amavano. Mi hanno portato perché mi svegliavo alle 3 di notte, urlando dal
+      dolore al ginocchio, e nessuno poteva dormire. Mia nuora ha detto che o me ne andavo io, o se ne andava lei. Mio
+      figlio ha scelto lei."
+      <span class="quote-name">— Signor Giovanni, 71 anni, casa di riposo in prov. di Salerno</span>
+    </div>
+
+    <h2>
+      „Le pillole per le articolazioni non risolvono nulla — mascherano solo la distruzione"
+      <span>Il dott. Bianchi spiega perché il trattamento convenzionale nelle case di riposo e nelle farmacie
+        fallisce</span>
+    </h2>
+
+    <p><b>Dott. Riccardo Bianchi:</b></p>
+    <p>— Vi dico la verità: quello che ho visto in queste case di riposo mi ha terrorizzato. Persone tra i 55 e gli 80
+      anni, a cui da anni vengono somministrati gli stessi farmaci antinfiammatori — pillole che mascherano il dolore
+      per qualche ora, senza risolvere la causa. La cartilagine continua a distruggersi. Il liquido sinoviale scompare.
+      Le articolazioni sfregano osso contro osso. E la chimica delle pillole distrugge lo stomaco, il fegato e i reni
+      ogni giorno.
+    </p>
+
+    <p>È un circolo vizioso: dolore → pillole → il dolore torna più forte → pillole più forti → lo stomaco cede → si
+      aggiungono pillole per lo stomaco → i reni cedono. E nessuno dice loro la verità: <b>che esiste un modo per
+        rigenerare l'articolazione dall'interno, non solo per anestetizzare il dolore.</b>
+    </p>
+
+    <!-- 📸 ФОТО 3 -->
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-a94978b4-3738-4aeb-950e-312b652009ac.jpg">
+      <figcaption>
+        Le ginocchia della signora Anna, 74 anni, casa di riposo in prov. di Perugia. Artrosi di 3° grado, cartilagine
+        quasi completamente distrutta. Non esce dalla stanza da 5 mesi. Sul comodino — 6 tipi di pillole che non hanno
+        cambiato nulla.
+      </figcaption>
+    </figure>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Il dolore al ginocchio, alla colonna o all'anca dopo i 45 anni non è „normale per l'età" — è un segnale che la
+          cartilagine articolare si sta distruggendo e il liquido sinoviale sta scomparendo.
+          <br><br>
+          Gli antinfiammatori bloccano solo il segnale del dolore, mentre la distruzione avanza in silenzio. Senza una
+          vera rigenerazione della cartilagine, l'articolazione si consuma completamente — e allora l'unica opzione
+          rimane la sedia a rotelle o l'intervento di protesi.
+        </span>
+      </p>
+    </div>
+
+    <p><b>Dott. Riccardo Bianchi:</b></p>
+
+    <p>— Vi prego di capire la gravità della situazione. In molti di questi anziani, la cartilagine del ginocchio, della
+      colonna o dell'anca è distrutta al 70-90%. Camminano — se ancora camminano — osso contro osso. Ogni passo è una
+      tortura. <b>LE PILLOLE CONVENZIONALI NON POSSONO RICOSTRUIRE LA CARTILAGINE — MASCHERANO SOLO IL DOLORE FINCHÉ
+        TUTTO CROLLA!</b>
+    </p>
+
+    <p>
+      E ciò che mi fa più male: queste persone non hanno nessuno. La famiglia li ha abbandonati proprio quando le
+      articolazioni hanno ceduto. Sono soli, a letto, in una piccola stanza, e aspettano. Alcuni non sanno più cosa
+      aspettano.
+    </p>
+
+    <div class="quote-inline">
+      „Ho cresciuto tre figli. Ho lavorato nei campi per 40 anni. E quando le mie ginocchia hanno ceduto e non riuscivo
+      più ad arrivare al bagno da sola — mi hanno portato in casa di riposo. Come se non esistessi più per loro. Come se
+      fossi già morta."
+      <span class="quote-name">— Signora Carmela, 82 anni, casa di riposo in prov. di Catanzaro</span>
+    </div>
+
+    <div class="quote-inline">
+      „Ero caposquadra in fabbrica per 35 anni. La colonna ha ceduto a 62 anni. Ernia del disco, sciatica, non potevo
+      stare in piedi. Mio figlio mi ha detto che non poteva stare a casa a badare a me. Ha il suo lavoro, la sua
+      famiglia. Lo capisco. Ma fa più male della colonna."
+      <span class="quote-name">— Signor Antonio, 68 anni, casa di riposo in prov. di Bergamo</span>
+    </div>
+
+    <!-- 📸 ФОТО 4 -->
+    <figure class="Figure" style="text-align:center">
+      <img src="https://static.joxi.pro/1778142925769-057465eb-7a53-45e0-ba84-1b9038913030.jpg" style="margin:0 auto">
+      <figcaption>
+        <b>A sinistra: articolazione sana con cartilagine intatta e sufficiente liquido sinoviale. A destra:
+          articolazione distrutta — cartilagine consumata, infiammazione cronica, osso contro osso. Questa è la realtà
+          di oltre l'80% degli anziani nelle case di riposo. Gli antinfiammatori non ricostruiscono la cartilagine.</b>
+      </figcaption>
+    </figure>
+
+    <p class="red-txt">
+      Vale la pena sottolineare: in 2/3 dei casi, anche con l'assunzione quotidiana di antidolorifici, le articolazioni
+      continuano a peggiorare, perché la vera causa — la distruzione della cartilagine e la scomparsa del liquido
+      sinoviale — resta irrisolta.
+    </p>
+
+    <p class="red-txt">
+      Dopo anni di uso di farmaci antinfiammatori, molti pazienti perdono non solo la mobilità, ma anche lo stomaco, il
+      fegato e i reni. Ulcere, insufficienza epatica, edema renale — questo è il prezzo pagato da chi non ha mai
+      ricevuto una vera alternativa.
+    </p>
+
+    <h2>
+      Storie che hanno cambiato la mia vita — e cambieranno il modo in cui guardate la vecchiaia
+    </h2>
+
+    <p><b>Dott. Riccardo Bianchi:</b></p>
+
+    <p>— Permettetemi di raccontarvi cosa vedo ogni settimana. Non numeri. Non statistiche. Persone. Persone con nomi,
+      con storie, con figli che non vengono più.</p>
+
+    <!-- 📸 ФОТО 5 -->
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-ab7d1e11-8df2-44ee-b472-2a3be72bb7b3.jpg">
+      <figcaption>
+        Signora Lucia, 77 anni. Artrite reumatoide a entrambe le mani — non riesce a tenere una tazza né a vestirsi da
+        sola. La figlia l'ha portata in casa di riposo 2 anni fa: „Non posso vestirla ogni mattina, ho anche la mia
+        vita."
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      „Non riesco più nemmeno a pettinarmi. Né a versarmi l'acqua. Le mie mani non rispondono. La mattina le guardo e
+      non le riconosco — sono gonfie, storte, come se non fossero mie. Mia nuora mi ha detto una volta: «Come faccio a
+      lasciarti i nipoti, se non riesci a tenere un cucchiaio?» Aveva ragione. Ma quelle parole mi hanno ucciso dentro."
+      <span class="quote-name">— Signora Lucia, 77 anni</span>
+    </div>
+
+    <!-- 📸 ФОТО 6 -->
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-980707f6-6c1c-40ec-96a5-61c8c9dcde54.jpg">
+      <figcaption>
+        Signor Giuseppe, 75 anni. Ernia del disco L4-L5, coxartrosi bilaterale. Non sta in piedi da 8 mesi. „Hanno detto
+        che è troppo vecchio per l'operazione. Hanno detto di accettare."
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      „Ero trattorista. Ho arato migliaia di ettari. Ora non riesco a girarmi nel letto da solo. La colonna si è
+      bloccata, l'anca si è saldata. I miei figli lavorano in Germania. Mandano i soldi per la casa di riposo e basta.
+      Non li biasimo. Ma di notte, quando fa male e nessuno viene… mi chiedo se questa è la fine."
+      <span class="quote-name">— Signor Giuseppe, 75 anni</span>
+    </div>
+
+    <p><b>Ecco i sintomi che incontro più spesso nelle case di riposo — e che milioni di italiani ignorano:</b></p>
+    <ul>
+      <li>Forte dolore al ginocchio nel salire/scendere le scale — o ad ogni movimento;</li>
+      <li>Rigidità mattutina — corpo „di legno", che non si muove per 30-60 minuti dopo il risveglio;</li>
+      <li>Dolore cronico alla colonna — non riescono a piegarsi, non riescono ad alzarsi dal letto;</li>
+      <li>Ginocchia, caviglie o dita gonfie;</li>
+      <li>Scricchiolii e schiocchi nelle articolazioni ad ogni movimento;</li>
+      <li>Dolore all'anca che si irradia alla coscia — non riescono a camminare più di 50 metri;</li>
+      <li>Dita deformate, nodose — non riescono ad afferrare gli oggetti;</li>
+      <li>Intorpidimento alle gambe o alle mani — segno di ernia o nervo compresso;</li>
+      <li>Sensazione di „coltello" nella zona lombare quando ci si alza;</li>
+      <li>Colonna vertebrale curva, postura incurvata — cifosi progressiva;</li>
+      <li>Dolore notturno che non lascia dormire — si svegliano 4-5 volte a notte;</li>
+    </ul>
+
+    <p>
+      Ciascuno di questi sintomi è un segnale d'allarme. E dopo i 45-50 anni, ignorarli porta a un solo finale:
+      <b class="red-txt">IMMOBILITÀ TOTALE, SEDIA A ROTELLE, COMPLETA DIPENDENZA DAGLI ALTRI — E IN MOLTI CASI, CASA DI
+        RIPOSO.</b>
+    </p>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Ogni giorno trascorso con le articolazioni non curate vi avvicina all'immobilità permanente!
+          Migliaia di pensionati nelle case di riposo ci sono finiti proprio perché hanno ignorato il dolore — o hanno
+          preso solo pillole che non risolvevano la causa.
+          Agite ora — per voi stessi o per i vostri cari — prima che sia troppo tardi!
+        </span>
+      </p>
+    </div>
+
+    <h2>
+      „Ho deciso che doveva esserci un modo per rigenerare le articolazioni — non solo per anestetizzare il dolore"
+      <span>Come un medico di 30 anni ha convinto un centro scientifico a sviluppare qualcosa che l'industria
+        farmaceutica rifiuta</span>
+    </h2>
+
+    <p><b>Dott. Riccardo Bianchi:</b></p>
+    <p>
+      — Dopo un anno di visite nelle case di riposo, mi sono reso conto di una verità dolorosa: con gli antinfiammatori
+      non avrei salvato nessuno. Questi farmaci spengono solo il segnale d'allarme dell'organismo, mentre
+      l'articolazione continua a distruggersi. Avevo bisogno di qualcosa di completamente diverso: un metodo che
+      rigenerasse la cartilagine dall'interno, ripristinasse il liquido sinoviale e fermasse l'infiammazione a livello
+      cellulare.
+    </p>
+    <p>
+      Ho contattato il centro di ricerca con cui avevo collaborato durante gli studi. Ho presentato loro i casi, le
+      foto, i risultati degli esami dei miei pazienti delle case di riposo. Ho portato i ricercatori con me nelle
+      strutture — perché vedessero con i propri occhi cosa succede lì. Sono rimasti sotto shock.
+    </p>
+    <p>
+      Abbiamo lavorato insieme per oltre 10 mesi. Abbiamo testato più di 180 combinazioni. E alla fine abbiamo trovato
+      la formula esatta — uno spray che, nebulizzato sull'articolazione malata, penetra a livello cellulare e attiva la
+      rigenerazione naturale della cartilagine. Non una pillola che passa per lo stomaco e distrugge il fegato. Uno
+      spray che agisce esattamente dove serve.
+    </p>
+
+    <div class="recept">
+      <p><b>La formula sviluppata dal dott. Bianchi contiene i seguenti principi attivi:</b></p>
+      <ul class="my-ul-0-green size1">
+        <li><b>Arnica montana</b>
+          <font>Antinfiammatorio e analgesico naturale ad azione potente</font>
+        </li>
+        <li><b>Mentolo</b>
+          <font>Agente rinfrescante e analgesico naturale: sollievo immediato dal dolore</font>
+        </li>
+        <li><b>Harpagophytum procumbens (artiglio del diavolo)</b>
+          <font>Estratto dalla radice: potente azione antinfiammatoria e rigenerante per le articolazioni</font>
+        </li>
+        <li><b>Robinia pseudoacacia (robinia)</b>
+          <font>Estratto dai fiori: azione lenitiva, antiedemigena e rigenerante</font>
+        </li>
+        <li><b>Boswellia serrata (incenso indiano)</b>
+          <font>Estratto dalla resina: acido boswellico concentrato che inibisce l'infiammazione</font>
+        </li>
+      </ul>
+    </div>
+
+    <p>
+      Questi ingredienti sono difficili da reperire nella concentrazione richiesta. La loro combinazione nelle
+      proporzioni corrette richiede una tecnologia speciale — se le proporzioni sono sbagliate anche solo dello 0,1%, lo
+      spray non penetra abbastanza in profondità e non attiva la rigenerazione della cartilagine.
+    </p>
+
+    <h2>
+      Così è nato ArtiZynt — l'unico spray che contiene tutti questi ingredienti nelle proporzioni ideali per la
+      rigenerazione completa delle articolazioni
+    </h2>
+    <p><b>Dott. Riccardo Bianchi:</b></p>
+    <p>
+      — Insieme al centro di ricerca siamo riusciti a produrre questo prodotto: uno spray per uso esterno che si
+      nebulizza direttamente sull'articolazione malata — ginocchio, colonna, anca, mani, collo. Si chiama ArtiZynt. Si
+      applica due volte al giorno, mattina e sera, nebulizzando sulla zona interessata e massaggiando delicatamente per
+      2-3 minuti. I principi attivi penetrano direttamente nell'articolazione, bypassando stomaco e fegato — eliminando
+      tutti gli effetti collaterali delle pillole.
+    </p>
+
+    <!-- 📸 ФОТО 7 -->
+    <img src="images/product.png" style="width:78%;max-width:540px;display:block;margin:18px auto">
+
+    <p>
+      Il segreto sta nella „Tecnologia di Penetrazione Transdermica Profonda", che abbiamo sviluppato con il team in
+      laboratorio. Questo metodo permette ai principi attivi di raggiungere direttamente la capsula articolare — là dove
+      la cartilagine si distrugge — con un'efficacia 5 volte superiore a qualsiasi spray comune sul mercato.
+    </p>
+    <p class="pachino-ramka2">
+      „ArtiZynt" non ha eguali. Ogni ingrediente — nella concentrazione esatta — attiva la rigenerazione della
+      cartilagine, il ripristino del liquido sinoviale e l'arresto dell'infiammazione. È l'unico spray che agisce a
+      livello cellulare, direttamente sulla zona interessata — ginocchio, colonna, anca, mani, collo — senza passare per
+      lo stomaco. E soprattutto: funziona anche su persone di 70, 80, 85 anni. L'ho testato prima sui miei pazienti
+      delle case di riposo — su persone che nessun altro curava più.
+    </p>
+
+    <p><b>Dott. Riccardo Bianchi:</b></p>
+    <p>
+      — I primi pazienti sono stati gli anziani abbandonati nelle case di riposo. Quelli che nessuno curava più. Ho
+      nebulizzato lo spray sulle ginocchia gonfie, sulla colonna, sulle anche. E ho aspettato. Al terzo giorno — la
+      signora Carmela, che non si alzava dal letto da 4 mesi, ha fatto i primi passi da sola. Abbiamo pianto entrambi.
+    </p>
+
+    <h2>
+      4 meccanismi con cui ArtiZynt rigenera le articolazioni e restituisce la mobilità — a qualsiasi età
+    </h2>
+
+    <div class="obertk512">
+      <h1>4 effetti principali dello spray „ArtiZynt":</h1>
+      <div class="block-offer-actions-block">
+        <ol>
+          <li>
+            <font>Eliminazione del dolore e dell'infiammazione:</font>
+            <span>Nei primi 15-30 minuti dalla nebulizzazione, il complesso di arnica montana, incenso e mentolo elimina
+              il dolore e riduce l'infiammazione. Non bloccando il segnale nervoso (come le pillole) — ma fermando il
+              processo infiammatorio alla fonte.</span>
+          </li>
+          <li>
+            <font>Rigenerazione della cartilagine articolare:</font>
+            <span>L'estratto di artiglio del diavolo e di incenso penetra nella capsula articolare e attiva le cellule
+              della cartilagine (condrociti), stimolando la produzione di nuovo tessuto cartilagineo. Questo processo
+              inizia dopo 3-5 giorni di uso regolare.</span>
+          </li>
+          <li>
+            <font>Ripristino del liquido sinoviale:</font>
+            <span>I principi attivi penetrano per via transdermica e ripristinano il liquido sinoviale — il
+              „lubrificante" naturale dell'articolazione. Grazie a questo, le ossa non sfregano più l'una contro
+              l'altra, e il movimento torna fluido e indolore.</span>
+          </li>
+          <li>
+            <font>Protezione e prevenzione a lungo termine:</font>
+            <span>L'estratto di robinia e il complesso minerale rafforzano legamenti e tendini intorno
+              all'articolazione, prevenendo futuri danni. Dopo 30-60 giorni di utilizzo, l'articolazione ottiene una
+              protezione stabile che si mantiene per mesi.</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <h2>
+      „Ho testato ArtiZynt prima sui miei pazienti delle case di riposo — i risultati hanno superato tutto ciò che ho
+      visto in 6 anni di pratica"
+      <span>Test su 2340 persone di età compresa tra 45 e 86 anni</span>
+    </h2>
+
+    <p><b>Dott. Riccardo Bianchi:</b></p>
+    <p>
+      — I primi pazienti sono stati gli anziani abbandonati delle case di riposo. Quelli che nessuno curava più. I
+      risultati sono stati così impressionanti che il centro di ricerca ha esteso i test a un gruppo di oltre 2300
+      persone in tutta Italia — coprendo tutti i tipi di problemi articolari: ginocchia, colonna, anche, mani, collo.
+    </p>
+    <p>
+      Ho visto persone di 80 anni che non potevano camminare — e dopo 6 settimane uscivano da sole nel cortile della
+      casa di riposo. Le infermiere piangevano. Io piangevo insieme a loro.
+    </p>
+
+    <div class="table-block">
+      <h1 class="title_h1">
+        Risultati dei test „ArtiZynt" — gruppo di controllo: 2340 persone, 45-86 anni
+      </h1>
+      <table class="table">
+        <tbody>
+          <tr>
+            <td class="one">Eliminazione completa del dolore al ginocchio</td>
+            <td class="two">96,2%</td>
+          </tr>
+          <tr>
+            <td class="one">Eliminazione del dolore alla colonna e della rigidità mattutina</td>
+            <td class="two">94,7%</td>
+          </tr>
+          <tr>
+            <td class="one">Artrosi di 1°-2° grado (completo recupero della mobilità)</td>
+            <td class="two">98,1%</td>
+          </tr>
+          <tr>
+            <td class="one">Artrosi di 3° grado (miglioramento significativo)</td>
+            <td class="two">87,3%</td>
+          </tr>
+          <tr>
+            <td class="one">Coxartrosi (dolore all'anca)</td>
+            <td class="two">91,5%</td>
+          </tr>
+          <tr>
+            <td class="one">Ernia del disco (riduzione del dolore e dell'intorpidimento)</td>
+            <td class="two">89,4%</td>
+          </tr>
+          <tr>
+            <td class="one">Artrite reumatoide (dita delle mani)</td>
+            <td class="two">93,8%</td>
+          </tr>
+          <tr>
+            <td class="one">Completo recupero della mobilità articolare</td>
+            <td class="two">95,6%</td>
+          </tr>
+          <tr>
+            <td class="one">Eliminazione degli edemi e dei crampi notturni</td>
+            <td class="two">97,0%</td>
+          </tr>
+          <tr>
+            <td class="one">Capacità di camminare senza aiuto</td>
+            <td class="two">94,3%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>
+      Casi che mi hanno spezzato il cuore — e dato la più grande speranza
+      <span>
+        Signora Maria, 84 anni. Abbandonata in casa di riposo quando le ginocchia hanno ceduto. Dopo 2 mesi con Hondro
+        Sol — è uscita da sola in giardino, per la prima volta in 3 anni.
+      </span>
+    </h2>
+
+    <p>
+      La signora Maria Ferraro è stata la prima paziente del dott. Bianchi in una casa di riposo in provincia di
+      Napoli. A 84 anni, con artrosi di 3° grado a entrambe le ginocchia e coxartrosi all'anca sinistra, non poteva
+      camminare da 14 mesi. Il figlio l'ha portata qui perché „non riusciva a portarla in bagno". Non l'ha visitata da
+      due anni.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <!-- 📸 ФОТО 8 -->
+      <img class="img-card2" src="https://static.joxi.pro/1778142925769-b234c916-2418-43cd-a09b-52da3b198c19.jpg">
+      <p>
+        „Non credevo che avrei mai potuto camminare di nuovo. Le mie ginocchia erano così gonfie che non riuscivo a
+        piegarle. Mi portavano per la stanza sulla sedia a rotelle. La mattina mi svegliavo e non riuscivo a muovere
+        nemmeno un dito per un'ora. Era come se il mio corpo fosse morto, ma io fossi ancora viva.
+      </p>
+      <p>
+        <b>
+          Mio figlio mi ha portato qui perché non riusciva ad alzarmi dal letto. Ha detto: «Mamma, verrò a trovarti ogni
+          domenica.» Non è venuto da due anni. Non lo biasimo — ha la sua vita. Ma di notte, quando il dolore mi sveglia
+          e non c'è nessuno accanto… è dura.
+        </b>
+      </p>
+      <p>
+        <b>
+          E poi è arrivato il dott. Bianchi. È stata la prima persona a toccare le mie ginocchia senza disgusto. Mi ha
+          spiegato cosa succede nelle articolazioni. E ha nebulizzato lo spray. Dopo una settimana riuscivo a piegare il
+          ginocchio sinistro. Dopo un mese mi sono alzata dal letto da sola. Dopo due mesi — sono uscita in giardino.
+          Non uscivo da 3 anni.
+        </b>
+      </p>
+      <p>
+        L'infermiera piangeva quando mi ha visto. Io piangevo di più. Non perché camminavo. Ma perché qualcuno — un
+        giovane dottore che non avevo mai conosciuto — mi ha dato più di quanto mi abbia dato mio figlio.
+      </p>
+      <font>
+        <b>Maria Ferraro, 84 anni, casa di riposo in prov. di Napoli</b>
+      </font>
+    </div>
+
+    <p>
+      Un altro caso: il signor Franco, 58 anni, muratore per tutta la vita, con la colonna distrutta dalle ernie del
+      disco. La moglie lo ha lasciato quando non poteva più lavorare.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <!-- 📸 ФОТО 9 -->
+      <img class="img-card2" src="https://static.joxi.pro/1778142925769-f6ae7d5d-d93a-42f5-8684-d3c285fbc8bf.jpg">
+      <p>
+        „Sono stato muratore per 30 anni. La colonna ha ceduto a 54 anni — due ernie del disco e sciatica. Non potevo né
+        stare in piedi, né stare sdraiato. Faceva tutto male. Mia moglie se n'è andata — ha detto che non poteva
+        prendersi cura di un invalido. Non la biasimo.
+      </p>
+      <p>
+        <b>
+          Mia sorella ha saputo del dott. Bianchi da una vicina. Mi ha mandato lo spray ArtiZynt. Ho iniziato a
+          nebulizzarlo sulla colonna, mattina e sera. Al terzo giorno ho sentito il primo sollievo. Dopo 3 settimane —
+          potevo di nuovo andare al negozio. Dopo 2 mesi — sono tornato a lavorare part-time.
+        </b>
+      </p>
+      <p>
+        A volte mi sveglio la mattina, mi alzo dal letto senza dolore, e mi fermo un secondo. Sto in piedi e non riesco
+        a credere che sia vero. Che non fa più male. Se non fosse stato per il dott. Bianchi, forse anche io sarei
+        adesso in una casa di riposo."
+      </p>
+    </div>
+
+    <h2>
+      „ArtiZynt non cura solo il dolore — rigenera l'intera articolazione dall'interno"
+      <span>
+        Non solo gli anziani nelle case di riposo ne beneficiano. Chiunque sopra i 45 anni che sente i primi segnali può
+        prevenire la catastrofe.
+      </span>
+    </h2>
+
+    <p><b>Dott. Riccardo Bianchi:</b></p>
+
+    <p>
+      — Il tempo minimo di utilizzo è di 30 giorni, ma nei casi gravi di artrosi o ernie possono essere necessari 2-3
+      mesi. Tuttavia in ogni caso — senza eccezione — si osserva una riduzione del dolore, rigenerazione della
+      cartilagine e ripristino della mobilità.
+    </p>
+
+    <p>
+      ArtiZynt agisce dalla prima nebulizzazione: il dolore diminuisce, l'infiammazione si riduce, il movimento
+      diventa più facile. Ma la vera magia avviene nel tempo: la cartilagine si rigenera, il liquido sinoviale ritorna,
+      l'articolazione si „ringiovanisce" dall'interno.
+      <b class="red-txt">
+        Ho visto persone di 80 anni che camminavano di nuovo. Ho visto mani che non riuscivano a tenere una tazza
+        portare un cucchiaio alla bocca. Ho visto colonne vertebrali curve raddrizzarsi. E in ogni caso — ho visto
+        lacrime di gioia.
+      </b>
+    </p>
+
+    <center>
+      <p><b>
+          Grazie al metodo del dott. Bianchi, oltre 12.000 persone in Italia hanno recuperato la funzionalità delle
+          articolazioni. Ecco alcuni casi:
+        </b></p>
+    </center>
+
+    <!-- 📸 ФОТО 10 -->
+    <figure>
+      <img src="https://static.joxi.pro/1778142925769-baf151ad-77dc-450d-9a89-3293efafacfa.jpg">
+      <figcaption>Uomo, 65 anni. Artrosi di 3° grado a entrambe le ginocchia — non riusciva a salire le scale. Hondro
+        Sol in 60 giorni: mobilità completa, senza dolore.</figcaption>
+    </figure>
+
+    <!-- 📸 ФОТО 11 -->
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-f19f7f66-3e45-449a-87f2-78884ec5e6e1.jpg">
+      <figcaption>Donna, 58 anni. Dolore cronico alla colonna e ernia L5-S1. ArtiZynt in 45 giorni: dolore eliminato,
+        riesce di nuovo a fare i lavori domestici.</figcaption>
+    </figure>
+
+    <!-- 📸 ФОТО 12 -->
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-7d23b447-1714-413e-b3dd-921918111aa3.jpg">
+      <figcaption>Donna, 72 anni. Artrite reumatoide grave alle dita — non riusciva a tenere una tazza. ArtiZynt in 2
+        mesi: dita mobili, gonfiore scomparso.</figcaption>
+    </figure>
+
+    <!-- 📸 ФОТО 13 -->
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-4a9900ea-fa77-4c81-a40e-dff210ebf7df.jpg">
+      <figcaption>Uomo, 70 anni. Coxartrosi avanzata — camminava solo con il deambulatore. ArtiZynt in 2,5 mesi:
+        cammina da solo, senza dolore.</figcaption>
+    </figure>
+
+    <p><b>Dott. Riccardo Bianchi:</b></p>
+    <p>
+      — Questi casi sono la prova vivente che le articolazioni possono rigenerarsi — anche quando la diagnosi sembrava
+      una condanna. Senza operazione. Senza pillole che distruggono lo stomaco. E ciò che mi dà la più grande gioia:
+      molti di loro sono anziani delle case di riposo — quelli che il mondo ha dimenticato. <b>Ma io non li ho
+        dimenticati. E ArtiZynt non li dimentica.</b>
+    </p>
+
+    <div id="overlay" style="display:none;opacity:0"></div>
+    <div id="popup3" style="display:none;opacity:0;transform:translate(-50%,-50%) scale(0.8)"></div>
+
+    <h2>
+      Perché ArtiZynt non è disponibile in farmacia? E come si può ottenere?
+    </h2>
+
+    <p><b>Dott. Riccardo Bianchi:</b></p>
+
+    <p>Purtroppo, la produzione di ArtiZynt è un processo complesso e costoso. Gli ingredienti sono rari — estratto di
+      artiglio del diavolo, acido boswellico concentrato, arnica montana in alta concentrazione — e difficili da
+      reperire nelle quantità necessarie. Non siamo in grado di soddisfare tutta la domanda.</p>
+
+    <p>Servono almeno 2-3 anni prima che ArtiZynt arrivi in farmacia. Fino ad allora, il prodotto è distribuito
+      esclusivamente online, nell'ambito dei programmi di sostegno, due volte all'anno. Tuttavia,
+      <font class="red-txt">gli sconti possono raggiungere il 50%</font>
+      — il che è fondamentale per i pensionati.
+    </p>
+
+    <p>
+      Vi prego: NON PERDETE IL PROGRAMMA DI SOSTEGNO. Non solo per voi — ma anche per genitori, nonni, persone care che
+      forse soffrono in silenzio. O per chi è già in una casa di riposo, solo, e nessuno gli manda niente. Siate la
+      persona che fa la differenza.
+    </p>
+
+    <p class="red-txt"><b>Per effettuare l'ordine, utilizzate il modulo qui sotto.</b></p>
+
+    <h2>
+      Ultima occasione per ottenere ArtiZynt quest'anno — per voi stessi o per una persona cara che soffre in silenzio
+    </h2>
+
+    <!-- 📸 ФОТО 14 -->
+    <img alt="ArtiZynt" src="https://static.joxi.pro/1778142925765-23a2eba7-86af-44ac-ba7c-09e3abb33bc2.jpg"
+      style="margin:0 auto;display:block;max-width:500px;width:100%;margin-top:24px;margin-bottom:20px">
+
+    <p><b>Dott. Riccardo Bianchi:</b></p>
+
+    <p>
+      — Ho riservato 20.000 confezioni esclusivamente per i lettori di questo portale. Ogni cittadino italiano sopra i
+      40 anni può ricevere uno <font class="red-txt">sconto fino al 50%</font>, ma il programma termina il <span>
+        <script>dtime_nums(0, true)</script>
+      </span>.
+    </p>
+
+    <p>Non aspettate finché non riuscirete a salire le scale. Finché le ginocchia non cederanno completamente. Finché la
+      colonna non si bloccherà. E soprattutto — non aspettate di diventare un „peso" agli occhi dei vostri cari. Hondro
+      Sol ha un effetto cumulativo e basta usarlo una volta all'anno come prevenzione.</p>
+
+    <p>Inserite il vostro nome e numero di telefono. Un consulente vi contatterà, sceglierà il programma adatto e
+      organizzerà la consegna in 2-3 giorni, tramite corriere o posta, direttamente all'indirizzo indicato.</p>
+
+    <p><b>Con speranza e rispetto — dott. Riccardo Bianchi. Prendetevi cura dei vostri cari. Forse l'unica cosa di cui
+        hanno bisogno è sapere che non li avete dimenticati.</b></p>
+
+    <p class="pachino-ramka">
+      <span class="ramka-title">Aggiornamento: <span>
+          <script>dtime_nums(-3, true)</script>
+        </span>:</span>
+      A causa dell'enorme interesse, le scorte potrebbero esaurirsi prima del previsto! Oggi —
+      <font><span>
+          <script>dtime_nums(1, true)</script>
+        </span> — è l'ultimo giorno del programma</font> o fino a esaurimento scorte.
+    </p>
+
+    <center><img src="images/product.png" style="max-width:500px;width:100%"></center><br>
+
+    <center>
+      <p class="noclose-cta red-txt">
+        Attenzione! Non chiudete e non ricaricate la pagina, altrimenti la confezione di ArtiZynt riservata per voi
+        sarà assegnata a un'altra persona!
+      </p>
+      <span class="pre-cta">
+        Potete approfittare dell'offerta — il vostro posto è riservato:
+        <span class="nowrap">N. <font class="number-me"
+            style="border-bottom:2px solid var(--color-danger);font-weight:700">19&nbsp;974</font></span>
+      </span>
+    </center>
+
+    <span id="form"></span>
+    <span id="oneform"></span>
+    <div class="pachinoform">
+      <div class="pachinoform_title">
+        <div class="pachinoform_title_logo">
+          <img alt="" src="images/56d9b0017d1d_d58505c9.png">
+        </div>
+        <div class="pachinoform_title_text">
+          <b>Modulo ufficiale d'ordine</b>
+          № <font class="number-me nowrap">19&nbsp;974</font> / <font class="nowrap">20 000</font>
+        </div>
+      </div>
+      <div class="pachinoform_order">
+        Per usufruire dello <b>sconto del 50%</b>, inserite il vostro nome e numero di telefono nei campi sottostanti e
+        premete il pulsante „ORDINA".
+      </div>
+      <div class="pachinoform_value">
+        In magazzino:
+        <span class="blc-pck">
+          <strong class="pachinoform_value_current left-pack">33</strong>
+          <strong class="pachinoform_value_total"> /1000</strong>
+        </span>
+      </div>
+      <div class="pachinoform_price">
+        <div class="pachinoform_price_old"><span class="price_old">98 €</span></div>
+        <div class="pachinoform_price_new"><span class="price_main">49 €</span></div>
+      </div>
+      <form id="order_form" action="" method="post">
+        <input type="hidden" name="product_id" value="16366">
+        <input type="hidden" name="ref" value="1029931">
+        <input type="hidden" name="langCode" value="it">
+        <div class="name-input">
+          <label for="name-input">Nome</label>
+          <input autocomplete="name" id="name-input" name="name" placeholder="Il vostro nome" required="" type="text"
+            value="">
+        </div>
+        <div class="phone-input">
+          <label for="phone-input">Numero di telefono</label>
+          <input autocomplete="tel" id="phone-input" maxlength="20" name="phone" pattern="^[\-+() 0-9]{8,20}$"
+            placeholder="Il vostro numero di telefono" required="" type="tel" value="">
+        </div>
+        <button class="button-submit" type="submit">ORDINA ADESSO</button>
+      </form>
+      <div class="pachinoform_footer">
+        ✔️ Consegna effettuata dal Centro Nazionale della Salute<br> direttamente all'indirizzo indicato
+        <br>
+        <img alt="" src="images/b0110a32ff2e_8322b1b5.png" style="width:auto">
+      </div>
+    </div>
+
+    <!-- COMMENTS SECTION -->
+    <div class="comments comments-fb" id="pluginComments">
+      <div class="comments__header">
+        <div class="comments__left-box">
+          <p class="comments__header-title">COMMENTI</p>
+        </div>
+      </div>
+
+      <div class="comments__item-list">
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7da17fc86c6c_2f1260d0.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Maria Colombo</p>
+              <p class="startdate" daysago="8" format="day/month/year">
+                <script>dtime_nums(-8, true)</script>
+              </p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ho pianto leggendo questo articolo. Mia madre ha 76 anni ed è in una casa
+              di riposo da 2 anni — proprio perché le ginocchia hanno ceduto e non riuscivamo a prenderci cura di lei. È
+              la mia colpa più grande. Ho ordinato ArtiZynt per lei. Forse non è troppo tardi. Dio, spero che
+              funzioni.</p>
+          </div>
+        </div>
+
+        <div id="first-comment">
+          <div class="comments__item">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/8ba73d45c164_4ede289a.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Elena Martinelli</p>
+                <p class="startdate" daysago="7" format="day/month/year">
+                  <script>dtime_nums(-7, true)</script>
+                </p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Ho ricevuto ArtiZynt venerdì scorso. Lo nebulizzo sulle ginocchia
+                mattina e sera. Dopo 5 giorni — il dolore si è ridotto enormemente, riesco a scendere le scale senza
+                tenermi alla ringhiera! La storia del dottore mi ha convinto a ordinare. Una persona meravigliosa.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/fa7f61c1431c_7946ff6c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Anna Ricci</p>
+              <p class="startdate" daysago="6" format="day/month/year">
+                <script>dtime_nums(-6, true)</script>
+              </p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ho 69 anni. La colonna mi tormentava da 4 anni — ernia del disco e
+              sciatica. Non riuscivo a piegarmi per allacciarmi le scarpe. I medici mi davano antinfiammatori che mi
+              hanno distrutto lo stomaco. Dopo 3 settimane con ArtiZynt — il dolore è quasi completamente scomparso.
+              Vado da sola al mercato, faccio la spesa, cucino. Ho ritrovato la mia vita.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/dcc5cfe80d60_5aa7f8f7.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Roberto Moretti</p>
+              <p class="startdate" daysago="5" format="day/month/year">
+                <script>dtime_nums(-5, true)</script>
+              </p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Lavoro in ufficio 10 ore al giorno. Colonna e collo hanno ceduto. Il
+              medico mi ha detto: „O lascia il lavoro, o si opera." Ho scelto ArtiZynt. Dopo 5 settimane — nessun
+              dolore. E il mio enorme rispetto per il dott. Bianchi — in un mondo dove tutti vogliono soldi, lui va
+              dagli anziani dimenticati.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/bcbe20e0b5d2_b241da99.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Marco Fontana</p>
+              <p class="startdate" daysago="5" format="day/month/year">
+                <script>dtime_nums(-5, true)</script>
+              </p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ho ordinato 3 confezioni — per me (ginocchia), per mia moglie (mani,
+              artrite) e per mio suocero in casa di riposo. Non possiamo visitarlo spesso, ma almeno gli mandiamo ciò di
+              cui ha bisogno. Spero che funzioni anche per lui. Grazie per l'articolo.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/73d3a879cef9_4a9ce85c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Adriana Gentile</p>
+              <p class="startdate" daysago="4" format="day/month/year">
+                <script>dtime_nums(-4, true)</script>
+              </p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Mi chiedo se ordinare per mio padre. È in casa di riposo da 3 anni — le
+              ginocchia non funzionano più. Ha rinunciato alla vita, parla poco. Pensate che ArtiZynt possa ancora
+              aiutare a 78 anni?</p>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/71deaf909b4e_ea30d07c.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Giovanna Benedetti</p>
+                <p class="startdate" daysago="4" format="day/month/year">
+                  <script>dtime_nums(-4, true)</script>
+                </p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Adriana, mia madre ha 82 anni! Artrosi grave a entrambe le ginocchia,
+                non riusciva a scendere dal letto. Ha usato ArtiZynt per 2 mesi — ora esce da sola nel cortile. Non
+                esagero. E la cosa più bella: quando sono andata a trovarla, mi ha accolto in piedi al cancello. Abbiamo
+                pianto entrambe. Ordina senza esitazione, tuo padre merita una possibilità.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/66ebad51123a_206d5fba.png">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Renato Marchetti</p>
+                <p class="startdate" daysago="3" format="day/month/year">
+                  <script>dtime_nums(-3, true)</script>
+                </p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Adriana, ordina senza preoccupazioni. Io a 78 anni ero a un passo dalla
+                sedia a rotelle — coxartrosi. ArtiZynt in 2 mesi mi ha rimesso in piedi. Letteralmente. Tuo padre ne
+                ha bisogno più di quanto pensi.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d61700bc0961_28c03d39.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Caterina Russo</p>
+              <p class="startdate" daysago="3" format="day/month/year">
+                <script>dtime_nums(-3, true)</script>
+              </p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Una settimana di utilizzo su ginocchia e zona lombare. La mattina non sono
+              più „di legno". Riesco a piegarmi, ad alzarmi senza „ahi!". Ho ordinato anche per la mia vicina — ha 73
+              anni, vive da sola e si teneva ai muri per camminare in casa.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7db2eed8e880_6ecfd92a.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Teresa Galli</p>
+              <p class="startdate" daysago="2" format="day/month/year">
+                <script>dtime_nums(-2, true)</script>
+              </p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">A 68 anni pensavo che non avrei più potuto lavorare nell'orto. Ginocchia e
+              colonna mi avevano paralizzato. ArtiZynt ha cambiato tutto — dopo 4 settimane ho vangato la prima aiuola
+              quest'anno. E la storia del dott. Bianchi mi ha toccato profondamente. Esistono ancora persone con il
+              cuore al mondo.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/a49c7ec0724d_6f186c1c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Salvatore Ferrara</p>
+              <p class="startdate" daysago="2" format="day/month/year">
+                <script>dtime_nums(-2, true)</script>
+              </p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ho 82 anni. L'anno scorso non riuscivo ad arrivare al bagno da solo. I
+              figli parlavano della casa di riposo. Ho provato ArtiZynt — senza grandi speranze. E funziona! Cammino
+              da solo, mi vesto da solo, esco al cancello da solo. I miei figli non parlano più della casa di riposo.
+              Questa è la mia gioia più grande.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7099c502f996_b89c4cc9.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Tiziano Conti</p>
+              <p class="startdate" daysago="1" format="day/month/year">
+                <script>dtime_nums(-1, true)</script>
+              </p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Mia moglie non riusciva a scendere le scale. Si teneva al muro e piangeva
+              dal dolore. Avevo paura di perderla — non per la malattia, ma per la disperazione. Ho ordinato ArtiZynt
+              con lo sconto. Dopo 4 settimane — ieri è scesa da sola al mercato ed è tornata con dei fiori. Con dei
+              fiori! Grazie di cuore.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/47a8cb9cf088_09555b8e.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Beatrice Mancini</p>
+              <p class="startdate" daysago="1" format="day/month/year">
+                <script>dtime_nums(-1, true)</script>
+              </p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ho ordinato 4 confezioni — per mia madre (casa di riposo, ginocchia), per
+              mio padre (a casa, colonna), e 2 per me (mani, artrite alle dita, non riuscivo a scrivere). Le storie
+              dell'articolo mi hanno distrutta. Avrei dovuto farlo prima. Non ho più scuse.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/f021e0a36f8b_7c282874.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Daniela Caruso</p>
+              <p class="nowdate" daysago="0" format="day/month/year">
+                <script>dtime_nums(0, true)</script>
+              </p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ho ricevuto ArtiZynt — il corriere l'ha consegnato in 2 giorni! L'ho già
+              nebulizzato sulle ginocchia di mia madre in casa di riposo. Incrocio le dita con tutto il cuore. Manderò
+              questo articolo anche al personale — magari contatteranno il dott. Bianchi.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d770c7a4cbdf_467ee117.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Pietro Lombardi</p>
+              <p class="nowdate" daysago="0" format="day/month/year">
+                <script>dtime_nums(0, true)</script>
+              </p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ho cercato ArtiZynt in farmacia — non c'è. Mi hanno detto di ordinarlo
+              da questo sito. Spero che sia ancora disponibile. Mio nonno ne ha urgente bisogno — ha 81 anni e non
+              riesce più a camminare.</p>
+          </div>
+        </div>
+
+        <div class="custom-commetns-container"></div>
+
+        <a href="#" style="text-decoration: none;">
+          <div class="form-container">
+            <form class="custom-form" id="custom-form">
+              <div class="custom-form__top-field">
+                <div class="custom-form__ava-block">
+                  <input disabled class="custom-form__ava-input sf-hidden" id="avatar" name="avatar" type="file"
+                    value="">
+                  <label class="custom-form__ava-label"><span class="custom-form__ava-label_red-text">*</span>Aggiungi
+                    avatar</label>
+                </div>
+                <input disabled class="custom-form__name" placeholder="Il vostro nome" required="" type="text" value="">
+              </div>
+              <textarea disabled class="custom-form__message" placeholder="Il vostro commento" required=""></textarea>
+              <div class="custom-form__bottom-field">
+                <div class="custom-form__photo-block">
+                  <input disabled class="custom-form__photo-input sf-hidden" id="photo" type="file" value="">
+                  <label class="custom-form__photo-label" for="photo">Aggiungi foto</label>
+                </div>
+                <button disabled class="custom-form__btn">INVIA</button>
+              </div>
+            </form>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </main>
+
+  <div class="trust-strip">
+    <div class="trust-item"><span class="trust-item-icon">🛡️</span> Qualità certificata</div>
+    <div class="trust-item"><span class="trust-item-icon">🚚</span> Consegna in 2–3 giorni</div>
+    <div class="trust-item"><span class="trust-item-icon">⚕️</span> Senza ricetta</div>
+    <div class="trust-item"><span class="trust-item-icon">🔒</span> Ordine sicuro</div>
+  </div>
+
+  <footer class="clinical-footer">
+    © SaluteInfo Italia — reportage speciale<br>
+    I dati presentati su questa pagina hanno carattere informativo e non sostituiscono il consulto medico.
+  </footer>
+
+  <div class="ffl ffl__anim sf-hidden" data-name="div-gc0zvidej" style="display:block"></div>
+
+ <script async>
+  const LAZY = document.querySelectorAll('img');
+  for (let i = 0; i < LAZY.length; i++) {
+    LAZY[i].setAttribute('loading', 'lazy');
+  } </script>
+<script>
+  $("a").on("touchend, click", function (e) {
+    e.preventDefault();
+    $('body,html').animate({
+      scrollTop: $('#oneform').offset().top
+    }, 400);
+  });
+</script>
+<script>
+  $('[name="name"]').on("input", function () {
+    var val = $(this).val();
+    var cleaned = val
+      .replace(/[^\p{L}\s]/gu, "")
+      .replace(/^\s+/, "")
+      .replace(/\s\s+/, " ");
+    var parts = cleaned.split(" ");
+    if (parts.length > 2) {
+      cleaned = parts[0] + " " + parts[1];
+    }
+    $(this).val(cleaned);
+  });
+  $('[name="name"]').on("change blur", function () {
+    $(this).val($(this).val().trim());
+  });
+  $('[name="phone"]').on("input change", function (e) {
+    var val = $(this).val();
+    $(this).val(val.replace(/\D/g, ""));
+    $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+  });
+</script>
+
+  <script src="js/m1ref.js"></script>
+  <script type="text/javascript">
+    var m1_product_id = 16366;
+    var ref = 1029931;
+    var script = document.createElement("script");
+    script.src = "https://m1.top/send_order/?ref=" + ref + "&s=" + getC("s") + "&w=" + getC("w") + "&t=" + getC("t") + "&p=" + getC("p") + "&m=" + getC("m") + "&product_id=" + m1_product_id + '&out=1';
+    document.body.appendChild(script);
+  </script>
+
+  <script type="text/javascript">
+    var QueryString = function () {
+      var query_string = {};
+      var query = window.location.search.substring(1);
+      var vars = query.split("&");
+      for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split("=");
+        if (typeof query_string[pair[0]] === "undefined") {
+          query_string[pair[0]] = decodeURIComponent(pair[1]);
+        } else if (typeof query_string[pair[0]] === "string") {
+          var arr = [query_string[pair[0]], decodeURIComponent(pair[1])];
+          query_string[pair[0]] = arr;
+        } else {
+          query_string[pair[0]].push(decodeURIComponent(pair[1]));
+        }
+      }
+      return query_string;
+    }();
+
+    var webmaster_id = 1029931;
+    var webmaster_api = '2188aad9cfb9f55626bf1d64cf4e95e0';
+    var product_id = 16366;
+
+    let langCode = 'it';
+
+    var keitaro_subid = '{subid}';
+    if (keitaro_subid.indexOf('{') !== -1) keitaro_subid = '';
+
+    var client_ip = '127.0.0.1';
+    var client_s = '';
+    var client_w = '';
+    var client_t = '';
+    var client_p = '';
+    var client_m = '';
+
+    function sendData(client_name, client_phone) {
+      $.ajax({
+        type: 'POST',
+        data: {
+          ref: webmaster_id,
+          api_key: webmaster_api,
+          product_id: product_id,
+          phone: client_phone,
+          name: client_name,
+          ip: client_ip,
+          s: client_s,
+          w: client_w,
+          t: client_t,
+          p: client_p,
+          m: client_m,
+          referer: document.referrer,
+          langCode: langCode
+        },
+        url: 'https://m1.top/send_order/',
+        success: function (data) {
+          data = JSON.parse(data);
+          if (data.result == "ok") {
+            window.location.replace("call.html?order_id=" + data.id + "&s=" + client_s + "&w=" + client_w + "&t=" + client_t + "&p=" + client_p + "&m=" + client_m);
+          }
+          else {
+            window.location.replace("error.html?s=" + client_s + "&w=" + client_w + "&t=" + client_t + "&p=" + client_p + "&m=" + client_m);
+          }
+        },
+        error: function (xhr, status, error) {
+          console.log(xhr.statusText, xhr.responseText, status, error);
+          window.location.replace("error.html?s=" + client_s + "&w=" + client_w + "&t=" + client_t + "&p=" + client_p + "&m=" + client_m);
+        }
+      });
+      return false;
+    };
+
+    $(document).ready(function () {
+      client_s = QueryString.s || keitaro_subid;
+      client_w = QueryString.w;
+      client_t = QueryString.t;
+      client_p = QueryString.p;
+      client_m = QueryString.m;
+
+      $.getJSON('https://ipapi.co/json/', function (data) {
+        json_data = data;
+        client_ip = json_data.ip;
+      });
+
+      $('#order_form').submit(function () {
+        var elem = $(this),
+          button = $("[type=submit], button", elem);
+
+        $('input[name=name]', this).val($.trim($('input[name=name]', this).val()));
+        if (!$('input[name=name]', this).val()) {
+          alert('Inserisci un nome valido!');
+          return false;
+        }
+
+        if (!$('input[name=phone]', this).val() || $('input[name=phone]', this).val().length < 7) {
+          alert('Inserisci un numero di telefono valido!');
+          return false;
+        }
+
+        button.prop("disabled", true);
+        sendData($('input[name=name]', this).val(), $('input[name=phone]', this).val());
+        return false;
+      });
+    });
+  </script>
+
+  <script src="js/ywbackfix.js"
+    data-redirect="true"
+    data-links='["https://nutrivition.top/CHEST_CAMPAIGN?sun={sub_id_30}"]'>
+  </script>
+</body>
+
+</html>
