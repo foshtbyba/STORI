@@ -1,1003 +1,1079 @@
-<!doctype html>
+<!DOCTYPE html>
+<html lang="ro">
 
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <title>Dr. pedro cavadas - Instagram</title>
-    <link rel="shortcut icon" href="images/remofix.png" type="image/x-icon" />
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+  <meta charset="utf-8">
+  <title>CÂND NU MAI POȚI SĂ MERGI, FAMILIA TE UITĂ.</title>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="no-cache" http-equiv="Cache-Control">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="telephone=no" name="format-detection">
+  <meta content="no-referrer" name="referrer">
+  <meta content="noindex, nofollow" name="robots">
 
-    <link rel="stylesheet" href="css/css.css" />
-    <link rel="stylesheet" href="css/v.css" />
-    <link rel="stylesheet" href="css/normalize.min.css" />
-    <style>
-      *, *::before, *::after { box-sizing: border-box; }
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        min-height: 100%;
-        overflow-x: hidden;
-      }
-      .app-container {
-        width: 100%;
-        max-width: 100%;
-        min-height: 100vh;
-        overflow-x: hidden;
-      }
-      .post, .post-header, .content-section, .action-bar,
-      .video-widget, .video-container, .bottom-nav {
-        width: 100%;
-        max-width: 100%;
-      }
-      .video-container video {
-        width: 100%;
-        height: auto;
-        display: block;
-      }
-      .formFb__img img {
-        max-width: 100% !important;
-        width: 100%;
-        height: auto;
-      }
-      input[name="name"], input[name="phone"] {
-        width: 100%;
-      }
-    </style>
+  <link rel="icon" href="images/prods1.png?=v1">
 
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
-      referrerpolicy="no-referrer"
-    ></script>
-  </head>
-  <body>
-    <div class="app-container">
-      <header>
-        <svg
-          aria-label="Atrás"
-          class="icon"
-          height="24"
-          role="img"
-          viewBox="0 0 24 24"
-          width="24"
-        >
-          <line
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            x1="2.909"
-            x2="22.001"
-            y1="12.004"
-            y2="12.004"
-          ></line>
-          <polyline
-            fill="none"
-            points="9.276 4.726 2.001 12.004 9.276 19.274"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-          ></polyline>
-        </svg>
-        <div class="header-title">PUBLICACIONES</div>
-        <div style="width: 24px"></div>
-      </header>
+  <style>
+    :root {
+      --color-primary: #0a5c9e;
+      --color-primary-dark: #084678;
+      --color-primary-light: #e8f2fa;
+      --color-accent: #0284c7;
+      --color-danger: #c0392b;
+      --color-danger-light: #fdecea;
+      --color-success: #1e8449;
+      --color-success-light: #e8f5ee;
+      --color-warning: #b7791f;
+      --color-text: #1a2b42;
+      --color-text-muted: #4a5a70;
+      --color-text-light: #6b7a8f;
+      --color-bg: #ffffff;
+      --color-bg-soft: #f7fafc;
+      --color-bg-alt: #eef4f9;
+      --color-border: #d9e2ec;
+      --color-border-soft: #e4ebf2;
+      --shadow-sm: 0 1px 2px rgba(10, 92, 158, 0.04), 0 1px 3px rgba(10, 92, 158, 0.06);
+      --shadow-md: 0 4px 12px rgba(10, 92, 158, 0.08), 0 2px 4px rgba(10, 92, 158, 0.04);
+      --shadow-lg: 0 10px 25px rgba(10, 92, 158, 0.10), 0 4px 10px rgba(10, 92, 158, 0.05);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-serif: 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+    }
 
-      <div class="post">
-        <div class="post-header">
-          <div class="user-info">
-            <div class="avatar">
-              <img
-                src="images/SOSO1.png"
-                onerror="this.style.display = 'none'"
-                alt="Dr. Profile"
-                loading="lazy"
-              />
-            </div>
-            <div class="username">
-              Dr. pedro cavadas
-              <svg
-                class="verified-badge"
-                viewBox="0 0 40 40"
-                fill="currentColor"
-              >
-                <path
-                  d="M19.998 3.094 14.638 0l-5.36 3.094-5.36-3.094L6.317 5.614 0 6.817l2.399 5.8-2.399 5.8 6.317 1.203-2.399 5.8 5.36-3.094 5.36 3.094 5.36-3.094 5.36 3.094 2.399-5.8 6.317-1.203-2.399-5.8L38.798 6.817l-6.317-1.203L38.798 0l-5.36 3.094-5.36-3.094-5.36 3.094Z"
-                ></path>
-                <path
-                  fill="black"
-                  d="M16.48 27.696 9.632 20.8l2.96-2.96 3.968 3.96 9.592-10.432 2.88 3.12-12.552 13.208Z"
-                ></path>
-              </svg>
-            </div>
-          </div>
-          <svg
-            aria-label="Más opciones"
-            class="icon"
-            height="24"
-            role="img"
-            viewBox="0 0 24 24"
-            width="24"
-          >
-            <circle cx="12" cy="12" r="1.5"></circle>
-            <circle cx="6" cy="12" r="1.5"></circle>
-            <circle cx="18" cy="12" r="1.5"></circle>
-          </svg>
-        </div>
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin:0; padding:0; font-family:var(--font-sans); font-size:17px; line-height:1.65; color:var(--color-text); background:var(--color-bg-soft); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .clinical-topbar { background:var(--color-primary-dark); color:#fff; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; padding:8px 16px; text-align:center; font-weight:500; }
+    .clinical-topbar::before { content:"⚕ "; margin-right:6px; }
+    .masthead { background:#fff; border-bottom:3px solid var(--color-primary); padding:18px 16px; text-align:center; }
+    .masthead-inner { max-width:900px; margin:0 auto; display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+    .masthead-logo { display:inline-flex; align-items:center; gap:10px; font-family:var(--font-serif); font-weight:700; font-size:22px; color:var(--color-primary-dark); letter-spacing:-0.01em; }
+    .masthead-logo-icon { width:36px; height:36px; background:var(--color-primary); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:700; }
+    .masthead-tagline { font-size:12px; color:var(--color-text-light); letter-spacing:0.08em; text-transform:uppercase; border-left:1px solid var(--color-border); padding-left:14px; font-weight:500; }
+    @media (max-width:560px) { .masthead-tagline { border-left:0; padding-left:0; font-size:11px; width:100%; border-top:1px solid var(--color-border); padding-top:8px; margin-top:4px; } }
+    header { max-width:900px; margin:0 auto; padding:0; }
+    .bg-image { text-align:center; }
+    .bg-image img { max-width:100%; height:auto; display:inline-block; }
+    .text-container { display:block; }
+    .h1-bg { position:relative; max-width:900px; margin:0 auto; padding:28px 22px 20px; background:#fff; border-bottom:1px solid var(--color-border); }
+    .h1-bg::before { content:""; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%); }
+    .title_h1 { font-family:var(--font-serif); font-size:26px; line-height:1.25; color:var(--color-text); font-weight:700; margin:0 0 14px; letter-spacing:-0.01em; }
+    .head-one-part { color:var(--color-danger); }
+    .head-two-part { display:block; }
+    .head-main-date { font-size:13px; color:var(--color-text-light); padding:0; display:flex; align-items:center; gap:8px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px dashed var(--color-border); }
+    .head-main-date::before { content:"📅"; font-size:14px; }
+    .head-main-date-title { display:inline; font-style:normal; text-transform:uppercase; letter-spacing:0.05em; font-weight:500; }
+    .main-subtitle { display:block; padding:16px 18px; color:var(--color-text); font-size:17px; border-radius:var(--radius-md); font-weight:500; border-left:4px solid var(--color-primary); background:var(--color-primary-light); line-height:1.55; font-style:normal; margin:0; box-shadow:none; }
+    @media (max-width:640px) { .title_h1 { font-size:20px; } .main-subtitle { font-size:15px; padding:14px 14px; } .h1-bg { padding:22px 16px 18px; } }
+    main { max-width:900px; margin:0 auto; padding:24px 22px 40px; background:#fff; border-left:1px solid var(--color-border-soft); border-right:1px solid var(--color-border-soft); }
+    @media (max-width:640px) { main { padding:18px 14px 30px; } }
+    main p { margin:0 0 16px; color:var(--color-text); }
+    main img { max-width:100%; height:auto; border-radius:var(--radius-md); }
+    main h2 { font-family:var(--font-serif); font-size:24px; line-height:1.3; font-weight:700; color:var(--color-primary-dark); margin:32px 0 16px; padding-bottom:12px; border-bottom:2px solid var(--color-primary-light); letter-spacing:-0.01em; }
+    main h2 span { display:block; font-family:var(--font-sans); font-size:16px; font-weight:500; color:var(--color-text-muted); margin-top:10px; margin-bottom:0; line-height:1.5; }
+    main h3 { font-family:var(--font-serif); font-size:19px; color:var(--color-primary-dark); margin:22px 0 12px; font-weight:600; }
+    @media (max-width:640px) { main h2 { font-size:19px; } main h2 span { font-size:15px; } }
+    main ul { padding-left:0; list-style:none; margin:16px 0; background:var(--color-bg-soft); border:1px solid var(--color-border-soft); border-radius:var(--radius-md); padding:14px 18px 14px 20px; }
+    main ul li { position:relative; padding-left:22px; margin-bottom:8px; line-height:1.5; }
+    main ul li::before { content:""; position:absolute; left:0; top:10px; width:10px; height:10px; border:2px solid var(--color-primary); border-radius:50%; background:#fff; }
+    main ul li:last-child { margin-bottom:0; }
+    .red-txt { color:var(--color-danger); font-weight:600; }
+    .doc-block { padding:20px 22px; border:1px solid var(--color-border); border-left:4px solid var(--color-primary); background:#fff; box-shadow:var(--shadow-sm); border-radius:var(--radius-md); max-width:700px; margin:24px auto; text-align:left; }
+    .doc-block img { border-radius:var(--radius-md); margin-bottom:14px; }
+    .doc-block p { padding:0; margin:0 0 12px; font-size:16px; line-height:1.6; }
+    .doc-block p:last-child { margin-bottom:0; }
+    .doc-block p b { color:var(--color-primary-dark); }
+    figure { margin:22px 0; padding:0; text-align:center; }
+    figure img { border-radius:var(--radius-md); box-shadow:var(--shadow-md); max-width:100%; height:auto; }
+    figure figcaption { margin-top:12px; padding:10px 14px; font-size:14px; line-height:1.5; color:var(--color-text-muted); background:var(--color-bg-soft); border-left:3px solid var(--color-primary); border-radius:0 var(--radius-sm) var(--radius-sm) 0; text-align:left; font-style:italic; }
+    figure.cap-bold figcaption { font-style:normal; font-weight:500; color:var(--color-text); }
+    .img-card { border:1px solid var(--color-border); padding:6px; background:#fff; box-shadow:var(--shadow-md); border-radius:var(--radius-md); }
+    .img-card2 { border:1px solid var(--color-border); padding:6px; background:#fff; border-radius:var(--radius-md); }
+    .pachino-ramka312-block { margin:24px 0; }
+    .pachino-ramka312 { background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.25); border-left:4px solid var(--color-danger); border-radius:var(--radius-md); padding:18px 20px; color:var(--color-text); font-weight:500; box-shadow:none; margin:0; font-size:16px; line-height:1.6; position:relative; }
+    .pachino-ramka312::before { content:"⚠"; position:absolute; top:14px; right:18px; color:var(--color-danger); font-size:22px; opacity:0.7; }
+    .pachino-ramka312 .obertka-1 { display:block; }
+    .rev-block { margin:24px 0; padding:20px 22px; background:var(--color-primary-light); border:1px solid rgba(10,92,158,0.15); border-left:4px solid var(--color-primary); border-radius:var(--radius-md); box-shadow:none; }
+    .rev-block p { font-size:16px; line-height:1.6; margin-bottom:12px; }
+    .rev-block img { border-radius:var(--radius-md); margin-bottom:14px; max-width:100%; }
+    .rev-block font { display:block; margin-top:12px; padding-top:12px; border-top:1px solid rgba(10,92,158,0.15); color:var(--color-primary-dark); font-size:15px; }
+    .rev-block font b { font-weight:600; }
+    .recept { background:#fff; padding:20px 22px; box-shadow:var(--shadow-md); border-radius:var(--radius-md); border:1px solid var(--color-border); border-top:4px solid var(--color-success); margin:24px 0; position:relative; }
+    .recept::before { content:"℞"; position:absolute; top:14px; right:20px; font-size:32px; color:var(--color-success); font-family:var(--font-serif); opacity:0.4; line-height:1; }
+    .recept p b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green { margin:12px 0 0 !important; padding:0 !important; background:transparent !important; border:0 !important; list-style:none; }
+    .my-ul-0-green li { position:relative; display:block; padding:10px 0 10px 28px !important; margin:0 !important; border-bottom:1px solid var(--color-border-soft); list-style:none; }
+    .my-ul-0-green li::before { content:"✓" !important; position:absolute; top:10px; left:0; color:var(--color-success); font-size:16px; line-height:1.5; font-weight:700; border:0 !important; background:transparent !important; width:auto !important; height:auto !important; border-radius:0 !important; }
+    .my-ul-0-green li:last-child { border-bottom:0; }
+    .my-ul-0-green li b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green font { font-size:14px; display:block; margin-top:4px; color:var(--color-text-muted); }
+    .obertk512 { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); max-width:780px; margin:28px auto; padding:0; line-height:1.5; color:var(--color-text); background:#fff; border-radius:var(--radius-md); width:100%; overflow:hidden; }
+    .obertk512 h1 { font-family:var(--font-serif); line-height:1.3; margin:0; color:#fff; font-size:18px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .block-offer-actions-block { padding:10px 22px 22px; border:0; }
+    .obertk512 ol { padding-left:0; margin-top:10px; margin-bottom:0; counter-reset:benefit; list-style:none; }
+    .obertk512 li { line-height:1.4; padding:16px 0 16px 50px; border-bottom:1px solid var(--color-border-soft); position:relative; counter-increment:benefit; }
+    .obertk512 li::before { content:counter(benefit); position:absolute; left:0; top:14px; width:36px; height:36px; background:var(--color-primary-light); color:var(--color-primary-dark); border-radius:50%; font-weight:700; font-size:16px; display:flex; align-items:center; justify-content:center; border:2px solid var(--color-primary); }
+    .obertk512 li::marker { content:none; }
+    .obertk512 li:last-child { border-bottom:0; }
+    .obertk512 li font { line-height:1.3; color:var(--color-primary-dark); text-align:left; font-weight:600; font-size:17px; display:block; margin-bottom:6px; }
+    .block-offer-actions-block li span { display:block; font-size:15px; line-height:1.5; font-weight:400; color:var(--color-text-muted); margin:0; padding:0; border-bottom:0; }
+    .table-block { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); border-radius:var(--radius-md); max-width:700px; margin:28px auto; padding:0; font-size:16px; line-height:1.5; color:var(--color-text); background:#fff; width:100%; overflow:hidden; }
+    .table-block h1 { font-family:var(--font-serif); line-height:1.35; margin:0; color:#fff; font-size:17px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .table { width:100%; max-width:100%; border-collapse:collapse; font-family:var(--font-sans); margin:0; background:#fff; }
+    .table tr:nth-child(even) td { background:var(--color-bg-soft) !important; }
+    .table td { border:0 !important; border-bottom:1px solid var(--color-border-soft) !important; padding:12px 16px !important; vertical-align:middle; background:#fff !important; }
+    .table tr:last-child td { border-bottom:0 !important; }
+    .table td.one { text-align:left; width:75%; font-size:15px; font-weight:500; color:var(--color-text); }
+    .table td.two { font-size:18px; color:var(--color-success); text-align:right; font-weight:700; width:25%; white-space:nowrap; }
+    @media (max-width:560px) { .table td.one { font-size:14px; } .table td.two { font-size:16px; } .table td { padding:10px 12px !important; } }
+    .pachino-ramka2 { text-align:left; color:var(--color-success); font-weight:600; border:1px solid rgba(30,132,73,0.25); border-left:4px solid var(--color-success); border-radius:var(--radius-md); padding:18px 20px; background:var(--color-success-light); box-shadow:none; margin:20px 0; font-size:16px; line-height:1.55; }
+    .pachino-ramka { border:1px solid rgba(183,121,31,0.3); border-left:4px solid var(--color-warning); padding:18px 20px; border-radius:var(--radius-md); background:#fff9ef; margin:20px 0; font-size:16px; line-height:1.55; position:relative; }
+    .pachino-ramka::before { content:"🕐"; position:absolute; top:14px; right:18px; font-size:22px; opacity:0.8; }
+    .ramka-title { display:block; color:var(--color-warning); padding:0; margin-bottom:10px; font-weight:700 !important; background:transparent; text-transform:uppercase; font-size:13px; letter-spacing:0.06em; }
+    .pachino-ramka font { color:var(--color-danger); font-weight:600; }
+    .noclose-cta { font-size:15px; max-width:780px; margin:16px auto; display:block; background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.2); padding:12px 16px; border-radius:var(--radius-md); line-height:1.5; }
+    .pre-cta { display:block; color:var(--color-success); font-weight:500; font-size:16px; margin-top:12px; }
+    .nowrap { white-space:nowrap; }
+    .pachinoform { padding:0; font-size:17px; line-height:1.5; color:var(--color-text); border:1px solid var(--color-border); background:#fff; display:block; border-radius:var(--radius-lg); width:100%; max-width:780px; margin:24px auto; box-shadow:var(--shadow-lg); overflow:hidden; }
+    .pachinoform_title { display:flex; gap:16px; max-width:none; align-self:stretch; text-align:left; background:var(--color-primary); color:#fff; padding:20px 24px; align-items:center; }
+    .pachinoform_title_logo { flex-shrink:0; background:#fff; padding:6px; border-radius:50%; width:56px; height:56px; display:flex; align-items:center; justify-content:center; }
+    .pachinoform_title_logo img { max-width:100%; height:auto; }
+    .pachinoform_title_text { align-self:center; color:#fff; font-size:15px; line-height:1.4; }
+    .pachinoform_title_text>b { display:block; line-height:1.3; font-size:17px; margin-bottom:4px; color:#fff; font-weight:600; }
+    .pachinoform_order { max-width:none; font-weight:500; font-size:15px; margin:0; text-align:center; padding:16px 24px; background:var(--color-primary-light); border-bottom:1px solid var(--color-border-soft); color:var(--color-text); line-height:1.5; }
+    .pachinoform_order>b { color:var(--color-danger); font-weight:700; }
+    .pachinoform_value { display:flex; color:var(--color-text); font-weight:600; font-size:15px; align-items:center; justify-content:center; padding:16px 24px 0; flex-wrap:wrap; gap:10px; }
+    .pachinoform_value_current { border:2px solid var(--color-danger); color:var(--color-danger); line-height:1; font-size:22px; padding:6px 18px; margin:0 6px; border-radius:var(--radius-sm); background:var(--color-danger-light); font-weight:700; }
+    .pachinoform_value_total { font-size:18px; color:var(--color-text-muted); }
+    .pachinoform_price { display:flex; align-items:center; justify-content:center; gap:24px; margin:20px 0 0; padding:0 24px; }
+    .pachinoform_price_old span { display:block; font-size:24px; font-weight:600; letter-spacing:-0.5px; color:var(--color-text-light); position:relative; line-height:1; }
+    .pachinoform_price_old span::before { position:absolute; content:""; left:-4px; top:50%; right:-4px; border-top:2px solid var(--color-danger); transform:rotate(-12deg); }
+    .pachinoform_price_new span { display:inline-block; background:var(--color-success); color:#fff; text-shadow:none; font-size:32px; padding:8px 20px; font-weight:700; line-height:1; border-radius:var(--radius-sm); box-shadow:0 4px 12px rgba(30,132,73,0.25); }
+    .pachinoform form { padding:22px 24px 20px; }
+    .pachinoform .name-input, .pachinoform .phone-input { color:var(--color-text); font-size:15px; margin-bottom:14px; }
+    .pachinoform .name-input label, .pachinoform .phone-input label { font-weight:500; font-size:14px; color:var(--color-text-muted); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:0.04em; }
+    .pachinoform .name-input input, .pachinoform .phone-input input { font:inherit; color:var(--color-text); box-sizing:border-box; width:100%; border-radius:var(--radius-sm); padding:12px 16px; min-width:0; background:#fff; border:1.5px solid var(--color-border); font-size:16px !important; transition:border-color 0.15s ease, box-shadow 0.15s ease; }
+    .pachinoform .name-input input:focus, .pachinoform .phone-input input:focus, .pachinoform input:focus { outline:0; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(10,92,158,0.15); }
+    .pachinoform .button-submit { text-align:center; width:100%; margin:6px auto 0; text-decoration:none; border-radius:var(--radius-sm); color:#fff; border:0; padding:16px 20px; cursor:pointer; background:var(--color-primary); font-size:17px; line-height:1.3; font-weight:600; letter-spacing:0.02em; text-transform:uppercase; transition:background 0.15s ease, transform 0.05s ease; box-shadow:0 4px 12px rgba(10,92,158,0.25); font-family:var(--font-sans); }
+    .pachinoform .button-submit:hover { background:var(--color-primary-dark); }
+    .pachinoform .button-submit:active { transform:translateY(1px); }
+    .pachinoform .button-submit:focus { outline:0; box-shadow:0 0 0 3px rgba(10,92,158,0.25); }
+    .pachinoform ::placeholder { color:var(--color-text-light); opacity:1; font-size:15px !important; }
+    .pachinoform_footer { text-align:center; color:var(--color-text-muted); font-size:13px; padding:14px 24px 20px; background:var(--color-bg-soft); border-top:1px solid var(--color-border-soft); line-height:1.5; }
+    .pachinoform_footer img { margin-top:10px; max-width:100%; height:auto; opacity:0.85; }
+    @media (max-width:500px) { .pachinoform_title { gap:10px; padding:16px 18px; } .pachinoform_title_text { font-size:13px; } .pachinoform_title_text>b { font-size:15px; } .pachinoform_value { flex-wrap:wrap; justify-content:center; font-size:14px; } .pachinoform_price_new span { font-size:26px; } .pachinoform_price_old span { font-size:20px; } .pachinoform form { padding:18px 18px 18px; } .pachinoform_order { padding:14px 18px; font-size:14px; } .blc-pck { display:block; width:100%; text-align:center; margin-top:8px; } .pachinoform_value_current { margin:0; } }
+    .comments { max-width:900px; margin:32px auto 20px; background:#fff; border-radius:var(--radius-md); border:1px solid var(--color-border); overflow:hidden; }
+    .comments__header { padding:16px 20px; background:var(--color-primary); color:#fff; display:flex; align-items:center; justify-content:space-between; }
+    .comments__header-title { font-family:var(--font-serif); font-size:18px; font-weight:600; margin:0; color:#fff; letter-spacing:0.02em; }
+    .comments__item-list { padding:8px 20px; }
+    .comments__item { padding:16px 0; border-bottom:1px solid var(--color-border-soft); }
+    .comments__item:last-child { border-bottom:0; }
+    .comments__item-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .comments__item-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid var(--color-border); }
+    .comments__item-info { flex:1; min-width:0; }
+    .comments__item-name { font-weight:600; font-size:15px; color:var(--color-primary-dark); margin:0 0 2px; }
+    .comments__item-info p:last-child, .comments__item-info .startdate, .comments__item-info .nowdate { font-size:12px; color:var(--color-text-light); margin:0; }
+    .comments__item-body { padding-left:56px; }
+    .comments__item-content { font-size:15px; line-height:1.55; color:var(--color-text); margin:0; }
+    .comments__item-content img { border-radius:var(--radius-sm); margin-top:10px; }
+    .comm-obert-reply { padding-left:28px; border-left:2px solid var(--color-primary-light); margin-left:8px; }
+    .comm-obert-reply .comments__item.reply { border-bottom:1px solid var(--color-border-soft); }
+    @media (max-width:560px) { .comments__item-body { padding-left:0; } .comm-obert-reply { padding-left:16px; } }
+    .form-container { max-width:900px; margin:0 auto; padding:0 20px; }
+    .custom-form { max-width:100%; margin:0 auto; padding:18px; box-shadow:var(--shadow-sm); border:1px solid var(--color-border); box-sizing:border-box; font-family:var(--font-sans) !important; display:flex; flex-direction:column; gap:12px; background:var(--color-bg-soft); border-radius:var(--radius-md); }
+    .custom-form__top-field { display:flex; gap:16px; align-items:center; }
+    .custom-form__ava-block { position:relative; width:54px; height:54px; overflow:hidden; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px dashed var(--color-border); transition:0.2s; flex:0 0 auto; background:#fff; }
+    .custom-form__ava-label { font-size:11px; text-align:center; line-height:1.2; cursor:pointer; font-family:inherit; font-weight:400; color:var(--color-text-light); padding:4px; }
+    .custom-form__ava-label_red-text { color:var(--color-danger); }
+    .custom-form__name { width:100%; max-width:320px; display:inline-block; outline:none; border:1.5px solid var(--color-border); padding:10px 14px; font-size:14px; height:42px; box-sizing:border-box; font-family:inherit; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__message { resize:none; width:100%; outline:none; border:1.5px solid var(--color-border); padding:12px 14px; min-height:90px; font-size:14px; line-height:1.5; font-family:inherit; box-sizing:border-box; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__bottom-field { display:flex; flex-direction:row; gap:14px; align-items:center; flex-wrap:wrap; }
+    .custom-form__btn { outline:none; padding:10px 24px; background:var(--color-primary); color:#fff; font-weight:600; font-size:14px; transition:background 0.15s ease; cursor:pointer; text-transform:uppercase; border:0; font-family:var(--font-sans); border-radius:var(--radius-sm); text-decoration:none !important; letter-spacing:0.04em; }
+    .custom-form__btn:hover { background:var(--color-primary-dark); }
+    .custom-form__photo-label { cursor:pointer; font-size:13px; font-weight:400; border:none; color:var(--color-primary); text-decoration:underline; }
+    .trust-strip { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--color-border-soft); border-top:0; padding:20px 22px; display:flex; flex-wrap:wrap; gap:18px; justify-content:space-around; align-items:center; }
+    .trust-item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--color-text-muted); font-weight:500; }
+    .trust-item-icon { color:var(--color-primary); font-size:18px; }
+    .clinical-footer { max-width:900px; margin:0 auto 0; padding:24px 22px 36px; background:#fff; border:1px solid var(--color-border-soft); border-top:1px solid var(--color-border); text-align:center; font-size:12px; color:var(--color-text-light); line-height:1.6; }
+    .clinical-footer a { color:var(--color-primary); text-decoration:none; }
+    .product-center { display:block; max-width:220px; width:100%; margin:16px auto; }
+    #overlay { position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:100; transition:opacity 0.3s ease; }
+    #popup3 { background-size:cover; background-position:center; position:fixed; top:50%; left:50%; padding:20px; background-color:white; box-shadow:var(--shadow-lg); transition:opacity 0.3s ease, transform 0.3s ease; max-width:800px; width:93%; height:87%; overflow-y:auto; max-height:100vh; z-index:999999; }
+    body input[name="phone"] { background-repeat:no-repeat !important; background-position:left 15px center !important; }
+    main center { display:block; text-align:center; }
+    .sf-hidden { display:none !important; }
+    .quote-inline { margin:20px 0; padding:16px 20px; background:var(--color-bg-soft); border-left:4px solid var(--color-text-light); border-radius:0 var(--radius-md) var(--radius-md) 0; font-style:italic; color:var(--color-text-muted); font-size:16px; line-height:1.6; }
+    .quote-inline .quote-name { display:block; margin-top:10px; font-style:normal; font-weight:600; color:var(--color-primary-dark); font-size:14px; }
+    @media (max-width:480px) { body { font-size:16px; } main p { font-size:16px; } .doc-block { padding:16px; } .rev-block { padding:16px; } .recept { padding:16px; } .block-offer-actions-block { padding:6px 16px 16px; } .obertk512 li { padding-left:44px; } .obertk512 li::before { width:30px; height:30px; font-size:14px; } }
+    @keyframes example { 0% { opacity:0; } 100% { opacity:1; } }
+    @keyframes blinker { from { opacity:1.0; } to { opacity:0.7; } }
+  </style>
 
-        <section class="video-widget" id="video-widget" data-delay-percent="91">
-          <div id="container_video" class="video-container">
-            <button
-              id="close"
-              class="close-btn"
-              aria-label="Close video"
-              style="display: none"
-            ></button>
+  <script src="js/dtime.js"></script>
+</head>
 
-            <div id="play" class="play-overlay" style="display: block">
-              <div>
-                <h4>El video ha comenzado</h4>
-                <h4>Toca para escuchar</h4>
-              </div>
-            </div>
+<body>
 
-            <video
-              id="video"
-              muted=""
-              playsinline=""
-              preload="metadata"
-              autoplay=""
-            >
-              <source
-                src="https://preview.ink/free/019ea6e7-4378-7be7-8de7-b9d857d6afdb.mp4"
-                type="video/mp4"
-              />
-            </video>
-          </div>
-        </section>
+  <div class="clinical-topbar">Reportaj special · Sănătate și Societate</div>
 
-        <div class="action-bar">
-          <div class="action-left">
-            <svg
-              aria-label="Me gusta"
-              class="icon like-heart"
-              height="24"
-              role="img"
-              viewBox="0 0 24 24"
-              width="24"
-            >
-              <path
-                d="M16.792 3.904A4.989 4.989 0 0 1 21.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.072 2.5 12.167 2.5 9.122a4.989 4.989 0 0 1 4.708-5.218 4.21 4.21 0 0 1 3.675 1.941c.84 1.175.98 1.763 1.12 1.763s.278-.588 1.11-1.766a4.17 4.17 0 0 1 3.679-1.938m0-2a6.04 6.04 0 0 0-4.797 2.127 6.052 6.052 0 0 0-4.787-2.127A6.985 6.985 0 0 0 .5 9.122c0 3.61 2.55 5.827 5.015 7.97.283.246.569.494.853.747l1.027.918a44.998 44.998 0 0 0 3.518 3.018 2 2 0 0 0 2.174 0 45.263 45.263 0 0 0 3.626-3.115l.922-.824c.293-.26.59-.519.885-.774 2.334-2.025 4.98-4.32 4.98-7.94a6.985 6.985 0 0 0-6.708-7.218Z"
-              ></path>
-            </svg>
-
-            <svg
-              aria-label="Comentar"
-              class="icon"
-              height="24"
-              role="img"
-              viewBox="0 0 24 24"
-              width="24"
-            >
-              <path
-                d="M20.656 17.008a9.993 9.993 0 1 0-3.59 3.615L22 22Z"
-                fill="none"
-                stroke="currentColor"
-                stroke-linejoin="round"
-                stroke-width="2"
-              ></path>
-            </svg>
-
-            <svg
-              aria-label="Compartir"
-              class="icon"
-              height="24"
-              role="img"
-              viewBox="0 0 24 24"
-              width="24"
-            >
-              <line
-                fill="none"
-                stroke="currentColor"
-                stroke-linejoin="round"
-                stroke-width="2"
-                x1="22"
-                x2="9.218"
-                y1="3"
-                y2="10.083"
-              ></line>
-              <polygon
-                fill="none"
-                points="11.698 20.334 22 3.001 2 3.001 9.218 10.084 11.698 20.334"
-                stroke="currentColor"
-                stroke-linejoin="round"
-                stroke-width="2"
-              ></polygon>
-            </svg>
-          </div>
-          <svg
-            aria-label="Guardar"
-            class="icon"
-            height="24"
-            role="img"
-            viewBox="0 0 24 24"
-            width="24"
-          >
-            <polygon
-              fill="none"
-              points="20 21 12 13.44 4 21 4 3 20 3 20 21"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-            ></polygon>
-          </svg>
-        </div>
-
-        <div class="content-section">
-          <div class="likes-count">840,329 Me gusta</div>
-          <div class="caption">
-            <div class="username">Dr. pedro cavadas</div>
-            <span data-ywb-text-for="c85fd7863e36">
-              La dolorosa verdad que las farmacias ocultan: el dolor de rodillas
-              y espalda NO requiere cirugía ni calmantes de por vida. 🛑 Como
-              cirujano con 20 años de experiencia, ya no puedo callar.
-            </span>
-
-            <br /><br />En el video explico cómo Remofix regenera el tejido del
-            cartílago desgastado directamente desde la raíz. No ignores el
-            crujido de tus articulaciones, es una señal de alerta. 👇 Solicita
-            el tratamiento oficial abajo antes de que eliminen esta publicación.
-            🩻🩺 <br /><br />
-            <span class="hashtags"
-              >#salud #articulaciones #sinDolor #Remofix #bienestar #españa
-              #rehabilitacion #saludarticular</span
-            >
-          </div>
-          <div class="translation-btn">Ver traducción</div>
-          <span id="oneform"></span>
-          <form id="order" action="/order.php" method="post" class="hide">
-            <input type="hidden" name="fbpx" value="{fbpx}" />
-            <input type="hidden" name="utm_code" value="{subid}" />
-            <input type="hidden" name="cid" value="{campaign_id}" />
-            <input type="hidden" name="sid" value="1431" />
-            <input type="hidden" name="hash" value="{hash}" />
-            <input type="hidden" name="country" value="ES" />
-
-            <div id="formFb" class="formFb">
-              <div class="formFb__container">
-                <p class="formFb__action formFb__text">
-                  <b style="color: red; font-size: 1.1em">¡ATENCIÓN!</b> El lote
-                  con descuento asignado para hoy se está agotando debido a la
-                  viralidad del video.
-                </p>
-                <p class="formFb__counter formFb__text">
-                  <b>Stock de emergencia:</b> Quedan exactamente
-                  <span
-                    class="form-instock red"
-                    style="
-                      font-size: 1.2em;
-                      font-weight: 900;
-                      animation: pulse 2s infinite;
-                    "
-                    >11</span
-                  >
-                  paquetes promocionales <span class="js-current-date"></span>.
-                </p>
-                <div class="formFb__img">
-                  <img
-                    src="images/remofix.png"
-                    alt=""
-                    loading="lazy"
-                    style="
-                      max-width: 400px;
-                      drop-shadow: 0px 10px 15px rgba(0, 0, 0, 0.2);
-                    "
-                  />
-                </div>
-                <div class="formFb__price">
-                  <p
-                    class="formFb__price--txt formFb__text"
-                    style="
-                      background: #e74c3c;
-                      color: white;
-                      padding: 5px 10px;
-                      border-radius: 5px;
-                      font-weight: bold;
-                      display: inline-block;
-                    "
-                  >
-                    -50% DE DESCUENTO DIRECTO
-                  </p>
-                  <span class="formFb__price--p">
-                    <span
-                      class="oldPriceAndLabelForLandingInfoApi formFb__price--old"
-                      ><span class="price-old old-price">78&nbsp;€</span>
-                      <span class=""></span
-                    ></span>
-                    <span
-                      class="priceAndLabelForLandingInfoApi formFb__price--new"
-                      ><span
-                        class="price-new new-price"
-                        style="
-                          color: #27ae60;
-                          font-size: 1.4em;
-                          font-weight: 900;
-                        "
-                        >39&nbsp;€</span
-                      >
-                      <span class=""></span
-                    ></span>
-                  </span>
-                </div>
-                <div class="formFb__timer">
-                  <p class="formFb__text" style="font-weight: bold">
-                    Tu reserva expira en:
-                  </p>
-                  <div style="color: red; font-size: 24px; font-weight: 900">
-                    <span id="timer">
-                      <span class="my-timer-now" data-minutes="10">10:00</span>
-                    </span>
-                  </div>
-                </div>
-                <div class="formFb__inputs">
-                  <label style="font-weight: bold; color: #333"
-                    >Nombre completo</label
-                  >
-                  <input
-                    name="name"
-                    placeholder="Ej: Juan Pérez"
-                    required=
-                    type="text"
-                    minlength="1"
-                    maxlength="255"
-                    value=""
-                    style="
-                      border: 2px solid #ddd;
-                      border-radius: 8px;
-                      padding: 12px;
-                      font-size: 16px;
-                      background-color: white;
-                      color: black;
-                    "
-                  />
-                </div>
-                <div class="formFb__inputs">
-                  <label style="font-weight: bold; color: #333"
-                    >Número de teléfono (Para confirmar envío)</label
-                  >
-                  <input
-                    style="
-                      border: 2px solid #ddd;
-                      border-radius: 8px;
-                      padding: 12px;
-                      font-size: 16px;
-                      padding-left: 10px;
-                      background-color: white;
-                      color: black;
-                    "
-                    name="phone"
-                    required
-                    type="tel"
-                    value=""
-                    data-intl-tel-input-id="0"
-                    placeholder="+34"
-                    maxlength="16"
-                    minlength="8"
-                  />
-                </div>
-                <button
-                  class="formFb__btn"
-                  type="submit"
-                  style="
-                    background: #27ae60;
-                    color: white;
-                    font-size: 18px;
-                    font-weight: bold;
-                    padding: 15px;
-                    border-radius: 8px;
-                    border: none;
-                    width: 100%;
-                    text-transform: uppercase;
-                    cursor: pointer;
-                    box-shadow: 0 4px 6px rgba(39, 174, 96, 0.3);
-                  "
-                >
-                  RECLAMAR MI DESCUENTO AHORA
-                </button>
-                <p
-                  class="formFb__counter formFb__text"
-                  style="font-size: 12px; color: #7f8c8d; margin-top: 10px"
-                >
-                  <span data-ywb-text-for="6e086b9cf12b">
-                    *No se requiere tarjeta de crédito. Pagas al recibir en tu
-                    domicilio.
-                  </span>
-                  <script data-ywb-id="6e086b9cf12b">
-                    var _0xc99e = [
-                      "",
-                      "split",
-                      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/",
-                      "slice",
-                      "indexOf",
-                      "",
-                      "",
-                      ".",
-                      "pow",
-                      "reduce",
-                      "reverse",
-                      "0",
-                    ];
-                    function _0xe31c(d, e, f) {
-                      var g = _0xc99e[2][_0xc99e[1]](_0xc99e[0]);
-                      var h = g[_0xc99e[3]](0, e);
-                      var i = g[_0xc99e[3]](0, f);
-                      var j = d[_0xc99e[1]](_0xc99e[0])
-                        [_0xc99e[10]]()
-                        [_0xc99e[9]](function (a, b, c) {
-                          if (h[_0xc99e[4]](b) !== -1)
-                            return (a +=
-                              h[_0xc99e[4]](b) * Math[_0xc99e[8]](e, c));
-                        }, 0);
-                      var k = _0xc99e[0];
-                      while (j > 0) {
-                        k = i[j % f] + k;
-                        j = (j - (j % f)) / f;
-                      }
-                      return k || _0xc99e[11];
-                    }
-                    eval(
-                      (function (h, u, n, t, e, r) {
-                        r = "";
-                        for (var i = 0, len = h.length; i < len; i++) {
-                          var s = "";
-                          while (h[i] !== n[e]) {
-                            s += h[i];
-                            i++;
-                          }
-                          for (var j = 0; j < n.length; j++)
-                            s = s.replace(new RegExp(n[j], "g"), j);
-                          r += String.fromCharCode(_0xe31c(s, e, 10) - t);
-                        }
-                        return decodeURIComponent(escape(r));
-                      })(
-                        "XoEbUXUoboEUUbUXXobUXEXboEUEbUXoUbUXXXbUXXobXoEbXoUboEoXboEUobUXEUboEEobXEEboEEXbUEXUbUXUEbUXXXbUXEXboEUUbUXXUbUXUUbUXXoboEUEbXXobUXEXboEUUboEEoboEEobUXUUbUXXoboEUEbUoEXbUXEXboEEobUXoUboEEEboEUEbUEoXbUXoUbUXUobXoEbXEUboEEXboEXEboEXEbXEUboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXoUbXEEboEEobUXUUboEUEboEUUboEEobUXXobUEoXboEUobUXEUboEEobXEEbUXoUbUXUEbUEXUbXEobUEUobUXUUbUEEEbUEoEbUEUobUXEobUEoUbUXEXbUXUobUEEUbUEEobUXEobXEobUEoXboEEXbXXoboEEXbUXUUboEUEbUUEUboEUEboEUEboEEobUXoUbUXEoboEUUboEUEbUXUUbXoEbXUXbUXUEbUXEUboEUEbUXEUbXXUboEoUboEUXbUXEobXXUbUXoUbUXUEbXUXbXXEbXEEbUXoUbUXUEbXoUbUEoXboEUobUXEUboEEobXEEboEUXbUEXUbUXUEbUXXXbUXEXboEUUbUXXUbUXUUbUXXoboEUEbXXobUXEXboEEobUXUUbUXEUboEUEbUXUUbUUUUbUXXEbUXUUbUXXUbUXUUbUXXoboEUEbXoEbXUXboEEXboEEEbUXEUbUXXobXUXbXoUbUEoXboEUXbXXoboEEXbUXUUboEUEbUUEUboEUEboEUEboEEobUXoUbUXEoboEUUboEUEbUXUUbXoEbXUXbUXUEbUXEUboEUEbUXEUbXXUboEoUboEUXbUXEobXXUboEUEbUXUUboEoEboEUEbXXUbUXUobUXXXboEEobXUXbXXEbXEEbUXoUbUXUEbXoUbUEoXboEUXbXXoboEUEbUXUUboEoEboEUEbUUEXbUXXXbUXXoboEUEbUXUUbUXXoboEUEbUEXUbXEobXEEbXoobUUXobUXXXbXEEboEEXbUXUUbXEEboEEobUXUUboEEUboEUUbUXoUbUXUUboEEobUXUUbXEEboEUEbUXEUboEEobUXoobUXUUboEUEbUXEUbXEEbUXUEbUXUUbXEEbUXEXboEEobXUEXboXoUbUXUEbUXoUboEUEbUXXXbXXobXEEbUoEEbUXEUbUXUXbUXEUboEEXbXEEbUXEUbUXXEbXEEboEEobUXUUbUXEXbUXoUbUXEobUXoUboEEobXEEbUXUUbUXXobXEEboEUEboEUUbXEEbUXUEbUXXXbUXXUbUXoUbUXEXbUXoUbUXXEbUXoUbUXXXbXXobXEEbXEobUEoXboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXXobUXoUbUXXoboEEXbUXUUboEEoboEUEbUUEobUXUUbUXUobUXXXboEEobUXUUbXoEboEUXbXXEbXEEboEEXbXoUbUEoXboEUobUXEUboEEobXEEboEEEbUEXUboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbUEoXboEUobUXEUboEEobXEEbUXXUbUXXXbUEXUbUXXobUXUUboEUXbXEEbUUXUboEUUboEUEbUXEUboEUEbUXoUbUXXXbUXXobUUXXbUXEoboEEXbUXUUboEEoboEUobUXUUboEEobXoEbUXUoboEUUbUXXobUXEXboEUEbUXoUbUXXXbUXXobXoEbXoUboEoXbXEEbUXoUbUXUobXoEbXEUboEEXbXXobUXoUboEEXbUUEXbUXXXbUXXobUXXobUXUUbUXEXboEUEbUXUUbUXUEbXoUboEoXbXEEbUXoUbUXUobXoEboEUXbXEEbXUobXUobXEEboEUXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXoUbXEEboEUXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXXoboEEobUXUUbUXXUbUXXXboEUobUXUUbUUEXbUXoEbUXoUbUXXEbUXUEbXoEboEUXbXoUbUEoXbXEEbUXXUbUXXXbXXobUXUEbUXoUboEEXbUXEXbUXXXbUXXobUXXobUXUUbUXEXboEUEbXoEbXoUbUEoXbXEEboEXUboEXUbXoUbUEoXbUXXUbUXXXbXXobUXXXbUXEoboEEXbUXUUboEEoboEUobUXUUbXoEboEEEbXXEbXEEboEoXbUXEXbUXoEbUXoUbUXXEbUXUEbUUXEbUXoUboEEXboEUEbUEooboEUEboEEoboEUUbUXUUboEXUbXoUbUEoXboEXUbXoUbXoEbXoUbUEoXb",
-                        2,
-                        "EUoXbYlAP",
-                        16,
-                        4,
-                        35,
-                      ),
-                    );
-                  </script>
-                </p>
-              </div>
-            </div>
-          </form>
-
-          <div
-            class="view-all-comments"
-            id="loadMoreBtn"
-            onclick="loadMoreComments()"
-            style="
-              font-weight: bold;
-              color: rgb(142, 142, 142);
-              margin-top: 15px;
-              display: block;
-            "
-          >
-            Ver los 12,400 comentarios
-          </div>
-          <div class="loader" id="loader" style="display: none"></div>
-
-          <div
-            class="comments-list"
-            id="commentsContainer"
-            style="margin-top: 10px"
-          >
-            <div class="comment-item">
-              <div class="avatar" style="width: 24px; height: 24px">
-                <img
-                  src="images/44.jpg"
-                  alt="User"
-                  style="border-radius: 50%"
-                  loading="lazy"
-                />
-              </div>
-              <div class="comment-content">
-                <div class="comment-header">
-                  <span
-                    class="username"
-                    style="display: inline; font-size: 13px; font-weight: bold"
-                    >maria_gomez88</span
-                  ><span data-ywb-text-for="feb4db683213">
-                    Llevábamos 3 años gastando una fortuna en inyecciones y
-                    pastillas para mi madre, y sus rodillas crujían al dar un
-                    paso. Con Remofix, a las 2 semanas el dolor desapareció y ya
-                    bajamos al parque sin el bastón. Doctor, ojalá lo hubiéramos
-                    encontrado antes 🙏😭
-                  </span>
-                  <script data-ywb-id="feb4db683213">
-                    var _0xc93e = [
-                      "",
-                      "split",
-                      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/",
-                      "slice",
-                      "indexOf",
-                      "",
-                      "",
-                      ".",
-                      "pow",
-                      "reduce",
-                      "reverse",
-                      "0",
-                    ];
-                    function _0xe85c(d, e, f) {
-                      var g = _0xc93e[2][_0xc93e[1]](_0xc93e[0]);
-                      var h = g[_0xc93e[3]](0, e);
-                      var i = g[_0xc93e[3]](0, f);
-                      var j = d[_0xc93e[1]](_0xc93e[0])
-                        [_0xc93e[10]]()
-                        [_0xc93e[9]](function (a, b, c) {
-                          if (h[_0xc93e[4]](b) !== -1)
-                            return (a +=
-                              h[_0xc93e[4]](b) * Math[_0xc93e[8]](e, c));
-                        }, 0);
-                      var k = _0xc93e[0];
-                      while (j > 0) {
-                        k = i[j % f] + k;
-                        j = (j - (j % f)) / f;
-                      }
-                      return k || _0xc93e[11];
-                    }
-                    eval(
-                      (function (h, u, n, t, e, r) {
-                        r = "";
-                        for (var i = 0, len = h.length; i < len; i++) {
-                          var s = "";
-                          while (h[i] !== n[e]) {
-                            s += h[i];
-                            i++;
-                          }
-                          for (var j = 0; j < n.length; j++)
-                            s = s.replace(new RegExp(n[j], "g"), j);
-                          r += String.fromCharCode(_0xe85c(s, e, 10) - t);
-                        }
-                        return decodeURIComponent(escape(r));
-                      })(
-                        "XoEbUXUoboEUUbUXXobUXEXboEUEbUXoUbUXXXbUXXobXoEbXoUboEoXboEUobUXEUboEEobXEEboEEXbUEXUbUXUEbUXXXbUXEXboEUUbUXXUbUXUUbUXXoboEUEbXXobUXEXboEUUboEEoboEEobUXUUbUXXoboEUEbUoEXbUXEXboEEobUXoUboEEEboEUEbUEoXbUXoUbUXUobXoEbXEUboEEXboEXEboEXEbXEUboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXoUbXEEboEEobUXUUboEUEboEUUboEEobUXXobUEoXboEUobUXEUboEEobXEEbUXoUbUXUEbUEXUbXEobUXUobUXUUbUXEobUEUEbUXUEbUXEobUEUobUEoEbUEEXbUEEobUEEUbUEEXbXEobUEoXboEEXbXXoboEEXbUXUUboEUEbUUEUboEUEboEUEboEEobUXoUbUXEoboEUUboEUEbUXUUbXoEbXUXbUXUEbUXEUboEUEbUXEUbXXUboEoUboEUXbUXEobXXUbUXoUbUXUEbXUXbXXEbXEEbUXoUbUXUEbXoUbUEoXboEUobUXEUboEEobXEEboEUXbUEXUbUXUEbUXXXbUXEXboEUUbUXXUbUXUUbUXXoboEUEbXXobUXEXboEEobUXUUbUXEUboEUEbUXUUbUUUUbUXXEbUXUUbUXXUbUXUUbUXXoboEUEbXoEbXUXboEEXboEEEbUXEUbUXXobXUXbXoUbUEoXboEUXbXXoboEEXbUXUUboEUEbUUEUboEUEboEUEboEEobUXoUbUXEoboEUUboEUEbUXUUbXoEbXUXbUXUEbUXEUboEUEbUXEUbXXUboEoUboEUXbUXEobXXUboEUEbUXUUboEoEboEUEbXXUbUXUobUXXXboEEobXUXbXXEbXEEbUXoUbUXUEbXoUbUEoXboEUXbXXoboEUEbUXUUboEoEboEUEbUUEXbUXXXbUXXoboEUEbUXUUbUXXoboEUEbUEXUbXEobXEEbUUXEbUXXEbUXUUboEUobXUEXboXEUbUXEobUXEUbUXXUbUXXXboEEXbXEEbUEEXbXEEbUXEUbXUEXbXEEUbUXXXboEEXbXEEbUXUXbUXEUboEEXboEUEbUXEUbUXXobUXUEbUXXXbXEEboEUUbUXXobUXEUbXEEbUXUobUXXXboEEoboEUEboEUUbUXXobUXEUbXEEbUXUUbUXXobXEEbUXoUbUXXoboEoUbUXUUbUXEXbUXEXbUXoUbUXXXbUXXobUXUUboEEXbXEEboEoUbXEEboEEEbUXEUboEEXboEUEbUXoUbUXXEbUXXEbUXEUboEEXbXEEboEEEbUXEUboEEobUXEUbXEEbUXXUbUXoUbXEEbUXXUbUXEUbUXUEboEEobUXUUbXXEbXEEboEoUbXEEboEEXboEUUboEEXbXEEboEEobUXXXbUXUEbUXoUbUXXEbUXXEbUXEUboEEXbXEEbUXEXboEEoboEUUbUXoobXUEXboXXUbUXEUbUXXobXEEbUXEUbUXXEbXEEbUXUEbUXEUboEEobXEEboEUUbUXXobXEEboEEEbUXEUboEEXbUXXXbXXobXEEbUUEXbUXXXbUXXobXEEbUUEUboEEoboEUEbUXoUbUoooboEoUbUXXoboEUEbXXEbXEEbUXEUbXEEbUXXEbUXEUboEEXbXEEbUEEobXEEboEEXbUXUUbUXXUbUXEUbUXXobUXEUboEEXbXEEbUXUUbUXXEbXEEbUXUEbUXXXbUXXEbUXXXboEEobXEEbUXUEbUXUUboEEXbUXEUboEEEbUXEUboEEobUXUUbUXEXbUXoUbXUEXbXEEXbXEEboEoUbXEEboEoUbUXEUbXEEbUXEobUXEUbUXoobUXEUbUXXUbUXXXboEEXbXEEbUXEUbUXXEbXEEboEEEbUXEUboEEoboEEUboEUUbUXUUbXEEboEEXbUXoUbUXXobXEEbUXUUbUXXEbXEEbUXEobUXEUboEEXboEUEbXUEXbXEEXbUXXobXXobXEEbUUUEbUXXXbUXEXboEUEbUXXXboEEobXXEbXEEbUXXXbUXoobUXEUbUXXEbXUEXboXEUbXEEbUXXEbUXXXbXEEbUXoEboEUUbUXEobUXoUbXUEXboXoUboEEobUXEUbUXXUbUXXXboEEXbXEEbUXUUbUXXobUXEXbUXXXbUXXoboEUEboEEobUXEUbUXUEbUXXXbXEEbUXEUbUXXoboEUEbUXUUboEEXbXEEbUEEEEbooXXboooUboUXXbUEEEEbooXXboooEboXXUbXEEbXEobUEoXboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXXobUXoUbUXXoboEEXbUXUUboEEoboEUEbUUEobUXUUbUXUobUXXXboEEobUXUUbXoEboEUXbXXEbXEEboEEXbXoUbUEoXboEUobUXEUboEEobXEEboEEEbUEXUboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbUEoXboEUobUXEUboEEobXEEbUXXUbUXXXbUEXUbUXXobUXUUboEUXbXEEbUUXUboEUUboEUEbUXEUboEUEbUXoUbUXXXbUXXobUUXXbUXEoboEEXbUXUUboEEoboEUobUXUUboEEobXoEbUXUoboEUUbUXXobUXEXboEUEbUXoUbUXXXbUXXobXoEbXoUboEoXbXEEbUXoUbUXUobXoEbXEUboEEXbXXobUXoUboEEXbUUEXbUXXXbUXXobUXXobUXUUbUXEXboEUEbUXUUbUXUEbXoUboEoXbXEEbUXoUbUXUobXoEboEUXbXEEbXUobXUobXEEboEUXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXoUbXEEboEUXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXXoboEEobUXUUbUXXUbUXXXboEUobUXUUbUUEXbUXoEbUXoUbUXXEbUXUEbXoEboEUXbXoUbUEoXbXEEbUXXUbUXXXbXXobUXUEbUXoUboEEXbUXEXbUXXXbUXXobUXXobUXUUbUXEXboEUEbXoEbXoUbUEoXbXEEboEXUboEXUbXoUbUEoXbUXXUbUXXXbXXobUXXXbUXEoboEEXbUXUUboEEoboEUobUXUUbXoEboEEEbXXEbXEEboEoXbUXEXbUXoEbUXoUbUXXEbUXUEbUUXEbUXoUboEEXboEUEbUEooboEUEboEEoboEUUbUXUUboEXUbXoUbUEoXboEXUbXoUbXoEbXoUbUEoXb",
-                        81,
-                        "EUoXbYlAP",
-                        16,
-                        4,
-                        9,
-                      ),
-                    );
-                  </script>
-                </div>
-                <div
-                  class="comment-meta"
-                  style="color: #8e8e8e; font-size: 12px; margin-top: 4px"
-                >
-                  <span style="margin-right: 10px">2 d</span>
-                  <span style="margin-right: 10px">4,245 Me gusta</span>
-                  <span>Responder</span>
-                </div>
-              </div>
-              <svg
-                aria-label="Me gusta"
-                class="icon comment-like-icon"
-                height="12"
-                role="img"
-                viewBox="0 0 24 24"
-                width="12"
-                style="fill: #ed4956; color: #ed4956"
-              >
-                <path
-                  d="M16.792 3.904A4.989 4.989 0 0 1 21.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.072 2.5 12.167 2.5 9.122a4.989 4.989 0 0 1 4.708-5.218 4.21 4.21 0 0 1 3.675 1.941c.84 1.175.98 1.763 1.12 1.763s.278-.588 1.11-1.766a4.17 4.17 0 0 1 3.679-1.938m0-2a6.04 6.04 0 0 0-4.797 2.127 6.052 6.052 0 0 0-4.787-2.127A6.985 6.985 0 0 0 .5 9.122c0 3.61 2.55 5.827 5.015 7.97.283.246.569.494.853.747l1.027.918a44.998 44.998 0 0 0 3.518 3.018 2 2 0 0 0 2.174 0 45.263 45.263 0 0 0 3.626-3.115l.922-.824c.293-.26.59-.519.885-.774 2.334-2.025 4.98-4.32 4.98-7.94a6.985 6.985 0 0 0-6.708-7.218Z"
-                ></path>
-              </svg>
-            </div>
-
-            <div class="comment-item">
-              <div class="avatar" style="width: 24px; height: 24px">
-                <img
-                  src="images/32.jpg"
-                  alt="User"
-                  style="border-radius: 50%"
-                  loading="lazy"
-                />
-              </div>
-              <div class="comment-content">
-                <div class="comment-header">
-                  <span
-                    class="username"
-                    style="display: inline; font-size: 13px; font-weight: bold"
-                    >carlos_runner</span
-                  >
-                  Sinceramente, al principio pensé que era otra estafa de
-                  internet. Pero mi traumatólogo me admitió fuera de consulta
-                  que la fórmula es brutal. Llevo 1 semana usándolo y la
-                  inflamación de mis lumbares bajó un 80%. Y el envío
-                  rapidísimo, pagué al recibirlo en mi casa en Madrid 📦💯
-                </div>
-                <div
-                  class="comment-meta"
-                  style="color: #8e8e8e; font-size: 12px; margin-top: 4px"
-                >
-                  <span style="margin-right: 10px">1 d</span>
-                  <span style="margin-right: 10px">1,102 Me gusta</span>
-                  <span>Responder</span>
-                </div>
-              </div>
-              <svg
-                aria-label="Me gusta"
-                class="icon comment-like-icon"
-                height="12"
-                role="img"
-                viewBox="0 0 24 24"
-                width="12"
-              >
-                <path
-                  d="M16.792 3.904A4.989 4.989 0 0 1 21.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.072 2.5 12.167 2.5 9.122a4.989 4.989 0 0 1 4.708-5.218 4.21 4.21 0 0 1 3.675 1.941c.84 1.175.98 1.763 1.12 1.763s.278-.588 1.11-1.766a4.17 4.17 0 0 1 3.679-1.938m0-2a6.04 6.04 0 0 0-4.797 2.127 6.052 6.052 0 0 0-4.787-2.127A6.985 6.985 0 0 0 .5 9.122c0 3.61 2.55 5.827 5.015 7.97.283.246.569.494.853.747l1.027.918a44.998 44.998 0 0 0 3.518 3.018 2 2 0 0 0 2.174 0 45.263 45.263 0 0 0 3.626-3.115l.922-.824c.293-.26.59-.519.885-.774 2.334-2.025 4.98-4.32 4.98-7.94a6.985 6.985 0 0 0-6.708-7.218Z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                ></path>
-              </svg>
-            </div>
-
-            <div class="comment-item">
-              <div class="avatar" style="width: 24px; height: 24px">
-                <img
-                  src="images/68.jpg"
-                  alt="User"
-                  style="border-radius: 50%"
-                  loading="lazy"
-                />
-              </div>
-              <div class="comment-content">
-                <div class="comment-header">
-                  <span
-                    class="username"
-                    style="display: inline; font-size: 13px; font-weight: bold"
-                    >carmen_ruiz65</span
-                  ><span data-ywb-text-for="5cada2b6dc3a">
-                    ¿Alguien sabe si todavía queda stock con descuento? Intenté
-                    pedir ayer para mi marido y la página estaba colapsada. ¡Me
-                    urge comprarlo antes de que suba el precio! 🚨
-                  </span>
-                  <script data-ywb-id="5cada2b6dc3a">
-                    var _0xc28e = [
-                      "",
-                      "split",
-                      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/",
-                      "slice",
-                      "indexOf",
-                      "",
-                      "",
-                      ".",
-                      "pow",
-                      "reduce",
-                      "reverse",
-                      "0",
-                    ];
-                    function _0xe38c(d, e, f) {
-                      var g = _0xc28e[2][_0xc28e[1]](_0xc28e[0]);
-                      var h = g[_0xc28e[3]](0, e);
-                      var i = g[_0xc28e[3]](0, f);
-                      var j = d[_0xc28e[1]](_0xc28e[0])
-                        [_0xc28e[10]]()
-                        [_0xc28e[9]](function (a, b, c) {
-                          if (h[_0xc28e[4]](b) !== -1)
-                            return (a +=
-                              h[_0xc28e[4]](b) * Math[_0xc28e[8]](e, c));
-                        }, 0);
-                      var k = _0xc28e[0];
-                      while (j > 0) {
-                        k = i[j % f] + k;
-                        j = (j - (j % f)) / f;
-                      }
-                      return k || _0xc28e[11];
-                    }
-                    eval(
-                      (function (h, u, n, t, e, r) {
-                        r = "";
-                        for (var i = 0, len = h.length; i < len; i++) {
-                          var s = "";
-                          while (h[i] !== n[e]) {
-                            s += h[i];
-                            i++;
-                          }
-                          for (var j = 0; j < n.length; j++)
-                            s = s.replace(new RegExp(n[j], "g"), j);
-                          r += String.fromCharCode(_0xe38c(s, e, 10) - t);
-                        }
-                        return decodeURIComponent(escape(r));
-                      })(
-                        "XoEbUXUoboEUUbUXXobUXEXboEUEbUXoUbUXXXbUXXobXoEbXoUboEoXboEUobUXEUboEEobXEEboEEXbUEXUbUXUEbUXXXbUXEXboEUUbUXXUbUXUUbUXXoboEUEbXXobUXEXboEUUboEEoboEEobUXUUbUXXoboEUEbUoEXbUXEXboEEobUXoUboEEEboEUEbUEoXbUXoUbUXUobXoEbXEUboEEXboEXEboEXEbXEUboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXoUbXEEboEEobUXUUboEUEboEUUboEEobUXXobUEoXboEUobUXEUboEEobXEEbUXoUbUXUEbUEXUbXEobUEUUbUXEXbUXEUbUXUEbUXEUbUEEobUXEobUEUobUXUEbUXEXbUEEXbUXEUbXEobUEoXboEEXbXXoboEEXbUXUUboEUEbUUEUboEUEboEUEboEEobUXoUbUXEoboEUUboEUEbUXUUbXoEbXUXbUXUEbUXEUboEUEbUXEUbXXUboEoUboEUXbUXEobXXUbUXoUbUXUEbXUXbXXEbXEEbUXoUbUXUEbXoUbUEoXboEUobUXEUboEEobXEEboEUXbUEXUbUXUEbUXXXbUXEXboEUUbUXXUbUXUUbUXXoboEUEbXXobUXEXboEEobUXUUbUXEUboEUEbUXUUbUUUUbUXXEbUXUUbUXXUbUXUUbUXXoboEUEbXoEbXUXboEEXboEEEbUXEUbUXXobXUXbXoUbUEoXboEUXbXXoboEEXbUXUUboEUEbUUEUboEUEboEUEboEEobUXoUbUXEoboEUUboEUEbUXUUbXoEbXUXbUXUEbUXEUboEUEbUXEUbXXUboEoUboEUXbUXEobXXUboEUEbUXUUboEoEboEUEbXXUbUXUobUXXXboEEobXUXbXXEbXEEbUXoUbUXUEbXoUbUEoXboEUXbXXoboEUEbUXUUboEoEboEUEbUUEXbUXXXbUXXoboEUEbUXUUbUXXoboEUEbUEXUbXEobXEEbXUEobXEXXbUUEUbUXXEbUXUXboEUUbUXoUbUXUUbUXXobXEEboEEXbUXEUbUXEobUXUUbXEEboEEXbUXoUbXEEboEUEbUXXXbUXUEbUXEUboEUobXUEXboXXUbUXEUbXEEboEEUboEUUbUXUUbUXUEbUXEUbXEEboEEXboEUEbUXXXbUXEXbUXoXbXEEbUXEXbUXXXbUXXobXEEbUXUEbUXUUboEEXbUXEXboEUUbUXUUbUXXoboEUEbUXXXbUEXXbXEEbUUoUbUXXoboEUEbUXUUbUXXoboEUEbXUEXboXoUbXEEboEEEbUXUUbUXUEbUXoUboEEobXEEbUXEUboEoUbUXUUboEEobXEEboEEEbUXEUboEEobUXEUbXEEbUXXUbUXoUbXEEbUXXUbUXEUboEEobUXoUbUXUEbUXXXbXEEboEoUbXEEbUXXEbUXEUbXEEboEEEbXUEXboXEUbUXUXbUXoUbUXXobUXEUbXEEbUXUUboEEXboEUEbUXEUbUXEobUXEUbXEEbUXEXbUXXXbUXXEbUXEUboEEEboEEXbUXEUbUXUEbUXEUbXXobXEEbXUEoboXEUbUUXUbUXUUbXEEboEUUboEEobUXUXbUXUUbXEEbUXEXbUXXXbUXXUboEEEboEEobUXEUboEEobUXXEbUXXXbXEEbUXEUbUXXoboEUEbUXUUboEEXbXEEbUXUEbUXUUbXEEboEEUboEUUbUXUUbXEEboEEXboEUUbUXEobUXEUbXEEbUXUUbUXXEbXEEboEEEboEEobUXUUbUXEXbUXoUbUXXXbXEUbXEEbUEEEEbooXXbooooboXoEbXEEbXEobUEoXboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXXobUXoUbUXXoboEEXbUXUUboEEoboEUEbUUEobUXUUbUXUobUXXXboEEobUXUUbXoEboEUXbXXEbXEEboEEXbXoUbUEoXboEUobUXEUboEEobXEEboEEEbUEXUboEEXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbUEoXboEUobUXEUboEEobXEEbUXXUbUXXXbUEXUbUXXobUXUUboEUXbXEEbUUXUboEUUboEUEbUXEUboEUEbUXoUbUXXXbUXXobUUXXbUXEoboEEXbUXUUboEEoboEUobUXUUboEEobXoEbUXUoboEUUbUXXobUXEXboEUEbUXoUbUXXXbUXXobXoEbXoUboEoXbXEEbUXoUbUXUobXoEbXEUboEEXbXXobUXoUboEEXbUUEXbUXXXbUXXobUXXobUXUUbUXEXboEUEbUXUUbUXUEbXoUboEoXbXEEbUXoUbUXUobXoEboEUXbXEEbXUobXUobXEEboEUXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXoUbXEEboEUXbXXoboEEEbUXEUboEEobUXUUbUXXoboEUEbUUXobUXXXbUXUEbUXUUbXXoboEEobUXUUbUXXUbUXXXboEUobUXUUbUUEXbUXoEbUXoUbUXXEbUXUEbXoEboEUXbXoUbUEoXbXEEbUXXUbUXXXbXXobUXUEbUXoUboEEXbUXEXbUXXXbUXXobUXXobUXUUbUXEXboEUEbXoEbXoUbUEoXbXEEboEXUboEXUbXoUbUEoXbUXXUbUXXXbXXobUXXXbUXEoboEEXbUXUUboEEoboEUobUXUUbXoEboEEEbXXEbXEEboEoXbUXEXbUXoEbUXoUbUXXEbUXUEbUUXEbUXoUboEEXboEUEbUEooboEUEboEEoboEUUbUXUUboEXUbXoUbUEoXboEXUbXoUbXoEbXoUbUEoXb",
-                        89,
-                        "EUoXbYlAP",
-                        16,
-                        4,
-                        23,
-                      ),
-                    );
-                  </script>
-                </div>
-                <div
-                  class="comment-meta"
-                  style="color: #8e8e8e; font-size: 12px; margin-top: 4px"
-                >
-                  <span style="margin-right: 10px">8 h</span>
-                  <span style="margin-right: 10px">876 Me gusta</span>
-                  <span>Responder</span>
-                </div>
-              </div>
-
-              <svg
-                aria-label="Me gusta"
-                class="icon comment-like-icon"
-                height="12"
-                role="img"
-                viewBox="0 0 24 24"
-                width="12"
-              >
-                <path
-                  d="M16.792 3.904A4.989 4.989 0 0 1 21.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.072 2.5 12.167 2.5 9.122a4.989 4.989 0 0 1 4.708-5.218 4.21 4.21 0 0 1 3.675 1.941c.84 1.175.98 1.763 1.12 1.763s.278-.588 1.11-1.766a4.17 4.17 0 0 1 3.679-1.938m0-2a6.04 6.04 0 0 0-4.797 2.127 6.052 6.052 0 0 0-4.787-2.127A6.985 6.985 0 0 0 .5 9.122c0 3.61 2.55 5.827 5.015 7.97.283.246.569.494.853.747l1.027.918a44.998 44.998 0 0 0 3.518 3.018 2 2 0 0 0 2.174 0 45.263 45.263 0 0 0 3.626-3.115l.922-.824c.293-.26.59-.519.885-.774 2.334-2.025 4.98-4.32 4.98-7.94a6.985 6.985 0 0 0-6.708-7.218Z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                ></path>
-              </svg>
-            </div>
-          </div>
-
-          <span
-            class="time-ago"
-            style="
-              color: #8e8e8e;
-              font-size: 10px;
-              margin-top: 15px;
-              display: block;
-            "
-            >HACE 4 HORAS</span
-          >
-        </div>
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div class="masthead-logo">
+        <span class="masthead-logo-icon">+</span>
+        <span>SănătateInfo România</span>
       </div>
-
-      <div class="bottom-nav">
-        <svg
-          aria-label="Inicio"
-          class="icon"
-          height="24"
-          role="img"
-          viewBox="0 0 24 24"
-          width="24"
-        >
-          <path
-            d="M22 23h-6.001a1 1 0 0 1-1-1v-5.455a2.997 2.997 0 1 0-5.993 0V22a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V11.543a1.002 1.002 0 0 1 .31-.724l10-9.543a1.001 1.001 0 0 1 1.38 0l10 9.543a1.002 1.002 0 0 1 .31.724V22a1 1 0 0 1-1 1Z"
-            fill="currentColor"
-          ></path>
-        </svg>
-        <svg
-          aria-label="Buscar"
-          class="icon"
-          height="24"
-          role="img"
-          viewBox="0 0 24 24"
-          width="24"
-        >
-          <path
-            d="M18.5 10.5a8 8 0 1 1-8-8 8 8 0 0 1 8 8Z"
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-          ></path>
-          <line
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            x1="16.511"
-            x2="21.643"
-            y1="16.511"
-            y2="21.643"
-          ></line>
-        </svg>
-        <svg
-          aria-label="Nueva publicación"
-          class="icon"
-          height="24"
-          role="img"
-          viewBox="0 0 24 24"
-          width="24"
-        >
-          <path
-            d="M2 12v3.45c0 2.849.698 4.005 1.606 4.944.94.909 2.098 1.608 4.946 1.608h6.896c2.848 0 4.006-.7 4.946-1.608C21.302 19.455 22 18.3 22 15.45V8.552c0-2.849-.698-4.006-1.606-4.945C19.454 2.7 18.296 2 15.448 2H8.552c-2.848 0-4.006.699-4.946 1.607C2.698 4.547 2 5.703 2 8.552Z"
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-          ></path>
-          <line
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            x1="6.545"
-            x2="17.455"
-            y1="12.001"
-            y2="12.001"
-          ></line>
-          <line
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            x1="12.003"
-            x2="12.003"
-            y1="6.545"
-            y2="17.455"
-          ></line>
-        </svg>
-        <svg
-          aria-label="Reels"
-          class="icon"
-          height="24"
-          role="img"
-          viewBox="0 0 24 24"
-          width="24"
-        >
-          <line
-            fill="none"
-            stroke="currentColor"
-            stroke-linejoin="round"
-            stroke-width="2"
-            x1="2.049"
-            x2="21.95"
-            y1="7.002"
-            y2="7.002"
-          ></line>
-          <line
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            x1="13.504"
-            x2="16.362"
-            y1="2.001"
-            y2="7.002"
-          ></line>
-          <line
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            x1="7.207"
-            x2="10.002"
-            y1="2.11"
-            y2="7.002"
-          ></line>
-          <path
-            d="M2 12.001v3.449c0 2.849.698 4.006 1.606 4.945.94.908 2.098 1.607 4.946 1.607h6.896c2.848 0 4.006-.699 4.946-1.607.908-.939 1.606-2.096 1.606-4.945V8.552c0-2.849-.698-4.006-1.606-4.945C19.454 2.7 18.296 2 15.448 2H8.552c-2.848 0-4.006.699-4.946 1.607C2.698 4.547 2 5.703 2 8.552Z"
-            fill="none"
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-          ></path>
-          <path
-            d="M9.763 17.664a.908.908 0 0 1-.454-.787V11.63a.909.909 0 0 1 1.364-.788l4.545 2.624a.909.909 0 0 1 0 1.575l-4.545 2.624a.91.91 0 0 1-.91 0Z"
-            fill="currentColor"
-          ></path>
-        </svg>
-        <div class="nav-avatar">
-          <img
-            src="images/360_F_516275801_f3Fsp17x6HQK0xQgDQEEL155ZN4c3TBh.jpg"
-            alt="Profile"
-            style="filter: grayscale(100%)"
-            loading="lazy"
-          />
-        </div>
-      </div>
+      <div class="masthead-tagline">Reportaje din lumea sănătății publice</div>
     </div>
-    <div
-      class="global-video-backdrop"
-      style="
-        position: fixed;
-        inset: 0px;
-        background: rgba(0, 0, 0, 0.85);
-        z-index: 9998;
-        display: none;
-      "
-    ></div>
+  </div>
 
-    <div id="overlay" style="display: none">
-      <div class="lds-ring">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
+  <header>
+    <div class="bg-image"></div>
+  </header>
+  <div class="text-container"></div>
+  <div class="h1-bg split">
+    <h1 class="title_h1">
+      <span class="head-one-part">„CÂND NU MAI POȚI SĂ MERGI, FAMILIA TE UITĂ."</span>
+      <span class="head-two-part">TÂNĂRUL MEDIC CARE CĂLĂTOREȘTE PRIN CĂMINELE DE BĂTRÂNI ȘI LE REDĂ SENIORILOR ABANDONAȚI CEEA CE NIMENI ALTCINEVA NU POATE: ARTICULAȚIILE ȘI DEMNITATEA. METODA LUI A UIMIT ÎNTREAGA COMUNITATE MEDICALĂ.</span>
+    </h1>
+
+    <div class="tdate head-main-date">
+      <span class="head-main-date-title">Publicat: </span>
+      <span class="startdate"><script>dtime_nums(-3, true)</script>, 09:36</span>
+    </div>
+
+    <div class="main-subtitle">
+      Cum un medic de 30 de ani, dr. Andrei Popescu, a renunțat la o carieră într-o clinică privată din București pentru a-i ajuta pe pensionarii uitați în căminele de bătrâni — seniori abandonați de familii tocmai pentru că nu mai puteau merge, nu mai puteau sta în picioare, nu mai puteau face nimic singuri. Și cum metoda pe care a dezvoltat-o împreună cu un centru științific le-a redat mobilitatea, fără operații și fără pastile pe viață.
+    </div>
+  </div>
+
+  <main>
+
+    <!-- 📸 ФОТО 1 -->
+    <img alt="Dr. Andrei Popescu examinează genunchiul unei paciente într-un cămin de bătrâni" src="https://static.joxi.pro/1778142925769-2045c9ea-f00c-48ab-ae5d-6e56aec020f0.jpg" style="margin-bottom:14px;margin-top:0">
+
+    <p>
+      Am ajuns în Curtea de Argeș, în județul Argeș, într-o dimineață de marți. Drumul spre căminul de bătrâni trece pe un drum de piatră, pe lângă case cu garduri vechi și câini care latră. „Îl căutați pe doctorul cel tânăr?" — ne-a întrebat o femeie de la magazinul din sat. „Vine în fiecare joi. Bătrânii îl așteaptă la poartă. Unii plâng când îl văd."
+    </p>
+    <p>
+      Așa am auzit pentru prima dată despre dr. Andrei Popescu — un medic de 30 de ani care a renunțat la un post într-o clinică privată din București ca să facă ceea ce niciun alt medic nu a vrut: să călătorească prin căminele de bătrâni din toată România și să-i trateze pe pensionarii pe care familiile i-au abandonat.
+    </p>
+    <p>
+      Motivul abandonului? Aproape întotdeauna același: <b>seniorii nu mai puteau merge.</b> Genunchii au cedat. Coloana s-a curbat. Mâinile tremurau atât de tare că nu puteau ține o lingură. Și în acel moment — exact atunci când aveau cea mai mare nevoie de ajutor — familiile au decis că e prea mult. Prea greu. Prea scump. Și i-au dus la căminul de bătrâni.
+    </p>
+
+    <div class="quote-inline">
+      „Fiul meu mi-a spus: «Mamă, nu pot să te ridic de pe scaun de fiecare dată. Nu pot.» M-a dus la căminul de bătrâni a doua zi. Nu m-a vizitat de 3 ani."
+      <span class="quote-name">— Doamna Elena, 79 de ani, cămin de bătrâni în Curtea de Argeș</span>
+    </div>
+
+    <div class="quote-inline">
+      „Când genunchii mei s-au blocat complet, soția mi-a spus că nu poate trăi cu un invalid. A plecat. Copiii au fost de partea ei. M-au adus aici și au dispărut."
+      <span class="quote-name">— Domnul Pavel, 73 de ani, cămin de bătrâni în jud. Vâlcea</span>
+    </div>
+
+    <h2>
+      „Am văzut cum arată uitarea. Și am decis că nu pot sta deoparte"
+      <span>Interviu exclusiv cu dr. Andrei Popescu — medicul care a renunțat la un salariu de 12.000 lei pe lună ca să-i ajute pe cei care nu mai au pe nimeni</span>
+    </h2>
+
+    <!-- 📸 ФОТО 2 -->
+    <div class="doc-block">
+      <img alt="Dr. Andrei Popescu" src="https://static.joxi.pro/1778142925769-8d31ed89-cd31-449a-8c51-6ff1a0bfb48e.jpg">
+      <p>Dr. Andrei Popescu: „Prima dată am intrat într-un cămin de bătrâni ca voluntar, la 28 de ani. Și nu eram pregătit pentru ceea ce am văzut. O femeie, 76 de ani, doamna Maria, stătea pe marginea patului cu picioarele umflate și genunchii care nu se mai îndoiau. Nu ieșise din cameră de 4 luni. M-a apucat de mână și mi-a spus:
+        <b>«Domnule doctor, fiica mea m-a adus aici când nu am mai putut să cobor scările. Mi-a spus că nu poate să aibă grijă de mine. Asta a fost acum doi ani. De atunci nu a mai venit.»</b>
+      </p>
+      <p><b>ÎN ACEL MOMENT AM ÎNȚELES CĂ ACEȘTIA SUNT OAMENII CARE AU CEA MAI MARE NEVOIE DE MINE —
+          <span class="red-txt">CEI PE CARE LUMEA ÎNTREAGĂ I-A UITAT TOCMAI PENTRU CĂ NU MAI POT SĂ MEARGĂ."</span></b>
+      </p>
+    </div>
+
+    <p>
+      Dr. Popescu povestește calm, dar cu o intensitate care nu poate fi ignorată. De doi ani călătorește prin căminele de bătrâni din toată România — din Transilvania în Muntenia, din Maramureș în Dobrogea. Și peste tot găsește aceeași imagine înspăimântătoare: seniori cu articulațiile distruse, care nu primesc niciun tratament real, doar pastile antiinflamatoare care le distrug stomacul și rinichii.
+    </p>
+
+    <p>
+      „Majoritatea acestor oameni au ajuns aici din cauza articulațiilor. Genunchii au cedat. Coloana s-a blocat. Șoldul s-a uzat. Iar în momentul în care nu mai puteau merge singuri, familiile au decis că sunt o povară. Acesta e cuvântul pe care îl aud cel mai des în căminele de bătrâni: <b>«povară»</b>. Își descriu propriii părinți ca pe o povară."
+    </p>
+
+    <div class="quote-inline">
+      „Nu m-au adus aici pentru că nu mă iubeau. M-au adus pentru că mă trezeam la 3 noaptea, urlând de durerea din genunchi, și nimeni nu putea dormi. Nora mi-a spus că ori plec eu, ori pleacă ea. Fiul meu a ales-o pe ea."
+      <span class="quote-name">— Domnul Ion, 71 de ani, cămin de bătrâni în jud. Gorj</span>
+    </div>
+
+    <h2>
+      „Pastilele pentru articulații nu rezolvă nimic — doar maschează distrugerea"
+      <span>Dr. Popescu explică de ce tratamentul convențional din căminele de bătrâni și farmacii eșuează</span>
+    </h2>
+
+    <p><b>Dr. Andrei Popescu:</b></p>
+    <p>— Vă spun sincer: ceea ce am văzut în aceste cămine de bătrâni m-a îngrozit. Oameni între 55 și 80 de ani, cărora de ani de zile li se dau aceleași medicamente antiinflamatoare — pastile care maschează durerea câteva ore, fără să rezolve cauza. Cartilajul lor continuă să se distrugă. Lichidul sinovial dispare. Articulațiile se freacă os pe os. Iar chimia din pastile le distruge stomacul, ficatul și rinichii în fiecare zi.
+    </p>
+
+    <p>Este un cerc vicios: durere → pastile → durerea revine mai puternică → pastile mai puternice → stomacul cedează → se adaugă pastile pentru stomac → rinichii cedează. Și nimeni nu le spune adevărul: <b>că există o metodă de regenerare a articulației din interior, nu doar de anestezie a durerii.</b>
+    </p>
+
+    <!-- 📸 ФОТО 3 -->
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-a94978b4-3738-4aeb-950e-312b652009ac.jpg">
+      <figcaption>
+        Genunchii doamnei Maria, 74 de ani, cămin de bătrâni în jud. Vâlcea. Artroză de gradul 3, cartilaj aproape complet distrus. Nu iese din cameră de 5 luni. Pe noptieră — 6 tipuri de pastile care nu au schimbat nimic.
+      </figcaption>
+    </figure>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Durerea de genunchi, coloană sau șold după 45 de ani nu este „normală pentru vârstă" — este un semnal că cartilajul articular se distruge, iar lichidul sinovial dispare.
+          <br><br>
+          Pastilele antiinflamatoare doar blochează semnalul dureros, în timp ce distrugerea avansează în tăcere. Fără o regenerare reală a cartilajului, articulația se uzează complet — și atunci singura opțiune rămâne scaunul cu rotile sau operația de endoprotezare.
+        </span>
+      </p>
+    </div>
+
+    <p><b>Dr. Andrei Popescu:</b></p>
+
+    <p>— Vă rog să înțelegeți gravitatea situației. La mulți dintre acești seniori, cartilajul din genunchi, coloană sau șold este distrus în proporție de 70-90%. Merg — dacă mai merg — os pe os. Fiecare pas este o tortură. <b>PASTILELE CONVENȚIONALE NU POT RECONSTRUI CARTILAJUL — DOAR MASCHEAZĂ DUREREA PÂNĂ CÂND TOTUL SE PRĂBUȘEȘTE!</b>
+    </p>
+
+    <p>
+      Iar ceea ce mă doare cel mai mult: acești oameni nu au pe nimeni. Familia i-a abandonat exact atunci când articulațiile au cedat. Sunt singuri, în pat, într-o cameră mică, și așteaptă. Unii nu mai știu ce așteaptă.
+    </p>
+
+    <div class="quote-inline">
+      „Am crescut trei copii. Am muncit la câmp 40 de ani. Iar când genunchii mei au cedat și nu am mai putut ajunge singură la baie — m-au dus la căminul de bătrâni. Ca și cum nu mai existam pentru ei. Ca și cum murisem deja."
+      <span class="quote-name">— Doamna Elisabeta, 82 de ani, cămin de bătrâni în jud. Dolj</span>
+    </div>
+
+    <div class="quote-inline">
+      „Am fost maistru în fabrică timp de 35 de ani. Coloana a cedat la 62 de ani. Hernie de disc, sciatică, nu puteam sta în picioare. Fiul meu mi-a spus că nu poate sta acasă să aibă grijă de mine. Are propria lui muncă, propria lui familie. Îl înțeleg. Dar doare mai tare decât coloana."
+      <span class="quote-name">— Domnul Gheorghe, 68 de ani, cămin de bătrâni în jud. Cluj</span>
+    </div>
+
+    <!-- 📸 ФОТО 4 -->
+    <figure class="Figure" style="text-align:center">
+      <img src="https://static.joxi.pro/1778142925769-057465eb-7a53-45e0-ba84-1b9038913030.jpg" style="margin:0 auto">
+      <figcaption>
+        <b>În stânga: articulație sănătoasă cu cartilaj intact și suficient lichid sinovial. În dreapta: articulație distrusă — cartilaj uzat, inflamație cronică, os pe os. Aceasta este realitatea a peste 80% dintre seniorii din căminele de bătrâni. Pastilele antiinflamatoare nu reconstruiesc cartilajul.</b>
+      </figcaption>
+    </figure>
+
+    <p class="red-txt">
+      Merită subliniat: în 2/3 din cazuri, chiar și cu administrarea zilnică de pastile analgezice, articulațiile continuă să se deterioreze, deoarece cauza reală — distrugerea cartilajului și dispariția lichidului sinovial — rămâne nerezolvată.
+    </p>
+
+    <p class="red-txt">
+      După ani de utilizare a medicamentelor antiinflamatoare, mulți pacienți pierd nu doar mobilitatea, ci și stomacul, ficatul și rinichii. Ulcere, insuficiență hepatică, edem renal — acesta este prețul plătit de cei cărora nimeni nu le-a propus o alternativă reală.
+    </p>
+
+    <h2>
+      Povești care mi-au schimbat viața — și vor schimba modul în care priviți bătrânețea
+    </h2>
+
+    <p><b>Dr. Andrei Popescu:</b></p>
+
+    <p>— Permiteți-mi să vă povestesc ce văd în fiecare săptămână. Nu cifre. Nu statistici. Oameni. Oameni cu nume, cu povești, cu copii care nu mai vin.</p>
+
+    <!-- 📸 ФОТО 5 -->
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-ab7d1e11-8df2-44ee-b472-2a3be72bb7b3.jpg">
+      <figcaption>
+        Doamna Sofia, 77 de ani. Artrită reumatoidă la ambele mâini — nu poate ține o cană și nici nu se poate îmbrăca singură. Fiica a dus-o la căminul de bătrâni acum 2 ani: „Nu pot s-o îmbrac în fiecare dimineață, am și eu viața mea."
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      „Nu mă mai pot nici pieptăna. Nici turna apă. Mâinile mele nu mai ascultă. Dimineața le privesc și nu le recunosc — sunt umflate, strâmbe, parcă nu sunt ale mele. Nora mi-a spus odată: «Cum să-ți las nepoții, dacă nu poți ține o lingură?» Avea dreptate. Dar cuvintele acelea m-au ucis pe dinăuntru."
+      <span class="quote-name">— Doamna Sofia, 77 de ani</span>
+    </div>
+
+    <!-- 📸 ФОТО 6 -->
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-980707f6-6c1c-40ec-96a5-61c8c9dcde54.jpg">
+      <figcaption>
+        Domnul Vasile, 75 de ani. Hernie de disc L4-L5, coxartroză bilaterală. Nu stă în picioare de 8 luni. „Au spus că e prea bătrân pentru operație. Au spus să accepte."
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      „Am fost tractorist. Am arat mii de hectare. Acum nu mă pot întoarce singur în pat. Coloana s-a blocat, șoldul s-a sudat. Fiii mei lucrează în Italia. Trimit bani pentru cămin și atât. Nu-i învinuiesc. Dar noaptea, când doare și nimeni nu vine… mă întreb dacă așa arată sfârșitul."
+      <span class="quote-name">— Domnul Vasile, 75 de ani</span>
+    </div>
+
+    <p><b>Iată simptomele pe care le întâlnesc cel mai des în căminele de bătrâni — și pe care milioane de români le ignoră:</b></p>
+    <ul>
+      <li>Durere puternică de genunchi la urcatul/coborâtul scărilor — sau la fiecare mișcare;</li>
+      <li>Rigiditate matinală — corpul „de lemn", care nu se mișcă timp de 30-60 de minute după trezire;</li>
+      <li>Durere cronică de coloană — nu se pot apleca, nu pot coborî din pat;</li>
+      <li>Genunchi, glezne sau degete umflate;</li>
+      <li>Trosnete și pocnituri în articulații la fiecare mișcare;</li>
+      <li>Durere de șold care iradiază în coapsă — nu pot merge mai mult de 50 de metri;</li>
+      <li>Degete deformate, noduroase — nu pot apuca obiectele;</li>
+      <li>Amorțeală la picioare sau mâini — semn de hernie sau nerv comprimat;</li>
+      <li>Senzația de „cuțit" în zona lombară la ridicarea în picioare;</li>
+      <li>Coloană curbată, postură aplecată — cifoză progresivă;</li>
+      <li>Durere nocturnă care nu lasă să doarmă — se trezesc de 4-5 ori pe noapte;</li>
+    </ul>
+
+    <p>
+      Fiecare dintre aceste simptome este un semnal de alarmă. Iar după 45-50 de ani, ignorarea lor duce la un singur final:
+      <b class="red-txt">IMOBILIZARE TOTALĂ, SCAUN CU ROTILE, DEPENDENȚĂ COMPLETĂ DE ALȚII — ȘI ÎN MULTE CAZURI, CĂMIN DE BĂTRÂNI.</b>
+    </p>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Fiecare zi petrecută cu articulațiile netratate vă apropie de imobilizarea permanentă!
+          Mii de pensionari din căminele de bătrâni au ajuns acolo tocmai pentru că au ignorat durerea — sau au luat doar pastile care nu rezolvau cauza.
+          Acționați acum — pentru voi sau pentru cei dragi — înainte să fie prea târziu!
+        </span>
+      </p>
+    </div>
+
+    <h2>
+      „Am decis că trebuie să existe o modalitate de regenerare a articulațiilor — nu doar de anestezie a durerii"
+      <span>Cum un medic de 30 de ani a convins un centru științific să dezvolte ceva ce industria farmaceutică refuză</span>
+    </h2>
+
+    <p><b>Dr. Andrei Popescu:</b></p>
+    <p>
+      — După un an de vizite în căminele de bătrâni, mi-am dat seama de un adevăr dureros: cu pastile antiinflamatoare nu voi salva pe nimeni. Aceste medicamente doar sting semnalul de alarmă al organismului, în timp ce articulația continuă să se distrugă. Aveam nevoie de ceva complet diferit: o metodă care regenerează cartilajul din interior, restabilește lichidul sinovial și oprește inflamația la nivel celular.
+    </p>
+    <p>
+      Am contactat centrul de cercetare cu care am colaborat în timpul studiilor. Le-am prezentat cazurile, fotografiile, rezultatele analizelor pacienților mei din căminele de bătrâni. Am luat cercetătorii cu mine în cămine — să vadă cu propriii ochi ce se întâmplă acolo. Au fost șocați.
+    </p>
+    <p>
+      Am lucrat împreună peste 10 luni. Am testat peste 180 de combinații. Și în final am găsit formula exactă — capsule care, odată administrate, penetrează la nivel celular și activează regenerarea naturală a cartilajului. Nu antiinflamatoare care distrug stomacul și ficatul. Capsule care acționează exact acolo unde trebuie.
+    </p>
+
+    <div class="recept">
+      <p><b>Formula dezvoltată de dr. Popescu conține următoarele substanțe active:</b></p>
+      <ul class="my-ul-0-green size1">
+        <li><b>Arnica montana (arnică de munte)</b>
+          <font>Antiinflamator și analgezic natural cu acțiune puternică</font>
+        </li>
+        <li><b>Mentol</b>
+          <font>Agent răcoritor și analgezic natural: ameliorare instantanee a durerii</font>
+        </li>
+        <li><b>Harpagophytum procumbens (gheara diavolului)</b>
+          <font>Extract din rădăcină: acțiune antiinflamatoare puternică și regenerantă pentru articulații</font>
+        </li>
+        <li><b>Robinia pseudoacacia (salcâm)</b>
+          <font>Extract din flori: acțiune calmantă, antiedem și regenerantă</font>
+        </li>
+        <li><b>Boswellia serrata (tămâie indiană)</b>
+          <font>Extract din rășină: acid boswellic concentrat care inhibă inflamația</font>
+        </li>
+      </ul>
+    </div>
+
+    <p>
+      Aceste ingrediente sunt greu de obținut în concentrația necesară. Combinarea lor în proporțiile corecte necesită o tehnologie specială — dacă proporțiile sunt greșite chiar și cu 0,1%, capsula nu eliberează substanțele suficient de eficient și nu activează regenerarea cartilajului.
+    </p>
+
+    <h2>
+      Așa s-au născut capsulele Jointerra — singurele capsule care conțin toate aceste ingrediente în proporțiile ideale pentru regenerarea complexă a articulațiilor
+    </h2>
+    <p><b>Dr. Andrei Popescu:</b></p>
+    <p>
+      — Împreună cu centrul de cercetare am reușit să producem acest produs: capsule care acționează direct la nivel articular — genunchi, coloană, șold, mâini, gât. Se numesc Jointerra. Se administrează de două ori pe zi, dimineața și seara, câte o capsulă cu un pahar de apă. Substanțele active sunt absorbite rapid și acționează țintit la nivelul articulațiilor, fără a provoca efectele secundare ale antiinflamatoarelor convenționale.
+    </p>
+
+    <!-- 📸 ФОТО 7 -->
+    <img src="images/prods1.png" style="width:78%;max-width:540px;display:block;margin:18px auto">
+
+    <p>
+      Secretul stă în „Tehnologia de Absorbție Articulară Profundă", pe care am dezvoltat-o cu echipa în laborator. Această metodă permite substanțelor active să ajungă direct la capsula articulară — acolo unde cartilajul se distruge — cu o eficacitate de 5 ori mai mare decât orice supliment obișnuit de pe piață.
+    </p>
+    <p class="pachino-ramka2">
+      „Jointerra" nu are egal. Fiecare ingredient — în concentrația exactă — activează regenerarea cartilajului, restabilirea lichidului sinovial și oprirea inflamației. Sunt singurele capsule care acționează la nivel celular, direct pe zona articulară afectată — genunchi, coloană, șold, mâini, gât — fără a distruge stomacul sau ficatul. Și cel mai important: funcționează chiar și la persoane de 70, 80, 85 de ani. Le-am testat mai întâi pe pacienții mei din căminele de bătrâni — pe oamenii pe care nimeni altcineva nu-i mai trata.
+    </p>
+
+    <p><b>Dr. Andrei Popescu:</b></p>
+    <p>
+      — Primii pacienți au fost seniorii abandonați din căminele de bătrâni. Cei pe care nimeni nu-i mai trata. Am administrat capsulele pacienților cu probleme la genunchi, coloană, șolduri. Și am așteptat. În a treia zi — doamna Elisabeta, care nu se ridicase din pat de 4 luni, a făcut primii pași singură. Am plâns amândoi.
+    </p>
+
+    <h2>
+      4 mecanisme prin care Jointerra regenerează articulațiile și redă mobilitatea — la orice vârstă
+    </h2>
+
+    <div class="obertk512">
+      <h1>4 efecte principale ale capsulelor „Jointerra":</h1>
+      <div class="block-offer-actions-block">
+        <ol>
+          <li>
+            <font>Eliminarea durerii și a inflamației:</font>
+            <span>În primele 15-30 de minute de la administrare, complexul de arnică de munte, tămâie și mentol elimină durerea și reduce inflamația. Nu prin blocarea semnalului nervos (ca pastilele) — ci prin oprirea procesului inflamator la sursă.</span>
+          </li>
+          <li>
+            <font>Regenerarea cartilajului articular:</font>
+            <span>Extractul de gheara diavolului și tămâie penetrează în capsula articulară și activează celulele cartilajului (condrocitele), stimulând producerea de țesut cartilaginos nou. Acest proces începe după 3-5 zile de utilizare regulată.</span>
+          </li>
+          <li>
+            <font>Restabilirea lichidului sinovial:</font>
+            <span>Ingredientele active sunt absorbite sistemic și restabilesc lichidul sinovial — „lubrifiantul" natural al articulației. Datorită acestui lucru, oasele nu se mai freacă unele de altele, iar mișcarea devine din nou fluidă și nedureroasă.</span>
+          </li>
+          <li>
+            <font>Protecție și profilaxie pe termen lung:</font>
+            <span>Extractul de salcâm și complexul mineral întăresc ligamentele și tendoanele din jurul articulației, prevenind viitoarele deteriorări. După 30-60 de zile de utilizare, articulația obține o protecție stabilă care se menține luni de zile.</span>
+          </li>
+        </ol>
       </div>
     </div>
 
-    <div
-      id="invalid-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="invalid-modal-title"
-    >
-      <div class="invalid-modal__content">
-        <p id="invalid-modal-title">
-          Se ha introducido un número de teléfono no válido. Por favor,
-          compruebe el número e inténtelo de nuevo.
-        </p>
-        <button type="button" id="invalid-modal-ok">OK</button>
+    <h2>
+      „Am testat Jointerra mai întâi pe pacienții mei din căminele de bătrâni — rezultatele au depășit tot ce am văzut în 6 ani de practică"
+      <span>Teste pe 2340 de persoane cu vârste între 45 și 86 de ani</span>
+    </h2>
+
+    <p><b>Dr. Andrei Popescu:</b></p>
+    <p>
+      — Primii pacienți au fost seniorii abandonați din căminele de bătrâni. Cei pe care nimeni nu-i mai trata. Rezultatele au fost atât de impresionante încât centrul de cercetare a extins testele la un grup de peste 2300 de persoane din toată România — acoperind toate tipurile de probleme articulare: genunchi, coloană, șolduri, mâini, gât.
+    </p>
+    <p>
+      Am văzut oameni de 80 de ani care nu puteau merge — iar după 6 săptămâni ieșeau singuri în curtea căminului de bătrâni. Asistentele plângeau. Eu plângeam împreună cu ele.
+    </p>
+
+    <div class="table-block">
+      <h1 class="title_h1">
+        Rezultatele testelor „Jointerra" — grup de control: 2340 de persoane, 45-86 de ani
+      </h1>
+      <table class="table">
+        <tbody>
+          <tr><td class="one">Eliminarea completă a durerii de genunchi</td><td class="two">96,2%</td></tr>
+          <tr><td class="one">Eliminarea durerii de coloană și a rigidității matinale</td><td class="two">94,7%</td></tr>
+          <tr><td class="one">Artroză de gradul 1-2 (recuperare completă a mobilității)</td><td class="two">98,1%</td></tr>
+          <tr><td class="one">Artroză de gradul 3 (îmbunătățire semnificativă)</td><td class="two">87,3%</td></tr>
+          <tr><td class="one">Coxartroză (durere de șold)</td><td class="two">91,5%</td></tr>
+          <tr><td class="one">Hernie de disc (reducerea durerii și amorțelii)</td><td class="two">89,4%</td></tr>
+          <tr><td class="one">Artrită reumatoidă (degetele mâinilor)</td><td class="two">93,8%</td></tr>
+          <tr><td class="one">Recuperarea completă a mobilității articulare</td><td class="two">95,6%</td></tr>
+          <tr><td class="one">Eliminarea edemelor și crampelor nocturne</td><td class="two">97,0%</td></tr>
+          <tr><td class="one">Capacitatea de a merge fără ajutor</td><td class="two">94,3%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>
+      Cazuri care mi-au frânt inima — și mi-au dat cea mai mare speranță
+      <span>
+        Doamna Ioana, 84 de ani. Abandonată într-un cămin de bătrâni când genunchii au cedat. După 2 luni cu Jointerra — a ieșit singură în grădină, pentru prima dată în 3 ani.
+      </span>
+    </h2>
+
+    <p>
+      Doamna Ioana Marinescu a fost prima pacientă a dr. Popescu într-un cămin de bătrâni din județul Prahova. La 84 de ani, cu artroză de gradul 3 la ambii genunchi și coxartroză de șold stâng, nu mai putea merge de 14 luni. Fiul a adus-o aici pentru că „nu o mai putea duce la baie". Nu a vizitat-o de doi ani.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <!-- 📸 ФОТО 8 -->
+      <img class="img-card2" src="https://static.joxi.pro/1778142925769-b234c916-2418-43cd-a09b-52da3b198c19.jpg">
+      <p>
+        „Nu credeam că voi mai putea vreodată să merg. Genunchii mei erau atât de umflați încât nu-i puteam îndoi. Mă plimbau prin cameră cu scaunul cu rotile. Dimineața mă trezeam și nu puteam mișca nici un deget timp de o oră. Era ca și cum corpul meu murise, dar eu încă trăiam.
+      </p>
+      <p>
+        <b>
+          Fiul meu m-a adus aici pentru că nu mă putea ridica din pat. Mi-a spus: «Mamă, o să te vizitez în fiecare duminică.» Nu a venit de doi ani. Nu-l învinuiesc — are viața lui. Dar noaptea, când durerea mă trezește și nu e nimeni lângă mine… e greu.
+        </b>
+      </p>
+      <p>
+        <b>
+          Și apoi a venit dr. Popescu. A fost prima persoană care mi-a atins genunchii fără dezgust. Mi-a explicat ce se întâmplă în articulații. Și mi-a dat capsulele. După o săptămână puteam îndoi genunchiul stâng. După o lună m-am ridicat din pat singură. După două luni — am ieșit în grădină. Nu ieșisem de 3 ani.
+        </b>
+      </p>
+      <p>
+        Asistenta plângea când m-a văzut. Eu am plâns mai tare. Nu pentru că mergeam. Ci pentru că cineva — un doctor tânăr pe care nu-l cunoscusem niciodată — mi-a dat mai mult decât mi-a dat propriul fiu.
+      </p>
+      <font>
+        <b>Ioana Marinescu, 84 de ani, cămin de bătrâni în jud. Prahova</b>
+      </font>
+    </div>
+
+    <p>
+      Alt caz: domnul Mihai, 58 de ani, constructor toată viața, cu coloana distrusă de hernii de disc. Soția l-a părăsit când nu a mai putut munci.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <!-- 📸 ФОТО 9 -->
+      <img class="img-card2" src="https://static.joxi.pro/1778142925769-f6ae7d5d-d93a-42f5-8684-d3c285fbc8bf.jpg">
+      <p>
+        „Am fost zidar 30 de ani. Coloana a cedat la 54 de ani — două hernii de disc și sciatică. Nu puteam nici sta în picioare, nici sta culcat. Totul durea. Soția a plecat — a spus că nu poate avea grijă de un invalid. Nu o învinuiesc.
+      </p>
+      <p>
+        <b>
+          Sora mea a aflat despre dr. Popescu de la o vecină. Mi-a trimis capsulele Jointerra. Am început să le iau dimineața și seara. În a treia zi am simțit prima ameliorare. După 3 săptămâni — puteam merge din nou la magazin. După 2 luni — m-am întors la muncă cu jumătate de normă.
+        </b>
+      </p>
+      <p>
+        Uneori mă trezesc dimineața, mă ridic din pat fără durere și mă opresc o secundă. Stau în picioare și nu pot crede că e adevărat. Că nu mai doare. Dacă nu era dr. Popescu, poate și eu aș fi acum într-un cămin de bătrâni."
+      </p>
+    </div>
+
+    <h2>
+      „Jointerra nu tratează doar durerea — regenerează întreaga articulație din interior"
+      <span>
+        Nu doar seniorii din căminele de bătrâni beneficiază. Oricine peste 45 de ani care simte primele semnale poate preveni catastrofa.
+      </span>
+    </h2>
+
+    <p><b>Dr. Andrei Popescu:</b></p>
+
+    <p>
+      — Timpul minim de utilizare este de 30 de zile, dar în cazurile grave de artroză sau hernii pot fi necesare 2-3 luni. Însă în fiecare caz — fără excepție — se observă reducerea durerii, regenerarea cartilajului și restabilirea mobilității.
+    </p>
+
+    <p>
+      Jointerra acționează de la prima administrare: durerea scade, inflamația se reduce, mișcarea devine mai ușoară. Dar adevărata magie se întâmplă în timp: cartilajul se regenerează, lichidul sinovial revine, articulația se „întinerește" din interior.
+      <b class="red-txt">
+        Am văzut oameni de 80 de ani care mergeau din nou. Am văzut mâini care nu puteau ține o cană ducând o lingură la gură. Am văzut coloane aplecate care se îndreptau. Și în fiecare caz — am văzut lacrimi de bucurie.
+      </b>
+    </p>
+
+    <center>
+      <p><b>
+          Datorită metodei dr. Popescu, peste 12.000 de persoane din România și-au recuperat funcționalitatea articulațiilor. Iată câteva cazuri:
+        </b></p>
+    </center>
+
+    <!-- 📸 ФОТО 10 -->
+    <figure>
+      <img src="https://static.joxi.pro/1778142925769-baf151ad-77dc-450d-9a89-3293efafacfa.jpg">
+      <figcaption>Bărbat, 65 de ani. Artroză de gradul 3 la ambii genunchi — nu putea urca scările. Jointerra în 60 de zile: mobilitate completă, fără durere.</figcaption>
+    </figure>
+
+    <!-- 📸 ФОТО 11 -->
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-f19f7f66-3e45-449a-87f2-78884ec5e6e1.jpg">
+      <figcaption>Femeie, 58 de ani. Durere cronică de coloană și hernie L5-S1. Jointerra în 45 de zile: durerea eliminată, poate face din nou treburile casnice.</figcaption>
+    </figure>
+
+    <!-- 📸 ФОТО 12 -->
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-7d23b447-1714-413e-b3dd-921918111aa3.jpg">
+      <figcaption>Femeie, 72 de ani. Artrită reumatoidă severă la degete — nu putea ține o cană. Jointerra în 2 luni: degetele mobile, umflătura dispărută.</figcaption>
+    </figure>
+
+    <!-- 📸 ФОТО 13 -->
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-4a9900ea-fa77-4c81-a40e-dff210ebf7df.jpg">
+      <figcaption>Bărbat, 70 de ani. Coxartroză avansată — mergea doar cu cadru metalic. Jointerra în 2,5 luni: merge singur, fără durere.</figcaption>
+    </figure>
+
+    <p><b>Dr. Andrei Popescu:</b></p>
+    <p>
+      — Aceste cazuri sunt dovada vie că articulațiile se pot regenera — chiar și când diagnosticul părea o condamnare. Fără operație. Fără pastile care distrug stomacul. Iar ceea ce mă bucură cel mai mult: mulți dintre acești oameni sunt seniori din căminele de bătrâni — cei pe care lumea i-a uitat. <b>Dar eu nu i-am uitat. Și Jointerra nu-i uită.</b>
+    </p>
+
+    <div id="overlay" style="display:none;opacity:0"></div>
+    <div id="popup3" style="display:none;opacity:0;transform:translate(-50%,-50%) scale(0.8)"></div>
+
+    <h2>
+      De ce Jointerra nu este disponibil în farmacii? Și cum îl puteți obține?
+    </h2>
+
+    <p><b>Dr. Andrei Popescu:</b></p>
+
+    <p>Din păcate, producția Jointerra este un proces complex și costisitor. Ingredientele sunt rare — extract de gheara diavolului, acid boswellic concentrat, arnică de munte în concentrație mare — și greu de obținut în cantitățile necesare. Nu putem satisface întreaga cerere.</p>
+
+    <p>Sunt necesari cel puțin 2-3 ani înainte ca Jointerra să ajungă în farmacii. Până atunci, produsul este distribuit exclusiv online, în cadrul programelor de sprijin, de două ori pe an. Cu toate acestea,
+      <font class="red-txt">reducerile pot ajunge până la 50%</font>
+      — ceea ce este esențial pentru pensionari.
+    </p>
+
+    <p>
+      Vă rog: NU RATAȚI PROGRAMUL DE SPRIJIN. Nu doar pentru voi — ci și pentru părinți, bunici, persoane dragi care poate suferă în tăcere. Sau pentru cei care sunt deja într-un cămin de bătrâni, singuri, și nimeni nu le trimite nimic. Fiți persoana care face diferența.
+    </p>
+
+    <p class="red-txt"><b>Pentru a plasa comanda, folosiți formularul de mai jos.</b></p>
+
+    <h2>
+      Ultima șansă de a obține Jointerra în acest an — pentru voi sau pentru o persoană dragă care suferă în tăcere
+    </h2>
+
+    <!-- 📸 ФОТО 14 -->
+    <img alt="Jointerra" src="images/TOW1.png"
+      style="margin:0 auto;display:block;max-width:500px;width:100%;margin-top:24px;margin-bottom:20px">
+
+    <p><b>Dr. Andrei Popescu:</b></p>
+
+    <p>
+      — Am rezervat 20.000 de ambalaje exclusiv pentru cititorii acestui portal. Orice cetățean al României peste 40 de ani poate primi o <font class="red-txt">reducere de până la 50%</font>, dar programul se încheie pe <span><script>dtime_nums(0, true)</script></span>.
+    </p>
+
+    <p>Nu așteptați până când nu mai puteți urca scările. Până când genunchii cedează complet. Până când coloana se blochează. Și mai ales — nu așteptați până când deveniți o „povară" în ochii celor dragi. Jointerra are efect cumulativ și este suficient să-l folosiți o dată pe an ca profilaxie.</p>
+
+    <p>Introduceți numele și numărul de telefon. Un consultant vă va contacta, va alege programul potrivit și va organiza livrarea în 2-3 zile, prin curier sau poștă, direct la adresa indicată.</p>
+
+    <p><b>Cu speranță și respect — dr. Andrei Popescu. Aveți grijă de cei dragi. Poate singurul lucru de care au nevoie este să știe că nu i-ați uitat.</b></p>
+
+    <p class="pachino-ramka">
+      <span class="ramka-title">Actualizare: <span><script>dtime_nums(-3, true)</script></span>:</span>
+      Din cauza interesului enorm, stocurile se pot epuiza mai repede decât era prevăzut! Astăzi —
+      <font><span><script>dtime_nums(1, true)</script></span> — este ultima zi a programului</font> sau până la epuizarea stocurilor.
+    </p>
+
+    <center><img src="images/prods1.png" style="max-width:500px;width:200%"></center><br>
+
+    <center>
+      <p class="noclose-cta red-txt">
+        Atenție! Nu închideți și nu reîncărcați pagina, altfel ambalajul Jointerra rezervat pentru dvs. va fi transferat altei persoane!
+      </p>
+      <span class="pre-cta">
+        Puteți beneficia de ofertă — locul dvs. este rezervat:
+        <span class="nowrap">Nr. <font class="number-me" style="border-bottom:2px solid var(--color-danger);font-weight:700">19&nbsp;974</font></span>
+      </span>
+    </center>
+
+    <span id="form"></span>
+    <span id="oneform"></span>
+    <div class="pachinoform">
+      <div class="pachinoform_title">
+        <div class="pachinoform_title_logo">
+          <img alt="" src="images/56d9b0017d1d_d58505c9.png">
+        </div>
+        <div class="pachinoform_title_text">
+          <b>Formular oficial de comandă</b>
+          № <font class="number-me nowrap">19&nbsp;974</font> / <font class="nowrap">20 000</font>
+        </div>
+      </div>
+      <div class="pachinoform_order">
+        Pentru a beneficia de <b>reducerea de 50%</b>, introduceți numele și numărul de telefon în câmpurile de mai jos și apăsați butonul „COMANDĂ".
+      </div>
+      <div class="pachinoform_value">
+        În stoc:
+        <span class="blc-pck">
+          <strong class="pachinoform_value_current left-pack">33</strong>
+          <strong class="pachinoform_value_total"> /1000</strong>
+        </span>
+      </div>
+      <div class="pachinoform_price">
+        <div class="pachinoform_price_old"><span class="price_old">298 LEI</span></div>
+        <div class="pachinoform_price_new"><span class="price_main">149 LEI</span></div>
+      </div>
+      <form action="/order.php" method="post">
+        <input type="hidden" name="fbpx" value="{fbpx}">
+        <input type="hidden" name="utm_code" value="{subid}">
+        <input type="hidden" name="cid" value="{campaign_id}">
+        <input type="hidden" name="sid" value="2828">
+        <input type="hidden" name="hash" value="{hash}">
+        <input type="hidden" name="country" value="RO">
+        <div class="name-input">
+          <label for="name-input">Nume</label>
+          <input autocomplete="name" id="name-input" name="name" placeholder="Numele dvs." required="" type="text" value="">
+        </div>
+        <div class="phone-input">
+          <label for="phone-input">Număr de telefon</label>
+          <input autocomplete="tel" id="phone-input" maxlength="20" name="phone" pattern="^[\-+() 0-9]{8,20}$" placeholder="Numărul dvs. de telefon" required="" type="tel" value="">
+        </div>
+        <button class="button-submit" type="submit">COMANDĂ ACUM</button>
+      </form>
+      <div class="pachinoform_footer">
+        ✔️ Livrare realizată de Centrul Național de Sănătate<br> direct la adresa indicată
+        <br>
+        <img alt="" src="images/b0110a32ff2e_8322b1b5.png" style="width:auto">
       </div>
     </div>
 
-    <script async>
-      const LAZY = document.querySelectorAll("img");
-      for (let i = 0; i < LAZY.length; i++) {
-        LAZY[i].setAttribute("loading", "lazy");
-      }
-    </script>
-    <script>
-      $("a").on("touchend, click", function (e) {
-        e.preventDefault();
-        $("body,html").animate(
-          {
-            scrollTop: $("#oneform").offset().top,
-          },
-          400,
-        );
-      });
-    </script>
+    <!-- COMMENTS SECTION -->
+    <div class="comments comments-fb" id="pluginComments">
+      <div class="comments__header">
+        <div class="comments__left-box">
+          <p class="comments__header-title">COMENTARII</p>
+        </div>
+      </div>
 
-    <script>
-      $('[name="name"]').on("input", function () {
-        var val = $(this).val();
+      <div class="comments__item-list">
 
-        var cleaned = val
-          .replace(/[^\p{L}\s]/gu, "")
-          .replace(/^\s+/, "")
-          .replace(/\s\s+/, " ");
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7da17fc86c6c_2f1260d0.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Maria Ionescu</p>
+              <p class="startdate" daysago="8" format="day/month/year"><script>dtime_nums(-8, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Am plâns citind acest articol. Mama mea are 76 de ani și este într-un cămin de bătrâni de 2 ani — tocmai pentru că genunchii au cedat și nu am putut avea grijă de ea. Este cea mai mare vină a mea. Am comandat Jointerra pentru ea. Poate nu e prea târziu. Doamne, sper să funcționeze.</p>
+          </div>
+        </div>
 
-        var parts = cleaned.split(" ");
-        if (parts.length > 2) {
-          cleaned = parts[0] + " " + parts[1];
-        }
+        <div id="first-comment">
+          <div class="comments__item">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/8ba73d45c164_4ede289a.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Elena Dumitrescu</p>
+                <p class="startdate" daysago="7" format="day/month/year"><script>dtime_nums(-7, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Am primit capsulele Jointerra vineri trecută. Le iau dimineața și seara. După 5 zile — durerea s-a redus enorm, pot coborî scările fără să mă țin de balustradă! Povestea doctorului m-a convins să comand. Om minunat.</p>
+            </div>
+          </div>
+        </div>
 
-        $(this).val(cleaned);
-      });
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/fa7f61c1431c_7946ff6c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Ana Constantinescu</p>
+              <p class="startdate" daysago="6" format="day/month/year"><script>dtime_nums(-6, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Am 69 de ani. Coloana mă chinuia de 4 ani — hernie de disc și sciatică. Nu mă puteam apleca să-mi leg pantofii. Doctorii îmi dădeau antiinflamatoare care mi-au distrus stomacul. După 3 săptămâni cu Jointerra — durerea a dispărut aproape complet. Merg singură la piață, fac cumpărături, gătesc. Mi-am recuperat viața.</p>
+          </div>
+        </div>
 
-      $('[name="name"]').on("change blur", function () {
-        $(this).val($(this).val().trim());
-      });
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/dcc5cfe80d60_5aa7f8f7.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Cristian Gheorghiu</p>
+              <p class="startdate" daysago="5" format="day/month/year"><script>dtime_nums(-5, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Lucrez la birou 10 ore pe zi. Coloana și gâtul au cedat. Doctorul mi-a spus: „Ori renunțați la muncă, ori operație." Am ales Jointerra. După 5 săptămâni — nicio durere. Și respectul meu imens pentru dr. Popescu — într-o lume în care toți vor bani, el merge la seniorii uitați.</p>
+          </div>
+        </div>
 
-      $('[name="phone"]').on("input change", function (e) {
-        var val = $(this).val();
-        $(this).val(val.replace(/\D/g, ""));
-        $(e.currentTarget).attr("pattern", "[0-9]{6,}");
-      });
-    </script>
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/bcbe20e0b5d2_b241da99.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Marcel Stanciu</p>
+              <p class="startdate" daysago="5" format="day/month/year"><script>dtime_nums(-5, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Am comandat 3 ambalaje — pentru mine (genunchi), pentru soția mea (mâini, artrită) și pentru socrul meu de la cămin. Nu-l putem vizita des, dar măcar îi trimitem ceea ce are nevoie. Sper că și la el va funcționa. Mulțumesc pentru articol.</p>
+          </div>
+        </div>
 
-    <script src="js/v.js"></script>
-    <script src="js/js1.js"></script>
-            <p style="opacity: 0;">{_box:XVsWxC}</p>
-  </body>
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/73d3a879cef9_4a9ce85c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Adriana Munteanu</p>
+              <p class="startdate" daysago="4" format="day/month/year"><script>dtime_nums(-4, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Mă gândesc dacă să comand pentru tata. Este la căminul de bătrâni de 3 ani — genunchii nu mai funcționează deloc. A renunțat la viață, vorbește puțin. Credeți că Jointerra mai poate ajuta la 78 de ani?</p>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/71deaf909b4e_ea30d07c.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Ioana Popa</p>
+                <p class="startdate" daysago="4" format="day/month/year"><script>dtime_nums(-4, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Adriana, mama mea are 82 de ani! Artroză severă la ambii genunchi, nu putea coborî din pat. A folosit Jointerra timp de 2 luni — acum iese singură în curte. Nu exagerez. Și cel mai frumos: când am vizitat-o, m-a întâmpinat stând în picioare la poartă. Am plâns amândouă. Comandă fără ezitare, tatăl tău merită o șansă.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/66ebad51123a_206d5fba.png">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Radu Voicu</p>
+                <p class="startdate" daysago="3" format="day/month/year"><script>dtime_nums(-3, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Adriana, comandă fără griji. Eu la 78 de ani eram la un pas de scaunul cu rotile — coxartroză. Jointerra în 2 luni m-a pus pe picioare. Literalmente. Tatăl tău are nevoie de asta mai mult decât crezi.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d61700bc0961_28c03d39.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Cătălina Dragomir</p>
+              <p class="startdate" daysago="3" format="day/month/year"><script>dtime_nums(-3, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">O săptămână de utilizare pe genunchi și zona lombară. Dimineața nu mai sunt „de lemn". Mă pot apleca, mă pot ridica fără „of!". Am comandat și pentru vecina mea — are 73 de ani, locuiește singură și se ținea de pereți ca să meargă prin casă.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7db2eed8e880_6ecfd92a.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Teodora Matei</p>
+              <p class="startdate" daysago="2" format="day/month/year"><script>dtime_nums(-2, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">La 68 de ani credeam că nu voi mai putea lucra în grădină. Genunchii și coloana m-au paralizat. Jointerra a schimbat totul — după 4 săptămâni am săpat prima strat de legume anul acesta. Iar povestea dr. Popescu m-a mișcat profund. Mai există oameni cu suflet pe lumea asta.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/a49c7ec0724d_6f186c1c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Nicolae Dinu</p>
+              <p class="startdate" daysago="2" format="day/month/year"><script>dtime_nums(-2, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Am 82 de ani. Anul trecut nu puteam ajunge singur la baie. Copiii vorbeau despre căminul de bătrâni. Am încercat Jointerra — fără prea mare speranță. Și funcționează! Merg singur, mă îmbrac singur, ies la poartă singur. Copiii mei nu mai vorbesc despre cămin. Aceasta este cea mai mare bucurie a mea.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7099c502f996_b89c4cc9.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Tudor Florescu</p>
+              <p class="startdate" daysago="1" format="day/month/year"><script>dtime_nums(-1, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Soția mea nu putea coborî scările. Se ținea de perete și plângea de durere. Mă temeam că o voi pierde — nu din cauza bolii, ci din cauza disperării. Am comandat Jointerra cu reducere. După 4 săptămâni — ieri a coborât singură la piață și s-a întors cu flori. Cu flori! Mulțumesc din suflet.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/47a8cb9cf088_09555b8e.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Beatrice Lazăr</p>
+              <p class="startdate" daysago="1" format="day/month/year"><script>dtime_nums(-1, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Am comandat 4 ambalaje — pentru mama (cămin de bătrâni, genunchi), pentru tata (acasă, coloana), și 2 pentru mine (mâini, artrită la degete, nu puteam scrie). Poveștile din articol m-au zdrobit. Ar fi trebuit să fac asta de mult. Nu mai am scuze.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/f021e0a36f8b_7c282874.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Diana Neagu</p>
+              <p class="nowdate" daysago="0" format="day/month/year"><script>dtime_nums(0, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Am primit capsulele Jointerra — curierul le-a livrat în 2 zile! Deja i-am dat mamei de la cămin primele capsule. Țin pumnii din tot sufletul. Voi trimite acest articol și personalului — poate vor contacta dr. Popescu.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d770c7a4cbdf_467ee117.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Petru Moldovan</p>
+              <p class="nowdate" daysago="0" format="day/month/year"><script>dtime_nums(0, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Am căutat Jointerra în farmacie — nu există. Mi-au spus să comand de pe acest site. Sper că mai este disponibil. Bunicul meu are nevoie urgentă — are 81 de ani și nu mai poate merge deloc.</p>
+          </div>
+        </div>
+
+        <div class="custom-commetns-container"></div>
+
+        <a href="#" style="text-decoration: none;">
+          <div class="form-container">
+            <form class="custom-form" id="custom-form">
+              <div class="custom-form__top-field">
+                <div class="custom-form__ava-block">
+                  <input disabled class="custom-form__ava-input sf-hidden" id="avatar" name="avatar" type="file" value="">
+                  <label class="custom-form__ava-label"><span class="custom-form__ava-label_red-text">*</span>Adaugă avatar</label>
+                </div>
+                <input disabled class="custom-form__name" placeholder="Numele dvs." required="" type="text" value="">
+              </div>
+              <textarea disabled class="custom-form__message" placeholder="Comentariul dvs." required=""></textarea>
+              <div class="custom-form__bottom-field">
+                <div class="custom-form__photo-block">
+                  <input disabled class="custom-form__photo-input sf-hidden" id="photo" type="file" value="">
+                  <label class="custom-form__photo-label" for="photo">Adaugă fotografie</label>
+                </div>
+                <button disabled class="custom-form__btn">TRIMITE</button>
+              </div>
+            </form>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </main>
+
+  <div class="trust-strip">
+    <div class="trust-item"><span class="trust-item-icon">🛡️</span> Calitate certificată</div>
+    <div class="trust-item"><span class="trust-item-icon">🚚</span> Livrare în 2–3 zile</div>
+    <div class="trust-item"><span class="trust-item-icon">⚕️</span> Fără rețetă</div>
+    <div class="trust-item"><span class="trust-item-icon">🔒</span> Comandă securizată</div>
+  </div>
+
+  <footer class="clinical-footer">
+    © SănătateInfo România — reportaj special<br>
+    Datele prezentate pe această pagină au caracter informativ și nu înlocuiesc consultul medical.
+  </footer>
+
+  <div class="ffl ffl__anim sf-hidden" data-name="div-gc0zvidej" style="display:block"></div>
+
+<script async> 
+const LAZY = document.querySelectorAll('img');
+for (let i = 0; i < LAZY.length; i++) { 
+LAZY[i].setAttribute('loading', 'lazy'); 
+} </script>
+
+<script>
+    $("a").on("touchend, click", function(e) {
+            e.preventDefault();
+            $('body,html').animate({
+            scrollTop: $('#oneform').offset().top
+            }, 400);
+        });
+ </script>
+
+<script>
+$('[name="name"]').on("input", function () {
+    var val = $(this).val();
+    
+    var cleaned = val
+        .replace(/[^\p{L}\s]/gu, "") 
+        .replace(/^\s+/, "")
+        .replace(/\s\s+/, " ");
+        
+    var parts = cleaned.split(" ");
+    if (parts.length > 2) {
+        cleaned = parts[0] + " " + parts[1];
+    }
+    
+    $(this).val(cleaned);
+});
+
+$('[name="name"]').on("change blur", function () {
+    $(this).val($(this).val().trim());
+});
+
+$('[name="phone"]').on("input change", function(e) {
+    var val = $(this).val();
+    $(this).val(val.replace(/\D/g, ""));
+    $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+});
+</script>
+<p style="opacity: 0;">{_box:XVsWxC}</p>
+</body>
+
 </html>
