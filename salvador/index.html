@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+  <meta charset="utf-8">
+  <title>„Visito a los que ya nadie visita" — el joven médico salvadoreño que trata las articulaciones de los ancianos abandonados en los hogares de ancianos</title>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="no-cache" http-equiv="Cache-Control">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="telephone=no" name="format-detection">
+  <meta content="no-referrer" name="referrer">
+  <meta content="noindex, nofollow" name="robots">
+
+  <link rel="icon" href="images/Flexosamine.png?=v5?=v1">
+
+  <style>
+    :root {
+      --color-primary: #0a5c9e;
+      --color-primary-dark: #084678;
+      --color-primary-light: #e8f2fa;
+      --color-accent: #0284c7;
+      --color-danger: #c0392b;
+      --color-danger-light: #fdecea;
+      --color-success: #1e8449;
+      --color-success-light: #e8f5ee;
+      --color-warning: #b7791f;
+      --color-text: #1a2b42;
+      --color-text-muted: #4a5a70;
+      --color-text-light: #6b7a8f;
+      --color-bg: #ffffff;
+      --color-bg-soft: #f7fafc;
+      --color-bg-alt: #eef4f9;
+      --color-border: #d9e2ec;
+      --color-border-soft: #e4ebf2;
+      --shadow-sm: 0 1px 2px rgba(10, 92, 158, 0.04), 0 1px 3px rgba(10, 92, 158, 0.06);
+      --shadow-md: 0 4px 12px rgba(10, 92, 158, 0.08), 0 2px 4px rgba(10, 92, 158, 0.04);
+      --shadow-lg: 0 10px 25px rgba(10, 92, 158, 0.10), 0 4px 10px rgba(10, 92, 158, 0.05);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-serif: 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin:0; padding:0; font-family:var(--font-sans); font-size:17px; line-height:1.65; color:var(--color-text); background:var(--color-bg-soft); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .clinical-topbar { background:var(--color-primary-dark); color:#fff; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; padding:8px 16px; text-align:center; font-weight:500; }
+    .clinical-topbar::before { content:"⚕ "; margin-right:6px; }
+    .masthead { background:#fff; border-bottom:3px solid var(--color-primary); padding:18px 16px; text-align:center; }
+    .masthead-inner { max-width:900px; margin:0 auto; display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+    .masthead-logo { display:inline-flex; align-items:center; gap:10px; font-family:var(--font-serif); font-weight:700; font-size:22px; color:var(--color-primary-dark); letter-spacing:-0.01em; }
+    .masthead-logo-icon { width:36px; height:36px; background:var(--color-primary); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:700; }
+    .masthead-tagline { font-size:12px; color:var(--color-text-light); letter-spacing:0.08em; text-transform:uppercase; border-left:1px solid var(--color-border); padding-left:14px; font-weight:500; }
+    @media (max-width:560px) { .masthead-tagline { border-left:0; padding-left:0; font-size:11px; width:100%; border-top:1px solid var(--color-border); padding-top:8px; margin-top:4px; } }
+    header { max-width:900px; margin:0 auto; padding:0; }
+    .bg-image { text-align:center; }
+    .bg-image img { max-width:100%; height:auto; display:inline-block; }
+    .text-container { display:block; }
+    .h1-bg { position:relative; max-width:900px; margin:0 auto; padding:28px 22px 20px; background:#fff; border-bottom:1px solid var(--color-border); }
+    .h1-bg::before { content:""; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%); }
+    .title_h1 { font-family:var(--font-serif); font-size:26px; line-height:1.25; color:var(--color-text); font-weight:700; margin:0 0 14px; letter-spacing:-0.01em; }
+    .head-one-part { color:var(--color-danger); }
+    .head-two-part { display:block; }
+    .head-main-date { font-size:13px; color:var(--color-text-light); padding:0; display:flex; align-items:center; gap:8px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px dashed var(--color-border); }
+    .head-main-date::before { content:"📅"; font-size:14px; }
+    .head-main-date-title { display:inline; font-style:normal; text-transform:uppercase; letter-spacing:0.05em; font-weight:500; }
+    .main-subtitle { display:block; padding:16px 18px; color:var(--color-text); font-size:17px; border-radius:var(--radius-md); font-weight:500; border-left:4px solid var(--color-primary); background:var(--color-primary-light); line-height:1.55; font-style:normal; margin:0; box-shadow:none; }
+    @media (max-width:640px) { .title_h1 { font-size:20px; } .main-subtitle { font-size:15px; padding:14px 14px; } .h1-bg { padding:22px 16px 18px; } }
+    main { max-width:900px; margin:0 auto; padding:24px 22px 40px; background:#fff; border-left:1px solid var(--color-border-soft); border-right:1px solid var(--color-border-soft); }
+    @media (max-width:640px) { main { padding:18px 14px 30px; } }
+    main p { margin:0 0 16px; color:var(--color-text); }
+    main img { max-width:100%; height:auto; border-radius:var(--radius-md); }
+    main h2 { font-family:var(--font-serif); font-size:24px; line-height:1.3; font-weight:700; color:var(--color-primary-dark); margin:32px 0 16px; padding-bottom:12px; border-bottom:2px solid var(--color-primary-light); letter-spacing:-0.01em; }
+    main h2 span { display:block; font-family:var(--font-sans); font-size:16px; font-weight:500; color:var(--color-text-muted); margin-top:10px; margin-bottom:0; line-height:1.5; }
+    main h3 { font-family:var(--font-serif); font-size:19px; color:var(--color-primary-dark); margin:22px 0 12px; font-weight:600; }
+    @media (max-width:640px) { main h2 { font-size:19px; } main h2 span { font-size:15px; } }
+    main ul { padding-left:0; list-style:none; margin:16px 0; background:var(--color-bg-soft); border:1px solid var(--color-border-soft); border-radius:var(--radius-md); padding:14px 18px 14px 20px; }
+    main ul li { position:relative; padding-left:22px; margin-bottom:8px; line-height:1.5; }
+    main ul li::before { content:""; position:absolute; left:0; top:10px; width:10px; height:10px; border:2px solid var(--color-primary); border-radius:50%; background:#fff; }
+    main ul li:last-child { margin-bottom:0; }
+    .red-txt { color:var(--color-danger); font-weight:600; }
+    .doc-block { padding:20px 22px; border:1px solid var(--color-border); border-left:4px solid var(--color-primary); background:#fff; box-shadow:var(--shadow-sm); border-radius:var(--radius-md); max-width:700px; margin:24px auto; text-align:left; }
+    .doc-block img { border-radius:var(--radius-md); margin-bottom:14px; }
+    .doc-block p { padding:0; margin:0 0 12px; font-size:16px; line-height:1.6; }
+    .doc-block p:last-child { margin-bottom:0; }
+    .doc-block p b { color:var(--color-primary-dark); }
+    figure { margin:22px 0; padding:0; text-align:center; }
+    figure img { border-radius:var(--radius-md); box-shadow:var(--shadow-md); max-width:100%; height:auto; }
+    figure figcaption { margin-top:12px; padding:10px 14px; font-size:14px; line-height:1.5; color:var(--color-text-muted); background:var(--color-bg-soft); border-left:3px solid var(--color-primary); border-radius:0 var(--radius-sm) var(--radius-sm) 0; text-align:left; font-style:italic; }
+    figure.cap-bold figcaption { font-style:normal; font-weight:500; color:var(--color-text); }
+    .img-card { border:1px solid var(--color-border); padding:6px; background:#fff; box-shadow:var(--shadow-md); border-radius:var(--radius-md); }
+    .img-card2 { border:1px solid var(--color-border); padding:6px; background:#fff; border-radius:var(--radius-md); }
+    .pachino-ramka312-block { margin:24px 0; }
+    .pachino-ramka312 { background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.25); border-left:4px solid var(--color-danger); border-radius:var(--radius-md); padding:18px 20px; color:var(--color-text); font-weight:500; box-shadow:none; margin:0; font-size:16px; line-height:1.6; position:relative; }
+    .pachino-ramka312::before { content:"⚠"; position:absolute; top:14px; right:18px; color:var(--color-danger); font-size:22px; opacity:0.7; }
+    .pachino-ramka312 .obertka-1 { display:block; }
+    .rev-block { margin:24px 0; padding:20px 22px; background:var(--color-primary-light); border:1px solid rgba(10,92,158,0.15); border-left:4px solid var(--color-primary); border-radius:var(--radius-md); box-shadow:none; }
+    .rev-block p { font-size:16px; line-height:1.6; margin-bottom:12px; }
+    .rev-block img { border-radius:var(--radius-md); margin-bottom:14px; max-width:100%; }
+    .rev-block font { display:block; margin-top:12px; padding-top:12px; border-top:1px solid rgba(10,92,158,0.15); color:var(--color-primary-dark); font-size:15px; }
+    .rev-block font b { font-weight:600; }
+    .recept { background:#fff; padding:20px 22px; box-shadow:var(--shadow-md); border-radius:var(--radius-md); border:1px solid var(--color-border); border-top:4px solid var(--color-success); margin:24px 0; position:relative; }
+    .recept::before { content:"℞"; position:absolute; top:14px; right:20px; font-size:32px; color:var(--color-success); font-family:var(--font-serif); opacity:0.4; line-height:1; }
+    .recept p b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green { margin:12px 0 0 !important; padding:0 !important; background:transparent !important; border:0 !important; list-style:none; }
+    .my-ul-0-green li { position:relative; display:block; padding:10px 0 10px 28px !important; margin:0 !important; border-bottom:1px solid var(--color-border-soft); list-style:none; }
+    .my-ul-0-green li::before { content:"✓" !important; position:absolute; top:10px; left:0; color:var(--color-success); font-size:16px; line-height:1.5; font-weight:700; border:0 !important; background:transparent !important; width:auto !important; height:auto !important; border-radius:0 !important; }
+    .my-ul-0-green li:last-child { border-bottom:0; }
+    .my-ul-0-green li b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green font { font-size:14px; display:block; margin-top:4px; color:var(--color-text-muted); }
+    .obertk512 { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); max-width:780px; margin:28px auto; padding:0; line-height:1.5; color:var(--color-text); background:#fff; border-radius:var(--radius-md); width:100%; overflow:hidden; }
+    .obertk512 h1 { font-family:var(--font-serif); line-height:1.3; margin:0; color:#fff; font-size:18px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .block-offer-actions-block { padding:10px 22px 22px; border:0; }
+    .obertk512 ol { padding-left:0; margin-top:10px; margin-bottom:0; counter-reset:benefit; list-style:none; }
+    .obertk512 li { line-height:1.4; padding:16px 0 16px 50px; border-bottom:1px solid var(--color-border-soft); position:relative; counter-increment:benefit; }
+    .obertk512 li::before { content:counter(benefit); position:absolute; left:0; top:14px; width:36px; height:36px; background:var(--color-primary-light); color:var(--color-primary-dark); border-radius:50%; font-weight:700; font-size:16px; display:flex; align-items:center; justify-content:center; border:2px solid var(--color-primary); }
+    .obertk512 li::marker { content:none; }
+    .obertk512 li:last-child { border-bottom:0; }
+    .obertk512 li font { line-height:1.3; color:var(--color-primary-dark); text-align:left; font-weight:600; font-size:17px; display:block; margin-bottom:6px; }
+    .block-offer-actions-block li span { display:block; font-size:15px; line-height:1.5; font-weight:400; color:var(--color-text-muted); margin:0; padding:0; border-bottom:0; }
+    .table-block { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); border-radius:var(--radius-md); max-width:700px; margin:28px auto; padding:0; font-size:16px; line-height:1.5; color:var(--color-text); background:#fff; width:100%; overflow:hidden; }
+    .table-block h1 { font-family:var(--font-serif); line-height:1.35; margin:0; color:#fff; font-size:17px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .table { width:100%; max-width:100%; border-collapse:collapse; font-family:var(--font-sans); margin:0; background:#fff; }
+    .table tr:nth-child(even) td { background:var(--color-bg-soft) !important; }
+    .table td { border:0 !important; border-bottom:1px solid var(--color-border-soft) !important; padding:12px 16px !important; vertical-align:middle; background:#fff !important; }
+    .table tr:last-child td { border-bottom:0 !important; }
+    .table td.one { text-align:left; width:75%; font-size:15px; font-weight:500; color:var(--color-text); }
+    .table td.two { font-size:18px; color:var(--color-success); text-align:right; font-weight:700; width:25%; white-space:nowrap; }
+    @media (max-width:560px) { .table td.one { font-size:14px; } .table td.two { font-size:16px; } .table td { padding:10px 12px !important; } }
+    .pachino-ramka2 { text-align:left; color:var(--color-success); font-weight:600; border:1px solid rgba(30,132,73,0.25); border-left:4px solid var(--color-success); border-radius:var(--radius-md); padding:18px 20px; background:var(--color-success-light); box-shadow:none; margin:20px 0; font-size:16px; line-height:1.55; }
+    .pachino-ramka { border:1px solid rgba(183,121,31,0.3); border-left:4px solid var(--color-warning); padding:18px 20px; border-radius:var(--radius-md); background:#fff9ef; margin:20px 0; font-size:16px; line-height:1.55; position:relative; }
+    .pachino-ramka::before { content:"🕐"; position:absolute; top:14px; right:18px; font-size:22px; opacity:0.8; }
+    .ramka-title { display:block; color:var(--color-warning); padding:0; margin-bottom:10px; font-weight:700 !important; background:transparent; text-transform:uppercase; font-size:13px; letter-spacing:0.06em; }
+    .pachino-ramka font { color:var(--color-danger); font-weight:600; }
+    .noclose-cta { font-size:15px; max-width:780px; margin:16px auto; display:block; background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.2); padding:12px 16px; border-radius:var(--radius-md); line-height:1.5; }
+    .pre-cta { display:block; color:var(--color-success); font-weight:500; font-size:16px; margin-top:12px; }
+    .nowrap { white-space:nowrap; }
+    .pachinoform { padding:0; font-size:17px; line-height:1.5; color:var(--color-text); border:1px solid var(--color-border); background:#fff; display:block; border-radius:var(--radius-lg); width:100%; max-width:780px; margin:24px auto; box-shadow:var(--shadow-lg); overflow:hidden; }
+    .pachinoform_title { display:flex; gap:16px; max-width:none; align-self:stretch; text-align:left; background:var(--color-primary); color:#fff; padding:20px 24px; align-items:center; }
+    .pachinoform_title_logo { flex-shrink:0; background:#fff; padding:6px; border-radius:50%; width:56px; height:56px; display:flex; align-items:center; justify-content:center; }
+    .pachinoform_title_logo img { max-width:100%; height:auto; }
+    .pachinoform_title_text { align-self:center; color:#fff; font-size:15px; line-height:1.4; }
+    .pachinoform_title_text>b { display:block; line-height:1.3; font-size:17px; margin-bottom:4px; color:#fff; font-weight:600; }
+    .pachinoform_order { max-width:none; font-weight:500; font-size:15px; margin:0; text-align:center; padding:16px 24px; background:var(--color-primary-light); border-bottom:1px solid var(--color-border-soft); color:var(--color-text); line-height:1.5; }
+    .pachinoform_order>b { color:var(--color-danger); font-weight:700; }
+    .pachinoform_value { display:flex; color:var(--color-text); font-weight:600; font-size:15px; align-items:center; justify-content:center; padding:16px 24px 0; flex-wrap:wrap; gap:10px; }
+    .pachinoform_value_current { border:2px solid var(--color-danger); color:var(--color-danger); line-height:1; font-size:22px; padding:6px 18px; margin:0 6px; border-radius:var(--radius-sm); background:var(--color-danger-light); font-weight:700; }
+    .pachinoform_value_total { font-size:18px; color:var(--color-text-muted); }
+    .pachinoform_price { display:flex; align-items:center; justify-content:center; gap:24px; margin:20px 0 0; padding:0 24px; }
+    .pachinoform_price_old span { display:block; font-size:24px; font-weight:600; letter-spacing:-0.5px; color:var(--color-text-light); position:relative; line-height:1; }
+    .pachinoform_price_old span::before { position:absolute; content:""; left:-4px; top:50%; right:-4px; border-top:2px solid var(--color-danger); transform:rotate(-12deg); }
+    .pachinoform_price_new span { display:inline-block; background:var(--color-success); color:#fff; text-shadow:none; font-size:32px; padding:8px 20px; font-weight:700; line-height:1; border-radius:var(--radius-sm); box-shadow:0 4px 12px rgba(30,132,73,0.25); }
+    .pachinoform form { padding:22px 24px 20px; }
+    .pachinoform .name-input, .pachinoform .phone-input { color:var(--color-text); font-size:15px; margin-bottom:14px; }
+    .pachinoform .name-input label, .pachinoform .phone-input label { font-weight:500; font-size:14px; color:var(--color-text-muted); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:0.04em; }
+    .pachinoform .name-input input, .pachinoform .phone-input input { font:inherit; color:var(--color-text); box-sizing:border-box; width:100%; border-radius:var(--radius-sm); padding:12px 16px; min-width:0; background:#fff; border:1.5px solid var(--color-border); font-size:16px !important; transition:border-color 0.15s ease, box-shadow 0.15s ease; }
+    .pachinoform .name-input input:focus, .pachinoform .phone-input input:focus, .pachinoform input:focus { outline:0; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(10,92,158,0.15); }
+    .pachinoform .button-submit { text-align:center; width:100%; margin:6px auto 0; text-decoration:none; border-radius:var(--radius-sm); color:#fff; border:0; padding:16px 20px; cursor:pointer; background:var(--color-primary); font-size:17px; line-height:1.3; font-weight:600; letter-spacing:0.02em; text-transform:uppercase; transition:background 0.15s ease, transform 0.05s ease; box-shadow:0 4px 12px rgba(10,92,158,0.25); font-family:var(--font-sans); }
+    .pachinoform .button-submit:hover { background:var(--color-primary-dark); }
+    .pachinoform .button-submit:active { transform:translateY(1px); }
+    .pachinoform .button-submit:focus { outline:0; box-shadow:0 0 0 3px rgba(10,92,158,0.25); }
+    .pachinoform ::placeholder { color:var(--color-text-light); opacity:1; font-size:15px !important; }
+    .pachinoform_footer { text-align:center; color:var(--color-text-muted); font-size:13px; padding:14px 24px 20px; background:var(--color-bg-soft); border-top:1px solid var(--color-border-soft); line-height:1.5; }
+    .pachinoform_footer img { margin-top:10px; max-width:100%; height:auto; opacity:0.85; }
+    @media (max-width:500px) { .pachinoform_title { gap:10px; padding:16px 18px; } .pachinoform_title_text { font-size:13px; } .pachinoform_title_text>b { font-size:15px; } .pachinoform_value { flex-wrap:wrap; justify-content:center; font-size:14px; } .pachinoform_price_new span { font-size:26px; } .pachinoform_price_old span { font-size:20px; } .pachinoform form { padding:18px 18px 18px; } .pachinoform_order { padding:14px 18px; font-size:14px; } .blc-pck { display:block; width:100%; text-align:center; margin-top:8px; } .pachinoform_value_current { margin:0; } }
+    .comments { max-width:900px; margin:32px auto 20px; background:#fff; border-radius:var(--radius-md); border:1px solid var(--color-border); overflow:hidden; }
+    .comments__header { padding:16px 20px; background:var(--color-primary); color:#fff; display:flex; align-items:center; justify-content:space-between; }
+    .comments__header-title { font-family:var(--font-serif); font-size:18px; font-weight:600; margin:0; color:#fff; letter-spacing:0.02em; }
+    .comments__item-list { padding:8px 20px; }
+    .comments__item { padding:16px 0; border-bottom:1px solid var(--color-border-soft); }
+    .comments__item:last-child { border-bottom:0; }
+    .comments__item-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .comments__item-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid var(--color-border); }
+    .comments__item-info { flex:1; min-width:0; }
+    .comments__item-name { font-weight:600; font-size:15px; color:var(--color-primary-dark); margin:0 0 2px; }
+    .comments__item-info p:last-child, .comments__item-info .startdate, .comments__item-info .nowdate { font-size:12px; color:var(--color-text-light); margin:0; }
+    .comments__item-body { padding-left:56px; }
+    .comments__item-content { font-size:15px; line-height:1.55; color:var(--color-text); margin:0; }
+    .comments__item-content img { border-radius:var(--radius-sm); margin-top:10px; }
+    .comm-obert-reply { padding-left:28px; border-left:2px solid var(--color-primary-light); margin-left:8px; }
+    .comm-obert-reply .comments__item.reply { border-bottom:1px solid var(--color-border-soft); }
+    @media (max-width:560px) { .comments__item-body { padding-left:0; } .comm-obert-reply { padding-left:16px; } }
+    .form-container { max-width:900px; margin:0 auto; padding:0 20px; }
+    .custom-form { max-width:100%; margin:0 auto; padding:18px; box-shadow:var(--shadow-sm); border:1px solid var(--color-border); box-sizing:border-box; font-family:var(--font-sans) !important; display:flex; flex-direction:column; gap:12px; background:var(--color-bg-soft); border-radius:var(--radius-md); }
+    .custom-form__top-field { display:flex; gap:16px; align-items:center; }
+    .custom-form__ava-block { position:relative; width:54px; height:54px; overflow:hidden; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px dashed var(--color-border); transition:0.2s; flex:0 0 auto; background:#fff; }
+    .custom-form__ava-label { font-size:11px; text-align:center; line-height:1.2; cursor:pointer; font-family:inherit; font-weight:400; color:var(--color-text-light); padding:4px; }
+    .custom-form__ava-label_red-text { color:var(--color-danger); }
+    .custom-form__name { width:100%; max-width:320px; display:inline-block; outline:none; border:1.5px solid var(--color-border); padding:10px 14px; font-size:14px; height:42px; box-sizing:border-box; font-family:inherit; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__message { resize:none; width:100%; outline:none; border:1.5px solid var(--color-border); padding:12px 14px; min-height:90px; font-size:14px; line-height:1.5; font-family:inherit; box-sizing:border-box; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__bottom-field { display:flex; flex-direction:row; gap:14px; align-items:center; flex-wrap:wrap; }
+    .custom-form__btn { outline:none; padding:10px 24px; background:var(--color-primary); color:#fff; font-weight:600; font-size:14px; transition:background 0.15s ease; cursor:pointer; text-transform:uppercase; border:0; font-family:var(--font-sans); border-radius:var(--radius-sm); text-decoration:none !important; letter-spacing:0.04em; }
+    .custom-form__btn:hover { background:var(--color-primary-dark); }
+    .custom-form__photo-label { cursor:pointer; font-size:13px; font-weight:400; border:none; color:var(--color-primary); text-decoration:underline; }
+    .trust-strip { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--color-border-soft); border-top:0; padding:20px 22px; display:flex; flex-wrap:wrap; gap:18px; justify-content:space-around; align-items:center; }
+    .trust-item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--color-text-muted); font-weight:500; }
+    .trust-item-icon { color:var(--color-primary); font-size:18px; }
+    .clinical-footer { max-width:900px; margin:0 auto 0; padding:24px 22px 36px; background:#fff; border:1px solid var(--color-border-soft); border-top:1px solid var(--color-border); text-align:center; font-size:12px; color:var(--color-text-light); line-height:1.6; }
+    .clinical-footer a { color:var(--color-primary); text-decoration:none; }
+    .product-center { display:block; max-width:220px; width:100%; margin:16px auto; }
+    #overlay { position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:100; transition:opacity 0.3s ease; }
+    #popup3 { background-size:cover; background-position:center; position:fixed; top:50%; left:50%; padding:20px; background-color:white; box-shadow:var(--shadow-lg); transition:opacity 0.3s ease, transform 0.3s ease; max-width:800px; width:93%; height:87%; overflow-y:auto; max-height:100vh; z-index:999999; }
+    body input[name="phone"] { background-repeat:no-repeat !important; background-position:left 15px center !important; }
+    main center { display:block; text-align:center; }
+    .sf-hidden { display:none !important; }
+    .quote-inline { margin:20px 0; padding:16px 20px; background:var(--color-bg-soft); border-left:4px solid var(--color-text-light); border-radius:0 var(--radius-md) var(--radius-md) 0; font-style:italic; color:var(--color-text-muted); font-size:16px; line-height:1.6; }
+    .quote-inline .quote-name { display:block; margin-top:10px; font-style:normal; font-weight:600; color:var(--color-primary-dark); font-size:14px; }
+    @media (max-width:480px) { body { font-size:16px; } main p { font-size:16px; } .doc-block { padding:16px; } .rev-block { padding:16px; } .recept { padding:16px; } .block-offer-actions-block { padding:6px 16px 16px; } .obertk512 li { padding-left:44px; } .obertk512 li::before { width:30px; height:30px; font-size:14px; } }
+    @keyframes example { 0% { opacity:0; } 100% { opacity:1; } }
+    @keyframes blinker { from { opacity:1.0; } to { opacity:0.7; } }
+  </style>
+
+  <script src="js/dtime.js"></script>
+  <!-- Meta Pixel -->
+  <script>
+    !function (f, b, e, v, n, t, s) {
+      if (f.fbq) return; n = f.fbq = function () { n.callMethod ?
+        n.callMethod.apply(n, arguments) : n.queue.push(arguments) };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+      n.queue = []; t = b.createElement(e); t.async = !0;
+      t.src = v; s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s)
+    }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+    (function () {
+      var p = new URLSearchParams(window.location.search).get('fbpx');
+      if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+      if (p) { try { localStorage.setItem('fb_pixel', p); } catch (e) {} }
+      if (!p) { try { p = localStorage.getItem('fb_pixel'); } catch (e) {} }
+      if (p) { fbq('init', p); fbq('track', 'PageView'); }
+    })();
+  </script>
+  <!-- End Meta Pixel -->
+</head>
+
+<body>
+
+  <div class="clinical-topbar">Reportaje especial · Salud y sociedad</div>
+
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div class="masthead-logo">
+        <span class="masthead-logo-icon">+</span>
+        <span>SaludInfo El Salvador</span>
+      </div>
+      <div class="masthead-tagline">Reportaje del mundo de la salud pública</div>
+    </div>
+  </div>
+
+  <header>
+    <div class="bg-image"></div>
+  </header>
+  <div class="text-container"></div>
+  <div class="h1-bg split">
+    <h1 class="title_h1">
+      <span class="head-one-part">„CUANDO YA NO PODÉS CAMINAR, LA FAMILIA SE OLVIDA DE VOS."</span>
+      <span class="head-two-part">EL JOVEN MÉDICO QUE RECORRE LOS HOGARES DE ANCIANOS DE TODA HONDURAS PARA DEVOLVERLES A LOS ANCIANOS ABANDONADOS LO QUE YA NADIE MÁS LES PUEDE DAR: SUS ARTICULACIONES Y SU DIGNIDAD. SU FORMA DE TRATARLOS HA SORPRENDIDO A TODA LA COMUNIDAD MÉDICA.</span>
+    </h1>
+
+    <div class="tdate head-main-date">
+      <span class="head-main-date-title">Publicado: </span>
+      <span class="startdate"><script>dtime_nums(-3, true)</script>, 09:36</span>
+    </div>
+
+    <div class="main-subtitle">
+      Cómo el Dr. Ricardo Alvarenga, de 30 años, dejó su carrera en una clínica privada de San Salvador para ayudar a los ancianos olvidados en los hogares de ancianos — personas abandonadas por su propia familia solo porque ya no podían caminar, ni pararse, ni hacer nada por sí mismas. Y cómo el método que desarrolló junto a un centro de investigación les devolvió la capacidad de moverse — sin cirugía y sin medicamentos de por vida.
+    </div>
+  </div>
+
+  <main>
+
+    <img alt="El Dr. Ricardo Alvarenga examina la rodilla de un paciente en un hogar de ancianos" src="https://static.joxi.pro/1779455903159-64d556d5-c0cc-4397-b0c9-b71a4772476b.jpg" style="margin-bottom:14px;margin-top:0">
+
+    <p>
+      Llegamos a una aldea del municipio de Cojutepeque, en el departamento de Morazán, una mañana de martes. El camino hacia el hogar de ancianos pasaba por una calle angosta, entre viejas casas de madera y perros que ladraban. „¿Anda buscando al doctor joven?" — nos preguntó una señora desde una pulpería en la esquina. „Él viene cada jueves. Los abuelitos lo esperan junto al portón. Algunos lloran cuando lo ven."
+    </p>
+    <p>
+      Así fue como oímos hablar por primera vez del Dr. Ricardo Alvarenga — un médico de 30 años que dejó su puesto en una clínica privada de San Salvador para hacer lo que ningún otro médico quería hacer: recorrer los hogares de ancianos de toda El Salvador y tratar a los ancianos abandonados por su propia familia.
+    </p>
+    <p>
+      ¿Por qué los abandonan? Casi siempre por lo mismo: <b>el anciano ya no puede caminar.</b> La rodilla ya no aguanta. La espalda se encorva. Las manos tiemblan tanto que ya no pueden sostener una cuchara. Y justo en ese momento — cuando más necesitan ayuda — la familia decide que ya fue suficiente. Demasiado difícil. Demasiado caro. Y lo mandan a un hogar de ancianos.
+    </p>
+
+    <div class="quote-inline">
+      „Mi hijo me dijo: «Mamá, ya no puedo levantarte de la silla. Ya no tengo fuerzas.» Al día siguiente me trajo aquí. Hace 3 años que no vuelve a verme."
+      <span class="quote-name">— Doña Rosa Hernández, 79 años, hogar de ancianos en Morazán</span>
+    </div>
+
+    <div class="quote-inline">
+      „Cuando se me trabó la rodilla, mi esposa dijo que no podía vivir con un inválido. Se fue. Los hijos se fueron con ella. Me trajeron aquí y desaparecieron por completo."
+      <span class="quote-name">— Don Antonio Padilla, 73 años, hogar de ancianos en Sonsonate</span>
+    </div>
+
+    <h2>
+      „Vi lo que se siente ser olvidado. Y decidí que no podía quedarme de brazos cruzados"
+      <span>Entrevista especial con el Dr. Ricardo Alvarenga — el médico que renunció a un sueldo de $2,000 al mes para ayudar a quienes nadie visita</span>
+    </h2>
+
+    <div class="doc-block">
+      <img alt="Dr. Ricardo Alvarenga" src="https://static.joxi.pro/1778142925769-8d31ed89-cd31-449a-8c51-6ff1a0bfb48e.jpg">
+      <p>Dr. Ricardo Alvarenga: „La primera vez que entré a un hogar de ancianos como voluntario, tenía 28 años. Y no estaba para nada preparado para lo que vi. Una abuelita de 76 años, doña Mariana, sentada al borde de la cama con las piernas hinchadas y una rodilla que ya no podía doblar. Llevaba 4 meses sin salir de su cuarto. Me agarró la mano y me dijo:
+        <b>«Doctor, mi hija me trajo aquí cuando ya no podía bajar las gradas. Dijo que ya no podía cuidarme. De eso hace dos años. Hasta hoy no ha vuelto a verme.»</b>
+      </p>
+      <p><b>EN ESE MOMENTO ENTENDÍ QUE ERAN PERSONAS COMO ELLA LAS QUE MÁS ME NECESITABAN —
+          <span class="red-txt">AQUELLAS QUE EL MUNDO ENTERO OLVIDÓ SOLO PORQUE YA NO PODÍAN CAMINAR."</span></b>
+      </p>
+    </div>
+
+    <p>
+      El Dr. Alvarenga habla con calma, pero con una intensidad imposible de ignorar. Lleva dos años recorriendo los hogares de ancianos de toda El Salvador — desde Cortés hasta El Paraíso, desde la costa norte hasta el sur. Y en todas partes se encuentra con la misma escena desgarradora: ancianos con las articulaciones ya destruidas, que no reciben un tratamiento de verdad, solo antiinflamatorios que les dañan el estómago y los riñones.
+    </p>
+
+    <p>
+      „La mayoría de estas personas terminan aquí por las articulaciones. La rodilla ya no aguanta. La espalda se trabó. La cadera se desgastó. Y cuando ya no pueden caminar solos, la familia decide que son una carga. Esa es la palabra que más escucho en estos hogares: <b>«carga»</b>. Llaman carga a su propia madre o a su propio padre."
+    </p>
+
+    <div class="quote-inline">
+      „No me trajeron aquí porque no me quieran. Me trajeron porque me despertaba a las 3 de la mañana gritando del dolor de rodilla, y nadie podía dormir. Mi nuera dijo que o me iba yo o se iba ella. Mi hijo la eligió a ella."
+      <span class="quote-name">— Don Hernán Mejía, 71 años, hogar de ancianos en Santa Ana</span>
+    </div>
+
+    <h2>
+      „Las pastillas para las articulaciones no resuelven nada — solo tapan el daño"
+      <span>El Dr. Alvarenga explica por qué fracasa el tratamiento habitual en los hogares de ancianos y las farmacias</span>
+    </h2>
+
+    <p><b>Dr. Ricardo Alvarenga:</b></p>
+    <p>— Quiero hablarle con toda franqueza: lo que veo en estos hogares de ancianos de verdad me horroriza. A personas de 55 a 80 años les dan los mismos antiinflamatorios durante años — pastillas que solo esconden el dolor por unas horas, sin resolver la causa de fondo. El cartílago se sigue destruyendo. El líquido sinovial se sigue perdiendo. La articulación roza hueso contra hueso. Y los químicos de esas pastillas les dañan el estómago, el hígado y los riñones todos los días.
+    </p>
+
+    <p>Es un círculo vicioso: dolor → pastilla → el dolor vuelve más fuerte → pastilla más fuerte → estómago dañado → más pastillas para el estómago → riñones dañados. Y nadie les dice la verdad: <b>que sí existe una forma de regenerar la articulación desde adentro, no solo de adormecer el dolor.</b>
+    </p>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-a94978b4-3738-4aeb-950e-312b652009ac.jpg">
+      <figcaption>
+        La rodilla de doña Aída, 74 años, hogar de ancianos en San Miguel. Artrosis grado 3, el cartílago casi totalmente desgastado. Lleva 5 meses sin salir de su cuarto. En la mesita junto a la cama — 6 tipos de pastillas que no cambian nada.
+      </figcaption>
+    </figure>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          El dolor de rodilla, espalda o cadera después de los 45 años no es „normal a esa edad" — es la señal de que el cartílago de la articulación se está destruyendo y de que el líquido sinovial se está agotando.
+          <br><br>
+          Los antiinflamatorios solo bloquean la señal del dolor, mientras el daño avanza en silencio. Sin una regeneración real del cartílago, la articulación termina por desgastarse del todo — y entonces, lo único que queda es la silla de ruedas o una cirugía de reemplazo articular.
+        </span>
+      </p>
+    </div>
+
+    <p><b>Dr. Ricardo Alvarenga:</b></p>
+
+    <p>— Por favor, entienda lo grave que es esto. En muchos de estos ancianos, el cartílago de la rodilla, de la columna o de la cadera ya está destruido entre un 70 y un 90 %. Caminan — si es que caminan — hueso contra hueso. Cada paso es una tortura. <b>LAS PASTILLAS COMUNES NO PUEDEN REGENERAR EL CARTÍLAGO — SOLO ESCONDEN EL DOLOR HASTA QUE TODO SE DERRUMBA!</b>
+    </p>
+
+    <p>
+      Y lo que más me duele: estas personas no tienen a nadie. La familia las abandonó justo cuando les fallaron las articulaciones. Están solas, en una cama, en un cuarto pequeño, esperando. Algunas ya ni saben qué están esperando.
+    </p>
+
+    <div class="quote-inline">
+      „Crié tres hijos. Trabajé la milpa 40 años. Y cuando la rodilla ya no me aguantó y no podía ir sola al baño — me mandaron al hogar de ancianos. Como si ya no existiera para ellos. Como si ya estuviera muerta."
+      <span class="quote-name">— Doña Rosario, 82 años, hogar de ancianos en Santa Rosa de Copán</span>
+    </div>
+
+    <div class="quote-inline">
+      „Trabajé de albañil 35 años. La espalda se me dañó a los 62. Hernia de disco, ciática, no podía pararme para nada. Mi hijo dijo que no podía quedarse en la casa a cuidarme. Tiene su trabajo, tiene su familia. Lo entiendo. Pero este dolor es más hondo que el de la espalda."
+      <span class="quote-name">— Don Marcial Cruz, 68 años, hogar de ancianos en Usulután</span>
+    </div>
+
+    <figure class="Figure" style="text-align:center">
+      <img src="https://static.joxi.pro/1778142925769-057465eb-7a53-45e0-ba84-1b9038913030.jpg" style="margin:0 auto">
+      <figcaption>
+        <b>Izquierda: articulación sana con buen cartílago y suficiente líquido sinovial. Derecha: articulación destruida — cartílago agotado, inflamación crónica, hueso contra hueso. Esta es la realidad de más del 80 % de los ancianos en los hogares de ancianos. Los antiinflamatorios no pueden regenerar el cartílago.</b>
+      </figcaption>
+    </figure>
+
+    <p class="red-txt">
+      Es importante recalcarlo: en 2 de cada 3 casos, aunque el paciente tome calmantes todos los días, sus articulaciones siguen empeorando, porque la causa real — el daño del cartílago y la pérdida del líquido sinovial — sigue sin resolverse.
+    </p>
+
+    <p class="red-txt">
+      Tras años de tomar antiinflamatorios, muchos pacientes no solo pierden la capacidad de moverse, sino también el estómago, el hígado y los riñones. Úlceras, falla hepática, riñones inflamados — ese es el precio que pagan porque nadie les ofreció una alternativa de verdad.
+    </p>
+
+    <h2>
+      Las historias que cambiaron mi vida — y que cambiarán la manera en que usted mira la vejez
+    </h2>
+
+    <p><b>Dr. Ricardo Alvarenga:</b></p>
+
+    <p>— Permítame compartir lo que veo cada semana. No números. No estadísticas. Personas. Personas con nombre, con historia, con hijos que ya no vienen a visitarlas.</p>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1779455903167-7794f7f5-f16d-4169-8f90-0e2243be374b.jpg">
+      <figcaption>
+        Doña Carmen, 77 años. Artritis reumatoide en ambas manos — no puede sostener una taza ni vestirse sola. Su hija la mandó al hogar de ancianos hace 2 años: „No puedo vestir a mi mamá cada mañana, yo también tengo mi vida."
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      „Ni peinarme sola puedo. No puedo servir agua en una taza. Las manos no me obedecen. En las mañanas me miro las manos y ya no las reconozco — hinchadas, torcidas, como si no fueran mías. Mi nuera una vez me dijo: «¿Cómo voy a dejarle los nietos a mi suegra si ni una cuchara puede agarrar?» Tenía razón. Pero esa frase me mató por dentro."
+      <span class="quote-name">— Doña Carmen, 77 años</span>
+    </div>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1779455903166-187cc21c-2da0-40aa-974c-05c9f44109a2.jpg">
+      <figcaption>
+        Don Eduardo, 75 años. Hernia de disco L4-L5, coxartrosis en ambas caderas. Lleva 8 meses sin poder pararse. „Me dijeron que ya estaba muy viejo para una operación. Me dijeron que mejor lo aceptara."
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      „Yo manejaba tractor. Aré miles de manzanas de tierra. Ahora ni para voltearme en la cama solo puedo. La espalda trabada, la cadera bloqueada. Mis hijos trabajan en Estados Unidos. Mandan dinero para el hogar de ancianos y ya. No los culpo. Pero de noche, cuando viene el dolor y no hay nadie que me ayude… me pregunto, ¿así va a ser el final?"
+      <span class="quote-name">— Don Eduardo, 75 años</span>
+    </div>
+
+    <p><b>Estos son los síntomas que más me encuentro en los hogares de ancianos — y que millones de salvadoreños ignoran:</b></p>
+    <ul>
+      <li>Dolor fuerte en la rodilla al subir/bajar gradas — o cada vez que se mueve;</li>
+      <li>Rigidez matutina — el cuerpo „como de palo" que no se puede mover 30 a 60 minutos después de levantarse;</li>
+      <li>Dolor de espalda crónico — no poder agacharse ni levantarse de la cama;</li>
+      <li>Hinchazón en las rodillas, los tobillos o los dedos;</li>
+      <li>Un „crujido" en las articulaciones cada vez que se mueve;</li>
+      <li>Dolor de cadera que baja hacia el muslo — no poder caminar más de 50 metros;</li>
+      <li>Dedos de las manos torcidos y con nudos — no poder agarrar las cosas;</li>
+      <li>Adormecimiento en las piernas o los brazos — señal de hernia de disco o nervio comprimido;</li>
+      <li>Sensación „como una puñalada" en la cintura al levantarse;</li>
+      <li>Espalda encorvada, postura inclinada — cifosis que empeora cada vez más;</li>
+      <li>Dolor nocturno que no deja dormir — despertarse 4 o 5 veces por noche;</li>
+    </ul>
+
+    <p>
+      Cada uno de estos síntomas es una advertencia. Y después de los 45 a 50 años, ignorarlo solo lleva a un final:
+      <b class="red-txt">NO PODER MOVERSE EN ABSOLUTO, SILLA DE RUEDAS, DEPENDER POR COMPLETO DE OTROS — Y EN MUCHOS CASOS, UN HOGAR DE ANCIANOS.</b>
+    </p>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          ¡Cada día que pasa sin tratar las articulaciones lo acerca más a la invalidez permanente!
+          Miles de ancianos terminan en un hogar de ancianos solo por haber ignorado el dolor — o por haber tomado únicamente pastillas que no resuelven la causa.
+          ¡Haga algo ahora — por usted mismo o por su familia — mientras todavía haya tiempo!
+        </span>
+      </p>
+    </div>
+
+    <h2>
+      „Decidí que tenía que existir una forma de regenerar la articulación — no solo de adormecer el dolor"
+      <span>Cómo un médico de 30 años convenció a un centro de investigación de desarrollar lo que la industria farmacéutica se negaba a hacer</span>
+    </h2>
+
+    <p><b>Dr. Ricardo Alvarenga:</b></p>
+    <p>
+      — Después de un año recorriendo hogares de ancianos, comprendí una verdad dolorosa: con antiinflamatorios no podía salvar a nadie. Esos medicamentos solo apagan la alarma del cuerpo, mientras la articulación se sigue destruyendo. Necesitaba algo muy distinto: un método que regenerara el cartílago desde adentro, recuperara el líquido sinovial y detuviera la inflamación a nivel celular.
+    </p>
+    <p>
+      Contacté a un centro de investigación con el que había colaborado en la universidad. Les mostré los casos, las fotos, los reportes de mis pacientes de los hogares de ancianos. Llevé a los investigadores conmigo a uno de esos hogares — para que vieran con sus propios ojos lo que pasaba. Quedaron impactados.
+    </p>
+    <p>
+      Trabajamos juntos más de 10 meses. Probamos más de 180 combinaciones. Y al final dimos con la fórmula exacta — unas cápsulas que, al ingerirse, actúan a nivel celular y activan la regeneración natural del cartílago. No una pastilla antiinflamatoria que solo tapa el dolor. Unas cápsulas que actúan justo donde se necesita.
+    </p>
+
+    <div class="recept">
+      <p><b>La fórmula desarrollada por el Dr. Alvarenga contiene los siguientes principios activos:</b></p>
+      <ul class="my-ul-0-green size1">
+        <li><b>Sulfato de Glucosamina</b>
+          <font>Materia prima marina pura: 1500 mg/dosis</font>
+        </li>
+        <li><b>Sulfato de Condroitina</b>
+          <font>Extracto de alta biodisponibilidad: 1200 mg/dosis</font>
+        </li>
+        <li><b>Extracto de Boswellia serrata</b>
+          <font>Ácidos boswélicos concentrados al 65 %: 800 mg</font>
+        </li>
+        <li><b>Ácido Hialurónico de bajo peso molecular</b>
+          <font>Absorción articular activa: 200 mg</font>
+        </li>
+        <li><b>Colágeno Hidrolizado Tipo II</b>
+          <font>Fuente bovina certificada: 2000 mg</font>
+        </li>
+        <li><b>Extracto de Árnica</b>
+          <font>Antiinflamatorio natural: 500 mg</font>
+        </li>
+        <li><b>MSM (Metilsulfonilmetano)</b>
+          <font>Azufre orgánico de alta biodisponibilidad: 1000 mg</font>
+        </li>
+        <li><b>Alcanfor y Mentol</b>
+          <font>Complejo analgésico natural con efecto de calor</font>
+        </li>
+      </ul>
+    </div>
+
+    <p>
+      Estos ingredientes son difíciles de conseguir en las concentraciones requeridas. Combinarlos en la proporción correcta exige una tecnología especial — si la proporción se desvía aunque sea un poco, apenas un 0,1 %, las cápsulas no liberan los principios activos con suficiente eficacia y no activan la regeneración del cartílago.
+    </p>
+
+    <h2>
+      Así nació Flexosamine — las únicas cápsulas que reúnen todos estos ingredientes, más 14 extractos raros para una regeneración articular completa
+    </h2>
+    <p><b>Dr. Ricardo Alvarenga:</b></p>
+    <p>
+      — Junto con el centro de investigación, logramos crear este producto: unas cápsulas que actúan directamente sobre las articulaciones afectadas — rodilla, espalda, cadera, manos, cuello. Se llama Flexosamine. Se toma dos veces al día, mañana y noche, una cápsula con un vaso de agua. Los principios activos se absorben rápidamente y actúan con precisión sobre las articulaciones — sin los efectos secundarios de los antiinflamatorios.
+    </p>
+
+    <img src="images/Flexosamine.png?=v5" style="width:78%;max-width:540px;display:block;margin:18px auto">
+
+    <p>
+      El secreto está en la „Tecnología de Absorción Articular Activa" que desarrollamos con el equipo de laboratorio. Este método permite que los principios activos lleguen directo a la cápsula articular — donde el cartílago se está destruyendo — con una eficacia 5 veces mayor que los suplementos comunes del mercado.
+    </p>
+    <p class="pachino-ramka2">
+      „Flexosamine" no tiene competencia. Cada ingrediente — en la concentración exacta — activa la regeneración del cartílago, recupera el líquido sinovial y detiene la inflamación. Son las únicas cápsulas que actúan a nivel celular, directamente en la zona articular afectada — rodilla, espalda, cadera, manos, cuello. Y lo más importante: funcionan incluso a los 70, 80, 85 años. Las probé primero en mis pacientes de los hogares de ancianos — en personas a las que ya nadie atendía.
+    </p>
+
+    <p><b>Dr. Ricardo Alvarenga:</b></p>
+    <p>
+      — Mis primeros pacientes fueron los ancianos abandonados en los hogares de ancianos. Aquellos a los que todos olvidaron. Les di las cápsulas a quienes tenían las rodillas hinchadas, dolor de espalda, problemas en la cadera. Y luego esperé. Al tercer día — doña Rosario, que llevaba 4 meses sin levantarse de la cama, dio su primer paso sola. Los dos lloramos.
+    </p>
+
+    <h2>
+      4 mecanismos por los que Flexosamine regenera las articulaciones y devuelve la capacidad de moverse — a cualquier edad
+    </h2>
+
+    <div class="obertk512">
+      <h1>4 efectos principales de las cápsulas „Flexosamine":</h1>
+      <div class="block-offer-actions-block">
+        <ol>
+          <li>
+            <font>Elimina el dolor y la inflamación:</font>
+            <span>En los primeros 30 a 60 minutos después de tomarlas, el complejo de Boswellia, árnica y alcanfor elimina el dolor y reduce la inflamación. No bloqueando la señal nerviosa (como los antiinflamatorios) — sino deteniendo el proceso inflamatorio en su origen.</span>
+          </li>
+          <li>
+            <font>Regeneración del cartílago articular:</font>
+            <span>La glucosamina, la condroitina y el colágeno tipo II penetran en la cápsula articular y activan las células del cartílago (condrocitos), estimulando la formación de tejido cartilaginoso nuevo. Este proceso comienza después de 3 a 5 días de uso constante.</span>
+          </li>
+          <li>
+            <font>Recupera el líquido sinovial:</font>
+            <span>El ácido hialurónico de bajo peso molecular se absorbe de forma sistémica y recupera el líquido sinovial — el „lubricante" natural de la articulación. Así, los huesos dejan de rozar entre sí y el movimiento vuelve a ser suave y sin dolor.</span>
+          </li>
+          <li>
+            <font>Protección y prevención a largo plazo:</font>
+            <span>El MSM y el complejo mineral fortalecen los ligamentos y tendones alrededor de la articulación, previniendo daños futuros. Tras 30 a 60 días de uso, la articulación obtiene una protección estable que dura meses.</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <h2>
+      „Probé Flexosamine primero en los pacientes de los hogares de ancianos — los resultados superaron todo lo que había visto en 6 años de práctica médica"
+      <span>Ensayo con 2,340 personas de 45 a 86 años</span>
+    </h2>
+
+    <p><b>Dr. Ricardo Alvarenga:</b></p>
+    <p>
+      — Mis primeros pacientes fueron los ancianos abandonados en los hogares de ancianos. Aquellos a los que ya nadie atendía. Los resultados fueron tan asombrosos que el centro de investigación amplió el ensayo a un grupo de más de 2,300 personas de toda El Salvador — abarcando todo tipo de problemas articulares: rodilla, espalda, cadera, manos, cuello.
+    </p>
+    <p>
+      Vi a personas de 80 años que no podían caminar — y a las 6 semanas salían solas al patio del hogar de ancianos. Las enfermeras lloraban. Yo lloraba con ellas.
+    </p>
+
+    <div class="table-block">
+      <h1 class="title_h1">
+        Resultados del ensayo „Flexosamine" — grupo de control: 2,340 personas, 45 – 86 años
+      </h1>
+      <table class="table">
+        <tbody>
+          <tr><td class="one">Eliminación total del dolor de rodilla</td><td class="two">96,2 %</td></tr>
+          <tr><td class="one">Eliminación del dolor de espalda y la rigidez matutina</td><td class="two">94,7 %</td></tr>
+          <tr><td class="one">Artrosis grado 1 – 2 (recuperación total)</td><td class="two">98,1 %</td></tr>
+          <tr><td class="one">Artrosis grado 3 (mejoría notable)</td><td class="two">87,3 %</td></tr>
+          <tr><td class="one">Coxartrosis (dolor de cadera)</td><td class="two">91,5 %</td></tr>
+          <tr><td class="one">Hernia de disco (menos dolor y adormecimiento)</td><td class="two">89,4 %</td></tr>
+          <tr><td class="one">Artritis reumatoide (dedos de las manos)</td><td class="two">93,8 %</td></tr>
+          <tr><td class="one">Recuperación total de la movilidad articular</td><td class="two">95,6 %</td></tr>
+          <tr><td class="one">Eliminación de la hinchazón y los calambres nocturnos</td><td class="two">97,0 %</td></tr>
+          <tr><td class="one">Poder caminar sin ayuda</td><td class="two">94,3 %</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>
+      Los casos que me rompieron el corazón — y que me dieron la mayor esperanza
+      <span>
+        Doña Amparo, 84 años. Abandonada en un hogar de ancianos cuando le fallaron las rodillas. Tras 2 meses con Flexosamine — salió sola al jardín, por primera vez en 3 años.
+      </span>
+    </h2>
+
+    <p>
+      Doña Amparo Mejía fue la primera paciente del Dr. Alvarenga en un hogar de ancianos de Soyapango. A sus 84 años, con artrosis grado 3 en ambas rodillas y coxartrosis en la cadera izquierda, llevaba 14 meses sin poder caminar. Su hijo la mandó al hogar de ancianos después de que „ya no podía cargarla al baño". No volvió a visitarla en dos años.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1779455903166-61b193a6-3dd6-460f-a3f4-1e1b1f76527d.jpg">
+      <p>
+        „No podía creer que volvería a caminar. Tenía las rodillas tan hinchadas que no podía doblarlas. Me llevaban de un lado a otro del cuarto en silla de ruedas. Al despertar en las mañanas, pasaba una hora sin poder mover los dedos. Como si mi cuerpo ya estuviera muerto, pero yo seguía viva.
+      </p>
+      <p>
+        <b>
+          Mi hijo me trajo aquí porque ya no podía levantarme de la cama. Me dijo: «Mamá, vengo todos los domingos.» Hace dos años que no viene. No lo culpo — tiene su vida. Pero de noche, cuando el dolor me despierta y no hay nadie a mi lado… se hace muy pesado.
+        </b>
+      </p>
+      <p>
+        <b>
+          Y entonces llegó el Dr. Alvarenga. Fue la primera persona que me escuchó de verdad. Me explicó lo que pasaba con mis articulaciones. Y me dio las cápsulas Flexosamine. A la semana, podía doblar la rodilla izquierda. Al mes, me levantaba sola de la cama. A los dos meses — salí al jardín. Llevaba 3 años sin salir.
+        </b>
+      </p>
+      <p>
+        Las enfermeras lloraron al verme. Yo lloré aún más fuerte. No porque estuviera caminando. Sino porque alguien — un médico joven al que yo no conocía — me dio más que mi propio hijo.
+      </p>
+      <font>
+        <b>Amparo Mejía, 84 años, hogar de ancianos en Soyapango</b>
+      </font>
+    </div>
+
+    <p>
+      Otro caso: don Alberto, 58 años, albañil toda su vida, con la espalda dañada por una hernia de disco. Su esposa lo dejó cuando ya no pudo trabajar.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1779455903163-f71b9abd-5754-4293-b059-fb594b7f60c2.jpg">
+      <p>
+        „Trabajé de albañil 30 años. La espalda se me dañó a los 54 — dos hernias de disco y ciática. No podía pararme ni acostarme en la cama. Todo me dolía. Mi esposa se fue — dijo que no podía cuidar a un inválido. No la culpo.
+      </p>
+      <p>
+        <b>
+          Mi hermana oyó hablar del Dr. Alvarenga por una vecina. Me mandó las cápsulas Flexosamine. Empecé a tomarlas mañana y noche. Al tercer día sentí el primer alivio. A las 3 semanas — ya podía ir a la pulpería. A los 2 meses — volví a trabajar medio tiempo.
+        </b>
+      </p>
+      <p>
+        A veces me despierto en la mañana, me levanto de la cama sin dolor y me quedo paralizado un momento. Me paro y no puedo creer que sea verdad. Que ya no me duela. Si no fuera por el Dr. Alvarenga, quizás yo también estaría hoy en un hogar de ancianos."
+      </p>
+    </div>
+
+    <h2>
+      „Flexosamine no solo trata el dolor — regenera toda la articulación desde adentro"
+      <span>
+        No solo los ancianos de los hogares de ancianos se benefician. Cualquier persona mayor de 45 años que sienta los primeros síntomas puede evitar esta desgracia.
+      </span>
+    </h2>
+
+    <p><b>Dr. Ricardo Alvarenga:</b></p>
+
+    <p>
+      — El tiempo mínimo de uso es de 30 días, pero en casos de artrosis o hernia de disco severos, puede requerir de 2 a 3 meses. Pero en todos los casos — sin excepción — hay reducción del dolor, regeneración del cartílago y recuperación de la movilidad.
+    </p>
+
+    <p>
+      Flexosamine actúa desde la primera toma: el dolor disminuye, la inflamación cede, el movimiento se vuelve más fácil. Pero el verdadero milagro ocurre con el tiempo: el cartílago se regenera, el líquido sinovial regresa, la articulación „rejuvenece" desde adentro.
+      <b class="red-txt">
+        Vi a personas de 80 años caminar de nuevo. Vi manos que no podían sostener una taza levantar una cuchara hasta la boca. Vi espaldas encorvadas volver a enderezarse. Y en cada caso — vi lágrimas de felicidad.
+      </b>
+    </p>
+
+    <center>
+      <p><b>
+          Gracias al método del Dr. Alvarenga, más de 12,000 personas en El Salvador han recuperado la movilidad de sus articulaciones. Estos son algunos de esos casos:
+        </b></p>
+    </center>
+
+    <figure>
+      <img src="https://static.joxi.pro/1779455903168-895cc962-1a87-4934-a842-63079aa1594b.jpg">
+      <figcaption>Hombre, 65 años. Artrosis grado 3 en ambas rodillas — no podía subir gradas. Flexosamine en 60 días: movilidad total, sin dolor.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1779455903164-5fe1ead5-f2c9-40c8-95d2-9298693d2282.jpg">
+      <figcaption>Mujer, 58 años. Dolor de espalda crónico y hernia de disco L5-S1. Flexosamine en 45 días: el dolor desapareció, volvió a hacer los oficios de la casa.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1779455903164-603ccbab-65ef-49a9-aa69-1241e6a98a41.jpg">
+      <figcaption>Mujer, 72 años. Artritis reumatoide severa en los dedos — no podía sostener una taza. Flexosamine en 2 meses: los dedos se mueven, la hinchazón desapareció.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1779455903165-68d2dedd-1a78-4fd0-9778-9a15638cfddb.jpg">
+      <figcaption>Hombre, 70 años. Coxartrosis avanzada — solo caminaba con andador. Flexosamine en 2,5 meses: camina sin ayuda, sin dolor.</figcaption>
+    </figure>
+
+    <p><b>Dr. Ricardo Alvarenga:</b></p>
+    <p>
+      — Estos casos son la prueba viviente de que las articulaciones pueden regenerarse — aunque el diagnóstico parezca una sentencia de muerte. Sin cirugía. Sin pastillas que dañan el estómago. Y lo que más me alegra: muchas de estas personas son ancianos de los hogares de ancianos — aquellos a los que el mundo olvidó. <b>Pero yo no me olvido de ellos. Y Flexosamine tampoco se olvida de ellos.</b>
+    </p>
+
+    <div id="overlay" style="display:none;opacity:0"></div>
+    <div id="popup3" style="display:none;opacity:0;transform:translate(-50%,-50%) scale(0.8)"></div>
+
+    <h2>
+      ¿Por qué Flexosamine no está en las farmacias? ¿Y cómo conseguirlo?
+    </h2>
+
+    <p><b>Dr. Ricardo Alvarenga:</b></p>
+
+    <p>Lamentablemente, la producción de Flexosamine es un proceso complicado y costoso. Sus ingredientes son escasos — ácido hialurónico de bajo peso molecular, colágeno tipo II puro, extracto concentrado de Boswellia — y difíciles de conseguir en las cantidades requeridas. No alcanzamos a cubrir toda la demanda.</p>
+
+    <p>Pasarán al menos 2 a 3 años antes de que Flexosamine llegue a las farmacias. Hasta entonces, este producto solo se distribuye en línea, dentro de un programa de apoyo, dos veces al año. Pero
+      <font class="red-txt">el descuento puede llegar hasta el 50 %</font>
+      — esto es muy importante para los ancianos con una pensión limitada.
+    </p>
+
+    <p>
+      Le ruego: NO DEJE PASAR ESTE PROGRAMA DE APOYO. No solo por usted — sino por su madre, su padre, sus abuelos, ese ser querido que quizás esté sufriendo en silencio. O por aquellos que ya están en un hogar de ancianos, solos, y a quienes nadie les manda nada. Sea usted quien haga la diferencia.
+    </p>
+
+    <p class="red-txt"><b>Para pedirlo, use el formulario de abajo.</b></p>
+
+    <h2>
+      La última oportunidad del año para conseguir Flexosamine — para usted o para ese ser querido que sufre en silencio
+    </h2>
+
+    <img alt="Flexosamine" src="images/FOT2.png"
+      style="margin:0 auto;display:block;max-width:500px;width:100%;margin-top:24px;margin-bottom:20px">
+
+    <p><b>Dr. Ricardo Alvarenga:</b></p>
+
+    <p>
+      — He reservado 20,000 paquetes especiales para los lectores de este portal. Cualquier ciudadano salvadoreño mayor de 40 años puede obtener un <font class="red-txt">descuento de hasta el 50 %</font>, pero el programa termina el <span><script>dtime_nums(0, true)</script></span>.
+    </p>
+
+    <p>No espere hasta que ya no pueda subir las gradas. Hasta que la rodilla se le derrumbe. Hasta que la espalda se le trabe. Y lo más importante — no espere hasta convertirse en una „carga" a los ojos de su propia familia. Flexosamine tiene un efecto acumulativo y basta usarlo una vez al año como prevención.</p>
+
+    <p>Ingrese su nombre y número de teléfono. Un asesor lo contactará, le ayudará a elegir el programa adecuado y le garantizará la entrega en 2 a 3 días por mensajería directo a la dirección que indique.</p>
+
+    <p><b>Con esperanza y respeto — Dr. Ricardo Alvarenga. Cuide a sus seres queridos. Tal vez lo único que necesitan es saber que usted no se ha olvidado de ellos.</b></p>
+
+    <p class="pachino-ramka">
+      <span class="ramka-title">Actualización: <span><script>dtime_nums(-3, true)</script></span>:</span>
+      ¡Debido a la altísima demanda, el inventario podría agotarse más rápido de lo previsto! Hoy —
+      <font><span><script>dtime_nums(1, true)</script></span> — es el último día del programa</font> o hasta agotar existencias.
+    </p>
+
+    <center><img src="images/Flexosamine.png?=v5" style="max-width:500px;width:100%"></center><br>
+
+    <center>
+      <p class="noclose-cta red-txt">
+        ¡Atención! ¡No cierre ni recargue esta página, de lo contrario el paquete de Flexosamine reservado para usted será entregado a otra persona!
+      </p>
+      <span class="pre-cta">
+        Puede unirse al programa — su lugar ya está reservado:
+        <span class="nowrap">N.° <font class="number-me" style="border-bottom:2px solid var(--color-danger);font-weight:700">19&nbsp;974</font></span>
+      </span>
+    </center>
+
+    <span id="form"></span>
+    <span id="oneform"></span>
+    <div class="pachinoform">
+      <div class="pachinoform_title">
+        <div class="pachinoform_title_logo">
+          <img alt="" src="images/56d9b0017d1d_d58505c9.png">
+        </div>
+        <div class="pachinoform_title_text">
+          <b>Formulario de pedido oficial</b>
+          N.° <font class="number-me nowrap">19&nbsp;974</font> / <font class="nowrap">20 000</font>
+        </div>
+      </div>
+      <div class="pachinoform_order">
+        Para obtener el <b>descuento del 50 %</b>, ingrese su nombre y número de teléfono en los campos de abajo y presione el botón „PEDIR AHORA".
+      </div>
+      <div class="pachinoform_value">
+        Inventario:
+        <span class="blc-pck">
+          <strong class="pachinoform_value_current left-pack">33</strong>
+          <strong class="pachinoform_value_total"> /1000</strong>
+        </span>
+      </div>
+      <div class="pachinoform_price">
+        <div class="pachinoform_price_old"><span class="price_old">$78</span></div>
+        <div class="pachinoform_price_new"><span class="price_main">$39</span></div>
+      </div>
+      <form id="order_form" action="" method="post">
+        <input type="hidden" name="product_id" value="15322">
+        <input type="hidden" name="ref" value="1029931">
+        <input type="hidden" name="langCode" value="hn">
+        <div class="name-input">
+          <label for="name-input">Nombre</label>
+          <input autocomplete="name" id="name-input" name="name" placeholder="Su nombre" required="" type="text" value="">
+        </div>
+        <div class="phone-input">
+          <label for="phone-input">Número de teléfono</label>
+          <input autocomplete="tel" id="phone-input" maxlength="20" name="phone" pattern="^[\-+() 0-9]{8,20}$" placeholder="Su número de teléfono" required="" type="tel" value="">
+        </div>
+        <button class="button-submit" type="submit">PEDIR AHORA</button>
+      </form>
+      <div class="pachinoform_footer">
+        ✔️ Entrega garantizada por un servicio de mensajería verificado<br> directo a la dirección que usted indique
+        <br>
+        <img alt="" src="images/b0110a32ff2e_8322b1b5.png" style="width:auto">
+      </div>
+    </div>
+
+    <!-- COMMENTS SECTION -->
+    <div class="comments comments-fb" id="pluginComments">
+      <div class="comments__header">
+        <div class="comments__left-box">
+          <p class="comments__header-title">COMENTARIOS</p>
+        </div>
+      </div>
+
+      <div class="comments__item-list">
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7da17fc86c6c_2f1260d0.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Wendy Flores</p>
+              <p class="startdate" daysago="8" format="day/month/year"><script>dtime_nums(-8, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Se me salieron las lágrimas leyendo este reportaje. Mi mamá tiene 76 años y lleva 2 años en un hogar de ancianos — porque las rodillas la dejaron y yo no pude cuidarla. Es la espina que más me duele. Ya le pedí Flexosamine. Ojalá no sea demasiado tarde.</p>
+          </div>
+        </div>
+
+        <div id="first-comment">
+          <div class="comments__item">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/8ba73d45c164_4ede289a.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Ana Reyes</p>
+                <p class="startdate" daysago="7" format="day/month/year"><script>dtime_nums(-7, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Flexosamine me llegó el viernes pasado. Las tomo mañana y noche y a los 5 días el dolor bajó muchísimo, ¡ya bajo las gradas sin agarrarme del pasamanos! Fue la historia del doctor la que me convenció. Una persona admirable.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/fa7f61c1431c_7946ff6c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Marlon Cruz</p>
+              <p class="startdate" daysago="6" format="day/month/year"><script>dtime_nums(-6, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Tengo 69 años. La espalda me ha torturado durante 4 años — hernia de disco y ciática. No podía agacharme ni para amarrarme los zapatos. El médico me dio antiinflamatorios que me dañaron el estómago. Después de 3 semanas con Flexosamine — el dolor casi desapareció por completo. Voy solo al mercado, compro, cocino. Recuperé mi vida.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/dcc5cfe80d60_5aa7f8f7.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">José Mejía</p>
+              <p class="startdate" daysago="5" format="day/month/year"><script>dtime_nums(-5, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Paso 10 horas al día sentado en la oficina. La espalda y el cuello ya no aguantaban. El médico me dijo: „O dejás el trabajo o te operás." Yo elegí Flexosamine. Después de 5 semanas — cero dolor. Y me quito el sombrero ante el Dr. Alvarenga — en un mundo donde todos quieren plata, él va a visitar a los ancianos olvidados.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/bcbe20e0b5d2_b241da99.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Óscar Alvarenga</p>
+              <p class="startdate" daysago="5" format="day/month/year"><script>dtime_nums(-5, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Pedí 3 paquetes — para mí (rodilla), para mi esposa (manos, artritis) y para mi suegro que está en un hogar de ancianos. No podemos visitarlo seguido, pero al menos le mandamos lo que necesita. Ojalá él también se recupere como yo. Gracias por este artículo.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/73d3a879cef9_4a9ce85c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Karla Sánchez</p>
+              <p class="startdate" daysago="4" format="day/month/year"><script>dtime_nums(-4, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Estoy pensando en pedirlo para mi papá. Lleva 3 años en un hogar de ancianos — las rodillas ya no le funcionan para nada. Está desanimado, casi no habla. ¿Ustedes creen que Flexosamine todavía pueda ayudar a los 78 años?</p>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/71deaf909b4e_ea30d07c.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Gloria Martínez</p>
+                <p class="startdate" daysago="4" format="day/month/year"><script>dtime_nums(-4, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Karla, ¡mi mamá tiene 82 años! Artrosis severa en ambas rodillas, no podía levantarse de la cama. Usó Flexosamine 2 meses — ahora sale sola al patio. No le miento. Y lo más bonito: cuando voy a visitarla, me espera parada junto al portón. Las dos lloramos. Pídalo nomás, su papá merece esta oportunidad.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/66ebad51123a_206d5fba.png">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Don Ramón Castillo</p>
+                <p class="startdate" daysago="3" format="day/month/year"><script>dtime_nums(-3, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Karla, pídalo sin dudar. Tengo 78 años y ya casi iba para la silla de ruedas — coxartrosis. Flexosamine me puso de pie otra vez en 2 meses. De verdad. Su papá necesita esto mucho más de lo que usted cree.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d61700bc0961_28c03d39.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Doña Marta Andino</p>
+              <p class="startdate" daysago="3" format="day/month/year"><script>dtime_nums(-3, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Llevo una semana aplicándomelo en la rodilla y la cintura. En las mañanas ya no me siento „como de palo". Puedo agacharme, puedo levantarme sin el „ay". También lo pedí para mi vecina de al lado, de 73 años, que vive sola y se agarra de las paredes para caminar dentro de la casa.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7db2eed8e880_6ecfd92a.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Doña Lucila Pérez</p>
+              <p class="startdate" daysago="2" format="day/month/year"><script>dtime_nums(-2, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">A mis 68 años, pensé que ya no iba a poder cultivar mi huerta. La rodilla y la espalda me tenían paralizada. Flexosamine lo cambió todo — después de 4 semanas labré el primer surco de tierra del año. Y la historia del Dr. Alvarenga me llegó al corazón. Todavía hay gente de buen corazón en este mundo.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/a49c7ec0724d_6f186c1c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Don Tomás Aguilar</p>
+              <p class="startdate" daysago="2" format="day/month/year"><script>dtime_nums(-2, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Tengo 82 años. El año pasado ya no podía ir solo al baño. Mis hijos ya hablaban de un hogar de ancianos. Probé Flexosamine — sin muchas esperanzas. ¡Y funcionó! Camino solo, me visto solo, salgo solo al patio. Mis hijos ya no hablan de hogares de ancianos. Esta es la alegría más grande de mi vida.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7099c502f996_b89c4cc9.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Carlos Padilla</p>
+              <p class="startdate" daysago="1" format="day/month/year"><script>dtime_nums(-1, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Mi esposa no podía bajar las gradas. Se agarraba de la pared y lloraba del dolor. Tenía miedo de perderla — no por la enfermedad, sino por la desesperanza. Pedí Flexosamine con el descuento. Después de 4 semanas — ayer fue sola al mercado y volvió con flores. ¡Con flores! Gracias desde el fondo de mi corazón.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/47a8cb9cf088_09555b8e.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Yolanda Discua</p>
+              <p class="startdate" daysago="1" format="day/month/year"><script>dtime_nums(-1, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Pedí 4 paquetes — para mi mamá (hogar de ancianos, rodilla), para mi papá (en casa, espalda) y 2 para mí (manos, artritis en los dedos, no podía escribir). Las historias del artículo me rompieron el corazón. Debí hacer esto hace mucho. Ya no hay más excusas.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/f021e0a36f8b_7c282874.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Mirian Zelaya</p>
+              <p class="nowdate" daysago="0" format="day/month/year"><script>dtime_nums(0, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">¡Flexosamine ya me llegó, el mensajero lo trajo en 2 días! Ya empecé a darle las cápsulas a mi mamá en el hogar de ancianos. Tengo toda la fe del mundo. También les voy a pasar este artículo al personal — ojalá puedan contactar al Dr. Alvarenga.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d770c7a4cbdf_467ee117.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Edwin Alvarenga</p>
+              <p class="nowdate" daysago="0" format="day/month/year"><script>dtime_nums(0, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Fui a buscar Flexosamine a la farmacia y no lo tienen. Me dijeron que solo se consigue pidiéndolo aquí en la página. Ojalá todavía quede en existencia: mi abuelo de 81 años lo necesita con urgencia, ya casi no puede caminar.</p>
+          </div>
+        </div>
+
+        <div class="custom-commetns-container"></div>
+
+        <a href="#" style="text-decoration: none;">
+          <div class="form-container">
+            <form class="custom-form" id="custom-form">
+              <div class="custom-form__top-field">
+                <div class="custom-form__ava-block">
+                  <input disabled class="custom-form__ava-input sf-hidden" id="avatar" name="avatar" type="file" value="">
+                  <label class="custom-form__ava-label"><span class="custom-form__ava-label_red-text">*</span>Agregar avatar</label>
+                </div>
+                <input disabled class="custom-form__name" placeholder="Su nombre" required="" type="text" value="">
+              </div>
+              <textarea disabled class="custom-form__message" placeholder="Su comentario" required=""></textarea>
+              <div class="custom-form__bottom-field">
+                <div class="custom-form__photo-block">
+                  <input disabled class="custom-form__photo-input sf-hidden" id="photo" type="file" value="">
+                  <label class="custom-form__photo-label" for="photo">Agregar foto</label>
+                </div>
+                <button disabled class="custom-form__btn">ENVIAR</button>
+              </div>
+            </form>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </main>
+
+  <div class="trust-strip">
+    <div class="trust-item"><span class="trust-item-icon">🛡️</span> Calidad certificada</div>
+    <div class="trust-item"><span class="trust-item-icon">🚚</span> Entrega en 2 – 3 días</div>
+    <div class="trust-item"><span class="trust-item-icon">⚕️</span> Sin receta médica</div>
+    <div class="trust-item"><span class="trust-item-icon">🔒</span> Pedido seguro</div>
+  </div>
+
+  <footer class="clinical-footer">
+    © SaludInfo El Salvador — reportaje especial<br>
+    La información presentada en esta página es de carácter informativo y no sustituye la consulta con un médico.
+  </footer>
+
+  <div class="ffl ffl__anim sf-hidden" data-name="div-gc0zvidej" style="display:block"></div>
+
+  <script async>
+    const LAZY = document.querySelectorAll('img');
+    for (let i = 0; i < LAZY.length; i++) { LAZY[i].setAttribute('loading', 'lazy'); }
+  </script>
+
+  <script>
+    $("a").on("touchend, click", function (e) {
+      e.preventDefault();
+      $('body,html').animate({ scrollTop: $('#oneform').offset().top }, 400);
+    });
+  </script>
+
+  <script>
+    $('[name="name"]').on("input", function () {
+      var val = $(this).val();
+
+      var cleaned = val
+        .replace(/[^\p{L}\s]/gu, "")
+        .replace(/^\s+/, "")
+        .replace(/\s\s+/, " ");
+      var parts = cleaned.split(" ");
+      if (parts.length > 2) {
+        cleaned = parts[0] + " " + parts[1];
+      }
+
+      $(this).val(cleaned);
+    });
+    $('[name="name"]').on("change blur", function () {
+      $(this).val($(this).val().trim());
+    });
+
+  $('[name="phone"]').on("input change", function(e) {
+    var val = $(this).val();
+    $(this).val(val.replace(/\D/g, ""));
+    $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+  });
+  </script>
+  <script src="js/m1ref.js"></script>
+  <script type="text/javascript">
+    var m1_product_id = 15322;
+    var ref = 1029931;
+    var script = document.createElement("script");
+    script.src = "https://m1.top/send_order/?ref=" + ref + "&s=" + getC("s") + "&w=" + getC("w") + "&t=" + getC("t") + "&p=" + getC("p") + "&m=" + getC("m") + "&product_id=" + m1_product_id + '&out=1';
+    document.body.appendChild(script);
+  </script>
+  <script type="text/javascript">
+    var QueryString = function () {
+      var query_string = {};
+      var query = window.location.search.substring(1);
+      var vars = query.split("&");
+      for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split("=");
+        if (typeof query_string[pair[0]] === "undefined") { query_string[pair[0]] = decodeURIComponent(pair[1]); }
+        else if (typeof query_string[pair[0]] === "string") { var arr = [query_string[pair[0]], decodeURIComponent(pair[1])]; query_string[pair[0]] = arr; }
+        else { query_string[pair[0]].push(decodeURIComponent(pair[1])); }
+      }
+      return query_string;
+    }();
+    var webmaster_id = 1029931;
+    var webmaster_api = '2188aad9cfb9f55626bf1d64cf4e95e0';
+    var product_id = 15322;
+    let langCode = 'sv';
+    var keitaro_subid = '{subid}';
+    if (keitaro_subid.indexOf('{') !== -1) keitaro_subid = '';
+    var client_ip = '127.0.0.1';
+    var client_s = ''; var client_w = ''; var client_t = ''; var client_p = ''; var client_m = '';
+    function sendData(client_name, client_phone) {
+      $.ajax({
+        type: 'POST',
+        data: { ref: webmaster_id, api_key: webmaster_api, product_id: product_id, phone: client_phone, name: client_name, ip: client_ip, s: client_s, w: client_w, t: client_t, p: client_p, m: client_m, referer: document.referrer, langCode: langCode },
+        url: 'https://m1.top/send_order/',
+        success: function (data) {
+          data = JSON.parse(data);
+          if (data.result == "ok") { window.location.replace("call.html?order_id=" + data.id + "&s=" + client_s + "&w=" + client_w + "&t=" + client_t + "&p=" + client_p + "&m=" + client_m); }
+          else { window.location.replace("error.html?s=" + client_s + "&w=" + client_w + "&t=" + client_t + "&p=" + client_p + "&m=" + client_m); }
+        },
+        error: function (xhr, status, error) {
+          console.log(xhr.statusText, xhr.responseText, status, error);
+          window.location.replace("error.html?s=" + client_s + "&w=" + client_w + "&t=" + client_t + "&p=" + client_p + "&m=" + client_m);
+        }
+      });
+      return false;
+    };
+    $(document).ready(function () {
+      client_s = QueryString.s || keitaro_subid; client_w = QueryString.w; client_t = QueryString.t; client_p = QueryString.p; client_m = QueryString.m;
+      $.getJSON('https://ipapi.co/json/', function (data) { json_data = data; client_ip = json_data.ip; });
+      $('#order_form').submit(function () {
+        var elem = $(this), button = $("[type=submit], button", elem);
+        $('input[name=name]', this).val($.trim($('input[name=name]', this).val()));
+        if (!$('input[name=name]', this).val()) { alert('Ingrese un nombre válido!'); return false; }
+        if (!$('input[name=phone]', this).val() || $('input[name=phone]', this).val().length < 7) { alert('Ingrese un número de teléfono válido!'); return false; }
+        button.prop("disabled", true);
+        sendData($('input[name=name]', this).val(), $('input[name=phone]', this).val());
+        return false;
+      });
+    });
+  </script>
+  <script src="js/ywbackfix.js"
+    data-redirect="true"
+    data-links='["https://nutrivition.top/VXsVxCX?sun={sub_id_30}"]'>
+  </script>
+</body>
+
+</html>
