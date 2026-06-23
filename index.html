@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Posteron</title>
+  <link rel="shortcut icon" href="images/product.png?=v1" type="image/x-icon">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+
+  <link rel="stylesheet" href="css/quiz.css">
+  <link rel="stylesheet" href="css/header-footer.css">
+  <link rel="stylesheet" href="css/intlTelInput.css">
+  <link rel="stylesheet" href="css/isValidNumber.css">
+  <link rel="stylesheet" href="css/shit.css">
+</head>
+
+<body class="loaded">
+  <div id="preloader">
+    <div class="spinner" id="custom-6878c55ad2899" style=""></div>
+  </div>
+  <header class="header">
+    <div class="wrapper" id="custom-6878c55ad28c4" style="">
+      <div class="header__body" id="custom-6878c55ad28dc" style="">
+        <div class="header__top" id="custom-6878c55ad28e2" style="">
+          <ul class="header__social">
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" role="img" viewBox="0 0 24 24">
+                  <path
+                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                  <path
+                    d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75zm-.86 13.028h1.36L4.323 2.145H2.865l8.875 11.633z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" role="img" viewBox="0 0 24 24">
+                  <path
+                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" role="img" viewBox="0 0 24 24">
+                  <path
+                    d="m23.9765 6.4168c-.105 2.338-1.739 5.5429-4.894 9.6088-3.2679 4.247-6.0258 6.3699-8.2898 6.3699-1.409 0-2.578-1.294-3.553-3.881l-1.9179-7.1138c-.719-2.584-1.488-3.878-2.312-3.878-.179 0-.806.378-1.8809 1.132l-1.129-1.457a315.06 315.06 0 0 0 3.501-3.1279c1.579-1.368 2.765-2.085 3.5539-2.159 1.867-.18 3.016 1.1 3.447 3.838.465 2.953.789 4.789.971 5.5069.5389 2.45 1.1309 3.674 1.7759 3.674.502 0 1.256-.796 2.265-2.385 1.004-1.589 1.54-2.797 1.612-3.628.144-1.371-.395-2.061-1.614-2.061-.574 0-1.167.121-1.777.391 1.186-3.8679 3.434-5.7568 6.7619-5.6368 2.4729.06 3.6279 1.664 3.4929 4.7969z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" role="img" viewBox="0 0 24 24">
+                  <path
+                    d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" role="img" viewBox="0 0 24 24">
+                  <path
+                    d="M21.2666 21.2a.6141.6141 0 0 1-.6128.6128H3.3446a.614.614 0 0 1-.6128-.6128V8.1153a.6141.6141 0 0 1 .6128-.6128h17.3091a.6141.6141 0 0 1 .6128.6128V21.2zm-3.0315-3.4196v-1.1957a.0803.0803 0 0 0-.0803-.0803h-5.3725v1.3619h5.3725a.0817.0817 0 0 0 .0804-.083l-.0001-.0029zm.8171-2.5875v-1.2012a.0803.0803 0 0 0-.079-.0817h-6.191v1.3619h6.1896a.079.079 0 0 0 .0804-.0776v-.0041.0027zm-.8171-2.5875v-1.2066a.0803.0803 0 0 0-.0803-.0803h-5.3725v1.3619h5.3725a.0816.0816 0 0 0 .0803-.079v.004zM8.1492 14.0448v1.2257h1.7704c-.1457.749-.8049 1.2924-1.7704 1.2924-1.0906-.0405-1.9418-.9574-1.9013-2.048.0384-1.0338.8676-1.8629 1.9013-1.9013a1.77 1.77 0 0 1 1.2529.4903l.9342-.9329a3.1405 3.1405 0 0 0-2.1871-.8525c-1.8051 0-3.2684 1.4633-3.2684 3.2684 0 1.8051 1.4633 3.2684 3.2684 3.2684 1.8889 0 3.1323-1.3278 3.1323-3.1976a3.941 3.941 0 0 0-.0518-.6183l-3.0805.0054zM2.2701 7.6537a.6156.6156 0 0 1 .6128-.6128h12.1545l-1.2692-3.4904a.5952.5952 0 0 0-.7436-.3827L.3676 7.7749a.5938.5938 0 0 0-.3228.7749l2.2253 6.112V7.6537za.6156.6156 0 0 1 .6128-.6128h12.1545l-1.2692-3.4904a.5952.5952 0 0 0-.7436-.3827L.3676 7.7749a.5938.5938 0 0 0-.3228.7749l2.2253 6.112V7.6537zm21.3116-.3105l-8.803-2.3683.7517 2.0659h5.5836a.6141.6141 0 0 1 .6128.6128v8.7948l2.2471-8.3659a.5923.5923 0 0 0-.3922-.7393zm-4.4955-1.6738V2.7946a.6101.6101 0 0 0-.6115-.6074H5.5236a.6101.6101 0 0 0-.6156.6046v2.8368l8.3904-3.0519a.5937.5937 0 0 1 .7422.3895l.5447 1.498 4.5009 1.2052z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+            <li class="header__social-item">
+              <a class="header__social-link" href="#">
+                <svg width="20" height="20" role="img" viewBox="0 0 24 24">
+                  <path
+                    d="M19.199 24C19.199 13.467 10.533 4.8 0 4.8V0c13.165 0 24 10.835 24 24h-4.801zM3.291 17.415c1.814 0 3.293 1.479 3.293 3.295 0 1.813-1.485 3.29-3.301 3.29C1.47 24 0 22.526 0 20.71s1.475-3.294 3.291-3.295zM15.909 24h-4.665c0-6.169-5.075-11.245-11.244-11.245V8.09c8.727 0 15.909 7.184 15.909 15.91z">
+                  </path>
+                </svg>
+              </a>
+            </li>
+          </ul>
+          <a href="#" class="header__logo">
+            <svg width="230" height="30" viewBox="0 0 230 30">
+              <path
+                d="M17.581 5.601V1.049h8.634v27.942h-9.222l-5.887-9.929a82.866 82.866 0 0 1-2.629-4.67c.104 2.616.157 5.965.157 10.046v4.553H0V1.049h9.222l5.769 9.928c.707 1.204 1.609 2.957 2.708 5.259-.078-2.328-.118-5.873-.118-10.635M50.336 1.049v7.613H36.287v2.747h12.99v7.339h-12.99v2.629h14.049v7.614H27.418V1.049h22.918ZM80.589 9.329l1.57-8.28h9.065l-7.378 27.942h-9.497l-1.845-8.516c-.392-1.701-.876-4.121-1.452-7.261a497.402 497.402 0 0 1-1.491 7.261l-1.844 8.516h-9.498L50.841 1.049h9.066l1.57 8.28c0 .079.065.465.196 1.158l.667 3.532c.314 1.662.628 3.382.942 5.161.889-4.788 1.504-8.071 1.844-9.851l1.649-8.28h8.516l1.648 8.28c.34 1.78.955 5.063 1.845 9.851.313-1.779.627-3.499.941-5.161l.668-3.532c.13-.693.196-1.079.196-1.158M111.686 26.989c-2.225 1.78-5.39 2.669-9.498 2.669-4.107 0-7.247-.889-9.418-2.669-2.198-1.779-3.349-4.173-3.454-7.181h8.752c.104 1.203.496 2.04 1.177 2.511.68.471 1.713.707 3.101.707 2.433 0 3.649-.641 3.649-1.924 0-.627-.288-1.111-.863-1.452-.576-.339-1.609-.614-3.101-.824l-3.375-.47c-2.747-.393-4.879-1.328-6.396-2.806-1.518-1.479-2.277-3.474-2.277-5.985 0-2.459.772-4.526 2.316-6.201 1.805-1.962 4.997-2.943 9.575-2.943 7.692 0 11.787 3.074 12.284 9.222h-8.202c-.105-.915-.445-1.589-1.02-2.021-.576-.432-1.492-.647-2.748-.647-2.25 0-3.375.602-3.375 1.805 0 1.02.877 1.648 2.63 1.884l3.375.47c3.505.498 6.069 1.439 7.692 2.826 1.622 1.387 2.433 3.323 2.433 5.808 0 3.035-1.086 5.442-3.257 7.221"
+                fill="#c31a20"></path>
+              <path
+                d="M124.493 22.162h5.455c1.464 0 2.197-.653 2.197-1.962 0-1.308-.733-1.962-2.197-1.962h-5.455v3.924Zm4.356-14.285h-4.356v3.925h4.356c1.465 0 2.197-.654 2.197-1.963 0-1.308-.732-1.962-2.197-1.962m7.692 6.122a7.107 7.107 0 0 1 3.473 2.669c.876 1.256 1.315 2.616 1.315 4.081 0 2.617-.883 4.644-2.649 6.083-1.766 1.44-4.39 2.159-7.869 2.159h-15.188V1.049h14.913c3.401 0 5.861.68 7.378 2.04 1.517 1.361 2.276 3.048 2.276 5.063 0 2.773-1.216 4.723-3.649 5.847M187.501 11.645l2.119-10.596h13.658v27.942h-8.634v-7.928c0-3.846.065-7.403.196-10.674a62.912 62.912 0 0 1-.864 3.806l-3.532 14.796h-7.22l-3.611-14.796-.373-1.569a39.483 39.483 0 0 1-.294-1.335c-.079-.392-.131-.614-.157-.667.131 3.192.196 6.672.196 10.439v7.928h-8.634V1.049h13.657l2.198 10.596.667 3.335c.288-1.674.497-2.786.628-3.335M213.164 22.162h5.455c1.465 0 2.198-.653 2.198-1.962 0-1.308-.733-1.962-2.198-1.962h-5.455v3.924Zm4.356-14.285h-4.356v3.925h4.356c1.465 0 2.198-.654 2.198-1.963 0-1.308-.733-1.962-2.198-1.962m7.692 6.122a7.098 7.098 0 0 1 3.473 2.669c.877 1.256 1.315 2.616 1.315 4.081 0 2.617-.883 4.644-2.649 6.083-1.766 1.44-4.389 2.159-7.868 2.159h-15.188V1.049h14.913c3.401 0 5.86.68 7.378 2.04 1.517 1.361 2.276 3.048 2.276 5.063 0 2.773-1.217 4.723-3.65 5.847">
+              </path>
+              <path
+                d="M155.428 22.834a8.168 8.168 0 1 1 0-16.336 8.168 8.168 0 0 1 0 16.336m0-22.492c-7.911 0-14.324 6.413-14.324 14.324 0 7.912 6.413 14.325 14.324 14.325s14.324-6.413 14.324-14.325c0-7.911-6.413-14.324-14.324-14.324">
+              </path>
+              <path d="M155.428 8.142a6.524 6.524 0 1 0 0 13.048 6.524 6.524 0 0 0 0-13.048" fill="#c31a20"></path>
+            </svg>
+          </a>
+          <a class="header__weather-link" href="#">
+            <span class="weather-temp" id="custom-6878c55ad28e6" style=""></span>
+            <div class="weater-icon" id="custom-6878c55ad28eb" style="">
+              <img src="fonts/sunny.svg" alt="sunny-icon" width="32" height="32" loading="lazy">
+            </div>
+          </a>
+        </div>
+        <div class="header__bootom" id="custom-6878c55ad28ef" style="">
+  <ul class="header__menu">
+   <li class="header__item">
+  <a class="header__link" href="#">ALL NEWS</a>
+</li>
+<li class="header__item">
+  <a class="header__link" href="#">NIGERIA</a>
+</li>
+<li class="header__item">
+  <a class="header__link" href="#">POLITICS</a>
+</li>
+<li class="header__item">
+  <a class="header__link" href="#">ECONOMY</a>
+</li>
+<li class="header__item">
+  <a class="header__link" href="#">HEALTH</a>
+</li>
+<li class="header__item">
+  <a class="header__link" href="#">WORLD</a>
+</li>
+<li class="header__item">
+  <a class="header__link" href="#">SPORT</a>
+</li>
+<li class="header__item">
+  <a class="header__link" href="#">LIFESTYLE</a>
+</li>
+<li class="header__item">
+  <a class="header__link" href="#">WEATHER</a>
+</li>
+<li class="header__item">
+  <a class="header__link" href="#">HEADLINES</a>
+</li>
+<li class="header__item">
+  <a class="header__link" href="#">SHORT LIST</a>
+</li>
+  </ul>
+          <a class="btn-menu" href="#">
+            <svg id="icon-rich-menu" viewBox="0 0 32 32">
+              <path d="M11.389 8.032h-11.389v1.586h10.638c0.254-0.529 0.457-1.058 0.751-1.586z"></path>
+              <path d="M9.428 14.613v-0.742h-9.428v1.588h9.467c0-0.266-0.039-0.529-0.039-0.846z"></path>
+              <path d="M10.722 19.712h-10.722v1.587h11.472c-0.301-0.496-0.553-1.030-0.75-1.587z"></path>
+              <path d="M25.507 19.912l0.885-0.885 5.604 5.604-0.885 0.885-5.604-5.604z"></path>
+              <path
+                d="M21.068 22.751c-4.493 0-8.136-3.643-8.136-8.134 0-4.493 3.643-8.136 8.136-8.136s8.135 3.643 8.135 8.136c0.009 4.482-3.618 8.126-8.104 8.134-0.010 0-0.021 0-0.031 0zM21.068 7.733c-3.802 0-6.884 3.081-6.884 6.884 0 3.801 3.082 6.882 6.884 6.882s6.882-3.081 6.882-6.882c-0.004-3.801-3.084-6.88-6.882-6.884z">
+              </path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="container" id="custom-6878c55ad28f3" style="">
+  <h1 class="center" id="main_title">
+    <span class="red-txt" id="custom-6878c55ad28f6" style="">"E go dey stand strong even reach 80 years old!"</span> Dr. Chukwuemeka Obi do open interview, e explain how man fit permanently solve erection wahala without that deadly Viagra business.
+  </h1>
+  <figure class="mob-show">
+    <img src="images/FOTO1.png" width="800" height="600" loading="lazy">
+    <figcaption>
+      Dr. Chukwuemeka Obi: Candidate of Medical Sciences, Honorary Doctor, Urologist-Andrologist at the Regional Health Centre.
+    </figcaption>
+  </figure>
+  <h2>
+    Dr. Chukwuemeka Obi: Candidate of Medical Sciences, Honorary Doctor, Urologist-Andrologist at the Regional Health Centre.
+  </h2>
+  <p class="h2" id="custom-6878c55ad28fa" style="">
+    <i>My paddy die because of too much Viagra dose. That na why I must talk about things wey people normally no talk for public.</i>
+  </p>
+  <figure class="mob-hide">
+    <img src="images/FOTO1.png" width="800" height="600" loading="lazy">
+    <figcaption>
+      Dr. Chukwuemeka Obi: "Man wey reach 55 years fit still get strong erection wey go satisfy him wife and him side chick too. And all this one without any chemical nonsense."
+    </figcaption>
+  </figure>
+  <p id="custom-6878c55ad28fe" style="">
+    E don reach time to yarn about this sensitive matter. Every day I dey receive plenty letters with the question: how man fit get back solid erection? Even more men dey fear to ask because dem dey shame. Recently, one of my close guys die because of medical misconceptions and those over-hyped tablets. That na why I don decide to explain how man fit quickly and safely restore erection function even after 55 — without chemicals, surgery or any doctor wahala.
+  </p>
+  <p id="custom-6878c55ad2902" style=""><b>Read this article reach the end, you go find out:</b></p>
+  <div class="yell-bg" id="custom-6878c55ad2906" style="">
+    <ul>
+      <li>Why 9 out of every 10 men dey lose their form after 35 years?</li>
+      <li>Wetin be the risk of ignoring prostate wahala or libido drop symptoms?</li>
+      <li>Can this one cause impotence, and which symptoms show say e don reach time to act before serious problem come?</li>
+      <li>Which 6 foods dey help men to get stronger?</li>
+      <li>Can man quickly and cheaply restore potency without going to doctor or doing surgery?</li>
+      <li>Wetin be the modern scientific solutions for improving erection, and why you no go find dem for pharmacy?</li>
+    </ul>
+  </div>
+    <p id="custom-6878c55ad290a" style="">
+  Look at me: at 52 I dey live active sex life, and every morning I dey wake up with erection wey fit lift up the bedsheet. You know that feeling? Think am well: erection problems dey affect
+  <b class="red-txt">62% of men from 30 years old.</b> And the older we get, the bigger the risk of powerlessness. But e no be death sentence if we ready to act.
+</p>
+<p id="custom-6878c55ad290e" style="">
+  But that one no even be the most shocking thing. Wetin shock me pass na say Viagra, Sildenafil, Dinamiko, Maxigra, Cialis, Vizarsin, Tadalafil, Impaza, Verona, Androgel and all those other "power boosters" still dey our pharmacies. The irony be say dem dey make erection problems worse, dem dey damage the adrenal glands, and dem literally dey chop the arteries of the heart.
+</p>
+<p id="custom-6878c55ad2912" style="">
+  My paddy die from too much Viagra dose. Him heart stop. The worst part be say I for don help am, but I no know say e dey in danger. That na why I go explain how man fit forever free himself from impotence without harmful substances. I guarantee say within 4 weeks, you go forget all your bedroom wahala.
+</p>
+<p class="red-txt" style="padding: 10px; border: 3px red solid">
+  <b>
+    P.S.: They try to ban this article from publishing. The pharmaceutical companies first threaten me, then dem try to bribe me. But for me, truth dey worth more than money.
+  </b>
+</p>
+<h2>"Strong erection dey possible at any age."</h2>
+<p id="custom-6878c55ad2916" style="">
+  Everybody know those famous entertainment big shots wey still get young girlfriends even for old age. Dem no only fit make love for hours without harmful chemicals — dem still fit born pikin even at 70 years old.
+</p>
+<img src="images/SE1.jpeg" width="800" height="701" loading="lazy">
+<p class="center" id="custom-6878c55ad2950" style=""><b>Emeka Eze with him wife, Adaeze Okonkwo. 38 years age difference dey between them!</b></p>
+</p>
+<img src="images/SE2.png" width="800" height="701" loading="lazy">
+<p class="center" id="custom-6878c55ad2950" style=""><b>Femi Adeyinka with him babe, Sola. 19 years age difference!</b></p>
+<p id="custom-6878c55ad291a" style="">How dem dey do am? I sabi the answer. The secret dey inside a unique product!</p>
+<p id="custom-6878c55ad291e" style="">
+  For the 90s, only people with heavy money fit get am. Today, e no cost more than one morning coffee for a restaurant. And if you consider the result — e be like say e free. But dem no dey talk about it because e "forbidden". The pharmacy people prefer to sell Viagra wey work for 8 hours instead of offering a natural supplement wey go restore potency in just 4 weeks. The product name na "<a href="#">Posteron</a>".
+</p>
+<img src="images/product.png?=v1" style="max-width: 280px" width="280" height="340" loading="lazy">
+<div class="yell-bg" id="custom-6878c55ad2923" style="">
+  <center>
+    <b>EDITOR'S NOTE:</b><br>
+    <a href="#">Posteron</a> IS 100% NATURAL AND COMPLETELY SAFE.
+    IT CAN BE USED EVEN IF YOU GET HEART AND VASCULAR CONDITIONS, AND YOU FIT COMBINE AM WITH ALCOHOL TOO.
+  </center>
+</div>
+    <p id="custom-6878c55ad2926" style="">
+  Trust me, every showbiz star dey use <a href="#">Posteron</a>. E no just be the best product — e be the only one wey truly fit provide lasting erection, that na why I dey recommend am without any conditions. The doctors don receive instruction say dem no suppose talk about this, but I keep these photos wey DEY EXPOSE THE PHARMACY NETWORK SCAM.
+</p>
+<figure>
+  <img src="images/SE3.png" width="800" height="449" loading="lazy">
+  <figcaption> Bode Adeleke don confess plenty times say e be big fan of <a href="#">Posteron</a>. </figcaption>
+</figure>
+<img src="images/SE4.png" width="800" height="533" loading="lazy">
+<center>
+  <p id="custom-6878c55ad292a" style="">
+    <b>Kunle Balogun</b><br><i>"Many skeptics dey around me, and somehow everybody wan teach me how to 'properly' live my life. But I no be 15 years again. I sabi wetin I want from life, and wetin I fit do. I don learn to listen to my body long time ago, and after the <a href="#">Posteron</a> treatment, I feel explosive energy and man power. Everything wey I carry as burden as a man just disappear. The instincts come alive again, the desire to have a young, healthy and fine woman come back. I understand say I CAN DO AM — and I go ahead do am."</i>
+  </p>
+</center>
+<img src="images/SE5.png" width="800" height="661" loading="lazy">
+<center>
+  <p id="custom-6878c55ad292e" style="">
+    <b>Tunde Fashola</b>
+    <br>
+    <i>
+      Him wife: "My husband dey priceless! No matter who you be, every man fit get serious advantage with this help. Yes, we get our problems — I no go hide am. But through our connections we manage to reach a good doctor wey recommend <a href="#">Posteron</a> for us. I no want to go into details, but the result was amazing — e appear very fast. And 'down there' everything normalize, the whole body just look like e renew itself, we dey too happy! Now we dey plan another baby. I dey 100% sure — we no go get any more wahala for that area. As e turn out, plenty people for our circle don sabi this product."
+    </i>
+  </p>
+</center>
+<figure>
+  <img src="images/FOTO2.jpeg" width="800" height="366" loading="lazy">
+  <figcaption>
+    Dr. Chukwuemeka Obi: "<a href="#">Posteron</a> na the only safe product
+    wey dey allow men of any age to achieve strong potency."
+  </figcaption>
+</figure>
+<p id="custom-6878c55ad2947" style="">
+  I must talk say <a href="#">Posteron</a> dey very popular among ordinary people too. One of them agree to come in front of camera. I reach am by email. Na wetin e reply (published with Chidi's permission):
+</p>
+<div class="gray-bg" id="custom-6878c55ad294c" style="">
+  <img src="images/SE6.png" width="800" height="373" loading="lazy">
+  <p class="center" id="custom-6878c55ad2950" style=""><b>Chidi Okafor, 60 years old, Lagos</b></p>
+  <p id="custom-6878c55ad2954" style="">
+    After many years of marriage, my wife and I come face a very sensitive problem. At first I strongly refused to go to doctor! Same thing happen to my father — e end badly that time. The reasons for the drop in potency seem simple — work, constant stress and other so-called factors.
+  </p>
+      <p id="custom-6878c55ad2957" style="">
+  Finally, my wife convince me to go see doctor. Luckily, I no submit to endless medical recommendations, and I no start swallowing plenty prescription tablets. I even had to borrow money to cover the costs. When I hear the procedures dem wan do to me… I fear and I lose my determination. In the end, me and my wife separate. Even then I no get proper help.
+</p>
+<p id="custom-6878c55ad295b" style="">
+  Later, through one acquaintance I come across this programme. Dem even call me on stage. When Dr. Chukwuemeka Obi recommend <a href="#">Posteron</a> on that show, I decide to try am — and all my problems just disappear on their own. I start taking am, and within short time my sexual life become just wonderful — I never experience such enjoyment before. My health return to normal, my body just renew itself. I done young back by 20 years, and I dey in excellent shape again! Now I dey do press-ups and pull-ups without any breathing difficulty at all.
+</p>
+<p id="custom-6878c55ad295f" style="">
+  I dey recommend <a href="#">Posteron</a> for everybody! Don't hesitate even for one second!
+</p>
+</div>
+<p id="custom-6878c55ad2963" style="">
+  I must say say Chidi dey lucky. E get the chance to try <a href="#">Posteron</a>, nobody talk am out of it, so he safely restore him potency and strengthen him health.
+</p>
+<p id="custom-6878c55ad2968" style="">
+  But unfortunately, other stories dey. One day I receive letter from a 48-year-old man wey I also recommend <a href="#">Posteron</a> to. Some months later e write say him family members talk am out of using the product! Dem no believe in its effectiveness. Because of that, the poor man go hospital to seek help. Sadly, he had to borrow money because he couldn't afford the expensive surgery — and in the end, he kill himself.
+</p>
+<p id="custom-6878c55ad296c" style="">
+  Him wife find our correspondence, and she narrate the tragedy wey happen. She dey very sorry say she no believe me then. If he had started taking Posteron when he had the chance — this thing for never happen!
+</p>
+<p id="custom-6878c55ad2970" style="">
+  As una fit see, many doctors sabi about this treatment. Na shame say I keep quiet for so many years. But now I want to do the right thing, so save this post before dem delete am, and get your <a href="#">Posteron</a>.
+</p>
+<h2>How "<a href="#">Posteron</a>" dey work</h2>
+<p id="custom-6878c55ad2974" style="">
+  <a href="#">Posteron</a> contain unique, highly concentrated substances wey dey significantly boost testosterone level:
+</p>
+    <ul>
+  <li><b>Saw Palmetto (Serenoa).</b> E dey restore pelvic blood circulation, e dey strengthen the prostate structure.</li>
+  <li>
+    <b>Yohimbe.</b> E dey stimulate testosterone synthesis, e dey help restore sexual activity, e dey regulate lipid metabolism.
+  </li>
+  <li><b>Clove.</b> E dey normalize prostate function, e dey block inflammatory processes.</li>
+  <li>
+    <b>African Plum.</b> Dem dey commonly use am in urology for treatment and prevention of urinary tract conditions.
+  </li>
+  <li>
+    <b>Asparagus Extract.</b> E dey boost libido, e dey strengthen blood vessel walls, e dey help restore erection and reproductive function.
+  </li>
+  <li><b>Seed Sprouts.</b> Dem dey help regain control over ejaculation and improve overall wellbeing.</li>
+</ul>
+<p id="custom-6878c55ad2978" style="">
+  This na 100% natural product wey dey restore erection function to the level of a 20-year-old man, even after 55 years old.
+</p>
+<p id="custom-6878c55ad297c" style="">
+  <a href="#">Posteron</a> na biological activator. That mean say e contain only natural ingredients wey dey directly stimulate blood flow into the cavernous bodies (erection — editor's note), and e dey support the natural production of testosterone.
+</p>
+<p id="custom-6878c55ad2980" style="">
+  <b class="red-txt">TESTOSTERONE NA THE KEY TO MAN POWER.</b> Plenty testosterone = strong, muscular, attractive man wey fit last long. Little testosterone = weak man with big belle and bedroom wahala.
+</p>
+<p id="custom-6878c55ad2985" style="">
+  <a href="#">Posteron</a> dey give the needed amount of testosterone so that man go get strong erection, muscular body and renewed energy. Zero side effects — only natural and positive results.
+</p>
+<p id="custom-6878c55ad2989" style="">
+  Of course, when talking about results, one must understand that <a href="#">Posteron</a> no be medicine for treating diseases, but e dey help prevent the problems wey dey lead to them. Medicines like Cialis, Viagra or Levitra dey treat erection disorders, but dem get plenty side effects and dem no suitable for regular use.
+</p>
+<p class="red-txt" id="custom-6878c55ad298d" style="">
+  For prevention, <a href="#">Posteron</a> na the one dem recommend — e safe and 100% natural. E be the best tool against erection wahala.
+</p>
+<p id="custom-6878c55ad2991" style="">
+  According to urologist Dr. Adewale Nwosu, <a href="#">Posteron</a> should be taken daily for 30 days. Special offers dey in place, so the product dey available at very good price. 90% of men no sabi about this, but if you order now — you fit get <a href="#">Posteron</a> at discount price.
+</p>
+<img src="images/image9.webp" width="800" height="556" loading="lazy">
+<p id="custom-6878c55ad2995" style="">
+  In other words, after you start using the product, strong erection dey come immediately and e dey last for several hours, and after 3–4 weeks the erection function dey fully restored, and your "tool" go dey work like say you be 20-year-old boy.
+</p>
+    <div class="yell-bg" id="custom-6878c55ad2999" style="">
+  <center>
+    <p id="custom-6878c55ad299c" style="">
+      <b>INTERESTING FACT: </b>
+      <br>
+      THE SPECIAL THING ABOUT <a href="#">Posteron</a> NA SAY THE OLDER THE MAN, THE BETTER THE RESULTS.
+    </p>
+    <b>EDITOR'S ADVICE: </b>
+    <br>
+    TO RESTORE ERECTION WITHIN ONE WEEK, TAKE <a href="#">Posteron</a> ON AN EMPTY STOMACH.
+  </center>
+</div>
+
+<p id="custom-6878c55ad29a0" style="">
+  <b><a href="#">Posteron</a> properties:</b>
+</p>
+
+<ul style="border: 1px #000 solid; padding: 10px 10px 10px 30px">
+  <li>Boosted erection and immediate arousal after taking am.</li>
+  <li>Increased sexual desire.</li>
+  <li>Restoration of testosterone production.</li>
+  <li>Small increase in penis size (2–4 cm during the course).</li>
+  <li>Increased sperm activity (if you no want pikin after 55 — use condom).</li>
+</ul>
+
+<p id="custom-6878c55ad29a5" style="">
+  This na the only supplement wey dey restore testosterone production without harmful chemicals — this don be confirmed by research from the Lagos Andrology Institute. The study involve 3,700 men between 55 and 73 years old. 98% of respondents confirm say <a href="#">Posteron</a> completely solve their intimacy wahala.
+</p>
+
+<p id="custom-6878c55ad29a8" style="">
+  When you dey take <a href="#">Posteron</a>, erection dey restore in 4 stages:
+</p>
+
+<ul>
+  <li>7 minutes after taking am, stable erection go show even in those wey don get complete impotence.</li>
+  <li>After 15 minutes, the pelvic floor muscles wey dey control how long the act lasts go strengthen.</li>
+  <li>After 60–70 minutes, penis sensitivity go increase (e go return to the level of a young body), wey go give powerful orgasm.</li>
+  <li>After 5 hours, sexual desire go reduce small, but e go remain at high level for another 36 hours.</li>
+</ul>
+
+<p id="custom-6878c55ad29ad" style="">
+  <i><b>P.S.:</b> After regular use for 8–28 days, morning erection go appear — this na the sign say testosterone level don restore.</i>
+</p>
+
+<div class="yell-bg" id="custom-6878c55ad29b1" style="">
+  <center>
+    <b>Dr. Chukwuemeka Obi:</b><br>
+    I GO ANSWER ONE MORE IMPORTANT QUESTION: YES, AFTER <a href="#">Posteron</a> TREATMENT, THE PENIS TRULY GO GROW BY 2–4 CM DUE TO HEALTHY BLOOD CIRCULATION IN THE PELVIC AREA. THE EFFECT GO LAST FOR LIFE, BUT IF YOU USE AM AGAIN, THE RESULT NO GO ACCUMULATE!
+  </center>
+</div>
+
+<p id="custom-6878c55ad29b5" style="">
+  I also want to address the ladies! If your partner no dey satisfy you for bed, if the erection dey weak and ejaculation dey too fast — no rush to replace him! Suggest say he try <a href="#">Posteron</a>, and soon you go be more than satisfied with your intimate life — I guarantee you!
+</p>
+
+<p id="custom-6878c55ad29b9" style="">
+  Regular taking of <a href="#">Posteron</a> go trigger a chain of positive changes throughout the entire body. After one serious problem don solve, the body go start to sort out the others by itself — this na wetin we dey call the "domino effect".
+</p>
+<img src="images/FOTO3.png" width="800" height="444" loading="lazy">
+
+<p class="h2 color2" id="custom-6878c55ad29bc" style=""><b>1. Healthy Prostate</b></p>
+<p id="custom-6878c55ad29c0" style="">
+  After the full <a href="#">Posteron</a> course, prostate function go completely restore. The inflammation go stop, blood circulation in the organ go improve. Pain, burning sensation and other discomforts go also disappear.
+</p>
+
+<p class="h2 color2" id="custom-6878c55ad29c3" style=""><b>2. Restoration of Urinary System Function</b></p>
+<p id="custom-6878c55ad29c7" style="">
+  <a href="#">Posteron</a> go completely restore normal urination, improve urodynamics and reduce urine volume. Users dey happy to report say:
+</p>
+<ul>
+  <li>The pain and burning during urination don disappear.</li>
+  <li>No more rushing to the toilet every five minutes.</li>
+  <li>The bladder dey work like clockwork.</li>
+  <li>The hyperactive bladder symptoms and constant fullness feeling don go.</li>
+</ul>
+
+<p class="h2 color2" id="custom-6878c55ad29cb" style=""><b>3. "Rock Solid" Erection at Any Age!</b></p>
+<p id="custom-6878c55ad29ce" style="">
+  <a href="#">Posteron</a> dey positively affect erection function. Its ingredients dey restore pelvic blood circulation:
+</p>
+<ul>
+  <li>Erection go become regular and stable.</li>
+  <li>Duration of intercourse go extend.</li>
+  <li>Sperm quality go improve.</li>
+  <li>Intimacy experience go intensify.</li>
+</ul>
+
+<p class="h2 color2" id="custom-6878c55ad29d2" style=""><b>4. Elimination of Swelling</b></p>
+<p id="custom-6878c55ad29d6" style="">
+  If <a href="#">Posteron</a> dey taken regularly, kidney function and fluid balance go restore. The kidneys no go retain water, and there go be no need for diuretics.
+</p>
+<ul>
+  <li>The legs no go pain or swell again.</li>
+  <li>The belly go reduce due to decrease in internal organ swelling.</li>
+  <li>Fluid go leave the lungs — breathing go become easier.</li>
+</ul>
+
+<p class="h2 color2" id="custom-6878c55ad29da" style=""><b>5. No More Haemorrhoid Discomfort</b></p>
+<p id="custom-6878c55ad29de" style="">
+  As blood circulation improve and vein walls strengthen, haemorrhoids go reduce and dem no go cause trouble again.
+</p>
+
+<p class="h2 color2" id="custom-6878c55ad29e3" style=""><b>6. Restoration of Heart Function</b></p>
+<p id="custom-6878c55ad29e7" style="">
+  The product's ingredients dey positively influence heart muscle tone. In 93% of cases, tachycardia go stop; in 99%, ischaemia go end.
+</p>
+<ul>
+  <li>Blood pressure and heart rhythm go normalize.</li>
+  <li>Heart pain go disappear.</li>
+  <li>Risk of heart attack go reduce by 17 times.</li>
+</ul>
+
+<p class="h2 color2" id="custom-6878c55ad29eb" style=""><b>7. Stronger Immune System</b></p>
+<p id="custom-6878c55ad29ef" style="">
+  Blood circulation in the bone marrow wey dey responsible for producing immune system cells go improve. Because of that, the body's defence capacity go strengthen.
+</p>
+
+<div class="yell-bg" style="text-transform: uppercase">
+  IT DON BE PROVEN SAY APRIL AND MAY NA THE BEST PERIOD TO START TAKING
+  <a href="#">Posteron</a> IF YOU WANT TO RESTORE YOUR TESTOSTERONE LEVEL.
+  DURING THIS TIME, DUE TO CHANGES IN NATURAL METABOLISM, THE EFFECTIVENESS NA 42% HIGHER.
+</div>
+<p class="h2" id="custom-6878c55ad29f4" style="">
+  <b>
+   <span class="red-txt" id="custom-6878c55ad29f8" style="">Attention!</span> <a href="#">Posteron</a> no dey available for sale for pharmacy. 
+Nigerian residents fit order <a href="#">Posteron</a> directly from the manufacturer, online.
+</b>
+</p>
+
+<p id="custom-6878c55ad29fc" style="">
+To avoid any speculation, e important to mention say the manufacturer no enter contract with pharmacy networks, and dem don choose exclusively online sales. That na very correct decision.
+</p>
+
+<p id="custom-6878c55ad2a00" style="">
+Think about am: no need to pay rent for shop space, no need to pay pharmacy people for shelf space. That na why <a href="#">Posteron</a> dey much more affordable than regular medications.
+</p>
+
+<p id="custom-6878c55ad2a04" style=""><b>And this important for three reasons:</b></p>
+<ol>
+  <li><b>Quality assurance.</b> <a href="#">Posteron</a> dey go directly from factory to the buyer.</li>
+  <li><b>Protection against middlemen.</b> So dem no go cheat you or make you pay 10–20–30 thousand extra because of the supply chain.</li>
+  <li>Fast home delivery na also guaranteed.</li>
+</ol>
+
+<p id="custom-6878c55ad2a07" style="">
+Now you fit purchase <a href="#">Posteron</a> with up to 50% discount. Reminder say the number of discounted packages dey limited, and dem dey finish quickly — so you better hurry.
+</p>
+
+<div class="yell-bg" id="custom-6878c55ad2a0b" style="">
+  <p class="center" id="custom-6878c55ad2a0f" style=""><b>Conditions for getting the discount:</b></p>
+  <ol>
+    <li>
+      <b>Only Nigerian residents wey don reach 18 years fit participate in this promo.</b><br>
+      Discounted products na only for adult Nigerian citizens.
+    </li>
+    <li>
+      <b>For personal use only.</b><br>
+      This na necessary to fight against reselling.
+    </li>
+    <li>
+      <b>Only through official giveaway.</b><br>
+      Due to limited quantity, the product dey only available through the official selection process wey you fit see below on this website.
+    </li>
+  </ol>
+</div>
+
+<span id="oneform"></span>
+
+<div class="container" id="custom-6878c55ad2a13" style="">
+  <div class="quiz_wrap" id="scroll">
+    <div class="quiz-header" id="custom-6878c55ad2a17" style="">
+      <div class="quiz-title" id="custom-6878c55ad2a1b" style="">
+        Answer 3 questions and get 50% discount on Posteron price!
+      </div>
+      <div class="order-title" id="custom-6878c55ad2a1f" style="">
+        Fill in the form below, then click the "Order Now" button
+      </div>
+    </div>
+
+    <div class="quiz-body" id="custom-6878c55ad2a23" style="">
+      <quiz class="quiz-step active" style="display: block;">
+        <div class="quiz-question" id="custom-6878c55ad2a26" style="">1. How old are you?</div>
+        <div class="quiz_options" id="custom-6878c55ad2a2a" style="">
+          <div class="option" id="custom-6878c55ad2a2e" style="">
+            <div class="option-radio" id="custom-6878c55ad2a32" style="">
+              <div class="circle" id="custom-6878c55ad2a36" style=""></div>
+            </div>
+            Under 40
+          </div>
+          <div class="option" id="custom-6878c55ad2a39" style="">
+            <div class="option-radio" id="custom-6878c55ad2a3e" style="">
+              <div class="circle" id="custom-6878c55ad2a42" style=""></div>
+            </div>
+            40–50 years old
+          </div>
+          <div class="option" id="custom-6878c55ad2a45" style="">
+            <div class="option-radio" id="custom-6878c55ad2a49" style="">
+              <div class="circle" id="custom-6878c55ad2a4d" style=""></div>
+            </div>
+            51–60 years old
+          </div>
+          <div class="option" id="custom-6878c55ad2a51" style="">
+            <div class="option-radio" id="custom-6878c55ad2a55" style="">
+              <div class="circle" id="custom-6878c55ad2a5a" style=""></div>
+            </div>
+            Above 60
+          </div>
+        </div>
+      </quiz>
+<quiz class="quiz-step quiz-step-2" style="display: none;">
+  <div class="quiz-question" id="custom-6878c55ad2a5e" style="">2. Which problem dey worry you most?</div>
+  <div class="quiz-title" id="custom-6878c55ad2a63" style="">(You fit choose more than one option)</div>
+  <div class="quiz_options" id="custom-6878c55ad2a67" style="">
+    <label class="label" for="id1">
+      <div class="option" id="custom-6878c55ad2a6c" style="">
+        <input class="input-checkbox" type="checkbox" name="id1" id="id1">
+        <div class="option-radio" id="custom-6878c55ad2a70" style="">
+          <div class="circle" id="custom-6878c55ad2a74" style=""></div>
+        </div>
+        Weak erection
+      </div>
+    </label>
+    <label class="label" for="id2">
+      <div class="option" id="custom-6878c55ad2a78" style="">
+        <input class="input-checkbox" type="checkbox" name="id2" id="id2">
+        <div class="option-radio" id="custom-6878c55ad2a7d" style="">
+          <div class="circle" id="custom-6878c55ad2a81" style=""></div>
+        </div>
+        Early release
+      </div>
+    </label>
+    <label class="label" for="id3">
+      <div class="option" id="custom-6878c55ad2a85" style="">
+        <input class="input-checkbox" type="checkbox" name="id3" id="id3">
+        <div class="option-radio" id="custom-6878c55ad2a89" style="">
+          <div class="circle" id="custom-6878c55ad2a8d" style=""></div>
+        </div>
+        Lack of sexual desire
+      </div>
+    </label>
+    <label class="label" for="id4">
+      <div class="option" id="custom-6878c55ad2a92" style="">
+        <input class="input-checkbox" type="checkbox" name="id4" id="id4">
+        <div class="option-radio" id="custom-6878c55ad2a96" style="">
+          <div class="circle" id="custom-6878c55ad2a9a" style=""></div>
+        </div>
+        Prostate wahala
+      </div>
+    </label>
+  </div>
+</quiz>
+
+<quiz class="quiz-step" style="display: none;">
+  <div class="quiz-question" id="custom-6878c55ad2a9f" style="">3. How long you don dey feel these symptoms?</div>
+  <div class="quiz_options" id="custom-6878c55ad2aa3" style="">
+    <div class="option" id="custom-6878c55ad2aa6" style="">
+      <div class="option-radio" id="custom-6878c55ad2aaa" style="">
+        <div class="circle" id="custom-6878c55ad2aae" style=""></div>
+      </div>
+      Less than one month
+    </div>
+    <div class="option" id="custom-6878c55ad2ab2" style="">
+      <div class="option-radio" id="custom-6878c55ad2ab6" style="">
+        <div class="circle" id="custom-6878c55ad2aba" style=""></div>
+      </div>
+      1–6 months
+    </div>
+    <div class="option" id="custom-6878c55ad2abe" style="">
+      <div class="option-radio" id="custom-6878c55ad2ac3" style="">
+        <div class="circle" id="custom-6878c55ad2ac7" style=""></div>
+      </div>
+      More than 6 months
+    </div>
+    <div class="option" id="custom-6878c55ad2acb" style="">
+      <div class="option-radio" id="custom-6878c55ad2ad0" style="">
+        <div class="circle" id="custom-6878c55ad2ad4" style=""></div>
+      </div>
+      For years now
+    </div>
+  </div>
+</quiz>
+
+<div class="quiz-step quiz-form" id="custom-6878c55ad2ad8" style="display: none;">
+  <img src="images/product.png?=v1" alt="" width="381" height="463" loading="lazy">
+  <div class="quiz-timer" id="custom-6878c55ad2adc" style="">
+    Offer expires:
+    <div class="timer" id="custom-6878c55ad2adf" style="">
+      <span id="mins">10</span>
+      :
+      <span id="secs">00</span>
+    </div>
+  </div>
+            <!-- ============================================================
+                 ORDER FORM
+                 Old partner integration removed (order.php endpoint and the
+                 fbpx / subid / campaign_id / sid / hash tracking macros).
+                 Set the NEW partner's API endpoint in the form `action`
+                 (or handle the submit via JS) and add its hidden tracking
+                 fields in the block below, per the integration guide.
+            ============================================================ -->
+            <form id="order_form" class="order_form" action="" method="post">
+              <input type="hidden" name="country" value="NG">
+              <!-- NEW PARTNER API HIDDEN FIELDS GO HERE -->
+              <div class="prices" id="custom-6878c55ad2ae6" style="">
+               <div class="old price_old" id="custom-6878c55ad2aea" style="">
+  <span class="price_main_value" id="custom-6878c55ad2aee" style="">118000</span> <span
+    class="price_main_currency" id="custom-6878c55ad2af1" style="">NGN</span>
+</div>
+<div class="new price_main" id="custom-6878c55ad2af5" style="">
+  <span class="price_main_value" id="custom-6878c55ad2af9" style="">59000</span> <span
+    class="price_main_currency" id="custom-6878c55ad2afd" style="">NGN</span>
+</div>
+</div>
+<input type="text" name="name" placeholder="Name" required="">
+<div class="error-box"></div>
+<div class="iti iti--allow-dropdown iti--separate-dial-code">
+  <input type="tel" name="phone" required="" class="phone" autocomplete="off" data-intl-tel-input-id="0"
+    placeholder="Phone number">
+</div>
+<div class="error-box"></div>
+<button type="submit" class="button order-form__button">
+  <span class="submit-text" id="custom-6878c55ad2b01" style="">Order Now</span>
+  <div class="preloader" id="custom-6878c55ad2b05" style="">
+    <span class="dot dot1" id="custom-6878c55ad2b09" style=""></span>
+    <span class="dot dot2" id="custom-6878c55ad2b0d" style=""></span>
+    <span class="dot dot3" id="custom-6878c55ad2b11" style=""></span>
+    <span class="dot dot4" id="custom-6878c55ad2b15" style=""></span>
+  </div>
+</button>
+
+</form>
+</div>
+</div>
+<div class="quiz-nums" id="custom-6878c55ad2b19" style="">
+  <div class="num active" id="custom-6878c55ad2b1e" style=""><span id="custom-6878c55ad2b21" style="">1</span></div>
+  <div class="num" id="custom-6878c55ad2b25" style=""><span id="custom-6878c55ad2b2a" style="">2</span></div>
+  <div class="num" id="custom-6878c55ad2b2e" style=""><span id="custom-6878c55ad2b32" style="">3</span></div>
+</div>
+<div class="quiz-footer" id="custom-6878c55ad2b37" style="">
+  Number of discounted packages:
+  <div class="pcs" id="custom-6878c55ad2b3a" style=""><span id="pcs-left" class="pack_count">46</span> pieces</div>
+</div>
+</div>
+</div>
+<div class="quiz-popup" id="custom-6878c55ad2b3f" style="">
+  <div class="popup__text" id="custom-6878c55ad2b44" style="">Please select at least one option.</div>
+</div>
+<p class="h2" id="custom-6878c55ad2b48" style=""><b>Comments:</b></p>
+<div class="b-comments" id="comm-flag">
+  <div class="b-comments__comment" id="custom-6878c55ad2b4d" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2b52" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2b56" style="">Segun Adeyemi (Ibadan)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2b5b" style="">
+        My whole life I don dey have potency wahala. The doctors just dey say: "Na your body be like that." And now? I suppose just dey live like this?
+        I no fit start family, even though I really want am. I dey live proper life, I get good work, but because of bedroom failures every woman don leave me. In the end I shut everybody out. For me, <a href="#">Posteron</a> na real hope.
+      </div>
+    </div>
+  </div>
+</div>
+<div class="b-comments reply" id="custom-6878c55ad2b5e" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2b62" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2b66" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2b6a" style="">Emeka Nwosu (Enugu)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2b6e" style="">
+        Segun, my brother! This thing no mean anything bad! As a doctor I dey tell you — order the <a href="#">Posteron</a>, and all your wahala go disappear. Everything go be alright, and women go dey run after you! All the best!
+      </div>
+    </div>
+  </div>
+</div>
+<div class="b-comments" id="custom-6878c55ad2b72" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2b76" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2b7a" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2b7f" style="">Ngozi (Benin City)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2b83" style="">
+        I order am for my husband even before the promo. I no get words for wetin we don pass! Thank you for the information! :)) My husband dey like agbero — so energetic, the kind way I no see am for 10 years. We dey for the bedroom all the time. :))
+      </div>
+    </div>
+  </div>
+</div>
+<div class="b-comments" id="custom-6878c55ad2b88" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2b8c" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2b8f" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2b94" style="">Biodun Afolabi (Port Harcourt)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2b98" style="">
+        My first wife and I get problems — she no fully satisfy. My "ability" was average, and the action was short. I even think about surgery, but she leave. Now I dey hope say <a href="#">Posteron</a> go help. I don put am for visible place so I no go forget to take am.
+      </div>
+    </div>
+  </div>
+</div>
+<div class="b-comments" id="custom-6878c55ad2b9c" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2ba0" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2ba5" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2ba8" style="">Chukwudi Eze (Lagos)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2bad" style="">
+        Thank you for the information! This one dey very relevant for me now. As I read about Viagra — its active substance, sildenafil, just dey widen the blood vessels. Yes, blood dey flow into the organ, but libido no dey increase, and the side effects dey massive: for the liver, blood pressure, heart. On the other hand, <a href="#">Posteron</a> dey completely safe for the body!
+      </div>
+    </div>
+  </div>
+</div>
+<div class="b-comments reply" id="custom-6878c55ad2bb1" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2bb5" style="">
+    <img src="images/DOKM.png" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2bb9" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2bbd" style="">Dr. Chukwuemeka Obi (Lagos)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2bc2" style="">
+        Chukwudi, I dey wish you good health! I dey very happy, and I hope say this product go change many people's lives. Regards — Dr. Adewale.
+      </div>
+    </div>
+  </div>
+</div>
+<div class="b-comments" id="custom-6878c55ad2bc6" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2bca" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2bce" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2bd1" style="">Amaka Okonkwo (Ibadan)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2bd5" style="">
+        I decide to join the men's discussion because I get something to say. We order the product for my husband, and yes, we still pay quite some money for am then. But our doctor recommend am — my husband dey have erection wahala. One week later everything return to normal. We dey very happy now! And since then, no problem at all. As a woman I fit say — the size truly increase, especially when he dey aroused. My husband dey ashamed to admit am, but I dey see am clearly!
+      </div>
+    </div>
+  </div>
+</div>
+<div class="b-comments" id="custom-6878c55ad2bd9" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2bdc" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2be0" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2be5" style="">Ifeanyi Obi (Benin City)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2be9" style="">
+        My wife and I don dey try to get pikin for years — but e no work. Due to stress I almost lose my potency. We visit many doctors — dem always prescribe different thing, but nothing help. I come across this article by chance. I go try am. Maybe e go help.
+      </div>
+    </div>
+  </div>
+</div>
+<div class="b-comments reply" id="custom-6878c55ad2bee" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2bf2" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2bf6" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2bfa" style="">Chidinma Eze (Enugu)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2bfe" style="">
+        Ifeanyi, e go surely help you! Try am! <a href="#">Posteron</a> na excellent product! My husband and I also struggle to get pikin for long time. One doctor even tell am say e dey infertile. Two months of treatment and I take in — we dey expect twins now! My husband go soon turn 56!
+      </div>
+    </div>
+  </div>
+</div>
+<div class="b-comments" id="custom-6878c55ad2c02" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2c06" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2c0a" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2c0e" style="">Adaobi Nwosu (Abuja)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2c12" style="">
+        I totally agree with everything wey dem write here! I hear about <a href="#">Posteron</a> by chance, now I dey recommend am for everybody! My husband na truck driver. The vibrations on the road cause him problems, even though everything was fine before. Luckily, <a href="#">Posteron</a> dey exist! Six months don pass since we start using am — for the bedroom, everything dey perfect :) By the way, I order am from the official website, and within the promo I receive am for free. Watch out for scammers!
+      </div>
+    </div>
+  </div>
+</div>
+<div class="b-comments" id="custom-6878c55ad2c17" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2c1b" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2c1e" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2c23" style="">Babatunde Adeyinka (Abeokuta)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2c27" style="">
+        This product help me regain my potency some months ago. My manhood grow visibly. Now I finally dey happy! We no dey leave the bedroom for hours, we even try am for public places. My tool — like a pillar! My wife dey on cloud nine! I truly recommend it for everybody!
+      </div>
+    </div>
+  </div>
+</div>
+<div class="b-comments" id="custom-6878c55ad2c2b" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2c2f" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2c34" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2c38" style="">Tunde Olawale (Port Harcourt)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2c3b" style="">
+        I also get <a href="#">Posteron</a> capsules. E truly dey work. I order am with discount! E arrive in 6 days. At first I just order out of curiosity, I no believe say e go improve erection, and most importantly, extend the action. I come back from work, receive the package, read the instruction manual — e say you fit combine am with alcohol. She drink wine, I drink small ogogoro, and the session last almost 2 hours. We want to watch movie to rest, but once the adverts start — we come together again.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2c3f" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2c43" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="816" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2c47" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2c4b" style="">Emeka Okafor (Surulere, Lagos)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2c4e" style="">
+        I be personal trainer. I done hear about similar supplements for men before, but I always dey skeptical. I think say na just scam and e fit even damage potency. But the doctor for this article convince me! I get one problem — I barely last 10 minutes. I decide to try <a href="#">Posteron</a>. Bros, you cannot imagine — my stamina done increase five times, I fit go up to one hour! And that no even be the limit! I don dey take am for two months now — everything na super!
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2c52" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2c56" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2c5a" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2c5e" style="">Kelechi Obiora (Oshodi, Lagos)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2c62" style="">
+        Emeka, I also doubt whether e go work. E seem like just ordinary advert. But I wrong. Now I dey use <a href="#">Posteron</a> as prevention. At the beginning I no get much hope — nothing else don work before. But two weeks later everything settle for the bedroom. The intimacy last longer, the erection stronger and harder, and even the size increase small small.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2c66" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2c6a" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2c6f" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2c72" style="">Wale Adeleke (Mushin, Lagos)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2c77" style="">
+        After thirty I lose my potency. I feel like my life don finish. Luckily, my wife hear about <a href="#">Posteron</a> and she order am. I don dey use am for two weeks — I dey feel myself like 25 years old again. Thank you for sharing.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2c7b" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2c7f" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2c83" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2c87" style="">Blessing Adunola (Kaduna)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2c8a" style="">
+        My husband na 42, I be 33. We don dey together for 8 years, but in recent years we dey spend less and less time together, and more and more quarrels. After one big fight we almost divorce. I stay for my mama place for three months. Half a year ago I find <a href="#">Posteron</a> on a "How to save your marriage" forum. We dey use am regularly and for long time because e no dey burden the heart. And I still young — I want children.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2c8f" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2c93" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2c97" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2c9b" style="">T. Onyeka (Ibadan)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2c9f" style="">
+        I always dey believe in natural things. But I realize say you no fit just build muscle anyhow without help. Then I find article about <a href="#">Posteron</a>. Famous trainers dey explain there how dem recover and develop their muscles. Go check am out!
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2ca3" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2ca7" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="459" height="459" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2cab" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2caf" style="">Dare (Ikoyi, Lagos)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2cc5" style="">
+        Thank you for this interesting article. I go definitely order am!
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2cc9" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2ccd" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2cd2" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2cd6" style="">Rotimi Adeyemi (Port Harcourt)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2cda" style="">
+        I agree with every word! I hear about <a href="#">Posteron</a> on social media, and I decide to try am because my "instrument" was not reliable enough. I order the full course — and I no regret am. Few weeks later I start exercising, I get plenty energy. My wife dey very satisfied!
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="b-comments" id="custom-6878c55ad2cde" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2ce2" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2ce7" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2cea" style="">Nnamdi Okonkwo (Kano)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2cee" style="">
+        I hear about this product on television. And Dr. Chukwuemeka Obi dey also recommend am. I just no understand — do you pay in advance, or how does the payment work?
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments reply" id="custom-6878c55ad2cf2" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2cf6" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2cfa" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2cfd" style="">Gbenga Afolabi (Ikorodu, Lagos)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2d01" style="">
+        No need to pay advance — that na the main thing. You only pay when you receive the package for your hand. You fit even get up to 50% discount! Plus, the packaging no get any writing about any performance booster — everything dey discreet.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments reply" id="custom-6878c55ad2d05" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2d09" style="">
+    <img src="images/DOKM.png" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2d0d" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2d11" style="">Dr. Chukwuemeka Obi (Lagos)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2d16" style="">
+        Gbenga dey right — go ahead and order without fear! This don help many people already! I recommend am for everybody without exception. As he correctly mention, no advance payment needed — everything settle when you collect from the courier.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2d19" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2d1e" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2d21" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2d25" style="">Funmi Okafor (Enugu)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2d2a" style="">
+        My husband na 48, him "size" never big, but passionate action dey compensate. Unfortunately, after 35 everything start going down — the action last only about 5 minutes. I no dey feel enjoyment again. He na good man, we get children, I no want divorce, but it dey difficult to live like this. I still young, I want love. I dey look at other men, but I fear to act. That na why I buy <a href="#">Posteron</a> for am — maybe e go help change the situation.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2d2e" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2d32" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2d36" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2d3b" style="">Chisom (Owerri)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2d3f" style="">
+        E dey hard to believe... but if this plenty people dey write say e work — then e must truly work. I talk to my husband, he ready to try am. I dey wait for the results, like when I was 20!
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2d43" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2d48" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="832" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2d4c" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2d50" style="">Chukwuma (Benin City)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2d55" style="">
+        Real miracle! I order <a href="#">Posteron</a> as soon as I hear about this promo. My only regret na say dem no invent am five years earlier!
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2d59" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2d5e" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2d61" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2d65" style="">Emeka Nwosu (Abeokuta)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2d6b" style="">
+        <a href="#">Posteron</a> also help me. I almost die because of "Viagra"! I get erection wahala, I think Viagra go help, but e nearly end in disaster. I start looking for alternatives. I try plenty things, but no result. Then I try <a href="#">Posteron</a> — at first nothing, but I no stop. Gradually e improve. Now I dey fully satisfied. I recommend am!
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="b-comments" id="custom-6878c55ad2d6f" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2d73" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="767" height="767" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2d77" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2d7b" style="">Yetunde (Ibadan)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2d7f" style="">
+        Hello everyone! I done order am for my husband... dey wait for the package. :)
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2d83" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2d87" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="816" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2d8c" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2d90" style="">Obinna Nwachukwu (Jos)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2d95" style="">
+        My whole life I get this problem, I think nothing go help — girls always leave. In the end I buy <a href="#">Posteron</a> because of the size increase. Then even my muscles start to grow — double effect! I recommend am!
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments reply" id="custom-6878c55ad2d99" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2d9e" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="816" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2da2" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2da6" style="">Uche Obi (Abeokuta)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2daa" style="">
+        For my own case na the opposite — I was fat, but after the <a href="#">Posteron</a> course my muscles start to grow, my body completely change.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2dae" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2db2" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="529" height="529" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2db6" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2dba" style="">Tolu Adeyemi (Port Harcourt)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2dbe" style="">
+        I dey respect the doctor wey no dey fear to talk about such topics :)
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2dc2" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2dc6" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2dcb" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2dce" style="">Chidi (Kano)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2dd2" style="">
+        Only <a href="#">Posteron</a> help me. I order am on promo — you no go find am in any chemist shop. I dey doubt am, until I contact one guy wey dey write bad reviews online. E turn out say the person na from outside Nigeria, dem dey pay am to write, and the person never even try the product! You must ignore such people — dem just dey deceive people.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments reply" id="custom-6878c55ad2dd7" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2dda" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2ddd" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2de1" style="">Femi Oduola (Lagos)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2de5" style="">
+        Hey Chidi! Yes, these kind of sites dey everywhere. Recently dem expose where all this nonsense dey come from — and e no surprise me at all. No wonder — nowadays dem fit write anything just to blackmail us.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2de9" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2dec" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2df0" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2df4" style="">Emeka Okafor (Kaduna)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2df8" style="">
+        I order <a href="#">Posteron</a> to increase my size — I done hear long time ago say e dey work. And truly! The problems disappear, even though I don give up hope. My wife and I only dey together a few times per year before — now every day! And e grow by 3 cm. Incredible!
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments reply" id="custom-6878c55ad2dfc" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2e01" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2e04" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2e08" style="">Amaka Obi (Warri)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2e0d" style="">
+        Your ladies dey really lucky. I dey jealous. I also want long, thick and strong one. Message me if you dey interested. ;-)
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2e11" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2e15" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="648" height="648" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2e1a" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2e1d" style="">Afolabi (Ado-Ekiti)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2e21" style="">
+        Thank you for this clear and informative article about <a href="#">Posteron</a>. I go definitely order am!
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2e25" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2e29" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2e2d" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2e30" style="">Lanre (Ilorin)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2e35" style="">
+        Bros! Una notice say the taste of the sperm changes? The babes just dey love am! After <a href="#">Posteron</a> dem only dey choose oral action. E dey sweet me well well. I dey recommend am for everybody. As for size — everything na super, none of them fit "fully take" am.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2e39" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2e3d" style="">
+    <img src="images/FARA1.jpg " class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2e41" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2e45" style="">Tochukwu Eze (Sokoto)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2e48" style="">
+        Before the promo I try to save money and order from another site — cheaper. I receive complete rubbish. I vex for myself, later I order from the official giveaway — I get 25% discount. Pity say e no be 50%, but e still good! Thank you! I was stingy and I receive trash :(((((
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments reply" id="custom-6878c55ad2e4d" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2e51" style="">
+    <img src="images/DOKM.png" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2e55" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2e58" style="">Dr. Chukwuemeka Obi (Lagos)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2e5d" style="">
+        Let me remind everyone once more — <a href="#">Posteron</a> MUST be ordered ONLY through the official giveaway. Beware of fake products!
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="b-comments" id="custom-6878c55ad2e61" style="">
+  <div class="b-comments__comment" id="custom-6878c55ad2e65" style="">
+    <img src="images/FARA1.jpg" class="b-comments__item-avatar" width="800" height="800" loading="lazy">
+    <div class="b-comments__item-ind" id="custom-6878c55ad2e69" style="">
+      <div class="b-comments__item-head" id="custom-6878c55ad2e6d" style="">Ife (Sagamu)</div>
+      <div class="b-comments__item-text" id="custom-6878c55ad2e71" style="">
+        If you dey use am regularly — result go come! My penis diameter increase by 4 cm when erect (yes, I measure am). E turn out say my previous erection was weak. Now my babe and I dey happy — the action dey last longer, she dey reach climax before, and I sabi how to control myself. I order more — I keep as backup.
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="#" class="link-btn">Get Posteron with Discount</a>
+
+<div class="footer-mid" id="custom-6878c55ad2e7f" style="">
+  <a href="#">
+    <img src="fonts/healthstat.svg" alt="healthstat" width="479" height="35" loading="lazy">
+  </a>
+  <a href="#">
+    <img src="fonts/ienergeia.svg" alt="ienergeia" width="427" height="35" loading="lazy">
+  </a>
+</div>
+<div class="footer-bot" id="custom-6878c55ad2e82" style="">
+  <div class="footer-bot__copyright" id="custom-6878c55ad2e87" style="">Copyright © 2018 - 2023 NEWSROOM Α.Ε. All rights reserved.</div>
+  <div class="footer-bot__developer" id="custom-6878c55ad2e8c" style="">Developed by: <a href="#">Nuevvo</a>.</div>
+</div>
+    </div>
+  </footer>
+  <script>
+    $(function () {
+      var timerIdPackCountNumber = 49;
+      $(".pack_count").html(timerIdPackCountNumber);
+      var timerIdPackCount = setTimeout(function tick() {
+        timerIdPackCountNumber--;
+        $(".pack_count").html(timerIdPackCountNumber);
+        if (timerIdPackCountNumber > 5) {
+          timerIdPackCount = setTimeout(tick, 60000);
+        }
+      }, 0);
+    });
+  </script>
+  <script
+    async> const LAZY = document.querySelectorAll('img'); for (let i = 0; i < LAZY.length; i++) { LAZY[i].setAttribute('loading', 'lazy'); } </script>
+
+
+  <script>
+    $("a").on("touchend, click", function (e) {
+      e.preventDefault();
+      $('body,html').animate({
+        scrollTop: $('#oneform').offset().top
+      }, 400);
+    });
+  </script>
+
+  <script>
+    $('[name="name"]').on("input", function () {
+      var val = $(this).val();
+
+      var cleaned = val
+        .replace(/[^a-zA-Zа-яА-ЯёЁії ]/g, "")
+        .replace(/^\s+/, "")
+        .replace(/\s\s+/, " ");
+      var parts = cleaned.split(" ");
+      if (parts.length > 2) {
+        cleaned = parts[0] + " " + parts[1];
+      }
+
+      $(this).val(cleaned);
+    });
+    $('[name="name"]').on("change blur", function () {
+      $(this).val($(this).val().trim());
+    });
+
+  $('[name="phone"]').on("input change", function(e) {
+    var val = $(this).val();
+    $(this).val(val.replace(/\D/g, ""));
+    $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+  });
+  </script>
+  <script src="js/quiz-multi.js?=v5"></script>
+
+  <!-- ============================================================
+       NEW PARTNER API
+       Order-transmission + statistics script goes here,
+       per the integration guide.
+  ============================================================ -->
+
+</html>
