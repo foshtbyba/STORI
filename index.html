@@ -629,16 +629,14 @@ Now you fit purchase <a href="#">Posteron</a> with up to 50% discount. Reminder 
     </div>
   </div>
             <!-- ============================================================
-                 ORDER FORM
-                 Old partner integration removed (order.php endpoint and the
-                 fbpx / subid / campaign_id / sid / hash tracking macros).
-                 Set the NEW partner's API endpoint in the form `action`
-                 (or handle the submit via JS) and add its hidden tracking
-                 fields in the block below, per the integration guide.
+                 ORDER FORM — Shakes API integration
+                 Native POST to order.php (the Shakes server-side API script
+                 that transmits the order + statistics to the partner program).
+                 sub1={subid} identifies the conversion and lets the postback
+                 return to the tracker.
             ============================================================ -->
-            <form id="order_form" class="order_form" action="" method="post">
-              <input type="hidden" name="country" value="NG">
-              <!-- NEW PARTNER API HIDDEN FIELDS GO HERE -->
+            <form id="order_form" class="order_form" action="order.php" method="post">
+              <input type="hidden" name="sub1" value="{subid}">
               <div class="prices" id="custom-6878c55ad2ae6" style="">
                <div class="old price_old" id="custom-6878c55ad2aea" style="">
   <span class="price_main_value" id="custom-6878c55ad2aee" style="">118000</span> <span
@@ -1212,11 +1210,5 @@ Now you fit purchase <a href="#">Posteron</a> with up to 50% discount. Reminder 
   });
   </script>
   <script src="js/quiz-multi.js?=v5"></script>
-
-  <!-- ============================================================
-       NEW PARTNER API
-       Order-transmission + statistics script goes here,
-       per the integration guide.
-  ============================================================ -->
 
 </html>
