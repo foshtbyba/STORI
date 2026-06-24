@@ -57,15 +57,6 @@ curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
  */
 try {
     $responseBody = curl_exec($curl);
-    /**
-     * Логируем все ответы сервера для возможной диагностики проблемы отправки
-     * @see http://php.net/manual/ru/function.file-put-contents.php
-     */
-    @file_put_contents(
-        __DIR__ . '/shakes.response.log',
-        date('Y.m.d H:i:s') . ' ' . $responseBody,
-        FILE_APPEND
-    );
 
     // тело оказалось пустым
     if (empty($responseBody)) {
@@ -86,31 +77,12 @@ try {
             . PHP_EOL . 'Response: ' . var_export($response, true)
         );
     }
-    /**
-     * Логируем данные об обработке заказа
-     * @see http://php.net/manual/ru/function.file-put-contents.php
-     */
-    @file_put_contents(
-        __DIR__ . '/order.success.log',
-        date('Y.m.d H:i:s') . ' ' . $responseBody,
-        FILE_APPEND
-    );
     curl_close($curl);
 
     if (!empty($successPage) && is_file(__DIR__ . '/' . $successPage)) {
         include __DIR__ . '/' . $successPage;
     }
 } catch (Exception $e) {
-    /**
-     * Логируем ошибку
-     * @see http://php.net/manual/ru/function.file-put-contents.php
-     */
-    @file_put_contents(
-        __DIR__ . '/order.error.log',
-        date('Y.m.d H:i:s') . ' ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString(),
-        FILE_APPEND
-    );
-
     if (!empty($errorPage) && is_file(__DIR__ . '/' . $errorPage)) {
         include __DIR__ . '/' . $errorPage;
     }
