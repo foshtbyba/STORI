@@ -10,6 +10,24 @@
     <link href="css/css.css" media="all" rel="stylesheet" />
     <link rel="icon" href="favicon.ico" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+
+    <!-- Meta Pixel (lead tracking) -->
+    <script>
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      (function () {
+        // Pixel ID: URL ?fbpx= -> макрос {fbpx} -> фолбэк. На лендинге сохраняем в localStorage.
+        var p = new URLSearchParams(location.search).get('fbpx');
+        if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+        if (p) { try { localStorage.setItem('fb_pixel', p); } catch (e) {} }
+        if (!p) p = '1421836846448558';
+        if (p) { fbq('init', p); fbq('track', 'PageView'); }
+      })();
+    </script>
+    <!-- End Meta Pixel -->
 </head>
 
 <body>
