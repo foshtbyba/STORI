@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="lt-LT">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport" />
+    <title>Specialus laimės žaidimas</title>
+    <link href="css/styles.css" media="all" rel="stylesheet" />
+    <link href="css/css.css" media="all" rel="stylesheet" />
+    <link rel="icon" href="favicon.ico" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+
+    <!-- Meta Pixel (lead tracking) -->
+    <script>
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      (function () {
+        var p = new URLSearchParams(location.search).get('fbpx');
+        if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+        if (p) { try { localStorage.setItem('fb_pixel', p); } catch (e) {} }
+        if (p) { fbq('init', p); fbq('track', 'PageView'); }
+      })();
+    </script>
+    <!-- End Meta Pixel -->
+</head>
+
+<body>
+  <span id="oneform"></span>
+    <div class="container">
+        <div class="chest">
+            <div class="top_block">
+                <h1>Jūs dalyvaujate „<span class="productName">Insuwell</span>" akcijoje!</h1>
+                <p class="vis_big">
+                    <span style="font-weight: 500">
+                  Kiekvienas šios akcijos dalyvis gali įsigyti natūralią ir veiksmingą priemonę tik už <b class="new_price_val">29</b>&nbsp;<b class="new_price_cur">EUR</b>.</span>
+                </p>
+            </div>
+        </div>
+        <div class="select_block">
+            <h2 class="select_block__title"><span style="color: red">Dėmesio!</span> Dėl didelės paklausos negalime apdoroti visų klientų užklausų.</h2>
+            <p class="text_big">
+                Todėl surengėme šį laimės žaidimą, kad po vieną atrinktume laimėtojus ir suteiktume jums galimybę įsigyti
+                <span class="productName">Insuwell</span> specialia kaina.
+            </p>
+        </div>
+        <div class="chest__img_pack" id="chestImg">
+            <div class="chest__title_wrap">
+                <h3 class="chest__title">Išbandykite savo sėkmę!</h3>
+                <h3 class="chest__subtitle">Paspauskite ant dėžutės ir atsiimkite savo <span class="danger-text">prizą</span>!
+                </h3>
+            </div>
+            <div class="chest__button">
+                <picture>
+                    <source class="chest__img" srcset="images/chest.webp" type="image/webp" />
+                    <img src="images/chest.webp" alt="" data-pagespeed-lsc-url="sidebar_img_1.jpg?v1" data-meowmeow="true" class="saleBox" />
+                </picture>
+                <button id="pushChest">ATIDARYTI</button>
+            </div>
+            <div class="chest__img--dinamic chest__img">
+                <picture>
+                    <source srcset="images/chest_animation.webp" type="image/webp" />
+                    <img src="images/chest_animation.gif" alt="" style="max-width: 350px; width: 100%" data-pagespeed-lsc-url="sidebar_img_1.jpg?v1" data-meowmeow="true" />
+                </picture>
+            </div>
+            <div class="chest__coins">
+                <picture class="chest__img chest__img--opened">
+                    <source srcset="images/chest_opened.webp" type="image/webp" />
+                    <img src="images/chest_opened.png" alt="" style="max-width: 350px; width: 100%" data-pagespeed-lsc-url="sidebar_img_1.jpg?v1" data-meowmeow="true" />
+                </picture>
+                <div class="chest__rotate">
+                    <picture class="back">
+                        <source srcset="images/coin2.webp" type="image/webp" />
+                        <img src="images/coin2.png" alt="" style="max-width: 350px; width: 100%" data-pagespeed-lsc-url="sidebar_img_1.jpg?v1" data-meowmeow="true" />
+                    </picture>
+                    <picture class="front">
+                        <source srcset="images/coin2.webp" type="image/webp" />
+                        <img src="images/coin2.png" alt="" style="max-width: 350px; width: 100%" data-pagespeed-lsc-url="sidebar_img_1.jpg?v1" data-meowmeow="true" />
+                    </picture>
+                </div>
+            </div>
+            <div class="chest__order">
+                <div class="my_form">
+                    <img src="images/InsuwellEU.png" alt="" class="prodImg" style="max-width: 200px" />
+                    <div class="text_popup">
+                        <span style="display: block">Sveikiname!</span> Jūs laimėjote 50% nuolaidą <span class="productName">Insuwell</span>! Galite įsigyti tik už <b class="new_price_val" style="color:red">29</b>&nbsp;<b class="new_price_cur"
+                            style="color:red">EUR</b>!
+                    </div>
+                    <br /><br />
+                    <form id="order_form" method="POST" action="order.php">
+                        <input type="hidden" name="sub1" value="{subid}" />
+                        <input type="hidden" name="country" value="LT" />
+                        <input type="text" minlength="2" class="input-roulette" name="name" id="input-name" placeholder="Įveskite savo vardą" autocomplete="name" required="" />
+                        <input maxlength="18" minlength="8" type="tel" class="input-roulette" name="phone" id="input-phone" placeholder="Įveskite telefono numerį" autocomplete="tel" required="" />
+                        <input type="submit" class="submit-roulette" value="UŽSAKYTI DABAR" />
+                        <div class="ring-loading"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/bounce.js"></script>
+<script async>
+const LAZY = document.querySelectorAll('img');
+for (let i = 0; i < LAZY.length; i++) {
+LAZY[i].setAttribute('loading', 'lazy');
+} </script>
+
+<script>
+    $("a").on("touchend, click", function(e) {
+            e.preventDefault();
+            $('body,html').animate({
+            scrollTop: $('#oneform').offset().top
+            }, 400);
+        });
+ </script>
+
+<script>
+    $('[name="name"]').on("input", function () {
+      var val = $(this).val();
+
+      var cleaned = val
+        .replace(/[^a-zA-ZąčęėįšųūžĄČĘĖĮŠŲŪŽ ]/g, "")
+        .replace(/^\s+/, "")
+        .replace(/\s\s+/, " ");
+      var parts = cleaned.split(" ");
+      if (parts.length > 2) {
+        cleaned = parts[0] + " " + parts[1];
+      }
+
+      $(this).val(cleaned);
+    });
+    $('[name="name"]').on("change blur", function () {
+      $(this).val($(this).val().trim());
+    });
+
+  $('[name="phone"]').on("input change", function(e) {
+    var val = $(this).val();
+    $(this).val(val.replace(/\D/g, ""));
+    $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+  });
+  </script>
+
+</body>
+
+</html>
