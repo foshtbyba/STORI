@@ -10,8 +10,7 @@ $domain = 'shakes.pro';
 // URL оригинального лендинга
 $landingUrl = 'https://ltl1-insuwell.diabetsh.com';
 // Идентификатор оффера (Insuwell, LT)
-// TODO: заменить на реальный offerId для Insuwell
-$offerId = 'ЗАМЕНИ_НА_РЕАЛЬНЫЙ_ID';
+$offerId = '16232';
 // Код потока
 $streamCode = '';
 // Страница, отдаваемая при успешном заказе
