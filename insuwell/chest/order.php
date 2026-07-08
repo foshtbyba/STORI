@@ -8,7 +8,7 @@ $apiKey = 'f825ffeff11da49a86dc5d095c648f3c';
 // Домен проекта, на который происходит отправка заказов
 $domain = 'shakes.pro';
 // URL оригинального лендинга
-$landingUrl = 'https://ltl1-insuwell.diabetsh.com';
+$landingUrl = 'https://ltl2-insuwell.diabetsh.com';
 // Идентификатор оффера (Insuwell, LT)
 // TODO: заменить на реальный offerId для Insuwell
 $offerId = 'ЗАМЕНИ_НА_РЕАЛЬНЫЙ_ID';
