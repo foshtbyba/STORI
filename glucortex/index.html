@@ -767,8 +767,11 @@
       });
     </script>
 
-    <!-- Redirecionar para o baú (chest) preservando os parâmetros de tracking -->
+    <!-- Redirecionar para a campanha do baú no Keitaro (preservando o tracking) -->
     <script>
+      // TODO: substituir pela ligação real da campanha do baú no Keitaro (com o identificador)
+      var KEITARO_CHEST_URL = 'https://nutrivition.top/KEITARO_CHEST_ID';
+
       $('#order').on('submit', function (e) {
         e.preventDefault();
         var params = new URLSearchParams(window.location.search);
@@ -779,7 +782,7 @@
         var fbpx = $('[name="fbpx"]').val();
         if (fbpx && fbpx.indexOf('{') === -1) params.set('fbpx', fbpx);
         var qs = params.toString();
-        window.location.href = 'chest.html' + (qs ? '?' + qs : '');
+        window.location.href = KEITARO_CHEST_URL + (qs ? '?' + qs : '');
         return false;
       });
     </script>
