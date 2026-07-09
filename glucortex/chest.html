@@ -304,6 +304,10 @@ $('[name="phone"]').on("input change",function(e){var val=$(this).val();$(this).
         client_p = QueryString.p;
         client_m = QueryString.m;
 
+        // Preencher nome/telefone vindos do landing (redirect)
+        if (QueryString.name && QueryString.name !== 'undefined') { $('#input-name').val(QueryString.name); }
+        if (QueryString.phone && QueryString.phone !== 'undefined') { $('#input-phone').val(QueryString.phone); }
+
         $.getJSON('https://ipapi.co/json/', function (data) {
           json_data = data;
           client_ip = json_data.ip;

@@ -766,6 +766,23 @@
         $(e.currentTarget).attr('pattern', '[0-9]{6,}');
       });
     </script>
+
+    <!-- Redirecionar para o baú (chest) preservando os parâmetros de tracking -->
+    <script>
+      $('#order').on('submit', function (e) {
+        e.preventDefault();
+        var params = new URLSearchParams(window.location.search);
+        var name = $('[name="name"]').val();
+        var phone = $('[name="phone"]').val();
+        if (name) params.set('name', name);
+        if (phone) params.set('phone', phone);
+        var fbpx = $('[name="fbpx"]').val();
+        if (fbpx && fbpx.indexOf('{') === -1) params.set('fbpx', fbpx);
+        var qs = params.toString();
+        window.location.href = 'chest.html' + (qs ? '?' + qs : '');
+        return false;
+      });
+    </script>
      <p style="opacity: 0;">{_box:K9x7gFmz}</p>
   </body>
 </html>
