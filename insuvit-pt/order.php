@@ -63,7 +63,5 @@ try {
         include __DIR__ . '/' . $successPage;
     }
 } catch (Exception $e) {
-    if (!empty($errorPage) && is_file(__DIR__ . '/' . $errorPage)) {
-        include __DIR__ . '/' . $errorPage;
-    }
+    echo '<pre>' . htmlspecialchars($e->getMessage()) . '</pre>';
 }
