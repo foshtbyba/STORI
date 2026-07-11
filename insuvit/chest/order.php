@@ -8,7 +8,7 @@ $apiKey = 'f825ffeff11da49a86dc5d095c648f3c';
 // Домен проекта, на который происходит отправка заказов
 $domain = 'shakes.pro';
 // URL оригинального лендинга
-$landingUrl = 'https://it2.insuvit.diabetsh.com';
+$landingUrl = 'https://it3.insuvit.diabetsh.com';
 // Идентификатор оффера (Insuvit, IT)
 $offerId = '13799';
 // Код потока
