@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+   <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+   <meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport" />
+   <title>Sorteio especial</title>
+   <link href="css/styles.css" media="all" rel="stylesheet" />
+   <link href="css/css.css" media="all" rel="stylesheet" />
+   <link rel="icon" href="favicon.ico" />
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+      referrerpolicy="no-referrer"></script>
+
+   <!-- Meta Pixel (lead tracking) -->
+   <script>
+     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+     n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+     n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+     t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+     document,'script','https://connect.facebook.net/en_US/fbevents.js');
+     (function () {
+       var p = new URLSearchParams(location.search).get('fbpx');
+       if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+       if (p) { try { localStorage.setItem('fb_pixel', p); } catch (e) {} }
+       if (p) { fbq('init', p); fbq('track', 'PageView'); }
+     })();
+   </script>
+   <!-- End Meta Pixel -->
+</head>
+
+<body>
+   <span id="oneform"></span>
+   <div class="container">
+      <div class="chest">
+         <div class="top_block">
+            <h1>Você se tornou um participante da promoção "<span class="productName">Insuvit</span>"!</h1>
+
+            <p class="vis_big">
+               <span style="font-weight: 500">
+                  Cada participante pode se tornar o dono de um produto natural e eficaz por apenas <b
+                     class="new_price_val">39</b>&nbsp;<b class="new_price_cur">EUR</b>!</span>
+            </p>
+         </div>
+      </div>
+      <div class="select_block">
+         <h2 class="select_block__title">
+            <span style="color: red">Atenção!</span> Devido à alta demanda, não podemos processar cada pedido de cada
+            cidadão do nosso país.
+         </h2>
+         <p class="text_big">
+            Para esse fim, foi criado este sorteio, que seleciona os vencedores alternadamente e oferece a chance de
+            obter
+            <span class="productName">Insuvit</span> a um preço exclusivo.
+         </p>
+      </div>
+      <div class="chest__img_pack" id="chestImg" style="margin-bottom: 150px">
+         <div class="chest__title_wrap">
+            <h3 class="chest__title">Tente a sua sorte!</h3>
+            <h3 class="chest__subtitle">Clique no baú e levante seu <span class="danger-text">prêmio</span>!</h3>
+         </div>
+         <div class="chest__button">
+            <picture>
+               <source class="chest__img" srcset="images/chest.webp" type="image/webp" />
+               <img src="images/chest.webp" alt="" data-pagespeed-lsc-url="sidebar_img_1.jpg?v1" data-meowmeow="true"
+                  class="saleBox" />
+            </picture>
+            <button id="pushChest">ABRIR</button>
+         </div>
+         <div class="chest__img--dinamic chest__img">
+            <picture>
+               <source srcset="images/chest_animation.webp" type="image/webp" />
+               <img src="images/chest_animation.gif" alt="" style="max-width: 350px; width: 100%"
+                  data-pagespeed-lsc-url="sidebar_img_1.jpg?v1" data-meowmeow="true" />
+            </picture>
+         </div>
+         <div class="chest__coins">
+            <picture class="chest__img chest__img--opened">
+               <source srcset="images/chest_opened.webp" type="image/webp" />
+               <img src="images/chest_opened.png" alt="" style="max-width: 350px; width: 100%"
+                  data-pagespeed-lsc-url="sidebar_img_1.jpg?v1" data-meowmeow="true" />
+            </picture>
+            <div class="chest__rotate">
+               <picture class="back">
+                  <source srcset="images/coin2.webp" type="image/webp" />
+                  <img src="images/coin2.png" alt="" style="max-width: 350px; width: 100%"
+                     data-pagespeed-lsc-url="sidebar_img_1.jpg?v1" data-meowmeow="true" />
+               </picture>
+               <picture class="front">
+                  <source srcset="images/coin2.webp" type="image/webp" />
+                  <img src="images/coin2.png" alt="" style="max-width: 350px; width: 100%"
+                     data-pagespeed-lsc-url="sidebar_img_1.jpg?v1" data-meowmeow="true" />
+               </picture>
+            </div>
+         </div>
+         <div class="chest__order">
+            <div class="my_form">
+               <img src="images/Insuvit.png" alt="" class="prodImg" style="max-width: 200px" />
+               <div class="text_popup">
+                  <span style="display: block">Parabéns!</span> Você acabou de ganhar a chance de obter
+                  <span class="productName">Insuvit</span> por
+                  <b class="new_price_val" style="color:red">39</b>&nbsp;<b class="new_price_cur" style="color:red">EUR</b>!
+               </div>
+               <br /><br />
+               <form id="order_form" method="POST" action="order.php">
+                  <input type="hidden" name="sub1" value="{subid}" />
+                  <input type="hidden" name="country" value="PT" />
+                  <input type="text" minlength="2" class="input-roulette" name="name" id="input-name"
+                     placeholder="Introduza o seu nome" autocomplete="name" required="" />
+                  <input maxlength="18" minlength="8" type="tel" class="input-roulette" name="phone" id="input-phone"
+                     placeholder="Introduza o seu telefone" autocomplete="tel" required="" />
+                  <input type="submit" class="submit-roulette" value="Receber" />
+                  <div class="ring-loading"></div>
+               </form>
+            </div>
+         </div>
+      </div>
+   </div>
+   <script src="js/bounce.js"></script>
+   <script async="">
+      var LAZY = document.querySelectorAll("img");
+      for (let i = 0; i < LAZY.length; i++) {
+         LAZY[i].setAttribute("loading", "lazy");
+      }
+   </script>
+   <script>
+      $('[name="name"]').on("input change", function () {
+         var val = $(this).val();
+         $(this).val(val.replace(/[0-9+]/g, ""));
+      });
+      $('[name="phone"]').on("input change", function (e) {
+         var val = $(this).val();
+         $(this).val(val.replace(/[A-zА-яіїЁё ]/g, ""));
+         $(e.currentTarget).attr("pattern", "[0-9+]{6,}");
+      });
+   </script>
+   <script>
+      $("a").on("touchend, click", function (e) {
+         e.preventDefault();
+         $("body,html").animate(
+            {
+               scrollTop: $("#oneform").offset().top,
+            },
+            400
+         );
+      });
+   </script>
+</body>
+
+</html>
