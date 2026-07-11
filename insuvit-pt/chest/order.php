@@ -6,7 +6,7 @@
 $apiKey = 'f825ffeff11da49a86dc5d095c648f3c';
 $domain = 'shakes.pro';
 $landingUrl = 'https://pt3.insuvit.diabetsh.com';
-$offerId = '13799';
+$offerId = '13847';
 $streamCode = '';
 $successPage = 'success.html';
 $errorPage = 'index.html';
