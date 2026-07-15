@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="el">
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+  <meta charset="utf-8">
+  <title>«Επισκέπτομαι αυτούς που κανείς πια δεν επισκέπτεται» — ο νεαρός Έλληνας γιατρός που περιποιείται τις αρθρώσεις ηλικιωμένων που έχουν εγκαταλειφθεί σε γηροκομεία</title>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="no-cache" http-equiv="Cache-Control">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="telephone=no" name="format-detection">
+  <meta content="no-referrer" name="referrer">
+  <meta content="noindex, nofollow" name="robots">
+
+  <link rel="icon" href="images/product.png?=v1?=v1">
+
+  <style>
+    :root {
+      --color-primary: #0a5c9e;
+      --color-primary-dark: #084678;
+      --color-primary-light: #e8f2fa;
+      --color-accent: #0284c7;
+      --color-danger: #c0392b;
+      --color-danger-light: #fdecea;
+      --color-success: #1e8449;
+      --color-success-light: #e8f5ee;
+      --color-warning: #b7791f;
+      --color-text: #1a2b42;
+      --color-text-muted: #4a5a70;
+      --color-text-light: #6b7a8f;
+      --color-bg: #ffffff;
+      --color-bg-soft: #f7fafc;
+      --color-bg-alt: #eef4f9;
+      --color-border: #d9e2ec;
+      --color-border-soft: #e4ebf2;
+      --shadow-sm: 0 1px 2px rgba(10, 92, 158, 0.04), 0 1px 3px rgba(10, 92, 158, 0.06);
+      --shadow-md: 0 4px 12px rgba(10, 92, 158, 0.08), 0 2px 4px rgba(10, 92, 158, 0.04);
+      --shadow-lg: 0 10px 25px rgba(10, 92, 158, 0.10), 0 4px 10px rgba(10, 92, 158, 0.05);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-serif: 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin:0; padding:0; font-family:var(--font-sans); font-size:17px; line-height:1.65; color:var(--color-text); background:var(--color-bg-soft); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .clinical-topbar { background:var(--color-primary-dark); color:#fff; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; padding:8px 16px; text-align:center; font-weight:500; }
+    .clinical-topbar::before { content:"⚕ "; margin-right:6px; }
+    .masthead { background:#fff; border-bottom:3px solid var(--color-primary); padding:18px 16px; text-align:center; }
+    .masthead-inner { max-width:900px; margin:0 auto; display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+    .masthead-logo { display:inline-flex; align-items:center; gap:10px; font-family:var(--font-serif); font-weight:700; font-size:22px; color:var(--color-primary-dark); letter-spacing:-0.01em; }
+    .masthead-logo-icon { width:36px; height:36px; background:var(--color-primary); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:700; }
+    .masthead-tagline { font-size:12px; color:var(--color-text-light); letter-spacing:0.08em; text-transform:uppercase; border-left:1px solid var(--color-border); padding-left:14px; font-weight:500; }
+    @media (max-width:560px) { .masthead-tagline { border-left:0; padding-left:0; font-size:11px; width:100%; border-top:1px solid var(--color-border); padding-top:8px; margin-top:4px; } }
+    header { max-width:900px; margin:0 auto; padding:0; }
+    .bg-image { text-align:center; }
+    .bg-image img { max-width:100%; height:auto; display:inline-block; }
+    .text-container { display:block; }
+    .h1-bg { position:relative; max-width:900px; margin:0 auto; padding:28px 22px 20px; background:#fff; border-bottom:1px solid var(--color-border); }
+    .h1-bg::before { content:""; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%); }
+    .title_h1 { font-family:var(--font-serif); font-size:26px; line-height:1.25; color:var(--color-text); font-weight:700; margin:0 0 14px; letter-spacing:-0.01em; }
+    .head-one-part { color:var(--color-danger); }
+    .head-two-part { display:block; }
+    .head-main-date { font-size:13px; color:var(--color-text-light); padding:0; display:flex; align-items:center; gap:8px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px dashed var(--color-border); }
+    .head-main-date::before { content:"📅"; font-size:14px; }
+    .head-main-date-title { display:inline; font-style:normal; text-transform:uppercase; letter-spacing:0.05em; font-weight:500; }
+    .main-subtitle { display:block; padding:16px 18px; color:var(--color-text); font-size:17px; border-radius:var(--radius-md); font-weight:500; border-left:4px solid var(--color-primary); background:var(--color-primary-light); line-height:1.55; font-style:normal; margin:0; box-shadow:none; }
+    @media (max-width:640px) { .title_h1 { font-size:20px; } .main-subtitle { font-size:15px; padding:14px 14px; } .h1-bg { padding:22px 16px 18px; } }
+    main { max-width:900px; margin:0 auto; padding:24px 22px 40px; background:#fff; border-left:1px solid var(--color-border-soft); border-right:1px solid var(--color-border-soft); }
+    @media (max-width:640px) { main { padding:18px 14px 30px; } }
+    main p { margin:0 0 16px; color:var(--color-text); }
+    main img { max-width:100%; height:auto; border-radius:var(--radius-md); }
+    main h2 { font-family:var(--font-serif); font-size:24px; line-height:1.3; font-weight:700; color:var(--color-primary-dark); margin:32px 0 16px; padding-bottom:12px; border-bottom:2px solid var(--color-primary-light); letter-spacing:-0.01em; }
+    main h2 span { display:block; font-family:var(--font-sans); font-size:16px; font-weight:500; color:var(--color-text-muted); margin-top:10px; margin-bottom:0; line-height:1.5; }
+    main h3 { font-family:var(--font-serif); font-size:19px; color:var(--color-primary-dark); margin:22px 0 12px; font-weight:600; }
+    @media (max-width:640px) { main h2 { font-size:19px; } main h2 span { font-size:15px; } }
+    main ul { padding-left:0; list-style:none; margin:16px 0; background:var(--color-bg-soft); border:1px solid var(--color-border-soft); border-radius:var(--radius-md); padding:14px 18px 14px 20px; }
+    main ul li { position:relative; padding-left:22px; margin-bottom:8px; line-height:1.5; }
+    main ul li::before { content:""; position:absolute; left:0; top:10px; width:10px; height:10px; border:2px solid var(--color-primary); border-radius:50%; background:#fff; }
+    main ul li:last-child { margin-bottom:0; }
+    .red-txt { color:var(--color-danger); font-weight:600; }
+    .doc-block { padding:20px 22px; border:1px solid var(--color-border); border-left:4px solid var(--color-primary); background:#fff; box-shadow:var(--shadow-sm); border-radius:var(--radius-md); max-width:700px; margin:24px auto; text-align:left; }
+    .doc-block img { border-radius:var(--radius-md); margin-bottom:14px; }
+    .doc-block p { padding:0; margin:0 0 12px; font-size:16px; line-height:1.6; }
+    .doc-block p:last-child { margin-bottom:0; }
+    .doc-block p b { color:var(--color-primary-dark); }
+    figure { margin:22px 0; padding:0; text-align:center; }
+    figure img { border-radius:var(--radius-md); box-shadow:var(--shadow-md); max-width:100%; height:auto; }
+    figure figcaption { margin-top:12px; padding:10px 14px; font-size:14px; line-height:1.5; color:var(--color-text-muted); background:var(--color-bg-soft); border-left:3px solid var(--color-primary); border-radius:0 var(--radius-sm) var(--radius-sm) 0; text-align:left; font-style:italic; }
+    figure.cap-bold figcaption { font-style:normal; font-weight:500; color:var(--color-text); }
+    .img-card { border:1px solid var(--color-border); padding:6px; background:#fff; box-shadow:var(--shadow-md); border-radius:var(--radius-md); }
+    .img-card2 { border:1px solid var(--color-border); padding:6px; background:#fff; border-radius:var(--radius-md); }
+    .pachino-ramka312-block { margin:24px 0; }
+    .pachino-ramka312 { background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.25); border-left:4px solid var(--color-danger); border-radius:var(--radius-md); padding:18px 20px; color:var(--color-text); font-weight:500; box-shadow:none; margin:0; font-size:16px; line-height:1.6; position:relative; }
+    .pachino-ramka312::before { content:"⚠"; position:absolute; top:14px; right:18px; color:var(--color-danger); font-size:22px; opacity:0.7; }
+    .pachino-ramka312 .obertka-1 { display:block; }
+    .rev-block { margin:24px 0; padding:20px 22px; background:var(--color-primary-light); border:1px solid rgba(10,92,158,0.15); border-left:4px solid var(--color-primary); border-radius:var(--radius-md); box-shadow:none; }
+    .rev-block p { font-size:16px; line-height:1.6; margin-bottom:12px; }
+    .rev-block img { border-radius:var(--radius-md); margin-bottom:14px; max-width:100%; }
+    .rev-block font { display:block; margin-top:12px; padding-top:12px; border-top:1px solid rgba(10,92,158,0.15); color:var(--color-primary-dark); font-size:15px; }
+    .rev-block font b { font-weight:600; }
+    .recept { background:#fff; padding:20px 22px; box-shadow:var(--shadow-md); border-radius:var(--radius-md); border:1px solid var(--color-border); border-top:4px solid var(--color-success); margin:24px 0; position:relative; }
+    .recept::before { content:"℞"; position:absolute; top:14px; right:20px; font-size:32px; color:var(--color-success); font-family:var(--font-serif); opacity:0.4; line-height:1; }
+    .recept p b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green { margin:12px 0 0 !important; padding:0 !important; background:transparent !important; border:0 !important; list-style:none; }
+    .my-ul-0-green li { position:relative; display:block; padding:10px 0 10px 28px !important; margin:0 !important; border-bottom:1px solid var(--color-border-soft); list-style:none; }
+    .my-ul-0-green li::before { content:"✓" !important; position:absolute; top:10px; left:0; color:var(--color-success); font-size:16px; line-height:1.5; font-weight:700; border:0 !important; background:transparent !important; width:auto !important; height:auto !important; border-radius:0 !important; }
+    .my-ul-0-green li:last-child { border-bottom:0; }
+    .my-ul-0-green li b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green font { font-size:14px; display:block; margin-top:4px; color:var(--color-text-muted); }
+    .obertk512 { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); max-width:780px; margin:28px auto; padding:0; line-height:1.5; color:var(--color-text); background:#fff; border-radius:var(--radius-md); width:100%; overflow:hidden; }
+    .obertk512 h1 { font-family:var(--font-serif); line-height:1.3; margin:0; color:#fff; font-size:18px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .block-offer-actions-block { padding:10px 22px 22px; border:0; }
+    .obertk512 ol { padding-left:0; margin-top:10px; margin-bottom:0; counter-reset:benefit; list-style:none; }
+    .obertk512 li { line-height:1.4; padding:16px 0 16px 50px; border-bottom:1px solid var(--color-border-soft); position:relative; counter-increment:benefit; }
+    .obertk512 li::before { content:counter(benefit); position:absolute; left:0; top:14px; width:36px; height:36px; background:var(--color-primary-light); color:var(--color-primary-dark); border-radius:50%; font-weight:700; font-size:16px; display:flex; align-items:center; justify-content:center; border:2px solid var(--color-primary); }
+    .obertk512 li::marker { content:none; }
+    .obertk512 li:last-child { border-bottom:0; }
+    .obertk512 li font { line-height:1.3; color:var(--color-primary-dark); text-align:left; font-weight:600; font-size:17px; display:block; margin-bottom:6px; }
+    .block-offer-actions-block li span { display:block; font-size:15px; line-height:1.5; font-weight:400; color:var(--color-text-muted); margin:0; padding:0; border-bottom:0; }
+    .table-block { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); border-radius:var(--radius-md); max-width:700px; margin:28px auto; padding:0; font-size:16px; line-height:1.5; color:var(--color-text); background:#fff; width:100%; overflow:hidden; }
+    .table-block h1 { font-family:var(--font-serif); line-height:1.35; margin:0; color:#fff; font-size:17px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .table { width:100%; max-width:100%; border-collapse:collapse; font-family:var(--font-sans); margin:0; background:#fff; }
+    .table tr:nth-child(even) td { background:var(--color-bg-soft) !important; }
+    .table td { border:0 !important; border-bottom:1px solid var(--color-border-soft) !important; padding:12px 16px !important; vertical-align:middle; background:#fff !important; }
+    .table tr:last-child td { border-bottom:0 !important; }
+    .table td.one { text-align:left; width:75%; font-size:15px; font-weight:500; color:var(--color-text); }
+    .table td.two { font-size:18px; color:var(--color-success); text-align:right; font-weight:700; width:25%; white-space:nowrap; }
+    @media (max-width:560px) { .table td.one { font-size:14px; } .table td.two { font-size:16px; } .table td { padding:10px 12px !important; } }
+    .pachino-ramka2 { text-align:left; color:var(--color-success); font-weight:600; border:1px solid rgba(30,132,73,0.25); border-left:4px solid var(--color-success); border-radius:var(--radius-md); padding:18px 20px; background:var(--color-success-light); box-shadow:none; margin:20px 0; font-size:16px; line-height:1.55; }
+    .pachino-ramka { border:1px solid rgba(183,121,31,0.3); border-left:4px solid var(--color-warning); padding:18px 20px; border-radius:var(--radius-md); background:#fff9ef; margin:20px 0; font-size:16px; line-height:1.55; position:relative; }
+    .pachino-ramka::before { content:"🕐"; position:absolute; top:14px; right:18px; font-size:22px; opacity:0.8; }
+    .ramka-title { display:block; color:var(--color-warning); padding:0; margin-bottom:10px; font-weight:700 !important; background:transparent; text-transform:uppercase; font-size:13px; letter-spacing:0.06em; }
+    .pachino-ramka font { color:var(--color-danger); font-weight:600; }
+    .noclose-cta { font-size:15px; max-width:780px; margin:16px auto; display:block; background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.2); padding:12px 16px; border-radius:var(--radius-md); line-height:1.5; }
+    .pre-cta { display:block; color:var(--color-success); font-weight:500; font-size:16px; margin-top:12px; }
+    .nowrap { white-space:nowrap; }
+    .pachinoform { padding:0; font-size:17px; line-height:1.5; color:var(--color-text); border:1px solid var(--color-border); background:#fff; display:block; border-radius:var(--radius-lg); width:100%; max-width:780px; margin:24px auto; box-shadow:var(--shadow-lg); overflow:hidden; }
+    .pachinoform_title { display:flex; gap:16px; max-width:none; align-self:stretch; text-align:left; background:var(--color-primary); color:#fff; padding:20px 24px; align-items:center; }
+    .pachinoform_title_logo { flex-shrink:0; background:#fff; padding:6px; border-radius:50%; width:56px; height:56px; display:flex; align-items:center; justify-content:center; }
+    .pachinoform_title_logo img { max-width:100%; height:auto; }
+    .pachinoform_title_text { align-self:center; color:#fff; font-size:15px; line-height:1.4; }
+    .pachinoform_title_text>b { display:block; line-height:1.3; font-size:17px; margin-bottom:4px; color:#fff; font-weight:600; }
+    .pachinoform_order { max-width:none; font-weight:500; font-size:15px; margin:0; text-align:center; padding:16px 24px; background:var(--color-primary-light); border-bottom:1px solid var(--color-border-soft); color:var(--color-text); line-height:1.5; }
+    .pachinoform_order>b { color:var(--color-danger); font-weight:700; }
+    .pachinoform_value { display:flex; color:var(--color-text); font-weight:600; font-size:15px; align-items:center; justify-content:center; padding:16px 24px 0; flex-wrap:wrap; gap:10px; }
+    .pachinoform_value_current { border:2px solid var(--color-danger); color:var(--color-danger); line-height:1; font-size:22px; padding:6px 18px; margin:0 6px; border-radius:var(--radius-sm); background:var(--color-danger-light); font-weight:700; }
+    .pachinoform_value_total { font-size:18px; color:var(--color-text-muted); }
+    .pachinoform_price { display:flex; align-items:center; justify-content:center; gap:24px; margin:20px 0 0; padding:0 24px; }
+    .pachinoform_price_old span { display:block; font-size:24px; font-weight:600; letter-spacing:-0.5px; color:var(--color-text-light); position:relative; line-height:1; }
+    .pachinoform_price_old span::before { position:absolute; content:""; left:-4px; top:50%; right:-4px; border-top:2px solid var(--color-danger); transform:rotate(-12deg); }
+    .pachinoform_price_new span { display:inline-block; background:var(--color-success); color:#fff; text-shadow:none; font-size:32px; padding:8px 20px; font-weight:700; line-height:1; border-radius:var(--radius-sm); box-shadow:0 4px 12px rgba(30,132,73,0.25); }
+    .pachinoform form { padding:22px 24px 20px; }
+    .pachinoform .name-input, .pachinoform .phone-input { color:var(--color-text); font-size:15px; margin-bottom:14px; }
+    .pachinoform .name-input label, .pachinoform .phone-input label { font-weight:500; font-size:14px; color:var(--color-text-muted); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:0.04em; }
+    .pachinoform .name-input input, .pachinoform .phone-input input { font:inherit; color:var(--color-text); box-sizing:border-box; width:100%; border-radius:var(--radius-sm); padding:12px 16px; min-width:0; background:#fff; border:1.5px solid var(--color-border); font-size:16px !important; transition:border-color 0.15s ease, box-shadow 0.15s ease; }
+    .pachinoform .name-input input:focus, .pachinoform .phone-input input:focus, .pachinoform input:focus { outline:0; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(10,92,158,0.15); }
+    .pachinoform .button-submit { text-align:center; width:100%; margin:6px auto 0; text-decoration:none; border-radius:var(--radius-sm); color:#fff; border:0; padding:16px 20px; cursor:pointer; background:var(--color-primary); font-size:17px; line-height:1.3; font-weight:600; letter-spacing:0.02em; text-transform:uppercase; transition:background 0.15s ease, transform 0.05s ease; box-shadow:0 4px 12px rgba(10,92,158,0.25); font-family:var(--font-sans); }
+    .pachinoform .button-submit:hover { background:var(--color-primary-dark); }
+    .pachinoform .button-submit:active { transform:translateY(1px); }
+    .pachinoform .button-submit:focus { outline:0; box-shadow:0 0 0 3px rgba(10,92,158,0.25); }
+    .pachinoform ::placeholder { color:var(--color-text-light); opacity:1; font-size:15px !important; }
+    .pachinoform_footer { text-align:center; color:var(--color-text-muted); font-size:13px; padding:14px 24px 20px; background:var(--color-bg-soft); border-top:1px solid var(--color-border-soft); line-height:1.5; }
+    .pachinoform_footer img { margin-top:10px; max-width:100%; height:auto; opacity:0.85; }
+    @media (max-width:500px) { .pachinoform_title { gap:10px; padding:16px 18px; } .pachinoform_title_text { font-size:13px; } .pachinoform_title_text>b { font-size:15px; } .pachinoform_value { flex-wrap:wrap; justify-content:center; font-size:14px; } .pachinoform_price_new span { font-size:26px; } .pachinoform_price_old span { font-size:20px; } .pachinoform form { padding:18px 18px 18px; } .pachinoform_order { padding:14px 18px; font-size:14px; } .blc-pck { display:block; width:100%; text-align:center; margin-top:8px; } .pachinoform_value_current { margin:0; } }
+    .comments { max-width:900px; margin:32px auto 20px; background:#fff; border-radius:var(--radius-md); border:1px solid var(--color-border); overflow:hidden; }
+    .comments__header { padding:16px 20px; background:var(--color-primary); color:#fff; display:flex; align-items:center; justify-content:space-between; }
+    .comments__header-title { font-family:var(--font-serif); font-size:18px; font-weight:600; margin:0; color:#fff; letter-spacing:0.02em; }
+    .comments__item-list { padding:8px 20px; }
+    .comments__item { padding:16px 0; border-bottom:1px solid var(--color-border-soft); }
+    .comments__item:last-child { border-bottom:0; }
+    .comments__item-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .comments__item-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid var(--color-border); }
+    .comments__item-info { flex:1; min-width:0; }
+    .comments__item-name { font-weight:600; font-size:15px; color:var(--color-primary-dark); margin:0 0 2px; }
+    .comments__item-info p:last-child, .comments__item-info .startdate, .comments__item-info .nowdate { font-size:12px; color:var(--color-text-light); margin:0; }
+    .comments__item-body { padding-left:56px; }
+    .comments__item-content { font-size:15px; line-height:1.55; color:var(--color-text); margin:0; }
+    .comments__item-content img { border-radius:var(--radius-sm); margin-top:10px; }
+    .comm-obert-reply { padding-left:28px; border-left:2px solid var(--color-primary-light); margin-left:8px; }
+    .comm-obert-reply .comments__item.reply { border-bottom:1px solid var(--color-border-soft); }
+    @media (max-width:560px) { .comments__item-body { padding-left:0; } .comm-obert-reply { padding-left:16px; } }
+    .form-container { max-width:900px; margin:0 auto; padding:0 20px; }
+    .custom-form { max-width:100%; margin:0 auto; padding:18px; box-shadow:var(--shadow-sm); border:1px solid var(--color-border); box-sizing:border-box; font-family:var(--font-sans) !important; display:flex; flex-direction:column; gap:12px; background:var(--color-bg-soft); border-radius:var(--radius-md); }
+    .custom-form__top-field { display:flex; gap:16px; align-items:center; }
+    .custom-form__ava-block { position:relative; width:54px; height:54px; overflow:hidden; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px dashed var(--color-border); transition:0.2s; flex:0 0 auto; background:#fff; }
+    .custom-form__ava-label { font-size:11px; text-align:center; line-height:1.2; cursor:pointer; font-family:inherit; font-weight:400; color:var(--color-text-light); padding:4px; }
+    .custom-form__ava-label_red-text { color:var(--color-danger); }
+    .custom-form__name { width:100%; max-width:320px; display:inline-block; outline:none; border:1.5px solid var(--color-border); padding:10px 14px; font-size:14px; height:42px; box-sizing:border-box; font-family:inherit; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__message { resize:none; width:100%; outline:none; border:1.5px solid var(--color-border); padding:12px 14px; min-height:90px; font-size:14px; line-height:1.5; font-family:inherit; box-sizing:border-box; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__bottom-field { display:flex; flex-direction:row; gap:14px; align-items:center; flex-wrap:wrap; }
+    .custom-form__btn { outline:none; padding:10px 24px; background:var(--color-primary); color:#fff; font-weight:600; font-size:14px; transition:background 0.15s ease; cursor:pointer; text-transform:uppercase; border:0; font-family:var(--font-sans); border-radius:var(--radius-sm); text-decoration:none !important; letter-spacing:0.04em; }
+    .custom-form__btn:hover { background:var(--color-primary-dark); }
+    .custom-form__photo-label { cursor:pointer; font-size:13px; font-weight:400; border:none; color:var(--color-primary); text-decoration:underline; }
+    .trust-strip { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--color-border-soft); border-top:0; padding:20px 22px; display:flex; flex-wrap:wrap; gap:18px; justify-content:space-around; align-items:center; }
+    .trust-item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--color-text-muted); font-weight:500; }
+    .trust-item-icon { color:var(--color-primary); font-size:18px; }
+    .clinical-footer { max-width:900px; margin:0 auto 0; padding:24px 22px 36px; background:#fff; border:1px solid var(--color-border-soft); border-top:1px solid var(--color-border); text-align:center; font-size:12px; color:var(--color-text-light); line-height:1.6; }
+    .clinical-footer a { color:var(--color-primary); text-decoration:none; }
+    .product-center { display:block; max-width:220px; width:100%; margin:16px auto; }
+    #overlay { position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:100; transition:opacity 0.3s ease; }
+    #popup3 { background-size:cover; background-position:center; position:fixed; top:50%; left:50%; padding:20px; background-color:white; box-shadow:var(--shadow-lg); transition:opacity 0.3s ease, transform 0.3s ease; max-width:800px; width:93%; height:87%; overflow-y:auto; max-height:100vh; z-index:999999; }
+    body input[name="phone"] { background-repeat:no-repeat !important; background-position:left 15px center !important; }
+    main center { display:block; text-align:center; }
+    .sf-hidden { display:none !important; }
+    .quote-inline { margin:20px 0; padding:16px 20px; background:var(--color-bg-soft); border-left:4px solid var(--color-text-light); border-radius:0 var(--radius-md) var(--radius-md) 0; font-style:italic; color:var(--color-text-muted); font-size:16px; line-height:1.6; }
+    .quote-inline .quote-name { display:block; margin-top:10px; font-style:normal; font-weight:600; color:var(--color-primary-dark); font-size:14px; }
+    @media (max-width:480px) { body { font-size:16px; } main p { font-size:16px; } .doc-block { padding:16px; } .rev-block { padding:16px; } .recept { padding:16px; } .block-offer-actions-block { padding:6px 16px 16px; } .obertk512 li { padding-left:44px; } .obertk512 li::before { width:30px; height:30px; font-size:14px; } }
+    @keyframes example { 0% { opacity:0; } 100% { opacity:1; } }
+    @keyframes blinker { from { opacity:1.0; } to { opacity:0.7; } }
+  </style>
+
+  <script src="js/dtime.js"></script>
+</head>
+
+<body>
+
+  <div class="clinical-topbar">Ειδικό ρεπορτάζ · Υγεία και κοινωνία</div>
+
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div class="masthead-logo">
+        <span class="masthead-logo-icon">+</span>
+        <span>ΥγείαInfo Ελλάδα</span>
+      </div>
+      <div class="masthead-tagline">Ρεπορτάζ δημόσιας υγείας</div>
+    </div>
+  </div>
+
+  <header>
+    <div class="bg-image"></div>
+  </header>
+  <div class="text-container"></div>
+  <div class="h1-bg split">
+    <h1 class="title_h1">
+      <span class="head-one-part">«ΟΤΑΝ ΔΕΝ ΜΠΟΡΕΙΣ ΠΙΑ ΝΑ ΠΕΡΠΑΤΗΣΕΙΣ, Η ΟΙΚΟΓΕΝΕΙΑ ΣΕ ΞΕΧΝΑΕΙ.»</span>
+      <span class="head-two-part">Ο ΝΕΑΡΟΣ ΓΙΑΤΡΟΣ ΠΟΥ ΓΥΡΝΑ ΣΤΑ ΓΗΡΟΚΟΜΕΙΑ ΚΑΙ ΧΑΡΙΖΕΙ ΣΤΟΥΣ ΕΓΚΑΤΑΛΕΛΕΙΜΜΕΝΟΥΣ ΗΛΙΚΙΩΜΕΝΟΥΣ ΕΚΕΙΝΟ ΠΟΥ ΚΑΝΕΙΣ ΑΛΛΟΣ ΔΕΝ ΜΠΟΡΕΙ ΝΑ ΤΟΥΣ ΔΩΣΕΙ: ΤΙΣ ΑΡΘΡΩΣΕΙΣ ΚΑΙ ΤΗΝ ΑΞΙΟΠΡΕΠΕΙΑ. Η ΜΕΘΟΔΟΣ ΤΟΥ ΣΟΚΑΡΕ ΟΛΗ ΤΗΝ ΙΑΤΡΙΚΗ ΚΟΙΝΟΤΗΤΑ.</span>
+    </h1>
+
+    <div class="tdate head-main-date">
+      <span class="head-main-date-title">Δημοσιεύθηκε: </span>
+      <span class="startdate"><script>dtime_nums(-3, true)</script>, 09:36</span>
+    </div>
+
+    <div class="main-subtitle">
+      Πώς ο Δρ. Μάρκος Παππάς, 30 ετών, εγκατέλειψε την καριέρα του σε ιδιωτική κλινική της Αθήνας για να βοηθήσει ηλικιωμένους συνταξιούχους που έχουν ξεχαστεί σε γηροκομεία — ανθρώπους που οι οικογένειές τους εγκατέλειψαν ακριβώς επειδή δεν μπορούσαν πια να περπατήσουν, να σταθούν όρθιοι, να κάνουν τίποτα μόνοι τους. Και πώς η μέθοδος που ανέπτυξε μαζί με ένα ερευνητικό κέντρο τους επανέφερε την κινητικότητα — χωρίς χειρουργεία και χωρίς ισόβια φάρμακα.
+    </div>
+  </div>
+
+  <main>
+
+    <img alt="Ο Δρ. Μάρκος Παππάς εξετάζει το γόνατο μιας ασθενούς σε γηροκομείο" src="https://static.joxi.pro/1778142925769-2045c9ea-f00c-48ab-ae5d-6e56aec020f0.jpg" style="margin-bottom:14px;margin-top:0">
+
+    <p>
+      Φτάσαμε στο χωριό της Καλαμάτας, στην Πελοπόννησο, ένα πρωινό Τρίτης. Ο δρόμος προς το γηροκομείο ακολουθούσε ένα στενό μονοπάτι, ανάμεσα σε παλιά σπίτια με πέτρινους τοίχους και σκυλιά που γαβγίζουν. «Ψάχνετε τον νέο γιατρό;» — μας ρώτησε μια κυρία από το τοπικό παντοπωλείο. «Έρχεται κάθε Πέμπτη. Οι γέροντες τον περιμένουν στην πόρτα. Κάποιοι κλαίνε όταν τον βλέπουν.»
+    </p>
+    <p>
+      Έτσι ακούσαμε για πρώτη φορά για τον Δρ. Μάρκο Παππά — έναν γιατρό 30 ετών που εγκατέλειψε τη θέση του σε ιδιωτική κλινική της Αθήνας για να κάνει αυτό που κανένας άλλος γιατρός δεν ήθελε: να γυρνάει σε γηροκομεία σε όλη την Ελλάδα και να περιποιείται ηλικιωμένους που οι οικογένειές τους έχουν εγκαταλείψει.
+    </p>
+    <p>
+      Ο λόγος της εγκατάλειψης; Σχεδόν πάντα ο ίδιος: <b>οι ηλικιωμένοι δεν μπορούσαν πια να περπατήσουν.</b> Τα γόνατα λύγισαν. Η πλάτη καμπούριασε. Τα χέρια τρέμανε τόσο πολύ που δεν μπορούσαν να κρατήσουν ένα κουτάλι. Και τότε — ακριβώς όταν είχαν μεγαλύτερη ανάγκη από βοήθεια — οι οικογένειες αποφάσισαν ότι ήταν πάρα πολύ. Πολύ δύσκολο. Πολύ ακριβό. Και τους πήγαν στο γηροκομείο.
+    </p>
+
+    <div class="quote-inline">
+      «Ο γιος μου μου είπε: "Μαμά, δεν μπορώ πια να σε σηκώσω από την καρέκλα. Δεν μπορώ." Με πήγε στο γηροκομείο την επόμενη μέρα. Δεν έχει ξαναέρθει εδώ και 3 χρόνια."
+      <span class="quote-name">— κα. Κωνσταντίνα, 79 ετών, γηροκομείο στην Πελοπόννησο</span>
+    </div>
+
+    <div class="quote-inline">
+      «Όταν τα γόνατά μου μπλόκαραν τελείως, η γυναίκα μου είπε ότι δεν μπορεί να ζει με έναν ανάπηρο. Έφυγε. Τα παιδιά πήραν το μέρος της. Με έφεραν εδώ και εξαφανίστηκαν."
+      <span class="quote-name">— κ. Μανώλης, 73 ετών, γηροκομείο στη Μακεδονία</span>
+    </div>
+
+    <h2>
+      «Είδα πώς είναι η λήθη. Και αποφάσισα ότι δεν μπορούσα να κάθομαι με σταυρωμένα χέρια»
+      <span>Αποκλειστική συνέντευξη με τον Δρ. Μάρκο Παππά — τον γιατρό που παραιτήθηκε από μισθό 1.500 € το μήνα για να βοηθήσει αυτούς που κανείς δεν επισκέπτεται</span>
+    </h2>
+
+    <div class="doc-block">
+      <img alt="Δρ. Μάρκος Παππάς" src="https://static.joxi.pro/1778142925769-8d31ed89-cd31-449a-8c51-6ff1a0bfb48e.jpg">
+      <p>Δρ. Μάρκος Παππάς: «Την πρώτη φορά που μπήκα σε γηροκομείο ήταν ως εθελοντής, στα 28 μου. Και δεν ήμουν προετοιμασμένος για αυτό που είδα. Μια κυρία, 76 ετών, η κα. Ρόζα, καθόταν στην άκρη του κρεβατιού με τα πόδια πρησμένα και τα γόνατα που δεν λύγιζαν πια. Δεν είχε βγει από το δωμάτιό της εδώ και 4 μήνες. Με έπιασε από το χέρι και μου είπε:
+        <b>«Γιατρέ, η κόρη μου με έφερε εδώ όταν δεν μπορούσα πια να κατέβω τις σκάλες. Είπε ότι δεν μπορούσε πια να με φροντίσει. Αυτό έγινε πριν από δύο χρόνια. Από τότε δεν έχει ξαναγυρίσει.»</b>
+      </p>
+      <p><b>ΕΚΕΙΝΗ ΤΗ ΣΤΙΓΜΗ ΚΑΤΑΛΑΒΑ ΟΤΙ ΑΥΤΟΙ ΟΙ ΑΝΘΡΩΠΟΙ ΜΕ ΕΧΟΥΝ ΤΗ ΜΕΓΑΛΥΤΕΡΗ ΑΝΑΓΚΗ —
+          <span class="red-txt">ΑΥΤΟΙ ΠΟΥ ΟΛΟΣ Ο ΚΟΣΜΟΣ ΞΕΧΝΗΣΕ ΑΚΡΙΒΩΣ ΕΠΕΙΔΗ ΔΕΝ ΜΠΟΡΟΥΝ ΠΙΑ ΝΑ ΠΕΡΠΑΤΗΣΟΥΝ."</span></b>
+      </p>
+    </div>
+
+    <p>
+      Ο Δρ. Παππάς μιλά ήρεμα, αλλά με μια ένταση που δεν μπορεί να αγνοηθεί. Εδώ και δύο χρόνια γυρνάει σε γηροκομεία σε όλη την Ελλάδα — από τη Μακεδονία μέχρι την Κρήτη, από τη Στερεά Ελλάδα έως το Αιγαίο. Και παντού συναντά την ίδια καταστροφική εικόνα: ηλικιωμένους με κατεστραμμένες αρθρώσεις, που δεν λαμβάνουν καμία πραγματική θεραπεία, μόνο αντιφλεγμονώδη που τους καταστρέφουν το στομάχι και τα νεφρά.
+    </p>
+
+    <p>
+      «Οι περισσότεροι από αυτούς τους ανθρώπους κατέληξαν εδώ εξαιτίας των αρθρώσεών τους. Τα γόνατα λύγισαν. Η πλάτη μπλόκαρε. Το ισχίο φθάρηκε. Και τη στιγμή που σταμάτησαν να μπορούν να περπατήσουν μόνοι τους, οι οικογένειές τους αποφάσισαν ότι ήταν βάρος. Αυτή είναι η λέξη που ακούω συχνότερα στα γηροκομεία: <b>«βάρος»</b>. Περιγράφουν τους ίδιους τους γονείς τους ως βάρος.»
+    </p>
+
+    <div class="quote-inline">
+      «Δεν με έφεραν εδώ επειδή δεν με αγαπούν. Με έφεραν γιατί ξυπνούσα στις 3 το πρωί ουρλιάζοντας από τους πόνους στα γόνατα και κανείς δεν μπορούσε να κοιμηθεί. Η νύφη μου είπε ότι είτε φεύγω εγώ είτε φεύγει εκείνη. Ο γιος μου διάλεξε εκείνη.»
+      <span class="quote-name">— κα. Φερενίκη, 71 ετών, γηροκομείο στη Θεσσαλία</span>
+    </div>
+
+    <h2>
+      «Τα χάπια για τις αρθρώσεις δεν λύνουν τίποτα — απλώς καλύπτουν την καταστροφή»
+      <span>Ο Δρ. Παππάς εξηγεί γιατί η συμβατική θεραπεία στα γηροκομεία και στα φαρμακεία αποτυγχάνει</span>
+    </h2>
+
+    <p><b>Δρ. Μάρκος Παππάς:</b></p>
+    <p>— Θα είμαι ειλικρινής μαζί σας: αυτό που είδα σε αυτά τα γηροκομεία με τρόμαξε. Άνθρωποι από 55 έως 80 ετών, που τους δίνουν πάντα τα ίδια αντιφλεγμονώδη — χάπια που απλώς κρύβουν τον πόνο για λίγες ώρες, χωρίς να λύνουν την αιτία. Ο χόνδρος συνεχίζει να καταστρέφεται. Το αρθρικό υγρό εξαφανίζεται. Οι αρθρώσεις τρίβουν οστό πάνω σε οστό. Και η χημεία των χαπιών τους καταστρέφει το στομάχι, το συκώτι και τα νεφρά κάθε μέρα.
+    </p>
+
+    <p>Είναι ένας φαύλος κύκλος: πόνος → χάπια → ο πόνος επιστρέφει πιο δυνατός → ισχυρότερα χάπια → το στομάχι υποκύπτει → προσθέτουν χάπια για το στομάχι → τα νεφρά υποκύπτουν. Και κανείς δεν τους λέει την αλήθεια: <b>ότι υπάρχει τρόπος να αναγεννήσουμε την άρθρωση από μέσα, και όχι απλώς να αμβλύνουμε τον πόνο.</b>
+    </p>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-a94978b4-3738-4aeb-950e-312b652009ac.jpg">
+      <figcaption>
+        Τα γόνατα της κας Αδελαΐδας, 74 ετών, γηροκομείο στη Στερεά Ελλάδα. Οστεοαρθρίτιδα 3ου βαθμού, χόνδρος σχεδόν ολοκληρωτικά κατεστραμμένος. Δεν είχε βγει από το δωμάτιό της εδώ και 5 μήνες. Στο κομοδίνο — 6 είδη χαπιών που δεν άλλαξαν τίποτα.
+      </figcaption>
+    </figure>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Ο πόνος στο γόνατο, στην πλάτη ή στο ισχίο μετά τα 45 δεν είναι «φυσιολογικός για την ηλικία» — είναι σημάδι ότι ο χόνδρος της άρθρωσης καταστρέφεται και το αρθρικό υγρό εξαφανίζεται.
+          <br><br>
+          Τα αντιφλεγμονώδη μπλοκάρουν μόνο το σήμα του πόνου, ενώ η καταστροφή συνεχίζεται σιωπηλά. Χωρίς πραγματική αναγέννηση του χόνδρου, η άρθρωση φθείρεται ολοκληρωτικά — και τότε η μόνη επιλογή που απομένει είναι η αναπηρική καρέκλα ή η χειρουργική αντικατάσταση άρθρωσης.
+        </span>
+      </p>
+    </div>
+
+    <p><b>Δρ. Μάρκος Παππάς:</b></p>
+
+    <p>— Σας παρακαλώ, καταλάβετε τη σοβαρότητα της κατάστασης. Σε πολλούς από αυτούς τους ηλικιωμένους, ο χόνδρος στο γόνατο, στη σπονδυλική στήλη ή στο ισχίο έχει καταστραφεί κατά 70 – 90 %. Περπατούν — αν ακόμα περπατούν — με οστό να τρίβεται σε οστό. Κάθε βήμα είναι μαρτύριο. <b>ΤΑ ΣΥΜΒΑΤΙΚΑ ΧΑΠΙΑ ΔΕΝ ΜΠΟΡΟΥΝ ΝΑ ΑΝΑΓΕΝΝΗΣΟΥΝ ΤΟΝ ΧΟΝΔΡΟ — ΑΠΛΩΣ ΚΑΛΥΠΤΟΥΝ ΤΟΝ ΠΟΝΟ ΜΕΧΡΙ ΝΑ ΚΑΤΑΡΡΕΥΣΟΥΝ ΟΛΑ!</b>
+    </p>
+
+    <p>
+      Και αυτό που με καταστρέφει ψυχικά: αυτοί οι άνθρωποι δεν έχουν κανέναν. Η οικογένειά τους τους εγκατέλειψε ακριβώς τη στιγμή που οι αρθρώσεις τους απέτυχαν. Είναι μόνοι, στο κρεβάτι, σε ένα μικρό δωμάτιο, περιμένοντας. Κάποιοι δεν ξέρουν καν τι περιμένουν.
+    </p>
+
+    <div class="quote-inline">
+      «Μεγάλωσα τρία παιδιά. Δούλεψα στα χωράφια 40 χρόνια. Και όταν τα γόνατά μου λύγισαν και δεν μπορούσα πια να πάω στην τουαλέτα μόνη μου — με πήγαν στο γηροκομείο. Σαν να είχα πάψει να υπάρχω γι' αυτούς. Σαν να είχα ήδη πεθάνει.»
+      <span class="quote-name">— κα. Γλυκερία, 82 ετών, γηροκομείο στην Πελοπόννησο</span>
+    </div>
+
+    <div class="quote-inline">
+      «Ήμουν οικοδόμος για 35 χρόνια. Η πλάτη μου λύγισε στα 62. Δισκοκήλη, ισχιαλγία, δεν μπορούσα να σταθώ όρθιος. Ο γιος μου είπε ότι δεν μπορούσε να μείνει σπίτι για να με φροντίσει. Έχει τη δουλειά του, έχει την οικογένειά του. Το καταλαβαίνω. Αλλά με πονάει περισσότερο κι από την πλάτη.»
+      <span class="quote-name">— κ. Ιωακείμ, 68 ετών, γηροκομείο στη Λαμία</span>
+    </div>
+
+    <figure class="Figure" style="text-align:center">
+      <img src="https://static.joxi.pro/1778142925769-057465eb-7a53-45e0-ba84-1b9038913030.jpg" style="margin:0 auto">
+      <figcaption>
+        <b>Αριστερά: υγιής άρθρωση με άθικτο χόνδρο και επαρκές αρθρικό υγρό. Δεξιά: κατεστραμμένη άρθρωση — φθαρμένος χόνδρος, χρόνια φλεγμονή, οστό πάνω σε οστό. Αυτή είναι η πραγματικότητα για περισσότερους από 80 % των ηλικιωμένων στα γηροκομεία. Τα αντιφλεγμονώδη δεν αναγεννούν τον χόνδρο.</b>
+      </figcaption>
+    </figure>
+
+    <p class="red-txt">
+      Είναι σημαντικό να τονιστεί: στα 2/3 των περιπτώσεων, ακόμα και με καθημερινή λήψη αναλγητικών, οι αρθρώσεις συνεχίζουν να επιδεινώνονται, επειδή η πραγματική αιτία — η καταστροφή του χόνδρου και η εξαφάνιση του αρθρικού υγρού — παραμένει άλυτη.
+    </p>
+
+    <p class="red-txt">
+      Μετά από χρόνια αντιφλεγμονωδών, πολλοί ασθενείς χάνουν όχι μόνο την κινητικότητα, αλλά και το στομάχι, το συκώτι και τα νεφρά τους. Έλκη, ηπατική ανεπάρκεια, νεφρικό οίδημα — αυτό είναι το τίμημα που πληρώνουν εκείνοι στους οποίους κανείς δεν πρόσφερε μια πραγματική εναλλακτική.
+    </p>
+
+    <h2>
+      Οι ιστορίες που μου άλλαξαν τη ζωή — και θα αλλάξουν τον τρόπο που βλέπετε τα γηρατειά
+    </h2>
+
+    <p><b>Δρ. Μάρκος Παππάς:</b></p>
+
+    <p>— Επιτρέψτε μου να σας πω τι βλέπω κάθε εβδομάδα. Όχι αριθμούς. Όχι στατιστικές. Ανθρώπους. Ανθρώπους με ονόματα, με ιστορίες, με παιδιά που δεν έρχονται πια.</p>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-ab7d1e11-8df2-44ee-b472-2a3be72bb7b3.jpg">
+      <figcaption>
+        κα. Λουκία, 77 ετών. Ρευματοειδής αρθρίτιδα και στα δύο χέρια — δεν μπορεί να κρατήσει ένα ποτήρι ούτε να ντυθεί μόνη της. Η κόρη την έβαλε στο γηροκομείο πριν 2 χρόνια: «Δεν μπορώ να τη ντύνω κάθε πρωί, έχω κι εγώ τη ζωή μου.»
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      «Δεν μπορώ ούτε να χτενιστώ. Ούτε να ρίξω νερό σε ένα ποτήρι. Τα χέρια μου δεν υπακούουν. Το πρωί τα κοιτάζω και δεν τα αναγνωρίζω — πρησμένα, παραμορφωμένα, λες και δεν είναι δικά μου. Η νύφη μου μου είπε μια φορά: "Πώς θα σου αφήσω τα εγγόνια, αν δεν μπορείς ούτε ένα κουτάλι να κρατήσεις;" Είχε δίκιο. Αλλά εκείνα τα λόγια με σκότωσαν μέσα μου."
+      <span class="quote-name">— κα. Λουκία, 77 ετών</span>
+    </div>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-980707f6-6c1c-40ec-96a5-61c8c9dcde54.jpg">
+      <figcaption>
+        κ. Αντώνιος, 75 ετών. Δισκοκήλη L4-L5, αμφοτερόπλευρη κοξάρθρωση. Δεν στεκόταν όρθιος για 8 μήνες. «Μου είπαν ότι ήμουν πολύ μεγάλος για το χειρουργείο. Μου είπαν να το αποδεχτώ.»
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      «Ήμουν χειριστής τρακτέρ. Όργωσα χιλιάδες στρέμματα. Τώρα δεν μπορώ να γυρίσω μόνος μου στο κρεβάτι. Η πλάτη μπλόκαρε, το ισχίο κόλλησε. Τα παιδιά μου δουλεύουν στο εξωτερικό. Στέλνουν λεφτά στο γηροκομείο και τέλος. Δεν τα κατηγορώ. Αλλά τη νύχτα, όταν ο πόνος σφίγγει και κανείς δεν έρχεται… αναρωτιέμαι αν έτσι τελειώνει."
+      <span class="quote-name">— κ. Αντώνιος, 75 ετών</span>
+    </div>
+
+    <p><b>Αυτά είναι τα συμπτώματα που συναντώ συχνότερα στα γηροκομεία — και που εκατομμύρια Έλληνες αγνοούν:</b></p>
+    <ul>
+      <li>Έντονος πόνος στο γόνατο όταν ανεβαίνεις/κατεβαίνεις σκάλες — ή σε οποιαδήποτε κίνηση.</li>
+      <li>Πρωινή δυσκαμψία — σώμα «σαν ξύλο» που δεν κουνιέται για 30 – 60 λεπτά μετά το ξύπνημα.</li>
+      <li>Χρόνιος πόνος στην πλάτη — δεν μπορούν να σκύψουν, δεν μπορούν να σηκωθούν από το κρεβάτι.</li>
+      <li>Πρήξιμο στα γόνατα, στους αστραγάλους ή στα δάχτυλα.</li>
+      <li>Τριξίματα και κριτσιρίσματα στις αρθρώσεις με κάθε κίνηση.</li>
+      <li>Πόνος στο ισχίο που ακτινοβολεί στον μηρό — δεν μπορούν να περπατήσουν πάνω από 50 μέτρα.</li>
+      <li>Παραμορφωμένα και με όζους δάχτυλα των χεριών — δεν μπορούν να πιάσουν αντικείμενα.</li>
+      <li>Μούδιασμα στα πόδια ή στα χέρια — σημάδι δισκοκήλης ή πεπιεσμένου νεύρου.</li>
+      <li>Αίσθηση «μαχαιριού» στην οσφυϊκή χώρα όταν σηκώνονται.</li>
+      <li>Καμπούριασμα, κυρτή στάση — προοδευτική κύφωση.</li>
+      <li>Νυχτερινός πόνος που δεν αφήνει να κοιμηθούν — ξύπνημα 4 – 5 φορές τη νύχτα.</li>
+    </ul>
+
+    <p>
+      Κάθε ένα από αυτά τα συμπτώματα είναι ένας συναγερμός. Και μετά τα 45 – 50, η αγνόησή τους οδηγεί σε ένα μοναδικό αποτέλεσμα:
+      <b class="red-txt">ΟΛΙΚΗ ΑΚΙΝΗΣΙΑ, ΑΝΑΠΗΡΙΚΗ ΚΑΡΕΚΛΑ, ΠΛΗΡΗΣ ΕΞΑΡΤΗΣΗ ΑΠΟ ΤΡΙΤΟΥΣ — ΚΑΙ, ΣΕ ΠΟΛΛΕΣ ΠΕΡΙΠΤΩΣΕΙΣ, ΤΟ ΓΗΡΟΚΟΜΕΙΟ.</b>
+    </p>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Κάθε μέρα που περνά με αρθρώσεις χωρίς θεραπεία σας φέρνει πιο κοντά στη μόνιμη ακινησία!
+          Χιλιάδες συνταξιούχοι στα γηροκομεία κατέληξαν εκεί ακριβώς επειδή αγνόησαν τον πόνο — ή επειδή έπαιρναν μόνο χάπια που δεν έλυναν την αιτία.
+          Δράστε τώρα — για τον εαυτό σας ή για τα αγαπημένα σας πρόσωπα — όσο είναι ακόμα καιρός!
+        </span>
+      </p>
+    </div>
+
+    <h2>
+      «Αποφάσισα ότι έπρεπε να υπάρχει τρόπος να αναγεννήσουμε τις αρθρώσεις — και όχι απλώς να ανακουφίζουμε τον πόνο»
+      <span>Πώς ένας 30χρονος γιατρός έπεισε ένα ερευνητικό κέντρο να αναπτύξει κάτι που η φαρμακοβιομηχανία αρνείται</span>
+    </h2>
+
+    <p><b>Δρ. Μάρκος Παππάς:</b></p>
+    <p>
+      — Μετά από ένα χρόνο επισκέψεων σε γηροκομεία, κατάλαβα ένα θλιβερό πράγμα: με τα αντιφλεγμονώδη δεν μπορώ να σώσω κανέναν. Αυτά τα φάρμακα απλώς σιγαίνουν τον συναγερμό του σώματος, ενώ η άρθρωση συνεχίζει να καταστρέφεται. Χρειαζόμουν κάτι εντελώς διαφορετικό: μια μέθοδο που να αναγεννά τον χόνδρο από μέσα, να αποκαθιστά το αρθρικό υγρό και να σταματά τη φλεγμονή σε κυτταρικό επίπεδο.
+    </p>
+    <p>
+      Επικοινώνησα με το ερευνητικό κέντρο με το οποίο είχα συνεργαστεί στη σχολή. Τους έδειξα τις περιπτώσεις, τις φωτογραφίες, τις αναφορές των ασθενών μου από τα γηροκομεία. Πήρα τους ερευνητές μαζί μου στα γηροκομεία — να δουν με τα μάτια τους τι συμβαίνει. Και έμειναν συγκλονισμένοι.
+    </p>
+    <p>
+      Δουλέψαμε μαζί για περισσότερους από 10 μήνες. Δοκιμάσαμε πάνω από 180 συνδυασμούς. Και τελικά βρήκαμε τον ακριβή τύπο — ένα σπρέι που, εφαρμοζόμενο στην πάσχουσα άρθρωση, διεισδύει σε κυτταρικό επίπεδο και ενεργοποιεί τη φυσική αναγέννηση του χόνδρου. Όχι ένα χάπι που περνά από το στομάχι και καταστρέφει το συκώτι. Ένα σπρέι που δρα ακριβώς εκεί που χρειάζεται.
+    </p>
+
+    <div class="recept">
+      <p><b>Η φόρμουλα που ανέπτυξε ο Δρ. Παππάς περιέχει τις ακόλουθες δραστικές ουσίες:</b></p>
+      <ul class="my-ul-0-green size1">
+        <li><b>Θειική γλυκοζαμίνη</b>
+          <font>Καθαρή θαλάσσια πρώτη ύλη: 1500 mg/δόση</font>
+        </li>
+        <li><b>Θειική χονδροϊτίνη</b>
+          <font>Εκχύλισμα υψηλής βιοδιαθεσιμότητας: 1200 mg/δόση</font>
+        </li>
+        <li><b>Εκχύλισμα Boswellia serrata</b>
+          <font>Συμπυκνωμένο βοσβελικό οξύ 65 %: 800 mg</font>
+        </li>
+        <li><b>Υαλουρονικό οξύ χαμηλού μοριακού βάρους</b>
+          <font>Διαδερμική διείσδυση: 200 mg</font>
+        </li>
+        <li><b>Υδρολυμένο κολλαγόνο τύπου II</b>
+          <font>Πιστοποιημένη βόεια προέλευση: 2000 mg</font>
+        </li>
+        <li><b>Εκχύλισμα άρνικας</b>
+          <font>Φυσικό αντιφλεγμονώδες: 500 mg</font>
+        </li>
+        <li><b>MSM (Μεθυλοσουλφονυλομεθάνιο)</b>
+          <font>Βιοδιαθέσιμο οργανικό θείο: 1000 mg</font>
+        </li>
+        <li><b>Κάμφορα και μενθόλη</b>
+          <font>Φυσικό αναλγητικό σύμπλεγμα με θερμική δράση</font>
+        </li>
+      </ul>
+    </div>
+
+    <p>
+      Αυτά τα συστατικά είναι δύσκολο να αποκτηθούν στην απαιτούμενη συγκέντρωση. Ο συνδυασμός τους στις σωστές αναλογίες απαιτεί ειδική τεχνολογία — αν οι αναλογίες είναι έστω και 0,1 % λάθος, το σπρέι δεν διεισδύει σε αρκετό βάθος και δεν ενεργοποιεί την αναγέννηση του χόνδρου.
+    </p>
+
+    <h2>
+      Έτσι γεννήθηκε η Hondro Sol — το μοναδικό σπρέι που περιέχει όλα αυτά τα συστατικά, συν 14 σπάνια εκχυλίσματα για πλήρη αναγέννηση των αρθρώσεων
+    </h2>
+    <p><b>Δρ. Μάρκος Παππάς:</b></p>
+    <p>
+      — Σε συνεργασία με το ερευνητικό κέντρο, καταφέραμε να παράγουμε αυτό το προϊόν: ένα σπρέι εξωτερικής εφαρμογής που ψεκάζεται απευθείας στην πάσχουσα άρθρωση — γόνατο, πλάτη, ισχίο, χέρια, λαιμό. Ονομάζεται Hondro Sol. Εφαρμόζεται δύο φορές την ημέρα, πρωί και βράδυ, ψεκάζοντας απευθείας στην πάσχουσα άρθρωση. Οι δραστικές ουσίες διεισδύουν απευθείας στην άρθρωση, παρακάμπτοντας το στομάχι και το συκώτι — εξαλείφοντας έτσι όλες τις παρενέργειες των χαπιών.
+    </p>
+
+    <img src="images/product.png?=v1" style="max-width:250px;display:block;margin:18px auto">
+
+    <p>
+      Το μυστικό βρίσκεται στην «Τεχνολογία Βαθιάς Διαδερμικής Διείσδυσης» που αναπτύξαμε με την ομάδα στο εργαστήριο. Αυτή η μέθοδος επιτρέπει στις δραστικές ουσίες να φτάσουν απευθείας στην αρθρική κάψα — εκεί όπου ο χόνδρος καταστρέφεται — με αποτελεσματικότητα 5 φορές μεγαλύτερη από οποιοδήποτε κοινό σπρέι της αγοράς.
+    </p>
+    <p class="pachino-ramka2">
+      Η «Hondro Sol» δεν έχει ανταγωνισμό. Κάθε συστατικό — στην ακριβή συγκέντρωση — ενεργοποιεί την αναγέννηση του χόνδρου, την αποκατάσταση του αρθρικού υγρού και τη διακοπή της φλεγμονής. Είναι το μοναδικό σπρέι που δρα σε κυτταρικό επίπεδο, απευθείας στην πάσχουσα περιοχή — γόνατο, πλάτη, ισχίο, χέρια, λαιμός — χωρίς να περνά από το στομάχι. Και το πιο σημαντικό: λειτουργεί ακόμα και στα 70, 80, 85 χρόνια. Πρώτα τη δοκίμασα στους ασθενείς μου στα γηροκομεία — στους ανθρώπους που κανείς άλλος δεν περιποιούνταν.
+    </p>
+
+    <p><b>Δρ. Μάρκος Παππάς:</b></p>
+    <p>
+      — Οι πρώτοι ασθενείς ήταν εγκαταλελειμμένοι ηλικιωμένοι των γηροκομείων. Εκείνοι που όλοι ξέχασαν. Τους ψέκασα το σπρέι στα πρησμένα γόνατα, στις πλάτες, στα ισχία. Και περίμενα. Την τρίτη μέρα — η κα. Γλυκερία, που για 4 μήνες δεν είχε σηκωθεί από το κρεβάτι, έκανε τα πρώτα της βήματα μόνη της. Κλάψαμε και οι δύο.
+    </p>
+
+    <h2>
+      4 μηχανισμοί με τους οποίους η Hondro Sol αναγεννά τις αρθρώσεις και επαναφέρει την κινητικότητα — σε οποιαδήποτε ηλικία
+    </h2>
+
+    <div class="obertk512">
+      <h1>4 κύριες δράσεις του σπρέι «Hondro Sol»:</h1>
+      <div class="block-offer-actions-block">
+        <ol>
+          <li>
+            <font>Εξάλειψη του πόνου και της φλεγμονής:</font>
+            <span>Μέσα σε 15 – 30 λεπτά από την εφαρμογή, το σύμπλεγμα της Boswellia, άρνικας και καμφοράς εξαλείφει τον πόνο και μειώνει τη φλεγμονή. Όχι μπλοκάροντας το νευρικό σήμα (όπως κάνουν τα χάπια) — αλλά διακόπτοντας τη φλεγμονώδη διαδικασία στην πηγή της.</span>
+          </li>
+          <li>
+            <font>Αναγέννηση του αρθρικού χόνδρου:</font>
+            <span>Η γλυκοζαμίνη, η χονδροϊτίνη και το κολλαγόνο τύπου II διεισδύουν στην αρθρική κάψα και ενεργοποιούν τα κύτταρα του χόνδρου (χονδροκύτταρα), διεγείροντας το σχηματισμό νέου χόνδρινου ιστού. Αυτή η διαδικασία ξεκινά μετά από 3 – 5 ημέρες τακτικής χρήσης.</span>
+          </li>
+          <li>
+            <font>Αποκατάσταση του αρθρικού υγρού:</font>
+            <span>Το υαλουρονικό οξύ χαμηλού μοριακού βάρους διεισδύει διαδερμικά και αποκαθιστά το αρθρικό υγρό — το φυσικό «λιπαντικό» της άρθρωσης. Έτσι, τα οστά σταματούν να τρίβονται μεταξύ τους και η κίνηση γίνεται ξανά ομαλή και ανώδυνη.</span>
+          </li>
+          <li>
+            <font>Μακροπρόθεσμη προστασία και πρόληψη:</font>
+            <span>Το MSM και το σύμπλεγμα μετάλλων ενισχύουν τους συνδέσμους και τους τένοντες γύρω από την άρθρωση, αποτρέποντας μελλοντικές βλάβες. Μετά από 30 – 60 ημέρες χρήσης, η άρθρωση αποκτά σταθερή προστασία που διαρκεί μήνες.</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <h2>
+      «Πρώτα δοκίμασα την Hondro Sol σε ασθενείς από γηροκομεία — τα αποτελέσματα ξεπέρασαν ό,τι είχα δει σε 6 χρόνια ιατρικής»
+      <span>Δοκιμές με 2.340 άτομα ηλικίας 45 έως 86 ετών</span>
+    </h2>
+
+    <p><b>Δρ. Μάρκος Παππάς:</b></p>
+    <p>
+      — Οι πρώτοι ασθενείς ήταν εγκαταλελειμμένοι ηλικιωμένοι των γηροκομείων. Εκείνοι που κανείς δεν περιποιούνταν πια. Τα αποτελέσματα ήταν τόσο εντυπωσιακά που το ερευνητικό κέντρο επέκτεινε τις δοκιμές σε μια ομάδα άνω των 2.300 ατόμων από όλη την Ελλάδα — συμπεριλαμβανομένων όλων των τύπων προβλημάτων στις αρθρώσεις: γόνατα, πλάτη, ισχίο, χέρια, λαιμός.
+    </p>
+    <p>
+      Είδα ανθρώπους 80 ετών που δεν μπορούσαν να περπατήσουν — και μετά από 6 εβδομάδες βγαίναν μόνοι τους στην αυλή του γηροκομείου. Οι νοσοκόμες έκλαιγαν. Εγώ έκλαιγα μαζί τους.
+    </p>
+
+    <div class="table-block">
+      <h1 class="title_h1">
+        Αποτελέσματα δοκιμών της «Hondro Sol» — ομάδα ελέγχου: 2.340 άτομα, 45 – 86 ετών
+      </h1>
+      <table class="table">
+        <tbody>
+          <tr><td class="one">Πλήρης εξάλειψη του πόνου στο γόνατο</td><td class="two">96,2 %</td></tr>
+          <tr><td class="one">Εξάλειψη του πόνου στην πλάτη και της πρωινής δυσκαμψίας</td><td class="two">94,7 %</td></tr>
+          <tr><td class="one">Οστεοαρθρίτιδα βαθμού 1 – 2 (πλήρης αποκατάσταση κινητικότητας)</td><td class="two">98,1 %</td></tr>
+          <tr><td class="one">Οστεοαρθρίτιδα βαθμού 3 (σημαντική βελτίωση)</td><td class="two">87,3 %</td></tr>
+          <tr><td class="one">Κοξάρθρωση (πόνος στο ισχίο)</td><td class="two">91,5 %</td></tr>
+          <tr><td class="one">Δισκοκήλη (μείωση πόνου και μουδιάσματος)</td><td class="two">89,4 %</td></tr>
+          <tr><td class="one">Ρευματοειδής αρθρίτιδα (δάχτυλα χεριών)</td><td class="two">93,8 %</td></tr>
+          <tr><td class="one">Πλήρης αποκατάσταση κινητικότητας της άρθρωσης</td><td class="two">95,6 %</td></tr>
+          <tr><td class="one">Εξάλειψη οιδήματος και νυχτερινών κράμπων</td><td class="two">97,0 %</td></tr>
+          <tr><td class="one">Ικανότητα βάδισης χωρίς βοήθεια</td><td class="two">94,3 %</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>
+      Οι περιπτώσεις που μου ράγισαν την καρδιά — και που μου έδωσαν τη μεγαλύτερη ελπίδα
+      <span>
+        κα. Αλβερτίνα, 84 ετών. Εγκαταλειμμένη στο γηροκομείο όταν τα γόνατά της λύγισαν. Μετά από 2 μήνες με Hondro Sol — βγήκε μόνη της στον κήπο, για πρώτη φορά σε 3 χρόνια.
+      </span>
+    </h2>
+
+    <p>
+      Η κα Αλβερτίνα Παπαδοπούλου ήταν η πρώτη ασθενής του Δρ. Παππά στο γηροκομείο της Κρήτης. Στα 84 της χρόνια, με οστεοαρθρίτιδα 3ου βαθμού και στα δύο γόνατα και κοξάρθρωση στο αριστερό ισχίο, δεν μπορούσε να περπατήσει για 14 μήνες. Ο γιος της την έβαλε στο γηροκομείο αφού «δεν μπορούσε πια να την κουβαλάει μέχρι την τουαλέτα». Δεν την είχε επισκεφτεί για δύο χρόνια.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1778142925769-b234c916-2418-43cd-a09b-52da3b198c19.jpg">
+      <p>
+        «Δεν πίστευα ότι θα ξαναπερπατήσω. Τα γόνατα ήταν τόσο πρησμένα που δεν μπορούσα να τα λυγίσω. Με κουβαλούσαν στο δωμάτιο με αναπηρική καρέκλα. Το πρωί ξυπνούσα και καθόμουν μια ώρα χωρίς να μπορώ να κουνήσω ούτε δάχτυλο. Λες και το σώμα μου είχε πεθάνει, αλλά εγώ ήμουν ακόμα ζωντανή.
+      </p>
+      <p>
+        <b>
+          Ο γιος μου με έβαλε στο γηροκομείο επειδή δεν μπορούσε πια να με σηκώσει από το κρεβάτι. Είπε: «Μαμά, θα σε επισκέπτομαι κάθε Κυριακή». Δεν έχει ξαναέρθει εδώ και δύο χρόνια. Δεν τον κατηγορώ — έχει τη ζωή του. Αλλά τη νύχτα, όταν ο πόνος με ξυπνάει και κανείς δεν είναι δίπλα μου… πονάει πολύ.
+        </b>
+      </p>
+      <p>
+        <b>
+          Και τότε εμφανίστηκε ο Δρ. Παππάς. Ήταν ο πρώτος άνθρωπος που άγγιξε τα γόνατά μου χωρίς να γυρίσει το πρόσωπο με αηδία. Μου εξήγησε τι συνέβαινε στις αρθρώσεις μου. Και μου ψέκασε το σπρέι. Σε μια εβδομάδα, μπορούσα να λυγίσω το αριστερό γόνατο. Σε ένα μήνα, σηκώθηκα μόνη μου από το κρεβάτι. Σε δύο μήνες — βγήκα στον κήπο. Δεν είχα βγει από το σπίτι για 3 χρόνια.
+        </b>
+      </p>
+      <p>
+        Η νοσοκόμα έκλαιγε όταν με είδε. Εγώ έκλαψα ακόμα περισσότερο. Όχι επειδή περπατούσα. Αλλά επειδή κάποιος — ένας νεαρός γιατρός που δεν είχα ξαναγνωρίσει — μου έδωσε περισσότερα από τον ίδιο μου τον γιο.
+      </p>
+      <font>
+        <b>Αλβερτίνα Παπαδοπούλου, 84 ετών, γηροκομείο στην Κρήτη</b>
+      </font>
+    </div>
+
+    <p>
+      Μια άλλη περίπτωση: ο κ. Κάρολος, 58 ετών, οικοδόμος σε όλη του τη ζωή, με την πλάτη του κατεστραμμένη από δισκοκήλες. Η γυναίκα του τον άφησε όταν δεν μπορούσε πια να δουλέψει.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1778142925769-f6ae7d5d-d93a-42f5-8684-d3c285fbc8bf.jpg">
+      <p>
+        «Ήμουν χτίστης για 30 χρόνια. Η πλάτη μου λύγισε στα 54 — δύο δισκοκήλες και ισχιαλγία. Δεν μπορούσα να σταθώ όρθιος ούτε να είμαι ξαπλωμένος στο κρεβάτι. Όλα πονούσαν. Η γυναίκα μου έφυγε — είπε ότι δεν μπορεί να φροντίζει έναν ανάπηρο. Δεν την κατηγορώ.
+      </p>
+      <p>
+        <b>
+          Η αδερφή μου άκουσε για τον Δρ. Παππά από μια γειτόνισσα. Μου έστειλε το σπρέι Hondro Sol. Άρχισα να το ψεκάζω στην πλάτη μου, πρωί και βράδυ. Την τρίτη μέρα ένιωσα την πρώτη ανακούφιση. Σε 3 εβδομάδες — μπορούσα ήδη να πάω στο μανάβικο. Σε 2 μήνες — ξαναδούλεψα με μισό ωράριο.
+        </b>
+      </p>
+      <p>
+        Μερικές φορές ξυπνάω το πρωί, σηκώνομαι από το κρεβάτι χωρίς πόνο και σταματώ για μια στιγμή. Στέκομαι όρθιος και δεν μπορώ να πιστέψω ότι είναι αληθινό. Ότι δεν πονάει πια. Αν δεν υπήρχε ο Δρ. Παππάς, ίσως τώρα να ήμουν κι εγώ σε κάποιο γηροκομείο."
+      </p>
+    </div>
+
+    <h2>
+      «Η Hondro Sol δεν θεραπεύει μόνο τον πόνο — αναγεννά ολόκληρη την άρθρωση από μέσα»
+      <span>
+        Δεν ωφελούνται μόνο οι ηλικιωμένοι των γηροκομείων. Οποιοσδήποτε άνω των 45 ετών που νιώθει τα πρώτα σημάδια μπορεί να αποφύγει την καταστροφή.
+      </span>
+    </h2>
+
+    <p><b>Δρ. Μάρκος Παππάς:</b></p>
+
+    <p>
+      — Η ελάχιστη διάρκεια χρήσης είναι 30 ημέρες, αλλά σε πιο σοβαρές περιπτώσεις οστεοαρθρίτιδας ή δισκοκηλών μπορεί να χρειαστούν 2 – 3 μήνες. Ωστόσο, σε όλες τις περιπτώσεις — χωρίς εξαίρεση — υπάρχει μείωση του πόνου, αναγέννηση του χόνδρου και ανάκτηση της κινητικότητας.
+    </p>
+
+    <p>
+      Η Hondro Sol δρα από την πρώτη εφαρμογή: ο πόνος μειώνεται, η φλεγμονή υποχωρεί, η κίνηση γίνεται ευκολότερη. Αλλά η πραγματική μαγεία συμβαίνει με τον καιρό: ο χόνδρος αναγεννάται, το αρθρικό υγρό αποκαθίσταται, η άρθρωση «νιώνει» από μέσα.
+      <b class="red-txt">
+        Είδα ανθρώπους 80 ετών να ξαναρχίζουν να περπατούν. Είδα χέρια που δεν μπορούσαν να κρατήσουν ένα ποτήρι να φέρνουν το κουτάλι στο στόμα. Είδα καμπούριασμένες σπονδυλικές στήλες να ισιώνουν. Και σε όλες τις περιπτώσεις — είδα δάκρυα χαράς.
+      </b>
+    </p>
+
+    <center>
+      <p><b>
+          Χάρη στη μέθοδο του Δρ. Παππά, περισσότερα από 12.000 άτομα στην Ελλάδα ανέκτησαν την κινητικότητα των αρθρώσεών τους. Ακολουθούν ορισμένες περιπτώσεις:
+        </b></p>
+    </center>
+
+    <figure>
+      <img src="https://static.joxi.pro/1778142925769-baf151ad-77dc-450d-9a89-3293efafacfa.jpg">
+      <figcaption>Άνδρας, 65 ετών. Οστεοαρθρίτιδα 3ου βαθμού και στα δύο γόνατα — δεν μπορούσε να ανέβει σκάλες. Hondro Sol σε 60 ημέρες: πλήρης κινητικότητα, χωρίς πόνο.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-f19f7f66-3e45-449a-87f2-78884ec5e6e1.jpg">
+      <figcaption>Γυναίκα, 58 ετών. Χρόνιος πόνος στην πλάτη και δισκοκήλη L5-S1. Hondro Sol σε 45 ημέρες: πόνος εξαφανίστηκε, επέστρεψε στις οικιακές εργασίες.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-7d23b447-1714-413e-b3dd-921918111aa3.jpg">
+      <figcaption>Γυναίκα, 72 ετών. Σοβαρή ρευματοειδής αρθρίτιδα στα δάχτυλα — δεν μπορούσε να κρατήσει ένα ποτήρι. Hondro Sol σε 2 μήνες: δάχτυλα ευκίνητα, πρήξιμο εξαφανίστηκε.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-4a9900ea-fa77-4c81-a40e-dff210ebf7df.jpg">
+      <figcaption>Άνδρας, 70 ετών. Προχωρημένη κοξάρθρωση — περπατούσε μόνο με περιπατητήρα. Hondro Sol σε 2,5 μήνες: περπατά χωρίς βοήθεια, χωρίς πόνο.</figcaption>
+    </figure>
+
+    <p><b>Δρ. Μάρκος Παππάς:</b></p>
+    <p>
+      — Αυτές οι περιπτώσεις είναι ζωντανή απόδειξη ότι οι αρθρώσεις μπορούν να αναγεννηθούν — ακόμα και όταν η διάγνωση έμοιαζε με καταδίκη. Χωρίς χειρουργείο. Χωρίς χάπια που καταστρέφουν το στομάχι. Και αυτό που με κάνει πιο ευτυχισμένο: πολλοί από αυτούς τους ανθρώπους είναι ηλικιωμένοι από γηροκομεία — εκείνοι που ο κόσμος ξέχασε. <b>Αλλά εγώ δεν τους ξέχασα. Και η Hondro Sol δεν τους ξεχνά.</b>
+    </p>
+
+    <div id="overlay" style="display:none;opacity:0"></div>
+    <div id="popup3" style="display:none;opacity:0;transform:translate(-50%,-50%) scale(0.8)"></div>
+
+    <h2>
+      Γιατί η Hondro Sol δεν διατίθεται στα φαρμακεία; Και πώς μπορείτε να την αποκτήσετε;
+    </h2>
+
+    <p><b>Δρ. Μάρκος Παππάς:</b></p>
+
+    <p>Δυστυχώς, η παραγωγή της Hondro Sol είναι μια πολύπλοκη και δαπανηρή διαδικασία. Τα συστατικά είναι σπάνια — υαλουρονικό οξύ χαμηλού μοριακού βάρους, καθαρό κολλαγόνο τύπου II, συμπυκνωμένο εκχύλισμα Boswellia — και είναι δύσκολο να αποκτηθούν στις απαιτούμενες ποσότητες. Δεν μπορούμε να καλύψουμε όλη τη ζήτηση.</p>
+
+    <p>Θα χρειαστούν τουλάχιστον 2 – 3 χρόνια μέχρι η Hondro Sol να είναι διαθέσιμη στα φαρμακεία. Μέχρι τότε, το προϊόν διανέμεται αποκλειστικά διαδικτυακά, στο πλαίσιο ενός προγράμματος υποστήριξης, δύο φορές το χρόνο. Αλλά
+      <font class="red-txt">οι εκπτώσεις μπορεί να φτάσουν έως και 50 %</font>
+      — κάτι που είναι κρίσιμο για τους συνταξιούχους.
+    </p>
+
+    <p>
+      Σας παρακαλώ: ΜΗΝ ΧΑΣΕΤΕ ΤΟ ΠΡΟΓΡΑΜΜΑ ΥΠΟΣΤΗΡΙΞΗΣ. Όχι μόνο για εσάς — αλλά και για τους γονείς, τους παππούδες, τα στενά σας πρόσωπα που ίσως υποφέρουν σιωπηλά. Ή για εκείνους που βρίσκονται ήδη σε γηροκομείο, μόνοι, και κανείς δεν τους στέλνει τίποτα. Γίνετε εσείς το άτομο που κάνει τη διαφορά.
+    </p>
+
+    <p class="red-txt"><b>Για να παραγγείλετε, χρησιμοποιήστε την παρακάτω φόρμα.</b></p>
+
+    <h2>
+      Τελευταία ευκαιρία να αποκτήσετε την Hondro Sol φέτος — για εσάς ή για κάποιον κοντινό σας που υποφέρει σιωπηλά
+    </h2>
+
+    <img alt="Hondro Sol" src="images/BAZA2.jpeg"
+      style="margin:0 auto;display:block;max-width:500px;width:100%;margin-top:24px;margin-bottom:20px">
+
+    <p><b>Δρ. Μάρκος Παππάς:</b></p>
+
+    <p>
+      — Δεσμεύσαμε 20.000 φιάλες αποκλειστικά για τους αναγνώστες αυτής της πύλης. Κάθε Έλληνας πολίτης άνω των 40 ετών μπορεί να λάβει <font class="red-txt">έκπτωση έως 50 %</font>, αλλά το πρόγραμμα λήγει στις <span><script>dtime_nums(0, true)</script></span>.
+    </p>
+
+    <p>Μην περιμένετε μέχρι να μην μπορείτε πια να ανεβείτε τις σκάλες. Μέχρι τα γόνατά σας να λυγίσουν οριστικά. Μέχρι να μπλοκάρει η πλάτη σας. Και πάνω απ' όλα — μην περιμένετε μέχρι να γίνετε «βάρος» στα μάτια των δικών σας. Η Hondro Sol έχει σωρευτική δράση και αρκεί να τη χρησιμοποιήσετε μία φορά το χρόνο ως προληπτική αγωγή.</p>
+
+    <p>Εισάγετε το όνομα και τον αριθμό τηλεφώνου σας. Ένας σύμβουλος θα επικοινωνήσει μαζί σας, θα επιλέξει το κατάλληλο πρόγραμμα και θα διασφαλίσει την παράδοση σε 2 – 3 ημέρες μέσω ταχυμεταφορέα ή ταχυδρομείου απευθείας στη διεύθυνση που θα αναφέρετε.</p>
+
+    <p><b>Με ελπίδα και σεβασμό — Δρ. Μάρκος Παππάς. Φροντίστε τους δικούς σας. Ίσως το μόνο που χρειάζονται είναι να ξέρουν ότι δεν τους ξεχάσατε.</b></p>
+
+    <p class="pachino-ramka">
+      <span class="ramka-title">Ενημέρωση: <span><script>dtime_nums(-3, true)</script></span>:</span>
+      Λόγω της τεράστιας ζήτησης, το απόθεμα μπορεί να εξαντληθεί ταχύτερα από το αναμενόμενο! Σήμερα —
+      <font><span><script>dtime_nums(1, true)</script></span> — είναι η τελευταία ημέρα του προγράμματος</font> ή έως ότου εξαντληθεί το απόθεμα.
+    </p>
+
+    <center><img src="images/product.png?=v1" style="max-width:250px;"></center><br>
+
+    <center>
+      <p class="noclose-cta red-txt">
+        Προσοχή! Μην κλείσετε ή ανανεώσετε τη σελίδα, διαφορετικά η φιάλη Hondro Sol που έχει δεσμευτεί για εσάς θα προσφερθεί σε άλλο άτομο!
+      </p>
+      <span class="pre-cta">
+        Μπορείτε να συμμετάσχετε στην προσφορά — η θέση σας είναι δεσμευμένη:
+        <span class="nowrap">Αρ. <font class="number-me" style="border-bottom:2px solid var(--color-danger);font-weight:700">19&nbsp;974</font></span>
+      </span>
+    </center>
+
+    <span id="form"></span>
+    <span id="oneform"></span>
+    <div class="pachinoform">
+      <div class="pachinoform_title">
+        <div class="pachinoform_title_logo">
+          <img alt="" src="images/56d9b0017d1d_d58505c9.png">
+        </div>
+        <div class="pachinoform_title_text">
+          <b>Επίσημο έντυπο παραγγελίας</b>
+          αρ. <font class="number-me nowrap">19&nbsp;974</font> / <font class="nowrap">20.000</font>
+        </div>
+      </div>
+      <div class="pachinoform_order">
+        Για να λάβετε <b>έκπτωση 50 %</b>, εισάγετε το όνομα και τον αριθμό τηλεφώνου σας στα παρακάτω πεδία και κάντε κλικ στο «ΠΑΡΑΓΓΕΛΙΑ».
+      </div>
+      <div class="pachinoform_value">
+        Διαθέσιμο απόθεμα:
+        <span class="blc-pck">
+          <strong class="pachinoform_value_current left-pack">33</strong>
+          <strong class="pachinoform_value_total"> /1000</strong>
+        </span>
+      </div>
+      <div class="pachinoform_price">
+        <div class="pachinoform_price_old"><span class="price_old">78 €</span></div>
+        <div class="pachinoform_price_new"><span class="price_main">39 €</span></div>
+      </div>
+      <form action="/order.php" method="post">
+        <input type="hidden" name="fbpx" value="{fbpx}">
+        <input type="hidden" name="utm_code" value="{subid}">
+        <input type="hidden" name="cid" value="{campaign_id}">
+        <input type="hidden" name="sid" value="1282">
+        <input type="hidden" name="hash" value="{hash}">
+        <input type="hidden" name="country" value="GR">
+        <div class="name-input">
+          <label for="name-input">Ονοματεπώνυμο</label>
+          <input autocomplete="name" id="name-input" name="name" placeholder="Το όνομά σας" required="" type="text" value="">
+        </div>
+        <div class="phone-input">
+          <label for="phone-input">Αριθμός τηλεφώνου</label>
+          <input autocomplete="tel" id="phone-input" maxlength="20" name="phone" pattern="^[\-+() 0-9]{8,20}$" placeholder="Ο αριθμός τηλεφώνου σας" required="" type="tel" value="">
+        </div>
+        <button class="button-submit" type="submit">ΠΑΡΑΓΓΕΛΙΑ ΤΩΡΑ</button>
+      </form>
+      <div class="pachinoform_footer">
+        ✔️ Παράδοση με ευθύνη του Εθνικού Κέντρου Υγείας<br> απευθείας στη διεύθυνση που θα υποδείξετε
+        <br>
+        <img alt="" src="images/b0110a32ff2e_8322b1b5.png" style="width:auto">
+      </div>
+    </div>
+
+    <!-- COMMENTS SECTION -->
+    <div class="comments comments-fb" id="pluginComments">
+      <div class="comments__header">
+        <div class="comments__left-box">
+          <p class="comments__header-title">ΣΧΟΛΙΑ</p>
+        </div>
+      </div>
+
+      <div class="comments__item-list">
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7da17fc86c6c_2f1260d0.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Μαρία ντα Γκράσα Σίλβα</p>
+              <p class="startdate" daysago="8" format="day/month/year"><script>dtime_nums(-8, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Έκλαψα διαβάζοντας αυτό. Η μητέρα μου είναι 76 ετών και βρίσκεται σε γηροκομείο εδώ και 2 χρόνια — ακριβώς επειδή τα γόνατά της λύγισαν και δεν μπορούσα να τη φροντίσω. Είναι το μεγαλύτερό μου ενοχικότητα. Παρήγγειλα την Hondro Sol για εκείνη. Ελπίζω να μην είναι αργά. Θεέ μου, ελπίζω να βοηθήσει.</p>
+          </div>
+        </div>
+
+        <div id="first-comment">
+          <div class="comments__item">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/8ba73d45c164_4ede289a.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Τερέζα Ροντρίγκες</p>
+                <p class="startdate" daysago="7" format="day/month/year"><script>dtime_nums(-7, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Η Hondro Sol έφτασε την περασμένη Παρασκευή. Το ψεκάζω στα γόνατά μου πρωί και βράδυ. Σε 5 ημέρες — ο πόνος μειώθηκε δραστικά, μπορώ πλέον να κατεβαίνω τις σκάλες χωρίς να πιάνω το κιγκλίδωμα! Η ιστορία του γιατρού με έπεισε να παραγγείλω. Ένας εξαιρετικός άνθρωπος.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/fa7f61c1431c_7946ff6c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Φατιμά Ολιβέιρα</p>
+              <p class="startdate" daysago="6" format="day/month/year"><script>dtime_nums(-6, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Είμαι 69 ετών. Η πλάτη με βασάνιζε για 4 χρόνια — δισκοκήλη και ισχιαλγία. Δεν μπορούσα να σκύψω για να δέσω τα παπούτσια μου. Οι γιατροί μου έδιναν αντιφλεγμονώδη που μου κατέστρεψαν το στομάχι. Σε 3 εβδομάδες με Hondro Sol — ο πόνος έχει σχεδόν εξαφανιστεί εντελώς. Πηγαίνω μόνη μου στην αγορά, ψωνίζω, μαγειρεύω. Ανέκτησα τη ζωή μου.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/dcc5cfe80d60_5aa7f8f7.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Χοσέ Μέντες</p>
+              <p class="startdate" daysago="5" format="day/month/year"><script>dtime_nums(-5, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Περνάω 10 ώρες την ημέρα καθιστός στο γραφείο. Η πλάτη και ο λαιμός μου λύγισαν. Ο γιατρός μου είπε: «Είτε σταματάς τη δουλειά είτε πας για χειρουργείο». Διάλεξα την Hondro Sol. Σε 5 εβδομάδες — ούτε ίχνος πόνου. Και ο τεράστιος σεβασμός μου στον Δρ. Παππά — σε έναν κόσμο όπου όλοι θέλουν χρήματα, αυτός πηγαίνει και επισκέπτεται ξεχασμένους γέροντες.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/bcbe20e0b5d2_b241da99.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Ρουί Μαρτίνς</p>
+              <p class="startdate" daysago="5" format="day/month/year"><script>dtime_nums(-5, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Παρήγγειλα 3 φιάλες — για μένα (γόνατα), για τη γυναίκα μου (χέρια, αρθρίτιδα) και για τον πεθερό μου στο γηροκομείο. Δεν μπορούμε να τον επισκεπτόμαστε συχνά, αλλά τουλάχιστον του στέλνουμε αυτό που χρειάζεται. Ελπίζω να του κάνει τόσο καλό όσο και σε μένα. Ευχαριστώ για το άρθρο.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/73d3a879cef9_4a9ce85c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Άνα Λουτσία Περέιρα</p>
+              <p class="startdate" daysago="4" format="day/month/year"><script>dtime_nums(-4, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Σκέφτομαι αν θα παραγγείλω για τον πατέρα μου. Είναι στο γηροκομείο εδώ και 3 χρόνια — τα γόνατά του δεν λειτουργούν καθόλου. Έχει παρατήσει τη ζωή, σχεδόν δεν μιλάει. Πιστεύετε ότι η Hondro Sol μπορεί να βοηθήσει ακόμα στα 78 του;</p>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/71deaf909b4e_ea30d07c.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Κάρλα Ριμπέιρο</p>
+                <p class="startdate" daysago="4" format="day/month/year"><script>dtime_nums(-4, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Άνα Λουτσία, η μητέρα μου είναι 82 ετών! Σοβαρή οστεοαρθρίτιδα και στα δύο γόνατα, δεν σηκωνόταν από το κρεβάτι. Χρησιμοποίησε την Hondro Sol για 2 μήνες — τώρα πηγαίνει μόνη της στην αυλή. Δεν υπερβάλλω. Και το πιο όμορφο: όταν πήγα να την επισκεφτώ, με περίμενε όρθια στην πόρτα. Κλάψαμε και οι δύο. Παράγγειλε χωρίς δισταγμό, ο πατέρας σου αξίζει αυτή την ευκαιρία.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/66ebad51123a_206d5fba.png">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Φερνάντο Λόπες</p>
+                <p class="startdate" daysago="3" format="day/month/year"><script>dtime_nums(-3, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Άνα Λουτσία, παράγγειλε με ησυχία. Εγώ είμαι 78 ετών και ήμουν στα πρόθυρα της αναπηρικής καρέκλας — κοξάρθρωση. Η Hondro Sol με έβαλε στα πόδια σε 2 μήνες. Κυριολεκτικά. Ο πατέρας σου το έχει ανάγκη περισσότερο από όσο νομίζεις.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d61700bc0961_28c03d39.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Ντεολίντα Σάντος</p>
+              <p class="startdate" daysago="3" format="day/month/year"><script>dtime_nums(-3, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Το ψεκάζω στα γόνατα και στην οσφυϊκή χώρα εδώ και μια εβδομάδα. Το πρωί δεν είμαι πια «σαν ξύλο». Μπορώ να σκύβω, να σηκώνομαι χωρίς «αχ». Παρήγγειλα και για τη γειτόνισσά μου, 73 ετών, που ζει μόνη και στηριζόταν στους τοίχους για να περπατήσει στο σπίτι.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7db2eed8e880_6ecfd92a.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Ελένη Φερέιρα</p>
+              <p class="startdate" daysago="2" format="day/month/year"><script>dtime_nums(-2, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Στα 68 μου, νόμιζα ότι δεν θα μπορούσα ποτέ ξανά να δουλέψω στο περιβόλι. Τα γόνατα και η πλάτη με είχαν ακινητοποιήσει. Η Hondro Sol άλλαξε τα πάντα — σε 4 εβδομάδες έσκαψα το πρώτο παρτέρι φέτος. Και η ιστορία του Δρ. Παππά με συγκίνησε βαθιά. Υπάρχουν ακόμα άνθρωποι με ψυχή σε αυτόν τον κόσμο.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/a49c7ec0724d_6f186c1c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Αλφρέντο Κόστα</p>
+              <p class="startdate" daysago="2" format="day/month/year"><script>dtime_nums(-2, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Είμαι 82 ετών. Πέρυσι δεν μπορούσα να πάω μόνος μου ούτε στην τουαλέτα. Τα παιδιά μου μιλούσαν για γηροκομείο. Δοκίμασα την Hondro Sol — χωρίς μεγάλες ελπίδες. Και λειτουργεί! Περπατάω μόνος μου, ντύνομαι μόνος μου, βγαίνω στην αυλή μόνος μου. Τα παιδιά δεν μιλάνε πια για γηροκομείο. Είναι η μεγαλύτερη χαρά μου.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7099c502f996_b89c4cc9.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Αντώνιος Μάρκου</p>
+              <p class="startdate" daysago="1" format="day/month/year"><script>dtime_nums(-1, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Η γυναίκα μου δεν μπορούσε να κατεβεί τις σκάλες. Κρατιόταν από τον τοίχο και έκλαιγε από τον πόνο. Νόμιζα ότι θα την έχανα — όχι από την αρρώστια, αλλά από την απελπισία. Παρήγγειλα την Hondro Sol με έκπτωση. Σε 4 εβδομάδες — χθες πήγε μόνη της στην αγορά και γύρισε με λουλούδια. Με λουλούδια! Σας ευχαριστώ από τα βάθη της καρδιάς μου.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/47a8cb9cf088_09555b8e.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Σάντρα Αλμέιδα</p>
+              <p class="startdate" daysago="1" format="day/month/year"><script>dtime_nums(-1, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Παρήγγειλα 4 φιάλες — για τη μητέρα μου (γηροκομείο, γόνατα), για τον πατέρα μου (σπίτι, πλάτη) και 2 για μένα (χέρια, αρθρίτιδα στα δάχτυλα, δεν μπορούσα να γράψω). Οι ιστορίες του άρθρου με συγκλόνισαν. Έπρεπε να το είχα κάνει εδώ και πολύ καιρό. Δεν έχω πια δικαιολογίες.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/f021e0a36f8b_7c282874.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Πατρίτσια Νούνες</p>
+              <p class="nowdate" daysago="0" format="day/month/year"><script>dtime_nums(0, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Η Hondro Sol έφτασε — ο ταχυμεταφορέας την παρέδωσε σε 2 ημέρες! Το ψέκασα ήδη στα γόνατα της μητέρας μου στο γηροκομείο. Περιμένω με όλη μου την καρδιά. Θα στείλω αυτό το άρθρο και στο προσωπικό του γηροκομείου — ίσως επικοινωνήσουν με τον Δρ. Παππά.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d770c7a4cbdf_467ee117.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Πέτρος Γκονσάλβες</p>
+              <p class="nowdate" daysago="0" format="day/month/year"><script>dtime_nums(0, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Έψαξα την Hondro Sol στα φαρμακεία — δεν υπάρχει. Μου είπαν να παραγγείλω από αυτή τη σελίδα. Ελπίζω να υπάρχει ακόμα απόθεμα. Ο παππούς μου τη χρειάζεται επειγόντως — είναι 81 ετών και δεν μπορεί να περπατήσει καθόλου.</p>
+          </div>
+        </div>
+
+        <div class="custom-commetns-container"></div>
+
+        <a href="#" style="text-decoration: none;">
+          <div class="form-container">
+            <form class="custom-form" id="custom-form">
+              <div class="custom-form__top-field">
+                <div class="custom-form__ava-block">
+                  <input disabled class="custom-form__ava-input sf-hidden" id="avatar" name="avatar" type="file" value="">
+                  <label class="custom-form__ava-label"><span class="custom-form__ava-label_red-text">*</span>Προσθήκη άβαταρ</label>
+                </div>
+                <input disabled class="custom-form__name" placeholder="Το όνομά σας" required="" type="text" value="">
+              </div>
+              <textarea disabled class="custom-form__message" placeholder="Το σχόλιό σας" required=""></textarea>
+              <div class="custom-form__bottom-field">
+                <div class="custom-form__photo-block">
+                  <input disabled class="custom-form__photo-input sf-hidden" id="photo" type="file" value="">
+                  <label class="custom-form__photo-label" for="photo">Προσθήκη φωτογραφίας</label>
+                </div>
+                <button disabled class="custom-form__btn">ΑΠΟΣΤΟΛΗ</button>
+              </div>
+            </form>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </main>
+
+  <div class="trust-strip">
+    <div class="trust-item"><span class="trust-item-icon">🛡️</span> Πιστοποιημένη ποιότητα</div>
+    <div class="trust-item"><span class="trust-item-icon">🚚</span> Παράδοση σε 2 – 3 ημέρες</div>
+    <div class="trust-item"><span class="trust-item-icon">⚕️</span> Χωρίς ιατρική συνταγή</div>
+    <div class="trust-item"><span class="trust-item-icon">🔒</span> Ασφαλής παραγγελία</div>
+  </div>
+
+  <footer class="clinical-footer">
+    © ΥγείαInfo Ελλάδα — ειδικό ρεπορτάζ<br>
+    Τα δεδομένα που παρουσιάζονται σε αυτή τη σελίδα έχουν ενημερωτικό χαρακτήρα και δεν υποκαθιστούν ιατρική συμβουλή.
+  </footer>
+
+  <div class="ffl ffl__anim sf-hidden" data-name="div-gc0zvidej" style="display:block"></div>
+
+  <script async>
+    const LAZY = document.querySelectorAll('img');
+    for (let i = 0; i < LAZY.length; i++) { LAZY[i].setAttribute('loading', 'lazy'); }
+  </script>
+
+  <script>
+    $("a").on("touchend, click", function (e) {
+      e.preventDefault();
+      $('body,html').animate({ scrollTop: $('#oneform').offset().top }, 400);
+    });
+  </script>
+
+  <script>
+$('[name="name"]').on("input", function () {
+    var val = $(this).val();
+    
+    var cleaned = val
+        .replace(/[^\p{L}\s]/gu, "") 
+        .replace(/^\s+/, "")
+        .replace(/\s\s+/, " ");
+        
+    var parts = cleaned.split(" ");
+    if (parts.length > 2) {
+        cleaned = parts[0] + " " + parts[1];
+    }
+    
+    $(this).val(cleaned);
+});
+
+$('[name="name"]').on("change blur", function () {
+    $(this).val($(this).val().trim());
+});
+
+$('[name="phone"]').on("input change", function(e) {
+    var val = $(this).val();
+    $(this).val(val.replace(/\D/g, ""));
+    $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+});
+</script>
+        <p style="opacity: 0;">{_box:XVsWxC}</p>
+</body>
+
+</html>
