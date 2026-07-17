@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="lt-LT">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ačiū už užsakymą — Insuvit</title>
+  <link rel="shortcut icon" href="images/insuvit.png" type="image/x-icon">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f4f4;
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .thanks {
+      background: #fff;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      padding: 40px 28px;
+      border-radius: 10px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .08);
+      border-top: 6px solid #024476;
+    }
+    .thanks__check {
+      width: 84px;
+      height: 84px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: #024476;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .thanks__check svg { width: 44px; height: 44px; fill: none; stroke: #fff; stroke-width: 3; }
+    .thanks h1 { font-size: 26px; color: #024476; margin-bottom: 14px; }
+    .thanks p { font-size: 17px; line-height: 1.5; margin-bottom: 14px; }
+    .thanks__product { max-width: 180px; height: auto; margin: 10px auto 20px; display: block; }
+    .thanks__note {
+      font-size: 14px;
+      color: #666;
+      background: #fff7d6;
+      padding: 12px 14px;
+      border-radius: 6px;
+      margin-top: 18px;
+    }
+    .thanks__home {
+      display: inline-block;
+      margin-top: 22px;
+      color: #024476;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+
+  <!-- Meta Pixel (lead tracking) -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    (function () {
+      var p = new URLSearchParams(location.search).get('fbpx');
+      if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+      if (!p) { try { p = localStorage.getItem('fb_pixel'); } catch (e) {} }
+      if (p) { fbq('init', p); fbq('track', 'PageView'); fbq('track', 'Lead'); }
+    })();
+  </script>
+  <!-- End Meta Pixel -->
+</head>
+
+<body>
+  <div class="thanks">
+    <div class="thanks__check">
+      <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </div>
+    <h1>Ačiū už užsakymą!</h1>
+    <img class="thanks__product" src="images/insuvit.png" alt="Insuvit" loading="lazy">
+    <p>Jūsų <b>Insuvit</b> užsakymas sėkmingai gautas.</p>
+    <p>Mūsų darbuotojas netrukus paskambins nurodytu telefono numeriu, kad patvirtintų užsakymą ir suorganizuotų pristatymą.</p>
+    <div class="thanks__note">
+      Nepamirškite: <b>jokio išankstinio mokėjimo</b> — mokėsite tik tada, kai atsiimsite siuntą iš kurjerio.
+    </div>
+    <a class="thanks__home" href="index.html">&larr; Grįžti</a>
+  </div>
+</body>
+
+</html>
