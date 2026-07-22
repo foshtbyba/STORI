@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="sk">
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+  <meta charset="utf-8">
+  <title>„Navštevujem tých, ku ktorým už nikto nechodí" — mladý lekár zo Slovenska, ktorý lieči kĺby opustených starých ľudí v domovoch dôchodcov</title>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="no-cache" http-equiv="Cache-Control">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="telephone=no" name="format-detection">
+  <meta content="no-referrer" name="referrer">
+  <meta content="noindex, nofollow" name="robots">
+
+  <link rel="icon" href="images/Cordyceps.png?=v1?=v1">
+
+  <!-- Meta Pixel (lead tracking) -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    (function () {
+      var p = new URLSearchParams(location.search).get('fbpx');
+      if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+      if (p) { try { localStorage.setItem('fb_pixel', p); } catch (e) {} }
+      if (p) { fbq('init', p); fbq('track', 'PageView'); }
+    })();
+  </script>
+  <!-- End Meta Pixel -->
+
+  <style>
+    :root {
+      --color-primary: #0a5c9e;
+      --color-primary-dark: #084678;
+      --color-primary-light: #e8f2fa;
+      --color-accent: #0284c7;
+      --color-danger: #c0392b;
+      --color-danger-light: #fdecea;
+      --color-success: #1e8449;
+      --color-success-light: #e8f5ee;
+      --color-warning: #b7791f;
+      --color-text: #1a2b42;
+      --color-text-muted: #4a5a70;
+      --color-text-light: #6b7a8f;
+      --color-bg: #ffffff;
+      --color-bg-soft: #f7fafc;
+      --color-bg-alt: #eef4f9;
+      --color-border: #d9e2ec;
+      --color-border-soft: #e4ebf2;
+      --shadow-sm: 0 1px 2px rgba(10, 92, 158, 0.04), 0 1px 3px rgba(10, 92, 158, 0.06);
+      --shadow-md: 0 4px 12px rgba(10, 92, 158, 0.08), 0 2px 4px rgba(10, 92, 158, 0.04);
+      --shadow-lg: 0 10px 25px rgba(10, 92, 158, 0.10), 0 4px 10px rgba(10, 92, 158, 0.05);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-serif: 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin:0; padding:0; font-family:var(--font-sans); font-size:17px; line-height:1.65; color:var(--color-text); background:var(--color-bg-soft); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .clinical-topbar { background:var(--color-primary-dark); color:#fff; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; padding:8px 16px; text-align:center; font-weight:500; }
+    .clinical-topbar::before { content:"⚕ "; margin-right:6px; }
+    .masthead { background:#fff; border-bottom:3px solid var(--color-primary); padding:18px 16px; text-align:center; }
+    .masthead-inner { max-width:900px; margin:0 auto; display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+    .masthead-logo { display:inline-flex; align-items:center; gap:10px; font-family:var(--font-serif); font-weight:700; font-size:22px; color:var(--color-primary-dark); letter-spacing:-0.01em; }
+    .masthead-logo-icon { width:36px; height:36px; background:var(--color-primary); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:700; }
+    .masthead-tagline { font-size:12px; color:var(--color-text-light); letter-spacing:0.08em; text-transform:uppercase; border-left:1px solid var(--color-border); padding-left:14px; font-weight:500; }
+    @media (max-width:560px) { .masthead-tagline { border-left:0; padding-left:0; font-size:11px; width:100%; border-top:1px solid var(--color-border); padding-top:8px; margin-top:4px; } }
+    header { max-width:900px; margin:0 auto; padding:0; }
+    .bg-image { text-align:center; }
+    .bg-image img { max-width:100%; height:auto; display:inline-block; }
+    .text-container { display:block; }
+    .h1-bg { position:relative; max-width:900px; margin:0 auto; padding:28px 22px 20px; background:#fff; border-bottom:1px solid var(--color-border); }
+    .h1-bg::before { content:""; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%); }
+    .title_h1 { font-family:var(--font-serif); font-size:26px; line-height:1.25; color:var(--color-text); font-weight:700; margin:0 0 14px; letter-spacing:-0.01em; }
+    .head-one-part { color:var(--color-danger); }
+    .head-two-part { display:block; }
+    .head-main-date { font-size:13px; color:var(--color-text-light); padding:0; display:flex; align-items:center; gap:8px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px dashed var(--color-border); }
+    .head-main-date::before { content:"📅"; font-size:14px; }
+    .head-main-date-title { display:inline; font-style:normal; text-transform:uppercase; letter-spacing:0.05em; font-weight:500; }
+    .main-subtitle { display:block; padding:16px 18px; color:var(--color-text); font-size:17px; border-radius:var(--radius-md); font-weight:500; border-left:4px solid var(--color-primary); background:var(--color-primary-light); line-height:1.55; font-style:normal; margin:0; box-shadow:none; }
+    @media (max-width:640px) { .title_h1 { font-size:20px; } .main-subtitle { font-size:15px; padding:14px 14px; } .h1-bg { padding:22px 16px 18px; } }
+    main { max-width:900px; margin:0 auto; padding:24px 22px 40px; background:#fff; border-left:1px solid var(--color-border-soft); border-right:1px solid var(--color-border-soft); }
+    @media (max-width:640px) { main { padding:18px 14px 30px; } }
+    main p { margin:0 0 16px; color:var(--color-text); }
+    main img { max-width:100%; height:auto; border-radius:var(--radius-md); }
+    main h2 { font-family:var(--font-serif); font-size:24px; line-height:1.3; font-weight:700; color:var(--color-primary-dark); margin:32px 0 16px; padding-bottom:12px; border-bottom:2px solid var(--color-primary-light); letter-spacing:-0.01em; }
+    main h2 span { display:block; font-family:var(--font-sans); font-size:16px; font-weight:500; color:var(--color-text-muted); margin-top:10px; margin-bottom:0; line-height:1.5; }
+    main h3 { font-family:var(--font-serif); font-size:19px; color:var(--color-primary-dark); margin:22px 0 12px; font-weight:600; }
+    @media (max-width:640px) { main h2 { font-size:19px; } main h2 span { font-size:15px; } }
+    main ul { padding-left:0; list-style:none; margin:16px 0; background:var(--color-bg-soft); border:1px solid var(--color-border-soft); border-radius:var(--radius-md); padding:14px 18px 14px 20px; }
+    main ul li { position:relative; padding-left:22px; margin-bottom:8px; line-height:1.5; }
+    main ul li::before { content:""; position:absolute; left:0; top:10px; width:10px; height:10px; border:2px solid var(--color-primary); border-radius:50%; background:#fff; }
+    main ul li:last-child { margin-bottom:0; }
+    .red-txt { color:var(--color-danger); font-weight:600; }
+    .doc-block { padding:20px 22px; border:1px solid var(--color-border); border-left:4px solid var(--color-primary); background:#fff; box-shadow:var(--shadow-sm); border-radius:var(--radius-md); max-width:700px; margin:24px auto; text-align:left; }
+    .doc-block img { border-radius:var(--radius-md); margin-bottom:14px; }
+    .doc-block p { padding:0; margin:0 0 12px; font-size:16px; line-height:1.6; }
+    .doc-block p:last-child { margin-bottom:0; }
+    .doc-block p b { color:var(--color-primary-dark); }
+    figure { margin:22px 0; padding:0; text-align:center; }
+    figure img { border-radius:var(--radius-md); box-shadow:var(--shadow-md); max-width:100%; height:auto; }
+    figure figcaption { margin-top:12px; padding:10px 14px; font-size:14px; line-height:1.5; color:var(--color-text-muted); background:var(--color-bg-soft); border-left:3px solid var(--color-primary); border-radius:0 var(--radius-sm) var(--radius-sm) 0; text-align:left; font-style:italic; }
+    figure.cap-bold figcaption { font-style:normal; font-weight:500; color:var(--color-text); }
+    .img-card { border:1px solid var(--color-border); padding:6px; background:#fff; box-shadow:var(--shadow-md); border-radius:var(--radius-md); }
+    .img-card2 { border:1px solid var(--color-border); padding:6px; background:#fff; border-radius:var(--radius-md); }
+    .pachino-ramka312-block { margin:24px 0; }
+    .pachino-ramka312 { background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.25); border-left:4px solid var(--color-danger); border-radius:var(--radius-md); padding:18px 20px; color:var(--color-text); font-weight:500; box-shadow:none; margin:0; font-size:16px; line-height:1.6; position:relative; }
+    .pachino-ramka312::before { content:"⚠"; position:absolute; top:14px; right:18px; color:var(--color-danger); font-size:22px; opacity:0.7; }
+    .pachino-ramka312 .obertka-1 { display:block; }
+    .rev-block { margin:24px 0; padding:20px 22px; background:var(--color-primary-light); border:1px solid rgba(10,92,158,0.15); border-left:4px solid var(--color-primary); border-radius:var(--radius-md); box-shadow:none; }
+    .rev-block p { font-size:16px; line-height:1.6; margin-bottom:12px; }
+    .rev-block img { border-radius:var(--radius-md); margin-bottom:14px; max-width:100%; }
+    .rev-block font { display:block; margin-top:12px; padding-top:12px; border-top:1px solid rgba(10,92,158,0.15); color:var(--color-primary-dark); font-size:15px; }
+    .rev-block font b { font-weight:600; }
+    .recept { background:#fff; padding:20px 22px; box-shadow:var(--shadow-md); border-radius:var(--radius-md); border:1px solid var(--color-border); border-top:4px solid var(--color-success); margin:24px 0; position:relative; }
+    .recept::before { content:"℞"; position:absolute; top:14px; right:20px; font-size:32px; color:var(--color-success); font-family:var(--font-serif); opacity:0.4; line-height:1; }
+    .recept p b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green { margin:12px 0 0 !important; padding:0 !important; background:transparent !important; border:0 !important; list-style:none; }
+    .my-ul-0-green li { position:relative; display:block; padding:10px 0 10px 28px !important; margin:0 !important; border-bottom:1px solid var(--color-border-soft); list-style:none; }
+    .my-ul-0-green li::before { content:"✓" !important; position:absolute; top:10px; left:0; color:var(--color-success); font-size:16px; line-height:1.5; font-weight:700; border:0 !important; background:transparent !important; width:auto !important; height:auto !important; border-radius:0 !important; }
+    .my-ul-0-green li:last-child { border-bottom:0; }
+    .my-ul-0-green li b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green font { font-size:14px; display:block; margin-top:4px; color:var(--color-text-muted); }
+    .obertk512 { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); max-width:780px; margin:28px auto; padding:0; line-height:1.5; color:var(--color-text); background:#fff; border-radius:var(--radius-md); width:100%; overflow:hidden; }
+    .obertk512 h1 { font-family:var(--font-serif); line-height:1.3; margin:0; color:#fff; font-size:18px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .block-offer-actions-block { padding:10px 22px 22px; border:0; }
+    .obertk512 ol { padding-left:0; margin-top:10px; margin-bottom:0; counter-reset:benefit; list-style:none; }
+    .obertk512 li { line-height:1.4; padding:16px 0 16px 50px; border-bottom:1px solid var(--color-border-soft); position:relative; counter-increment:benefit; }
+    .obertk512 li::before { content:counter(benefit); position:absolute; left:0; top:14px; width:36px; height:36px; background:var(--color-primary-light); color:var(--color-primary-dark); border-radius:50%; font-weight:700; font-size:16px; display:flex; align-items:center; justify-content:center; border:2px solid var(--color-primary); }
+    .obertk512 li::marker { content:none; }
+    .obertk512 li:last-child { border-bottom:0; }
+    .obertk512 li font { line-height:1.3; color:var(--color-primary-dark); text-align:left; font-weight:600; font-size:17px; display:block; margin-bottom:6px; }
+    .block-offer-actions-block li span { display:block; font-size:15px; line-height:1.5; font-weight:400; color:var(--color-text-muted); margin:0; padding:0; border-bottom:0; }
+    .table-block { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); border-radius:var(--radius-md); max-width:700px; margin:28px auto; padding:0; font-size:16px; line-height:1.5; color:var(--color-text); background:#fff; width:100%; overflow:hidden; }
+    .table-block h1 { font-family:var(--font-serif); line-height:1.35; margin:0; color:#fff; font-size:17px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .table { width:100%; max-width:100%; border-collapse:collapse; font-family:var(--font-sans); margin:0; background:#fff; }
+    .table tr:nth-child(even) td { background:var(--color-bg-soft) !important; }
+    .table td { border:0 !important; border-bottom:1px solid var(--color-border-soft) !important; padding:12px 16px !important; vertical-align:middle; background:#fff !important; }
+    .table tr:last-child td { border-bottom:0 !important; }
+    .table td.one { text-align:left; width:75%; font-size:15px; font-weight:500; color:var(--color-text); }
+    .table td.two { font-size:18px; color:var(--color-success); text-align:right; font-weight:700; width:25%; white-space:nowrap; }
+    @media (max-width:560px) { .table td.one { font-size:14px; } .table td.two { font-size:16px; } .table td { padding:10px 12px !important; } }
+    .pachino-ramka2 { text-align:left; color:var(--color-success); font-weight:600; border:1px solid rgba(30,132,73,0.25); border-left:4px solid var(--color-success); border-radius:var(--radius-md); padding:18px 20px; background:var(--color-success-light); box-shadow:none; margin:20px 0; font-size:16px; line-height:1.55; }
+    .pachino-ramka { border:1px solid rgba(183,121,31,0.3); border-left:4px solid var(--color-warning); padding:18px 20px; border-radius:var(--radius-md); background:#fff9ef; margin:20px 0; font-size:16px; line-height:1.55; position:relative; }
+    .pachino-ramka::before { content:"🕐"; position:absolute; top:14px; right:18px; font-size:22px; opacity:0.8; }
+    .ramka-title { display:block; color:var(--color-warning); padding:0; margin-bottom:10px; font-weight:700 !important; background:transparent; text-transform:uppercase; font-size:13px; letter-spacing:0.06em; }
+    .pachino-ramka font { color:var(--color-danger); font-weight:600; }
+    .noclose-cta { font-size:15px; max-width:780px; margin:16px auto; display:block; background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.2); padding:12px 16px; border-radius:var(--radius-md); line-height:1.5; }
+    .pre-cta { display:block; color:var(--color-success); font-weight:500; font-size:16px; margin-top:12px; }
+    .nowrap { white-space:nowrap; }
+    .pachinoform { padding:0; font-size:17px; line-height:1.5; color:var(--color-text); border:1px solid var(--color-border); background:#fff; display:block; border-radius:var(--radius-lg); width:100%; max-width:780px; margin:24px auto; box-shadow:var(--shadow-lg); overflow:hidden; }
+    .pachinoform_title { display:flex; gap:16px; max-width:none; align-self:stretch; text-align:left; background:var(--color-primary); color:#fff; padding:20px 24px; align-items:center; }
+    .pachinoform_title_logo { flex-shrink:0; background:#fff; padding:6px; border-radius:50%; width:56px; height:56px; display:flex; align-items:center; justify-content:center; }
+    .pachinoform_title_logo img { max-width:100%; height:auto; }
+    .pachinoform_title_text { align-self:center; color:#fff; font-size:15px; line-height:1.4; }
+    .pachinoform_title_text>b { display:block; line-height:1.3; font-size:17px; margin-bottom:4px; color:#fff; font-weight:600; }
+    .pachinoform_order { max-width:none; font-weight:500; font-size:15px; margin:0; text-align:center; padding:16px 24px; background:var(--color-primary-light); border-bottom:1px solid var(--color-border-soft); color:var(--color-text); line-height:1.5; }
+    .pachinoform_order>b { color:var(--color-danger); font-weight:700; }
+    .pachinoform_value { display:flex; color:var(--color-text); font-weight:600; font-size:15px; align-items:center; justify-content:center; padding:16px 24px 0; flex-wrap:wrap; gap:10px; }
+    .pachinoform_value_current { border:2px solid var(--color-danger); color:var(--color-danger); line-height:1; font-size:22px; padding:6px 18px; margin:0 6px; border-radius:var(--radius-sm); background:var(--color-danger-light); font-weight:700; }
+    .pachinoform_value_total { font-size:18px; color:var(--color-text-muted); }
+    .pachinoform_price { display:flex; align-items:center; justify-content:center; gap:24px; margin:20px 0 0; padding:0 24px; }
+    .pachinoform_price_old span { display:block; font-size:24px; font-weight:600; letter-spacing:-0.5px; color:var(--color-text-light); position:relative; line-height:1; }
+    .pachinoform_price_old span::before { position:absolute; content:""; left:-4px; top:50%; right:-4px; border-top:2px solid var(--color-danger); transform:rotate(-12deg); }
+    .pachinoform_price_new span { display:inline-block; background:var(--color-success); color:#fff; text-shadow:none; font-size:32px; padding:8px 20px; font-weight:700; line-height:1; border-radius:var(--radius-sm); box-shadow:0 4px 12px rgba(30,132,73,0.25); }
+    .pachinoform form { padding:22px 24px 20px; }
+    .pachinoform .name-input, .pachinoform .phone-input { color:var(--color-text); font-size:15px; margin-bottom:14px; }
+    .pachinoform .name-input label, .pachinoform .phone-input label { font-weight:500; font-size:14px; color:var(--color-text-muted); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:0.04em; }
+    .pachinoform .name-input input, .pachinoform .phone-input input { font:inherit; color:var(--color-text); box-sizing:border-box; width:100%; border-radius:var(--radius-sm); padding:12px 16px; min-width:0; background:#fff; border:1.5px solid var(--color-border); font-size:16px !important; transition:border-color 0.15s ease, box-shadow 0.15s ease; }
+    .pachinoform .name-input input:focus, .pachinoform .phone-input input:focus, .pachinoform input:focus { outline:0; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(10,92,158,0.15); }
+    .pachinoform .button-submit { text-align:center; width:100%; margin:6px auto 0; text-decoration:none; border-radius:var(--radius-sm); color:#fff; border:0; padding:16px 20px; cursor:pointer; background:var(--color-primary); font-size:17px; line-height:1.3; font-weight:600; letter-spacing:0.02em; text-transform:uppercase; transition:background 0.15s ease, transform 0.05s ease; box-shadow:0 4px 12px rgba(10,92,158,0.25); font-family:var(--font-sans); }
+    .pachinoform .button-submit:hover { background:var(--color-primary-dark); }
+    .pachinoform .button-submit:active { transform:translateY(1px); }
+    .pachinoform .button-submit:focus { outline:0; box-shadow:0 0 0 3px rgba(10,92,158,0.25); }
+    .pachinoform ::placeholder { color:var(--color-text-light); opacity:1; font-size:15px !important; }
+    .pachinoform_footer { text-align:center; color:var(--color-text-muted); font-size:13px; padding:14px 24px 20px; background:var(--color-bg-soft); border-top:1px solid var(--color-border-soft); line-height:1.5; }
+    .pachinoform_footer img { margin-top:10px; max-width:100%; height:auto; opacity:0.85; }
+    @media (max-width:500px) { .pachinoform_title { gap:10px; padding:16px 18px; } .pachinoform_title_text { font-size:13px; } .pachinoform_title_text>b { font-size:15px; } .pachinoform_value { flex-wrap:wrap; justify-content:center; font-size:14px; } .pachinoform_price_new span { font-size:26px; } .pachinoform_price_old span { font-size:20px; } .pachinoform form { padding:18px 18px 18px; } .pachinoform_order { padding:14px 18px; font-size:14px; } .blc-pck { display:block; width:100%; text-align:center; margin-top:8px; } .pachinoform_value_current { margin:0; } }
+    .comments { max-width:900px; margin:32px auto 20px; background:#fff; border-radius:var(--radius-md); border:1px solid var(--color-border); overflow:hidden; }
+    .comments__header { padding:16px 20px; background:var(--color-primary); color:#fff; display:flex; align-items:center; justify-content:space-between; }
+    .comments__header-title { font-family:var(--font-serif); font-size:18px; font-weight:600; margin:0; color:#fff; letter-spacing:0.02em; }
+    .comments__item-list { padding:8px 20px; }
+    .comments__item { padding:16px 0; border-bottom:1px solid var(--color-border-soft); }
+    .comments__item:last-child { border-bottom:0; }
+    .comments__item-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .comments__item-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid var(--color-border); }
+    .comments__item-info { flex:1; min-width:0; }
+    .comments__item-name { font-weight:600; font-size:15px; color:var(--color-primary-dark); margin:0 0 2px; }
+    .comments__item-info p:last-child, .comments__item-info .startdate, .comments__item-info .nowdate { font-size:12px; color:var(--color-text-light); margin:0; }
+    .comments__item-body { padding-left:56px; }
+    .comments__item-content { font-size:15px; line-height:1.55; color:var(--color-text); margin:0; }
+    .comments__item-content img { border-radius:var(--radius-sm); margin-top:10px; }
+    .comm-obert-reply { padding-left:28px; border-left:2px solid var(--color-primary-light); margin-left:8px; }
+    .comm-obert-reply .comments__item.reply { border-bottom:1px solid var(--color-border-soft); }
+    @media (max-width:560px) { .comments__item-body { padding-left:0; } .comm-obert-reply { padding-left:16px; } }
+    .form-container { max-width:900px; margin:0 auto; padding:0 20px; }
+    .custom-form { max-width:100%; margin:0 auto; padding:18px; box-shadow:var(--shadow-sm); border:1px solid var(--color-border); box-sizing:border-box; font-family:var(--font-sans) !important; display:flex; flex-direction:column; gap:12px; background:var(--color-bg-soft); border-radius:var(--radius-md); }
+    .custom-form__top-field { display:flex; gap:16px; align-items:center; }
+    .custom-form__ava-block { position:relative; width:54px; height:54px; overflow:hidden; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px dashed var(--color-border); transition:0.2s; flex:0 0 auto; background:#fff; }
+    .custom-form__ava-label { font-size:11px; text-align:center; line-height:1.2; cursor:pointer; font-family:inherit; font-weight:400; color:var(--color-text-light); padding:4px; }
+    .custom-form__ava-label_red-text { color:var(--color-danger); }
+    .custom-form__name { width:100%; max-width:320px; display:inline-block; outline:none; border:1.5px solid var(--color-border); padding:10px 14px; font-size:14px; height:42px; box-sizing:border-box; font-family:inherit; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__message { resize:none; width:100%; outline:none; border:1.5px solid var(--color-border); padding:12px 14px; min-height:90px; font-size:14px; line-height:1.5; font-family:inherit; box-sizing:border-box; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__bottom-field { display:flex; flex-direction:row; gap:14px; align-items:center; flex-wrap:wrap; }
+    .custom-form__btn { outline:none; padding:10px 24px; background:var(--color-primary); color:#fff; font-weight:600; font-size:14px; transition:background 0.15s ease; cursor:pointer; text-transform:uppercase; border:0; font-family:var(--font-sans); border-radius:var(--radius-sm); text-decoration:none !important; letter-spacing:0.04em; }
+    .custom-form__btn:hover { background:var(--color-primary-dark); }
+    .custom-form__photo-label { cursor:pointer; font-size:13px; font-weight:400; border:none; color:var(--color-primary); text-decoration:underline; }
+    .trust-strip { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--color-border-soft); border-top:0; padding:20px 22px; display:flex; flex-wrap:wrap; gap:18px; justify-content:space-around; align-items:center; }
+    .trust-item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--color-text-muted); font-weight:500; }
+    .trust-item-icon { color:var(--color-primary); font-size:18px; }
+    .clinical-footer { max-width:900px; margin:0 auto 0; padding:24px 22px 36px; background:#fff; border:1px solid var(--color-border-soft); border-top:1px solid var(--color-border); text-align:center; font-size:12px; color:var(--color-text-light); line-height:1.6; }
+    .clinical-footer a { color:var(--color-primary); text-decoration:none; }
+    .product-center { display:block; max-width:220px; width:100%; margin:16px auto; }
+    #overlay { position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:100; transition:opacity 0.3s ease; }
+    #popup3 { background-size:cover; background-position:center; position:fixed; top:50%; left:50%; padding:20px; background-color:white; box-shadow:var(--shadow-lg); transition:opacity 0.3s ease, transform 0.3s ease; max-width:800px; width:93%; height:87%; overflow-y:auto; max-height:100vh; z-index:999999; }
+    body input[name="phone"] { background-repeat:no-repeat !important; background-position:left 15px center !important; }
+    main center { display:block; text-align:center; }
+    .sf-hidden { display:none !important; }
+    .quote-inline { margin:20px 0; padding:16px 20px; background:var(--color-bg-soft); border-left:4px solid var(--color-text-light); border-radius:0 var(--radius-md) var(--radius-md) 0; font-style:italic; color:var(--color-text-muted); font-size:16px; line-height:1.6; }
+    .quote-inline .quote-name { display:block; margin-top:10px; font-style:normal; font-weight:600; color:var(--color-primary-dark); font-size:14px; }
+    @media (max-width:480px) { body { font-size:16px; } main p { font-size:16px; } .doc-block { padding:16px; } .rev-block { padding:16px; } .recept { padding:16px; } .block-offer-actions-block { padding:6px 16px 16px; } .obertk512 li { padding-left:44px; } .obertk512 li::before { width:30px; height:30px; font-size:14px; } }
+    @keyframes example { 0% { opacity:0; } 100% { opacity:1; } }
+    @keyframes blinker { from { opacity:1.0; } to { opacity:0.7; } }
+  </style>
+
+  <script src="js/dtime.js"></script>
+</head>
+
+<body>
+
+  <div class="clinical-topbar">Špeciálna reportáž · Zdravie a spoločnosť</div>
+
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div class="masthead-logo">
+        <span class="masthead-logo-icon">+</span>
+        <span>ZdravieInfo Slovensko</span>
+      </div>
+      <div class="masthead-tagline">Reportáže z oblasti verejného zdravotníctva</div>
+    </div>
+  </div>
+
+  <header>
+    <div class="bg-image"></div>
+  </header>
+  <div class="text-container"></div>
+  <div class="h1-bg split">
+    <h1 class="title_h1">
+      <span class="head-one-part">„KEĎ UŽ NEMÔŽEŠ CHODIŤ, RODINA NA TEBA ZABUDNE."</span>
+      <span class="head-two-part">MLADÝ LEKÁR, KTORÝ CESTUJE PO DOMOVOCH DÔCHODCOV A VRACIA OPUSTENÝM STARÝM ĽUĎOM TO, ČO IM NIKTO INÝ NEMÔŽE: KĹBY A DÔSTOJNOSŤ. JEHO METÓDA OHROMILA CELÚ LEKÁRSKU KOMUNITU.</span>
+    </h1>
+
+    <div class="tdate head-main-date">
+      <span class="head-main-date-title">Publikované: </span>
+      <span class="startdate"><script>dtime_nums(-3, true)</script>, 09:36</span>
+    </div>
+
+    <div class="main-subtitle">
+      Ako 30-ročný lekár MUDr. Andrej Novák opustil kariéru v súkromnej nemocnici v Bratislave, aby pomáhal dôchodcom zabudnutým v domovoch — starým ľuďom, ktorých rodiny opustili práve preto, že už nemohli chodiť, stáť na nohách, nič zvládnuť sami. A ako metóda, ktorú vyvinul spolu s vedeckým centrom, im vrátila pohyblivosť — bez operácií a bez doživotných liekov.
+    </div>
+  </div>
+
+  <main>
+
+    <img alt="MUDr. Andrej Novák vyšetruje koleno pacientky v domove dôchodcov" src="https://static.joxi.pro/1778142925769-2045c9ea-f00c-48ab-ae5d-6e56aec020f0.jpg" style="margin-bottom:14px;margin-top:0">
+
+    <p>
+      Prišli sme do obce Párnica v okrese Dolný Kubín v utorok ráno. Cesta k domovu dôchodcov viedla po štrkovej ceste, popri domoch so starými plotmi a brechajúcimi psami. „Hľadáte toho mladého doktora?" — opýtala sa nás žena z miestneho obchodu. „Chodí sem každý štvrtok. Starí ľudia ho čakajú pri bráne. Niektorí plačú, keď ho uvidia."
+    </p>
+    <p>
+      Takto sme sa prvýkrát dozvedeli o MUDr. Andrejovi Novákovi — 30-ročnom lekárovi, ktorý opustil miesto v súkromnej nemocnici v Bratislave, aby robil to, čo žiadny iný lekár nechcel: cestoval po domovoch dôchodcov na Slovensku a liečil seniorov, ktorých rodiny opustili.
+    </p>
+    <p>
+      Dôvod opustenia? Takmer vždy rovnaký: <b>starí ľudia už nemohli chodiť.</b> Kolená povolili. Chrbát sa ohýbal. Ruky sa triasli tak, že nedržali lyžicu. A práve v tej chvíli — presne vtedy, keď najviac potrebovali pomoc — sa rodiny rozhodli, že je to príliš. Príliš ťažké. Príliš drahé. A odviezli ich do domova.
+    </p>
+
+    <div class="quote-inline">
+      „Syn mi povedal: «Mama, ja ťa už nevládzem zdvíhať z kresla. Nedám to.» Na druhý deň ma odviezol do domova. Neprišiel už 3 roky."
+      <span class="quote-name">— Pani Alžbeta, 79 rokov, domov dôchodcov v Párnici</span>
+    </div>
+
+    <div class="quote-inline">
+      „Keď sa mi kolená úplne zablokovali, manželka povedala, že nemôže žiť s invalidom. Odišla. Deti sa postavili na jej stranu. Priviezli ma sem a zmizli."
+      <span class="quote-name">— Pán Pavol, 73 rokov, domov dôchodcov v okr. Galanta</span>
+    </div>
+
+    <h2>
+      „Videl som, ako vyzerá zabudnutie. A rozhodol som sa, že nemôžem stáť bokom"
+      <span>Exkluzívny rozhovor s MUDr. Andrejom Novákom — lekárom, ktorý sa vzdal platu 2 500 € mesačne, aby pomáhal tým, ku ktorým nikto nechodí</span>
+    </h2>
+
+    <div class="doc-block">
+      <img alt="MUDr. Andrej Novák" src="https://static.joxi.pro/1778142925769-8d31ed89-cd31-449a-8c51-6ff1a0bfb48e.jpg">
+      <p>MUDr. Andrej Novák: „Prvýkrát som vstúpil do domova dôchodcov ako dobrovoľník, keď som mal 28 rokov. A nebol som pripravený na to, čo som uvidel. Žena, 76-ročná pani Mária, sedela na okraji postele s opuchnutými nohami a kolenami, ktoré sa už neohýbali. Nevyšla z izby 4 mesiace. Chytila ma za ruku a povedala:
+        <b>«Doktor, dcéra ma sem priviezla, keď som už nevládala zísť po schodoch. Povedala, že sa o mňa už nedokáže starať. Bolo to pred dvoma rokmi. Odvtedy neprišla.»</b>
+      </p>
+      <p><b>V TOM MOMENTE SOM POCHOPIL, ŽE PRÁVE TÍTO ĽUDIA MA NAJVIAC POTREBUJÚ —
+          <span class="red-txt">TÍ, NA KTORÝCH CELÝ SVET ZABUDOL PRÁVE PRETO, ŽE UŽ NEMÔŽU CHODIŤ."</span></b>
+      </p>
+    </div>
+
+    <p>
+      MUDr. Novák rozpráva pokojne, ale s intenzitou, ktorú nemožno ignorovať. Dva roky cestuje po domovoch dôchodcov po celom Slovensku — od Záhoria cez Pohronie až po Spiš a Zemplín. A všade nachádza rovnaký devastujúci obraz: starí ľudia so zničenými kĺbmi, ktorí nedostávajú žiadnu skutočnú liečbu, len protizápalové lieky, ktoré im ničia žalúdok a obličky.
+    </p>
+
+    <p>
+      „Väčšina týchto ľudí sa sem dostala kvôli kĺbom. Kolená povolili. Chrbát sa zablokoval. Bedrový kĺb sa opotreboval. A v momente, keď nedokázali chodiť sami, rodiny sa rozhodli, že sú príťažou. To je slovo, ktoré počujem v domovoch najčastejšie: <b>«príťaž»</b>. Opisujú vlastných rodičov ako príťaž."
+    </p>
+
+    <div class="quote-inline">
+      „Nepriviezli ma sem preto, že ma nemilujú. Priviezli ma, lebo som sa v noci budila o tretej a kričala od bolesti v kolenách a nikto nemohol spať. Nevesta mi povedala, že buď odídem ja, alebo odíde ona. Syn si vybral ju."
+      <span class="quote-name">— Pani Jana, 71 rokov, domov dôchodcov v okr. Nitra</span>
+    </div>
+
+    <h2>
+      „Tabletky na kĺby nič neriešia — iba maskujú ničenie"
+      <span>MUDr. Novák vysvetľuje, prečo konvenčná liečba v domovoch a lekárňach zlyháva</span>
+    </h2>
+
+    <p><b>MUDr. Andrej Novák:</b></p>
+    <p>— Poviem vám úprimne: to, čo som videl v týchto domovoch, ma desilo. Ľudia vo veku 55 – 80 rokov, ktorým dávajú tie isté protizápalové lieky celé roky — tabletky, ktoré iba skrývajú bolesť na pár hodín a neriešia príčinu. Chrupavka sa im naďalej ničí. Kĺbová tekutina mizne. Kĺby sa opotrebúvajú kosť o kosť. A chémia z tabliet im každý deň ničí žalúdok, pečeň a obličky.
+    </p>
+
+    <p>Je to začarovaný kruh: bolesť → tabletky → bolesť sa vráti silnejšia → silnejšie tabletky → žalúdok povolí → pridajú tabletky na žalúdok → obličky povolia. A nikto im nepovie pravdu: <b>že existuje spôsob, ako regenerovať kĺb zvnútra, nielen utlmiť bolesť.</b>
+    </p>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-a94978b4-3738-4aeb-950e-312b652009ac.jpg">
+      <figcaption>
+        Kolená pani Márie, 74 rokov, domov dôchodcov v okr. Žilina. Artróza 3. stupňa, chrupavka takmer úplne zničená. Nevyšla z izby 5 mesiacov. Na nočnom stolíku — 6 druhov tabliet, ktoré nič nezmenili.
+      </figcaption>
+    </figure>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Bolesť kolena, chrbta alebo bedra po 45. roku života nie je „normálna pre vek" — je to signál, že sa kĺbová chrupavka ničí a kĺbová tekutina mizne.
+          <br><br>
+          Protizápalové tabletky iba blokujú signál bolesti, zatiaľ čo ničenie pokračuje v tichosti. Bez skutočnej regenerácie chrupavky sa kĺb úplne opotrebuje — a potom zostáva jediná možnosť: invalidný vozík alebo operácia výmeny kĺbu.
+        </span>
+      </p>
+    </div>
+
+    <p><b>MUDr. Andrej Novák:</b></p>
+
+    <p>— Prosím, pochopte závažnosť situácie. U mnohých z týchto starých ľudí je chrupavka v kolene, v chrbtici alebo v bedre zničená na 70 – 90 %. Chodia — ak ešte chodia — kosť o kosť. Každý krok je mučenie. <b>KONVENČNÉ TABLETKY NEDOKÁŽU OBNOVIŤ CHRUPAVKU — IBA MASKUJÚ BOLESŤ, KÝM VŠETKO NEPOVOLÍ!</b>
+    </p>
+
+    <p>
+      A to, čo ma ničí na duši: títo ľudia nemajú nikoho. Rodina ich opustila presne v momente, keď im kĺby povolili. Sú sami, v posteli, v malej izbe a čakajú. Niektorí už nevedia, na čo čakajú.
+    </p>
+
+    <div class="quote-inline">
+      „Vychovala som tri deti. Pracovala som na poli 40 rokov. A keď mi kolená povolili a nedošla som sama na záchod — odviezli ma do domova. Akoby som pre nich neexistovala. Akoby som už umrela."
+      <span class="quote-name">— Pani Božena, 82 rokov, domov dôchodcov v okr. Rimavská Sobota</span>
+    </div>
+
+    <div class="quote-inline">
+      „Bol som majstrom v továrni 35 rokov. Chrbát mi povolil v 62. Hernia disku, ischias, nedokázal som stáť na nohách. Syn povedal, že nemôže zostať doma a starať sa o mňa. Má robotu, má rodinu. Chápem ho. Ale bolí to viac než chrbát."
+      <span class="quote-name">— Pán Juraj, 68 rokov, domov dôchodcov v okr. Prešov</span>
+    </div>
+
+    <figure class="Figure" style="text-align:center">
+      <img src="https://static.joxi.pro/1778142925769-057465eb-7a53-45e0-ba84-1b9038913030.jpg" style="margin:0 auto">
+      <figcaption>
+        <b>Vľavo: zdravý kĺb s neporušenou chrupavkou a dostatkom kĺbovej tekutiny. Vpravo: zničený kĺb — opotrebovaná chrupavka, chronický zápal, kosť o kosť. Toto je realita viac ako 80 % seniorov v domovoch dôchodcov. Protizápalové tabletky chrupavku neobnovia.</b>
+      </figcaption>
+    </figure>
+
+    <p class="red-txt">
+      Je dôležité zdôrazniť: v 2/3 prípadov sa kĺby naďalej zhoršujú aj pri každodennom užívaní tabliet proti bolesti, pretože skutočná príčina — ničenie chrupavky a strata kĺbovej tekutiny — zostáva nevyriešená.
+    </p>
+
+    <p class="red-txt">
+      Po rokoch protizápalových liekov mnohí pacienti strácajú nielen pohyblivosť, ale aj žalúdok, pečeň a obličky. Vred, zlyhanie pečene, opuch obličiek — to je cena, ktorú platia tí, ktorým nikto neponúkol skutočnú alternatívu.
+    </p>
+
+    <h2>
+      Príbehy, ktoré mi zmenili život — a ktoré zmenia váš pohľad na starobu
+    </h2>
+
+    <p><b>MUDr. Andrej Novák:</b></p>
+
+    <p>— Dovoľte mi povedať, čo vidím každý týždeň. Nie čísla. Nie štatistiky. Ľudí. Ľudí s menami, s príbehmi, s deťmi, ktoré už neprídu.</p>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-ab7d1e11-8df2-44ee-b472-2a3be72bb7b3.jpg">
+      <figcaption>
+        Pani Emília, 77 rokov. Reumatoidná artritída v oboch rukách — nedokáže držať hrnček ani sa sama obliecť. Dcéra ju dala do domova pred 2 rokmi: „Nemôžem ju každé ráno obliekať, mám predsa aj svoj život."
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      „Nedokážem sa ani učesať. Ani naliať vodu. Moje ruky neposlúchajú. Ráno sa na ne pozerám a nespoznávam ich — sú opuchnuté, skrivené, akoby neboli moje. Nevesta mi raz povedala: «Ako vám mám nechať vnúčatá, keď nedržíte ani lyžicu?» Mala pravdu. Ale tie slová ma zabili zvnútra."
+      <span class="quote-name">— Pani Emília, 77 rokov</span>
+    </div>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-980707f6-6c1c-40ec-96a5-61c8c9dcde54.jpg">
+      <figcaption>
+        Pán Štefan, 75 rokov. Hernia disku L4-L5, obojstranná koxartróza. Nepostavil sa na nohy 8 mesiacov. „Povedali mi, že je príliš starý na operáciu. Povedali mi, aby som to prijal."
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      „Bol som traktorista. Pooral som tisíce hektárov. Teraz sa nedokážem sám otočiť v posteli. Chrbát sa zablokoval, bedro sa zvarilo. Synovia pracujú v Nemecku. Poslali peniaze na domov a hotovo. Neodsudzujem ich. Ale v noci, keď ma bolí a nikto nepríde… pýtam sa, či takto vyzerá koniec."
+      <span class="quote-name">— Pán Štefan, 75 rokov</span>
+    </div>
+
+    <p><b>Tu sú príznaky, s ktorými sa v domovoch stretávam najčastejšie — a ktoré ignorujú milióny Slovákov:</b></p>
+    <ul>
+      <li>Silná bolesť kolena pri chôdzi po schodoch — alebo pri akomkoľvek pohybe;</li>
+      <li>Ranná stuhnutosť — telo „ako z dreva", ktoré sa nehýbe 30 – 60 minút po zobudení;</li>
+      <li>Chronická bolesť chrbta — nedokážu sa predkloniť, nedokážu vstať z postele;</li>
+      <li>Opuch kolien, členkov alebo prstov;</li>
+      <li>Praskanie a lupanie v kĺboch pri každom pohybe;</li>
+      <li>Bolesť bedra vyžarujúca do stehna — nedokážu prejsť viac ako 50 metrov;</li>
+      <li>Zdeformované, uzlovité prsty na rukách — nedokážu uchopiť predmety;</li>
+      <li>Tŕpnutie nôh alebo rúk — príznak hernie alebo pritlačeného nervu;</li>
+      <li>Pocit „noža" v bedrovej oblasti pri vstávaní;</li>
+      <li>Ohnutý chrbát, zakrivený postoj — progresívna kyfóza;</li>
+      <li>Nočná bolesť, ktorá nedovolí spať — prebúdzanie 4 – 5-krát za noc;</li>
+    </ul>
+
+    <p>
+      Každý z týchto príznakov je varovný signál. A po 45. – 50. roku života ich ignorovanie vedie k jedinému koncu:
+      <b class="red-txt">ÚPLNÁ NEHYBNOSŤ, INVALIDNÝ VOZÍK, ÚPLNÁ ZÁVISLOSŤ OD INÝCH — A V MNOHÝCH PRÍPADOCH DOMOV DÔCHODCOV.</b>
+    </p>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Každý deň strávený s neliečenými kĺbmi vás približuje k trvalej nehybnosti!
+          Tisíce dôchodcov v domovoch sa tam dostali práve preto, že ignorovali bolesť — alebo brali iba tabletky, ktoré neriešili príčinu.
+          Konajte teraz — pre seba alebo pre svojich blízkych — kým nie je neskoro!
+        </span>
+      </p>
+    </div>
+
+    <h2>
+      „Rozhodol som sa, že musí existovať spôsob, ako regenerovať kĺby — nielen utlmiť bolesť"
+      <span>Ako 30-ročný lekár presvedčil vedecké centrum, aby vyvinulo niečo, čo farmaceutický priemysel odmieta</span>
+    </h2>
+
+    <p><b>MUDr. Andrej Novák:</b></p>
+    <p>
+      — Po roku návštev domovov dôchodcov som si uvedomil bolestivú vec: protizápalovými liekmi nikoho nezachránim. Tieto lieky iba ztlmia varovný signál tela, zatiaľ čo kĺb sa naďalej ničí. Potreboval som niečo úplne iné: metódu, ktorá regeneruje chrupavku zvnútra, obnoví kĺbovú tekutinu a zastaví zápal na bunkovej úrovni.
+    </p>
+    <p>
+      Kontaktoval som výskumné centrum, s ktorým som spolupracoval počas štúdia. Predložil som im prípady, fotografie, analýzy mojich pacientov z domovov. Vzal som vedcov so sebou do domovov — aby na vlastné oči videli, čo sa deje. A boli v šoku.
+    </p>
+    <p>
+      Pracovali sme spolu viac ako 10 mesiacov. Otestovali sme vyše 180 kombinácií. A nakoniec sme našli presnú formuláciu — kapsuly so špeciálnym zložením, ktoré po užití cielene dodávajú účinné látky priamo do kĺbového tkaniva a aktivujú prirodzenú regeneráciu chrupavky. Nie bežné protizápalové tabletky, ktoré iba utlmia bolesť. Kapsuly s pokročilou technológiou vstrebávania, ktoré pôsobia presne tam, kde je to potrebné.
+    </p>
+
+    <div class="recept">
+      <p><b>Formulácia vyvinutá MUDr. Novákom obsahuje tieto účinné látky:</b></p>
+      <ul class="my-ul-0-green size1">
+        <li><b>Extrakt z Cordyceps sinensis</b>
+          <font>Štandardizovaný polysacharidový komplex: 500 mg/kapsulu</font>
+        </li>
+        <li><b>Glukozamín sulfát</b>
+          <font>Purifikovaná morská surovina: 750 mg/kapsulu</font>
+        </li>
+        <li><b>Chondroitín sulfát</b>
+          <font>Extrakt s vysokou biodostupnosťou: 600 mg/kapsulu</font>
+        </li>
+        <li><b>Extrakt z Boswellia serrata</b>
+          <font>Koncentrovaná kyselina boswellová 65 %: 400 mg</font>
+        </li>
+        <li><b>Kyselina hyalurónová s malou molekulou</b>
+          <font>Perorálna biodostupnosť: 200 mg</font>
+        </li>
+        <li><b>Hydrolyzovaný kolagén typu II</b>
+          <font>Certifikovaný hovädzí zdroj: 1000 mg</font>
+        </li>
+        <li><b>MSM (Metylsulfonylmetán)</b>
+          <font>Biodostupná organická síra: 500 mg</font>
+        </li>
+        <li><b>Vitamín D3 + K2</b>
+          <font>Synergický komplex pre kostné tkanivo a kĺby</font>
+        </li>
+      </ul>
+    </div>
+
+    <p>
+      Tieto ingrediencie sú ťažko dostupné v potrebnej koncentrácii. Ich kombinácia v správnych pomeroch vyžaduje špeciálnu technológiu — ak sa pomery pomýlia čo i len o 0,1 %, kapsuly nedosiahnu dostatočnú biodostupnosť a neaktivujú regeneráciu chrupavky.
+    </p>
+
+    <h2>
+      Takto vznikol Cordyceps Pulse — jediné kapsuly, ktoré obsahujú všetky tieto ingrediencie, plus ďalších 14 vzácnych extraktov pre kompletnú regeneráciu kĺbov
+    </h2>
+    <p><b>MUDr. Andrej Novák:</b></p>
+    <p>
+      — Spolu s výskumným centrom sa nám podarilo vytvoriť tento produkt: kapsuly na vnútorné užívanie so špeciálnym zložením, ktoré cielene pôsobia na postihnuté kĺby — kolená, chrbát, bedro, ruky, krk. Volajú sa Cordyceps Pulse. Užívajú sa dvakrát denne, ráno a večer — stačia 2 kapsuly denne zapité pohárom vody. Jednoduché užívanie, žiadna zložitá príprava — stačí kapsulu prehltnúť. To je zásadné najmä pre starých ľudí so zníženou pohyblivosťou, ktorí nedokážu vtierať krém ani manipulovať so zložitými aplikátormi. Vďaka pokročilej technológii vstrebávania účinné látky prenikajú cez tráviaci trakt priamo do kĺbového tkaniva s maximálnou účinnosťou.
+    </p>
+
+    <img src="images/Cordyceps.png?=v1" style="width:78%;max-width:540px;display:block;margin:18px auto">
+
+    <p>
+      Tajomstvo spočíva v „Technológii cieleného uvoľňovania s vysokou biodostupnosťou", ktorú sme vyvinuli s tímom v laboratóriu. Táto metóda umožňuje účinným látkam dostať sa priamo do kĺbového puzdra — tam, kde sa chrupavka ničí — s 5-krát vyššou účinnosťou než akékoľvek bežné kapsuly alebo tablety na trhu.
+    </p>
+    <p class="pachino-ramka2">
+      „Cordyceps Pulse" nemá konkurenciu. Každá ingrediencia — v presnej koncentrácii — aktivuje regeneráciu chrupavky, obnovu kĺbovej tekutiny a zastavenie zápalu. Sú to jediné kapsuly, ktoré pôsobia na bunkovej úrovni, cielene na postihnutú oblasť — kolená, chrbát, bedro, ruky, krk — s maximálnou biodostupnosťou. A čo je najdôležitejšie: fungujú aj v 70, 80, 85 rokoch. Prvýkrát som ich vyskúšal na svojich pacientoch z domovov dôchodcov — na ľuďoch, ktorých už nikto iný neliečil.
+    </p>
+
+    <p><b>MUDr. Andrej Novák:</b></p>
+    <p>
+      — Prvými pacientmi boli opustení starí ľudia z domovov. Tí, na ktorých všetci zabudli. Kapsuly som im podával na opuchnuté kolená, na problémy s chrbtom, s bedrami. A čakal som. Na tretí deň — pani Božena, ktorá sa 4 mesiace nedvihla z postele, urobila prvé kroky sama. Plakali sme obaja.
+    </p>
+
+    <h2>
+      4 mechanizmy, ktorými Cordyceps Pulse regeneruje kĺby a vracia pohyblivosť — v akomkoľvek veku
+    </h2>
+
+    <div class="obertk512">
+      <h1>4 hlavné účinky kapsúl „Cordyceps Pulse":</h1>
+      <div class="block-offer-actions-block">
+        <ol>
+          <li>
+            <font>Odstránenie bolesti a zápalu:</font>
+            <span>Už počas prvých 24 – 48 hodín od začiatku užívania komplex Cordycepsu, Boswellie a MSM odstraňuje bolesť a znižuje zápal. Nie blokovaním nervového signálu (ako to robia bežné tabletky) — ale zastavením zápalového procesu pri zdroji.</span>
+          </li>
+          <li>
+            <font>Regenerácia kĺbovej chrupavky:</font>
+            <span>Glukozamín, chondroitín a kolagén typu II prenikajú do kĺbového puzdra a aktivujú bunky chrupavky (chondrocyty), čím stimulujú tvorbu nového chrupavkového tkaniva. Tento proces sa začína po 3 – 5 dňoch pravidelného užívania.</span>
+          </li>
+          <li>
+            <font>Obnovenie kĺbovej tekutiny:</font>
+            <span>Kyselina hyalurónová s malou molekulou sa vstrebáva cez tráviaci trakt a obnovuje kĺbovú tekutinu — prírodný „lubrikant" kĺbu. Vďaka tomu sa kosti už netrú o seba a pohyb je opäť plynulý a bezbolestný.</span>
+          </li>
+          <li>
+            <font>Ochrana a prevencia z dlhodobého hľadiska:</font>
+            <span>MSM, vitamín D3+K2 a minerálny komplex posilňujú väzy a šľachy okolo kĺbu a predchádzajú budúcemu poškodeniu. Po 30 – 60 dňoch používania kĺb získava stabilnú ochranu, ktorá trvá celé mesiace.</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <h2>
+      „Cordyceps Pulse som najprv vyskúšal na pacientoch z domovov dôchodcov — výsledky prekonali všetko, čo som za 6 rokov medicíny videl"
+      <span>Testy na 2 340 osobách vo veku 45 až 86 rokov</span>
+    </h2>
+
+    <p><b>MUDr. Andrej Novák:</b></p>
+    <p>
+      — Prvými pacientmi boli opustení seniori z domovov. Tí, ktorých nikto neliečil. Výsledky boli také pôsobivé, že výskumné centrum rozšírilo testovanie na skupinu viac ako 2 300 osôb z celého Slovenska — vrátane všetkých typov kĺbových problémov: kolená, chrbát, bedro, ruky, krk.
+    </p>
+    <p>
+      Videl som 80-ročných ľudí, ktorí nedokázali chodiť — a po 6 týždňoch vychádzali sami na dvor domova. Sestričky plakali. Ja som plakal s nimi.
+    </p>
+
+    <div class="table-block">
+      <h1 class="title_h1">
+        Výsledky testov „Cordyceps Pulse" — kontrolná skupina: 2 340 osôb, 45 – 86 rokov
+      </h1>
+      <table class="table">
+        <tbody>
+          <tr><td class="one">Úplné odstránenie bolesti kolena</td><td class="two">96,2 %</td></tr>
+          <tr><td class="one">Odstránenie bolesti chrbta a rannej stuhnutosti</td><td class="two">94,7 %</td></tr>
+          <tr><td class="one">Artróza 1. – 2. stupňa (úplná obnova pohyblivosti)</td><td class="two">98,1 %</td></tr>
+          <tr><td class="one">Artróza 3. stupňa (výrazné zlepšenie)</td><td class="two">87,3 %</td></tr>
+          <tr><td class="one">Koxartróza (bolesť bedra)</td><td class="two">91,5 %</td></tr>
+          <tr><td class="one">Hernia disku (zníženie bolesti a tŕpnutia)</td><td class="two">89,4 %</td></tr>
+          <tr><td class="one">Reumatoidná artritída (prsty rúk)</td><td class="two">93,8 %</td></tr>
+          <tr><td class="one">Úplná obnova kĺbovej pohyblivosti</td><td class="two">95,6 %</td></tr>
+          <tr><td class="one">Odstránenie opuchov a nočných kŕčov</td><td class="two">97,0 %</td></tr>
+          <tr><td class="one">Schopnosť chodiť bez pomoci</td><td class="two">94,3 %</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>
+      Prípady, ktoré mi zlomili srdce — a dali mi najväčšiu nádej
+      <span>
+        Pani Viera, 84 rokov. Opustená v domove, keď jej kolená povolili. Po 2 mesiacoch s Cordyceps Pulse — vyšla sama do záhrady, prvýkrát za 3 roky.
+      </span>
+    </h2>
+
+    <p>
+      Pani Viera Horvátová bola prvou pacientkou MUDr. Nováka z domova dôchodcov v okrese Lučenec. V 84 rokoch, s artrózou 3. stupňa v oboch kolenách a koxartrózou v ľavom bedre, nedokázala chodiť 14 mesiacov. Syn ju dal do domova, keď ju „už nevládal nosiť do kúpeľne". Nenavštívil ju dva roky.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1778142925769-b234c916-2418-43cd-a09b-52da3b198c19.jpg">
+      <p>
+        „Neverila som, že ešte niekedy budem chodiť. Kolená boli tak opuchnuté, že som ich nedokázala ohnúť. Prevážali ma po izbe na invalidnom vozíku. Ráno som sa zobudila a nemohla som pohnúť ani prstom celú hodinu. Akoby moje telo zomrelo, ale ja som ešte žila.
+      </p>
+      <p>
+        <b>
+          Syn ma dal do domova, lebo ma už nevládal zdvihnúť z postele. Povedal: «Mama, budem ťa navštevovať každú nedeľu». Neprišiel už dva roky. Neodsudzujem ho — má svoj život. Ale v noci, keď ma budí bolesť a nikto nie je pri mne… je to ťažké.
+        </b>
+      </p>
+      <p>
+        <b>
+          A vtedy prišiel MUDr. Novák. Bol prvým človekom, ktorý sa dotkol mojich kolien bez toho, aby sa s odporom odvrátil. Vysvetlil mi, čo sa deje v kĺboch. A dal mi kapsuly Cordyceps Pulse. Po týždni som dokázala ohnúť ľavé koleno. Po mesiaci som sa sama zdvihla z postele. Po dvoch mesiacoch — vyšla som do záhrady. Nevyšla som 3 roky.
+        </b>
+      </p>
+      <p>
+        Sestrička plakala, keď ma videla. Ja som plakala ešte viac. Nie preto, že som chodila. Ale preto, že niekto — mladý doktor, ktorého som nikdy predtým nepoznala — mi dal viac, než mi dal vlastný syn.
+      </p>
+      <font>
+        <b>Viera Horvátová, 84 rokov, domov dôchodcov v okr. Lučenec</b>
+      </font>
+    </div>
+
+    <p>
+      Ďalší prípad: pán Peter, 58 rokov, celý život stavbár, so zničeným chrbtom od hernií diskov. Manželka ho opustila, keď prestal zarábať.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1778142925769-f6ae7d5d-d93a-42f5-8684-d3c285fbc8bf.jpg">
+      <p>
+        „Bol som murár 30 rokov. Chrbát mi povolil v 54 — dve hernie disku a ischias. Nedokázal som stáť ani na nohách, ani ležať v posteli. Všetko bolelo. Manželka odišla — povedala, že sa nemôže starať o invalida. Neodsudzujem ju.
+      </p>
+      <p>
+        <b>
+          Sestra sa dozvedela o MUDr. Novákovi od susedky. Poslala mi kapsuly Cordyceps Pulse. Začal som ich užívať ráno a večer. Na tretí deň som pocítil prvú úľavu. Po 3 týždňoch — dokázal som znova zájsť do obchodu. Po 2 mesiacoch — vrátil som sa do práce na polovičný úväzok.
+        </b>
+      </p>
+      <p>
+        Niekedy sa ráno zobudím, vstanem z postele bez bolesti a zastavím sa na chvíľu. Stojím a nemôžem uveriť, že je to skutočné. Že to už nebolí. Keby nebol MUDr. Novák, možno by som bol teraz tiež v domove."
+      </p>
+    </div>
+
+    <h2>
+      „Cordyceps Pulse nelieči iba bolesť — regeneruje celý kĺb zvnútra"
+      <span>
+        Nie iba seniori v domovoch z toho profitujú. Ktokoľvek nad 45 rokov, kto cíti prvé príznaky, môže katastrofe predísť.
+      </span>
+    </h2>
+
+    <p><b>MUDr. Andrej Novák:</b></p>
+
+    <p>
+      — Minimálna doba používania je 30 dní, ale pri závažných prípadoch artrózy alebo hernií môžu byť potrebné 2 – 3 mesiace. Napriek tomu sa v každom prípade — bez výnimky — pozoruje zníženie bolesti, regenerácia chrupavky a obnovenie pohyblivosti.
+    </p>
+
+    <p>
+      Cordyceps Pulse účinkuje od prvých dní užívania: bolesť ustúpi, zápal sa zmierni, pohyb sa uľahčí. Ale skutočná mágia sa deje postupne: chrupavka sa regeneruje, kĺbová tekutina sa obnovuje, kĺb „omladne" zvnútra.
+      <b class="red-txt">
+        Videl som 80-ročných ľudí znova chodiť. Videl som ruky, ktoré nedokázali udržať hrnček, ako dvíhali lyžicu k ústam. Videl som ohnuté chrbtice narovnávať sa. A v každom prípade — videl som slzy radosti.
+      </b>
+    </p>
+
+    <center>
+      <p><b>
+          Vďaka metóde MUDr. Nováka si viac ako 12 000 osôb na Slovensku obnovilo kĺbovú pohyblivosť. Tu je niekoľko prípadov:
+        </b></p>
+    </center>
+
+    <figure>
+      <img src="https://static.joxi.pro/1778142925769-baf151ad-77dc-450d-9a89-3293efafacfa.jpg">
+      <figcaption>Muž, 65 rokov. Artróza 3. stupňa v oboch kolenách — nedokázal vyjsť po schodoch. Cordyceps Pulse za 60 dní: úplná pohyblivosť, bez bolesti.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-f19f7f66-3e45-449a-87f2-78884ec5e6e1.jpg">
+      <figcaption>Žena, 58 rokov. Chronická bolesť chrbta a hernia L5-S1. Cordyceps Pulse za 45 dní: bolesť odstránená, opäť zvláda domáce práce.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-7d23b447-1714-413e-b3dd-921918111aa3.jpg">
+      <figcaption>Žena, 72 rokov. Závažná reumatoidná artritída prstov — nedokázala držať hrnček. Cordyceps Pulse za 2 mesiace: prsty pohyblivé, opuch zmizol.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-4a9900ea-fa77-4c81-a40e-dff210ebf7df.jpg">
+      <figcaption>Muž, 70 rokov. Pokročilá koxartróza — chodil len s chodítkom. Cordyceps Pulse za 2,5 mesiaca: chodí bez pomoci, bez bolesti.</figcaption>
+    </figure>
+
+    <p><b>MUDr. Andrej Novák:</b></p>
+    <p>
+      — Tieto prípady sú živým dôkazom, že kĺby sa dokážu regenerovať — aj keď diagnóza vyzerala ako rozsudok. Bez operácie. Bez tabliet, ktoré ničia žalúdok. A čo ma robí najšťastnejším: mnohí z týchto ľudí sú seniori z domovov — tí, na ktorých svet zabudol. <b>Ale ja som na nich nezabudol. A ani Cordyceps Pulse na nich nezabúda.</b>
+    </p>
+
+    <div id="overlay" style="display:none;opacity:0"></div>
+    <div id="popup3" style="display:none;opacity:0;transform:translate(-50%,-50%) scale(0.8)"></div>
+
+    <h2>
+      Prečo Cordyceps Pulse nie je dostupný v lekárňach? A ako ho môžete získať?
+    </h2>
+
+    <p><b>MUDr. Andrej Novák:</b></p>
+
+    <p>Bohužiaľ, výroba Cordyceps Pulse je zložitý a nákladný proces. Ingrediencie sú vzácne — extrakt z Cordyceps sinensis, kyselina hyalurónová s malou molekulou, purifikovaný kolagén typu II, koncentrovaný extrakt z Boswellie — a je ťažké ich získať v potrebných množstvách. Nedokážeme uspokojiť celý dopyt.</p>
+
+    <p>Bude trvať minimálne 2 – 3 roky, kým sa Cordyceps Pulse dostane do lekární. Dovtedy sa produkt distribuuje výlučne online, v rámci podporných programov, dvakrát ročne. Avšak,
+      <font class="red-txt">zľavy môžu dosiahnuť až 50 %</font>
+      — čo je zásadné pre dôchodcov.
+    </p>
+
+    <p>
+      Prosím: NEZMEŠKAJTE PODPORNÝ PROGRAM. Nie iba pre seba — ale aj pre rodičov, starých rodičov, blízkych, ktorí možno trpia v tichosti. Alebo pre tých, ktorí sú už v domove, sami, a nikto im nič neposiela. Buďte tou osobou, ktorá urobí rozdiel.
+    </p>
+
+    <p class="red-txt"><b>Na zadanie objednávky použite formulár nižšie.</b></p>
+
+    <h2>
+      Posledná šanca získať Cordyceps Pulse v tomto roku — pre vás alebo pre blízkeho človeka, ktorý trpí v tichosti
+    </h2>
+
+    <img alt="Cordyceps Pulse" src="images/FF1.jpg"
+      style="margin:0 auto;display:block;max-width:500px;width:100%;margin-top:24px;margin-bottom:20px">
+
+    <p><b>MUDr. Andrej Novák:</b></p>
+
+    <p>
+      — Rezervoval som 20 000 balení výlučne pre čitateľov tohto portálu. Každý občan Slovenska starší ako 40 rokov môže získať <font class="red-txt">zľavu až 50 %</font>, ale program končí <span><script>dtime_nums(0, true)</script></span>.
+    </p>
+
+    <p>Nečakajte, kým nebudete môcť vyjsť po schodoch. Kým kolená úplne povolia. Kým sa chrbát zablokuje. A hlavne — nečakajte, kým sa stanete „príťažou" v očiach svojich blízkych. Cordyceps Pulse má kumulatívny účinok a stačí ho používať raz ročne ako preventívnu kúru.</p>
+
+    <p>Zadajte meno a telefónne číslo. Konzultant vás kontaktuje, vyberie vhodný program a zorganizuje doručenie v priebehu 2 – 3 dní, kuriérom alebo poštou, priamo na uvedenú adresu.</p>
+
+    <p><b>S nádejou a úctou — MUDr. Andrej Novák. Starajte sa o svojich blízkych. Možno jediné, čo potrebujú, je vedieť, že ste na nich nezabudli.</b></p>
+
+    <p class="pachino-ramka">
+      <span class="ramka-title">Aktualizácia: <span><script>dtime_nums(-3, true)</script></span>:</span>
+      Kvôli obrovskému záujmu sa zásoby môžu vyčerpať skôr, než sa očakávalo! Dnes —
+      <font><span><script>dtime_nums(1, true)</script></span> — je posledný deň programu</font> alebo do vyčerpania zásob.
+    </p>
+
+    <center><img src="images/Cordyceps.png?=v1" style="max-width:500px;width:100%"></center><br>
+
+    <center>
+      <p class="noclose-cta red-txt">
+        Pozor! Nezatvárajte a neobnovujte stránku, inak bude balenie Cordyceps Pulse rezervované pre vás ponúknuté inej osobe!
+      </p>
+      <span class="pre-cta">
+        Môžete sa zúčastniť akcie — vaše miesto je rezervované:
+        <span class="nowrap">Č. <font class="number-me" style="border-bottom:2px solid var(--color-danger);font-weight:700">19&nbsp;974</font></span>
+      </span>
+    </center>
+
+    <span id="form"></span>
+    <span id="oneform"></span>
+    <div class="pachinoform">
+      <div class="pachinoform_title">
+        <div class="pachinoform_title_logo">
+          <img alt="" src="images/56d9b0017d1d_d58505c9.png">
+        </div>
+        <div class="pachinoform_title_text">
+          <b>Oficiálny objednávkový formulár</b>
+          č. <font class="number-me nowrap">19&nbsp;974</font> / <font class="nowrap">20 000</font>
+        </div>
+      </div>
+      <div class="pachinoform_order">
+        Na získanie <b>zľavy 50 %</b> zadajte meno a telefónne číslo do polí nižšie a stlačte tlačidlo „OBJEDNAŤ".
+      </div>
+      <div class="pachinoform_value">
+        Na sklade:
+        <span class="blc-pck">
+          <strong class="pachinoform_value_current left-pack">33</strong>
+          <strong class="pachinoform_value_total"> /1000</strong>
+        </span>
+      </div>
+      <div class="pachinoform_price">
+        <div class="pachinoform_price_old"><span class="price_old">78 €</span></div>
+        <div class="pachinoform_price_new"><span class="price_main">39 €</span></div>
+      </div>
+      <form action="order.php" method="post">
+        <input type="hidden" name="sub1" value="{subid}">
+        <input type="hidden" name="country" value="SK">
+        <div class="name-input">
+          <label for="name-input">Meno</label>
+          <input autocomplete="name" id="name-input" name="name" placeholder="Vaše meno" required="" type="text" value="">
+        </div>
+        <div class="phone-input">
+          <label for="phone-input">Telefónne číslo</label>
+          <input autocomplete="tel" id="phone-input" maxlength="20" name="phone" pattern="^[\-+() 0-9]{8,20}$" placeholder="Vaše telefónne číslo" required="" type="tel" value="">
+        </div>
+        <button class="button-submit" type="submit">OBJEDNAŤ TERAZ</button>
+      </form>
+      <div class="pachinoform_footer">
+        ✔️ Doručenie zabezpečuje Národné centrum zdravia<br> priamo na uvedenú adresu
+        <br>
+        <img alt="" src="images/b0110a32ff2e_8322b1b5.png" style="width:auto">
+      </div>
+    </div>
+
+    <!-- COMMENTS SECTION -->
+    <div class="comments comments-fb" id="pluginComments">
+      <div class="comments__header">
+        <div class="comments__left-box">
+          <p class="comments__header-title">KOMENTÁRE</p>
+        </div>
+      </div>
+
+      <div class="comments__item-list">
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7da17fc86c6c_2f1260d0.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Mária Horváthová</p>
+              <p class="startdate" daysago="8" format="day/month/year"><script>dtime_nums(-8, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Plakala som pri čítaní tohto článku. Moja mama má 76 rokov a je v domove 2 roky — práve preto, že jej kolená povolili a ja som sa o ňu nezvládla starať. To je moja najväčšia vina. Objednala som Cordyceps Pulse pre ňu. Snáď nie je neskoro. Pane Bože, dúfam, že to zaberie.</p>
+          </div>
+        </div>
+
+        <div id="first-comment">
+          <div class="comments__item">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/8ba73d45c164_4ede289a.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Elena Kučerová</p>
+                <p class="startdate" daysago="7" format="day/month/year"><script>dtime_nums(-7, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Cordyceps Pulse mi prišiel minulý piatok. Užívam 2 kapsuly denne, ráno a večer. Po 5 dňoch — bolesť sa výrazne znížila, dokážem zísť po schodoch bez toho, aby som sa držala zábradlia! Príbeh doktora ma presvedčil objednať. Výnimočný človek.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/fa7f61c1431c_7946ff6c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Anna Blahová</p>
+              <p class="startdate" daysago="6" format="day/month/year"><script>dtime_nums(-6, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Mám 69 rokov. Chrbát ma trápil 4 roky — hernia disku a ischias. Nedokázala som sa predkloniť a zaviazať si topánky. Doktori mi dávali protizápalové lieky, ktoré mi zničili žalúdok. Po 3 týždňoch s Cordyceps Pulse — bolesť takmer úplne zmizla. Chodím na trh sama, nakupujem, varím. Vrátil sa mi život.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/dcc5cfe80d60_5aa7f8f7.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Juraj Stanko</p>
+              <p class="startdate" daysago="5" format="day/month/year"><script>dtime_nums(-5, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Pracujem v kancelárii 10 hodín denne. Chrbát a krk mi povolili. Doktor mi povedal: „Buď skončíte s prácou, alebo operácia." Vybral som si Cordyceps Pulse. Po 5 týždňoch — žiadna bolesť. A môj obrovský rešpekt MUDr. Novákovi — vo svete, kde všetci chcú peniaze, on chodí za zabudnutými starými ľuďmi.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/bcbe20e0b5d2_b241da99.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Miroslav Baláž</p>
+              <p class="startdate" daysago="5" format="day/month/year"><script>dtime_nums(-5, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Objednal som 3 balenia — pre seba (kolená), pre manželku (ruky, artritída) a pre svokra v domove. Nemôžeme ho často navštevovať, ale aspoň mu pošleme, čo potrebuje. Dúfam, že mu to pomôže rovnako dobre. Ďakujem za článok.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/73d3a879cef9_4a9ce85c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Adriána Nováková</p>
+              <p class="startdate" daysago="4" format="day/month/year"><script>dtime_nums(-4, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Uvažujem, že objednám pre otca. Je v domove 3 roky — kolená nefungujú vôbec. Vzdal sa života, veľa nehovorí. Myslíte, že Cordyceps Pulse ešte môže pomôcť v 78 rokoch?</p>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/71deaf909b4e_ea30d07c.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Zuzana Tóthová</p>
+                <p class="startdate" daysago="4" format="day/month/year"><script>dtime_nums(-4, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Adriána, moja mama má 82 rokov! Ťažká artróza v oboch kolenách, nedvíhala sa z postele. Užívala Cordyceps Pulse 2 mesiace — teraz vychádza sama na dvor. Nepreháňam. A najkrajšie: keď som ju navštívila, čakala ma na nohách pri bráne. Plakali sme obe. Objednaj bez váhania, tvoj otec si zaslúži šancu.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/66ebad51123a_206d5fba.png">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Rudolf Polák</p>
+                <p class="startdate" daysago="3" format="day/month/year"><script>dtime_nums(-3, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Adriána, objednaj bez obáv. Mne v 78 rokoch hrozil invalidný vozík — koxartróza. Cordyceps Pulse ma za 2 mesiace postavil na nohy. Doslova. Tvoj otec to potrebuje viac, než si myslíš.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d61700bc0961_28c03d39.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Katarína Krajčíková</p>
+              <p class="startdate" daysago="3" format="day/month/year"><script>dtime_nums(-3, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Týždeň užívam kapsuly na kolená a bedrovú oblasť. Ráno už nie som „ako z dreva". Dokážem sa predkloniť, vstať bez „joj". Objednala som aj pre susedku, 73-ročnú, ktorá žije sama a pridržiavala sa stien, keď chodila po byte.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7db2eed8e880_6ecfd92a.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Daniela Šimková</p>
+              <p class="startdate" daysago="2" format="day/month/year"><script>dtime_nums(-2, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">V 68 rokoch som si myslela, že už nikdy nebudem pracovať v záhrade. Kolená a chrbát ma paralyzovali. Cordyceps Pulse všetko zmenil — po 4 týždňoch som prekopala prvý záhon v tomto roku. A príbeh MUDr. Nováka ma hlboko dojal. Ešte existujú ľudia s dušou na tomto svete.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/a49c7ec0724d_6f186c1c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Štefan Novák</p>
+              <p class="startdate" daysago="2" format="day/month/year"><script>dtime_nums(-2, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Mám 82 rokov. Minulý rok som nedošiel sám ani na záchod. Deti hovorili o domove. Vyskúšal som Cordyceps Pulse — bez veľkej nádeje. A funguje to! Chodím sám, obliekam sa sám, vyjdem na dvor sám. Deti už nehovoria o domove. To je moja najväčšia radosť.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7099c502f996_b89c4cc9.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Peter Varga</p>
+              <p class="startdate" daysago="1" format="day/month/year"><script>dtime_nums(-1, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Moja manželka nedokázala zísť po schodoch. Držala sa steny a plakala od bolesti. Myslel som, že ju stratím — nie na chorobu, ale na zúfalstvo. Objednal som Cordyceps Pulse so zľavou. Po 4 týždňoch — včera sama zišla na trh a vrátila sa s kvetmi. S kvetmi! Ďakujem z celého srdca.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/47a8cb9cf088_09555b8e.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Simona Vlčeková</p>
+              <p class="startdate" daysago="1" format="day/month/year"><script>dtime_nums(-1, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Objednala som 4 balenia — pre mamu (domov, kolená), pre otca (doma, chrbát) a 2 pre seba (ruky, artritída prstov, nedokázala som písať). Príbehy z článku ma zničili. Mala som to urobiť dávno. Už nemám výhovorky.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/f021e0a36f8b_7c282874.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Gabriela Franková</p>
+              <p class="nowdate" daysago="0" format="day/month/year"><script>dtime_nums(0, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Cordyceps Pulse mi prišiel — kuriér doručil za 2 dni! Už som dala kapsuly mame v domove. Dúfam z celého srdca. Tento článok pošlem aj personálu — možno kontaktujú MUDr. Nováka.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d770c7a4cbdf_467ee117.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Martin Ondrejka</p>
+              <p class="nowdate" daysago="0" format="day/month/year"><script>dtime_nums(0, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Hľadal som Cordyceps Pulse v lekárňach — nie je dostupný. Povedali mi, aby som objednal z tejto stránky. Dúfam, že ešte je na sklade. Môj dedko to súrne potrebuje — má 81 rokov a vôbec nevládze chodiť.</p>
+          </div>
+        </div>
+
+        <div class="custom-commetns-container"></div>
+
+        <a href="#" style="text-decoration: none;">
+          <div class="form-container">
+            <form class="custom-form" id="custom-form">
+              <div class="custom-form__top-field">
+                <div class="custom-form__ava-block">
+                  <input disabled class="custom-form__ava-input sf-hidden" id="avatar" name="avatar" type="file" value="">
+                  <label class="custom-form__ava-label"><span class="custom-form__ava-label_red-text">*</span>Pridať avatar</label>
+                </div>
+                <input disabled class="custom-form__name" placeholder="Vaše meno" required="" type="text" value="">
+              </div>
+              <textarea disabled class="custom-form__message" placeholder="Váš komentár" required=""></textarea>
+              <div class="custom-form__bottom-field">
+                <div class="custom-form__photo-block">
+                  <input disabled class="custom-form__photo-input sf-hidden" id="photo" type="file" value="">
+                  <label class="custom-form__photo-label" for="photo">Pridať fotografiu</label>
+                </div>
+                <button disabled class="custom-form__btn">ODOSLAŤ</button>
+              </div>
+            </form>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </main>
+
+  <div class="trust-strip">
+    <div class="trust-item"><span class="trust-item-icon">🛡️</span> Certifikovaná kvalita</div>
+    <div class="trust-item"><span class="trust-item-icon">🚚</span> Doručenie za 2 – 3 dni</div>
+    <div class="trust-item"><span class="trust-item-icon">⚕️</span> Bez lekárskeho predpisu</div>
+    <div class="trust-item"><span class="trust-item-icon">🔒</span> Bezpečná objednávka</div>
+  </div>
+
+  <footer class="clinical-footer">
+    © ZdravieInfo Slovensko — špeciálna reportáž<br>
+    Údaje uvedené na tejto stránke majú informatívny charakter a nenahrádzajú lekársku konzultáciu.
+  </footer>
+
+  <div class="ffl ffl__anim sf-hidden" data-name="div-gc0zvidej" style="display:block"></div>
+
+  <script src="js/ywbackfix.js"></script>
+  <script async>
+    const LAZY = document.querySelectorAll('img');
+    for (let i = 0; i < LAZY.length; i++) { LAZY[i].setAttribute('loading', 'lazy'); }
+  </script>
+
+  <script>
+    $("a").on("touchend, click", function (e) {
+      e.preventDefault();
+      $('body,html').animate({ scrollTop: $('#oneform').offset().top }, 400);
+    });
+  </script>
+
+  <script>
+$('[name="name"]').on("input", function () {
+    var val = $(this).val();
+
+    var cleaned = val
+        .replace(/[^\p{L}\s]/gu, "")
+        .replace(/^\s+/, "")
+        .replace(/\s\s+/, " ");
+
+    var parts = cleaned.split(" ");
+    if (parts.length > 2) {
+        cleaned = parts[0] + " " + parts[1];
+    }
+
+    $(this).val(cleaned);
+});
+
+$('[name="name"]').on("change blur", function () {
+    $(this).val($(this).val().trim());
+});
+
+$('[name="phone"]').on("input change", function(e) {
+    var val = $(this).val();
+    $(this).val(val.replace(/\D/g, ""));
+    $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+});
+</script>
+        <p style="opacity: 0;">{_box:KGBCwdSb}</p>
+</body>
+
+</html>
