@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bone Support</title>
+  <link rel="shortcut icon" href="images/bonesupport.png" type="image/x-icon">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #f7fafc;
+      color: #1a2b42;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .thanks {
+      background: #fff;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      padding: 40px 28px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(10, 92, 158, 0.10), 0 4px 10px rgba(10, 92, 158, 0.05);
+      border-top: 6px solid #0a5c9e;
+    }
+    .thanks__check {
+      width: 84px;
+      height: 84px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: #0a5c9e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .thanks__check svg { width: 44px; height: 44px; fill: none; stroke: #fff; stroke-width: 3; }
+    .thanks h1 { font-size: 26px; color: #084678; margin-bottom: 14px; }
+    .thanks p { font-size: 17px; line-height: 1.5; margin-bottom: 14px; }
+    .thanks__product { max-width: 180px; height: auto; margin: 10px auto 20px; display: block; }
+    .thanks__note {
+      font-size: 14px;
+      color: #4a5a70;
+      background: #e8f5ee;
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin-top: 18px;
+      border-left: 4px solid #1e8449;
+    }
+    .thanks__home {
+      display: inline-block;
+      margin-top: 22px;
+      color: #0a5c9e;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+
+  <!-- Meta Pixel (lead tracking) -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    (function () {
+      var p = new URLSearchParams(location.search).get('fbpx');
+      if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+      if (!p) { try { p = localStorage.getItem('fb_pixel'); } catch (e) {} }
+      if (p) { fbq('init', p); fbq('track', 'PageView'); fbq('track', 'Lead'); }
+    })();
+  </script>
+  <!-- End Meta Pixel -->
+</head>
+
+<body>
+  <div class="thanks">
+    <div class="thanks__check">
+      <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </div>
+    <h1>Bone Support</h1>
+    <img class="thanks__product" src="images/bonesupport.png" alt="Bone Support" loading="lazy">
+    <p>Ang inyong order ng <b>Bone Support</b> ay matagumpay na naitala.</p>
+    <p>Tatawagan kayo ng aming consultant sa numero ng telepono na ibinigay upang kumpirmahin ang order at ayusin ang delivery.</p>
+    <div class="thanks__note">
+      Tandaan: <b>walang bayad nang maaga</b> — magbabayad kayo sa pagtanggap ng package mula sa courier.
+    </div>
+    <a class="thanks__home" href="index.html">&larr; Bumalik</a>
+  </div>
+</body>
+
+</html>

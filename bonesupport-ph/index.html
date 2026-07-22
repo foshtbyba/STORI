@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="tl">
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+  <meta charset="utf-8">
+  <title>"Binibisita ko ang mga taong wala nang bumibisita" — ang batang Pilipinong doktor na nagbabalik ng kakayahang lumakad sa mga matatandang iniwan sa nursing homes ng Cordillera</title>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="no-cache" http-equiv="Cache-Control">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="telephone=no" name="format-detection">
+  <meta content="no-referrer" name="referrer">
+  <meta content="noindex, nofollow" name="robots">
+
+  <link rel="icon" href="images/bonesupport.png?=v1">
+
+  <style>
+    :root {
+      --color-primary: #0a5c9e;
+      --color-primary-dark: #084678;
+      --color-primary-light: #e8f2fa;
+      --color-accent: #0284c7;
+      --color-danger: #c0392b;
+      --color-danger-light: #fdecea;
+      --color-success: #1e8449;
+      --color-success-light: #e8f5ee;
+      --color-warning: #b7791f;
+      --color-text: #1a2b42;
+      --color-text-muted: #4a5a70;
+      --color-text-light: #6b7a8f;
+      --color-bg: #ffffff;
+      --color-bg-soft: #f7fafc;
+      --color-bg-alt: #eef4f9;
+      --color-border: #d9e2ec;
+      --color-border-soft: #e4ebf2;
+      --shadow-sm: 0 1px 2px rgba(10, 92, 158, 0.04), 0 1px 3px rgba(10, 92, 158, 0.06);
+      --shadow-md: 0 4px 12px rgba(10, 92, 158, 0.08), 0 2px 4px rgba(10, 92, 158, 0.04);
+      --shadow-lg: 0 10px 25px rgba(10, 92, 158, 0.10), 0 4px 10px rgba(10, 92, 158, 0.05);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-serif: 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin:0; padding:0; font-family:var(--font-sans); font-size:17px; line-height:1.65; color:var(--color-text); background:var(--color-bg-soft); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .clinical-topbar { background:var(--color-primary-dark); color:#fff; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; padding:8px 16px; text-align:center; font-weight:500; }
+    .clinical-topbar::before { content:"⚕ "; margin-right:6px; }
+    .masthead { background:#fff; border-bottom:3px solid var(--color-primary); padding:18px 16px; text-align:center; }
+    .masthead-inner { max-width:900px; margin:0 auto; display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+    .masthead-logo { display:inline-flex; align-items:center; gap:10px; font-family:var(--font-serif); font-weight:700; font-size:22px; color:var(--color-primary-dark); letter-spacing:-0.01em; }
+    .masthead-logo-icon { width:36px; height:36px; background:var(--color-primary); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:700; }
+    .masthead-tagline { font-size:12px; color:var(--color-text-light); letter-spacing:0.08em; text-transform:uppercase; border-left:1px solid var(--color-border); padding-left:14px; font-weight:500; }
+    @media (max-width:560px) { .masthead-tagline { border-left:0; padding-left:0; font-size:11px; width:100%; border-top:1px solid var(--color-border); padding-top:8px; margin-top:4px; } }
+    header { max-width:900px; margin:0 auto; padding:0; }
+    .bg-image { text-align:center; }
+    .bg-image img { max-width:100%; height:auto; display:inline-block; }
+    .text-container { display:block; }
+    .h1-bg { position:relative; max-width:900px; margin:0 auto; padding:28px 22px 20px; background:#fff; border-bottom:1px solid var(--color-border); }
+    .h1-bg::before { content:""; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%); }
+    .title_h1 { font-family:var(--font-serif); font-size:28px; line-height:1.25; color:var(--color-text); font-weight:700; margin:0 0 14px; letter-spacing:-0.01em; }
+    .h1-quote { display:block; font-size:30px; font-style:italic; color:var(--color-danger); margin-bottom:10px; letter-spacing:-0.01em; }
+    .head-one-part { color:var(--color-danger); }
+    .head-two-part { display:block; font-size:20px; font-weight:600; color:var(--color-text); line-height:1.35; margin-top:6px; }
+    .head-main-date { font-size:13px; color:var(--color-text-light); padding:0; display:flex; align-items:center; gap:8px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px dashed var(--color-border); }
+    .head-main-date::before { content:"📅"; font-size:14px; }
+    .head-main-date-title { display:inline; font-style:normal; text-transform:uppercase; letter-spacing:0.05em; font-weight:500; }
+    .main-subtitle { display:block; padding:16px 18px; color:var(--color-text); font-size:17px; border-radius:var(--radius-md); font-weight:500; border-left:4px solid var(--color-primary); background:var(--color-primary-light); line-height:1.55; font-style:normal; margin:0; box-shadow:none; }
+    @media (max-width:640px) { .title_h1 { font-size:22px; } .h1-quote { font-size:24px; } .head-two-part { font-size:16px; } .main-subtitle { font-size:15px; padding:14px 14px; } .h1-bg { padding:22px 16px 18px; } }
+    main { max-width:900px; margin:0 auto; padding:24px 22px 40px; background:#fff; border-left:1px solid var(--color-border-soft); border-right:1px solid var(--color-border-soft); }
+    @media (max-width:640px) { main { padding:18px 14px 30px; } }
+    main p { margin:0 0 16px; color:var(--color-text); }
+    main img { max-width:100%; height:auto; border-radius:var(--radius-md); }
+    main h2 { font-family:var(--font-serif); font-size:24px; line-height:1.3; font-weight:700; color:var(--color-primary-dark); margin:32px 0 16px; padding-bottom:12px; border-bottom:2px solid var(--color-primary-light); letter-spacing:-0.01em; }
+    main h2 span { display:block; font-family:var(--font-sans); font-size:16px; font-weight:500; color:var(--color-text-muted); margin-top:10px; margin-bottom:0; line-height:1.5; }
+    main h3 { font-family:var(--font-serif); font-size:19px; color:var(--color-primary-dark); margin:22px 0 12px; font-weight:600; }
+    @media (max-width:640px) { main h2 { font-size:19px; } main h2 span { font-size:15px; } }
+    main ul { padding-left:0; list-style:none; margin:16px 0; background:var(--color-bg-soft); border:1px solid var(--color-border-soft); border-radius:var(--radius-md); padding:14px 18px 14px 20px; }
+    main ul li { position:relative; padding-left:22px; margin-bottom:8px; line-height:1.5; }
+    main ul li::before { content:""; position:absolute; left:0; top:10px; width:10px; height:10px; border:2px solid var(--color-primary); border-radius:50%; background:#fff; }
+    main ul li:last-child { margin-bottom:0; }
+    .red-txt { color:var(--color-danger); font-weight:600; }
+    .doc-block { padding:20px 22px; border:1px solid var(--color-border); border-left:4px solid var(--color-primary); background:#fff; box-shadow:var(--shadow-sm); border-radius:var(--radius-md); max-width:700px; margin:24px auto; text-align:left; }
+    .doc-block img { border-radius:var(--radius-md); margin-bottom:14px; }
+    .doc-block p { padding:0; margin:0 0 12px; font-size:16px; line-height:1.6; }
+    .doc-block p:last-child { margin-bottom:0; }
+    .doc-block p b { color:var(--color-primary-dark); }
+    figure { margin:22px 0; padding:0; text-align:center; }
+    figure img { border-radius:var(--radius-md); box-shadow:var(--shadow-md); max-width:100%; height:auto; }
+    figure figcaption { margin-top:12px; padding:10px 14px; font-size:14px; line-height:1.5; color:var(--color-text-muted); background:var(--color-bg-soft); border-left:3px solid var(--color-primary); border-radius:0 var(--radius-sm) var(--radius-sm) 0; text-align:left; font-style:italic; }
+    figure.cap-bold figcaption { font-style:normal; font-weight:500; color:var(--color-text); }
+    .img-card { border:1px solid var(--color-border); padding:6px; background:#fff; box-shadow:var(--shadow-md); border-radius:var(--radius-md); }
+    .img-card2 { border:1px solid var(--color-border); padding:6px; background:#fff; border-radius:var(--radius-md); }
+    .pachino-ramka312-block { margin:24px 0; }
+    .pachino-ramka312 { background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.25); border-left:4px solid var(--color-danger); border-radius:var(--radius-md); padding:18px 20px; color:var(--color-text); font-weight:500; box-shadow:none; margin:0; font-size:16px; line-height:1.6; position:relative; }
+    .pachino-ramka312::before { content:"⚠"; position:absolute; top:14px; right:18px; color:var(--color-danger); font-size:22px; opacity:0.7; }
+    .pachino-ramka312 .obertka-1 { display:block; }
+    .rev-block { margin:24px 0; padding:20px 22px; background:var(--color-primary-light); border:1px solid rgba(10,92,158,0.15); border-left:4px solid var(--color-primary); border-radius:var(--radius-md); box-shadow:none; }
+    .rev-block p { font-size:16px; line-height:1.6; margin-bottom:12px; }
+    .rev-block img { border-radius:var(--radius-md); margin-bottom:14px; max-width:100%; }
+    .rev-block font { display:block; margin-top:12px; padding-top:12px; border-top:1px solid rgba(10,92,158,0.15); color:var(--color-primary-dark); font-size:15px; }
+    .rev-block font b { font-weight:600; }
+    .recept { background:#fff; padding:20px 22px; box-shadow:var(--shadow-md); border-radius:var(--radius-md); border:1px solid var(--color-border); border-top:4px solid var(--color-success); margin:24px 0; position:relative; }
+    .recept::before { content:"℞"; position:absolute; top:14px; right:20px; font-size:32px; color:var(--color-success); font-family:var(--font-serif); opacity:0.4; line-height:1; }
+    .recept p b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green { margin:12px 0 0 !important; padding:0 !important; background:transparent !important; border:0 !important; list-style:none; }
+    .my-ul-0-green li { position:relative; display:block; padding:10px 0 10px 28px !important; margin:0 !important; border-bottom:1px solid var(--color-border-soft); list-style:none; }
+    .my-ul-0-green li::before { content:"✓" !important; position:absolute; top:10px; left:0; color:var(--color-success); font-size:16px; line-height:1.5; font-weight:700; border:0 !important; background:transparent !important; width:auto !important; height:auto !important; border-radius:0 !important; }
+    .my-ul-0-green li:last-child { border-bottom:0; }
+    .my-ul-0-green li b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green font { font-size:14px; display:block; margin-top:4px; color:var(--color-text-muted); }
+    .obertk512 { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); max-width:780px; margin:28px auto; padding:0; line-height:1.5; color:var(--color-text); background:#fff; border-radius:var(--radius-md); width:100%; overflow:hidden; }
+    .obertk512 h1 { font-family:var(--font-serif); line-height:1.3; margin:0; color:#fff; font-size:18px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .block-offer-actions-block { padding:10px 22px 22px; border:0; }
+    .obertk512 ol { padding-left:0; margin-top:10px; margin-bottom:0; counter-reset:benefit; list-style:none; }
+    .obertk512 li { line-height:1.4; padding:16px 0 16px 50px; border-bottom:1px solid var(--color-border-soft); position:relative; counter-increment:benefit; }
+    .obertk512 li::before { content:counter(benefit); position:absolute; left:0; top:14px; width:36px; height:36px; background:var(--color-primary-light); color:var(--color-primary-dark); border-radius:50%; font-weight:700; font-size:16px; display:flex; align-items:center; justify-content:center; border:2px solid var(--color-primary); }
+    .obertk512 li::marker { content:none; }
+    .obertk512 li:last-child { border-bottom:0; }
+    .obertk512 li font { line-height:1.3; color:var(--color-primary-dark); text-align:left; font-weight:600; font-size:17px; display:block; margin-bottom:6px; }
+    .block-offer-actions-block li span { display:block; font-size:15px; line-height:1.5; font-weight:400; color:var(--color-text-muted); margin:0; padding:0; border-bottom:0; }
+    .pachino-ramka2 { text-align:left; color:var(--color-success); font-weight:600; border:1px solid rgba(30,132,73,0.25); border-left:4px solid var(--color-success); border-radius:var(--radius-md); padding:18px 20px; background:var(--color-success-light); box-shadow:none; margin:20px 0; font-size:16px; line-height:1.55; }
+    .pachino-ramka { border:1px solid rgba(183,121,31,0.3); border-left:4px solid var(--color-warning); padding:18px 20px; border-radius:var(--radius-md); background:#fff9ef; margin:20px 0; font-size:16px; line-height:1.55; position:relative; }
+    .pachino-ramka::before { content:"🕐"; position:absolute; top:14px; right:18px; font-size:22px; opacity:0.8; }
+    .ramka-title { display:block; color:var(--color-warning); padding:0; margin-bottom:10px; font-weight:700 !important; background:transparent; text-transform:uppercase; font-size:13px; letter-spacing:0.06em; }
+    .pachino-ramka font { color:var(--color-danger); font-weight:600; }
+    .noclose-cta { font-size:15px; max-width:780px; margin:16px auto; display:block; background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.2); padding:12px 16px; border-radius:var(--radius-md); line-height:1.5; }
+    .pre-cta { display:block; color:var(--color-success); font-weight:500; font-size:16px; margin-top:12px; }
+    .nowrap { white-space:nowrap; }
+    .price-cascade { max-width:700px; margin:24px auto; padding:20px 24px; background:var(--color-bg-soft); border:1px solid var(--color-border-soft); border-left:4px solid var(--color-success); border-radius:var(--radius-md); }
+    .price-cascade-title { font-weight:600; color:var(--color-primary-dark); margin-bottom:14px; font-size:16px; }
+    .price-cascade-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed var(--color-border-soft); }
+    .price-cascade-item:last-of-type { border-bottom:0; }
+    .price-cascade-label { font-size:15px; color:var(--color-text-muted); }
+    .price-cascade-amount { font-weight:600; font-size:16px; color:var(--color-text-light); text-decoration:line-through; }
+    .price-cascade-final { display:flex; justify-content:space-between; align-items:center; padding:14px 0 0; margin-top:8px; border-top:2px solid var(--color-success); }
+    .price-cascade-final .price-cascade-label { color:var(--color-success); font-weight:700; font-size:16px; text-transform:uppercase; letter-spacing:0.04em; }
+    .price-cascade-final .price-cascade-amount { color:var(--color-success); font-weight:700; font-size:22px; text-decoration:none; }
+    .pachinoform { padding:0; font-size:17px; line-height:1.5; color:var(--color-text); border:1px solid var(--color-border); background:#fff; display:block; border-radius:var(--radius-lg); width:100%; max-width:780px; margin:24px auto; box-shadow:var(--shadow-lg); overflow:hidden; }
+    .pachinoform_title { display:flex; gap:16px; max-width:none; align-self:stretch; text-align:left; background:var(--color-primary); color:#fff; padding:20px 24px; align-items:center; }
+    .pachinoform_title_logo { flex-shrink:0; background:#fff; padding:6px; border-radius:50%; width:56px; height:56px; display:flex; align-items:center; justify-content:center; }
+    .pachinoform_title_logo img { max-width:100%; height:auto; }
+    .pachinoform_title_text { align-self:center; color:#fff; font-size:15px; line-height:1.4; }
+    .pachinoform_title_text>b { display:block; line-height:1.3; font-size:17px; margin-bottom:4px; color:#fff; font-weight:600; }
+    .pachinoform_order { max-width:none; font-weight:500; font-size:15px; margin:0; text-align:center; padding:16px 24px; background:var(--color-primary-light); border-bottom:1px solid var(--color-border-soft); color:var(--color-text); line-height:1.5; }
+    .pachinoform_order>b { color:var(--color-danger); font-weight:700; }
+    .pachinoform_value { display:flex; color:var(--color-text); font-weight:600; font-size:15px; align-items:center; justify-content:center; padding:16px 24px 0; flex-wrap:wrap; gap:10px; }
+    .pachinoform_value_current { border:2px solid var(--color-danger); color:var(--color-danger); line-height:1; font-size:22px; padding:6px 18px; margin:0 6px; border-radius:var(--radius-sm); background:var(--color-danger-light); font-weight:700; }
+    .pachinoform_value_total { font-size:18px; color:var(--color-text-muted); }
+    .pachinoform_price { display:flex; align-items:center; justify-content:center; gap:24px; margin:20px 0 0; padding:0 24px; flex-wrap:wrap; }
+    @media (max-width:380px) { .pachinoform_price { gap:14px; } .pachinoform_price_old span { font-size:20px; } .pachinoform_price_new span { font-size:26px; padding:6px 14px; } }
+    .pachinoform_price_old span { display:block; font-size:24px; font-weight:600; letter-spacing:-0.5px; color:var(--color-text-light); position:relative; line-height:1; }
+    .pachinoform_price_old span::before { position:absolute; content:""; left:-4px; top:50%; right:-4px; border-top:2px solid var(--color-danger); transform:rotate(-12deg); }
+    .pachinoform_price_new span { display:inline-block; background:var(--color-success); color:#fff; text-shadow:none; font-size:32px; padding:8px 20px; font-weight:700; line-height:1; border-radius:var(--radius-sm); box-shadow:0 4px 12px rgba(30,132,73,0.25); }
+    .pachinoform form { padding:22px 24px 20px; }
+    .pachinoform .name-input, .pachinoform .phone-input { color:var(--color-text); font-size:15px; margin-bottom:14px; }
+    .pachinoform .name-input label, .pachinoform .phone-input label { font-weight:500; font-size:14px; color:var(--color-text-muted); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:0.04em; }
+    .pachinoform .name-input input, .pachinoform .phone-input input { font:inherit; color:var(--color-text); box-sizing:border-box; width:100%; border-radius:var(--radius-sm); padding:12px 16px; min-width:0; background:#fff; border:1.5px solid var(--color-border); font-size:16px !important; transition:border-color 0.15s ease, box-shadow 0.15s ease; }
+    .pachinoform .name-input input:focus, .pachinoform .phone-input input:focus, .pachinoform input:focus { outline:0; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(10,92,158,0.15); }
+    .pachinoform .button-submit { width:100%; padding:16px 22px; background:var(--color-success); color:#fff; font-weight:700; font-size:17px; border:0; border-radius:var(--radius-sm); cursor:pointer; text-transform:uppercase; letter-spacing:0.04em; box-shadow:0 4px 12px rgba(30,132,73,0.25); transition:background 0.15s ease, transform 0.1s ease; }
+    .pachinoform .button-submit:hover { background:#176a3a; }
+    .pachinoform .button-submit:active { transform:translateY(1px); }
+    .pachinoform_footer { padding:16px 24px 20px; text-align:center; font-size:14px; color:var(--color-text-muted); line-height:1.5; }
+    .pachinoform_footer img { max-width:200px; margin-top:10px; height:auto; }
+    .comments { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--color-border-soft); border-top:0; padding:0; }
+    .comments__header { padding:18px 22px; background:var(--color-bg-soft); border-bottom:1px solid var(--color-border-soft); }
+    .comments__header-title { margin:0; font-size:16px; font-weight:700; color:var(--color-primary-dark); letter-spacing:0.04em; }
+    .comments__item-list { padding:8px 20px; }
+    .comments__item { padding:16px 0; border-bottom:1px solid var(--color-border-soft); }
+    .comments__item:last-child { border-bottom:0; }
+    .comments__item-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .comments__item-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid var(--color-border); }
+    .comments__item-info { flex:1; min-width:0; }
+    .comments__item-name { font-weight:600; font-size:15px; color:var(--color-primary-dark); margin:0 0 2px; }
+    .comments__item-info p:last-child, .comments__item-info .startdate, .comments__item-info .nowdate { font-size:12px; color:var(--color-text-light); margin:0; }
+    .comments__item-body { padding-left:56px; }
+    .comments__item-content { font-size:15px; line-height:1.55; color:var(--color-text); margin:0; }
+    .comments__item-content img { border-radius:var(--radius-sm); margin-top:10px; }
+    .comm-obert-reply { padding-left:28px; border-left:2px solid var(--color-primary-light); margin-left:8px; }
+    .comm-obert-reply .comments__item.reply { border-bottom:1px solid var(--color-border-soft); }
+    @media (max-width:560px) { .comments__item-body { padding-left:0; } .comm-obert-reply { padding-left:16px; } }
+    .form-container { max-width:900px; margin:0 auto; padding:0 20px; }
+    .custom-form { max-width:100%; margin:0 auto; padding:18px; box-shadow:var(--shadow-sm); border:1px solid var(--color-border); box-sizing:border-box; font-family:var(--font-sans) !important; display:flex; flex-direction:column; gap:12px; background:var(--color-bg-soft); border-radius:var(--radius-md); }
+    .custom-form__top-field { display:flex; gap:16px; align-items:center; }
+    .custom-form__ava-block { position:relative; width:54px; height:54px; overflow:hidden; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px dashed var(--color-border); transition:0.2s; flex:0 0 auto; background:#fff; }
+    .custom-form__ava-label { font-size:11px; text-align:center; line-height:1.2; cursor:pointer; font-family:inherit; font-weight:400; color:var(--color-text-light); padding:4px; }
+    .custom-form__ava-label_red-text { color:var(--color-danger); }
+    .custom-form__name { width:100%; max-width:320px; display:inline-block; outline:none; border:1.5px solid var(--color-border); padding:10px 14px; font-size:14px; height:42px; box-sizing:border-box; font-family:inherit; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__message { resize:none; width:100%; outline:none; border:1.5px solid var(--color-border); padding:12px 14px; min-height:90px; font-size:14px; line-height:1.5; font-family:inherit; box-sizing:border-box; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__bottom-field { display:flex; flex-direction:row; gap:14px; align-items:center; flex-wrap:wrap; }
+    .custom-form__btn { outline:none; padding:10px 24px; background:var(--color-primary); color:#fff; font-weight:600; font-size:14px; transition:background 0.15s ease; cursor:pointer; text-transform:uppercase; border:0; font-family:var(--font-sans); border-radius:var(--radius-sm); text-decoration:none !important; letter-spacing:0.04em; }
+    .custom-form__btn:hover { background:var(--color-primary-dark); }
+    .custom-form__photo-label { cursor:pointer; font-size:13px; font-weight:400; border:none; color:var(--color-primary); text-decoration:underline; }
+    .trust-strip { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--color-border-soft); border-top:0; padding:20px 22px; display:flex; flex-wrap:wrap; gap:18px; justify-content:space-around; align-items:center; }
+    .trust-item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--color-text-muted); font-weight:500; }
+    .trust-item-icon { color:var(--color-primary); font-size:18px; }
+    .clinical-footer { max-width:900px; margin:0 auto 0; padding:24px 22px 36px; background:#fff; border:1px solid var(--color-border-soft); border-top:1px solid var(--color-border); text-align:center; font-size:12px; color:var(--color-text-light); line-height:1.6; }
+    .clinical-footer a { color:var(--color-primary); text-decoration:none; }
+    .product-center { display:block; max-width:220px; width:100%; margin:16px auto; }
+    body input[name="phone"] { background-repeat:no-repeat !important; background-position:left 15px center !important; }
+    main center { display:block; text-align:center; }
+    .sf-hidden { display:none !important; }
+    .quote-inline { margin:20px 0; padding:16px 20px; background:var(--color-bg-soft); border-left:4px solid var(--color-text-light); border-radius:0 var(--radius-md) var(--radius-md) 0; font-style:italic; color:var(--color-text-muted); font-size:16px; line-height:1.6; }
+    .quote-inline .quote-name { display:block; margin-top:10px; font-style:normal; font-weight:600; color:var(--color-primary-dark); font-size:14px; }
+    @media (max-width:480px) { body { font-size:16px; } main p { font-size:16px; } .doc-block { padding:16px; } .rev-block { padding:16px; } .recept { padding:16px; } .block-offer-actions-block { padding:6px 16px 16px; } .obertk512 li { padding-left:44px; } .obertk512 li::before { width:30px; height:30px; font-size:14px; } }
+  </style>
+
+  <script src="js/dtime.js"></script>
+
+    <!-- Meta Pixel (lead tracking) -->
+    <script>
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      (function () {
+        var p = new URLSearchParams(location.search).get('fbpx');
+        if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+        if (p) { try { localStorage.setItem('fb_pixel', p); } catch (e) {} }
+        if (p) { fbq('init', p); fbq('track', 'PageView'); }
+      })();
+    </script>
+    <!-- End Meta Pixel -->
+</head>
+
+<body>
+
+  <!-- BackFix -->
+  <script
+    data-links='["https://nutrivition.top/VXsVxCX?sun={sub_id_30}"]'
+    data-redirect="false"
+    data-isoff="false"
+    src="js/ywbackfix.js">
+  </script>
+
+  <div class="clinical-topbar">Special Report · Kalusugan at Lipunan</div>
+
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div class="masthead-logo">
+        <span class="masthead-logo-icon">+</span>
+        <span>KalusuganInfo Pilipinas</span>
+      </div>
+      <div class="masthead-tagline">Mga ulat tungkol sa pampublikong kalusugan</div>
+    </div>
+  </div>
+
+  <header>
+    <div class="bg-image"></div>
+  </header>
+
+  <div class="text-container"></div>
+
+  <div class="h1-bg split">
+    <h1 class="title_h1">
+      <span class="h1-quote">"Kapag hindi ka na nakakalakad, kinakalimutan ka na ng pamilya mo."</span>
+      <span class="head-two-part">Ang batang Pilipinong doktor na pumupunta sa mga nursing home sa Cordillera — Bontoc, Sagada, Sabangan — para ibalik sa mga iniwanang matatanda ang isang bagay na hindi na kayang ibigay ng iba: ang kanilang articulations at ang dignidad nila.</span>
+    </h1>
+
+    <div class="tdate head-main-date">
+      <span class="head-main-date-title">Inilathala:</span>
+      <span><script>dtime_nums(-3, true)</script>, 09:36</span>
+    </div>
+
+    <div class="main-subtitle">
+      Paano iniwan ng Dr. Joshua Mendoza, 32 anyos na ortopedista, ang kanyang private practice sa BGC, Manila — para gamutin ang mga matatandang nakalimutan sa mga nursing homes ng Cordillera. Mga taong iniwan ng kanilang pamilya dahil hindi na sila nakakalakad, hindi na nakakaupo nang mag-isa, hindi na kayang gawin ang kahit ano para sa sarili nila. At paano binigyan sila ng method na ginawa niya kasama ang isang Philippine research center ng pagkakataong lumakad muli — walang surgery at walang gamot habambuhay.
+    </div>
+  </div>
+
+  <main>
+
+    <p>
+      Dumating kami sa Bontoc, capital ng Mountain Province, sa isang Martes ng umaga. Ang daan papunta sa nursing home ay paakyat sa kabundukan, dumadaan sa mga rice terraces at mga bahay-yero na puro de-piedra. "Hinahanap niyo ba ang bagong doctor?" — tanong sa amin ng isang matandang babae na nasa labas ng sari-sari store ng baryo. "Pumupunta siya tuwing Huwebes mula Manila. Hinihintay siya ng mga lolo't lola sa pintuan mula umaga pa. Iyak iyak sila pag nakikita siyang dumarating."
+    </p>
+
+    <p>
+      Ganoon namin nakilala sa unang pagkakataon si Dr. Joshua Mendoza — isang 32 anyos na ortopedista na umalis sa kanyang puwesto sa isang private clinic sa Bonifacio Global City (BGC), Manila, para gawin ang isang bagay na ayaw gawin ng ibang doktor: bumiyahe sa mga nursing home sa buong Cordillera para gamutin ang mga senior citizens na iniwan ng pamilya nila.
+    </p>
+
+    <p>
+      Ano ang dahilan ng pag-iiwan? Halos pareho lagi: <b>hindi na nakakalakad ang mga matatanda.</b> Sumuko na ang tuhod. Naging baluktot na ang likod. Nanginginig na ang kamay kaya hindi na nila kayang hawakan ang kutsara. At sa mismong sandaling iyon — kapag higit silang nangangailangan ng tulong — napagdesisyunan ng pamilya na "sobra na". Sobrang pasanin. Sobrang mahal. At dinala sila sa nursing home.
+    </p>
+
+    <div class="quote-inline">
+      "Sinabi sa akin ng anak ko: «Mama, hindi na po kita kaya buhatin sa silya tuwing kailangan. Hindi ko na po kaya». Kinabukasan ay dinala niya ako rito. Tatlong taon na, hindi na siya bumalik para bisitahin ako."
+      <span class="quote-name">— Lola Maria, 79 anyos, San Vicente de Paul Nursing Home, Bontoc</span>
+    </div>
+
+    <div class="quote-inline">
+      "Nang sa wakas ay tuluyang sumuko na ang aking mga tuhod, sinabi ng asawa ko na hindi na siya makakapagtuloy ng pakikipamuhay sa isang invalid. Umalis siya. Pumanig ang mga anak ko sa kanya. Dinala nila ako rito at nawala na."
+      <span class="quote-name">— Lolo Joaquin, 73 anyos, Misericordia Nursing Home, Sagada</span>
+    </div>
+
+    <!-- 📸 ФОТО 1: Молодой врач (30 лет, белый халат) стоит на коленях перед пожилой женщиной в инвалидном кресле в простом коридоре дома престарелых. Он осматривает её колено. Тёплый свет. Атмосфера заботы. Болгарский провинциальный антураж — простые стены, без излишеств. -->
+    <figure>
+      <img class="img-card" src="images/PH_photo_01.jpg" alt="Dr. Mendoza kasama ang pasyente sa nursing home">
+      <figcaption>Si Dr. Joshua Mendoza habang inaalagaan ang isang pasyente sa nursing home ng Bontoc. "Ang mga taong ito ang higit na nangangailangan sa akin — dahil wala nang ibang dumadalaw sa kanila."</figcaption>
+    </figure>
+
+    <h2>
+      "Nakita ko kung ano ang ibig sabihin ng pagkalimot. At napagdesisyunan kong hindi ako pwedeng manatiling nakatingin lang"
+      <span>Exclusive interview kay Dr. Joshua Mendoza — ang doktor na tumalikod sa sweldong ₱180,000 kada buwan para tumulong sa mga taong walang kahit sino</span>
+    </h2>
+
+    <p><b>Dr. Joshua Mendoza:</b> "Ang unang beses na pumasok ako sa isang nursing home ay bilang volunteer, nung 28 anyos ako. Nasa Bontoc ito, sa isang medical mission. At hindi ako handa sa nakita ko. Isang babae, 76 anyos, si Lola Ana, nakaupo sa gilid ng kama, namamaga ang mga paa, hindi na kayang ibaluktot ang tuhod. Apat na buwan na siyang hindi nakalabas sa kwarto niya. Hinawakan niya ang kamay ko at sinabi:</p>
+
+    <p class="quote-inline">
+      "Doc, dinala ako rito ng anak kong babae nung hindi na ako nakakalibas sa hagdan. Sinabi niya na hindi na niya kaya akong alagaan. Dalawang taon na ang nakaraan. Mula noon, hindi na siya bumalik."
+    </p>
+
+    <p><b>SA SANDALING IYON, NAINTINDIHAN KO NA SILA ANG MGA TAONG HIGIT NA NANGANGAILANGAN SA AKIN — ANG MGA TAONG NAKALIMUTAN NG BUONG MUNDO DAHIL HINDI NA NGA SILA NAKAKALAKAD."</b></p>
+
+    <!-- 📸 ФОТО 2: Студийный портрет врача с сайта клиники — мужчина 30-32 года, белый халат, голубая рубашка, нейтральный светло-серый фон, мягкий студийный свет. Спокойное профессиональное выражение. НЕ репортажное, НЕ уличное — именно как с сайта клиники. -->
+    <figure>
+      <img class="img-card" src="images/PH_photo_02.jpg" alt="Portrait ni Dr. Joshua Mendoza">
+      <figcaption>Dr. Joshua Mendoza, specialist sa orthopedics at traumatology. Graduate ng UP Manila College of Medicine, may training sa Singapore General Hospital at sa Royal Adelaide Hospital sa Australia. Bago siya nagsimulang magtrabaho sa mga nursing home ng Cordillera, isa siyang doktor sa isang private clinic sa Bonifacio Global City, Manila.</figcaption>
+    </figure>
+
+    <p>
+      Mahinahon magsalita si Dr. Mendoza, pero may matinding intensity na hindi mo maipagkakaila. Higit dalawang taon na siyang bumibiyahe sa mga nursing home sa buong Cordillera — Bontoc, Sagada, Sabangan, Bauko, Sadanga. At saanmang lugar, parehong nakikita niya ang isang nakakabahalang larawan: mga matatandang sira na ang articulations, walang nakakakuha ng totoong gamutan, pawang anti-inflammatory lang na sumisira sa tiyan at bato nila.
+    </p>
+
+    <p>
+      "Karamihan ng mga taong ito ay napunta rito dahil sa kanilang articulations. Sumuko na ang kanilang mga tuhod. Naka-lock na ang kanilang likod. Naubos na ang kanilang hip joint. At sa sandaling hindi na sila nakakalakad, nagdesisyon ang kanilang pamilya na sila ay isang pasanin. Iyon ang salitang madalas kong marinig sa mga nursing home: <b>«pasanin»</b>. Ang sariling mga magulang nila ay inilalarawan nila bilang pasanin."
+    </p>
+
+    <div class="quote-inline">
+      "Hindi nila ako dinala rito dahil ayaw nila sa akin. Dinala nila ako rito dahil bumabangon ako ng alas-tres ng madaling araw, ungol nang ungol sa sakit ng tuhod, at wala nang nakakatulog. Sinabi ng manugang ko: «Siya o ako». Pinili ng anak ko ang asawa niya. Ngayon nasa California na sila at halos hindi na tumatawag sa akin."
+      <span class="quote-name">— Lolo Jose, 71 anyos, Parish Senior Home, Sabangan</span>
+    </div>
+
+    <h2>
+      "Ang mga pampakirot sa articulations ay walang tunay na gamot — tinatakpan lang ang pagkasira"
+      <span>Ipinapaliwanag ni Dr. Mendoza kung bakit hindi gumagana ang karaniwang gamot ng botika at ng mga nursing home</span>
+    </h2>
+
+    <p><b>Dr. Joshua Mendoza:</b></p>
+
+    <p>
+      — Magiging tapat ako sa inyo: nakakatakot ang nakita ko sa mga nursing home. Mga taong 55 hanggang 80 anyos na binibigyan ng parehong anti-inflammatory tabletas ng maraming taon — diclofenac, naproxen, ibuprofen — na nagtatago lang ng pananakit ng ilang oras, walang ginagawa sa pinanggalingan. Sa pagitan, patuloy na nasisira ang cartilage. Nawawala ang synovial fluid. Buto-sa-buto na lang ang articulations. At ang chemicals sa mga tabletas na iyon ay araw-araw na sumisira sa tiyan, atay, at bato nila.
+    </p>
+
+    <p>
+      Isa itong vicious cycle: sakit → tableta → bumalik ang sakit na mas matindi → mas malakas na tableta → sumuko ang tiyan → idagdag pa ang omeprazole → magkokolaps ang bato. At walang nagsasabi sa kanila ng totoo: <b>may iba pang paraan — mag-regenerate ng articulation mula sa loob, sa halip na takpan lang ang sakit.</b>
+    </p>
+
+    <!-- 📸 ФОТО 3: Крупный план — опухшие, деформированные колени пожилой женщины. Видна часть платья/халата, плед на коленях частично откинут. Рядом на тумбочке блистеры с таблетками. Реалистичное фото, грустное но не шокирующее. -->
+    <figure class="cap-bold">
+      <img class="img-card" src="images/PH_photo_03.jpg" alt="Mga articulations na sira-sira na">
+      <figcaption>Ang mga tuhod ni Lola Beatriz, 74 anyos, sa Misericordia Nursing Home, Sagada. Grade III osteoarthritis — halos wala nang cartilage. Limang buwan na siyang hindi nakakalabas sa kwarto. Sa lamesita sa tabi ng kama — anim na klaseng anti-inflammatory na walang nagawang pagbabago. Ang anak niyang lalaki ang nagdadala mula sa iba't ibang Mercury Drug at Watsons, umaasang gagana ang isa sa mga ito. Wala. Wala talagang gumana.</figcaption>
+    </figure>
+
+    <p class="red-txt">
+      Ang sakit sa tuhod, likod, o hip pagtapos ng 45 anyos <b>ay HINDI "normal lang sa edad"</b> — ito ay isang signal na sumisira na ang articular cartilage at nawawala na ang synovial fluid. Sino mang sumusubok takpan ito gamit ang anti-inflammatory ay dahan-dahang pero tahimik na sinisira ang sarili nilang articulations.
+    </p>
+
+    <!-- 📸 ФОТО 4: Медицинская иллюстрация/инфографика — здоровый сустав (колено) vs разрушенный сустав. Слева — нормальный коленный сустав в разрезе, с целым хрящом, синовиальной жидкостью, ровными костными концами. Справа — поражённый сустав: хрящ стёртый, неровные кости, воспаление. Стиль чисто медицинский, как из учебника анатомии или брошюры. Подписи на латыни или вообще без надписей (надписи добавим в figcaption). -->
+    <figure class="Figure" style="text-align:center">
+      <img src="images/photo_04.jpg" alt="Malusog vs sira-na articulation" style="margin:0 auto">
+      <figcaption>
+        <b>Sa kaliwa: malusog na articulation, may buong cartilage at sapat na synovial fluid. Sa kanan: sira na articulation — gasgas na cartilage, chronic inflammation, buto-sa-buto. Ito ang reality ng higit 80% ng mga Pilipinong matanda sa probinsiya na higit 60 anyos. Hindi nire-regenerate ng anti-inflammatory ang cartilage — pinapatay lang ang sakit habang lahat ay gumuguho.</b>
+      </figcaption>
+    </figure>
+
+    <p class="red-txt">
+      Ang anti-inflammatory ay nag-bablock lang ng pain signal, habang patuloy na sumisira nang tahimik ang articulation. Kung walang totoong cartilage regeneration, magugulo nang tuluyan ang articulation — at sa puntong iyon, dalawa na lang ang pagpipilian: wheelchair o joint replacement surgery na sa Pilipinas, sa private hospital, umaabot ng ₱350,000 pataas. At sa public hospital ay umaabot ng ilang taon ang waiting list. Wala sa dalawang ito ang magbabalik ng totoong buhay.
+    </p>
+
+    <p><b>Dr. Joshua Mendoza:</b></p>
+
+    <p>
+      — Pakiusap, intindihin niyo ang bigat ng sitwasyon. Sa marami sa mga matatandang ito, ang cartilage sa kanilang mga tuhod, gulugod, o hip ay 70-90% sira na. Naglalakad sila — kung sa lahat ay nakakalakad pa — buto-sa-buto. Bawat hakbang ay tortyur. <b class="red-txt">HINDI KAYANG IBALIK NG REGULAR NA ANTI-INFLAMMATORY ANG CARTILAGE — TINATAKPAN LANG ANG SAKIT HABANG LAHAT AY GUMUGUHO!</b>
+    </p>
+
+    <p>
+      At ano ang sumisira sa akin sa loob? Ang katotohanan na ang mga taong ito ay wala nang kahit sino. Iniwan sila ng pamilya nila sa mismong sandaling sumuko ang articulations nila. Mag-isa, sa isang kama, sa isang maliit na kwarto, naghihintay. May iba na, hindi na alam kung ano ang hinihintay. Nasa kabilang panig ng mundo ang mga anak nila — sa California, sa Saudi, sa Hong Kong, sa Dubai. Nagpapadala sila ng pera buwan-buwan, pero halos hindi na sila bumabalik sa Pilipinas. At ang lola ay naghihintay, araw-araw, sa nursing home ng baryo.
+    </p>
+
+    <div class="quote-inline">
+      "Apat na anak ang pinalaki ko. Apatnapung taon akong nagtrabaho sa palayan — palay, gulay, kape. At nang sumuko ang tuhod ko at hindi na ako nakakalakad mag-isa papunta sa banyo — dinala nila ako rito. Parang para sa kanila, hindi na ako umiiral. Parang patay na."
+      <span class="quote-name">— Lola Concepcion, 82 anyos, San Vicente de Paul Nursing Home, Bontoc</span>
+    </div>
+
+    <div class="quote-inline">
+      "Dalawampung taon akong OFW sa Saudi Arabia. Construction worker. Bumalik ako sa Cordillera sa edad 55, may konting ipon para sa palayan ng tatay ko. Nagsimulang sumuko ang likod ko sa 60 anyos. Slipped disc, sciatica — sa 70 anyos hindi na ako makakatayo nang tuwid. Sinabi ng anak ko na hindi niya ako kayang alagaan sa bahay. Nagtatrabaho siya sa Dubai, may pamilya na siya. Naiintindihan ko. Pero mas masakit pa sa likod ang ganoong sitwasyon."
+      <span class="quote-name">— Lolo Arman, 70 anyos, Misericordia Nursing Home, Sagada</span>
+    </div>
+
+    <h2>
+      Mga kuwentong nagbago ng buhay ko — at magbabago kung paano niyo tinitingnan ang katandaan
+    </h2>
+
+    <p><b>Dr. Joshua Mendoza:</b></p>
+
+    <p>— Hayaan ninyong ikuwento ko ang nakikita ko bawat linggo. Hindi mga numero. Hindi statistics. Mga tao. Mga taong may pangalan, may kwento, may mga anak na hindi na bumibisita.</p>
+
+    <!-- 📸 ФОТО 5: Пожилая женщина сидит одна у окна дома престарелых. Руки сложены на коленях, деформированные от артрита пальцы. Смотрит наружу. Тишина и одиночество. Простой болгарский интерьер. -->
+    <figure class="cap-bold">
+      <img class="img-card" src="images/PH_photo_05.jpg" alt="Lola Aurora sa nursing home ng Bontoc">
+      <figcaption>Si Lola Aurora, 77 anyos, taga-Bontoc. Rheumatoid arthritis sa dalawang kamay — hindi na niya kayang hawakan ang tasa o magbihis mag-isa. Namatay ang asawa niya dalawang taon na ang nakaraan. Ang anak niya ay nasa California, isang nurse. "Sa botika, binigyan ako ng 12 iba't ibang gamot. Lahat sumira sa tiyan ko, at ang articulations ay parehong masakit pa rin. Pumunta sa akin si Dr. Mendoza nung sinabi sa kanya ng kapitbahay ko na hindi na ako kayang magbalat ng kamote."</figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      "Hindi ko na kayang magsuklay. Hindi ko na kayang magsalin ng baso ng tubig. Hindi sumusunod sa akin ang mga kamay ko. Sa umaga, tinitingnan ko sila at hindi ko sila naririkilala — namamaga, baluktot, parang hindi na akin. Sinabi sa akin ng manugang ko: «Paano kita ipagkakatiwala sa apo ko kung hindi mo nga kayang hawakan ang kutsara?» Tama siya. Pero pinatay ako ng mga salitang iyon sa loob."
+      <span class="quote-name">— Lola Aurora, 77 anyos</span>
+    </div>
+
+    <!-- 📸 ФОТО 6: Пожилой мужчина в инвалидном кресле, в коридоре азиля. Сгорбленная спина, вид сбоку. Рядом никого. Тихая, достойная грусть. -->
+    <figure class="cap-bold">
+      <img class="img-card" src="images/PH_photo_06.jpg" alt="Lolo Arman sa nursing home">
+      <figcaption>Si Lolo Arman, 75 anyos, taga-Sagada. Slipped disc L4-L5, bilateral hip arthritis. Walong buwan na, hindi nakakatayo. "Sinabi nila na sobra na ako sa edad para sa surgery. Tanggapin na lang daw. Wag na umasa. Si Dr. Mendoza, basta umupo sa tabi ko, hinawakan ang tuhod ko, at sinabi: «Lolo Arman, dalawang linggo lang, babalik tayo sa palayan». At ganoon nga ang nangyari."</figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      "Apatnapung taon akong nagtrabaho sa palayan. Ang palayan ko, ang kape, ang kamote. Kapag kulang ang pera, pumunta ako sa Saudi ng ilang buwan, para sa construction. Hanggang isang umaga, hindi ko na naitaas ang ulo ko sa unan. Ang dalawang anak ko ay nasa California at Hong Kong. Nagpapadala sila ng pera buwan-buwan, tumatawag sa Pasko. Pero sino ang magbibigay sa akin ng tubig kapag inubo ako sa gabi? Sa Bone Support ni Dr. Mendoza, pagkatapos ng apat na linggo, nakakaputol na ulit ako ng kahoy. Hindi gaanong marami — pero sapat na para mapainit ko ang sarili ko gamit ang sariling kamay."
+      <span class="quote-name">— Lolo Arman, 75 anyos</span>
+    </div>
+
+    <p><b>Ito ang mga symptoms na madalas kong nakikita sa mga nursing home — at minamaliit ng milyong Pilipino, akala nila "edad lang ito":</b></p>
+    <ul>
+      <li>Matinding sakit sa tuhod sa pag-akyat o pagbaba ng hagdan — o sa anumang galaw;</li>
+      <li>Stiffness sa umaga — "parang kahoy" ang katawan, hindi gumagalaw nang 30-60 minuto pagkagising;</li>
+      <li>Chronic na sakit sa likod — hindi makayuko, hindi makabangon sa kama;</li>
+      <li>Pamamaga ng tuhod, bukung-bukong, o mga daliri;</li>
+      <li>Lutak at ingay sa articulations sa bawat galaw;</li>
+      <li>Sakit sa hip na nakakaabot sa hita — hindi makalakad ng higit 50 metro;</li>
+      <li>Mga deformed na daliri, may bukol — hindi makahawak ng anumang bagay;</li>
+      <li>Pamamamanhid sa paa o braso — signal ng slipped disc o pinched nerve;</li>
+      <li>Pakiramdam na parang "kutsilyo" sa baywang sa pagtuwid;</li>
+      <li>Curve na likod, mali ang postura — progressive kyphosis;</li>
+      <li>Sakit sa gabi na hindi pinapatulog — gumigising ng 4-5 beses sa magdamag;</li>
+    </ul>
+
+    <p>
+      Bawat isa sa mga symptoms na ito ay alarm signal. At pagtapos ng 45 o 50 anyos, kung minamaliit mo ito, isa lang ang patutunguhan:
+      <b class="red-txt">TUNAY NA IMMOBILITY, WHEELCHAIR, LUBOS NA DEPENDENCY SA IBA — AT SA MARAMING KASO, PAG-IIWAN SA NURSING HOME KUNG SAAN BUMIBISITA ANG MGA ANAK MINSAN LANG SA ISANG TAON.</b>
+    </p>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Bawat araw na lumipas na walang ginagawa sa articulations mo ay naglalayo sa iyo sa permanent immobility! Libo-libong Pilipinong senior ang napunta sa nursing home dahil minaliit lang nila ang sakit — o uminom lang ng tableta na walang ginawa sa problema. Kumilos ka na ngayon — para sa sarili mo o para sa mga mahal mo sa buhay — bago mahuli ang lahat!
+        </span>
+      </p>
+    </div>
+
+    <h2>
+      "Napagdesisyunan kong dapat may paraan para i-regenerate ang articulations — at hindi lang patayin ang sakit"
+      <span>Paano nahimok ng isang 32 anyos na doktor ang isang Philippine research center na bumuo ng isang bagay na tinatanggihan ng pharmaceutical industry</span>
+    </h2>
+
+    <p><b>Dr. Joshua Mendoza:</b></p>
+
+    <p>
+      — Pagkatapos ng isang taon ng pagbisita sa mga nursing home, naintindihan ko ang masakit na katotohanan: sa anti-inflammatory, walang ililigtas. Ang mga gamot na ito ay pinapatay lang ang alarm signal ng katawan, habang sira nang sira ang articulation. Kailangan ko ng iba — isang paraang nag-rerergenerate ng cartilage mula sa loob, nagpapanumbalik ng synovial fluid, at humihinto sa inflammation sa cellular level.
+    </p>
+
+    <p>
+      Nakipag-ugnayan ako sa isang research center na nakaka-collaborate ko nung naka-training ako sa Singapore General Hospital. Ipinakita ko sa kanila ang mga kaso, mga litrato, mga lab results ng mga pasyente ko sa nursing home. Dinala ko ang mga researcher sa Cordillera mismo — para makita nila ng sariling mga mata kung ano ang nangyayari. At na-shock sila.
+    </p>
+
+    <p>
+      Nagtulungan kami ng higit sampung buwan. Sinubukan namin ang higit 180 kumbinasyon. At sa wakas natagpuan namin ang tamang formula — isang capsule supplement na, kapag iniinom 2 beses sa araw, ay naa-absorb sa daluyan ng dugo at nakaka-target sa articulations mula sa loob. Hindi isang regular na tableta na sumisira sa tiyan. Isang capsule na binuo ng espesyal para sa joint regeneration — gawa sa concentrated active ingredients na may bioavailability 5x na mas mataas kaysa sa karaniwang glucosamine sa botika.
+    </p>
+
+    <div class="recept">
+      <p><b>Mga active na sangkap ng Bone Support formula:</b></p>
+      <ul class="my-ul-0-green size1">
+        <li><b>Boswellia serrata extract</b>
+          <font>Natural anti-inflammatory, humihinto sa cartilage destruction</font>
+        </li>
+        <li><b>Glucosamine at chondroitin sa active na anyo</b>
+          <font>Mga building blocks ng articular cartilage — pagkain para sa mga selula</font>
+        </li>
+        <li><b>Low molecular weight hyaluronic acid</b>
+          <font>Nagpapanumbalik ng synovial fluid — ang natural na "lubricant" ng articulation</font>
+        </li>
+        <li><b>Type II collagen at MSM</b>
+          <font>Nagpapatibay ng ligaments at tendons sa paligid ng articulation</font>
+        </li>
+        <li><b>Turmeric at ginger extract</b>
+          <font>Mabilis na ginhawa sa sakit at pamamaga</font>
+        </li>
+      </ul>
+      <p style="margin-top:14px;margin-bottom:0;color:var(--color-text-muted);font-size:14px;line-height:1.5;">May 14 pang mga rare na extracts ang formula, sa mga proportions na kinalkula nang detalyado. Kahit 0.1% na pagkakamali, hindi na ma-absorb nang maayos ang capsule sa daluyan ng dugo.</p>
+    </div>
+
+    <h2>
+      Ganito ipinanganak ang Bone Support — ang tanging capsule supplement na nag-tatarget sa articulations sa cellular level mula sa loob
+    </h2>
+
+    <p><b>Dr. Joshua Mendoza:</b></p>
+
+    <p>
+      — Kasama ng research center, nakagawa kami ng product na ito: isang capsule supplement na iniinom dalawang beses sa isang araw, isa sa umaga at isa sa gabi, kasama ng tubig. Ang pangalan nito ay Bone Support. Iba ito sa regular na tableta — gumagamit ito ng special delivery system na nagpoprotekta sa active ingredients mula sa stomach acid, kaya nakakaabot ito sa intestines nang buo. Doon, ito ay na-aabsorb sa daluyan ng dugo at dinadala direkta sa articulations sa buong katawan — tuhod, likod, hip, kamay, leeg. Ang isang botelya ay 60 capsules — sapat para sa isang buong buwan.
+    </p>
+
+    <!-- 📸 ФОТО 7: Упаковка крема Bone Support — тюбик/коробка на светлом фоне. Уже есть в images/bonesupport.png. -->
+    <img src="images/bonesupport.png" alt="Bone Support capsules para sa articulations" style="width:78%;max-width:540px;display:block;margin:18px auto">
+
+    <p>
+      Ang sekreto ay nasa "Enhanced Bioavailability Technology" na binuo namin ng team sa laboratory. Ang sistemang ito ay nagpapahintulot sa active ingredients na maa-absorb sa daluyan ng dugo nang 5x mas epektibo kaysa sa kahit anong regular na glucosamine supplement sa botika. Ito rin ang dahilan kung bakit ramdam ang ginhawa pagkatapos ng ilang araw lamang, hindi tulad ng iba na 3-6 buwan bago mapansin ang epekto.
+    </p>
+
+    <p class="pachino-ramka2">
+      Walang katulad ang "Bone Support". Bawat sangkap — sa eksaktong konsentrasyon — ay nag-aaktibo ng cartilage regeneration, pagbabalik ng synovial fluid, at pagpapahinto sa inflammation. Ito ang tanging capsule supplement na gawa specifically para sa joint regeneration, may certified bioavailability, hindi sumisira sa tiyan tulad ng regular anti-inflammatory. At higit sa lahat: gumagana ito kahit sa 70, 80, 85 anyos. Ang unang mga pasyente kong sumubok dito ay ang mga matatanda — mga taong wala nang ibang gumagamot.
+    </p>
+
+    <p><b>Dr. Joshua Mendoza:</b></p>
+
+    <p>
+      — Ang unang mga pasyente ko ay ang mga matatanda sa mga nursing home. Mga taong iniwan ng pamilya nila. Ibinibigay ko sa kanila ang Bone Support, dalawang capsules sa isang araw, at hinihintay. Sa ikatlong araw — si Lola Concepcion, na apat na buwan nang hindi nakabangon sa kama, ay nakagawa ng mga unang hakbang mag-isa. Pareho kaming umiyak.
+    </p>
+
+    <h2>
+      Apat na paraan kung paano nire-regenerate ng Bone Support ang articulations at ibinabalik ang mobility — kahit anong edad
+    </h2>
+
+    <div class="obertk512">
+      <h1>Apat na pangunahing epekto ng "Bone Support" capsule:</h1>
+      <div class="block-offer-actions-block">
+        <ol>
+          <li>
+            <font>Pagtanggal ng sakit at inflammation</font>
+            <span>Sa loob ng unang 24 oras ng pag-inom, ang complex ng boswellia, turmeric, at ginger ay nagbabawas ng sakit at inflammation. Hindi nito hinahar inflamatangan ang nerve signal (tulad ng ginagawa ng anti-inflammatory tableta) — pinapatay nito ang inflammation sa pinanggalingan mismo.</span>
+          </li>
+          <li>
+            <font>Cartilage regeneration ng articulations</font>
+            <span>Ang glucosamine, chondroitin, at type II collagen ay na-aabsorb sa daluyan ng dugo at dinadala sa articular capsule, kung saan inaaktibo ang mga cartilage cells (chondrocytes), na nagsisimulang gumawa ng bagong cartilage tissue. Ang proseso ay nagsisimula pagkatapos ng 3-5 araw ng regular na pag-inom.</span>
+          </li>
+          <li>
+            <font>Pagpapanumbalik ng synovial fluid</font>
+            <span>Ang low molecular weight hyaluronic acid ay nakakapasok sa articulation at ibinabalik ang synovial fluid — ang natural na "lubricant" ng articulation. Salamat dito, hindi na nag-iisrub-istub ang mga buto sa isa't isa, at bumabalik ang fluid, walang-sakit na galaw.</span>
+          </li>
+          <li>
+            <font>Long-term na proteksyon at prevention</font>
+            <span>Ang MSM at mineral complex ay nagpapatibay ng ligaments at tendons sa paligid ng articulation, pinipigilan ang future injuries. Pagkatapos ng 30-60 araw ng pag-inom, nakakakuha ang articulation ng stable protection na tumatagal ng ilang buwan.</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <h2>
+      Mga kuwentong nagturo sa akin na hindi kailanman huli na
+    </h2>
+
+    <p><b>Dr. Joshua Mendoza:</b></p>
+
+    <p>— Ito ang ilan sa mga taong nakikita ko mismo bawat linggo. Mga taong walang sino mang nagbigay ng pagkakataon. Mga taong nakakalakad na muli ngayon.</p>
+
+    <div class="rev-block">
+      <!-- 📸 ФОТО 8: Пожилая женщина ~80-85 лет, сидит в кресле или на кровати, лёгкая улыбка. Простая одежда, простая комната. «Ей стало лучше, в глазах появилась надежда». -->
+      <img class="img-card2" src="images/PH_photo_08.jpg" alt="Lola Concepcion pagkatapos ng treatment">
+      <p><b>Lola Concepcion, 82 anyos, San Vicente de Paul Nursing Home, Bontoc.</b> Apat na buwan na hindi nakakabangon sa kama. Sa ika-3 araw ng pag-inom ng Bone Support, nakagawa ng mga unang hakbang mag-isa. Pagkatapos ng 30 araw, lumalabas sa patio nang walang tulong. "Walang nag-expect. Kahit ako. Pumupunta si Dr. Mendoza minsan sa isang linggo. Tinitingnan lang ako, hinahawakan ang tuhod ko, at tumatango."</p>
+      <font><b>Resulta sa 30 araw:</b> Nakakalakad mag-isa, nawala ang stiffness sa umaga, ang sakit ay bumaba mula 9/10 sa 2/10.</font>
+    </div>
+
+    <div class="rev-block">
+      <!-- 📸 ФОТО 9: Мужчина ~55-60 лет, рабочий/простой человек. Фото «после» — стоит ровно, лёгкая улыбка. На фоне двора или дома. -->
+      <img class="img-card2" src="images/PH_photo_09.jpg" alt="Lolo Arman pagkatapos ng treatment">
+      <p><b>Lolo Arman, 70 anyos, ex-OFW na bumalik mula Saudi Arabia.</b> Slipped disc, sciatica, hindi makatayo nang higit 5 minuto. Sa loob ng 6 na linggo — bumalik sa palayan, araw-araw nag-aalaga ng dalawang plot. "Akala ko, sira na ang likod ko habambuhay. Handa nang tanggapin ang buhay ng invalid. Mali ako. Sa Bone Support ni Dr. Mendoza, nararamdaman kong parang bata akong dalawampung taon."</p>
+      <font><b>Resulta sa 45 araw:</b> Nawala ang matinding sakit sa baywang, nabalik ang mobility, sa unang pagkakataon sa 4 na taon, nakapagtulog ng buong gabi nang mahimbing.</font>
+    </div>
+
+    <h2>
+      Bakit hindi available ang Bone Support sa Mercury Drug at Watsons? At paano mo ito makukuha?
+    </h2>
+
+    <p><b>Dr. Joshua Mendoza:</b></p>
+
+    <p>Sa kasamaang palad, mahirap at mahal gawin ang Bone Support. Mga rare ang ingredients — ang low molecular weight hyaluronic acid, ang purified type II collagen, ang concentrated boswellia extract — at mahirap kunin sa kailangang dami. Hindi kayang i-cover ng production ang lahat ng demand.</p>
+
+    <p>Kailangan pa ng 2-3 taon bago ito mapunta sa Mercury Drug at Watsons. Hanggang doon, distributed lamang ito online, sa pamamagitan ng support programs, dalawang beses sa isang taon. <span class="red-txt">Ang discount ay maaring umabot ng 50%</span> — napakahalaga ito para sa mga Pilipinong senior na sa Cordillera ay nabubuhay sa pensiyong ₱5,500 lang kada buwan.</p>
+
+    <p>
+      Nang malaman ng pharmacy chains kung gaano kabisa ang formula, gusto nilang ibenta ito sa 3900 PHP kada botelya. Tumanggi ako. Hindi ko ginagawa ito para sa pera — ginagawa ko ito para sa mga tao sa nursing home, sa mga pensyonado na nabubuhay sa ₱5,500 lang sa isang buwan at kailangang pumili sa pagitan ng gamot at pagkain.
+    </p>
+
+    <div class="price-cascade">
+      <div class="price-cascade-title">Ang presyong napag-usapan namin:</div>
+      <div class="price-cascade-item">
+        <span class="price-cascade-label">Ang presyong gusto ng pharmacy</span>
+        <span class="price-cascade-amount">3900 PHP</span>
+      </div>
+      <div class="price-cascade-item">
+        <span class="price-cascade-label">Ang presyo sa ibang bansa sa Asia</span>
+        <span class="price-cascade-amount">₱2,970</span>
+      </div>
+      <div class="price-cascade-item">
+        <span class="price-cascade-label">Ang presyong ino-alok namin ngayon</span>
+        <span class="price-cascade-amount">₱2,470</span>
+      </div>
+      <div class="price-cascade-final">
+        <span class="price-cascade-label">Sa discount para sa mga readers ngayon</span>
+        <span class="price-cascade-amount">1950 PHP</span>
+      </div>
+    </div>
+
+    <p>
+      Pakiusap ko sa inyo: HUWAG NIYONG PALAMPASIN ANG SUPPORT PROGRAM NA ITO. Hindi lang para sa inyo — kundi para sa mga magulang, lolo't lola, mga mahal sa buhay na maaaring nagdurusa nang tahimik. O sa mga nasa nursing home, mag-isa, walang nagpapadala ng kahit ano. Maging kayo ang gagawa ng pagbabago.
+    </p>
+
+    <p class="red-txt"><b>Para mag-order, gamitin ang form sa baba.</b></p>
+
+    <h2>
+      Huling pagkakataon na makuha ang Bone Support ngayong taon — para sa inyo o para sa mahal niyo na nagdurusa nang tahimik
+    </h2>
+
+    <!-- 📸 ФОТО 14: Врач (Д-р Иванов) наносит крем на колено пожилой женщины в азиле. Тёплый момент заботы. Или: тюбик Bone Support на тумбочке рядом с чашкой чая и очками — домашняя атмосфера. -->
+    <img alt="Bone Support" src="https://static.joxi.pro/1784118065637-497385f0-af0f-417b-8459-d8d61be905ce.jpg" style="margin:0 auto;display:block;max-width:500px;width:100%;margin-top:24px;margin-bottom:20px">
+
+    <p><b>Dr. Joshua Mendoza:</b></p>
+
+    <p>
+      — Naglaan ako ng 20,000 botelya ng Bone Support para lamang sa mga readers ng portal na ito. Kahit sinong Pilipinong nasa edad 40 pataas ay maaaring makakuha ng <font class="red-txt">hanggang 50% discount</font>, pero ang program ay magtatapos sa <span><script>dtime_nums(0, true)</script></span>.
+    </p>
+
+    <p>Huwag niyong hintayin na hindi na kayo makakaakyat sa hagdan. Hanggang sa tuluyang sumuko ang inyong mga tuhod. Hanggang sa ma-lock ang inyong likod. At higit sa lahat — huwag hintayin hanggang maging "pasanin" kayo sa mata ng inyong pamilya. Isang course lang ng Bone Support ay nag-tritrigger ng natural na cartilage regeneration — at mula doon, patuloy na nagtatrabaho ang katawan mismo. Walang gamot habambuhay, walang tableta, walang sakit na babalik. Isang hakbang lang, at maaalala ng katawan ninyo kung paano mamuhay nang walang sakit.</p>
+
+    <p>Ilagay ang inyong pangalan at numero ng telepono. May consultant na tatawag sa inyo, mamimili ng tamang program, at mag-aasikaso ng delivery sa loob ng 2-3 araw via LBC o J&T direkta sa address na ibibigay sa kahit saang bahagi ng Pilipinas.</p>
+
+    <p><b>Nang may pag-asa at paggalang — Dr. Joshua Mendoza. Alagaan natin ang ating mga mahal sa buhay. Marahil ang tanging kailangan nila ay malaman na hindi sila nakalimutan.</b></p>
+
+    <p class="pachino-ramka">
+      <span class="ramka-title">Update: <span><script>dtime_nums(-2, true)</script></span>:</span>
+      Dahil sa napakalaking interes, posibleng maubos ang stock mas mabilis kaysa sa inaasahan! Ngayon —
+      <font><span><script>dtime_nums(0, true)</script></span> — ang huling araw ng program</font> o hanggang maubos ang stock.
+    </p>
+
+    <center><img src="images/bonesupport.png" style="max-width:340px;width:100%"></center><br>
+
+    <center>
+      <p class="noclose-cta red-txt">
+        Atensyon! Wag ipa-close o i-refresh ang page, kung hindi ang Bone Support na nakareserve para sa inyo ay ibibigay sa iba!
+      </p>
+      <span class="pre-cta">
+        Maaari kayong sumali sa offer — nakareserve ang inyong lugar:
+        <span class="nowrap">Nr <font class="number-me" style="border-bottom:2px solid var(--color-danger);font-weight:700">19&nbsp;974</font></span>
+      </span>
+    </center>
+
+    <span id="form"></span>
+    <span id="oneform"></span>
+    <div class="pachinoform">
+      <div class="pachinoform_title">
+        <div class="pachinoform_title_logo">
+          <img alt="" src="images/56d9b0017d1d_d58505c9.png">
+        </div>
+        <div class="pachinoform_title_text">
+          <b>Official order form</b>
+          Nr <font class="number-me nowrap">19&nbsp;974</font> / <font class="nowrap">20 000</font>
+        </div>
+      </div>
+      <div class="pachinoform_order">
+        Para magamit ang <b>50% discount</b>, ilagay ang pangalan at numero ng telepono sa kahon sa baba at i-click ang button na "ORDER".
+      </div>
+      <div class="pachinoform_value">
+        Available:
+        <span class="blc-pck">
+          <strong class="pachinoform_value_current left-pack">33</strong>
+          <strong class="pachinoform_value_total"> /1000</strong>
+        </span>
+      </div>
+      <div class="pachinoform_price">
+        <div class="pachinoform_price_old"><span class="price_old">3900 PHP</span></div>
+        <div class="pachinoform_price_new"><span class="price_main">1950 PHP</span></div>
+      </div>
+      <form action="order.php" method="post">
+        <input type="hidden" name="sub1" value="{subid}">
+        <input type="hidden" name="country" value="PH">
+        <div class="name-input">
+          <label for="name-input">Pangalan</label>
+          <input autocomplete="name" id="name-input" name="name" placeholder="Inyong pangalan" required="" type="text" value="">
+        </div>
+        <div class="phone-input">
+          <label for="phone-input">Numero ng telepono</label>
+          <input autocomplete="tel" id="phone-input" maxlength="20" name="phone" pattern="^[\-+() 0-9]{8,20}$" placeholder="Inyong numero ng telepono" required="" type="tel" value="">
+        </div>
+        <button class="button-submit" type="submit">MAG-ORDER NA</button>
+      </form>
+      <div class="pachinoform_footer">
+        ✔️ Guaranteed delivery via LBC o J&T<br> direkta sa address na ibibigay
+        <br>
+        <img alt="" src="images/b0110a32ff2e_8322b1b5.png" style="width:auto">
+      </div>
+    </div>
+
+    <!-- COMMENTS SECTION -->
+    <div class="comments comments-fb" id="pluginComments">
+      <div class="comments__header">
+        <div class="comments__left-box">
+          <p class="comments__header-title">KOMENTO</p>
+        </div>
+      </div>
+
+      <div class="comments__item-list">
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/092f16892178_b762df04.png" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Maria Bautista</p>
+              <p class="startdate">2 oras ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Umiyak ako habang binabasa ito. Ang nanay ko ay 76 anyos, dalawang taon na sa nursing home sa Quezon City — dahil sumuko ang tuhod niya at hindi ko siya kayang alagaan. Ito ang pinakamalaking kasalanan ko. Inorder ko ang Bone Support para sa kanya. Sana po hindi pa huli. Sana po gumana.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/14fcabaa91a3_d3871213.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Lourdes Cruz</p>
+              <p class="startdate">5 oras ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Natanggap ko po ang Bone Support nung Biyernes. Iniinom ko dalawang capsules sa isang araw — isa sa umaga, isa sa gabi. Pagkatapos ng 5 araw, malaki na ang bawas ng sakit, makakalibas na ako sa hagdan nang walang hawak sa railing! Ang kuwento ni Doc Mendoza ang nagpa-order sa akin. Tunay na natatanging tao.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/1dcbfabe6827_57a19553.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Aida Ramos</p>
+              <p class="startdate">8 oras ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ako po ay 69 anyos. Apat na taon akong nagdusa sa likod — slipped disc at sciatica. Hindi ako kayang yumuko para itali ang sapatos ko. Binibigyan ako ng mga doctor ng anti-inflammatory na sumira sa tiyan ko. Pagkatapos ng 3 linggo sa Bone Support — halos nawala na ang sakit. Mag-isang nakaka-grocery, nakakapagluto. Nabalik ang buhay ko.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/7099c502f996_b89c4cc9.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Joseph Tan</p>
+              <p class="startdate">12 oras ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">10 oras kada araw ako sa office sa Makati. Ang likod ko at leeg ay sumuko na. Sinabi ng doctor: "Magpalit ka ng trabaho, o surgery." Pinili ko ang Bone Support. Pagkatapos ng 5 linggo — walang bakas ng sakit. At malaking respeto kay Dr. Mendoza — sa mundong gusto lang ng lahat ng pera, siya pumapaakyat sa Cordillera para bisitahin ang mga matatandang nakalimutan sa mga nursing home.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/71bb14a12f9e_280a6001.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Rosario Garcia</p>
+              <p class="startdate">14 oras ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">To be honest, sa una hindi ako naniwala. Ang dami nang mga produkto sa internet na nagpaparayaan, nawalan na ako ng tiwala. Binasa ko ang article na ito dahil lang ang biyenan ko hindi nakakalakad at desperate na ako. Inorder ko, sinasabi sa sarili ko "kung hindi gumana, nawawala ang 1950 PHP ko". Pagkatapos ng 3 linggo, ang biyenan ko kahapon, nakabangon nang mag-isa sa silya! Ang biyenan ko! Na 8 buwan nang hindi makakabangon mag-isa. Ngayon, hindi ko na alam ang sasabihin. Sinusulat ko ito para sa mga nag-aalinlangan din — tulad ko.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/9e5c0e0e0ef7_57accffe.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Eduardo Reyes</p>
+              <p class="startdate">16 oras ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Nag-order ako ng 3 botelya — para sa akin (tuhod), para sa misis ko (kamay, arthritis), at para sa biyenan ko sa nursing home sa Quezon City. Hindi kami kayang bisitahin siya madalas dahil nasa Cebu kami, kaya kahit ipapadala lang namin ang kailangan niya. Sana sa kanya rin, gumana nang ganoon kabuti. Salamat po sa article na ito.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/73d3a879cef9_4a9ce85c.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Teresita Castillo</p>
+              <p class="startdate">18 oras ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Iniisip kong mag-order para sa tatay ko. Tatlong taon na siya sa nursing home — wala nang gumagana ang tuhod niya. Sumuko na siya, halos hindi na nagsasalita. Sa palagay niyo po, makakatulong ba ang Bone Support kahit 78 anyos na?</p>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img class="comments__item-avatar" src="images/7536079073c5_564ff00a.jpg" alt="">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Bernadette Lim</p>
+                <p class="startdate">17 oras ang nakalipas</p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Teresita, ang nanay ko ay 82 anyos! Severe arthritis sa dalawang tuhod, hindi nakakabangon sa kama. 2 buwan na siya sa Bone Support — ngayon, mag-isang lumalabas sa patio. Hindi ako nagpapalabis. At ang pinakamaganda: nung binisita ko siya, nakatayo siya sa pintuan, hinihintay ako. Pareho kaming umiyak. Mag-order ka na, ang tatay mo ay karapatdapat sa pagkakataong ito.</p>
+            </div>
+          </div>
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img class="comments__item-avatar" src="images/bcbe20e0b5d2_b241da99.jpg" alt="">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Ricardo Villanueva</p>
+                <p class="startdate">15 oras ang nakalipas</p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Teresita, mag-order ka po nang walang alinlangan. Sa edad 78 ako ay isang hakbang na lang sa wheelchair — hip arthritis. Sa Bone Support, 2 buwan lamang, nakatayo na ulit ako. Literally. Ang tatay niyo, mas higit pa ang kailangan niya kaysa iniisip niyo.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/daeecf66dcf6_e1c9bf1a.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Josefina Aquino</p>
+              <p class="startdate">20 oras ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Isang linggo na ako sa Bone Support para sa tuhod at baywang. Sa umaga, hindi na ako "parang kahoy". Nakakayuko na, nakakabangon nang walang "aray". Nag-order din ako para sa kapitbahay ko, 73 anyos, nag-iisa, sa pader humahawak para makalakad sa loob ng bahay.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/8ba73d45c164_4ede289a.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Marilou Fernandez</p>
+              <p class="startdate">1 araw ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Aamin ako, nung una skeptical ako sa article na ito. Marami na akong nasubukang produkto na nangangako ng lahat. Pero ang kuwento ni Doc Mendoza, nakatama sa akin, kaya nagdesisyon akong subukan, kasi 5 taon nang ginagambala ako ng tuhod ko. Pagkatapos ng isang buwan ng pag-inom — kayang-kaya kong magtanim sa garden. Hindi ko sinasabing milagro. Sinasabi kong gumagana. Bigyan niyo ng pagkakataon ang sarili niyo.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/c364fa7fabf3_734a4c7f.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Vilma Soriano</p>
+              <p class="startdate">1 araw ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ako ay 82 anyos. Noong nakaraang taon, hindi na ako kayang pumunta mag-isa sa banyo. Ang mga anak ko nag-uusap na ng nursing home. Sinubukan ko ang Bone Support — walang malalaking inaasahan. At gumana! Mag-isang naglalakad, mag-isang nagbibihis, mag-isang lumalapit sa pintuan. Ang mga anak ko ay hindi na nagsasalita ng nursing home. Ito ang pinakamalaking saya ko.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/d770c7a4cbdf_467ee117.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Antonio Dela Cruz</p>
+              <p class="startdate">1 araw ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ang misis ko hindi na nakaka-libas sa hagdan. Humahawak sa dingding, umiiyak sa sakit. Akala ko mawawala ko siya — hindi sa sakit, kundi sa kawalan ng pag-asa. Nag-order ako ng Bone Support with discount. Pagkatapos ng 4 na linggo — kahapon, mag-isang pumunta sa palengke at bumalik na may dala na bulaklak! May bulaklak! Salamat po, galing sa puso ko.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/658f969bb746_3d8e16cd.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Elena Magbanua</p>
+              <p class="startdate">1 araw ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Nag-order ako ng apat na botelya — para sa nanay ko (nursing home, tuhod), para sa tatay ko (nursing home, likod), at dalawa para sa akin (kamay, arthritis sa daliri, hindi na ako nakakasulat). Sumira sa loob ko ang mga kuwento sa article. Matagal ko na sanang ginawa ito. Wala na akong dahilan."</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/df3e8c2eb745_86a29b61.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Linda Pascual</p>
+              <p class="startdate">2 araw ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Natanggap ko po ang Bone Support — naghatid ang LBC sa loob ng 2 araw! Ibinigay ko na sa nanay ko ang capsule sa nursing home. Sana po sa buo kong puso, gumana. Ipapadala ko rin ang article na ito sa staff ng nursing home — baka makipag-ugnayan sila kay Doc Mendoza.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/dcc5cfe80d60_5aa7f8f7.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Arturo Mendoza</p>
+              <p class="startdate">2 araw ang nakalipas</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Hinanap ko po ang Bone Support sa Mercury Drug at Watsons — wala. Sinabi nila na sa page na ito mag-order. Sana available pa. Urgent na po para sa lolo ko — 81 anyos na siya at hindi na talaga makakalakad.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-container">
+        <form class="custom-form">
+          <div class="custom-form__top-field">
+            <div class="custom-form__ava-block">
+              <label class="custom-form__ava-label">
+                <span class="custom-form__ava-label_red-text">*</span><br>Magdagdag ng avatar
+              </label>
+            </div>
+            <input type="text" disabled class="custom-form__name" placeholder="Inyong pangalan">
+          </div>
+          <textarea class="custom-form__message" disabled placeholder="Magsulat ng komento..."></textarea>
+          <div class="custom-form__bottom-field">
+            <label class="custom-form__photo-label">Magdagdag ng larawan</label>
+            <button type="button" disabled class="custom-form__btn">IPADALA</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="trust-strip">
+    <div class="trust-item"><span class="trust-item-icon">🛡️</span> Certified quality</div>
+    <div class="trust-item"><span class="trust-item-icon">🚚</span> Delivery sa 2-3 araw</div>
+    <div class="trust-item"><span class="trust-item-icon">⚕️</span> Walang reseta</div>
+    <div class="trust-item"><span class="trust-item-icon">🔒</span> Secure na order</div>
+  </div>
+
+  <div class="clinical-footer">
+    © KalusuganInfo Pilipinas — special report<br>
+    Ang impormasyon sa page na ito ay para lamang sa pampublikong kaalaman at hindi pumapalit sa medical consultation.
+  </div>
+<script async> 
+const LAZY = document.querySelectorAll('img');
+for (let i = 0; i < LAZY.length; i++) { 
+LAZY[i].setAttribute('loading', 'lazy'); 
+} </script>
+
+<script>
+    $("a").on("touchend, click", function(e) {
+            e.preventDefault();
+            $('body,html').animate({
+            scrollTop: $('#oneform').offset().top
+            }, 400);
+        });
+ </script>
+
+<script>
+    $('[name="name"]').on("input", function () {
+      var val = $(this).val();
+
+      var cleaned = val
+        .replace(/[^a-zA-Zа-яА-ЯёЁії ]/g, "")
+        .replace(/^\s+/, "")
+        .replace(/\s\s+/, " ");
+      var parts = cleaned.split(" ");
+      if (parts.length > 2) {
+        cleaned = parts[0] + " " + parts[1];
+      }
+
+      $(this).val(cleaned);
+    });
+    $('[name="name"]').on("change blur", function () {
+      $(this).val($(this).val().trim());
+    });
+
+  $('[name="phone"]').on("input change", function(e) {
+    var val = $(this).val();
+    $(this).val(val.replace(/\D/g, ""));
+    $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+  });
+  </script>
+  <p style="opacity: 0;">{_box:KGBCwdSb}</p>
+</body>
+</html>
