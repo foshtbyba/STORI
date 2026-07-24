@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+  <meta charset="utf-8">
+  <title>"Я відвідую тих, до кого вже ніхто не приходить" — молодий український лікар, що повертає здатність ходити старим людям, залишеним у будинках для літніх людей на Закарпатті</title>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="no-cache" http-equiv="Cache-Control">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="telephone=no" name="format-detection">
+  <meta content="no-referrer" name="referrer">
+  <meta content="noindex, nofollow" name="robots">
+
+  <link rel="icon" href="images/bonesupport.png?=v1">
+
+  <style>
+    :root {
+      --color-primary: #0a5c9e;
+      --color-primary-dark: #084678;
+      --color-primary-light: #e8f2fa;
+      --color-accent: #0284c7;
+      --color-danger: #c0392b;
+      --color-danger-light: #fdecea;
+      --color-success: #1e8449;
+      --color-success-light: #e8f5ee;
+      --color-warning: #b7791f;
+      --color-text: #1a2b42;
+      --color-text-muted: #4a5a70;
+      --color-text-light: #6b7a8f;
+      --color-bg: #ffffff;
+      --color-bg-soft: #f7fafc;
+      --color-bg-alt: #eef4f9;
+      --color-border: #d9e2ec;
+      --color-border-soft: #e4ebf2;
+      --shadow-sm: 0 1px 2px rgba(10, 92, 158, 0.04), 0 1px 3px rgba(10, 92, 158, 0.06);
+      --shadow-md: 0 4px 12px rgba(10, 92, 158, 0.08), 0 2px 4px rgba(10, 92, 158, 0.04);
+      --shadow-lg: 0 10px 25px rgba(10, 92, 158, 0.10), 0 4px 10px rgba(10, 92, 158, 0.05);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-serif: 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin:0; padding:0; font-family:var(--font-sans); font-size:17px; line-height:1.65; color:var(--color-text); background:var(--color-bg-soft); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .clinical-topbar { background:var(--color-primary-dark); color:#fff; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; padding:8px 16px; text-align:center; font-weight:500; }
+    .clinical-topbar::before { content:"⚕ "; margin-right:6px; }
+    .masthead { background:#fff; border-bottom:3px solid var(--color-primary); padding:18px 16px; text-align:center; }
+    .masthead-inner { max-width:900px; margin:0 auto; display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+    .masthead-logo { display:inline-flex; align-items:center; gap:10px; font-family:var(--font-serif); font-weight:700; font-size:22px; color:var(--color-primary-dark); letter-spacing:-0.01em; }
+    .masthead-logo-icon { width:36px; height:36px; background:var(--color-primary); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:700; }
+    .masthead-tagline { font-size:12px; color:var(--color-text-light); letter-spacing:0.08em; text-transform:uppercase; border-left:1px solid var(--color-border); padding-left:14px; font-weight:500; }
+    @media (max-width:560px) { .masthead-tagline { border-left:0; padding-left:0; font-size:11px; width:100%; border-top:1px solid var(--color-border); padding-top:8px; margin-top:4px; } }
+    header { max-width:900px; margin:0 auto; padding:0; }
+    .bg-image { text-align:center; }
+    .bg-image img { max-width:100%; height:auto; display:inline-block; }
+    .text-container { display:block; }
+    .h1-bg { position:relative; max-width:900px; margin:0 auto; padding:28px 22px 20px; background:#fff; border-bottom:1px solid var(--color-border); }
+    .h1-bg::before { content:""; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%); }
+    .title_h1 { font-family:var(--font-serif); font-size:28px; line-height:1.25; color:var(--color-text); font-weight:700; margin:0 0 14px; letter-spacing:-0.01em; }
+    .h1-quote { display:block; font-size:30px; font-style:italic; color:var(--color-danger); margin-bottom:10px; letter-spacing:-0.01em; }
+    .head-one-part { color:var(--color-danger); }
+    .head-two-part { display:block; font-size:20px; font-weight:600; color:var(--color-text); line-height:1.35; margin-top:6px; }
+    .head-main-date { font-size:13px; color:var(--color-text-light); padding:0; display:flex; align-items:center; gap:8px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px dashed var(--color-border); }
+    .head-main-date::before { content:"📅"; font-size:14px; }
+    .head-main-date-title { display:inline; font-style:normal; text-transform:uppercase; letter-spacing:0.05em; font-weight:500; }
+    .main-subtitle { display:block; padding:16px 18px; color:var(--color-text); font-size:17px; border-radius:var(--radius-md); font-weight:500; border-left:4px solid var(--color-primary); background:var(--color-primary-light); line-height:1.55; font-style:normal; margin:0; box-shadow:none; }
+    @media (max-width:640px) { .title_h1 { font-size:22px; } .h1-quote { font-size:24px; } .head-two-part { font-size:16px; } .main-subtitle { font-size:15px; padding:14px 14px; } .h1-bg { padding:22px 16px 18px; } }
+    main { max-width:900px; margin:0 auto; padding:24px 22px 40px; background:#fff; border-left:1px solid var(--color-border-soft); border-right:1px solid var(--color-border-soft); }
+    @media (max-width:640px) { main { padding:18px 14px 30px; } }
+    main p { margin:0 0 16px; color:var(--color-text); }
+    main img { max-width:100%; height:auto; border-radius:var(--radius-md); }
+    main h2 { font-family:var(--font-serif); font-size:24px; line-height:1.3; font-weight:700; color:var(--color-primary-dark); margin:32px 0 16px; padding-bottom:12px; border-bottom:2px solid var(--color-primary-light); letter-spacing:-0.01em; }
+    main h2 span { display:block; font-family:var(--font-sans); font-size:16px; font-weight:500; color:var(--color-text-muted); margin-top:10px; margin-bottom:0; line-height:1.5; }
+    main h3 { font-family:var(--font-serif); font-size:19px; color:var(--color-primary-dark); margin:22px 0 12px; font-weight:600; }
+    @media (max-width:640px) { main h2 { font-size:19px; } main h2 span { font-size:15px; } }
+    main ul { padding-left:0; list-style:none; margin:16px 0; background:var(--color-bg-soft); border:1px solid var(--color-border-soft); border-radius:var(--radius-md); padding:14px 18px 14px 20px; }
+    main ul li { position:relative; padding-left:22px; margin-bottom:8px; line-height:1.5; }
+    main ul li::before { content:""; position:absolute; left:0; top:10px; width:10px; height:10px; border:2px solid var(--color-primary); border-radius:50%; background:#fff; }
+    main ul li:last-child { margin-bottom:0; }
+    .red-txt { color:var(--color-danger); font-weight:600; }
+    .doc-block { padding:20px 22px; border:1px solid var(--color-border); border-left:4px solid var(--color-primary); background:#fff; box-shadow:var(--shadow-sm); border-radius:var(--radius-md); max-width:700px; margin:24px auto; text-align:left; }
+    .doc-block img { border-radius:var(--radius-md); margin-bottom:14px; }
+    .doc-block p { padding:0; margin:0 0 12px; font-size:16px; line-height:1.6; }
+    .doc-block p:last-child { margin-bottom:0; }
+    .doc-block p b { color:var(--color-primary-dark); }
+    figure { margin:22px 0; padding:0; text-align:center; }
+    figure img { border-radius:var(--radius-md); box-shadow:var(--shadow-md); max-width:100%; height:auto; }
+    figure figcaption { margin-top:12px; padding:10px 14px; font-size:14px; line-height:1.5; color:var(--color-text-muted); background:var(--color-bg-soft); border-left:3px solid var(--color-primary); border-radius:0 var(--radius-sm) var(--radius-sm) 0; text-align:left; font-style:italic; }
+    figure.cap-bold figcaption { font-style:normal; font-weight:500; color:var(--color-text); }
+    .img-card { border:1px solid var(--color-border); padding:6px; background:#fff; box-shadow:var(--shadow-md); border-radius:var(--radius-md); }
+    .img-card2 { border:1px solid var(--color-border); padding:6px; background:#fff; border-radius:var(--radius-md); }
+    .pachino-ramka312-block { margin:24px 0; }
+    .pachino-ramka312 { background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.25); border-left:4px solid var(--color-danger); border-radius:var(--radius-md); padding:18px 20px; color:var(--color-text); font-weight:500; box-shadow:none; margin:0; font-size:16px; line-height:1.6; position:relative; }
+    .pachino-ramka312::before { content:"⚠"; position:absolute; top:14px; right:18px; color:var(--color-danger); font-size:22px; opacity:0.7; }
+    .pachino-ramka312 .obertka-1 { display:block; }
+    .rev-block { margin:24px 0; padding:20px 22px; background:var(--color-primary-light); border:1px solid rgba(10,92,158,0.15); border-left:4px solid var(--color-primary); border-radius:var(--radius-md); box-shadow:none; }
+    .rev-block p { font-size:16px; line-height:1.6; margin-bottom:12px; }
+    .rev-block img { border-radius:var(--radius-md); margin-bottom:14px; max-width:100%; }
+    .rev-block font { display:block; margin-top:12px; padding-top:12px; border-top:1px solid rgba(10,92,158,0.15); color:var(--color-primary-dark); font-size:15px; }
+    .rev-block font b { font-weight:600; }
+    .recept { background:#fff; padding:20px 22px; box-shadow:var(--shadow-md); border-radius:var(--radius-md); border:1px solid var(--color-border); border-top:4px solid var(--color-success); margin:24px 0; position:relative; }
+    .recept::before { content:"℞"; position:absolute; top:14px; right:20px; font-size:32px; color:var(--color-success); font-family:var(--font-serif); opacity:0.4; line-height:1; }
+    .recept p b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green { margin:12px 0 0 !important; padding:0 !important; background:transparent !important; border:0 !important; list-style:none; }
+    .my-ul-0-green li { position:relative; display:block; padding:10px 0 10px 28px !important; margin:0 !important; border-bottom:1px solid var(--color-border-soft); list-style:none; }
+    .my-ul-0-green li::before { content:"✓" !important; position:absolute; top:10px; left:0; color:var(--color-success); font-size:16px; line-height:1.5; font-weight:700; border:0 !important; background:transparent !important; width:auto !important; height:auto !important; border-radius:0 !important; }
+    .my-ul-0-green li:last-child { border-bottom:0; }
+    .my-ul-0-green li b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green font { font-size:14px; display:block; margin-top:4px; color:var(--color-text-muted); }
+    .obertk512 { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); max-width:780px; margin:28px auto; padding:0; line-height:1.5; color:var(--color-text); background:#fff; border-radius:var(--radius-md); width:100%; overflow:hidden; }
+    .obertk512 h1 { font-family:var(--font-serif); line-height:1.3; margin:0; color:#fff; font-size:18px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .block-offer-actions-block { padding:10px 22px 22px; border:0; }
+    .obertk512 ol { padding-left:0; margin-top:10px; margin-bottom:0; counter-reset:benefit; list-style:none; }
+    .obertk512 li { line-height:1.4; padding:16px 0 16px 50px; border-bottom:1px solid var(--color-border-soft); position:relative; counter-increment:benefit; }
+    .obertk512 li::before { content:counter(benefit); position:absolute; left:0; top:14px; width:36px; height:36px; background:var(--color-primary-light); color:var(--color-primary-dark); border-radius:50%; font-weight:700; font-size:16px; display:flex; align-items:center; justify-content:center; border:2px solid var(--color-primary); }
+    .obertk512 li::marker { content:none; }
+    .obertk512 li:last-child { border-bottom:0; }
+    .obertk512 li font { line-height:1.3; color:var(--color-primary-dark); text-align:left; font-weight:600; font-size:17px; display:block; margin-bottom:6px; }
+    .block-offer-actions-block li span { display:block; font-size:15px; line-height:1.5; font-weight:400; color:var(--color-text-muted); margin:0; padding:0; border-bottom:0; }
+    .pachino-ramka2 { text-align:left; color:var(--color-success); font-weight:600; border:1px solid rgba(30,132,73,0.25); border-left:4px solid var(--color-success); border-radius:var(--radius-md); padding:18px 20px; background:var(--color-success-light); box-shadow:none; margin:20px 0; font-size:16px; line-height:1.55; }
+    .pachino-ramka { border:1px solid rgba(183,121,31,0.3); border-left:4px solid var(--color-warning); padding:18px 20px; border-radius:var(--radius-md); background:#fff9ef; margin:20px 0; font-size:16px; line-height:1.55; position:relative; }
+    .pachino-ramka::before { content:"🕐"; position:absolute; top:14px; right:18px; font-size:22px; opacity:0.8; }
+    .ramka-title { display:block; color:var(--color-warning); padding:0; margin-bottom:10px; font-weight:700 !important; background:transparent; text-transform:uppercase; font-size:13px; letter-spacing:0.06em; }
+    .pachino-ramka font { color:var(--color-danger); font-weight:600; }
+    .noclose-cta { font-size:15px; max-width:780px; margin:16px auto; display:block; background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.2); padding:12px 16px; border-radius:var(--radius-md); line-height:1.5; }
+    .pre-cta { display:block; color:var(--color-success); font-weight:500; font-size:16px; margin-top:12px; }
+    .nowrap { white-space:nowrap; }
+    .price-cascade { max-width:700px; margin:24px auto; padding:20px 24px; background:var(--color-bg-soft); border:1px solid var(--color-border-soft); border-left:4px solid var(--color-success); border-radius:var(--radius-md); }
+    .price-cascade-title { font-weight:600; color:var(--color-primary-dark); margin-bottom:14px; font-size:16px; }
+    .price-cascade-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed var(--color-border-soft); }
+    .price-cascade-item:last-of-type { border-bottom:0; }
+    .price-cascade-label { font-size:15px; color:var(--color-text-muted); }
+    .price-cascade-amount { font-weight:600; font-size:16px; color:var(--color-text-light); text-decoration:line-through; }
+    .price-cascade-final { display:flex; justify-content:space-between; align-items:center; padding:14px 0 0; margin-top:8px; border-top:2px solid var(--color-success); }
+    .price-cascade-final .price-cascade-label { color:var(--color-success); font-weight:700; font-size:16px; text-transform:uppercase; letter-spacing:0.04em; }
+    .price-cascade-final .price-cascade-amount { color:var(--color-success); font-weight:700; font-size:22px; text-decoration:none; }
+    .pachinoform { padding:0; font-size:17px; line-height:1.5; color:var(--color-text); border:1px solid var(--color-border); background:#fff; display:block; border-radius:var(--radius-lg); width:100%; max-width:780px; margin:24px auto; box-shadow:var(--shadow-lg); overflow:hidden; }
+    .pachinoform_title { display:flex; gap:16px; max-width:none; align-self:stretch; text-align:left; background:var(--color-primary); color:#fff; padding:20px 24px; align-items:center; }
+    .pachinoform_title_logo { flex-shrink:0; background:#fff; padding:6px; border-radius:50%; width:56px; height:56px; display:flex; align-items:center; justify-content:center; }
+    .pachinoform_title_logo img { max-width:100%; height:auto; }
+    .pachinoform_title_text { align-self:center; color:#fff; font-size:15px; line-height:1.4; }
+    .pachinoform_title_text>b { display:block; line-height:1.3; font-size:17px; margin-bottom:4px; color:#fff; font-weight:600; }
+    .pachinoform_order { max-width:none; font-weight:500; font-size:15px; margin:0; text-align:center; padding:16px 24px; background:var(--color-primary-light); border-bottom:1px solid var(--color-border-soft); color:var(--color-text); line-height:1.5; }
+    .pachinoform_order>b { color:var(--color-danger); font-weight:700; }
+    .pachinoform_value { display:flex; color:var(--color-text); font-weight:600; font-size:15px; align-items:center; justify-content:center; padding:16px 24px 0; flex-wrap:wrap; gap:10px; }
+    .pachinoform_value_current { border:2px solid var(--color-danger); color:var(--color-danger); line-height:1; font-size:22px; padding:6px 18px; margin:0 6px; border-radius:var(--radius-sm); background:var(--color-danger-light); font-weight:700; }
+    .pachinoform_value_total { font-size:18px; color:var(--color-text-muted); }
+    .pachinoform_price { display:flex; align-items:center; justify-content:center; gap:24px; margin:20px 0 0; padding:0 24px; flex-wrap:wrap; }
+    @media (max-width:380px) { .pachinoform_price { gap:14px; } .pachinoform_price_old span { font-size:20px; } .pachinoform_price_new span { font-size:26px; padding:6px 14px; } }
+    .pachinoform_price_old span { display:block; font-size:24px; font-weight:600; letter-spacing:-0.5px; color:var(--color-text-light); position:relative; line-height:1; }
+    .pachinoform_price_old span::before { position:absolute; content:""; left:-4px; top:50%; right:-4px; border-top:2px solid var(--color-danger); transform:rotate(-12deg); }
+    .pachinoform_price_new span { display:inline-block; background:var(--color-success); color:#fff; text-shadow:none; font-size:32px; padding:8px 20px; font-weight:700; line-height:1; border-radius:var(--radius-sm); box-shadow:0 4px 12px rgba(30,132,73,0.25); }
+    .pachinoform form { padding:22px 24px 20px; }
+    .pachinoform .name-input, .pachinoform .phone-input { color:var(--color-text); font-size:15px; margin-bottom:14px; }
+    .pachinoform .name-input label, .pachinoform .phone-input label { font-weight:500; font-size:14px; color:var(--color-text-muted); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:0.04em; }
+    .pachinoform .name-input input, .pachinoform .phone-input input { font:inherit; color:var(--color-text); box-sizing:border-box; width:100%; border-radius:var(--radius-sm); padding:12px 16px; min-width:0; background:#fff; border:1.5px solid var(--color-border); font-size:16px !important; transition:border-color 0.15s ease, box-shadow 0.15s ease; }
+    .pachinoform .name-input input:focus, .pachinoform .phone-input input:focus, .pachinoform input:focus { outline:0; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(10,92,158,0.15); }
+    .pachinoform .button-submit { width:100%; padding:16px 22px; background:var(--color-success); color:#fff; font-weight:700; font-size:17px; border:0; border-radius:var(--radius-sm); cursor:pointer; text-transform:uppercase; letter-spacing:0.04em; box-shadow:0 4px 12px rgba(30,132,73,0.25); transition:background 0.15s ease, transform 0.1s ease; }
+    .pachinoform .button-submit:hover { background:#176a3a; }
+    .pachinoform .button-submit:active { transform:translateY(1px); }
+    .pachinoform_footer { padding:16px 24px 20px; text-align:center; font-size:14px; color:var(--color-text-muted); line-height:1.5; }
+    .pachinoform_footer img { max-width:200px; margin-top:10px; height:auto; }
+    .comments { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--color-border-soft); border-top:0; padding:0; }
+    .comments__header { padding:18px 22px; background:var(--color-bg-soft); border-bottom:1px solid var(--color-border-soft); }
+    .comments__header-title { margin:0; font-size:16px; font-weight:700; color:var(--color-primary-dark); letter-spacing:0.04em; }
+    .comments__item-list { padding:8px 20px; }
+    .comments__item { padding:16px 0; border-bottom:1px solid var(--color-border-soft); }
+    .comments__item:last-child { border-bottom:0; }
+    .comments__item-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .comments__item-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid var(--color-border); }
+    .comments__item-info { flex:1; min-width:0; }
+    .comments__item-name { font-weight:600; font-size:15px; color:var(--color-primary-dark); margin:0 0 2px; }
+    .comments__item-info p:last-child, .comments__item-info .startdate, .comments__item-info .nowdate { font-size:12px; color:var(--color-text-light); margin:0; }
+    .comments__item-body { padding-left:56px; }
+    .comments__item-content { font-size:15px; line-height:1.55; color:var(--color-text); margin:0; }
+    .comments__item-content img { border-radius:var(--radius-sm); margin-top:10px; }
+    .comm-obert-reply { padding-left:28px; border-left:2px solid var(--color-primary-light); margin-left:8px; }
+    .comm-obert-reply .comments__item.reply { border-bottom:1px solid var(--color-border-soft); }
+    @media (max-width:560px) { .comments__item-body { padding-left:0; } .comm-obert-reply { padding-left:16px; } }
+    .form-container { max-width:900px; margin:0 auto; padding:0 20px; }
+    .custom-form { max-width:100%; margin:0 auto; padding:18px; box-shadow:var(--shadow-sm); border:1px solid var(--color-border); box-sizing:border-box; font-family:var(--font-sans) !important; display:flex; flex-direction:column; gap:12px; background:var(--color-bg-soft); border-radius:var(--radius-md); }
+    .custom-form__top-field { display:flex; gap:16px; align-items:center; }
+    .custom-form__ava-block { position:relative; width:54px; height:54px; overflow:hidden; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px dashed var(--color-border); transition:0.2s; flex:0 0 auto; background:#fff; }
+    .custom-form__ava-label { font-size:11px; text-align:center; line-height:1.2; cursor:pointer; font-family:inherit; font-weight:400; color:var(--color-text-light); padding:4px; }
+    .custom-form__ava-label_red-text { color:var(--color-danger); }
+    .custom-form__name { width:100%; max-width:320px; display:inline-block; outline:none; border:1.5px solid var(--color-border); padding:10px 14px; font-size:14px; height:42px; box-sizing:border-box; font-family:inherit; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__message { resize:none; width:100%; outline:none; border:1.5px solid var(--color-border); padding:12px 14px; min-height:90px; font-size:14px; line-height:1.5; font-family:inherit; box-sizing:border-box; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__bottom-field { display:flex; flex-direction:row; gap:14px; align-items:center; flex-wrap:wrap; }
+    .custom-form__btn { outline:none; padding:10px 24px; background:var(--color-primary); color:#fff; font-weight:600; font-size:14px; transition:background 0.15s ease; cursor:pointer; text-transform:uppercase; border:0; font-family:var(--font-sans); border-radius:var(--radius-sm); text-decoration:none !important; letter-spacing:0.04em; }
+    .custom-form__btn:hover { background:var(--color-primary-dark); }
+    .custom-form__photo-label { cursor:pointer; font-size:13px; font-weight:400; border:none; color:var(--color-primary); text-decoration:underline; }
+    .trust-strip { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--color-border-soft); border-top:0; padding:20px 22px; display:flex; flex-wrap:wrap; gap:18px; justify-content:space-around; align-items:center; }
+    .trust-item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--color-text-muted); font-weight:500; }
+    .trust-item-icon { color:var(--color-primary); font-size:18px; }
+    .clinical-footer { max-width:900px; margin:0 auto 0; padding:24px 22px 36px; background:#fff; border:1px solid var(--color-border-soft); border-top:1px solid var(--color-border); text-align:center; font-size:12px; color:var(--color-text-light); line-height:1.6; }
+    .clinical-footer a { color:var(--color-primary); text-decoration:none; }
+    .product-center { display:block; max-width:220px; width:100%; margin:16px auto; }
+    body input[name="phone"] { background-repeat:no-repeat !important; background-position:left 15px center !important; }
+    main center { display:block; text-align:center; }
+    .sf-hidden { display:none !important; }
+    .quote-inline { margin:20px 0; padding:16px 20px; background:var(--color-bg-soft); border-left:4px solid var(--color-text-light); border-radius:0 var(--radius-md) var(--radius-md) 0; font-style:italic; color:var(--color-text-muted); font-size:16px; line-height:1.6; }
+    .quote-inline .quote-name { display:block; margin-top:10px; font-style:normal; font-weight:600; color:var(--color-primary-dark); font-size:14px; }
+    @media (max-width:480px) { body { font-size:16px; } main p { font-size:16px; } .doc-block { padding:16px; } .rev-block { padding:16px; } .recept { padding:16px; } .block-offer-actions-block { padding:6px 16px 16px; } .obertk512 li { padding-left:44px; } .obertk512 li::before { width:30px; height:30px; font-size:14px; } }
+  </style>
+
+  <script src="js/dtime.js"></script>
+
+  <!-- Meta Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    (function(){
+      var p = new URLSearchParams(location.search).get('fbpx');
+      if(!p){var m='{fbpx}';if(m.indexOf('{')===-1) p=m;}
+      if(p){try{localStorage.setItem('fb_pixel',p);}catch(e){}}
+      if(p){fbq('init',p);fbq('track','PageView');}
+    })();
+  </script>
+  <!-- End Meta Pixel -->
+</head>
+
+<body>
+
+  <div class="clinical-topbar">Спеціальний репортаж · Здоров'я та суспільство</div>
+
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div class="masthead-logo">
+        <span class="masthead-logo-icon">+</span>
+        <span>МедІнфо Україна</span>
+      </div>
+      <div class="masthead-tagline">Репортажі про громадське здоров'я</div>
+    </div>
+  </div>
+
+  <header>
+    <div class="bg-image"></div>
+  </header>
+
+  <div class="text-container"></div>
+
+  <div class="h1-bg split">
+    <h1 class="title_h1">
+      <span class="h1-quote">"Коли ти вже не можеш ходити — родина про тебе забуває."</span>
+      <span class="head-two-part">Молодий український лікар, що їздить будинками для літніх людей на Закарпатті — Рахів, Ясіня, Ділове — і повертає залишеним старим людям те, чого їм ніхто вже не може дати: рухомість суглобів і людську гідність.</span>
+    </h1>
+
+    <div class="tdate head-main-date">
+      <span class="head-main-date-title">Опубліковано:</span>
+      <span><script>dtime_nums(-3, true)</script>, 09:36</span>
+    </div>
+
+    <div class="main-subtitle">
+      Як Андрій Мельник, 32-річний ортопед, покинув приватну практику в київському Печерську — щоб лікувати літніх людей, забутих у будинках для літніх Закарпаття. Людей, яких залишила рідня, коли ті вже не могли ходити, самі сідати, самі себе обслуговувати. І як він разом з українським науково-дослідним центром дав їм шанс знову підвестися — без операцій та без пожиттєвого прийому знеболювальних.
+    </div>
+  </div>
+
+  <main>
+
+    <p>
+      Ми приїхали в Ясіня, велике карпатське село в Рахівському районі Закарпаття, у вівторок зранку. Дорога вгору в гори, повз полонини, дерев'яні хати і старі кам'яні церкви. "Ви лікаря шукаєте?" — запитала нас літня жіночка коло сільського магазину. "Він приїжджає з Києва щочетверга. Наші діди й баби чекають його з самого рання, під ворітьми стоять. Плачуть, коли бачать, що він під'їжджає."
+    </p>
+
+    <p>
+      Так ми вперше побачили Андрія Мельника — 32-річного лікаря-ортопеда, який покинув посаду в приватній клініці в Печерську (Київ), щоб робити те, чого не хоче робити жоден інший лікар: їздити будинками для літніх людей по всьому Закарпаттю і лікувати старих людей, від яких відмовилася рідна родина.
+    </p>
+
+    <p>
+      Причина відмови майже завжди одна і та сама: <b>літні люди більше не можуть ходити.</b> Коліна відмовили. Спина зігнулася. Руки трясуться так, що ложку в руках не втримати. І саме тоді, коли їм найбільше потрібна допомога — родина вирішує, що це "занадто". Занадто важко. Занадто дорого. І везуть їх до будинку для літніх людей.
+    </p>
+
+    <div class="quote-inline">
+      "Донька мені сказала: «Мамо, я вже не можу піднімати вас з крісла кожні дві години. Просто не можу». Наступного дня привезла мене сюди. Три роки минуло, вона жодного разу не приїхала мене відвідати."
+      <span class="quote-name">— баба Ганна, 79 років, будинок для літніх людей "Милосердя", Рахів</span>
+    </div>
+
+    <div class="quote-inline">
+      "Коли мої коліна остаточно відмовили, дружина сказала, що не буде більше жити з інвалідом. Пішла. Діти стали на її бік. Привезли мене сюди — і забули."
+      <span class="quote-name">— дід Йосип, 73 роки, будинок для літніх людей ім. Св. Миколая, Ясіня</span>
+    </div>
+
+    <!-- 📸 ФОТО 1: Молодой врач (30 лет, белый халат) стоит на коленях перед пожилой женщиной в инвалидном кресле в простом коридоре дома престарелых. Он осматривает её колено. Тёплый свет. Атмосфера заботы. Болгарский провинциальный антураж — простые стены, без излишеств. -->
+    <figure>
+      <img class="img-card" src="images/dok1.jpg" alt="Лікар Мельник з пацієнткою у будинку для літніх людей">
+      <figcaption>Андрій Мельник під час огляду пацієнтки у будинку для літніх людей у Рахові. "Ці люди потребують мене найбільше — тому що до них уже ніхто інший не приходить."</figcaption>
+    </figure>
+
+    <h2>
+      "Я побачив, що означає бути забутим. І зрозумів, що не можу залишатися стороннім спостерігачем"
+      <span>Ексклюзивне інтерв'ю з Андрієм Мельником — лікарем, який відмовився від зарплати 80 000 гривень на місяць, щоб допомагати людям, у яких більше нікого немає</span>
+    </h2>
+
+    <p><b>Андрій Мельник:</b> "Уперше я потрапив у будинок для літніх людей як волонтер, мені було 28. Це було в Рахові, під час медичного виїзду. І я не був готовий до того, що там побачив. Жінка 76 років, баба Софія, сиділа на краю ліжка, ноги набряклі, коліна не згиналися. Чотири місяці не виходила зі своєї кімнати. Взяла мене за руку і сказала:</p>
+
+    <p class="quote-inline">
+      "Синку, донька мене сюди привезла, коли я вже сходами не могла спуститися. Сказала, що не може мене доглядати. Два роки минуло. Жодного разу вона не приїхала."
+    </p>
+
+    <p><b>У ТУ МИТЬ Я ЗРОЗУМІВ, ЩО САМЕ ЦІ ЛЮДИ ПОТРЕБУЮТЬ МЕНЕ НАЙБІЛЬШЕ — ЛЮДИ, ПРО ЯКИХ ЗАБУВ ЦІЛИЙ СВІТ, БО ВОНИ БІЛЬШЕ НЕ МОЖУТЬ ХОДИТИ."</b></p>
+
+    <!-- 📸 ФОТО 2: Студийный портрет врача с сайта клиники — мужчина 30-32 года, белый халат, голубая рубашка, нейтральный светло-серый фон, мягкий студийный свет. Спокойное профессиональное выражение. НЕ репортажное, НЕ уличное — именно как с сайта клиники. -->
+    <figure>
+      <img class="img-card" src="images/dok2.jpg" alt="Портрет лікаря Андрія Мельника">
+      <figcaption>Андрій Мельник, лікар-ортопед та травматолог. Випускник Національного медичного університету ім. О. О. Богомольця (Київ), пройшов стажування в клініці Charité (Берлін, Німеччина) та в університетській клініці Гейдельберга. До того, як почав працювати з будинками для літніх людей на Закарпатті, працював у приватній ортопедичній клініці в київському Печерську.</figcaption>
+    </figure>
+
+    <p>
+      Мельник говорить спокійно, але з такою внутрішньою напругою, яку неможливо приховати. Уже більше двох років він об'їжджає будинки для літніх людей по всьому Закарпаттю — Рахів, Ясіня, Ділове, Богдан, Кваси. І скрізь бачить одну й ту саму гнітючу картину: старих людей із зруйнованими суглобами, яких ніхто не лікує по-справжньому, а лише годують дешевими протизапальними препаратами, що руйнують шлунок і нирки.
+    </p>
+
+    <p>
+      "Більшість цих людей опинилися тут через суглоби. Коліна відмовили. Спина заклякла. Кульшовий суглоб зношений до кістки. І в ту мить, коли вони перестають ходити, родина вирішує, що вони — тягар. Це слово я найчастіше чую в будинках для літніх людей: <b>«тягар»</b>. Рідних батьків описують як тягар."
+    </p>
+
+    <div class="quote-inline">
+      "Вони мене сюди привезли не тому, що не любили. Привезли, бо я вставала о третій ночі, стогнала від болю в колінах, і ніхто не міг спати. Невістка сказала синові: «Або вона, або я». Син вибрав дружину. Тепер вони в Італії, дзвонять раз на місяць."
+      <span class="quote-name">— дід Хома, 71 рік, парафіяльний будинок для літніх, Ділове</span>
+    </div>
+
+    <h2>
+      "Знеболювальні для суглобів не лікують — вони лише маскують руйнування"
+      <span>Лікар Мельник пояснює, чому звичні аптечні препарати та стандартна терапія в будинках для літніх людей не працюють</span>
+    </h2>
+
+    <p><b>Андрій Мельник:</b></p>
+
+    <p>
+      — Скажу вам чесно: те, що я побачив у будинках для літніх людей, лякає. Людей віком від 55 до 80 років роками годують одними й тими самими протизапальними таблетками — диклофенак, ібупрофен, німесулід — які лише на кілька годин глушать біль, але нічого не роблять із джерелом проблеми. Тим часом хрящ продовжує руйнуватися. Синовіальна рідина зникає. Суглоби перетворюються на "кістка до кістки". А хімія цих таблеток день за днем нищить їхні шлунки, печінку та нирки.
+    </p>
+
+    <p>
+      Це замкнене коло: біль → таблетка → біль повертається сильнішим → сильніша таблетка → шлунок здається → додаємо омепразол → відмовляють нирки. І ніхто цим людям не каже правди: <b>існує інший шлях — регенерувати суглоб зсередини, а не просто маскувати біль.</b>
+    </p>
+
+    <!-- 📸 ФОТО 3: Крупный план — опухшие, деформированные колени пожилой женщины. Видна часть платья/халата, плед на коленях частично откинут. Рядом на тумбочке блистеры с таблетками. Реалистичное фото, грустное но не шокирующее. -->
+    <figure class="cap-bold">
+      <img class="img-card" src="images/sladko.jpg" alt="Зруйновані суглоби">
+      <figcaption>Коліна баби Ольги, 74 роки, будинок для літніх людей ім. Св. Миколая, Ясіня. Остеоартроз третього ступеня — хряща майже не залишилося. П'ять місяців вона не виходить із кімнати. На тумбочці біля ліжка — шість різних протизапальних препаратів, і жоден не допоміг. Син привозить їх з різних київських аптек — "Подорожник", "Аптека Доброго Дня", АНЦ, — сподіваючись, що хоч один спрацює. Не спрацював жоден.</figcaption>
+    </figure>
+
+    <p class="red-txt">
+      Біль у колінах, спині або кульшовому суглобі після 45 років <b>— це НЕ "нормальні вікові зміни"</b>, а сигнал того, що суглобовий хрящ уже руйнується, а синовіальна рідина зникає. Кожен, хто намагається придушити цей біль протизапальним, повільно, але впевнено вбиває власні суглоби.
+    </p>
+
+    <!-- 📸 ФОТО 4: Медицинская иллюстрация/инфографика — здоровый сустав (колено) vs разрушенный сустав. Слева — нормальный коленный сустав в разрезе, с целым хрящом, синовиальной жидкостью, ровными костными концами. Справа — поражённый сустав: хрящ стёртый, неровные кости, воспаление. Стиль чисто медицинский, как из учебника анатомии или брошюры. Подписи на латыни или вообще без надписей (надписи добавим в figcaption). -->
+    <figure class="Figure" style="text-align:center">
+      <img src="images/photo_04.jpg" alt="Здоровий та зруйнований суглоб" style="margin:0 auto">
+      <figcaption>
+        <b>Ліворуч: здоровий суглоб з цілим хрящем і достатньою кількістю синовіальної рідини. Праворуч: зруйнований суглоб — стертий хрящ, хронічне запалення, кістка треться об кістку. Це реальність понад 80% українців похилого віку в сільській місцевості після 60 років. Протизапальне не відновлює хрящ — воно лише глушить біль, а суглоб тим часом руйнується остаточно.</b>
+      </figcaption>
+    </figure>
+
+    <p class="red-txt">
+      Протизапальне лише блокує сигнал болю, а суглоб тим часом тихо продовжує руйнуватися. Якщо не запустити справжню регенерацію хряща, суглоб буде зруйнований остаточно — і в цей момент залишиться лише два варіанти: інвалідне крісло або ендопротезування, яке в українській приватній клініці коштує від 120 000 гривень, а в державній лікарні черга розтягується на роки. Жоден із цих варіантів не поверне справжнього повноцінного життя.
+    </p>
+
+    <p><b>Андрій Мельник:</b></p>
+
+    <p>
+      — Прошу вас, зрозумійте всю вагу ситуації. У багатьох цих старих людей хрящ у колінах, хребті чи кульшовому суглобі зруйнований на 70–90%. Вони ходять — якщо взагалі ще можуть ходити — кісткою по кістці. Кожен крок — це тортури. <b class="red-txt">ЗВИЧАЙНЕ ПРОТИЗАПАЛЬНЕ НЕ МОЖЕ ВІДНОВИТИ ХРЯЩ — ВОНО ЛИШЕ МАСКУЄ БІЛЬ, ПОКИ ВСЕ РУЙНУЄТЬСЯ!</b>
+    </p>
+
+    <p>
+      А що мене руйнує зсередини? Правда в тому, що в цих людей більше нікого немає. Родина покинула їх у ту саму мить, коли відмовили суглоби. Самі, у ліжку, у маленькій кімнаті, чекають. Дехто вже й не знає, чого саме чекає. Їхні діти — на іншому кінці Європи: у Польщі, в Італії, у Чехії, у Португалії, у Німеччині. Кожного місяця пересилають гроші, але майже не повертаються в Україну. А мама чи тато чекають, день за днем, у сільському будинку для літніх людей.
+    </p>
+
+    <div class="quote-inline">
+      "Я виростила чотирьох дітей. Сорок років працювала — город, худоба, ліс. І коли коліна відмовили, коли я вже сама не могла дійти до вбиральні — вони мене привезли сюди. Наче я для них перестала існувати. Наче я вже померла."
+      <span class="quote-name">— баба Наталя, 82 роки, будинок для літніх людей "Милосердя", Рахів</span>
+    </div>
+
+    <div class="quote-inline">
+      "Дванадцять років я був на заробітках у Польщі. Будівельником. Повернувся на Закарпаття в 55, з невеликими грошима, щоб доглядати за батьковим господарством. У 60 років почала здавати спина. Грижа, ішіас — у 70 я вже не міг ходити прямо. Син сказав, що не може мене доглядати вдома. Він у Чехії, у нього своя сім'я. Я його розумію. Але від цього не менше болить."
+      <span class="quote-name">— дід Іван, 70 років, будинок для літніх людей ім. Св. Миколая, Ясіня</span>
+    </div>
+
+    <h2>
+      Історії, які змінили моє життя — і змінять те, як ви дивитеся на старість
+    </h2>
+
+    <p><b>Андрій Мельник:</b></p>
+
+    <p>— Дозвольте розповісти, що я бачу щотижня. Не цифри. Не статистику. Людей. Людей з іменами, з історіями, з дітьми, які до них більше не приїжджають.</p>
+
+    <!-- 📸 ФОТО 5: Пожилая женщина сидит одна у окна дома престарелых. Руки сложены на коленях, деформированные от артрита пальцы. Смотрит наружу. Тишина и одиночество. Простой болгарский интерьер. -->
+    <figure class="cap-bold">
+      <img class="img-card" src="images/kreslo.jpg" alt="Баба Ярина в будинку для літніх людей">
+      <figcaption>Баба Ярина, 77 років, село під Рахевом. Ревматоїдний артрит обох рук — вона більше не може тримати чашку чи одягтися сама. Чоловік помер два роки тому. Дочка — в Італії, працює доглядальницею за старими людьми. "В аптеці мені виписували 12 різних препаратів. Усі спалили шлунок, а суглоби так само боліли. Лікар Мельник приїхав до мене, коли сусідка йому сказала, що я вже картоплю не можу почистити."</figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      "Я більше не можу розчесатися. Не можу налити склянку води. Руки мене не слухають. Вранці дивлюся на них і не впізнаю — набряклі, скручені, наче вже не мої. Невістка мені сказала: «Як я вам довірю онучку, коли ви ложку не втримаєте?» Вона мала рацію. Але ці слова мене вбили всередині."
+      <span class="quote-name">— баба Ярина, 77 років</span>
+    </div>
+
+    <!-- 📸 ФОТО 6: Пожилой мужчина в инвалидном кресле, в коридоре азиля. Сгорбленная спина, вид сбоку. Рядом никого. Тихая, достойная грусть. -->
+    <figure class="cap-bold">
+      <img class="img-card" src="images/kreslo2.jpg" alt="Дід Петро в будинку для літніх людей">
+      <figcaption>Дід Петро, 75 років, село Ділове. Грижа L4-L5, двобічний артроз кульшових суглобів. Вісім місяців не може встати. "Мені сказали, що для операції я вже застарий. Просто прийняти й не сподіватися. Лікар Мельник просто сів поруч, торкнувся мого коліна і сказав: «Діду Петро, за два тижні ми з вами повернемося на город». І саме так і сталося."</figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      "Сорок років я гарував — город, ліс, худоба. Коли грошей бракувало, їздив на заробітки — то до Польщі, то до Чехії, будівельником. Аж поки одного ранку не зміг підняти голову з подушки. Двоє дітей — одне в Німеччині, друге в Португалії. Пересилають гроші, дзвонять на Різдво. Але хто мені дасть води, коли я вночі закашляюся? З Ortonex лікаря Мельника, через чотири тижні, я знову можу нарубати дров. Не багато — але достатньо, щоб зігрітися власними руками."
+      <span class="quote-name">— дід Петро, 75 років</span>
+    </div>
+
+    <p><b>Ось симптоми, які я найчастіше бачу в будинках для літніх людей — і які мільйони українців ігнорують, думаючи, що "це просто вік":</b></p>
+    <ul>
+      <li>Гострий біль у коліні під час спуску або підйому сходами — або при будь-якому русі;</li>
+      <li>Ранкова скутість — тіло "як дерев'яне", не рухається 30–60 хвилин після пробудження;</li>
+      <li>Хронічний біль у попереку — не можеш нахилитися, не можеш встати з ліжка;</li>
+      <li>Набряк колін, гомілок або пальців;</li>
+      <li>Хрускіт та шум у суглобах при кожному русі;</li>
+      <li>Біль у кульшовому суглобі, що віддає у стегно — не можеш пройти більше 50 метрів;</li>
+      <li>Деформовані пальці рук з вузлами — не можеш нічого взяти;</li>
+      <li>Оніміння ноги або руки — сигнал грижі диска або защемлення нерва;</li>
+      <li>Відчуття, ніби в попереку "ніж", коли випрямляєшся;</li>
+      <li>Викривлена спина, неправильна постава — прогресуючий кіфоз;</li>
+      <li>Нічний біль, що не дає спати — прокидаєшся 4–5 разів за ніч;</li>
+    </ul>
+
+    <p>
+      Кожен із цих симптомів — це сигнал тривоги. І після 45–50 років, якщо ви його ігноруєте, попереду лише одне:
+      <b class="red-txt">СПРАВЖНЯ ЗНЕРУХОМЛЕНІСТЬ, ІНВАЛІДНЕ КРІСЛО, ПОВНА ЗАЛЕЖНІСТЬ ВІД ІНШИХ — А В БАГАТЬОХ ВИПАДКАХ БУДИНОК ДЛЯ ЛІТНІХ ЛЮДЕЙ, ДО ЯКОГО ДІТИ ПРИЇЖДЖАТИМУТЬ РАЗ НА РІК, ЯКЩО ВЗАГАЛІ ПРИЇДУТЬ.</b>
+    </p>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Кожен день, коли ви нічого не робите зі своїми суглобами, наближає вас до остаточної знерухомленості! Тисячі українців похилого віку опинилися в будинках для літніх людей саме тому, що ігнорували біль — або приймали таблетки, які нічого не робили з причиною проблеми. Дійте зараз — заради себе або заради ваших рідних — поки ще не пізно!
+        </span>
+      </p>
+    </div>
+
+    <h2>
+      "Я вирішив, що має бути спосіб регенерувати суглоб, а не просто вбивати біль"
+      <span>Як 32-річний лікар переконав український науково-дослідний центр створити те, від чого відмовлялася фармацевтична індустрія</span>
+    </h2>
+
+    <p><b>Андрій Мельник:</b></p>
+
+    <p>
+      — Через рік поїздок будинками для літніх людей я зрозумів болючу правду: протизапальним нікого не врятувати. Ці препарати лише глушать сигнал тривоги, який подає організм, поки суглоб продовжує руйнуватися. Мені потрібно було щось інше — метод, який регенерує хрящ зсередини, відновлює синовіальну рідину і зупиняє запалення на клітинному рівні.
+    </p>
+
+    <p>
+      Я звернувся до українського науково-дослідного центру, з яким уже співпрацював під час стажування в Берліні. Показав їм історії хвороб, знімки, аналізи моїх пацієнтів з будинків для літніх людей. Привіз науковців на Закарпаття — щоб вони на власні очі побачили, що там відбувається. Вони були в шоці.
+    </p>
+
+    <p>
+      Ми працювали разом понад десять місяців. Випробували більше 180 комбінацій. І врешті-решт знайшли правильну формулу — капсульну добавку, яка при прийомі двічі на день всмоктується в кровотік і цілеспрямовано працює на суглоби зсередини. Не звичайна таблетка, що спалює шлунок. Капсула, розроблена спеціально для регенерації суглобів — на основі концентрованих активних інгредієнтів з біодоступністю в 5 разів вищою, ніж у звичайного глюкозаміну з аптеки.
+    </p>
+
+    <div class="recept">
+      <p><b>Активні компоненти формули Ortonex:</b></p>
+      <ul class="my-ul-0-green size1">
+        <li><b>Екстракт босвелії (Boswellia serrata)</b>
+          <font>Природний протизапальний, зупиняє руйнування хряща</font>
+        </li>
+        <li><b>Глюкозамін і хондроїтин в активній формі</b>
+          <font>Будівельні блоки суглобового хряща — їжа для клітин</font>
+        </li>
+        <li><b>Гіалуронова кислота низької молекулярної маси</b>
+          <font>Відновлює синовіальну рідину — природний "мастильний матеріал" суглоба</font>
+        </li>
+        <li><b>Колаген II типу та MSM (метилсульфонілметан)</b>
+          <font>Зміцнює зв'язки та сухожилля навколо суглоба</font>
+        </li>
+        <li><b>Екстракти куркуми та імбиру</b>
+          <font>Швидке полегшення болю та зняття набряку</font>
+        </li>
+      </ul>
+      <p style="margin-top:14px;margin-bottom:0;color:var(--color-text-muted);font-size:14px;line-height:1.5;">Формула містить ще 14 рідкісних екстрактів у точно вивірених пропорціях. Навіть 0,1% похибки — і капсула вже не всмоктається як слід у кровотік.</p>
+    </div>
+
+    <h2>
+      Так народився Ortonex — єдина капсульна добавка, яка цілить у суглоби на клітинному рівні зсередини
+    </h2>
+
+    <p><b>Андрій Мельник:</b></p>
+
+    <p>
+      — Разом з дослідним центром ми створили цей продукт: капсульну добавку, яку приймають двічі на день, одну зранку і одну ввечері, запиваючи водою. Називається Ortonex. Це не звичайна таблетка — тут використовується спеціальна система доставки, що захищає активні компоненти від шлункової кислоти, тому вони доходять до кишечнику неушкодженими. Там вони всмоктуються у кровотік і надходять безпосередньо до суглобів у всьому тілі — коліна, спина, кульшові суглоби, руки, шия. Одна баночка — 60 капсул, вистачає на повний місяць прийому.
+    </p>
+
+    <!-- 📸 ФОТО 7: Упаковка крема Bone Support — тюбик/коробка на светлом фоне. Уже есть в images/bonesupport.png. -->
+    <img src="images/bonesupport.png" alt="Ortonex капсули для суглобів" style="width:78%;max-width:540px;display:block;margin:18px auto">
+
+    <p>
+      Секрет — у технології "Enhanced Bioavailability", яку розробила наша команда в лабораторії. Ця система дозволяє активним компонентам всмоктуватися у кровотік у 5 разів ефективніше, ніж будь-яка звичайна глюкозамінова добавка з аптеки. Саме тому полегшення відчувається вже через кілька днів, а не через 3–6 місяців, як це буває з іншими препаратами.
+    </p>
+
+    <p class="pachino-ramka2">
+      Аналогів Ortonex не існує. Кожен компонент — у точно вивіреній концентрації — активує регенерацію хряща, відновлення синовіальної рідини і зупинку запалення. Це єдина капсульна добавка, створена спеціально для регенерації суглобів, з підтвердженою біодоступністю, яка не руйнує шлунок, як звичайні протизапальні. І головне: вона працює навіть у 70, 80, 85 років. Моїми першими пацієнтами були якраз старі люди — ті, кого вже ніхто не лікував.
+    </p>
+
+    <p><b>Андрій Мельник:</b></p>
+
+    <p>
+      — Моїми першими пацієнтами були старі люди в будинках для літніх. Ті, кого залишила рідня. Я давав їм Ortonex, дві капсули на день, і чекав. На третій день баба Наталя, яка чотири місяці не могла встати з ліжка, зробила перші кроки сама. Ми обоє плакали.
+    </p>
+
+    <h2>
+      Чотири шляхи, якими Ortonex регенерує суглоби і повертає рухомість — у будь-якому віці
+    </h2>
+
+    <div class="obertk512">
+      <h1>Чотири основних ефекти капсул "Ortonex":</h1>
+      <div class="block-offer-actions-block">
+        <ol>
+          <li>
+            <font>Зняття болю і запалення</font>
+            <span>Протягом перших 24 годин прийому комплекс босвелії, куркуми та імбиру зменшує біль і запалення. Він не блокує нервовий сигнал (як звичайні протизапальні таблетки) — він гасить запалення в самому джерелі.</span>
+          </li>
+          <li>
+            <font>Регенерація хряща суглоба</font>
+            <span>Глюкозамін, хондроїтин і колаген II типу всмоктуються у кровотік і надходять до суглобової капсули, де активують клітини хряща (хондроцити), які починають виробляти нову хрящову тканину. Процес запускається через 3–5 днів регулярного прийому.</span>
+          </li>
+          <li>
+            <font>Відновлення синовіальної рідини</font>
+            <span>Гіалуронова кислота з низькою молекулярною масою потрапляє в суглоб і відновлює синовіальну рідину — природний "мастильний матеріал" суглоба. Завдяки цьому кістки перестають тертися одна об одну, і повертається плавний, безболісний рух.</span>
+          </li>
+          <li>
+            <font>Довготривалий захист і профілактика</font>
+            <span>MSM і мінеральний комплекс зміцнюють зв'язки та сухожилля навколо суглоба, запобігаючи майбутнім травмам. Після 30–60 днів прийому суглоб отримує стабільний захист, що зберігається кілька місяців.</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <h2>
+      Історії, які навчили мене, що ніколи не пізно
+    </h2>
+
+    <p><b>Андрій Мельник:</b></p>
+
+    <p>— Ось кілька з тих людей, яких я бачу щотижня на власні очі. Людей, яким ніхто не давав шансу. Людей, які сьогодні знову ходять.</p>
+
+    <div class="rev-block">
+      <!-- 📸 ФОТО 8: Пожилая женщина ~80-85 лет, сидит в кресле или на кровати, лёгкая улыбка. Простая одежда, простая комната. «Ей стало лучше, в глазах появилась надежда». -->
+      <img class="img-card2" src="images/sidit.jpg" alt="Баба Наталя після курсу лікування">
+      <p><b>Баба Наталя, 82 роки, будинок для літніх людей "Милосердя", Рахів.</b> Чотири місяці не могла встати з ліжка. На третій день прийому Ortonex зробила перші кроки сама. Через 30 днів виходить на подвір'я без сторонньої допомоги. "Ніхто не сподівався. Навіть я. Лікар Мельник приїжджає раз на тиждень. Просто дивиться на мене, торкається коліна і киває головою."</p>
+      <font><b>Результат за 30 днів:</b> Ходить сама, зникла ранкова скутість, біль зменшився з 9/10 до 2/10.</font>
+    </div>
+
+    <div class="rev-block">
+      <!-- 📸 ФОТО 9: Мужчина ~55-60 лет, рабочий/простой человек. Фото «после» — стоит ровно, лёгкая улыбка. На фоне двора или дома. -->
+      <img class="img-card2" src="images/stoit.jpg" alt="Дід Іван після курсу лікування">
+      <p><b>Дід Іван, 70 років, колишній заробітчанин, повернувся з Польщі.</b> Грижа, ішіас, не міг стояти більше 5 хвилин. За 6 тижнів — повернувся на город, щодня доглядає дві грядки. "Я думав, що спина в мене зламана назавжди. Готовий був змиритися з життям інваліда. Помилявся. З Ortonex лікаря Мельника відчуваю себе, наче знову двадцять років."</p>
+      <font><b>Результат за 45 днів:</b> Зник гострий біль у попереку, повернулася рухомість, вперше за 4 роки проспав цілу ніч.</font>
+    </div>
+
+    <h2>
+      Чому Ortonex немає в "Подорожнику" і "Аптеці Доброго Дня"? І як його отримати?
+    </h2>
+
+    <p><b>Андрій Мельник:</b></p>
+
+    <p>На жаль, Ortonex складно і дорого виробляти. Рідкісні інгредієнти — гіалуронова кислота низької молекулярної маси, очищений колаген II типу, концентрований екстракт босвелії — важко отримати в необхідній кількості. Виробництво не може покрити весь попит.</p>
+
+    <p>Потрібно ще 2–3 роки, поки препарат потрапить у "Подорожник", "Аптеку Доброго Дня" та АНЦ. А поки що він поширюється лише онлайн, у рамках благодійної програми. <span class="red-txt">Сьогодні ви можете отримати перший курс абсолютно безкоштовно</span> — це критично важливо для українських пенсіонерів, які на Закарпатті живуть на пенсію в 3 200 гривень на місяць.</p>
+
+    <p>
+      Коли аптечні мережі дізналися, наскільки ефективна формула, вони хотіли продавати її по 1 980 грн за баночку. Я відмовився. Я роблю це не заради грошей — я роблю це заради тих людей у будинках для літніх, заради пенсіонерів, які живуть на 3 200 грн у місяць і мусять вибирати між ліками і їжею. Саме тому я домовився з благодійним фондом, щоб <b class="red-txt">перший курс Ortonex був повністю безкоштовним</b> для кожного, хто потребує допомоги.
+    </p>
+
+    <div class="price-cascade">
+      <div class="price-cascade-title">Ціна, про яку ми домовлялися:</div>
+      <div class="price-cascade-item">
+        <span class="price-cascade-label">Ціна, яку хотіли встановити аптеки</span>
+        <span class="price-cascade-amount">1 980 грн</span>
+      </div>
+      <div class="price-cascade-item">
+        <span class="price-cascade-label">Ціна в інших країнах Європи</span>
+        <span class="price-cascade-amount">1 490 грн</span>
+      </div>
+      <div class="price-cascade-item">
+        <span class="price-cascade-label">Ціна, яку ми пропонуємо зараз</span>
+        <span class="price-cascade-amount">1 290 грн</span>
+      </div>
+      <div class="price-cascade-final">
+        <span class="price-cascade-label">Для читачів сьогодні</span>
+        <span class="price-cascade-amount">БЕЗКОШТОВНО</span>
+      </div>
+    </div>
+
+    <div class="pachino-ramka2" style="margin-top:16px;">
+      <b>Чому безкоштовно?</b> Лікар Мельник домовився з науково-дослідним центром та благодійним фондом "Рухомість для кожного" про повне покриття вартості першого курсу Ortonex для читачів цього репортажу. Мета програми — щоб якомога більше літніх українців отримали шанс на повноцінне життя, незалежно від доходу. Ви оплачуєте лише доставку "Новою Поштою" або "Укрпоштою" при отриманні. Кількість безкоштовних баночок обмежена — лише 2 000 одиниць у рамках цієї програми.
+    </div>
+
+    <p>
+      Прошу вас: НЕ ПРОПУСКАЙТЕ ЦЮ ПРОГРАМУ ПІДТРИМКИ. Не лише заради себе — а й заради батьків, бабусь і дідусів, рідних, які, можливо, страждають мовчки. Або тих, хто вже опинився в будинку для літніх, сам, і кому ніхто нічого не пересилає. Стати тим, хто змінить це.
+    </p>
+
+    <p class="red-txt"><b>Щоб замовити, скористайтеся формою нижче.</b></p>
+
+    <h2>
+      Останній шанс отримати Ortonex безкоштовно — для вас або для рідної людини, яка страждає мовчки
+    </h2>
+
+    <!-- 📸 ФОТО 14: Врач (Д-р Иванов) наносит крем на колено пожилой женщины в азиле. Тёплый момент заботы. Или: тюбик Bone Support на тумбочке рядом с чашкой чая и очками — домашняя атмосфера. -->
+    <img alt="Ortonex" src="images/dok3.png" style="margin:0 auto;display:block;max-width:500px;width:100%;margin-top:24px;margin-bottom:20px">
+
+    <p><b>Андрій Мельник:</b></p>
+
+    <p>
+      — Я виділив 2 000 баночок Ortonex спеціально для читачів цього порталу. Будь-який українець віком від 40 років може отримати <font class="red-txt">перший курс абсолютно безкоштовно</font>, але програма завершується <span><script>dtime_nums(0, true)</script></span>.
+    </p>
+
+    <p>Не чекайте, поки не зможете підійматися сходами. Поки коліна не відмовлять остаточно. Поки спина не заклякне. А головне — не чекайте, поки не станете "тягарем" в очах власної родини. Один курс Ortonex запускає природну регенерацію хряща — і далі ваш організм працює сам. Ніяких пожиттєвих ліків, ніяких таблеток, ніякого болю, що повертається. Один крок — і ваше тіло згадає, як жити без болю.</p>
+
+    <p>Вкажіть своє ім'я та номер телефону. Наш консультант передзвонить, підбере правильну програму і забезпечить доставку "Новою Поштою" або "Укрпоштою" протягом 2–3 днів у будь-який куточок України.</p>
+
+    <p><b>З надією та повагою — Андрій Мельник. Дбаймо про своїх рідних. Можливо, все, що їм потрібно — це знати, що про них не забули.</b></p>
+
+    <p class="pachino-ramka">
+      <span class="ramka-title">Оновлення: <span><script>dtime_nums(-2, true)</script></span>:</span>
+      Через величезний інтерес запаси можуть закінчитися швидше, ніж очікувалося! Сьогодні —
+      <font><span><script>dtime_nums(0, true)</script></span> — останній день програми</font> або поки не закінчиться товар.
+    </p>
+
+    <center><img src="images/bonesupport.png" style="max-width:340px;width:100%"></center><br>
+
+    <center>
+      <p class="noclose-cta red-txt">
+        Увага! Не закривайте і не оновлюйте сторінку, інакше зарезервований для вас Ortonex буде переданий іншому клієнту!
+      </p>
+      <span class="pre-cta">
+        Ви можете скористатися пропозицією — ваше місце зарезервовано:
+        <span class="nowrap">№ <font class="number-me" style="border-bottom:2px solid var(--color-danger);font-weight:700">1&nbsp;974</font></span>
+      </span>
+    </center>
+
+    <span id="form"></span>
+    <span id="oneform"></span>
+    <div class="pachinoform">
+      <div class="pachinoform_title">
+        <div class="pachinoform_title_logo">
+          <img alt="" src="images/56d9b0017d1d_d58505c9.png">
+        </div>
+        <div class="pachinoform_title_text">
+          <b>Офіційна форма замовлення</b>
+          № <font class="number-me nowrap">1&nbsp;974</font> / <font class="nowrap">2 000</font>
+        </div>
+      </div>
+      <div class="pachinoform_order">
+        Щоб отримати <b>безкоштовний курс Ortonex</b>, введіть ім'я та номер телефону у поля нижче і натисніть кнопку "ЗАМОВИТИ".
+      </div>
+      <div class="pachinoform_value">
+        Залишилось:
+        <span class="blc-pck">
+          <strong class="pachinoform_value_current left-pack">33</strong>
+          <strong class="pachinoform_value_total"> /1000</strong>
+        </span>
+      </div>
+      <div class="pachinoform_price">
+        <div class="pachinoform_price_old"><span class="price_old">1 980 грн</span></div>
+        <div class="pachinoform_price_new"><span class="price_main">0 грн</span></div>
+      </div>
+      <form action="order.php" method="post">
+        <input type="hidden" name="country" value="UA">
+        <input type="hidden" name="subid" value="{subid}">
+        <div class="name-input">
+          <label for="name-input">Ім'я</label>
+          <input autocomplete="name" id="name-input" name="name" placeholder="Ваше ім'я" required="" type="text" value="">
+        </div>
+        <div class="phone-input">
+          <label for="phone-input">Номер телефону</label>
+          <input autocomplete="tel" id="phone-input" maxlength="20" name="phone" pattern="^[\-+() 0-9]{8,20}$" placeholder="Ваш номер телефону" required="" type="tel" value="">
+        </div>
+        <button class="button-submit" type="submit">ОТРИМАТИ БЕЗКОШТОВНО</button>
+      </form>
+      <div class="pachinoform_footer">
+        ✔️ Гарантована доставка "Новою Поштою" або "Укрпоштою"<br> у будь-який куточок України
+        <br>
+        <img alt="" src="images/b0110a32ff2e_8322b1b5.png" style="width:auto">
+      </div>
+    </div>
+
+    <!-- COMMENTS SECTION -->
+    <div class="comments comments-fb" id="pluginComments">
+      <div class="comments__header">
+        <div class="comments__left-box">
+          <p class="comments__header-title">КОМЕНТАРІ</p>
+        </div>
+      </div>
+
+      <div class="comments__item-list">
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/092f16892178_b762df04.png" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Марина Бондаренко</p>
+              <p class="startdate">2 години тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Плакала, поки читала. Мамі 76, два роки в будинку для літніх людей під Києвом — бо коліна відмовили, а я не могла її доглядати. Це найбільший гріх мого життя. Замовила Ortonex для неї. Дай Боже, щоб не було пізно. Дай Боже, щоб подіяло.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/14fcabaa91a3_d3871213.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Оксана Ковальчук</p>
+              <p class="startdate">5 годин тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Отримала Ortonex у п'ятницю. П'ю дві капсули на день — одну зранку, одну ввечері. Через 5 днів біль значно зменшився, спускаюся сходами не тримаючись за перила! Мене підштовхнула замовити саме розповідь лікаря Мельника. Справді неймовірна людина.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/1dcbfabe6827_57a19553.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Тетяна Іщенко</p>
+              <p class="startdate">8 годин тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Мені 69. Чотири роки мучилась зі спиною — грижа і ішіас. Не могла нахилитися, щоб зав'язати шнурки. Лікарі виписували протизапальні, які спалили мені шлунок. Через 3 тижні Ortonex — біль майже зник. Сама ходжу до магазину, готую. Життя повернулося.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/7099c502f996_b89c4cc9.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Юрій Захарчук</p>
+              <p class="startdate">12 годин тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">По 10 годин щоденно в офісі на Подолі. Спина і шия відмовили. Лікар сказав: "Міняй роботу або на операцію." Обрав Ortonex. Через 5 тижнів — жодного натяку на біль. І велика повага лікарю Мельнику — у світі, де всі хочуть тільки грошей, він їздить у Карпати до забутих старих людей.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/71bb14a12f9e_280a6001.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Ірина Романюк</p>
+              <p class="startdate">14 годин тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Чесно кажучи, спочатку не вірила. В інтернеті стільки продуктів, що обіцяють небилиці, я втратила довіру. Прочитала цю статтю тільки тому, що свекруха не може ходити, і я вже у відчаї. Замовила, кажу собі "це ж безкоштовно, що ми втрачаємо?". Через 3 тижні свекруха вчора сама встала з крісла! Свекруха! Яка вже 8 місяців не могла встати сама. Тепер не знаю, що казати. Пишу це для тих, хто теж вагається — як я вагалась.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/9e5c0e0e0ef7_57accffe.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Володимир Литвин</p>
+              <p class="startdate">16 годин тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Замовив 3 баночки — собі (коліна), дружині (руки, артрит) і тещі в будинок для літніх під Львовом. Ми в Києві, не можемо часто її провідувати. Хай хоч так пересилаємо їй те, що потрібно. Дай Боже, і в неї теж так само добре подіє. Дякую за цю статтю.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/73d3a879cef9_4a9ce85c.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Галина Гриценко</p>
+              <p class="startdate">18 годин тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Роздумую, чи замовляти для батька. Три роки він у будинку для літніх людей — коліна вже нічого не тримає. Здався, майже не говорить. Як думаєте, чи допоможе Ortonex у 78 років?</p>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img class="comments__item-avatar" src="images/7536079073c5_564ff00a.jpg" alt="">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Юлія Гончар</p>
+                <p class="startdate">17 годин тому</p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Галино, моїй мамі 82! Сильний артроз обох колін, не могла встати з ліжка. 2 місяці на Ortonex — тепер сама виходить на подвір'я. Не перебільшую. І найкраще: коли я її провідувала, вона стояла у дверях і чекала мене. Ми обидві плакали. Замовляйте, ваш батько заслуговує на цей шанс.</p>
+            </div>
+          </div>
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img class="comments__item-avatar" src="images/bcbe20e0b5d2_b241da99.jpg" alt="">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Богдан Сидоренко</p>
+                <p class="startdate">15 годин тому</p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Галино, замовляйте не вагаючись. У свої 78 я був за крок від інвалідного крісла — артроз кульшового. На Ortonex, лише за 2 місяці, знову на ногах. Буквально. Вашому батькові це потрібно навіть більше, ніж ви думаєте.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/daeecf66dcf6_e1c9bf1a.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Валерія Пилипчук</p>
+              <p class="startdate">20 годин тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Тиждень на Ortonex — коліна і поперек. Зранку більше не "дерев'яна". Нахиляюся, встаю без "ой". Замовила ще й для сусідки, 73 роки, живе сама, за стіну тримається, щоб пройтися по кімнаті.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/8ba73d45c164_4ede289a.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Людмила Савчук</p>
+              <p class="startdate">1 день тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Зізнаюся, спочатку скептично поставилась до цієї статті. Стільки вже перепробувала засобів, що обіцяли все. Але історія лікаря Мельника зачепила, і я вирішила спробувати — коліно мучить уже 5 років. Через місяць прийому — вільно порюсь у городі. Не кажу, що це диво. Кажу, що воно працює. Дайте шанс собі.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/c364fa7fabf3_734a4c7f.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Валентина Мороз</p>
+              <p class="startdate">1 день тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Мені 82. Торік я вже не могла сама піти до вбиральні. Діти вже говорили про будинок для літніх людей. Спробувала Ortonex — без великих надій. І воно подіяло! Сама ходжу, сама одягаюся, сама відкриваю двері. Діти більше не згадують про будинок для літніх. Це моя найбільша радість.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/d770c7a4cbdf_467ee117.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Микола Дмитренко</p>
+              <p class="startdate">1 день тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Дружина вже не могла спуститися сходами. Трималася за стіну і плакала від болю. Я думав, що втрачу її — не від хвороби, а від безнадії. Замовив безкоштовний Ortonex. Через 4 тижні — вчора сама пішла на ринок і повернулася з букетом квітів! З квітами! Дякую, від щирого серця.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/658f969bb746_3d8e16cd.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Світлана Онищук</p>
+              <p class="startdate">1 день тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Замовила чотири баночки — для мами (будинок для літніх, коліна), для тата (будинок для літніх, спина) і дві для себе (руки, артрит пальців, вже не могла писати). Історії у статті мене зруйнували зсередини. Треба було давно це зробити. Виправдань більше немає.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/df3e8c2eb745_86a29b61.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Катерина Захарова</p>
+              <p class="startdate">2 дні тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Отримала Ortonex — "Нова Пошта" привезла за 2 дні! Уже передала мамі капсули в будинок для літніх людей. Дай Боже, всім серцем, щоб подіяло. І цю статтю передам ще і персоналу будинку — може, вони теж вийдуть на зв'язок з лікарем Мельником.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/dcc5cfe80d60_5aa7f8f7.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Тарас Романчук</p>
+              <p class="startdate">2 дні тому</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Шукав Ortonex у "Подорожнику" і "Аптеці Доброго Дня" — немає. Сказали замовляти на цій сторінці. Сподіваюся, ще є в наявності. Терміново треба для дідуся — 81 рік, і вже майже не може ходити.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-container">
+        <form class="custom-form">
+          <div class="custom-form__top-field">
+            <div class="custom-form__ava-block">
+              <label class="custom-form__ava-label">
+                <span class="custom-form__ava-label_red-text">*</span><br>Додати аватар
+              </label>
+            </div>
+            <input type="text" disabled class="custom-form__name" placeholder="Ваше ім'я">
+          </div>
+          <textarea class="custom-form__message" disabled placeholder="Напишіть коментар..."></textarea>
+          <div class="custom-form__bottom-field">
+            <label class="custom-form__photo-label">Додати фото</label>
+            <button type="button" disabled class="custom-form__btn">НАДІСЛАТИ</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="trust-strip">
+    <div class="trust-item"><span class="trust-item-icon">🛡️</span> Сертифікована якість</div>
+    <div class="trust-item"><span class="trust-item-icon">🚚</span> Доставка за 2–3 дні</div>
+    <div class="trust-item"><span class="trust-item-icon">⚕️</span> Без рецепта</div>
+    <div class="trust-item"><span class="trust-item-icon">🔒</span> Безпечне замовлення</div>
+  </div>
+
+  <div class="clinical-footer">
+    © МедІнфо Україна — спеціальний репортаж<br>
+    Інформація на цій сторінці носить виключно ознайомлювальний характер і не замінює консультації лікаря.
+  </div>
+
+
+<script>
+document.addEventListener('click', function(e) {
+  var a = e.target.closest('a');
+  if (a) {
+    e.preventDefault();
+    var f = document.getElementById('oneform');
+    if (f) f.scrollIntoView({behavior:'smooth'});
+  }
+});
+
+(function(){
+  var n = document.querySelector('[name="name"]');
+  if(n){
+    n.addEventListener('input', function(){
+      var v = this.value
+        .replace(/[^a-zA-Zа-яА-ЯёЁії ]/g,'')
+        .replace(/^\s+/,'')
+        .replace(/\s\s+/,' ');
+      var p = v.split(' ');
+      if(p.length>2) v = p[0]+' '+p[1];
+      this.value = v;
+    });
+    n.addEventListener('blur', function(){ this.value = this.value.trim(); });
+  }
+  var ph = document.querySelector('[name="phone"]');
+  if(ph){
+    ph.addEventListener('input', function(){
+      this.value = this.value.replace(/\D/g,'');
+      this.setAttribute('pattern','[0-9]{6,}');
+    });
+  }
+})();
+</script>
+
+<!-- BackFix -->
+<script src="js/ywbackfix.js"
+  data-redirect="true"
+  data-links='["https://healthelps.top/5c1Kb4LV?sun={sub_id_30}"]'>
+</script>
+
+</body>
+</html>
