@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+  <meta charset="utf-8">
+  <title>"I visit the ones nobody else visits" — the young Kenyan doctor travelling care homes to give back movement to abandoned elders</title>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="no-cache" http-equiv="Cache-Control">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="telephone=no" name="format-detection">
+  <meta content="no-referrer" name="referrer">
+  <meta content="noindex, nofollow" name="robots">
+
+  <link rel="icon" href="images/prod.png">
+
+  <style>
+    :root {
+      --color-primary: #0a5c9e;
+      --color-primary-dark: #084678;
+      --color-primary-light: #e8f2fa;
+      --color-accent: #0284c7;
+      --color-danger: #c0392b;
+      --color-danger-light: #fdecea;
+      --color-success: #1e8449;
+      --color-success-light: #e8f5ee;
+      --color-warning: #b7791f;
+      --color-text: #1a2b42;
+      --color-text-muted: #4a5a70;
+      --color-text-light: #6b7a8f;
+      --color-bg: #ffffff;
+      --color-bg-soft: #f7fafc;
+      --color-bg-alt: #eef4f9;
+      --color-border: #d9e2ec;
+      --color-border-soft: #e4ebf2;
+      --shadow-sm: 0 1px 2px rgba(10, 92, 158, 0.04), 0 1px 3px rgba(10, 92, 158, 0.06);
+      --shadow-md: 0 4px 12px rgba(10, 92, 158, 0.08), 0 2px 4px rgba(10, 92, 158, 0.04);
+      --shadow-lg: 0 10px 25px rgba(10, 92, 158, 0.10), 0 4px 10px rgba(10, 92, 158, 0.05);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-serif: 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin:0; padding:0; font-family:var(--font-sans); font-size:17px; line-height:1.65; color:var(--color-text); background:var(--color-bg-soft); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .clinical-topbar { background:var(--color-primary-dark); color:#fff; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; padding:8px 16px; text-align:center; font-weight:500; }
+    .clinical-topbar::before { content:"⚕ "; margin-right:6px; }
+    .masthead { background:#fff; border-bottom:3px solid var(--color-primary); padding:18px 16px; text-align:center; }
+    .masthead-inner { max-width:900px; margin:0 auto; display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+    .masthead-logo { display:inline-flex; align-items:center; gap:10px; font-family:var(--font-serif); font-weight:700; font-size:22px; color:var(--color-primary-dark); letter-spacing:-0.01em; }
+    .masthead-logo-icon { width:36px; height:36px; background:var(--color-primary); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:700; }
+    .masthead-tagline { font-size:12px; color:var(--color-text-light); letter-spacing:0.08em; text-transform:uppercase; border-left:1px solid var(--color-border); padding-left:14px; font-weight:500; }
+    @media (max-width:560px) { .masthead-tagline { border-left:0; padding-left:0; font-size:11px; width:100%; border-top:1px solid var(--color-border); padding-top:8px; margin-top:4px; } }
+    header { max-width:900px; margin:0 auto; padding:0; }
+    .bg-image { text-align:center; }
+    .bg-image img { max-width:100%; height:auto; display:inline-block; }
+    .text-container { display:block; }
+    .h1-bg { position:relative; max-width:900px; margin:0 auto; padding:28px 22px 20px; background:#fff; border-bottom:1px solid var(--color-border); }
+    .h1-bg::before { content:""; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%); }
+    .title_h1 { font-family:var(--font-serif); font-size:26px; line-height:1.25; color:var(--color-text); font-weight:700; margin:0 0 14px; letter-spacing:-0.01em; }
+    .head-one-part { color:var(--color-danger); }
+    .head-two-part { display:block; }
+    .head-main-date { font-size:13px; color:var(--color-text-light); padding:0; display:flex; align-items:center; gap:8px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px dashed var(--color-border); }
+    .head-main-date::before { content:"📅"; font-size:14px; }
+    .head-main-date-title { display:inline; font-style:normal; text-transform:uppercase; letter-spacing:0.05em; font-weight:500; }
+    .main-subtitle { display:block; padding:16px 18px; color:var(--color-text); font-size:17px; border-radius:var(--radius-md); font-weight:500; border-left:4px solid var(--color-primary); background:var(--color-primary-light); line-height:1.55; font-style:normal; margin:0; box-shadow:none; }
+    @media (max-width:640px) { .title_h1 { font-size:20px; } .main-subtitle { font-size:15px; padding:14px 14px; } .h1-bg { padding:22px 16px 18px; } }
+    main { max-width:900px; margin:0 auto; padding:24px 22px 40px; background:#fff; border-left:1px solid var(--color-border-soft); border-right:1px solid var(--color-border-soft); }
+    @media (max-width:640px) { main { padding:18px 14px 30px; } }
+    main p { margin:0 0 16px; color:var(--color-text); }
+    main img { max-width:100%; height:auto; border-radius:var(--radius-md); }
+    main h2 { font-family:var(--font-serif); font-size:24px; line-height:1.3; font-weight:700; color:var(--color-primary-dark); margin:32px 0 16px; padding-bottom:12px; border-bottom:2px solid var(--color-primary-light); letter-spacing:-0.01em; }
+    main h2 span { display:block; font-family:var(--font-sans); font-size:16px; font-weight:500; color:var(--color-text-muted); margin-top:10px; margin-bottom:0; line-height:1.5; }
+    main h3 { font-family:var(--font-serif); font-size:19px; color:var(--color-primary-dark); margin:22px 0 12px; font-weight:600; }
+    @media (max-width:640px) { main h2 { font-size:19px; } main h2 span { font-size:15px; } }
+    main ul { padding-left:0; list-style:none; margin:16px 0; background:var(--color-bg-soft); border:1px solid var(--color-border-soft); border-radius:var(--radius-md); padding:14px 18px 14px 20px; }
+    main ul li { position:relative; padding-left:22px; margin-bottom:8px; line-height:1.5; }
+    main ul li::before { content:""; position:absolute; left:0; top:10px; width:10px; height:10px; border:2px solid var(--color-primary); border-radius:50%; background:#fff; }
+    main ul li:last-child { margin-bottom:0; }
+    .red-txt { color:var(--color-danger); font-weight:600; }
+    .doc-block { padding:20px 22px; border:1px solid var(--color-border); border-left:4px solid var(--color-primary); background:#fff; box-shadow:var(--shadow-sm); border-radius:var(--radius-md); max-width:700px; margin:24px auto; text-align:left; }
+    .doc-block img { border-radius:var(--radius-md); margin-bottom:14px; }
+    .doc-block p { padding:0; margin:0 0 12px; font-size:16px; line-height:1.6; }
+    .doc-block p:last-child { margin-bottom:0; }
+    .doc-block p b { color:var(--color-primary-dark); }
+    figure { margin:22px 0; padding:0; text-align:center; }
+    figure img { border-radius:var(--radius-md); box-shadow:var(--shadow-md); max-width:100%; height:auto; }
+    figure figcaption { margin-top:12px; padding:10px 14px; font-size:14px; line-height:1.5; color:var(--color-text-muted); background:var(--color-bg-soft); border-left:3px solid var(--color-primary); border-radius:0 var(--radius-sm) var(--radius-sm) 0; text-align:left; font-style:italic; }
+    figure.cap-bold figcaption { font-style:normal; font-weight:500; color:var(--color-text); }
+    .img-card { border:1px solid var(--color-border); padding:6px; background:#fff; box-shadow:var(--shadow-md); border-radius:var(--radius-md); }
+    .img-card2 { border:1px solid var(--color-border); padding:6px; background:#fff; border-radius:var(--radius-md); }
+    .pachino-ramka312-block { margin:24px 0; }
+    .pachino-ramka312 { background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.25); border-left:4px solid var(--color-danger); border-radius:var(--radius-md); padding:18px 20px; color:var(--color-text); font-weight:500; box-shadow:none; margin:0; font-size:16px; line-height:1.6; position:relative; }
+    .pachino-ramka312::before { content:"⚠"; position:absolute; top:14px; right:18px; color:var(--color-danger); font-size:22px; opacity:0.7; }
+    .pachino-ramka312 .obertka-1 { display:block; }
+    .rev-block { margin:24px 0; padding:20px 22px; background:var(--color-primary-light); border:1px solid rgba(10,92,158,0.15); border-left:4px solid var(--color-primary); border-radius:var(--radius-md); box-shadow:none; }
+    .rev-block p { font-size:16px; line-height:1.6; margin-bottom:12px; }
+    .rev-block img { border-radius:var(--radius-md); margin-bottom:14px; max-width:100%; }
+    .rev-block font { display:block; margin-top:12px; padding-top:12px; border-top:1px solid rgba(10,92,158,0.15); color:var(--color-primary-dark); font-size:15px; }
+    .rev-block font b { font-weight:600; }
+    .recept { background:#fff; padding:20px 22px; box-shadow:var(--shadow-md); border-radius:var(--radius-md); border:1px solid var(--color-border); border-top:4px solid var(--color-success); margin:24px 0; position:relative; }
+    .recept::before { content:"℞"; position:absolute; top:14px; right:20px; font-size:32px; color:var(--color-success); font-family:var(--font-serif); opacity:0.4; line-height:1; }
+    .recept p b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green { margin:12px 0 0 !important; padding:0 !important; background:transparent !important; border:0 !important; list-style:none; }
+    .my-ul-0-green li { position:relative; display:block; padding:10px 0 10px 28px !important; margin:0 !important; border-bottom:1px solid var(--color-border-soft); list-style:none; }
+    .my-ul-0-green li::before { content:"✓" !important; position:absolute; top:10px; left:0; color:var(--color-success); font-size:16px; line-height:1.5; font-weight:700; border:0 !important; background:transparent !important; width:auto !important; height:auto !important; border-radius:0 !important; }
+    .my-ul-0-green li:last-child { border-bottom:0; }
+    .my-ul-0-green li b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green font { font-size:14px; display:block; margin-top:4px; color:var(--color-text-muted); }
+    .obertk512 { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); max-width:780px; margin:28px auto; padding:0; line-height:1.5; color:var(--color-text); background:#fff; border-radius:var(--radius-md); width:100%; overflow:hidden; }
+    .obertk512 h1 { font-family:var(--font-serif); line-height:1.3; margin:0; color:#fff; font-size:18px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .block-offer-actions-block { padding:10px 22px 22px; border:0; }
+    .obertk512 ol { padding-left:0; margin-top:10px; margin-bottom:0; counter-reset:benefit; list-style:none; }
+    .obertk512 li { line-height:1.4; padding:16px 0 16px 50px; border-bottom:1px solid var(--color-border-soft); position:relative; counter-increment:benefit; }
+    .obertk512 li::before { content:counter(benefit); position:absolute; left:0; top:14px; width:36px; height:36px; background:var(--color-primary-light); color:var(--color-primary-dark); border-radius:50%; font-weight:700; font-size:16px; display:flex; align-items:center; justify-content:center; border:2px solid var(--color-primary); }
+    .obertk512 li::marker { content:none; }
+    .obertk512 li:last-child { border-bottom:0; }
+    .obertk512 li font { line-height:1.3; color:var(--color-primary-dark); text-align:left; font-weight:600; font-size:17px; display:block; margin-bottom:6px; }
+    .block-offer-actions-block li span { display:block; font-size:15px; line-height:1.5; font-weight:400; color:var(--color-text-muted); margin:0; padding:0; border-bottom:0; }
+    .table-block { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); border-radius:var(--radius-md); max-width:700px; margin:28px auto; padding:0; font-size:16px; line-height:1.5; color:var(--color-text); background:#fff; width:100%; overflow:hidden; }
+    .table-block h1 { font-family:var(--font-serif); line-height:1.35; margin:0; color:#fff; font-size:17px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .table { width:100%; max-width:100%; border-collapse:collapse; font-family:var(--font-sans); margin:0; background:#fff; }
+    .table tr:nth-child(even) td { background:var(--color-bg-soft) !important; }
+    .table td { border:0 !important; border-bottom:1px solid var(--color-border-soft) !important; padding:12px 16px !important; vertical-align:middle; background:#fff !important; }
+    .table tr:last-child td { border-bottom:0 !important; }
+    .table td.one { text-align:left; width:75%; font-size:15px; font-weight:500; color:var(--color-text); }
+    .table td.two { font-size:18px; color:var(--color-success); text-align:right; font-weight:700; width:25%; white-space:nowrap; }
+    @media (max-width:560px) { .table td.one { font-size:14px; } .table td.two { font-size:16px; } .table td { padding:10px 12px !important; } }
+    .pachino-ramka2 { text-align:left; color:var(--color-success); font-weight:600; border:1px solid rgba(30,132,73,0.25); border-left:4px solid var(--color-success); border-radius:var(--radius-md); padding:18px 20px; background:var(--color-success-light); box-shadow:none; margin:20px 0; font-size:16px; line-height:1.55; }
+    .pachino-ramka { border:1px solid rgba(183,121,31,0.3); border-left:4px solid var(--color-warning); padding:18px 20px; border-radius:var(--radius-md); background:#fff9ef; margin:20px 0; font-size:16px; line-height:1.55; position:relative; }
+    .pachino-ramka::before { content:"🕐"; position:absolute; top:14px; right:18px; font-size:22px; opacity:0.8; }
+    .ramka-title { display:block; color:var(--color-warning); padding:0; margin-bottom:10px; font-weight:700 !important; background:transparent; text-transform:uppercase; font-size:13px; letter-spacing:0.06em; }
+    .pachino-ramka font { color:var(--color-danger); font-weight:600; }
+    .noclose-cta { font-size:15px; max-width:780px; margin:16px auto; display:block; background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.2); padding:12px 16px; border-radius:var(--radius-md); line-height:1.5; }
+    .pre-cta { display:block; color:var(--color-success); font-weight:500; font-size:16px; margin-top:12px; }
+    .nowrap { white-space:nowrap; }
+    .pachinoform { padding:0; font-size:17px; line-height:1.5; color:var(--color-text); border:1px solid var(--color-border); background:#fff; display:block; border-radius:var(--radius-lg); width:100%; max-width:780px; margin:24px auto; box-shadow:var(--shadow-lg); overflow:hidden; }
+    .pachinoform_title { display:flex; gap:16px; max-width:none; align-self:stretch; text-align:left; background:var(--color-primary); color:#fff; padding:20px 24px; align-items:center; }
+    .pachinoform_title_logo { flex-shrink:0; background:#fff; padding:6px; border-radius:50%; width:56px; height:56px; display:flex; align-items:center; justify-content:center; }
+    .pachinoform_title_logo img { max-width:100%; height:auto; }
+    .pachinoform_title_text { align-self:center; color:#fff; font-size:15px; line-height:1.4; }
+    .pachinoform_title_text>b { display:block; line-height:1.3; font-size:17px; margin-bottom:4px; color:#fff; font-weight:600; }
+    .pachinoform_order { max-width:none; font-weight:500; font-size:15px; margin:0; text-align:center; padding:16px 24px; background:var(--color-primary-light); border-bottom:1px solid var(--color-border-soft); color:var(--color-text); line-height:1.5; }
+    .pachinoform_order>b { color:var(--color-danger); font-weight:700; }
+    .pachinoform_value { display:flex; color:var(--color-text); font-weight:600; font-size:15px; align-items:center; justify-content:center; padding:16px 24px 0; flex-wrap:wrap; gap:10px; }
+    .pachinoform_value_current { border:2px solid var(--color-danger); color:var(--color-danger); line-height:1; font-size:22px; padding:6px 18px; margin:0 6px; border-radius:var(--radius-sm); background:var(--color-danger-light); font-weight:700; }
+    .pachinoform_value_total { font-size:18px; color:var(--color-text-muted); }
+    .pachinoform_price { display:flex; align-items:center; justify-content:center; gap:24px; margin:20px 0 0; padding:0 24px; }
+    .pachinoform_price_old span { display:block; font-size:24px; font-weight:600; letter-spacing:-0.5px; color:var(--color-text-light); position:relative; line-height:1; }
+    .pachinoform_price_old span::before { position:absolute; content:""; left:-4px; top:50%; right:-4px; border-top:2px solid var(--color-danger); transform:rotate(-12deg); }
+    .pachinoform_price_new span { display:inline-block; background:var(--color-success); color:#fff; text-shadow:none; font-size:32px; padding:8px 20px; font-weight:700; line-height:1; border-radius:var(--radius-sm); box-shadow:0 4px 12px rgba(30,132,73,0.25); }
+    .pachinoform form { padding:22px 24px 20px; }
+    .pachinoform .name-input, .pachinoform .phone-input { color:var(--color-text); font-size:15px; margin-bottom:14px; }
+    .pachinoform .name-input label, .pachinoform .phone-input label { font-weight:500; font-size:14px; color:var(--color-text-muted); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:0.04em; }
+    .pachinoform .name-input input, .pachinoform .phone-input input { font:inherit; color:var(--color-text); box-sizing:border-box; width:100%; border-radius:var(--radius-sm); padding:12px 16px; min-width:0; background:#fff; border:1.5px solid var(--color-border); font-size:16px !important; transition:border-color 0.15s ease, box-shadow 0.15s ease; }
+    .pachinoform .name-input input:focus, .pachinoform .phone-input input:focus, .pachinoform input:focus { outline:0; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(10,92,158,0.15); }
+    .pachinoform .button-submit { text-align:center; width:100%; margin:6px auto 0; text-decoration:none; border-radius:var(--radius-sm); color:#fff; border:0; padding:16px 20px; cursor:pointer; background:var(--color-primary); font-size:17px; line-height:1.3; font-weight:600; letter-spacing:0.02em; text-transform:uppercase; transition:background 0.15s ease, transform 0.05s ease; box-shadow:0 4px 12px rgba(10,92,158,0.25); font-family:var(--font-sans); }
+    .pachinoform .button-submit:hover { background:var(--color-primary-dark); }
+    .pachinoform .button-submit:active { transform:translateY(1px); }
+    .pachinoform .button-submit:focus { outline:0; box-shadow:0 0 0 3px rgba(10,92,158,0.25); }
+    .pachinoform ::placeholder { color:var(--color-text-light); opacity:1; font-size:15px !important; }
+    .pachinoform_footer { text-align:center; color:var(--color-text-muted); font-size:13px; padding:14px 24px 20px; background:var(--color-bg-soft); border-top:1px solid var(--color-border-soft); line-height:1.5; }
+    .pachinoform_footer img { margin-top:10px; max-width:100%; height:auto; opacity:0.85; }
+    @media (max-width:500px) { .pachinoform_title { gap:10px; padding:16px 18px; } .pachinoform_title_text { font-size:13px; } .pachinoform_title_text>b { font-size:15px; } .pachinoform_value { flex-wrap:wrap; justify-content:center; font-size:14px; } .pachinoform_price_new span { font-size:26px; } .pachinoform_price_old span { font-size:20px; } .pachinoform form { padding:18px 18px 18px; } .pachinoform_order { padding:14px 18px; font-size:14px; } .blc-pck { display:block; width:100%; text-align:center; margin-top:8px; } .pachinoform_value_current { margin:0; } }
+    .comments { max-width:900px; margin:32px auto 20px; background:#fff; border-radius:var(--radius-md); border:1px solid var(--color-border); overflow:hidden; }
+    .comments__header { padding:16px 20px; background:var(--color-primary); color:#fff; display:flex; align-items:center; justify-content:space-between; }
+    .comments__header-title { font-family:var(--font-serif); font-size:18px; font-weight:600; margin:0; color:#fff; letter-spacing:0.02em; }
+    .comments__item-list { padding:8px 20px; }
+    .comments__item { padding:16px 0; border-bottom:1px solid var(--color-border-soft); }
+    .comments__item:last-child { border-bottom:0; }
+    .comments__item-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .comments__item-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid var(--color-border); }
+    .comments__item-info { flex:1; min-width:0; }
+    .comments__item-name { font-weight:600; font-size:15px; color:var(--color-primary-dark); margin:0 0 2px; }
+    .comments__item-info p:last-child, .comments__item-info .startdate, .comments__item-info .nowdate { font-size:12px; color:var(--color-text-light); margin:0; }
+    .comments__item-body { padding-left:56px; }
+    .comments__item-content { font-size:15px; line-height:1.55; color:var(--color-text); margin:0; }
+    .comments__item-content img { border-radius:var(--radius-sm); margin-top:10px; }
+    .comm-obert-reply { padding-left:28px; border-left:2px solid var(--color-primary-light); margin-left:8px; }
+    .comm-obert-reply .comments__item.reply { border-bottom:1px solid var(--color-border-soft); }
+    @media (max-width:560px) { .comments__item-body { padding-left:0; } .comm-obert-reply { padding-left:16px; } }
+    .form-container { max-width:900px; margin:0 auto; padding:0 20px; }
+    .custom-form { max-width:100%; margin:0 auto; padding:18px; box-shadow:var(--shadow-sm); border:1px solid var(--color-border); box-sizing:border-box; font-family:var(--font-sans) !important; display:flex; flex-direction:column; gap:12px; background:var(--color-bg-soft); border-radius:var(--radius-md); }
+    .custom-form__top-field { display:flex; gap:16px; align-items:center; }
+    .custom-form__ava-block { position:relative; width:54px; height:54px; overflow:hidden; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px dashed var(--color-border); transition:0.2s; flex:0 0 auto; background:#fff; }
+    .custom-form__ava-label { font-size:11px; text-align:center; line-height:1.2; cursor:pointer; font-family:inherit; font-weight:400; color:var(--color-text-light); padding:4px; }
+    .custom-form__ava-label_red-text { color:var(--color-danger); }
+    .custom-form__name { width:100%; max-width:320px; display:inline-block; outline:none; border:1.5px solid var(--color-border); padding:10px 14px; font-size:14px; height:42px; box-sizing:border-box; font-family:inherit; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__message { resize:none; width:100%; outline:none; border:1.5px solid var(--color-border); padding:12px 14px; min-height:90px; font-size:14px; line-height:1.5; font-family:inherit; box-sizing:border-box; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__bottom-field { display:flex; flex-direction:row; gap:14px; align-items:center; flex-wrap:wrap; }
+    .custom-form__btn { outline:none; padding:10px 24px; background:var(--color-primary); color:#fff; font-weight:600; font-size:14px; transition:background 0.15s ease; cursor:pointer; text-transform:uppercase; border:0; font-family:var(--font-sans); border-radius:var(--radius-sm); text-decoration:none !important; letter-spacing:0.04em; }
+    .custom-form__btn:hover { background:var(--color-primary-dark); }
+    .custom-form__photo-label { cursor:pointer; font-size:13px; font-weight:400; border:none; color:var(--color-primary); text-decoration:underline; }
+    .trust-strip { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--color-border-soft); border-top:0; padding:20px 22px; display:flex; flex-wrap:wrap; gap:18px; justify-content:space-around; align-items:center; }
+    .trust-item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--color-text-muted); font-weight:500; }
+    .trust-item-icon { color:var(--color-primary); font-size:18px; }
+    .clinical-footer { max-width:900px; margin:0 auto 0; padding:24px 22px 36px; background:#fff; border:1px solid var(--color-border-soft); border-top:1px solid var(--color-border); text-align:center; font-size:12px; color:var(--color-text-light); line-height:1.6; }
+    .clinical-footer a { color:var(--color-primary); text-decoration:none; }
+    .product-center { display:block; max-width:220px; width:100%; margin:16px auto; }
+    #overlay { position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:100; transition:opacity 0.3s ease; }
+    #popup3 { background-size:cover; background-position:center; position:fixed; top:50%; left:50%; padding:20px; background-color:white; box-shadow:var(--shadow-lg); transition:opacity 0.3s ease, transform 0.3s ease; max-width:800px; width:93%; height:87%; overflow-y:auto; max-height:100vh; z-index:999999; }
+    body input[name="phone"] { background-repeat:no-repeat !important; background-position:left 15px center !important; }
+    main center { display:block; text-align:center; }
+    .sf-hidden { display:none !important; }
+    .quote-inline { margin:20px 0; padding:16px 20px; background:var(--color-bg-soft); border-left:4px solid var(--color-text-light); border-radius:0 var(--radius-md) var(--radius-md) 0; font-style:italic; color:var(--color-text-muted); font-size:16px; line-height:1.6; }
+    .quote-inline .quote-name { display:block; margin-top:10px; font-style:normal; font-weight:600; color:var(--color-primary-dark); font-size:14px; }
+    @media (max-width:480px) { body { font-size:16px; } main p { font-size:16px; } .doc-block { padding:16px; } .rev-block { padding:16px; } .recept { padding:16px; } .block-offer-actions-block { padding:6px 16px 16px; } .obertk512 li { padding-left:44px; } .obertk512 li::before { width:30px; height:30px; font-size:14px; } }
+    @keyframes example { 0% { opacity:0; } 100% { opacity:1; } }
+    @keyframes blinker { from { opacity:1.0; } to { opacity:0.7; } }
+  </style>
+
+  <!-- Meta Pixel (lead tracking) -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    (function () {
+      var p = new URLSearchParams(location.search).get('fbpx');
+      if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+      if (p) { try { localStorage.setItem('fb_pixel', p); } catch (e) {} }
+      if (p) { fbq('init', p); fbq('track', 'PageView'); }
+    })();
+  </script>
+  <!-- End Meta Pixel -->
+
+  <script src="js/dtime.js"></script>
+  <script src="js/ywbackfix.js" data-links="https://nutrivition.top/VXsVxCX?sun={sub_id_30}" data-redirect="true" data-isoff="false"></script>
+</head>
+
+<body>
+
+  <div class="clinical-topbar">Special Report · Health & Society</div>
+
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div class="masthead-logo">
+        <span class="masthead-logo-icon">+</span>
+        <span>HealthInfo Kenya</span>
+      </div>
+      <div class="masthead-tagline">Public health investigations</div>
+    </div>
+  </div>
+
+  <header>
+    <div class="bg-image"></div>
+  </header>
+  <div class="text-container"></div>
+  <div class="h1-bg split">
+    <h1 class="title_h1">
+      <span class="head-one-part">"WHEN YOU CAN NO LONGER WALK, THE FAMILY FORGETS YOU."</span>
+      <span class="head-two-part">THE YOUNG KENYAN DOCTOR TRAVELLING CARE HOMES ACROSS THE COUNTRY, RETURNING TO ABANDONED ELDERS WHAT NOBODY ELSE COULD: THEIR JOINTS AND THEIR DIGNITY. HIS METHOD LEFT THE WHOLE MEDICAL COMMUNITY IN SHOCK.</span>
+    </h1>
+
+    <div class="tdate head-main-date">
+      <span class="head-main-date-title">Published: </span>
+      <span class="startdate"><script>dtime_nums(-3, true)</script>, 09:36</span>
+    </div>
+
+    <div class="main-subtitle">
+      How Dr. James Kamau, just 30 years old, walked away from his career at a private hospital in Nairobi to do what no other doctor would: travel to care homes across Kenya, treating cucu and guka abandoned by their own families — precisely because they could no longer walk, could no longer stand, could no longer do anything for themselves. And how the method he developed together with a research centre gave them back their movement — without surgery and without pills for life.
+    </div>
+  </div>
+
+  <main>
+
+    <img alt="Dr. James Kamau examines a patient's knee at a care home" src="https://static.joxi.pro/1780665825421-31361d92-f4db-4934-ae16-32b78e4a19dc.jpg" style="margin-bottom:14px;margin-top:0">
+
+    <p>
+      We arrived on a Tuesday morning in Nakuru. The road to the care home runs through narrow streets, past houses with old iron gates and dogs barking behind them. "Are you looking for the young doctor?" the mama at the duka on the corner asked us. "He comes every Thursday. The old people wait for him at the gate. Some of them cry when they see him."
+    </p>
+    <p>
+      That was the first time we heard about Dr. James Kamau — the 30-year-old doctor who left his job at a private hospital in Nairobi to do what no other doctor wanted to do: travel to care homes across Kenya, treating elders abandoned by their own families.
+    </p>
+    <p>
+      The reason for the abandonment? Almost always the same: <b>the elders could no longer walk.</b> The knees gave out. The back bent. Their hands trembled so badly they could not even hold a spoon. And in that exact moment — just when they needed help the most — the family decided it was too much. Too difficult. Too expensive. And they took them to a home.
+    </p>
+
+    <div class="quote-inline">
+      "My son told me: 'Mama, I cannot keep lifting you from the chair every five minutes. I cannot do this anymore.' The next day he took me to the home. It has been 3 years and he has not visited once."
+      <span class="quote-name">— Mama Wanjiku, 79 years old, care home in Nyeri County</span>
+    </div>
+
+    <div class="quote-inline">
+      "When my knees locked completely, my wife said she could not live with an invalid. She left. The children took her side. They brought me here and disappeared."
+      <span class="quote-name">— Mzee Ibrahim, 73 years old, care home in Mombasa County</span>
+    </div>
+
+    <h2>
+      "I saw what abandonment looks like. And I decided I could not just fold my arms"
+      <span>Exclusive interview with Dr. James Kamau — the doctor who walked away from a salary of KSh 150,000 a month to help those who have nobody</span>
+    </h2>
+
+    <div class="doc-block">
+      <img alt="Dr. James Kamau" src="https://static.joxi.pro/1780665825417-a82fd41b-7e10-431c-82cc-44f729f04435.jpg">
+      <p>Dr. James Kamau: "I walked into a care home for the first time as a volunteer, at the age of 28. I was not ready for what I saw. A woman of 76, Mama Rosemary, was sitting at the edge of her bed, her feet swollen, her knees that could not bend. She had not left her room for 4 months. She held my hand and said:
+        <b>'Doctor, my daughter brought me here when I could no longer come down the stairs. She said she could not take care of me anymore. That was two years ago. She has not come back since.'</b>
+      </p>
+      <p><b>IN THAT MOMENT I UNDERSTOOD THAT THESE ARE THE PEOPLE WHO NEED ME THE MOST —
+          <span class="red-txt">THE ONES THE WHOLE WORLD HAS FORGOTTEN, JUST BECAUSE THEY CAN NO LONGER WALK."</span></b>
+      </p>
+    </div>
+
+    <p>
+      Dr. Kamau speaks calmly, but with an intensity that you cannot ignore. For two years he has been travelling to care homes across Kenya — from Nairobi to Mombasa, from Kisumu to Eldoret, from Nakuru to Thika. And everywhere he goes, he finds the same heartbreaking picture: elders with destroyed joints who receive no real treatment, only painkillers that burn their stomachs and kidneys.
+    </p>
+
+    <p>
+      "Most of these people ended up here because of their joints. The knees gave out. The back locked. The hip wore down. And the moment they could no longer walk on their own, the family decided they were a burden. That is the word I hear most often in the homes: <b>'a burden'</b>. They describe their own parents as a burden."
+    </p>
+
+    <div class="quote-inline">
+      "They did not bring me here because they do not love me. They brought me here because I would wake up at 3 in the morning crying from the pain in my knee, and nobody could sleep. My son's wife said it was either me or her. My son chose her."
+      <span class="quote-name">— Mzee Samuel, 71 years old, care home in Kisumu County</span>
+    </div>
+
+    <h2>
+      "Painkillers do not solve anything — they only hide the destruction"
+      <span>Dr. Kamau explains why the standard treatment in the homes and chemists keeps failing</span>
+    </h2>
+
+    <p><b>Dr. James Kamau:</b></p>
+    <p>— I will tell you the honest truth: what I saw in those homes shocked me. People between 55 and 80 years old, given the same painkillers year after year — pills that hide the pain for a few hours without touching the real cause. The cartilage keeps wearing down. The joint fluid disappears. The bones rub against each other. And the chemicals in those pills destroy the stomach, the liver and the kidneys every single day.
+    </p>
+
+    <p>It is a vicious circle: pain → pills → the pain comes back stronger → stronger pills → the stomach fails → they add pills for the stomach → the kidneys fail. And nobody tells them the truth: <b>that there is a way to rebuild the joint from inside, not just to numb the pain.</b>
+    </p>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1780665825411-2b64eb49-5e22-4578-aa97-2046aaeec5ff.jpg">
+      <figcaption>
+        The knees of Mama Margaret, 74 years old, care home in Nakuru. Stage 3 osteoarthritis, the cartilage is almost completely gone. She has not left her room for 5 months. On her bedside table — 6 different kinds of pills that changed nothing.
+      </figcaption>
+    </figure>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Pain in the knees, the back or the hip after the age of 45 is not "just old age" — it is a warning that the joint cartilage is being destroyed and the joint fluid is disappearing.
+          <br><br>
+          Painkillers only block the pain signal, while the destruction continues quietly. Without real rebuilding of the cartilage, the joint wears down completely — and then the only option left is a wheelchair or replacement surgery.
+        </span>
+      </p>
+    </div>
+
+    <p><b>Dr. James Kamau:</b></p>
+
+    <p>— Please understand how serious this is. In most of these elders, the cartilage in the knee, back or hip is 70–90% destroyed. They walk — if they still can walk — bone against bone. Every step is torture. <b>ORDINARY PAINKILLERS CANNOT REBUILD CARTILAGE — THEY ONLY HIDE THE PAIN UNTIL EVERYTHING COLLAPSES!</b>
+    </p>
+
+    <p>
+      And what hurts me the most: these people have nobody. The family abandoned them the very moment the joints gave out. They are alone, in bed, in a small room, and they wait. Some of them no longer know what they are waiting for.
+    </p>
+
+    <div class="quote-inline">
+      "I raised three children. I worked on the shamba for 40 years. And when my knees gave out and I could not go to the toilet on my own — they brought me to the home. As if I had stopped existing for them. As if I was already dead."
+      <span class="quote-name">— Mama Grace, 82 years old, care home in Machakos County</span>
+    </div>
+
+    <div class="quote-inline">
+      "I was a carpenter for 35 years. My back gave out at 62 — slipped disc, sciatica, I could not even stand up. My son said he could not stay home looking after me. He has his job, he has his family. I understand. But it hurts more than the back itself."
+      <span class="quote-name">— Mzee Joseph, 68 years old, care home in Kakamega County</span>
+    </div>
+
+    <figure class="Figure" style="text-align:center">
+      <img src="https://static.joxi.pro/1778142925769-057465eb-7a53-45e0-ba84-1b9038913030.jpg" style="margin:0 auto">
+      <figcaption>
+        <b>Left: a healthy joint with intact cartilage and enough joint fluid. Right: a destroyed joint — worn cartilage, chronic inflammation, bone against bone. This is the reality of more than 80% of the elders in the homes. Painkillers do not rebuild cartilage.</b>
+      </figcaption>
+    </figure>
+
+    <p class="red-txt">
+      It is important: in 2 out of 3 cases, even if the person takes painkillers every day, the joints keep getting worse, because the real cause — the destruction of cartilage and the loss of joint fluid — is never addressed.
+    </p>
+
+    <p class="red-txt">
+      After years of painkillers, many patients lose not only their movement, but also their stomach, liver and kidneys. Ulcers, liver failure, kidney swelling — that is the price paid by those who were never offered a real alternative.
+    </p>
+
+    <h2>
+      The stories that changed my life — and will change how you see old age
+    </h2>
+
+    <p><b>Dr. James Kamau:</b></p>
+
+    <p>— Let me tell you what I see every week. Not numbers. Not statistics. People. People with names, with stories, with children who never come anymore.</p>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1780665825410-5299e4f1-4988-4d63-9d98-135e16889950.jpg">
+      <figcaption>
+        Mama Lydia, 77 years old. Rheumatoid arthritis in both hands — she cannot hold a cup, cannot dress herself. Her daughter took her to the home 2 years ago: "I cannot dress you every morning, I also have my own life."
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      "I cannot even plait my hair anymore. I cannot pour myself a glass of water. My hands do not obey me. In the morning I look at them and I do not recognise them — swollen, twisted, as if they are not mine. My daughter-in-law once said: 'How can I leave her with the grandchildren if she cannot even hold a spoon?' She was right. But those words killed something inside me."
+      <span class="quote-name">— Mama Lydia, 77 years old, care home in Nakuru County</span>
+    </div>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1780665825421-78a09049-c136-4ad6-ae3c-8aab725ae287.jpg">
+      <figcaption>
+        Mzee Patrick, 75 years old. Slipped disc L4–L5, hip arthritis on both sides. He has not stood up for 8 months. "They told him he was too old for surgery. They told him to accept it."
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      "I was a matatu driver my whole life. I drove thousands of trips, from Nairobi to Mombasa, from Kisumu to Eldoret. Now I cannot even turn over in bed by myself. The back locked, the hip fused. My children work in town. They send money for the home and nothing more. I do not blame them. But at night, when the pain wakes me and there is nobody beside me… I ask myself if this is the end."
+      <span class="quote-name">— Mzee Patrick, 75 years old, care home in Kiambu County</span>
+    </div>
+
+    <p><b>These are the symptoms I see most often in the homes — and that millions of Kenyans ignore:</b></p>
+    <ul>
+      <li>Sharp pain in the knees when going up or down stairs — or with every step;</li>
+      <li>Morning stiffness — the body feels "frozen" and does not move for 30–60 minutes after waking up;</li>
+      <li>Chronic back pain — cannot bend down, cannot get out of bed;</li>
+      <li>Swollen knees, ankles or fingers;</li>
+      <li>Cracking and clicking sounds in the joints with every movement;</li>
+      <li>Hip pain that spreads down the thigh — cannot walk more than 50 metres;</li>
+      <li>Twisted, knobby fingers — cannot grip objects properly;</li>
+      <li>Numbness in the legs or hands — a sign of a slipped disc or trapped nerve;</li>
+      <li>A "stabbing" feeling in the lower back when getting up;</li>
+      <li>Bent back, hunched posture — progressing day by day;</li>
+      <li>Night pain that keeps them awake — they wake up 4 or 5 times a night;</li>
+    </ul>
+
+    <p>
+      Every one of these symptoms is a warning sign. And after the age of 45–50, ignoring them leads to only one ending:
+      <b class="red-txt">COMPLETE LOSS OF MOVEMENT, A WHEELCHAIR, FULL DEPENDENCE ON OTHERS — AND IN MANY CASES, THE CARE HOME.</b>
+    </p>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Every day that passes with untreated joints brings you closer to permanent immobility!
+          Thousands of elders in the homes ended up there exactly because they ignored the pain — or only took pills that did not solve the cause.
+          Act now — for yourself or for someone you love — before it is too late!
+        </span>
+      </p>
+    </div>
+
+    <h2>
+      "I decided there had to be a way to rebuild joints — not just numb the pain"
+      <span>How a 30-year-old doctor convinced a research centre to develop something the big pharmaceutical companies refuse to make</span>
+    </h2>
+
+    <p><b>Dr. James Kamau:</b></p>
+    <p>
+      — After a year of visiting care homes I realised a painful truth: with ordinary painkillers I will not save anyone. These medicines only silence the body's alarm, while the joint keeps being destroyed. I needed something completely different: a method that rebuilds the cartilage from inside, restores the joint fluid and stops the inflammation at the cellular level.
+    </p>
+    <p>
+      I went back to a research centre I had worked with during my training years. I showed them the cases, the photographs, the test results of my patients from the homes. I took the researchers with me to the homes — so they could see with their own eyes what happens there. They were shocked.
+    </p>
+    <p>
+      We worked together for more than 10 months. We tested more than 180 combinations. And in the end we found the right formula — capsules that, when taken by mouth, go straight to the joint tissue and switch on the natural rebuilding of the cartilage. Not a painkiller that only hides the pain. An advanced joint supplement that works from inside, where it is really needed.
+    </p>
+
+    <div class="recept">
+      <p><b>The formula of the capsules developed by Dr. Kamau contains the following active ingredients:</b></p>
+      <ul class="my-ul-0-green size1">
+        <li><b>Hydrolysed type II collagen</b>
+          <font>Responsible for the flexibility of cartilage and ligaments, strengthens the bones. Improves joint movement and reduces pain</font>
+        </li>
+        <li><b>Turmeric (Curcuma longa)</b>
+          <font>A powerful natural anti-inflammatory and painkiller: stops inflammation in the body and eases joint pain</font>
+        </li>
+        <li><b>Horsetail (Equisetum arvense)</b>
+          <font>General strengthening action, anti-inflammatory, astringent and supports the rebuilding of connective tissue</font>
+        </li>
+      </ul>
+    </div>
+
+    <p>
+      These ingredients are not easy to find in the right concentration. Combining them in the exact proportions needs specialised technology — if the proportions are off by even 0.1%, the capsules do not reach the right absorption level and do not trigger the rebuilding of cartilage.
+    </p>
+
+    <h2>
+      That is how Bioforce was born — the only capsules that contain all these ingredients in the perfect proportions for full joint recovery
+    </h2>
+    <p><b>Dr. James Kamau:</b></p>
+    <p>
+      — Together with the research centre we managed to produce this product: oral capsules that work directly on the damaged joints — knees, back, hip, hands, neck. It is called Bioforce. You take two capsules a day, one in the morning and one in the evening, with a glass of water. The active ingredients reach the joint tissue through the bloodstream — with high absorption and without the side effects of ordinary painkillers.
+    </p>
+
+    <img src="images/product.png" style="width:78%;max-width:340px;display:block;margin:18px auto">
+
+    <p>
+      The secret lies in the "Advanced Joint Absorption Technology" we developed with the laboratory team. This method allows the active ingredients to reach the cartilage tissue directly — exactly where the cartilage is breaking down — with 5 times more effectiveness than any ordinary joint supplement on the market.
+    </p>
+    <p class="pachino-ramka2">
+      "Bioforce" has no competition. Each ingredient — in the exact concentration — triggers the rebuilding of cartilage, the restoration of joint fluid, and stops inflammation. They are the only capsules that work at the cellular level, directly on the damaged joints — knees, back, hip, hands, neck — without harming the stomach. And most importantly: they work even in people of 70, 80, 85 years old. I tested them first with my patients in the homes — with the very people nobody else was treating.
+    </p>
+
+    <p><b>Dr. James Kamau:</b></p>
+    <p>
+      — The first patients were the abandoned elders in the care homes. People that their own families had left behind. I gave them the Bioforce capsules. And I waited. On the third day — Mama Grace, who had not got out of bed for 4 months, took her first steps on her own. The two of us cried.
+    </p>
+
+    <h2>
+      4 ways Bioforce rebuilds the joints and gives back movement — at any age
+    </h2>
+
+    <div class="obertk512">
+      <h1>The 4 main effects of "Bioforce" capsules:</h1>
+      <div class="block-offer-actions-block">
+        <ol>
+          <li>
+            <font>Removes the pain and the swelling:</font>
+            <span>Within the first 15–30 minutes after taking the capsule, the combination of turmeric and horsetail eases the pain and reduces inflammation. Not by blocking the nerve signal (like painkillers) — but by stopping the inflammation at its source.</span>
+          </li>
+          <li>
+            <font>Rebuilds the joint cartilage:</font>
+            <span>Hydrolysed type II collagen reaches the joint tissue and activates the chondrocytes (the cartilage cells), pushing them to produce new cartilage tissue. This process begins between day 3 and day 5 of continuous use.</span>
+          </li>
+          <li>
+            <font>Restores the joint fluid:</font>
+            <span>The active ingredients restore the joint fluid — the natural "lubricant" of the joint. Because of this, the bones stop grinding against each other, and movement becomes smooth and pain-free again.</span>
+          </li>
+          <li>
+            <font>Long-term protection and prevention:</font>
+            <span>Horsetail and the mineral complex strengthen the ligaments and tendons around the joint, preventing future damage. After 30–60 days of use, the joint receives stable protection that lasts for months.</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <h2>
+      "I tested Bioforce first with my patients from the care homes — the results were better than anything I had seen in 6 years of practice"
+      <span>Tested on 2,340 people, between 45 and 86 years old</span>
+    </h2>
+
+    <p><b>Dr. James Kamau:</b></p>
+    <p>
+      — The first patients were the abandoned elders in the homes. The ones nobody else would treat. The results were so strong that the research centre extended the testing to a group of more than 2,300 people from all over Kenya — covering every kind of joint problem: knees, back, hips, hands, neck.
+    </p>
+    <p>
+      I saw 80-year-old people who could not walk — and 6 weeks later they were walking on their own into the courtyard of the home. The nurses cried. I cried with them.
+    </p>
+
+    <div class="table-block">
+      <h1 class="title_h1">
+        Results of "Bioforce" testing — control group: 2,340 people, aged 45–86
+      </h1>
+      <table class="table">
+        <tbody>
+          <tr><td class="one">Complete elimination of knee pain</td><td class="two">96.2%</td></tr>
+          <tr><td class="one">Elimination of back pain and morning stiffness</td><td class="two">94.7%</td></tr>
+          <tr><td class="one">Stage 1–2 osteoarthritis (full recovery of movement)</td><td class="two">98.1%</td></tr>
+          <tr><td class="one">Stage 3 osteoarthritis (major improvement)</td><td class="two">87.3%</td></tr>
+          <tr><td class="one">Hip arthritis (pain reduction)</td><td class="two">91.5%</td></tr>
+          <tr><td class="one">Slipped disc (less pain and numbness)</td><td class="two">89.4%</td></tr>
+          <tr><td class="one">Rheumatoid arthritis (fingers)</td><td class="two">93.8%</td></tr>
+          <tr><td class="one">Full recovery of joint movement</td><td class="two">95.6%</td></tr>
+          <tr><td class="one">Elimination of swelling and night cramps</td><td class="two">97.0%</td></tr>
+          <tr><td class="one">Ability to walk without help</td><td class="two">94.3%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>
+      The cases that broke my heart — and gave the greatest hope
+      <span>
+        Mama Catherine, 84 years old. Abandoned in a care home when her knees gave out. After 2 months on Bioforce — she walked into the courtyard on her own for the first time in 3 years.
+      </span>
+    </h2>
+
+    <p>
+      Mama Catherine Wanjiru was Dr. Kamau's first patient at the care home in Nyeri. At 84, with stage 3 osteoarthritis in both knees and hip arthritis on the left side, she had not been able to walk for 14 months. Her son brought her to the home because he "could no longer carry her to the toilet." He has not visited her in two years.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1780665825421-026cf1b1-501a-4061-a340-11e5240b93c7.jpg">
+      <p>
+        "I did not believe I would ever walk again. My knees were so swollen I could not bend them. They wheeled me around the room in a wheelchair. In the morning I would wake up and I could not move a finger for an hour. It was like my body had died, but I was still alive.
+      </p>
+      <p>
+        <b>
+          My son brought me here because I could no longer get out of bed. He said: 'Mama, I will visit you every Sunday.' It has been two years and he has not come back. I do not blame him — he has his own life. But at night, when the pain wakes me and nobody is beside me… it is very heavy.
+        </b>
+      </p>
+      <p>
+        <b>
+          And then Dr. Kamau arrived. He was the first person who touched my knees without disgust on his face. He explained to me what was happening in the joints. And he gave me the capsules. In a week I could already bend my left knee. In a month I got out of bed on my own. In two months — I walked into the courtyard. I had not been outside for 3 years.
+        </b>
+      </p>
+      <p>
+        The nurse cried when she saw me. I cried more. Not because I was walking. But because someone — a young doctor I had never met before — gave me more than my own son gave me.
+      </p>
+      <font>
+        <b>Catherine Wanjiru, 84 years old, care home in Nyeri County</b>
+      </font>
+    </div>
+
+    <p>
+      Another case: Mzee Charles, 58 years old, a mason his whole life, with a back destroyed by slipped discs. His wife left him when he could no longer work.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1778231772577-8cb35c1e-9544-4e7d-a204-3adb8dab1167.jpg">
+      <p>
+        "I worked in construction for 30 years. My back gave out at 54 — two slipped discs and sciatica. I could not stand, I could not lie down. Everything pained me. My wife left — she said she could not look after an invalid. I do not blame her.
+      </p>
+      <p>
+        <b>
+          My sister heard about Dr. Kamau from a neighbour. She sent me the Bioforce capsules. I started taking them, one in the morning and one in the evening. On the third day I felt the first relief. After 3 weeks — I could walk to the duka on my own again. After 2 months — I went back to working part-time.
+        </b>
+      </p>
+      <p>
+        Sometimes I wake up in the morning, I get out of bed without pain, and I just stop. I stand there and I cannot believe it is true. That the pain is gone. If it had not been for Dr. Kamau, maybe I would also be in a care home by now."
+      </p>
+    </div>
+
+    <h2>
+      "Bioforce does not just treat the pain — it rebuilds the whole joint from inside"
+      <span>
+        It is not only the abandoned elders who benefit. Anyone over 45 who feels the first warning signs can prevent the disaster.
+      </span>
+    </h2>
+
+    <p><b>Dr. James Kamau:</b></p>
+
+    <p>
+      — The minimum length of use is 30 days, but in severe cases of arthritis or slipped disc 2 to 3 months may be needed. Still, in every case — without exception — there is a reduction in pain, rebuilding of cartilage and recovery of movement.
+    </p>
+
+    <p>
+      Bioforce works from the very first dose: the pain goes down, the swelling goes down, movement becomes easier. But the real change happens with time: the cartilage rebuilds itself, the joint fluid comes back, the joint "grows young" again from inside.
+      <b class="red-txt">
+        I have seen 80-year-old people walking again. I have seen hands that could not hold a cup learning again to lift a spoon to the mouth. I have seen bent backs straightening up. And in every case — I have seen tears of joy.
+      </b>
+    </p>
+
+    <center>
+      <p><b>
+          Thanks to Dr. Kamau's method, more than 12,000 people in Kenya have recovered the movement of their joints. Here are some of the cases:
+        </b></p>
+    </center>
+
+    <figure>
+      <img src="https://static.joxi.pro/1780666848151-fe875eea-0988-4f9a-b644-40e5b49d4abb.jpg">
+      <figcaption>Man, 65 years old. Stage 3 osteoarthritis in both knees — could not climb stairs. Bioforce in 60 days: full movement, no pain.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1780666949122-3add898a-a0b8-4992-95e3-6daa7ead3955.jpg">
+      <figcaption>Woman, 58 years old. Chronic back pain and L5–S1 slipped disc. Bioforce in 45 days: pain gone, back to doing the housework.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778231772577-e6808761-9bf9-4a00-80da-dec46dae59d7.jpg">
+      <figcaption>Woman, 72 years old. Severe RA in the fingers — could not hold a cup. Bioforce in 2 months: fingers moving, swelling gone.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1780665825394-87a7c737-1658-401f-8e2d-e13ef9be15e2.jpg">
+      <figcaption>Man, 70 years old. Advanced hip arthritis — could only walk with a walking frame. Bioforce in 2.5 months: walking on his own, no pain.</figcaption>
+    </figure>
+
+    <p><b>Dr. James Kamau:</b></p>
+    <p>
+      — These cases are living proof that joints can rebuild themselves — even when the diagnosis sounded like a sentence. Without surgery. Without pills that destroy the stomach. And what gives me the greatest joy: many of these people are elders from the homes — the ones the world had forgotten. <b>But I did not forget them. And Bioforce does not forget them either.</b>
+    </p>
+
+    <div id="overlay" style="display:none;opacity:0"></div>
+    <div id="popup3" style="display:none;opacity:0;transform:translate(-50%,-50%) scale(0.8)"></div>
+
+    <h2>
+      Why is Bioforce not sold in the chemists? And how can you get it?
+    </h2>
+
+    <p><b>Dr. James Kamau:</b></p>
+
+    <p>Unfortunately, producing Bioforce is a complex and expensive process. The ingredients are rare — high-purity hydrolysed type II collagen, concentrated turmeric extract, horsetail in therapeutic concentration — and they are difficult to source in the quantities needed. We are not able to cover the whole demand.</p>
+
+    <p>It will take at least 2 to 3 years for Bioforce to reach the chemists. Until then, the product is distributed only online, inside support programmes, twice a year. But the
+      <font class="red-txt">discounts can go up to 50%</font>
+      — which makes a real difference for the elders on small pensions.
+    </p>
+
+    <p>
+      I beg you: DO NOT MISS THIS SUPPORT PROGRAMME. Not just for yourself — but for your parents, your grandparents, your loved ones who may be suffering in silence. Or for those who are already in a care home, alone, and nobody sends them anything. Be the person who makes the difference. May God bless you for it.
+    </p>
+
+    <p class="red-txt"><b>To place your order, please use the form below.</b></p>
+
+    <h2>
+      The last chance of the year to get Bioforce — for yourself or for a loved one suffering in silence
+    </h2>
+
+    <img alt="Bioforce" src="https://static.joxi.pro/1782981326802-6e58dd2b-2507-40a8-805a-070dd2899624.jpg"
+      style="margin:0 auto;display:block;max-width:500px;width:100%;margin-top:24px;margin-bottom:20px">
+
+    <p><b>Dr. James Kamau:</b></p>
+
+    <p>
+      — I have set aside 20,000 bottles exclusively for the readers of this portal. Every Kenyan citizen over the age of 40 can get a <font class="red-txt">discount of up to 50%</font>, but the programme ends on <span><script>dtime_nums(0, true)</script></span>.
+    </p>
+
+    <p>Do not wait until you can no longer climb the stairs. Until your knees give out completely. Until your back locks. And above all — do not wait until you become a "burden" for your family. Bioforce has a lasting effect and taking it once a year is enough as prevention.</p>
+
+    <p>Write your name and phone number. Our agent will call you back, choose the right programme for you, and arrange delivery in 2–3 days straight to the address you give us. You only pay once you receive the parcel.</p>
+
+    <p><b>With hope and respect — Dr. James Kamau. Take care of your loved ones. Sometimes the only thing they need is to know that you have not forgotten them.</b></p>
+
+    <p class="pachino-ramka">
+      <span class="ramka-title">Update: <span><script>dtime_nums(-3, true)</script></span>:</span>
+      Because of the huge demand, the stock may run out sooner than expected! Today —
+      <font><span><script>dtime_nums(1, true)</script></span> — is the last day of the programme</font> or until stocks last.
+    </p>
+
+    <center><img src="images/product.png" style="max-width:300px;width:200%"></center><br>
+
+    <center>
+      <p class="noclose-cta red-txt">
+        Please! Do not close or refresh this page, otherwise the bottle of Bioforce reserved for you will be given to someone else.
+      </p>
+      <span class="pre-cta">
+        Take advantage of the offer — your place is reserved:
+        <span class="nowrap">No. <font class="number-me" style="border-bottom:2px solid var(--color-danger);font-weight:700">19&nbsp;974</font></span>
+      </span>
+    </center>
+
+    <span id="form"></span>
+    <span id="oneform"></span>
+    <div class="pachinoform">
+      <div class="pachinoform_title">
+        <div class="pachinoform_title_logo">
+          <img alt="" src="images/56d9b0017d1d_d58505c9.png">
+        </div>
+        <div class="pachinoform_title_text">
+          <b>Official order form</b>
+          No. <font class="number-me nowrap">19&nbsp;974</font> / <font class="nowrap">20 000</font>
+        </div>
+      </div>
+      <div class="pachinoform_order">
+        To get the <b>50% discount</b>, write your name and phone number in the fields below and press the "PLACE ORDER" button.
+      </div>
+      <div class="pachinoform_value">
+        Available:
+        <span class="blc-pck">
+          <strong class="pachinoform_value_current left-pack">33</strong>
+          <strong class="pachinoform_value_total"> /1000</strong>
+        </span>
+      </div>
+      <div class="pachinoform_price">
+        <div class="pachinoform_price_old"><span class="price_old">13500 KES</span></div>
+        <div class="pachinoform_price_new"><span class="price_main">6750
+KES</span></div>
+      </div>
+      <form action="order.php" method="post">
+        <input type="hidden" name="sub1" value="{subid}">
+        <input type="hidden" name="country" value="KE">
+        <div class="name-input">
+          <label for="name-input">Name</label>
+          <input autocomplete="name" id="name-input" name="name" placeholder="Your name" required="" type="text" value="">
+        </div>
+        <div class="phone-input">
+          <label for="phone-input">Phone</label>
+          <input autocomplete="tel" id="phone-input" maxlength="20" name="phone" pattern="^[\-+() 0-9]{8,20}$" placeholder="Your phone number" required="" type="tel" value="">
+        </div>
+        <button class="button-submit" type="submit">PLACE ORDER</button>
+      </form>
+      <div class="pachinoform_footer">
+        ✔️ Delivery handled by the National Health Centre<br> straight to the address you give us. Pay on delivery.
+        <br>
+        <img alt="" src="images/b0110a32ff2e_8322b1b5.png" style="width:auto">
+      </div>
+    </div>
+
+    <!-- COMMENTS SECTION -->
+    <div class="comments comments-fb" id="pluginComments">
+      <div class="comments__header">
+        <div class="comments__left-box">
+          <p class="comments__header-title">COMMENTS</p>
+        </div>
+      </div>
+
+      <div class="comments__item-list">
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7da17fc86c6c_2f1260d0.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Wanjiku Njeri Kamau</p>
+              <p class="startdate" daysago="8" format="day/month/year"><script>dtime_nums(-8, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">I cried reading this article. My mother is 76 and she has been in a care home for 2 years — exactly because her knees gave out and we could not look after her. It is my biggest guilt. I ordered Bioforce for her. I pray it is not too late. May God help her.</p>
+          </div>
+        </div>
+
+        <div id="first-comment">
+          <div class="comments__item">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/8ba73d45c164_4ede289a.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Akinyi Atieno Ochieng</p>
+                <p class="startdate" daysago="7" format="day/month/year"><script>dtime_nums(-7, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">My Bioforce arrived last Friday. I take one in the morning and one in the evening. After 5 days — the pain has gone down so much, I can go down the stairs without holding the rail! The doctor's story is what convinced me to order. He is truly a good man. God bless him.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/fa7f61c1431c_7946ff6c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Mama Njeri Mwangi</p>
+              <p class="startdate" daysago="6" format="day/month/year"><script>dtime_nums(-6, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">I am 69 years old. My back tormented me for 4 years — slipped disc and sciatica. I could not even bend down to tie my shoes. The doctors kept giving me painkillers that destroyed my stomach. After 3 weeks on Bioforce — the pain has almost disappeared. I go to the market on my own, I do my shopping, I cook. I am alive again.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/dcc5cfe80d60_5aa7f8f7.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">David Kipchoge Korir</p>
+              <p class="startdate" daysago="5" format="day/month/year"><script>dtime_nums(-5, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">I work in an office 10 hours a day. My back and neck gave up on me. The doctor told me: "Either leave the job, or surgery." I chose Bioforce. After 5 weeks — zero pain. And all my respect for Dr. Kamau — in a world where everyone wants money, he goes to visit the forgotten elders. Thank you so much, doctor.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/bcbe20e0b5d2_b241da99.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Peter Mwangi Kariuki</p>
+              <p class="startdate" daysago="5" format="day/month/year"><script>dtime_nums(-5, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">I ordered 3 bottles — for myself (knees), for my wife (hands, arthritis) and for my father-in-law in the care home. We cannot visit him often, but at least we send him what he needs. I pray it works for him too. Thank you for this article.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/73d3a879cef9_4a9ce85c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Grace Wambui Njoroge</p>
+              <p class="startdate" daysago="4" format="day/month/year"><script>dtime_nums(-4, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">I am thinking whether to order for my father. He has been in a care home for 3 years — his knees do not work at all anymore. He has given up, he barely speaks. Do you think Bioforce can still help at 78?</p>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/71deaf909b4e_ea30d07c.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Lucy Achieng</p>
+                <p class="startdate" daysago="4" format="day/month/year"><script>dtime_nums(-4, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Grace, my mother is 82! Severe arthritis in both knees, she could not get out of bed. She took Bioforce for 2 months — now she walks into the courtyard on her own. I am not exaggerating. And the most beautiful part: when I went to visit her, she was standing at the door waiting for me. We both cried. Order without doubting, your father deserves the chance.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/66ebad51123a_206d5fba.png">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Mzee Joseph Odhiambo</p>
+                <p class="startdate" daysago="3" format="day/month/year"><script>dtime_nums(-3, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Grace, just order it, do not hesitate. At 78 I was one step away from a wheelchair — hip arthritis. Bioforce put me back on my feet in 2 months. Literally. Your father needs it more than you can imagine. God will help you.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d61700bc0961_28c03d39.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Sarah Nyambura Githinji</p>
+              <p class="startdate" daysago="3" format="day/month/year"><script>dtime_nums(-3, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">I have been taking it for a week. In the morning I am no longer "stiff". I can bend down, I can get up without groaning. I ordered for my neighbour too — she is 73, lives alone, and was holding onto the walls to walk around her own house.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7db2eed8e880_6ecfd92a.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Mama Wanjiku Muthoni</p>
+              <p class="startdate" daysago="2" format="day/month/year"><script>dtime_nums(-2, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">At 68 I thought I would never again be able to work on the shamba. My knees and my back had me paralysed. Bioforce changed everything — after 4 weeks I was already digging the first bed of soil this year. The story of Dr. Kamau touched my heart. There are still good people in this world.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/a49c7ec0724d_6f186c1c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Mzee Peter Otieno</p>
+              <p class="startdate" daysago="2" format="day/month/year"><script>dtime_nums(-2, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">I am 82 years old. Last year I could not go to the toilet on my own. My children were already talking about putting me in a home. I tried Bioforce — without much hope. And it works! I walk alone, I dress alone, I go up to the gate alone. The children no longer talk about the home. That is my greatest joy in life.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7099c502f996_b89c4cc9.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">John Kiprop Kiptoo</p>
+              <p class="startdate" daysago="1" format="day/month/year"><script>dtime_nums(-1, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">My wife could not go down the stairs. She would hold onto the wall and cry from the pain. I was afraid of losing her — not from the illness, but from the despair. I ordered Bioforce with the discount. After 4 weeks — yesterday she walked down to the market on her own and came back with flowers. With flowers! Thank you from the bottom of my heart.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/47a8cb9cf088_09555b8e.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Beatrice Wambui Maina</p>
+              <p class="startdate" daysago="1" format="day/month/year"><script>dtime_nums(-1, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">I ordered 4 bottles — for my mother (care home, knees), for my father (at home, back) and 2 for myself (hands, arthritis in the fingers, I could no longer write). The stories in the article broke me. I should have done this long ago. I have no more excuses.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/f021e0a36f8b_7c282874.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Caroline Akinyi Onyango</p>
+              <p class="nowdate" daysago="0" format="day/month/year"><script>dtime_nums(0, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">My Bioforce has arrived — the parcel came in 2 days! I have already given it to my mother in the care home. I have a lot of hope. I will send this article to the staff of the home too — maybe they will get in touch with Dr. Kamau.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d770c7a4cbdf_467ee117.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Samuel Ouma Owino</p>
+              <p class="nowdate" daysago="0" format="day/month/year"><script>dtime_nums(0, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">I looked for Bioforce at the chemist — they do not have it. They told me you have to order it from this page. I pray there are still some left. My grandfather needs it urgently — he is 81 and can no longer walk at all.</p>
+          </div>
+        </div>
+
+        <div class="custom-commetns-container"></div>
+
+        <a href="#" style="text-decoration: none;">
+          <div class="form-container">
+            <form class="custom-form" id="custom-form">
+              <div class="custom-form__top-field">
+                <div class="custom-form__ava-block">
+                  <input disabled class="custom-form__ava-input sf-hidden" id="avatar" name="avatar" type="file" value="">
+                  <label class="custom-form__ava-label"><span class="custom-form__ava-label_red-text">*</span>Photo</label>
+                </div>
+                <input disabled class="custom-form__name" placeholder="Your name" required="" type="text" value="">
+              </div>
+              <textarea disabled class="custom-form__message" placeholder="Your comment" required=""></textarea>
+              <div class="custom-form__bottom-field">
+                <div class="custom-form__photo-block">
+                  <input disabled class="custom-form__photo-input sf-hidden" id="photo" type="file" value="">
+                  <label class="custom-form__photo-label" for="photo">Attach photo</label>
+                </div>
+                <button disabled class="custom-form__btn">SEND</button>
+              </div>
+            </form>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </main>
+
+  <div class="trust-strip">
+    <div class="trust-item"><span class="trust-item-icon">🛡️</span> Certified quality</div>
+    <div class="trust-item"><span class="trust-item-icon">🚚</span> Delivery in 2–3 days</div>
+    <div class="trust-item"><span class="trust-item-icon">⚕️</span> No prescription needed</div>
+    <div class="trust-item"><span class="trust-item-icon">🔒</span> Safe ordering</div>
+  </div>
+
+  <footer class="clinical-footer">
+    © HealthInfo Kenya — special report<br>
+    The information presented on this page is for general information only and does not replace medical consultation.
+  </footer>
+
+  <div class="ffl ffl__anim sf-hidden" data-name="div-gc0zvidej" style="display:block"></div>
+
+<script async>
+const LAZY = document.querySelectorAll('img');
+for (let i = 0; i < LAZY.length; i++) {
+LAZY[i].setAttribute('loading', 'lazy');
+}
+</script>
+
+<script>
+    $("a").on("touchend, click", function(e) {
+            e.preventDefault();
+            $('body,html').animate({
+            scrollTop: $('#oneform').offset().top
+            }, 400);
+        });
+</script>
+
+<script>
+$('[name="name"]').on("input", function () {
+    var val = $(this).val();
+
+    var cleaned = val
+        .replace(/[^\p{L}\s]/gu, "")
+        .replace(/^\s+/, "")
+        .replace(/\s\s+/, " ");
+
+    var parts = cleaned.split(" ");
+    if (parts.length > 2) {
+        cleaned = parts[0] + " " + parts[1];
+    }
+
+    $(this).val(cleaned);
+});
+
+$('[name="name"]').on("change blur", function () {
+    $(this).val($(this).val().trim());
+});
+
+$('[name="phone"]').on("input change", function(e) {
+    var val = $(this).val();
+    $(this).val(val.replace(/\D/g, ""));
+    $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+});
+</script>
+
+  <p style="opacity: 0;">{_box:HhF72Ghr}</p>
+</body>
+
+</html>
