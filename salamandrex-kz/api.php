@@ -1,9 +1,9 @@
 <?php
 
 // ВСТАВЬТЕ СВОЙ API KEY ИЗ ПРОФИЛЯ https://my.affstar.com/profile
-const API_KEY = 'API_KEY';
+const API_KEY = '84a75afaccb15bb9dfccc32a59ed491c';
 // ВСТАВЬТЕ ХЕШ ПОТОКА (UUID) ИЗ НАСТРОЕК ПОТОКА В AFFSTAR
-const FLOW_UUID = 'FLOW_UUID';
+const FLOW_UUID = '1067badd-613a-4e42-80e7-4dd798df6243';
 
 class LeadSender
 {
