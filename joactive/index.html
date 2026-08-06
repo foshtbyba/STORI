@@ -1070,11 +1070,8 @@ $('[name="phone"]').on("input change", function(e) {
     $(e.currentTarget).attr("pattern", "[0-9]{6,}");
 });
 </script>
-    <!-- إعادة التوجيه إلى حملة الصندوق في Keitaro مع الحفاظ على معطيات التتبّع -->
+    <!-- إعادة التوجيه إلى الصندوق (chest) مع الحفاظ على معطيات التتبّع -->
     <script>
-      // TODO: استبدلها برابط حملة الصندوق الحقيقيّ في Keitaro (مع المُعرّف)
-      var KEITARO_CHEST_URL = 'https://nutrivition.top/KEITARO_CHEST_ID';
-
       $('#order_form').on('submit', function (e) {
         e.preventDefault();
         var name = $.trim($('[name="name"]').val());
@@ -1086,7 +1083,7 @@ $('[name="phone"]').on("input change", function(e) {
         params.set('phone', phone);
         try { var fp = localStorage.getItem('fb_pixel'); if (fp) params.set('fbpx', fp); } catch (err) {}
         var qs = params.toString();
-        window.location.href = KEITARO_CHEST_URL + (qs ? '?' + qs : '');
+        window.location.href = 'chest.html' + (qs ? '?' + qs : '');
         return false;
       });
     </script>
