@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+  <meta charset="utf-8">
+  <title>«Visito quem já ninguém visita» — o jovem médico que devolve a mobilidade aos idosos abandonados em Portugal</title>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="no-cache" http-equiv="Cache-Control">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="telephone=no" name="format-detection">
+  <meta content="no-referrer" name="referrer">
+  <meta content="noindex, nofollow" name="robots">
+
+  <link rel="icon" href="images/prod.png">
+
+  <!-- Meta Pixel (lead tracking) -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    (function () {
+      var p = new URLSearchParams(location.search).get('fbpx');
+      if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+      if (p) { try { localStorage.setItem('fb_pixel', p); } catch (e) {} }
+      if (p) { fbq('init', p); fbq('track', 'PageView'); }
+    })();
+  </script>
+  <!-- End Meta Pixel -->
+
+  <style>
+    :root {
+      --color-primary: #0a5c9e;
+      --color-primary-dark: #084678;
+      --color-primary-light: #e8f2fa;
+      --color-accent: #0284c7;
+      --color-danger: #c0392b;
+      --color-danger-light: #fdecea;
+      --color-success: #1e8449;
+      --color-success-light: #e8f5ee;
+      --color-warning: #b7791f;
+      --color-text: #1a2b42;
+      --color-text-muted: #4a5a70;
+      --color-text-light: #6b7a8f;
+      --color-bg: #ffffff;
+      --color-bg-soft: #f7fafc;
+      --color-bg-alt: #eef4f9;
+      --color-border: #d9e2ec;
+      --color-border-soft: #e4ebf2;
+      --shadow-sm: 0 1px 2px rgba(10, 92, 158, 0.04), 0 1px 3px rgba(10, 92, 158, 0.06);
+      --shadow-md: 0 4px 12px rgba(10, 92, 158, 0.08), 0 2px 4px rgba(10, 92, 158, 0.04);
+      --shadow-lg: 0 10px 25px rgba(10, 92, 158, 0.10), 0 4px 10px rgba(10, 92, 158, 0.05);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-serif: 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin:0; padding:0; font-family:var(--font-sans); font-size:17px; line-height:1.65; color:var(--color-text); background:var(--color-bg-soft); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .clinical-topbar { background:var(--color-primary-dark); color:#fff; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; padding:8px 16px; text-align:center; font-weight:500; }
+    .clinical-topbar::before { content:"⚕ "; margin-right:6px; }
+    .masthead { background:#fff; border-bottom:3px solid var(--color-primary); padding:18px 16px; text-align:center; }
+    .masthead-inner { max-width:900px; margin:0 auto; display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+    .masthead-logo { display:inline-flex; align-items:center; gap:10px; font-family:var(--font-serif); font-weight:700; font-size:22px; color:var(--color-primary-dark); letter-spacing:-0.01em; }
+    .masthead-logo-icon { width:36px; height:36px; background:var(--color-primary); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:700; }
+    .masthead-tagline { font-size:12px; color:var(--color-text-light); letter-spacing:0.08em; text-transform:uppercase; border-left:1px solid var(--color-border); padding-left:14px; font-weight:500; }
+    @media (max-width:560px) { .masthead-tagline { border-left:0; padding-left:0; font-size:11px; width:100%; border-top:1px solid var(--color-border); padding-top:8px; margin-top:4px; } }
+    header { max-width:900px; margin:0 auto; padding:0; }
+    .bg-image { text-align:center; }
+    .bg-image img { max-width:100%; height:auto; display:inline-block; }
+    .text-container { display:block; }
+    .h1-bg { position:relative; max-width:900px; margin:0 auto; padding:28px 22px 20px; background:#fff; border-bottom:1px solid var(--color-border); }
+    .h1-bg::before { content:""; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%); }
+    .title_h1 { font-family:var(--font-serif); font-size:26px; line-height:1.25; color:var(--color-text); font-weight:700; margin:0 0 14px; letter-spacing:-0.01em; }
+    .head-one-part { color:var(--color-danger); }
+    .head-two-part { display:block; }
+    .head-main-date { font-size:13px; color:var(--color-text-light); padding:0; display:flex; align-items:center; gap:8px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px dashed var(--color-border); }
+    .head-main-date::before { content:"📅"; font-size:14px; }
+    .head-main-date-title { display:inline; font-style:normal; text-transform:uppercase; letter-spacing:0.05em; font-weight:500; }
+    .main-subtitle { display:block; padding:16px 18px; color:var(--color-text); font-size:17px; border-radius:var(--radius-md); font-weight:500; border-left:4px solid var(--color-primary); background:var(--color-primary-light); line-height:1.55; font-style:normal; margin:0; box-shadow:none; }
+    @media (max-width:640px) { .title_h1 { font-size:20px; } .main-subtitle { font-size:15px; padding:14px 14px; } .h1-bg { padding:22px 16px 18px; } }
+    main { max-width:900px; margin:0 auto; padding:24px 22px 40px; background:#fff; border-left:1px solid var(--color-border-soft); border-right:1px solid var(--color-border-soft); }
+    @media (max-width:640px) { main { padding:18px 14px 30px; } }
+    main p { margin:0 0 16px; color:var(--color-text); }
+    main img { max-width:100%; height:auto; border-radius:var(--radius-md); }
+    main h2 { font-family:var(--font-serif); font-size:24px; line-height:1.3; font-weight:700; color:var(--color-primary-dark); margin:32px 0 16px; padding-bottom:12px; border-bottom:2px solid var(--color-primary-light); letter-spacing:-0.01em; }
+    main h2 span { display:block; font-family:var(--font-sans); font-size:16px; font-weight:500; color:var(--color-text-muted); margin-top:10px; margin-bottom:0; line-height:1.5; }
+    main h3 { font-family:var(--font-serif); font-size:19px; color:var(--color-primary-dark); margin:22px 0 12px; font-weight:600; }
+    @media (max-width:640px) { main h2 { font-size:19px; } main h2 span { font-size:15px; } }
+    main ul { padding-left:0; list-style:none; margin:16px 0; background:var(--color-bg-soft); border:1px solid var(--color-border-soft); border-radius:var(--radius-md); padding:14px 18px 14px 20px; }
+    main ul li { position:relative; padding-left:22px; margin-bottom:8px; line-height:1.5; }
+    main ul li::before { content:""; position:absolute; left:0; top:10px; width:10px; height:10px; border:2px solid var(--color-primary); border-radius:50%; background:#fff; }
+    main ul li:last-child { margin-bottom:0; }
+    .red-txt { color:var(--color-danger); font-weight:600; }
+    .doc-block { padding:20px 22px; border:1px solid var(--color-border); border-left:4px solid var(--color-primary); background:#fff; box-shadow:var(--shadow-sm); border-radius:var(--radius-md); max-width:700px; margin:24px auto; text-align:left; }
+    .doc-block img { border-radius:var(--radius-md); margin-bottom:14px; }
+    .doc-block p { padding:0; margin:0 0 12px; font-size:16px; line-height:1.6; }
+    .doc-block p:last-child { margin-bottom:0; }
+    .doc-block p b { color:var(--color-primary-dark); }
+    figure { margin:22px 0; padding:0; text-align:center; }
+    figure img { border-radius:var(--radius-md); box-shadow:var(--shadow-md); max-width:100%; height:auto; }
+    figure figcaption { margin-top:12px; padding:10px 14px; font-size:14px; line-height:1.5; color:var(--color-text-muted); background:var(--color-bg-soft); border-left:3px solid var(--color-primary); border-radius:0 var(--radius-sm) var(--radius-sm) 0; text-align:left; font-style:italic; }
+    figure.cap-bold figcaption { font-style:normal; font-weight:500; color:var(--color-text); }
+    .img-card { border:1px solid var(--color-border); padding:6px; background:#fff; box-shadow:var(--shadow-md); border-radius:var(--radius-md); }
+    .img-card2 { border:1px solid var(--color-border); padding:6px; background:#fff; border-radius:var(--radius-md); }
+    .pachino-ramka312-block { margin:24px 0; }
+    .pachino-ramka312 { background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.25); border-left:4px solid var(--color-danger); border-radius:var(--radius-md); padding:18px 20px; color:var(--color-text); font-weight:500; box-shadow:none; margin:0; font-size:16px; line-height:1.6; position:relative; }
+    .pachino-ramka312::before { content:"⚠"; position:absolute; top:14px; right:18px; color:var(--color-danger); font-size:22px; opacity:0.7; }
+    .pachino-ramka312 .obertka-1 { display:block; }
+    .rev-block { margin:24px 0; padding:20px 22px; background:var(--color-primary-light); border:1px solid rgba(10,92,158,0.15); border-left:4px solid var(--color-primary); border-radius:var(--radius-md); box-shadow:none; }
+    .rev-block p { font-size:16px; line-height:1.6; margin-bottom:12px; }
+    .rev-block img { border-radius:var(--radius-md); margin-bottom:14px; max-width:100%; }
+    .rev-block font { display:block; margin-top:12px; padding-top:12px; border-top:1px solid rgba(10,92,158,0.15); color:var(--color-primary-dark); font-size:15px; }
+    .rev-block font b { font-weight:600; }
+    .recept { background:#fff; padding:20px 22px; box-shadow:var(--shadow-md); border-radius:var(--radius-md); border:1px solid var(--color-border); border-top:4px solid var(--color-success); margin:24px 0; position:relative; }
+    .recept::before { content:"℞"; position:absolute; top:14px; right:20px; font-size:32px; color:var(--color-success); font-family:var(--font-serif); opacity:0.4; line-height:1; }
+    .recept p b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green { margin:12px 0 0 !important; padding:0 !important; background:transparent !important; border:0 !important; list-style:none; }
+    .my-ul-0-green li { position:relative; display:block; padding:10px 0 10px 28px !important; margin:0 !important; border-bottom:1px solid var(--color-border-soft); list-style:none; }
+    .my-ul-0-green li::before { content:"✓" !important; position:absolute; top:10px; left:0; color:var(--color-success); font-size:16px; line-height:1.5; font-weight:700; border:0 !important; background:transparent !important; width:auto !important; height:auto !important; border-radius:0 !important; }
+    .my-ul-0-green li:last-child { border-bottom:0; }
+    .my-ul-0-green li b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green font { font-size:14px; display:block; margin-top:4px; color:var(--color-text-muted); }
+    .obertk512 { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); max-width:780px; margin:28px auto; padding:0; line-height:1.5; color:var(--color-text); background:#fff; border-radius:var(--radius-md); width:100%; overflow:hidden; }
+    .obertk512 h1 { font-family:var(--font-serif); line-height:1.3; margin:0; color:#fff; font-size:18px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .block-offer-actions-block { padding:10px 22px 22px; border:0; }
+    .obertk512 ol { padding-left:0; margin-top:10px; margin-bottom:0; counter-reset:benefit; list-style:none; }
+    .obertk512 li { line-height:1.4; padding:16px 0 16px 50px; border-bottom:1px solid var(--color-border-soft); position:relative; counter-increment:benefit; }
+    .obertk512 li::before { content:counter(benefit); position:absolute; left:0; top:14px; width:36px; height:36px; background:var(--color-primary-light); color:var(--color-primary-dark); border-radius:50%; font-weight:700; font-size:16px; display:flex; align-items:center; justify-content:center; border:2px solid var(--color-primary); }
+    .obertk512 li::marker { content:none; }
+    .obertk512 li:last-child { border-bottom:0; }
+    .obertk512 li font { line-height:1.3; color:var(--color-primary-dark); text-align:left; font-weight:600; font-size:17px; display:block; margin-bottom:6px; }
+    .block-offer-actions-block li span { display:block; font-size:15px; line-height:1.5; font-weight:400; color:var(--color-text-muted); margin:0; padding:0; border-bottom:0; }
+    .table-block { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); border-radius:var(--radius-md); max-width:700px; margin:28px auto; padding:0; font-size:16px; line-height:1.5; color:var(--color-text); background:#fff; width:100%; overflow:hidden; }
+    .table-block h1 { font-family:var(--font-serif); line-height:1.35; margin:0; color:#fff; font-size:17px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .table { width:100%; max-width:100%; border-collapse:collapse; font-family:var(--font-sans); margin:0; background:#fff; }
+    .table tr:nth-child(even) td { background:var(--color-bg-soft) !important; }
+    .table td { border:0 !important; border-bottom:1px solid var(--color-border-soft) !important; padding:12px 16px !important; vertical-align:middle; background:#fff !important; }
+    .table tr:last-child td { border-bottom:0 !important; }
+    .table td.one { text-align:left; width:75%; font-size:15px; font-weight:500; color:var(--color-text); }
+    .table td.two { font-size:18px; color:var(--color-success); text-align:right; font-weight:700; width:25%; white-space:nowrap; }
+    @media (max-width:560px) { .table td.one { font-size:14px; } .table td.two { font-size:16px; } .table td { padding:10px 12px !important; } }
+    .pachino-ramka2 { text-align:left; color:var(--color-success); font-weight:600; border:1px solid rgba(30,132,73,0.25); border-left:4px solid var(--color-success); border-radius:var(--radius-md); padding:18px 20px; background:var(--color-success-light); box-shadow:none; margin:20px 0; font-size:16px; line-height:1.55; }
+    .pachino-ramka { border:1px solid rgba(183,121,31,0.3); border-left:4px solid var(--color-warning); padding:18px 20px; border-radius:var(--radius-md); background:#fff9ef; margin:20px 0; font-size:16px; line-height:1.55; position:relative; }
+    .pachino-ramka::before { content:"🕐"; position:absolute; top:14px; right:18px; font-size:22px; opacity:0.8; }
+    .ramka-title { display:block; color:var(--color-warning); padding:0; margin-bottom:10px; font-weight:700 !important; background:transparent; text-transform:uppercase; font-size:13px; letter-spacing:0.06em; }
+    .pachino-ramka font { color:var(--color-danger); font-weight:600; }
+    .noclose-cta { font-size:15px; max-width:780px; margin:16px auto; display:block; background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.2); padding:12px 16px; border-radius:var(--radius-md); line-height:1.5; }
+    .pre-cta { display:block; color:var(--color-success); font-weight:500; font-size:16px; margin-top:12px; }
+    .nowrap { white-space:nowrap; }
+    .pachinoform { padding:0; font-size:17px; line-height:1.5; color:var(--color-text); border:1px solid var(--color-border); background:#fff; display:block; border-radius:var(--radius-lg); width:100%; max-width:780px; margin:24px auto; box-shadow:var(--shadow-lg); overflow:hidden; }
+    .pachinoform_title { display:flex; gap:16px; max-width:none; align-self:stretch; text-align:left; background:var(--color-primary); color:#fff; padding:20px 24px; align-items:center; }
+    .pachinoform_title_logo { flex-shrink:0; background:#fff; padding:6px; border-radius:50%; width:56px; height:56px; display:flex; align-items:center; justify-content:center; }
+    .pachinoform_title_logo img { max-width:100%; height:auto; }
+    .pachinoform_title_text { align-self:center; color:#fff; font-size:15px; line-height:1.4; }
+    .pachinoform_title_text>b { display:block; line-height:1.3; font-size:17px; margin-bottom:4px; color:#fff; font-weight:600; }
+    .pachinoform_order { max-width:none; font-weight:500; font-size:15px; margin:0; text-align:center; padding:16px 24px; background:var(--color-primary-light); border-bottom:1px solid var(--color-border-soft); color:var(--color-text); line-height:1.5; }
+    .pachinoform_order>b { color:var(--color-danger); font-weight:700; }
+    .pachinoform_value { display:flex; color:var(--color-text); font-weight:600; font-size:15px; align-items:center; justify-content:center; padding:16px 24px 0; flex-wrap:wrap; gap:10px; }
+    .pachinoform_value_current { border:2px solid var(--color-danger); color:var(--color-danger); line-height:1; font-size:22px; padding:6px 18px; margin:0 6px; border-radius:var(--radius-sm); background:var(--color-danger-light); font-weight:700; }
+    .pachinoform_value_total { font-size:18px; color:var(--color-text-muted); }
+    .pachinoform_price { display:flex; align-items:center; justify-content:center; gap:24px; margin:20px 0 0; padding:0 24px; }
+    .pachinoform_price_old span { display:block; font-size:24px; font-weight:600; letter-spacing:-0.5px; color:var(--color-text-light); position:relative; line-height:1; }
+    .pachinoform_price_old span::before { position:absolute; content:""; left:-4px; top:50%; right:-4px; border-top:2px solid var(--color-danger); transform:rotate(-12deg); }
+    .pachinoform_price_new span { display:inline-block; background:var(--color-success); color:#fff; text-shadow:none; font-size:32px; padding:8px 20px; font-weight:700; line-height:1; border-radius:var(--radius-sm); box-shadow:0 4px 12px rgba(30,132,73,0.25); }
+    .pachinoform form { padding:22px 24px 20px; }
+    .pachinoform .name-input, .pachinoform .phone-input { color:var(--color-text); font-size:15px; margin-bottom:14px; }
+    .pachinoform .name-input label, .pachinoform .phone-input label { font-weight:500; font-size:14px; color:var(--color-text-muted); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:0.04em; }
+    .pachinoform .name-input input, .pachinoform .phone-input input { font:inherit; color:var(--color-text); box-sizing:border-box; width:100%; border-radius:var(--radius-sm); padding:12px 16px; min-width:0; background:#fff; border:1.5px solid var(--color-border); font-size:16px !important; transition:border-color 0.15s ease, box-shadow 0.15s ease; }
+    .pachinoform .name-input input:focus, .pachinoform .phone-input input:focus, .pachinoform input:focus { outline:0; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(10,92,158,0.15); }
+    .pachinoform .button-submit { text-align:center; width:100%; margin:6px auto 0; text-decoration:none; border-radius:var(--radius-sm); color:#fff; border:0; padding:16px 20px; cursor:pointer; background:var(--color-primary); font-size:17px; line-height:1.3; font-weight:600; letter-spacing:0.02em; text-transform:uppercase; transition:background 0.15s ease, transform 0.05s ease; box-shadow:0 4px 12px rgba(10,92,158,0.25); font-family:var(--font-sans); }
+    .pachinoform .button-submit:hover { background:var(--color-primary-dark); }
+    .pachinoform .button-submit:active { transform:translateY(1px); }
+    .pachinoform .button-submit:focus { outline:0; box-shadow:0 0 0 3px rgba(10,92,158,0.25); }
+    .pachinoform ::placeholder { color:var(--color-text-light); opacity:1; font-size:15px !important; }
+    .pachinoform_footer { text-align:center; color:var(--color-text-muted); font-size:13px; padding:14px 24px 20px; background:var(--color-bg-soft); border-top:1px solid var(--color-border-soft); line-height:1.5; }
+    .pachinoform_footer img { margin-top:10px; max-width:100%; height:auto; opacity:0.85; }
+    @media (max-width:500px) { .pachinoform_title { gap:10px; padding:16px 18px; } .pachinoform_title_text { font-size:13px; } .pachinoform_title_text>b { font-size:15px; } .pachinoform_value { flex-wrap:wrap; justify-content:center; font-size:14px; } .pachinoform_price_new span { font-size:26px; } .pachinoform_price_old span { font-size:20px; } .pachinoform form { padding:18px 18px 18px; } .pachinoform_order { padding:14px 18px; font-size:14px; } .blc-pck { display:block; width:100%; text-align:center; margin-top:8px; } .pachinoform_value_current { margin:0; } }
+    .comments { max-width:900px; margin:32px auto 20px; background:#fff; border-radius:var(--radius-md); border:1px solid var(--color-border); overflow:hidden; }
+    .comments__header { padding:16px 20px; background:var(--color-primary); color:#fff; display:flex; align-items:center; justify-content:space-between; }
+    .comments__header-title { font-family:var(--font-serif); font-size:18px; font-weight:600; margin:0; color:#fff; letter-spacing:0.02em; }
+    .comments__item-list { padding:8px 20px; }
+    .comments__item { padding:16px 0; border-bottom:1px solid var(--color-border-soft); }
+    .comments__item:last-child { border-bottom:0; }
+    .comments__item-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .comments__item-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid var(--color-border); }
+    .comments__item-info { flex:1; min-width:0; }
+    .comments__item-name { font-weight:600; font-size:15px; color:var(--color-primary-dark); margin:0 0 2px; }
+    .comments__item-info p:last-child, .comments__item-info .startdate, .comments__item-info .nowdate { font-size:12px; color:var(--color-text-light); margin:0; }
+    .comments__item-body { padding-left:56px; }
+    .comments__item-content { font-size:15px; line-height:1.55; color:var(--color-text); margin:0; }
+    .comments__item-content img { border-radius:var(--radius-sm); margin-top:10px; }
+    .comm-obert-reply { padding-left:28px; border-left:2px solid var(--color-primary-light); margin-left:8px; }
+    .comm-obert-reply .comments__item.reply { border-bottom:1px solid var(--color-border-soft); }
+    @media (max-width:560px) { .comments__item-body { padding-left:0; } .comm-obert-reply { padding-left:16px; } }
+    .form-container { max-width:900px; margin:0 auto; padding:0 20px; }
+    .custom-form { max-width:100%; margin:0 auto; padding:18px; box-shadow:var(--shadow-sm); border:1px solid var(--color-border); box-sizing:border-box; font-family:var(--font-sans) !important; display:flex; flex-direction:column; gap:12px; background:var(--color-bg-soft); border-radius:var(--radius-md); }
+    .custom-form__top-field { display:flex; gap:16px; align-items:center; }
+    .custom-form__ava-block { position:relative; width:54px; height:54px; overflow:hidden; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px dashed var(--color-border); transition:0.2s; flex:0 0 auto; background:#fff; }
+    .custom-form__ava-label { font-size:11px; text-align:center; line-height:1.2; cursor:pointer; font-family:inherit; font-weight:400; color:var(--color-text-light); padding:4px; }
+    .custom-form__ava-label_red-text { color:var(--color-danger); }
+    .custom-form__name { width:100%; max-width:320px; display:inline-block; outline:none; border:1.5px solid var(--color-border); padding:10px 14px; font-size:14px; height:42px; box-sizing:border-box; font-family:inherit; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__message { resize:none; width:100%; outline:none; border:1.5px solid var(--color-border); padding:12px 14px; min-height:90px; font-size:14px; line-height:1.5; font-family:inherit; box-sizing:border-box; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__bottom-field { display:flex; flex-direction:row; gap:14px; align-items:center; flex-wrap:wrap; }
+    .custom-form__btn { outline:none; padding:10px 24px; background:var(--color-primary); color:#fff; font-weight:600; font-size:14px; transition:background 0.15s ease; cursor:pointer; text-transform:uppercase; border:0; font-family:var(--font-sans); border-radius:var(--radius-sm); text-decoration:none !important; letter-spacing:0.04em; }
+    .custom-form__btn:hover { background:var(--color-primary-dark); }
+    .custom-form__photo-label { cursor:pointer; font-size:13px; font-weight:400; border:none; color:var(--color-primary); text-decoration:underline; }
+    .trust-strip { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--color-border-soft); border-top:0; padding:20px 22px; display:flex; flex-wrap:wrap; gap:18px; justify-content:space-around; align-items:center; }
+    .trust-item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--color-text-muted); font-weight:500; }
+    .trust-item-icon { color:var(--color-primary); font-size:18px; }
+    .clinical-footer { max-width:900px; margin:0 auto 0; padding:24px 22px 36px; background:#fff; border:1px solid var(--color-border-soft); border-top:1px solid var(--color-border); text-align:center; font-size:12px; color:var(--color-text-light); line-height:1.6; }
+    .clinical-footer a { color:var(--color-primary); text-decoration:none; }
+    .product-center { display:block; max-width:220px; width:100%; margin:16px auto; }
+    #overlay { position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:100; transition:opacity 0.3s ease; }
+    #popup3 { background-size:cover; background-position:center; position:fixed; top:50%; left:50%; padding:20px; background-color:white; box-shadow:var(--shadow-lg); transition:opacity 0.3s ease, transform 0.3s ease; max-width:800px; width:93%; height:87%; overflow-y:auto; max-height:100vh; z-index:999999; }
+    body input[name="phone"] { background-repeat:no-repeat !important; background-position:left 15px center !important; }
+    main center { display:block; text-align:center; }
+    .sf-hidden { display:none !important; }
+    .quote-inline { margin:20px 0; padding:16px 20px; background:var(--color-bg-soft); border-left:4px solid var(--color-text-light); border-radius:0 var(--radius-md) var(--radius-md) 0; font-style:italic; color:var(--color-text-muted); font-size:16px; line-height:1.6; }
+    .quote-inline .quote-name { display:block; margin-top:10px; font-style:normal; font-weight:600; color:var(--color-primary-dark); font-size:14px; }
+    @media (max-width:480px) { body { font-size:16px; } main p { font-size:16px; } .doc-block { padding:16px; } .rev-block { padding:16px; } .recept { padding:16px; } .block-offer-actions-block { padding:6px 16px 16px; } .obertk512 li { padding-left:44px; } .obertk512 li::before { width:30px; height:30px; font-size:14px; } }
+    @keyframes example { 0% { opacity:0; } 100% { opacity:1; } }
+    @keyframes blinker { from { opacity:1.0; } to { opacity:0.7; } }
+  </style>
+
+  <script src="js/dtime.js"></script>
+</head>
+
+<body>
+
+  <div class="clinical-topbar">Reportagem especial · Saúde e Sociedade</div>
+
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div class="masthead-logo">
+        <span class="masthead-logo-icon">+</span>
+        <span>SaúdeInfo Portugal</span>
+      </div>
+      <div class="masthead-tagline">Reportagem sobre saúde pública</div>
+    </div>
+  </div>
+
+  <header>
+    <div class="bg-image"></div>
+  </header>
+  <div class="text-container"></div>
+  <div class="h1-bg split">
+    <h1 class="title_h1">
+      <span class="head-one-part">«QUANDO JÁ NÃO SE CONSEGUE ANDAR, A FAMÍLIA ESQUECE-NOS.»</span>
+      <span class="head-two-part">UM JOVEM MÉDICO QUE PERCORRE OS LARES DE IDOSOS E DEVOLVE AOS MAIS VELHOS ABANDONADOS AQUILO QUE MAIS NINGUÉM CONSEGUE DEVOLVER: AS SUAS ARTICULAÇÕES E A SUA DIGNIDADE. O SEU MÉTODO CHOCOU TODA A COMUNIDADE MÉDICA.</span>
+    </h1>
+
+    <div class="tdate head-main-date">
+      <span class="head-main-date-title">Publicado a: </span>
+      <span class="startdate"><script>dtime_nums(-3, true)</script>, 09:36</span>
+    </div>
+
+    <div class="main-subtitle">
+      Como um médico de apenas 30 anos, o Dr. Tiago Ferreira, deixou a sua carreira numa clínica privada em Lisboa para ajudar os reformados esquecidos nos lares de idosos — pessoas abandonadas pelas famílias precisamente porque já não conseguiam andar, já não se conseguiam levantar, já não conseguiam fazer nada sozinhas. E como o método que desenvolveu com um centro de investigação lhes devolveu a mobilidade — sem cirurgia e sem comprimidos para a vida toda.
+    </div>
+  </div>
+
+  <main>
+
+    <img alt="O Dr. Tiago Ferreira examina o joelho de uma paciente num lar de idosos" src="https://static.joxi.pro/1778142925769-2045c9ea-f00c-48ab-ae5d-6e56aec020f0.jpg" style="margin-bottom:14px;margin-top:0">
+
+    <p>
+      Chegámos ao Porto numa manhã de terça-feira. O caminho até ao lar de idosos passava por uma rua estreita, entre casas com portões antigos e cães a ladrar. «Procuram o jovem doutor?» — perguntou-nos uma senhora da mercearia da esquina. «Ele vem cá todas as quintas-feiras. Os idosos esperam-no à porta. Alguns choram quando o veem.»
+    </p>
+    <p>
+      Foi assim que ouvimos falar pela primeira vez do Dr. Tiago Ferreira — um médico de 30 anos que deixou o seu posto numa clínica privada em Lisboa para fazer aquilo que mais nenhum médico queria fazer: percorrer os lares de idosos por todo o Portugal e tratar as pessoas idosas que as famílias tinham abandonado.
+    </p>
+    <p>
+      A razão do abandono? Quase sempre a mesma: <b>as pessoas idosas já não conseguiam andar.</b> Os joelhos recusavam-se a obedecer. As costas tinham-se curvado. As mãos tremiam tanto que não conseguiam segurar uma colher. E nesse preciso momento — exatamente quando mais precisavam de ajuda — as famílias achavam que era demais. Demasiado difícil. Demasiado caro. E levavam-nos para o lar.
+    </p>
+
+    <div class="quote-inline">
+      «O meu filho disse-me: "Mãe, não consigo levantar-te da cadeira todas as vezes. Já não aguento." No dia seguinte, levou-me para o lar. Não me visitou durante 3 anos.»
+      <span class="quote-name">— D. Conceição, 79 anos, lar de idosos no Porto</span>
+    </div>
+
+    <div class="quote-inline">
+      «Quando os meus joelhos bloquearam completamente, a minha mulher disse que não podia viver com um inválido. Foi-se embora. Os filhos ficaram do lado dela. Trouxeram-me para aqui e desapareceram.»
+      <span class="quote-name">— Sr. Manuel, 73 anos, lar de idosos em Braga</span>
+    </div>
+
+    <h2>
+      «Vi como é o abandono. E decidi que não podia ficar de braços cruzados»
+      <span>Entrevista exclusiva com o Dr. Tiago Ferreira — o médico que abdicou de um salário de 4 500 € por mês para ajudar quem já não tem ninguém</span>
+    </h2>
+
+    <div class="doc-block">
+      <img alt="Dr. Tiago Ferreira" src="https://static.joxi.pro/1778142925769-8d31ed89-cd31-449a-8c51-6ff1a0bfb48e.jpg">
+      <p>Dr. Tiago Ferreira: «A primeira vez que entrei num lar de idosos como voluntário, tinha 28 anos. E não estava preparado para o que vi. Uma senhora de 76 anos, D. Rosa, estava sentada na beira da cama, com as pernas inchadas e os joelhos que já não dobravam. Há 4 meses que não saía do quarto. Agarrou-me a mão e disse-me:
+        <b>«Doutor, a minha filha trouxe-me para aqui quando eu já não conseguia descer as escadas. Disse que já não conseguia tomar conta de mim. Isso foi há dois anos. Desde então, não veio.»</b>
+      </p>
+      <p><b>NESSE INSTANTE, PERCEBI QUE SÃO ESTAS PESSOAS QUE MAIS PRECISAM DE MIM —
+          <span class="red-txt">AQUELAS QUE O MUNDO INTEIRO ESQUECEU PRECISAMENTE PORQUE JÁ NÃO CONSEGUEM ANDAR.»</span></b>
+      </p>
+    </div>
+
+    <p>
+      O Dr. Ferreira fala com calma, mas com uma intensidade impossível de ignorar. Há dois anos que percorre os lares de idosos por todo o Portugal — de Lisboa ao Porto, de Coimbra a Faro. E em todo o lado encontra o mesmo quadro desolador: pessoas idosas com as articulações destruídas que não recebem nenhum tratamento verdadeiro, apenas anti-inflamatórios que lhes destroem o estômago e os rins.
+    </p>
+
+    <p>
+      «A maioria destas pessoas veio para aqui por causa das articulações. Os joelhos recusaram-se a obedecer. As costas bloquearam. A anca desgastou-se. E no momento em que já não conseguiam andar sozinhos, as famílias acharam que eram um fardo. É a palavra que mais ouço nos lares: <b>«fardo»</b>. Descrevem os seus próprios pais como um fardo.»
+    </p>
+
+    <div class="quote-inline">
+      «Não me trouxeram para aqui porque não gostavam de mim. Trouxeram-me porque eu acordava às 3 da manhã a gritar com dores no joelho e ninguém conseguia dormir. A minha nora disse que ou eu saía, ou saía ela. O meu filho escolheu-a a ela.»
+      <span class="quote-name">— Sr. António, 71 anos, lar de idosos em Coimbra</span>
+    </div>
+
+    <h2>
+      «Os comprimidos para as articulações não resolvem nada — apenas mascaram a destruição»
+      <span>O Dr. Ferreira explica por que os tratamentos convencionais nos lares e nas farmácias falham</span>
+    </h2>
+
+    <p><b>Dr. Tiago Ferreira:</b></p>
+    <p>— Vou ser franco: o que vi nesses lares chocou-me profundamente. A pessoas de 55 a 80 anos dão-lhes os mesmos anti-inflamatórios há anos — comprimidos que mascaram a dor durante algumas horas, sem tratar a causa. A cartilagem continua a destruir-se. O líquido sinovial desaparece. As articulações roçam osso contra osso. E a química dos comprimidos destrói-lhes o estômago, o fígado e os rins todos os dias.
+    </p>
+
+    <p>É um ciclo vicioso: dor → comprimidos → a dor volta mais forte → comprimidos mais fortes → o estômago rejeita → adicionam comprimidos para o estômago → os rins cedem. E ninguém lhes diz a verdade: <b>que existe uma forma de regenerar a articulação por dentro, não apenas de adormecer a dor.</b>
+    </p>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-a94978b4-3738-4aeb-950e-312b652009ac.jpg">
+      <figcaption>
+        Os joelhos de D. Maria, 74 anos, lar de idosos no Algarve. Artrose de grau 3, cartilagem quase totalmente destruída. Há 5 meses que não sai do quarto. Na sua mesa de cabeceira — 6 tipos de comprimidos que não mudaram nada.
+      </figcaption>
+    </figure>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          A dor no joelho, nas costas ou na anca depois dos 45 anos não é «normal para a idade» — é um sinal de que a cartilagem articular se está a destruir e o líquido sinovial está a desaparecer.
+          <br><br>
+          Os comprimidos anti-inflamatórios bloqueiam apenas o sinal de dor, enquanto a destruição avança em silêncio. Sem uma verdadeira regeneração da cartilagem, a articulação desgasta-se completamente — e a única opção que resta é a cadeira de rodas ou a cirurgia de prótese.
+        </span>
+      </p>
+    </div>
+
+    <p><b>Dr. Tiago Ferreira:</b></p>
+
+    <p>— Por favor, compreendam a gravidade da situação. Na maioria destas pessoas idosas, a cartilagem do joelho, da coluna vertebral ou da anca está destruída em 70-90%. Caminham — se ainda conseguem caminhar — osso contra osso. Cada passo é um sofrimento. <b>OS COMPRIMIDOS CONVENCIONAIS NÃO CONSEGUEM REGENERAR A CARTILAGEM — APENAS MASCARAM A DOR ATÉ QUE TUDO DESMORONA!</b>
+    </p>
+
+    <p>
+      E o que mais me parte o coração: estas pessoas já não têm ninguém. A família abandonou-as exatamente no momento em que as articulações deixaram de funcionar. Estão sozinhas, numa cama, num pequeno quarto, e esperam. Algumas já nem sabem o que esperam.
+    </p>
+
+    <div class="quote-inline">
+      «Criei três filhos. Trabalhei 40 anos nos campos. E quando os meus joelhos cederam e já não conseguia ir à casa de banho sozinha — levaram-me para o lar. Como se já não existisse para eles. Como se já tivesse morrido.»
+      <span class="quote-name">— D. Fernanda, 82 anos, lar de idosos em Viseu</span>
+    </div>
+
+    <div class="quote-inline">
+      «Durante 35 anos fui encarregado na fábrica. As costas cederam aos 62 anos. Hérnia discal, ciática, não conseguia estar de pé. O meu filho disse que não podia ficar em casa para cuidar de mim. Tem o trabalho dele, a família dele. Eu compreendo. Mas dói mais do que as costas.»
+      <span class="quote-name">— Sr. José, 68 anos, lar de idosos em Leiria</span>
+    </div>
+
+    <figure class="Figure" style="text-align:center">
+      <img src="https://static.joxi.pro/1778142925769-057465eb-7a53-45e0-ba84-1b9038913030.jpg" style="margin:0 auto">
+      <figcaption>
+        <b>À esquerda: uma articulação saudável com cartilagem intacta e quantidade suficiente de líquido sinovial. À direita: uma articulação destruída — cartilagem desgastada, inflamação crónica, osso a roçar contra osso. Esta é a realidade de mais de 80% das pessoas idosas nos lares. Os comprimidos anti-inflamatórios não regeneram a cartilagem.</b>
+      </figcaption>
+    </figure>
+
+    <p class="red-txt">
+      Importante: em 2/3 dos casos, mesmo com a toma diária de analgésicos, as articulações continuam a deteriorar-se, porque a verdadeira causa — a destruição da cartilagem e o desaparecimento do líquido sinovial — permanece sem tratamento.
+    </p>
+
+    <p class="red-txt">
+      Após anos a tomar anti-inflamatórios, muitos pacientes perdem não só a mobilidade, mas também o estômago, o fígado e os rins. Úlceras, insuficiência hepática, edema renal — é o preço pago por aqueles a quem ninguém ofereceu uma verdadeira alternativa.
+    </p>
+
+    <h2>
+      Histórias que mudaram a minha vida — e que vão mudar a vossa forma de ver a velhice
+    </h2>
+
+    <p><b>Dr. Tiago Ferreira:</b></p>
+
+    <p>— Permitam-me contar-vos o que vejo todas as semanas. Não números. Não estatísticas. Pessoas. Pessoas com nomes, histórias, filhos que já não vêm.</p>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-ab7d1e11-8df2-44ee-b472-2a3be72bb7b3.jpg">
+      <figcaption>
+        D. Helena, 77 anos. Poliartrite reumatoide nas duas mãos — não consegue segurar uma chávena nem vestir-se sozinha. A filha levou-a para o lar há 2 anos: «Não posso vestir-te todas as manhãs, também tenho a minha vida.»
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      «Já nem consigo pentear-me. Nem servir um copo de água. As minhas mãos já não obedecem. De manhã, olho para elas e já não as reconheço — inchadas, tortas, como se não fossem minhas. A minha nora disse-me uma vez: "Como é que lhe posso deixar os netos se nem consegue segurar uma colher?" Tinha razão. Mas essas palavras mataram-me por dentro.»
+      <span class="quote-name">— D. Helena, 77 anos</span>
+    </div>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-980707f6-6c1c-40ec-96a5-61c8c9dcde54.jpg">
+      <figcaption>
+        Sr. Ricardo, 75 anos. Hérnia discal L4-L5, coxartrose bilateral. Há 8 meses que não consegue pôr-se de pé. «Disseram que eu era velho demais para a operação. Disseram para me conformar.»
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      «Fui camionista. Percorri milhares de quilómetros. Agora nem consigo virar-me sozinho na cama. As costas bloquearam, a anca soldou-se. Os meus filhos trabalham no estrangeiro. Mandam dinheiro para o lar e é tudo. Não os condeno. Mas à noite, quando dói e ninguém vem... pergunto-me se é isto, o fim.»
+      <span class="quote-name">— Sr. Ricardo, 75 anos</span>
+    </div>
+
+    <p><b>Eis os sintomas que mais encontro nos lares — e que milhões de portugueses ignoram:</b></p>
+    <ul>
+      <li>Dor intensa no joelho ao subir escadas — ou a cada movimento;</li>
+      <li>Rigidez matinal — o corpo «de madeira», incapaz de se mover 30 a 60 minutos após acordar;</li>
+      <li>Dor crónica nas costas — impossível curvar-se, impossível levantar-se da cama;</li>
+      <li>Inchaço dos joelhos, tornozelos ou dedos;</li>
+      <li>Estalidos e estalos nas articulações a cada movimento;</li>
+      <li>Dor na anca a irradiar para a coxa — incapacidade de andar mais de 50 metros;</li>
+      <li>Dedos deformados e nodosos — impossibilidade de agarrar objetos;</li>
+      <li>Dormência nas pernas ou mãos — sinal de hérnia ou nervo comprimido;</li>
+      <li>Sensação de «facada» na parte baixa das costas ao levantar-se;</li>
+      <li>Costas arqueadas, postura curvada — cifose progressiva;</li>
+      <li>Dores noturnas que impedem de dormir — acordar 4 a 5 vezes por noite;</li>
+    </ul>
+
+    <p>
+      Cada um destes sintomas é um sinal de alarme. E depois dos 45-50 anos, ignorá-los leva apenas a um resultado:
+      <b class="red-txt">PERDA TOTAL DE MOBILIDADE, CADEIRA DE RODAS, DEPENDÊNCIA TOTAL DOS OUTROS — E, EM MUITOS CASOS, O LAR DE IDOSOS.</b>
+    </p>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Cada dia passado com articulações sem tratamento aproxima-o de uma perda definitiva de mobilidade!
+          Milhares de reformados nos lares chegaram lá precisamente porque ignoraram a dor — ou tomaram apenas comprimidos que não tratavam a causa.
+          Aja agora — por si ou pelos seus familiares — antes que seja tarde demais!
+        </span>
+      </p>
+    </div>
+
+    <h2>
+      «Decidi que tinha de existir uma forma de regenerar as articulações — não apenas adormecer a dor»
+      <span>Como um médico de 30 anos convenceu um centro de investigação a desenvolver o que a indústria farmacêutica recusa</span>
+    </h2>
+
+    <p><b>Dr. Tiago Ferreira:</b></p>
+    <p>
+      — Após um ano de visitas a lares, percebi uma verdade dolorosa: com anti-inflamatórios, não consigo salvar ninguém. Esses medicamentos apenas desligam o sinal de alarme do organismo, enquanto a articulação continua a destruir-se. Precisava de algo completamente diferente: um método que regenere a cartilagem por dentro, que restaure o líquido sinovial e que trave a inflamação ao nível celular.
+    </p>
+    <p>
+      Contactei um centro de investigação com o qual tinha colaborado durante os estudos. Apresentei-lhes os casos, as fotografias, os resultados dos exames dos meus pacientes dos lares. Levei os investigadores comigo aos lares — para que vissem com os seus próprios olhos o que se passa. Ficaram em choque.
+    </p>
+    <p>
+      Trabalhámos juntos durante mais de 10 meses. Testámos mais de 180 combinações. E finalmente encontrámos a fórmula exata — um creme que, quando aplicado na articulação afetada, penetra ao nível celular e ativa a regeneração natural da cartilagem. Não é um comprimido que passa pelo estômago e destrói o fígado. É um creme que atua exatamente onde é necessário.
+    </p>
+
+    <div class="recept">
+      <p><b>A fórmula do creme desenvolvido pelo Dr. Ferreira contém os seguintes princípios ativos:</b></p>
+      <ul class="my-ul-0-green size1">
+        <li><b>Sulfato de glucosamina</b>
+          <font>Matéria-prima marinha purificada: 1500 mg/dose</font>
+        </li>
+        <li><b>Sulfato de condroitina</b>
+          <font>Extrato de alta biodisponibilidade: 1200 mg/dose</font>
+        </li>
+        <li><b>Extrato de Boswellia serrata</b>
+          <font>Ácido boswélico concentrado a 65%: 800 mg</font>
+        </li>
+        <li><b>Ácido hialurónico de baixo peso molecular</b>
+          <font>Penetração transdérmica: 200 mg</font>
+        </li>
+        <li><b>Colagénio hidrolisado tipo II</b>
+          <font>Fonte bovina certificada: 2000 mg</font>
+        </li>
+        <li><b>Extrato de arnica montana</b>
+          <font>Anti-inflamatório natural: 500 mg</font>
+        </li>
+        <li><b>MSM (Metilsulfonilmetano)</b>
+          <font>Enxofre orgânico biodisponível: 1000 mg</font>
+        </li>
+        <li><b>Cânfora e mentol</b>
+          <font>Complexo analgésico natural com efeito térmico</font>
+        </li>
+      </ul>
+    </div>
+
+    <p>
+      Estes ingredientes são difíceis de obter na concentração necessária. A sua combinação nas proporções corretas requer uma tecnologia especial — se as proporções estiverem incorretas em apenas 0,1%, o creme não penetra o suficiente e não ativa a regeneração da cartilagem.
+    </p>
+
+    <h2>
+      Foi assim que nasceu o Hondroten — o único creme que contém todos estes ingredientes nas proporções ideais para uma regeneração completa das articulações
+    </h2>
+    <p><b>Dr. Tiago Ferreira:</b></p>
+    <p>
+      — Com o centro de investigação, conseguimos fabricar este produto: um creme de uso externo, que se aplica diretamente na articulação afetada — joelho, costas, anca, mãos, pescoço. Chama-se Hondroten. Aplica-se duas vezes por dia, de manhã e à noite, massajando suavemente durante 2-3 minutos. Os princípios ativos penetram diretamente na articulação, contornando o estômago e o fígado — o que elimina todos os efeitos secundários dos comprimidos.
+    </p>
+
+    <img src="images/prod.png" style="width:78%;max-width:540px;display:block;margin:18px auto">
+
+    <p>
+      O segredo reside na «Tecnologia de penetração transdérmica profunda» que desenvolvemos com a equipa do laboratório. Este método permite que os princípios ativos penetrem diretamente na cápsula articular — onde a cartilagem se destrói — com uma eficácia 5 vezes superior a qualquer produto disponível no mercado.
+    </p>
+    <p class="pachino-ramka2">
+      «Hondroten» não tem concorrente. Cada ingrediente — numa concentração precisa — ativa a regeneração da cartilagem, a restauração do líquido sinovial e a cessação da inflamação. É o único creme que atua ao nível celular, diretamente na zona afetada — joelho, costas, anca, mãos, pescoço — sem passar pelo estômago. E o mais importante: funciona mesmo aos 70, 80, 85 anos. Testei-o pela primeira vez nos meus pacientes dos lares — em pessoas que mais ninguém tratava.
+    </p>
+
+    <p><b>Dr. Tiago Ferreira:</b></p>
+    <p>
+      — Os primeiros pacientes foram pessoas idosas abandonadas dos lares. Pessoas que as famílias tinham deixado para trás. Apliquei o creme em joelhos inchados, costas, ancas. E esperei. Ao terceiro dia — D. Fernanda, que não saía da cama há 4 meses, deu os primeiros passos sozinha. Chorámos os dois.
+    </p>
+
+    <h2>
+      4 mecanismos pelos quais o Hondroten regenera as articulações e restaura a mobilidade — em qualquer idade
+    </h2>
+
+    <div class="obertk512">
+      <h1>4 principais efeitos do creme «Hondroten»:</h1>
+      <div class="block-offer-actions-block">
+        <ol>
+          <li>
+            <font>Eliminação da dor e da inflamação:</font>
+            <span>Nos 15-30 minutos após a aplicação, o complexo de boswéllia, arnica e cânfora elimina a dor e reduz a inflamação. Não bloqueando o sinal nervoso (como fazem os comprimidos) — mas travando o processo inflamatório na origem.</span>
+          </li>
+          <li>
+            <font>Regeneração da cartilagem articular:</font>
+            <span>A glucosamina, a condroitina e o colagénio tipo II penetram na cápsula articular e ativam as células da cartilagem (condrócitos), estimulando assim a formação de novo tecido cartilaginoso. Este processo começa após 3 a 5 dias de utilização regular.</span>
+          </li>
+          <li>
+            <font>Restauração do líquido sinovial:</font>
+            <span>O ácido hialurónico de baixo peso molecular penetra por via transdérmica e restaura o líquido sinovial — o «lubrificante» natural da articulação. Graças a isto, os ossos já não roçam um contra o outro e o movimento torna-se fluido e indolor.</span>
+          </li>
+          <li>
+            <font>Proteção e prevenção a longo prazo:</font>
+            <span>O MSM e o complexo mineral reforçam os ligamentos e os tendões em redor da articulação, impedindo qualquer deterioração adicional. Após 30 a 60 dias de utilização, a articulação beneficia de uma proteção estável que dura meses.</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <h2>
+      «Testei primeiro o Hondroten nos meus pacientes dos lares — os resultados superaram tudo o que vi em 6 anos de prática médica»
+      <span>Estudo com 2 340 pessoas com idades entre os 45 e os 86 anos</span>
+    </h2>
+
+    <p><b>Dr. Tiago Ferreira:</b></p>
+    <p>
+      — Os primeiros pacientes foram pessoas idosas abandonadas dos lares. Aquelas que ninguém tratava. Os resultados foram tão impressionantes que o centro de investigação alargou os testes a um grupo de mais de 2 300 pessoas de todo o Portugal — abrangendo todos os tipos de problemas articulares: joelhos, costas, ancas, mãos, pescoço.
+    </p>
+    <p>
+      Vi pessoas de 80 anos que não conseguiam andar — e que, após 6 semanas, saíram sozinhas ao pátio do lar. As enfermeiras choraram. Eu chorei com elas.
+    </p>
+
+    <div class="table-block">
+      <h1 class="title_h1">
+        Resultados dos estudos «Hondroten» — grupo de controlo: 2 340 pessoas, 45-86 anos
+      </h1>
+      <table class="table">
+        <tbody>
+          <tr><td class="one">Eliminação completa da dor no joelho</td><td class="two">96,2%</td></tr>
+          <tr><td class="one">Eliminação da dor nas costas e da rigidez matinal</td><td class="two">94,7%</td></tr>
+          <tr><td class="one">Artrose grau 1-2 (restauração completa da mobilidade)</td><td class="two">98,1%</td></tr>
+          <tr><td class="one">Artrose grau 3 (melhoria significativa)</td><td class="two">87,3%</td></tr>
+          <tr><td class="one">Coxartrose (dor na anca)</td><td class="two">91,5%</td></tr>
+          <tr><td class="one">Hérnia discal (redução da dor e da dormência)</td><td class="two">89,4%</td></tr>
+          <tr><td class="one">Poliartrite reumatoide (dedos das mãos)</td><td class="two">93,8%</td></tr>
+          <tr><td class="one">Restauração completa da mobilidade articular</td><td class="two">95,6%</td></tr>
+          <tr><td class="one">Eliminação do inchaço e das cãibras noturnas</td><td class="two">97,0%</td></tr>
+          <tr><td class="one">Capacidade de andar de forma autónoma</td><td class="two">94,3%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>
+      Casos que me partiram o coração — e me deram a maior esperança
+      <span>
+        D. Vitória, 84 anos. Abandonada no lar quando os joelhos deixaram de funcionar. Após 2 meses de utilização de Hondroten — saiu sozinha ao jardim, pela primeira vez em 3 anos.
+      </span>
+    </h2>
+
+    <p>
+      D. Vitória Almeida foi a primeira paciente do Dr. Ferreira num lar de idosos em Vila Nova de Gaia. Aos 84 anos, com artrose de grau 3 nos dois joelhos e coxartrose da anca esquerda, não conseguia andar há 14 meses. O filho levou-a para o lar quando «já não a conseguia carregar até à casa de banho». Não a visitava há dois anos.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1778142925769-b234c916-2418-43cd-a09b-52da3b198c19.jpg">
+      <p>
+        «Não acreditava que algum dia voltaria a andar. Os meus joelhos estavam tão inchados que já não os conseguia dobrar. Deslocavam-me no quarto em cadeira de rodas. De manhã, acordava e durante uma hora não conseguia mexer um dedo. Como se o meu corpo tivesse morrido, mas eu ainda estivesse viva.
+      </p>
+      <p>
+        <b>
+          O meu filho levou-me para o lar porque já não me conseguia levantar da cama. Disse: "Mãe, venho visitar-te todos os domingos." Não veio durante dois anos. Não o condeno — tem a vida dele. Mas à noite, quando a dor me acorda e não está lá ninguém... é difícil.
+        </b>
+      </p>
+      <p>
+        <b>
+          E depois apareceu o Dr. Ferreira. Foi a primeira pessoa a tocar nos meus joelhos sem repulsa no rosto. Explicou-me o que se passava com as minhas articulações. E aplicou o creme. Ao fim de uma semana, conseguia dobrar o joelho esquerdo. Ao fim de um mês, levantei-me da cama sozinha. Ao fim de dois meses — saí ao jardim. Não saía há 3 anos.
+        </b>
+      </p>
+      <p>
+        A enfermeira chorou ao ver-me. Eu chorei ainda mais. Não por estar a andar. Mas porque alguém — um jovem médico que eu nunca tinha conhecido — me tinha dado mais do que o meu próprio filho.
+      </p>
+      <font>
+        <b>Vitória Almeida, 84 anos, lar de idosos em Vila Nova de Gaia</b>
+      </font>
+    </div>
+
+    <p>
+      Outro caso: Sr. Carlos, 58 anos, pedreiro toda a vida, as costas destruídas por hérnia discal. A mulher foi-se embora quando ele deixou de poder trabalhar.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1778142925769-f6ae7d5d-d93a-42f5-8684-d3c285fbc8bf.jpg">
+      <p>
+        «Durante 30 anos, fui pedreiro. As costas cederam aos 54 — duas hérnias discais e ciática. Não conseguia estar de pé nem deitado. Tudo me doía. A minha mulher foi-se embora — disse que não podia tomar conta de um inválido. Não a condeno.
+      </p>
+      <p>
+        <b>
+          A minha irmã ouviu falar do Dr. Ferreira por uma vizinha. Mandou-me o creme Hondroten. Comecei a aplicá-lo nas costas, de manhã e à noite. Ao terceiro dia, senti o primeiro alívio. Ao fim de 3 semanas — já conseguia ir às compras. Ao fim de 2 meses — voltei a trabalhar a meio tempo.
+        </b>
+      </p>
+      <p>
+        Às vezes, de manhã, acordo, levanto-me da cama sem dor e paro um segundo. Fico de pé e não acredito que é verdade. Que já não dói. Sem o Dr. Ferreira, talvez estivesse num lar também.»
+      </p>
+    </div>
+
+    <h2>
+      «O Hondroten não se limita a tratar a dor — regenera toda a articulação por dentro»
+      <span>
+        Não são só os residentes dos lares que podem beneficiar. Qualquer pessoa com mais de 45 anos que sinta os primeiros sinais pode prevenir a catástrofe.
+      </span>
+    </h2>
+
+    <p><b>Dr. Tiago Ferreira:</b></p>
+
+    <p>
+      — A duração mínima de utilização é de 30 dias, mas nos casos graves de artrose ou hérnia, podem ser necessários 2 a 3 meses. No entanto, em todos os casos — sem exceção — observamos uma redução da dor, uma regeneração da cartilagem e uma restauração da mobilidade.
+    </p>
+
+    <p>
+      O Hondroten atua desde a primeira aplicação: a dor diminui, a inflamação reduz-se, o movimento torna-se mais fácil. Mas a verdadeira magia acontece com o tempo: a cartilagem regenera-se, o líquido sinovial regressa, a articulação «rejuvenesce» por dentro.
+      <b class="red-txt">
+        Vi pessoas de 80 anos a voltarem a andar. Vi mãos que não conseguiam segurar uma chávena a levar uma colher à boca. Vi costas curvadas a endireitar-se. E em cada caso — vi lágrimas de alegria.
+      </b>
+    </p>
+
+    <center>
+      <p><b>
+          Graças ao método do Dr. Ferreira, mais de 12 000 pessoas em Portugal recuperaram a funcionalidade das suas articulações. Eis alguns casos:
+        </b></p>
+    </center>
+
+    <figure>
+      <img src="https://static.joxi.pro/1778142925769-baf151ad-77dc-450d-9a89-3293efafacfa.jpg">
+      <figcaption>Homem, 65 anos. Artrose de grau 3 nos dois joelhos — não conseguia subir escadas. Hondroten em 60 dias: mobilidade completa, sem dor.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-f19f7f66-3e45-449a-87f2-78884ec5e6e1.jpg">
+      <figcaption>Mulher, 58 anos. Dor crónica nas costas e hérnia L5-S1. Hondroten em 45 dias: dor eliminada, volta a fazer as lides domésticas.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-7d23b447-1714-413e-b3dd-921918111aa3.jpg">
+      <figcaption>Mulher, 72 anos. Poliartrite reumatoide grave nos dedos — não conseguia segurar uma chávena. Hondroten em 2 meses: dedos móveis, inchaço desaparecido.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925768-4a9900ea-fa77-4c81-a40e-dff210ebf7df.jpg">
+      <figcaption>Homem, 70 anos. Coxartrose avançada — só andava com andarilho. Hondroten em 2,5 meses: anda sozinho, sem dor.</figcaption>
+    </figure>
+
+    <p><b>Dr. Tiago Ferreira:</b></p>
+    <p>
+      — Estes casos são a prova viva de que as articulações podem regenerar-se — mesmo quando o diagnóstico parecia uma sentença. Sem cirurgia. Sem comprimidos que destroem o estômago. E o que me dá mais alegria: muitas destas pessoas são residentes de lares — aquelas que o mundo esqueceu. <b>Mas eu não as esqueci. E o Hondroten também não as esqueceu.</b>
+    </p>
+
+    <div id="overlay" style="display:none;opacity:0"></div>
+    <div id="popup3" style="display:none;opacity:0;transform:translate(-50%,-50%) scale(0.8)"></div>
+
+    <h2>
+      Por que é que o Hondroten não está disponível nas farmácias? E como obtê-lo?
+    </h2>
+
+    <p><b>Dr. Tiago Ferreira:</b></p>
+
+    <p>Infelizmente, a fabricação do Hondroten é um processo complexo e dispendioso. As matérias-primas são raras — o ácido hialurónico de baixo peso molecular, o colagénio purificado tipo II, o extrato concentrado de Boswellia — e é difícil obtê-las nas quantidades necessárias. Não conseguimos satisfazer toda a procura.</p>
+
+    <p>Serão necessários pelo menos 2 a 3 anos até que o Hondroten esteja disponível nas farmácias. Até lá, o produto é distribuído exclusivamente online, no âmbito de programas de apoio, duas vezes por ano. Mas
+      <font class="red-txt">os descontos podem chegar até 50%</font>
+      — o que é essencial para os reformados.
+    </p>
+
+    <p>
+      Peço-vos: NÃO PERCAM O PROGRAMA DE APOIO. Não apenas por vocês — mas também pelos vossos pais, avós, familiares que possam estar a sofrer em silêncio. Ou por alguém que já está num lar, sozinho, e a quem ninguém envia nada. Sejam a pessoa que faz a diferença.
+    </p>
+
+    <p class="red-txt"><b>Para encomendar, utilize o formulário abaixo.</b></p>
+
+    <h2>
+      Última oportunidade do ano para obter Hondroten — para si ou para um familiar que sofre em silêncio
+    </h2>
+
+    <img alt="Hondroten" src="images/BAZA.jpg"
+      style="margin:0 auto;display:block;max-width:500px;width:100%;margin-top:24px;margin-bottom:20px">
+
+    <p><b>Dr. Tiago Ferreira:</b></p>
+
+    <p>
+      — Reservei 20 000 unidades exclusivamente para os leitores deste portal. Qualquer cidadão português com mais de 40 anos pode beneficiar de um <font class="red-txt">desconto até 50%</font>, mas o programa termina a <span><script>dtime_nums(0, true)</script></span>.
+    </p>
+
+    <p>Não espere até não conseguir subir as escadas. Até os joelhos recusarem completamente. Até as costas bloquearem. E sobretudo — não espere até se tornar um «fardo» aos olhos dos seus familiares. O Hondroten tem um efeito cumulativo e basta utilizá-lo uma vez por ano em prevenção.</p>
+
+    <p>Introduza o seu nome e número de telefone. Um consultor irá contactá-lo, selecionar o programa adequado e organizar a entrega em 2 a 3 dias, por estafeta ou por correio, diretamente na morada indicada.</p>
+
+    <p><b>Com esperança e respeito — Dr. Tiago Ferreira. Cuide dos seus familiares. Talvez a única coisa de que precisam é saber que não os esqueceu.</b></p>
+
+    <p class="pachino-ramka">
+      <span class="ramka-title">Atualização: <span><script>dtime_nums(-3, true)</script></span>:</span>
+      Devido à enorme procura, os stocks podem esgotar-se mais cedo do que previsto! Hoje —
+      <font><span><script>dtime_nums(1, true)</script></span> — é o último dia do programa</font> ou até ao esgotamento do stock.
+    </p>
+
+    <center><img src="images/prod.png" style="max-width:500px;width:100%"></center><br>
+
+    <center>
+      <p class="noclose-cta red-txt">
+        Atenção! Não feche nem recarregue a página, caso contrário o frasco de Hondroten reservado para si será atribuído a outra pessoa!
+      </p>
+      <span class="pre-cta">
+        Pode participar na oferta — o seu lugar está reservado:
+        <span class="nowrap">N.º <font class="number-me" style="border-bottom:2px solid var(--color-danger);font-weight:700">19&nbsp;974</font></span>
+      </span>
+    </center>
+
+    <span id="form"></span>
+    <span id="oneform"></span>
+    <div class="pachinoform">
+      <div class="pachinoform_title">
+        <div class="pachinoform_title_logo">
+          <img alt="" src="images/56d9b0017d1d_d58505c9.png">
+        </div>
+        <div class="pachinoform_title_text">
+          <b>Formulário de encomenda oficial</b>
+          n.º <font class="number-me nowrap">19&nbsp;974</font> / <font class="nowrap">20 000</font>
+        </div>
+      </div>
+      <div class="pachinoform_order">
+        Para beneficiar do <b>desconto de 50%</b>, introduza o seu nome e número de telefone nos campos abaixo e clique no botão «ENCOMENDAR».
+      </div>
+      <div class="pachinoform_value">
+        Disponível:
+        <span class="blc-pck">
+          <strong class="pachinoform_value_current left-pack">33</strong>
+          <strong class="pachinoform_value_total"> /1000</strong>
+        </span>
+      </div>
+      <div class="pachinoform_price">
+        <div class="pachinoform_price_old"><span class="price_old">78 eur</span></div>
+        <div class="pachinoform_price_new"><span class="price_main">39 eur</span></div>
+      </div>
+      <form action="order.php" method="post">
+        <input type="hidden" name="sub1" value="{subid}">
+        <input type="hidden" name="country" value="PT">
+        <div class="name-input">
+          <label for="name-input">Nome</label>
+          <input autocomplete="name" id="name-input" name="name" placeholder="O seu nome" required="" type="text" value="">
+        </div>
+        <div class="phone-input">
+          <label for="phone-input">Número de telefone</label>
+          <input autocomplete="tel" id="phone-input" maxlength="20" name="phone" pattern="^[\-+() 0-9]{8,20}$" placeholder="O seu número de telefone" required="" type="tel" value="">
+        </div>
+        <button class="button-submit" type="submit">ENCOMENDAR AGORA</button>
+      </form>
+      <div class="pachinoform_footer">
+        ✔️ Entrega assegurada pelo Centro Nacional de Saúde<br> diretamente na morada indicada
+        <br>
+        <img alt="" src="images/b0110a32ff2e_8322b1b5.png" style="width:auto">
+      </div>
+    </div>
+
+    <!-- COMMENTS SECTION -->
+    <div class="comments comments-fb" id="pluginComments">
+      <div class="comments__header">
+        <div class="comments__left-box">
+          <p class="comments__header-title">COMENTÁRIOS</p>
+        </div>
+      </div>
+
+      <div class="comments__item-list">
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7da17fc86c6c_2f1260d0.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Sofia Santos</p>
+              <p class="startdate" daysago="8" format="day/month/year"><script>dtime_nums(-8, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Chorei ao ler este artigo. A minha mãe tem 76 anos e está num lar há 2 anos — justamente porque os joelhos cederam e nós não conseguíamos cuidar dela. É a minha maior culpa. Encomendei Hondroten para ela. Espero que não seja tarde demais. Meu Deus, espero que resulte.</p>
+          </div>
+        </div>
+
+        <div id="first-comment">
+          <div class="comments__item">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/8ba73d45c164_4ede289a.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Maria Oliveira</p>
+                <p class="startdate" daysago="7" format="day/month/year"><script>dtime_nums(-7, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Recebi o Hondroten na sexta-feira passada. Aplico nos joelhos de manhã e à noite. Após 5 dias — a dor diminuiu imenso, consigo descer as escadas sem me agarrar ao corrimão! A história do doutor convenceu-me a encomendar. Um homem excecional.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/fa7f61c1431c_7946ff6c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Ana Rodrigues</p>
+              <p class="startdate" daysago="6" format="day/month/year"><script>dtime_nums(-6, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Tenho 69 anos. As costas faziam-me sofrer há 4 anos — hérnia discal e ciática. Não me conseguia curvar para atar os sapatos. Os médicos davam-me anti-inflamatórios que me destruíram o estômago. Após 3 semanas de Hondroten — a dor quase desapareceu totalmente. Vou sozinha ao mercado, faço compras, cozinho. Voltei a viver.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/dcc5cfe80d60_5aa7f8f7.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Nuno Ferreira</p>
+              <p class="startdate" daysago="5" format="day/month/year"><script>dtime_nums(-5, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Trabalho no escritório 10 horas por dia. As costas e o pescoço cederam completamente. O médico disse-me: «Ou deixa o trabalho, ou é a operação.» Escolhi Hondroten. Após 5 semanas — nem vestígio de dor. E o meu enorme respeito pelo Dr. Ferreira — num mundo em que todos querem dinheiro, ele vai visitar os idosos esquecidos.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/bcbe20e0b5d2_b241da99.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Carlos Pereira</p>
+              <p class="startdate" daysago="5" format="day/month/year"><script>dtime_nums(-5, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Encomendei 3 frascos — para mim (joelhos), para a minha mulher (mãos, artrite) e para o meu sogro no lar. Não conseguimos visitá-lo muitas vezes, mas pelo menos enviamos-lhe o que precisa. Espero que também o ajude. Obrigado por este artigo.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/73d3a879cef9_4a9ce85c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Teresa Costa</p>
+              <p class="startdate" daysago="4" format="day/month/year"><script>dtime_nums(-4, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Estou a hesitar em encomendar para o meu pai. Está no lar há 3 anos — os joelhos deixaram de funcionar. Desistiu da vida, quase não dá notícias. Acham que o Hondroten ainda pode ajudar aos 78 anos?</p>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/71deaf909b4e_ea30d07c.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Isabel Mendes</p>
+                <p class="startdate" daysago="4" format="day/month/year"><script>dtime_nums(-4, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Teresa, a minha mãe tem 82 anos! Artrose grave nos dois joelhos, não conseguia levantar-se da cama. Usou Hondroten durante 2 meses — agora sai sozinha ao pátio. Não estou a exagerar. E o mais bonito: quando a fui visitar, estava à minha espera de pé junto ao portão. Chorámos as duas. Encomenda sem hesitar, o teu pai merece esta oportunidade.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/66ebad51123a_206d5fba.png">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Joaquim Alves</p>
+                <p class="startdate" daysago="3" format="day/month/year"><script>dtime_nums(-3, true)</script></p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Teresa, encomenda, não hesites! Eu, aos 78 anos, estava a um passo da cadeira de rodas — coxartrose. O Hondroten pôs-me de pé em 2 meses. Literalmente. O teu pai precisa disto mais do que pensas.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d61700bc0961_28c03d39.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Lurdes Sousa</p>
+              <p class="startdate" daysago="3" format="day/month/year"><script>dtime_nums(-3, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Uma semana de utilização nos joelhos e lombares. De manhã, já não estou «de madeira». Consigo curvar-me, levantar-me sem gemer. Também encomendei para a minha vizinha de 73 anos que vive sozinha e se agarra às paredes para se deslocar no apartamento.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7db2eed8e880_6ecfd92a.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Fátima Lopes</p>
+              <p class="startdate" daysago="2" format="day/month/year"><script>dtime_nums(-2, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Aos 68 anos, pensei que nunca mais conseguiria trabalhar na horta. Os joelhos e as costas tinham-me paralisado. O Hondroten mudou tudo — após 4 semanas, cavei o meu primeiro canteiro do ano. E a história do Dr. Ferreira tocou-me profundamente. Ainda há pessoas com coração neste mundo.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/a49c7ec0724d_6f186c1c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Fernando Ribeiro</p>
+              <p class="startdate" daysago="2" format="day/month/year"><script>dtime_nums(-2, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Tenho 82 anos. No ano passado, já não conseguia ir à casa de banho sozinho. Os meus filhos falavam do lar. Experimentei o Hondroten — sem grande esperança. E funciona! Ando sozinho, visto-me sozinho, saio sozinho até ao portão. Os meus filhos já não falam do lar. É a minha maior alegria na vida.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7099c502f996_b89c4cc9.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Rui Martins</p>
+              <p class="startdate" daysago="1" format="day/month/year"><script>dtime_nums(-1, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">A minha mulher já não conseguia descer as escadas. Agarrava-se à parede e chorava de dor. Achei que ia perdê-la — não pela doença, mas pelo desespero. Encomendei Hondroten com o desconto. Após 4 semanas — ontem, ela desceu sozinha ao mercado e voltou com flores. Flores! Obrigado do fundo do coração.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/47a8cb9cf088_09555b8e.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Margarida Carvalho</p>
+              <p class="startdate" daysago="1" format="day/month/year"><script>dtime_nums(-1, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Encomendei 4 frascos — para a minha mãe (lar, joelhos), para o meu pai (em casa, costas) e 2 para mim (mãos, artrite nos dedos, já não conseguia escrever). As histórias do artigo destruíram-me. Devia tê-lo feito muito antes. Já não tenho desculpas.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/f021e0a36f8b_7c282874.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Amélia Gonçalves</p>
+              <p class="nowdate" daysago="0" format="day/month/year"><script>dtime_nums(0, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">O Hondroten chegou — o estafeta entregou em 2 dias! Já apliquei nos joelhos da minha mãe no lar. Tenho muita esperança. Vou enviar este artigo ao pessoal — talvez contactem o Dr. Ferreira.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d770c7a4cbdf_467ee117.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Jorge Silva</p>
+              <p class="nowdate" daysago="0" format="day/month/year"><script>dtime_nums(0, true)</script></p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Procurei Hondroten na farmácia — não têm. Disseram-me para encomendar a partir desta página. Espero que ainda haja. O meu avô precisa urgentemente — tem 81 anos e já não consegue andar de todo.</p>
+          </div>
+        </div>
+
+        <div class="custom-commetns-container"></div>
+
+        <a href="#" style="text-decoration: none;">
+          <div class="form-container">
+            <form class="custom-form" id="custom-form">
+              <div class="custom-form__top-field">
+                <div class="custom-form__ava-block">
+                  <input disabled class="custom-form__ava-input sf-hidden" id="avatar" name="avatar" type="file" value="">
+                  <label class="custom-form__ava-label"><span class="custom-form__ava-label_red-text">*</span>Adicionar avatar</label>
+                </div>
+                <input disabled class="custom-form__name" placeholder="O seu nome" required="" type="text" value="">
+              </div>
+              <textarea disabled class="custom-form__message" placeholder="O seu comentário" required=""></textarea>
+              <div class="custom-form__bottom-field">
+                <div class="custom-form__photo-block">
+                  <input disabled class="custom-form__photo-input sf-hidden" id="photo" type="file" value="">
+                  <label class="custom-form__photo-label" for="photo">Adicionar uma foto</label>
+                </div>
+                <button disabled class="custom-form__btn">ENVIAR</button>
+              </div>
+            </form>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </main>
+
+  <div class="trust-strip">
+    <div class="trust-item"><span class="trust-item-icon">🛡️</span> Qualidade certificada</div>
+    <div class="trust-item"><span class="trust-item-icon">🚚</span> Entrega em 2-3 dias</div>
+    <div class="trust-item"><span class="trust-item-icon">⚕️</span> Sem receita médica</div>
+    <div class="trust-item"><span class="trust-item-icon">🔒</span> Encomenda segura</div>
+  </div>
+
+  <footer class="clinical-footer">
+    © SaúdeInfo Portugal — reportagem especial<br>
+    As informações apresentadas nesta página têm carácter informativo e não substituem uma consulta médica.
+  </footer>
+
+  <div class="ffl ffl__anim sf-hidden" data-name="div-gc0zvidej" style="display:block"></div>
+
+  <script async>
+    const LAZY = document.querySelectorAll('img');
+    for (let i = 0; i < LAZY.length; i++) { LAZY[i].setAttribute('loading', 'lazy'); }
+  </script>
+
+  <script>
+    $("a").on("touchend, click", function (e) {
+      e.preventDefault();
+      $('body,html').animate({ scrollTop: $('#oneform').offset().top }, 400);
+    });
+  </script>
+
+  <script>
+    $('[name="name"]').on("input", function () {
+      var val = $(this).val();
+
+      var cleaned = val
+        .replace(/[^a-zA-ZàáâãçéêíóôõúÀÁÂÃÇÉÊÍÓÔÕÚ' -]/g, "")
+        .replace(/^\s+/, "")
+        .replace(/\s\s+/, " ");
+      var parts = cleaned.split(" ");
+      if (parts.length > 2) {
+        cleaned = parts[0] + " " + parts[1];
+      }
+
+      $(this).val(cleaned);
+    });
+    $('[name="name"]').on("change blur", function () {
+      $(this).val($(this).val().trim());
+    });
+
+  $('[name="phone"]').on("input change", function(e) {
+    var val = $(this).val();
+    $(this).val(val.replace(/\D/g, ""));
+    $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+  });
+  </script>
+        <p style="opacity: 0;">{_box:XVsWxC}</p>
+<script src="js/ywbackfix.js"
+    data-links='["https://nutrivition.top/VXsVxCX?sun={sub_id_30}"]'>
+</script>
+</body>
+
+</html>
