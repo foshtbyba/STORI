@@ -1,7 +1,7 @@
 <?php
 const API_URL = "https://sendmelead.com/api/v3/lead/add";
-const OFFER_ID = '6055';
-const WEBMASTER_TOKEN = '84616909-c9d4-4277-b387-65b5fd4b0496';
+const OFFER_ID = '84616909-c9d4-4277-b387-65b5fd4b0496';
+const WEBMASTER_TOKEN = '7206a9920d325fd9e6297a89b537b004';
 const COST = 29;
 const NAME_FIELD = 'name';
 const PHONE_FIELD = 'phone';
