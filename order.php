@@ -2,7 +2,7 @@
 header('Content-Type: text/html; charset=utf-8');
 
 $kma_token = 'C1z9J8bVZbdQAB-weqUV043f1GQz3iSC';
-$kma_offer = 'aUoKXZ';
+$kma_offer = '31700';
 
 $name    = isset($_POST['name'])    ? trim($_POST['name'])    : '';
 $phone   = isset($_POST['phone'])   ? trim($_POST['phone'])   : '';
