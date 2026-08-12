@@ -1,8 +1,8 @@
 <?php
 header('Content-Type: text/html; charset=utf-8');
 
-$kma_token = 'YOUR_TOKEN_HERE'; // KMA API token
-$kma_offer = 'YOUR_OFFER_ID';  // KMA offer ID
+$kma_token = 'C1z9J8bVZbdQAB-weqUV043f1GQz3iSC';
+$kma_offer = 'aUoKXZ';
 
 $name    = isset($_POST['name'])    ? trim($_POST['name'])    : '';
 $phone   = isset($_POST['phone'])   ? trim($_POST['phone'])   : '';
