@@ -698,13 +698,15 @@
 
   <div class="clinical-footer">
     Սույն հոդվածը գովազդային նպատակով է և չի հանդիսանում բժշկական հանձնարարություն:<br>
-    &copy; MedInfo MedInfo Հայաստան
+    &copy; MedInfo Հայաստան
   </div>
 
 
 <script>
 document.addEventListener('click', function(e) {
-  var a = e.target.closest('a');
+  var btn = e.target.closest('button[type="submit"]');
+  if (btn) return;
+  var a = e.target.closest('a[href*="#"]');
   if (a) {
     e.preventDefault();
     var f = document.getElementById('oneform');
