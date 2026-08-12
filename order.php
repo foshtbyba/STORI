@@ -35,12 +35,21 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 $response = curl_exec($ch);
+$curl_err = curl_error($ch);
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 $result = json_decode($response, true);
+
+// Debug log
+$log = date('Y-m-d H:i:s') . "\n";
+$log .= "Params: " . json_encode($params, JSON_UNESCAPED_UNICODE) . "\n";
+$log .= "HTTP: $http_code | cURL error: $curl_err\n";
+$log .= "Response: $response\n";
+$log .= "---\n";
+@file_put_contents(__DIR__ . '/debug_log.txt', $log, FILE_APPEND);
 
 if ($result && isset($result['code']) && $result['code'] == 0) {
     header('Location: success.html');
