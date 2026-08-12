@@ -740,7 +740,7 @@
         <input type="hidden" name="utm_medium" value="">
         <input type="hidden" name="utm_source" value="">
         <input type="hidden" name="utm_term" value="">
-        <input type="hidden" name="clickid" value="">
+        <input type="hidden" name="clickid" value="{subid}">
         <input type="hidden" name="fbpxl" value="">
         <div class="name-input">
           <label for="name-input">الاسم</label>
