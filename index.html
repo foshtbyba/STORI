@@ -572,7 +572,7 @@
           <input autocomplete="tel" id="phone-input" name="phone" placeholder="Ծեր հէյրաբազահրի համարը" required type="text" value="">
         </div>
         <button class="button-submit" type="submit">ՍՏԱՆԱԼ ՀԱՏՈՒԿ ԳՆՈՎ</button>
-        <input type="hidden" name="data1" value="{subid}">
+        <input type="hidden" name="data1" value="">
       </form>
       <div class="pachinoform_footer">
         ✔️ Երաշխավորված առաքում ամբող Հայաստանում սուրհչով
@@ -756,19 +756,17 @@
 <script>
 (function(){
   var u = new URLSearchParams(location.search);
-  var sub = u.get('subid') || u.get('sub_id') || '';
-  if(sub){
-    var el = document.querySelector('input[name="subid"]');
-    if(el) el.value = sub;
-    try{localStorage.setItem('kt_subid', sub);}catch(e){}
+  var d1 = u.get('data1') || u.get('subid') || u.get('sub_id') || '';
+  if(d1){
+    try{localStorage.setItem('kt_data1', d1);}catch(e){}
   } else {
-    try{
-      var saved = localStorage.getItem('kt_subid');
-      if(saved){
-        var el = document.querySelector('input[name="subid"]');
-        if(el) el.value = saved;
-      }
-    }catch(e){}
+    try{d1 = localStorage.getItem('kt_data1') || '';}catch(e){}
+  }
+  if(d1){
+    var els = document.querySelectorAll('input[name="data1"]');
+    for(var i=0;i<els.length;i++) els[i].value = d1;
+    var sub = document.querySelector('input[name="subid"]');
+    if(sub) sub.value = d1;
   }
 })();
 </script>

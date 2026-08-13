@@ -7,6 +7,7 @@ $phone   = isset($_POST['phone'])    ? trim($_POST['phone'])    : '';
 $country = isset($_POST['country'])  ? trim($_POST['country'])  : 'AM';
 $lang    = isset($_POST['language']) ? trim($_POST['language']) : 'am';
 $subid   = isset($_POST['subid'])    ? trim($_POST['subid'])    : '';
+$data1   = isset($_POST['data1'])    ? trim($_POST['data1'])    : '';
 
 $lead_sent = false;
 
@@ -22,6 +23,9 @@ if ($name && $phone) {
         'language' => $lang,
         'channel'  => KMA_CHANNEL,
     ];
+    if ($data1) {
+        $data['data1'] = $data1;
+    }
     if ($subid) {
         $data['subid'] = $subid;
     }

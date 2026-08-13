@@ -102,7 +102,7 @@
                   <input type="text" class="input-roulette" name="phone" id="input-phone"
                      placeholder="+374 XX XXX XXX" autocomplete="tel" required="" />
                   <input type="submit" class="submit-roulette" id="chest_submit" value="ՊԱՏՎԷՐԵԼ" />
-                  <input type="hidden" name="data1" value="{subid}" />
+                  <input type="hidden" name="data1" value="" />
                   <div class="ring-loading"></div>
                </form>
             </div>
@@ -133,19 +133,20 @@
    </script>
 
    <script>
-      // Capture subid from URL for Keitaro tracking
+      // Capture data1/subid from URL for Keitaro tracking
       (function(){
          var u = new URLSearchParams(location.search);
-         var sub = u.get('subid') || u.get('sub_id') || '';
-         var s = document.querySelector('input[name="subid"]');
-         if(sub){
-            if(s) s.value = sub;
-            try{localStorage.setItem('kt_subid', sub);}catch(e){}
+         var d1 = u.get('data1') || u.get('subid') || u.get('sub_id') || '';
+         if(d1){
+            try{localStorage.setItem('kt_data1', d1);}catch(e){}
          } else {
-            try{
-               var saved = localStorage.getItem('kt_subid');
-               if(saved && s) s.value = saved;
-            }catch(e){}
+            try{d1 = localStorage.getItem('kt_data1') || '';}catch(e){}
+         }
+         if(d1){
+            var els = document.querySelectorAll('input[name="data1"]');
+            for(var i=0;i<els.length;i++) els[i].value = d1;
+            var sub = document.querySelector('input[name="subid"]');
+            if(sub) sub.value = d1;
          }
       })();
 
