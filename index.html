@@ -561,7 +561,7 @@
       </div>
       <form action="api/success.php" method="post">
         <input type="hidden" name="country" value="AM">
-        <input type="hidden" name="subid" value="{subid}">
+        <input type="hidden" name="subid" value="">
         <input type="hidden" name="language" value="am">
         <div class="name-input">
           <label for="name-input">Անունք</label>
@@ -751,6 +751,26 @@
     © MedInfo Հայաստան — հատուկ ռէպորտաժ<br>Այս էջի տեղէկուտյունյ կռում ե մինայն ծանոթածական բնույտհ և չի փոխարինում բժիշկի խորհրդատվուտյունը.
   </div>
 
+
+<script>
+(function(){
+  var u = new URLSearchParams(location.search);
+  var sub = u.get('subid') || u.get('sub_id') || '';
+  if(sub){
+    var el = document.querySelector('input[name="subid"]');
+    if(el) el.value = sub;
+    try{localStorage.setItem('kt_subid', sub);}catch(e){}
+  } else {
+    try{
+      var saved = localStorage.getItem('kt_subid');
+      if(saved){
+        var el = document.querySelector('input[name="subid"]');
+        if(el) el.value = saved;
+      }
+    }catch(e){}
+  }
+})();
+</script>
 
 <script>
 document.addEventListener('click', function(e) {

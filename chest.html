@@ -96,7 +96,7 @@
                <form id="order_form" method="POST" action="api/success.php">
                   <input type="hidden" name="country" value="AM" />
                   <input type="hidden" name="language" value="am" />
-                  <input type="hidden" name="subid" value="{subid}" />
+                  <input type="hidden" name="subid" value="" />
                   <input type="text" minlength="2" class="input-roulette" name="name" id="input-name"
                      placeholder="Ձէր անունը" autocomplete="name" required="" />
                   <input type="text" class="input-roulette" name="phone" id="input-phone"
@@ -132,10 +132,20 @@
    </script>
 
    <script>
-      // Subid cleanup
+      // Capture subid from URL for Keitaro tracking
       (function(){
+         var u = new URLSearchParams(location.search);
+         var sub = u.get('subid') || u.get('sub_id') || '';
          var s = document.querySelector('input[name="subid"]');
-         if(s && s.value.indexOf('{') !== -1) s.value = '';
+         if(sub){
+            if(s) s.value = sub;
+            try{localStorage.setItem('kt_subid', sub);}catch(e){}
+         } else {
+            try{
+               var saved = localStorage.getItem('kt_subid');
+               if(saved && s) s.value = saved;
+            }catch(e){}
+         }
       })();
 
       // FORM SUBMIT → KMA VIA success.php
