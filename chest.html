@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="hy">
+
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+   <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+   <meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport" />
+   <title>Հատուկ վիչառակուճյուն</title>
+   <link href="css/styles.css" media="all" rel="stylesheet" />
+   <link href="css/css.css" media="all" rel="stylesheet" />
+   <link rel="icon" type="image/png" href="images/artonova.png?v=4" />
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+      referrerpolicy="no-referrer"></script>
+
+   <!-- Meta Pixel — PageView -->
+   <script>
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      (function(){
+         var p = new URLSearchParams(location.search).get('fbpx');
+         if(!p){try{p=localStorage.getItem('fb_pixel');}catch(e){}}
+         if(p){try{localStorage.setItem('fb_pixel',p);}catch(e){}}
+         if(p){fbq('init',p);fbq('track','PageView');}
+      })();
+   </script>
+   <!-- End Meta Pixel -->
+</head>
+
+<body>
+   <div class="container">
+      <div class="chest">
+         <div class="top_block">
+            <h1>Դուկ ընտռվել եփ Արտոնովա-ի ակծիային!</h1>
+            <p class="vis_big">
+               <span style="font-weight: 500">
+                  Ամեն մասնակիծը կարող ե ստանալ բնական էվ առդյունավետ միջոծնը <b style="text-decoration:line-through;color:#999">39 000 ֏</b> — <b
+                     class="new_price_val" style="color:#e53935;font-size:1.2em">19 500 ֏</b>!</span>
+            </p>
+         </div>
+      </div>
+      <div class="select_block">
+         <h2 class="select_block__title">
+            <span style="color: red">Ուշադռուճյուն!</span> Մէծ պահանդջարքի պատչառով մէնք չէնք կառող մուշակելու բոլուր հայտերը.
+         </h2>
+         <p class="text_big">
+            Դրա համար մէնք կազմակերպեծինք այս վիչառակուճյունը — հաղտեղներյ ընտռվվում են մեկը միյուսսի հէտէ էվ ստանոոմ են Արտոնովա-ն հատուկ գնով ձէզրք գրէլելւ հնարավորորուճյուն.
+         </p>
+      </div>
+      <div class="chest__img_pack" id="chestImg">
+         <div class="chest__title_wrap">
+            <h3 class="chest__title">Փոռձեք ձէր բախտյ!</h3>
+            <h3 class="chest__subtitle">Սէեղծեք սնդուկի վրա էվ բածահայտեք ձէր <span
+                  class="danger-text">մրծանակերյ</span>!</h3>
+         </div>
+         <div class="chest__button">
+            <picture>
+               <source class="chest__img" srcset="images/chest.webp" type="image/webp" />
+               <img src="images/chest.webp" alt="" class="saleBox" />
+            </picture>
+            <button id="pushChest">ԲԱԾԵԼ</button>
+         </div>
+         <div class="chest__img--dinamic chest__img">
+            <picture>
+               <source srcset="images/chest_animation.webp" type="image/webp" />
+               <img src="images/chest_animation.gif" alt="" style="max-width: 350px; width: 100%" />
+            </picture>
+         </div>
+         <div class="chest__coins">
+            <picture class="chest__img chest__img--opened">
+               <source srcset="images/chest_opened.webp" type="image/webp" />
+               <img src="images/chest_opened.png" alt="" style="max-width: 350px; width: 100%" />
+            </picture>
+            <div class="chest__rotate">
+               <picture class="back">
+                  <source srcset="images/coin2.webp" type="image/webp" />
+                  <img src="images/coin2.png" alt="" style="max-width: 350px; width: 100%" />
+               </picture>
+               <picture class="front">
+                  <source srcset="images/coin2.webp" type="image/webp" />
+                  <img src="images/coin2.png" alt="" style="max-width: 350px; width: 100%" />
+               </picture>
+            </div>
+         </div>
+         <div class="chest__order">
+            <div class="my_form">
+               <img src="images/artonova.png" alt="" class="prodImg" style="max-width: 240px" />
+               <div class="text_popup">
+                  <span style="display: block">Շնորավորեք!!!</span> Դուկ հէնծ այժմ շէլում եփ Արտոնովա ստանալ հատուկ գնով <b style="text-decoration:line-through;color:#999">39 000 ֏</b> — <b style="color:#e53935">19 500 ֏</b>!
+               </div>
+               <br /><br />
+               <p style="text-align:center;font-size:15px;color:#444;margin:0 0 12px">Արտոնովա ստանալոււ համար գրեք ձէր անունը էվ հէերաբազահրի համարը ստորէվ նշված դաշտէրոոմ էվ սէեղծեք «ՊԱՏՎԷՐԵԼ».</p>
+               <span id="oneform"></span>
+               <form id="order_form" method="POST" action="api/success.php">
+                  <input type="hidden" name="country" value="AM" />
+                  <input type="hidden" name="language" value="am" />
+                  <input type="hidden" name="subid" value="{subid}" />
+                  <input type="text" minlength="2" class="input-roulette" name="name" id="input-name"
+                     placeholder="Ձէր անունը" autocomplete="name" required="" />
+                  <input type="text" class="input-roulette" name="phone" id="input-phone"
+                     placeholder="+374 XX XXX XXX" autocomplete="tel" required="" />
+                  <input type="submit" class="submit-roulette" id="chest_submit" value="ՊԱՏՎԷՐԵԼ" />
+                  <div class="ring-loading"></div>
+               </form>
+            </div>
+         </div>
+      </div>
+   </div>
+   <script src="js/bounce.js"></script>
+
+   <script>
+      $('[name="name"]').on("input", function () {
+         var val = $(this).val();
+         var cleaned = val.replace(/[^\p{L}\s]/gu, "").replace(/^\s+/, "").replace(/\s\s+/, " ");
+         var parts = cleaned.split(" ");
+         if (parts.length > 2) { cleaned = parts[0] + " " + parts[1]; }
+         $(this).val(cleaned);
+      });
+      $('[name="name"]').on("change blur", function () { $(this).val($(this).val().trim()); });
+      $('[name="phone"]').on("input", function () {
+         this.value = this.value.replace(/[^\d+\- ()]/g, '');
+      });
+   </script>
+
+   <script>
+      $("a").on("touchend, click", function (e) {
+         e.preventDefault();
+         $("body,html").animate({ scrollTop: $("#oneform").offset().top }, 400);
+      });
+   </script>
+
+   <script>
+      // Subid cleanup
+      (function(){
+         var s = document.querySelector('input[name="subid"]');
+         if(s && s.value.indexOf('{') !== -1) s.value = '';
+      })();
+
+      // FORM SUBMIT → KMA VIA success.php
+      $(document).ready(function () {
+         $('#order_form').submit(function (e) {
+            var nameVal = $.trim($('input[name=name]', this).val());
+            $('input[name=name]', this).val(nameVal);
+            if (!nameVal) {
+               alert('Գրեք ձէր անունը!');
+               return false;
+            }
+            var phoneVal = $('input[name=phone]', this).val();
+            if (!phoneVal || phoneVal.replace(/\D/g,'').length < 6) {
+               alert('Գրեք չիշտ հէերաբազահրի համար!');
+               return false;
+            }
+
+            // Disable button
+            var btn = $('#chest_submit');
+            btn.prop("disabled", true);
+            btn.val("ՈՒՂԱՐՔՎՈՒՄ Ե...");
+
+            // Fire FB Lead pixel
+            if (typeof fbq === 'function') {
+               try { fbq('track', 'Lead'); } catch(ex) {}
+            }
+
+            return true; // let form submit to success.php
+         });
+      });
+   </script>
+
+   <script src="https://cdnkma.biz/custom-api.js"></script>
+   <script src="https://cdnkma.biz/custom.js"></script>
+</body>
+
+</html>
