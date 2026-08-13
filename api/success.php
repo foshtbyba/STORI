@@ -11,18 +11,23 @@ $subid   = isset($_POST['subid'])    ? trim($_POST['subid'])    : '';
 $lead_sent = false;
 
 if ($name && $phone) {
-    try {
-        $lead = new KmaLead();
-        $lead->setName($name);
-        $lead->setPhone($phone);
-        $lead->setCountry($country);
-        $lead->setLanguage($lang);
-        if ($subid) {
-            $lead->setSubid($subid);
-        }
-        $lead_sent = $lead->send();
-    } catch (Exception $e) {
-        // lead send failed
+    $kma = new KmaLead(KMA_ACCESS_TOKEN);
+    $kma->debug = KMA_DEBUG;
+
+    $data = [
+        'name'     => $name,
+        'phone'    => $phone,
+        'country'  => $country,
+        'language' => $lang,
+        'channel'  => KMA_CHANNEL,
+    ];
+    if ($subid) {
+        $data['subid'] = $subid;
+    }
+
+    $order = $kma->addLead($data);
+    if ($order !== false) {
+        $lead_sent = true;
     }
 }
 ?>
@@ -127,10 +132,6 @@ if ($name && $phone) {
       margin-bottom: 12px;
       line-height: 1.6;
     }
-    .highlight {
-      color: var(--color-primary);
-      font-weight: 600;
-    }
     .info-box {
       background: var(--color-primary-light);
       border-radius: var(--radius-md);
@@ -142,7 +143,6 @@ if ($name && $phone) {
       list-style: none;
       padding: 6px 0;
       font-size: 15px;
-      color: var(--color-text);
     }
     .info-box li::before {
       content: "\2714\FE0F  ";
@@ -188,11 +188,11 @@ if ($name && $phone) {
   <div class="card">
     <div class="icon-circle icon-success">&#x2705;</div>
     <h1>Շնորահակալուճյուն!</h1>
-    <p>Ձէր հայտը հաջողուտյանբյ ընդունվէլ ե.</p>
-    <p>Մէր մասնագետը կզանգահարէլելւ ե ԱՌՐՆ մոտակա ապագայում.</p>
+    <p>Ձէր հայտը հաջողությամբ ընդունվէլ ե.</p>
+    <p>Մէր մասնագետը կզանգահարելի ե ձեզ մոտակա ժամանակը.</p>
 
     <ul class="info-box">
-      <li>Մասնագետը կզանգահարէլելւ ե 15 րոպէյում</li>
+      <li>Մասնագետը կզանգահարելի ե 15 րոպէյում</li>
       <li>Առաքում 2–3 որում</li>
       <li>Վչար առաքման պահին</li>
     </ul>
