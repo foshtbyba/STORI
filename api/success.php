@@ -9,8 +9,6 @@ $lang    = isset($_POST['language']) ? trim($_POST['language']) : 'am';
 $subid   = isset($_POST['subid'])    ? trim($_POST['subid'])    : '';
 
 $lead_sent = false;
-$kma_error = '';
-$debug_info = '';
 
 if ($name && $phone) {
     $kma = new KmaLead(KMA_ACCESS_TOKEN);
@@ -28,27 +26,14 @@ if ($name && $phone) {
         $data['subid'] = $subid;
     }
 
-    $debug_info .= "POST: " . json_encode($data, JSON_UNESCAPED_UNICODE) . "\n";
-
     $raw = $kma->addLeadAndReturnPage($data);
-    $debug_info .= "RAW response type: " . gettype($raw) . "\n";
-    $debug_info .= "RAW response: " . var_export($raw, true) . "\n";
 
-    if ($raw === false || $raw === null || $raw === '') {
-        $kma_error = 'KMA returned empty/false — curl likely failed';
-    } else {
+    if ($raw) {
         $response = json_decode($raw, true);
-        $debug_info .= "Decoded: " . var_export($response, true) . "\n";
-
         if (isset($response['order'])) {
             $lead_sent = true;
-        } else {
-            $kma_error = is_array($response) ? json_encode($response, JSON_UNESCAPED_UNICODE) : (string)$raw;
         }
     }
-} else {
-    $kma_error = "Empty name='$name' or phone='$phone'";
-    $debug_info = "Raw POST: " . json_encode($_POST, JSON_UNESCAPED_UNICODE);
 }
 ?>
 <!DOCTYPE html>
@@ -224,13 +209,6 @@ if ($name && $phone) {
     <div class="icon-circle icon-error">&#x274C;</div>
     <h1>Սխալ ե տէղի ունեծէլ</h1>
     <p>Խնտրում ենք կրկին փոռձեք.</p>
-    <pre style="margin:16px 0;padding:12px;background:#fdecea;border-radius:8px;text-align:left;font-size:12px;overflow-x:auto;color:#c0392b;word-break:break-all;white-space:pre-wrap;">ERROR: <?php echo htmlspecialchars($kma_error ?: 'unknown'); ?>
-
-DEBUG:
-<?php echo htmlspecialchars($debug_info); ?>
-
-PHP: <?php echo PHP_VERSION; ?>
-FILE: <?php echo __FILE__; ?></pre>
     <a href="../index.html" class="btn-back">Վէրադառնալ</a>
   </div>
 <?php endif; ?>
