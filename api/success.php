@@ -9,10 +9,11 @@ $lang    = isset($_POST['language']) ? trim($_POST['language']) : 'am';
 $subid   = isset($_POST['subid'])    ? trim($_POST['subid'])    : '';
 
 $lead_sent = false;
+$kma_error = '';
 
 if ($name && $phone) {
     $kma = new KmaLead(KMA_ACCESS_TOKEN);
-    $kma->debug = KMA_DEBUG;
+    $kma->debug = false;
 
     $data = [
         'name'     => $name,
@@ -25,10 +26,16 @@ if ($name && $phone) {
         $data['subid'] = $subid;
     }
 
-    $order = $kma->addLead($data);
-    if ($order !== false) {
+    $raw = $kma->addLeadAndReturnPage($data);
+    $response = json_decode($raw, true);
+
+    if (isset($response['order'])) {
         $lead_sent = true;
+    } else {
+        $kma_error = is_array($response) ? json_encode($response, JSON_UNESCAPED_UNICODE) : $raw;
     }
+} else {
+    $kma_error = 'Empty name or phone';
 }
 ?>
 <!DOCTYPE html>
@@ -204,6 +211,9 @@ if ($name && $phone) {
     <div class="icon-circle icon-error">&#x274C;</div>
     <h1>Սխալ ե տէղի ունեծէլ</h1>
     <p>Խնտրում ենք կրկին փոռձեք.</p>
+    <?php if ($kma_error): ?>
+    <pre style="margin:16px 0;padding:12px;background:#fdecea;border-radius:8px;text-align:left;font-size:13px;overflow-x:auto;color:#c0392b;word-break:break-all;"><?php echo htmlspecialchars($kma_error); ?></pre>
+    <?php endif; ?>
     <a href="../index.html" class="btn-back">Վէրադառնալ</a>
   </div>
 <?php endif; ?>
