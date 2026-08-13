@@ -19,6 +19,7 @@ if ($name && $phone) {
     $data = [
         'name'     => $name,
         'phone'    => $phone,
+        'ip'       => $kma->getIp(),
         'country'  => $country,
         'language' => $lang,
         'channel'  => KMA_CHANNEL,
