@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+  <meta charset="utf-8">
+  <title>Cartirex - แคปซูลบำรุงข้อต่อ</title>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="no-cache" http-equiv="Cache-Control">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="telephone=no" name="format-detection">
+  <meta content="no-referrer" name="referrer">
+  <meta content="noindex, nofollow" name="robots">
+
+  <link rel="icon" href="images/prod.png?=v1">
+
+  <style>
+    :root {
+      --color-primary: #0a5c9e;
+      --color-primary-dark: #084678;
+      --color-primary-light: #e8f2fa;
+      --color-accent: #0284c7;
+      --color-danger: #c0392b;
+      --color-danger-light: #fdecea;
+      --color-success: #1e8449;
+      --color-success-light: #e8f5ee;
+      --color-warning: #b7791f;
+      --color-text: #1a2b42;
+      --color-text-muted: #4a5a70;
+      --color-text-light: #6b7a8f;
+      --color-bg: #ffffff;
+      --color-bg-soft: #f7fafc;
+      --color-bg-alt: #eef4f9;
+      --color-border: #d9e2ec;
+      --color-border-soft: #e4ebf2;
+      --shadow-sm: 0 1px 2px rgba(10, 92, 158, 0.04), 0 1px 3px rgba(10, 92, 158, 0.06);
+      --shadow-md: 0 4px 12px rgba(10, 92, 158, 0.08), 0 2px 4px rgba(10, 92, 158, 0.04);
+      --shadow-lg: 0 10px 25px rgba(10, 92, 158, 0.10), 0 4px 10px rgba(10, 92, 158, 0.05);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: 'Noto Sans Thai', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-serif: 'Noto Sans Thai', 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin:0; padding:0; font-family:var(--font-sans); font-size:17px; line-height:1.65; color:var(--color-text); background:var(--color-bg-soft); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .clinical-topbar { background:var(--color-primary-dark); color:#fff; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; padding:8px 16px; text-align:center; font-weight:500; }
+    .clinical-topbar::before { content:"⚕ "; margin-right:6px; }
+    .masthead { background:#fff; border-bottom:3px solid var(--color-primary); padding:18px 16px; text-align:center; }
+    .masthead-inner { max-width:900px; margin:0 auto; display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+    .masthead-logo { display:inline-flex; align-items:center; gap:10px; font-family:var(--font-serif); font-weight:700; font-size:22px; color:var(--color-primary-dark); letter-spacing:-0.01em; }
+    .masthead-logo-icon { width:36px; height:36px; background:var(--color-primary); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:700; }
+    .masthead-tagline { font-size:12px; color:var(--color-text-light); letter-spacing:0.08em; text-transform:uppercase; border-left:1px solid var(--color-border); padding-left:14px; font-weight:500; }
+    @media (max-width:560px) { .masthead-tagline { border-left:0; padding-left:0; font-size:11px; width:100%; border-top:1px solid var(--color-border); padding-top:8px; margin-top:4px; } }
+    header { max-width:900px; margin:0 auto; padding:0; }
+    .bg-image { text-align:center; }
+    .bg-image img { max-width:100%; height:auto; display:inline-block; }
+    .text-container { display:block; }
+    .h1-bg { position:relative; max-width:900px; margin:0 auto; padding:28px 22px 20px; background:#fff; border-bottom:1px solid var(--color-border); }
+    .h1-bg::before { content:""; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%); }
+    .title_h1 { font-family:var(--font-serif); font-size:28px; line-height:1.25; color:var(--color-text); font-weight:700; margin:0 0 14px; letter-spacing:-0.01em; }
+    .h1-quote { display:block; font-size:30px; font-style:italic; color:var(--color-danger); margin-bottom:10px; letter-spacing:-0.01em; }
+    .head-one-part { color:var(--color-danger); }
+    .head-two-part { display:block; font-size:20px; font-weight:600; color:var(--color-text); line-height:1.35; margin-top:6px; }
+    .head-main-date { font-size:13px; color:var(--color-text-light); padding:0; display:flex; align-items:center; gap:8px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px dashed var(--color-border); }
+    .head-main-date::before { content:"📅"; font-size:14px; }
+    .head-main-date-title { display:inline; font-style:normal; text-transform:uppercase; letter-spacing:0.05em; font-weight:500; }
+    .main-subtitle { display:block; padding:16px 18px; color:var(--color-text); font-size:17px; border-radius:var(--radius-md); font-weight:500; border-left:4px solid var(--color-primary); background:var(--color-primary-light); line-height:1.55; font-style:normal; margin:0; box-shadow:none; }
+    @media (max-width:640px) { .title_h1 { font-size:22px; } .h1-quote { font-size:24px; } .head-two-part { font-size:16px; } .main-subtitle { font-size:15px; padding:14px 14px; } .h1-bg { padding:22px 16px 18px; } }
+    main { max-width:900px; margin:0 auto; padding:24px 22px 40px; background:#fff; border-left:1px solid var(--color-border-soft); border-right:1px solid var(--color-border-soft); }
+    @media (max-width:640px) { main { padding:18px 14px 30px; } }
+    main p { margin:0 0 16px; color:var(--color-text); }
+    main img { max-width:100%; height:auto; border-radius:var(--radius-md); }
+    main h2 { font-family:var(--font-serif); font-size:24px; line-height:1.3; font-weight:700; color:var(--color-primary-dark); margin:32px 0 16px; padding-bottom:12px; border-bottom:2px solid var(--color-primary-light); letter-spacing:-0.01em; }
+    main h2 span { display:block; font-family:var(--font-sans); font-size:16px; font-weight:500; color:var(--color-text-muted); margin-top:10px; margin-bottom:0; line-height:1.5; }
+    main h3 { font-family:var(--font-serif); font-size:19px; color:var(--color-primary-dark); margin:22px 0 12px; font-weight:600; }
+    @media (max-width:640px) { main h2 { font-size:19px; } main h2 span { font-size:15px; } }
+    main ul { padding-left:0; list-style:none; margin:16px 0; background:var(--color-bg-soft); border:1px solid var(--color-border-soft); border-radius:var(--radius-md); padding:14px 18px 14px 20px; }
+    main ul li { position:relative; padding-left:22px; margin-bottom:8px; line-height:1.5; }
+    main ul li::before { content:""; position:absolute; left:0; top:10px; width:10px; height:10px; border:2px solid var(--color-primary); border-radius:50%; background:#fff; }
+    main ul li:last-child { margin-bottom:0; }
+    .red-txt { color:var(--color-danger); font-weight:600; }
+    .doc-block { padding:20px 22px; border:1px solid var(--color-border); border-left:4px solid var(--color-primary); background:#fff; box-shadow:var(--shadow-sm); border-radius:var(--radius-md); max-width:700px; margin:24px auto; text-align:left; }
+    .doc-block img { border-radius:var(--radius-md); margin-bottom:14px; }
+    .doc-block p { padding:0; margin:0 0 12px; font-size:16px; line-height:1.6; }
+    .doc-block p:last-child { margin-bottom:0; }
+    .doc-block p b { color:var(--color-primary-dark); }
+    figure { margin:22px 0; padding:0; text-align:center; }
+    figure img { border-radius:var(--radius-md); box-shadow:var(--shadow-md); max-width:100%; height:auto; }
+    figure figcaption { margin-top:12px; padding:10px 14px; font-size:14px; line-height:1.5; color:var(--color-text-muted); background:var(--color-bg-soft); border-left:3px solid var(--color-primary); border-radius:0 var(--radius-sm) var(--radius-sm) 0; text-align:left; font-style:italic; }
+    figure.cap-bold figcaption { font-style:normal; font-weight:500; color:var(--color-text); }
+    .img-card { border:1px solid var(--color-border); padding:6px; background:#fff; box-shadow:var(--shadow-md); border-radius:var(--radius-md); }
+    .img-card2 { border:1px solid var(--color-border); padding:6px; background:#fff; border-radius:var(--radius-md); }
+    .pachino-ramka312-block { margin:24px 0; }
+    .pachino-ramka312 { background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.25); border-left:4px solid var(--color-danger); border-radius:var(--radius-md); padding:18px 20px; color:var(--color-text); font-weight:500; box-shadow:none; margin:0; font-size:16px; line-height:1.6; position:relative; }
+    .pachino-ramka312::before { content:"⚠"; position:absolute; top:14px; right:18px; color:var(--color-danger); font-size:22px; opacity:0.7; }
+    .pachino-ramka312 .obertka-1 { display:block; }
+    .rev-block { margin:24px 0; padding:20px 22px; background:var(--color-primary-light); border:1px solid rgba(10,92,158,0.15); border-left:4px solid var(--color-primary); border-radius:var(--radius-md); box-shadow:none; }
+    .rev-block p { font-size:16px; line-height:1.6; margin-bottom:12px; }
+    .rev-block img { border-radius:var(--radius-md); margin-bottom:14px; max-width:100%; }
+    .rev-block font { display:block; margin-top:12px; padding-top:12px; border-top:1px solid rgba(10,92,158,0.15); color:var(--color-primary-dark); font-size:15px; }
+    .rev-block font b { font-weight:600; }
+    .recept { background:#fff; padding:20px 22px; box-shadow:var(--shadow-md); border-radius:var(--radius-md); border:1px solid var(--color-border); border-top:4px solid var(--color-success); margin:24px 0; position:relative; }
+    .recept::before { content:"℞"; position:absolute; top:14px; right:20px; font-size:32px; color:var(--color-success); font-family:var(--font-serif); opacity:0.4; line-height:1; }
+    .recept p b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green { margin:12px 0 0 !important; padding:0 !important; background:transparent !important; border:0 !important; list-style:none; }
+    .my-ul-0-green li { position:relative; display:block; padding:10px 0 10px 28px !important; margin:0 !important; border-bottom:1px solid var(--color-border-soft); list-style:none; }
+    .my-ul-0-green li::before { content:"✓" !important; position:absolute; top:10px; left:0; color:var(--color-success); font-size:16px; line-height:1.5; font-weight:700; border:0 !important; background:transparent !important; width:auto !important; height:auto !important; border-radius:0 !important; }
+    .my-ul-0-green li:last-child { border-bottom:0; }
+    .my-ul-0-green li b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green font { font-size:14px; display:block; margin-top:4px; color:var(--color-text-muted); }
+    .obertk512 { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); max-width:780px; margin:28px auto; padding:0; line-height:1.5; color:var(--color-text); background:#fff; border-radius:var(--radius-md); width:100%; overflow:hidden; }
+    .obertk512 h1 { font-family:var(--font-serif); line-height:1.3; margin:0; color:#fff; font-size:18px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .block-offer-actions-block { padding:10px 22px 22px; border:0; }
+    .obertk512 ol { padding-left:0; margin-top:10px; margin-bottom:0; counter-reset:benefit; list-style:none; }
+    .obertk512 li { line-height:1.4; padding:16px 0 16px 50px; border-bottom:1px solid var(--color-border-soft); position:relative; counter-increment:benefit; }
+    .obertk512 li::before { content:counter(benefit); position:absolute; left:0; top:14px; width:36px; height:36px; background:var(--color-primary-light); color:var(--color-primary-dark); border-radius:50%; font-weight:700; font-size:16px; display:flex; align-items:center; justify-content:center; border:2px solid var(--color-primary); }
+    .obertk512 li::marker { content:none; }
+    .obertk512 li:last-child { border-bottom:0; }
+    .obertk512 li font { line-height:1.3; color:var(--color-primary-dark); text-align:left; font-weight:600; font-size:17px; display:block; margin-bottom:6px; }
+    .block-offer-actions-block li span { display:block; font-size:15px; line-height:1.5; font-weight:400; color:var(--color-text-muted); margin:0; padding:0; border-bottom:0; }
+    .pachino-ramka2 { text-align:left; color:var(--color-success); font-weight:600; border:1px solid rgba(30,132,73,0.25); border-left:4px solid var(--color-success); border-radius:var(--radius-md); padding:18px 20px; background:var(--color-success-light); box-shadow:none; margin:20px 0; font-size:16px; line-height:1.55; }
+    .pachino-ramka { border:1px solid rgba(183,121,31,0.3); border-left:4px solid var(--color-warning); padding:18px 20px; border-radius:var(--radius-md); background:#fff9ef; margin:20px 0; font-size:16px; line-height:1.55; position:relative; }
+    .pachino-ramka::before { content:"🕐"; position:absolute; top:14px; right:18px; font-size:22px; opacity:0.8; }
+    .ramka-title { display:block; color:var(--color-warning); padding:0; margin-bottom:10px; font-weight:700 !important; background:transparent; text-transform:uppercase; font-size:13px; letter-spacing:0.06em; }
+    .pachino-ramka font { color:var(--color-danger); font-weight:600; }
+    .noclose-cta { font-size:15px; max-width:780px; margin:16px auto; display:block; background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.2); padding:12px 16px; border-radius:var(--radius-md); line-height:1.5; }
+    .pre-cta { display:block; color:var(--color-success); font-weight:500; font-size:16px; margin-top:12px; }
+    .nowrap { white-space:nowrap; }
+    .price-cascade { max-width:700px; margin:24px auto; padding:20px 24px; background:var(--color-bg-soft); border:1px solid var(--color-border-soft); border-left:4px solid var(--color-success); border-radius:var(--radius-md); }
+    .price-cascade-title { font-weight:600; color:var(--color-primary-dark); margin-bottom:14px; font-size:16px; }
+    .price-cascade-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed var(--color-border-soft); }
+    .price-cascade-item:last-of-type { border-bottom:0; }
+    .price-cascade-label { font-size:15px; color:var(--color-text-muted); }
+    .price-cascade-amount { font-weight:600; font-size:16px; color:var(--color-text-light); text-decoration:line-through; }
+    .price-cascade-final { display:flex; justify-content:space-between; align-items:center; padding:14px 0 0; margin-top:8px; border-top:2px solid var(--color-success); }
+    .price-cascade-final .price-cascade-label { color:var(--color-success); font-weight:700; font-size:16px; text-transform:uppercase; letter-spacing:0.04em; }
+    .price-cascade-final .price-cascade-amount { color:var(--color-success); font-weight:700; font-size:22px; text-decoration:none; }
+    .pachinoform { padding:0; font-size:17px; line-height:1.5; color:var(--color-text); border:1px solid var(--color-border); background:#fff; display:block; border-radius:var(--radius-lg); width:100%; max-width:780px; margin:24px auto; box-shadow:var(--shadow-lg); overflow:hidden; }
+    .pachinoform_title { display:flex; gap:16px; max-width:none; align-self:stretch; text-align:left; background:var(--color-primary); color:#fff; padding:20px 24px; align-items:center; }
+    .pachinoform_title_logo { flex-shrink:0; background:#fff; padding:6px; border-radius:50%; width:56px; height:56px; display:flex; align-items:center; justify-content:center; }
+    .pachinoform_title_logo img { max-width:100%; height:auto; }
+    .pachinoform_title_text { align-self:center; color:#fff; font-size:15px; line-height:1.4; }
+    .pachinoform_title_text>b { display:block; line-height:1.3; font-size:17px; margin-bottom:4px; color:#fff; font-weight:600; }
+    .pachinoform_order { max-width:none; font-weight:500; font-size:15px; margin:0; text-align:center; padding:16px 24px; background:var(--color-primary-light); border-bottom:1px solid var(--color-border-soft); color:var(--color-text); line-height:1.5; }
+    .pachinoform_order>b { color:var(--color-danger); font-weight:700; }
+    .pachinoform_value { display:flex; color:var(--color-text); font-weight:600; font-size:15px; align-items:center; justify-content:center; padding:16px 24px 0; flex-wrap:wrap; gap:10px; }
+    .pachinoform_value_current { border:2px solid var(--color-danger); color:var(--color-danger); line-height:1; font-size:22px; padding:6px 18px; margin:0 6px; border-radius:var(--radius-sm); background:var(--color-danger-light); font-weight:700; }
+    .pachinoform_value_total { font-size:18px; color:var(--color-text-muted); }
+    .pachinoform_price { display:flex; align-items:center; justify-content:center; gap:24px; margin:20px 0 0; padding:0 24px; flex-wrap:wrap; }
+    @media (max-width:380px) { .pachinoform_price { gap:14px; } .pachinoform_price_old span { font-size:20px; } .pachinoform_price_new span { font-size:26px; padding:6px 14px; } }
+    .pachinoform_price_old span { display:block; font-size:24px; font-weight:600; letter-spacing:-0.5px; color:var(--color-text-light); position:relative; line-height:1; }
+    .pachinoform_price_old span::before { position:absolute; content:""; left:-4px; top:50%; right:-4px; border-top:2px solid var(--color-danger); transform:rotate(-12deg); }
+    .pachinoform_price_new span { display:inline-block; background:var(--color-success); color:#fff; text-shadow:none; font-size:32px; padding:8px 20px; font-weight:700; line-height:1; border-radius:var(--radius-sm); box-shadow:0 4px 12px rgba(30,132,73,0.25); }
+    .pachinoform form { padding:22px 24px 20px; }
+    .pachinoform .name-input, .pachinoform .phone-input { color:var(--color-text); font-size:15px; margin-bottom:14px; }
+    .pachinoform .name-input label, .pachinoform .phone-input label { font-weight:500; font-size:14px; color:var(--color-text-muted); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:0.04em; }
+    .pachinoform .name-input input, .pachinoform .phone-input input { font:inherit; color:var(--color-text); box-sizing:border-box; width:100%; border-radius:var(--radius-sm); padding:12px 16px; min-width:0; background:#fff; border:1.5px solid var(--color-border); font-size:16px !important; transition:border-color 0.15s ease, box-shadow 0.15s ease; }
+    .pachinoform .name-input input:focus, .pachinoform .phone-input input:focus, .pachinoform input:focus { outline:0; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(10,92,158,0.15); }
+    .pachinoform .button-submit { width:100%; padding:16px 22px; background:var(--color-success); color:#fff; font-weight:700; font-size:17px; border:0; border-radius:var(--radius-sm); cursor:pointer; text-transform:uppercase; letter-spacing:0.04em; box-shadow:0 4px 12px rgba(30,132,73,0.25); transition:background 0.15s ease, transform 0.1s ease; }
+    .pachinoform .button-submit:hover { background:#176a3a; }
+    .pachinoform .button-submit:active { transform:translateY(1px); }
+    .pachinoform_footer { padding:16px 24px 20px; text-align:center; font-size:14px; color:var(--color-text-muted); line-height:1.5; }
+    .pachinoform_footer img { max-width:200px; margin-top:10px; height:auto; }
+    .comments { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--color-border-soft); border-top:0; padding:0; }
+    .comments__header { padding:18px 22px; background:var(--color-bg-soft); border-bottom:1px solid var(--color-border-soft); }
+    .comments__header-title { margin:0; font-size:16px; font-weight:700; color:var(--color-primary-dark); letter-spacing:0.04em; }
+    .comments__item-list { padding:8px 20px; }
+    .comments__item { padding:16px 0; border-bottom:1px solid var(--color-border-soft); }
+    .comments__item:last-child { border-bottom:0; }
+    .comments__item-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .comments__item-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid var(--color-border); }
+    .comments__item-info { flex:1; min-width:0; }
+    .comments__item-name { font-weight:600; font-size:15px; color:var(--color-primary-dark); margin:0 0 2px; }
+    .comments__item-info p:last-child, .comments__item-info .startdate, .comments__item-info .nowdate { font-size:12px; color:var(--color-text-light); margin:0; }
+    .comments__item-body { padding-left:56px; }
+    .comments__item-content { font-size:15px; line-height:1.55; color:var(--color-text); margin:0; }
+    .comments__item-content img { border-radius:var(--radius-sm); margin-top:10px; }
+    .comm-obert-reply { padding-left:28px; border-left:2px solid var(--color-primary-light); margin-left:8px; }
+    .comm-obert-reply .comments__item.reply { border-bottom:1px solid var(--color-border-soft); }
+    @media (max-width:560px) { .comments__item-body { padding-left:0; } .comm-obert-reply { padding-left:16px; } }
+    .form-container { max-width:900px; margin:0 auto; padding:0 20px; }
+    .custom-form { max-width:100%; margin:0 auto; padding:18px; box-shadow:var(--shadow-sm); border:1px solid var(--color-border); box-sizing:border-box; font-family:var(--font-sans) !important; display:flex; flex-direction:column; gap:12px; background:var(--color-bg-soft); border-radius:var(--radius-md); }
+    .custom-form__top-field { display:flex; gap:16px; align-items:center; }
+    .custom-form__ava-block { position:relative; width:54px; height:54px; overflow:hidden; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px dashed var(--color-border); transition:0.2s; flex:0 0 auto; background:#fff; }
+    .custom-form__ava-label { font-size:11px; text-align:center; line-height:1.2; cursor:pointer; font-family:inherit; font-weight:400; color:var(--color-text-light); padding:4px; }
+    .custom-form__ava-label_red-text { color:var(--color-danger); }
+    .custom-form__name { width:100%; max-width:320px; display:inline-block; outline:none; border:1.5px solid var(--color-border); padding:10px 14px; font-size:14px; height:42px; box-sizing:border-box; font-family:inherit; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__message { resize:none; width:100%; outline:none; border:1.5px solid var(--color-border); padding:12px 14px; min-height:90px; font-size:14px; line-height:1.5; font-family:inherit; box-sizing:border-box; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__bottom-field { display:flex; flex-direction:row; gap:14px; align-items:center; flex-wrap:wrap; }
+    .custom-form__btn { outline:none; padding:10px 24px; background:var(--color-primary); color:#fff; font-weight:600; font-size:14px; transition:background 0.15s ease; cursor:pointer; text-transform:uppercase; border:0; font-family:var(--font-sans); border-radius:var(--radius-sm); text-decoration:none !important; letter-spacing:0.04em; }
+    .custom-form__btn:hover { background:var(--color-primary-dark); }
+    .custom-form__photo-label { cursor:pointer; font-size:13px; font-weight:400; border:none; color:var(--color-primary); text-decoration:underline; }
+    .trust-strip { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--color-border-soft); border-top:0; padding:20px 22px; display:flex; flex-wrap:wrap; gap:18px; justify-content:space-around; align-items:center; }
+    .trust-item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--color-text-muted); font-weight:500; }
+    .trust-item-icon { color:var(--color-primary); font-size:18px; }
+    .clinical-footer { max-width:900px; margin:0 auto 0; padding:24px 22px 36px; background:#fff; border:1px solid var(--color-border-soft); border-top:1px solid var(--color-border); text-align:center; font-size:12px; color:var(--color-text-light); line-height:1.6; }
+    .clinical-footer a { color:var(--color-primary); text-decoration:none; }
+    .product-center { display:block; max-width:220px; width:100%; margin:16px auto; }
+    body input[name="phone"] { background-repeat:no-repeat !important; background-position:left 15px center !important; }
+    main center { display:block; text-align:center; }
+    .sf-hidden { display:none !important; }
+    .quote-inline { margin:20px 0; padding:16px 20px; background:var(--color-bg-soft); border-left:4px solid var(--color-text-light); border-radius:0 var(--radius-md) var(--radius-md) 0; font-style:italic; color:var(--color-text-muted); font-size:16px; line-height:1.6; }
+    .quote-inline .quote-name { display:block; margin-top:10px; font-style:normal; font-weight:600; color:var(--color-primary-dark); font-size:14px; }
+    @media (max-width:480px) { body { font-size:16px; } main p { font-size:16px; } .doc-block { padding:16px; } .rev-block { padding:16px; } .recept { padding:16px; } .block-offer-actions-block { padding:6px 16px 16px; } .obertk512 li { padding-left:44px; } .obertk512 li::before { width:30px; height:30px; font-size:14px; } }
+  </style>
+
+  <script src="js/dtime.js"></script>
+
+    <!-- Meta Pixel (lead tracking) -->
+    <script>
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      (function () {
+        var p = new URLSearchParams(location.search).get('fbpx');
+        if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+        if (p) { try { localStorage.setItem('fb_pixel', p); } catch (e) {} }
+        if (p) { fbq('init', p); fbq('track', 'PageView'); }
+      })();
+    </script>
+    <!-- End Meta Pixel -->
+</head>
+
+<body>
+
+  <div class="clinical-topbar">รายงานพิเศษ · สุขภาพและสังคม</div>
+
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div class="masthead-logo">
+        <span class="masthead-logo-icon">+</span>
+        <span>สุขภาพไทยอินโฟ</span>
+      </div>
+      <div class="masthead-tagline">รายงานด้านสาธารณสุข</div>
+    </div>
+  </div>
+
+  <header>
+    <div class="bg-image"></div>
+  </header>
+
+  <div class="text-container"></div>
+
+  <div class="h1-bg split">
+    <h1 class="title_h1">
+      <span class="h1-quote">"เมื่อเดินไม่ไหวแล้ว ครอบครัวก็ลืมเราไป"</span>
+      <span class="head-two-part">หมอหนุ่มชาวไทยที่เดินทางไปตามสถานดูแลผู้สูงอายุในภาคเหนือ — เชียงใหม่ เชียงราย แม่ฮ่องสอน — เพื่อคืนสิ่งที่ไม่มีใครให้ได้อีกแล้วแก่ผู้สูงอายุที่ถูกทอดทิ้ง: ข้อต่อที่แข็งแรง และศักดิ์ศรีของพวกเขา</span>
+    </h1>
+
+    <div class="tdate head-main-date">
+      <span class="head-main-date-title">เผยแพร่:</span>
+      <span><script>dtime_nums(-3, true)</script>, 09:36</span>
+    </div>
+
+    <div class="main-subtitle">
+      นพ. วิชัย ศรีสุข อายุ 34 ปี แพทย์ออร์โธปิดิกส์ ลาออกจากคลินิกเอกชนในกรุงเทพฯ เพื่อรักษาผู้สูงอายุที่ถูกลืมในสถานดูแลผู้สูงอายุภาคเหนือ คนที่ครอบครัวทิ้งเพราะเดินไม่ได้ ลุกนั่งเองไม่ไหว ทำอะไรให้ตัวเองไม่ได้อีกแล้ว และวิธีการที่เขาพัฒนาร่วมกับศูนย์วิจัยไทยช่วยให้พวกเขากลับมาเดินได้อีกครั้ง — ไม่ต้องผ่าตัด ไม่ต้องกินยาตลอดชีวิต
+    </div>
+  </div>
+
+  <main>
+
+    <p>
+      เรามาถึงเชียงราย เมืองหลวงของภาคเหนือตอนบน ในเช้าวันอังคาร ถนนไปสถานดูแลผู้สูงอายุเลี้ยวลัดผ่านภูเขาและทุ่งนา "หาหมอคนใหม่หรือคะ?" — ป้าคนหนึ่งที่นั่งหน้าร้านชำถามเรา "เขามาทุกวันพฤหัสจากกรุงเทพฯ ลุงป้าที่นี่รอเขาตั้งแต่เช้า บางคนน้ำตาไหลเวลาเห็นเขามา"
+    </p>
+
+    <p>
+      นั่นคือครั้งแรกที่เราได้รู้จัก นพ. วิชัย ศรีสุข — แพทย์ออร์โธปิดิกส์วัย 34 ปี ที่ลาออกจากคลินิกเอกชนย่านสุขุมวิท กรุงเทพฯ เพื่อทำสิ่งที่หมอคนอื่นไม่ยอมทำ: เดินทางไปตามสถานดูแลผู้สูงอายุทั่วภาคเหนือเพื่อรักษาผู้สูงอายุที่ครอบครัวทิ้ง
+    </p>
+
+    <p>
+      สาเหตุของการถูกทิ้งนั้นเหมือนกันเกือบทุกราย: <b>ผู้สูงอายุเดินไม่ได้แล้ว</b> เข่าพัง หลังงอ มือสั่นจนจับช้อนไม่ได้ และในวินาทีที่พวกเขาต้องการความช่วยเหลือมากที่สุด — ครอบครัวตัดสินใจว่า "มากเกินไปแล้ว" เป็นภาระ แพงเกินไป แล้วก็พาไปฝากไว้ที่สถานดูแลผู้สูงอายุ
+    </p>
+
+    <div class="quote-inline">
+      "ลูกสาวบอกแม่ว่า: «แม่ หนูอุ้มแม่ขึ้นเก้าอี้ทุกวันไม่ไหวแล้ว» วันรุ่งขึ้นก็พาแม่มาที่นี่ สามปีแล้ว ไม่เคยกลับมาเยี่ยมเลย"
+      <span class="quote-name">— ยายสมจิตร อายุ 79 ปี สถานดูแลผู้สูงอายุ เชียงราย</span>
+    </div>
+
+    <div class="quote-inline">
+      "พอเข่าพังจริงๆ เมียบอกว่าอยู่กับคนพิการไม่ไหว แล้วก็ไป ลูกๆ เข้าข้างเมีย พาผมมาทิ้งไว้ที่นี่แล้วก็หายไป"
+      <span class="quote-name">— ลุงสมศักดิ์ อายุ 73 ปี สถานดูแลผู้สูงอายุ เชียงใหม่</span>
+    </div>
+
+    <figure>
+      <img class="img-card" src="images/TH_photo_01.jpg" alt="นพ. วิชัย กับผู้ป่วยในสถานดูแลผู้สูงอายุ">
+      <figcaption>นพ. วิชัย ศรีสุข ขณะดูแลผู้ป่วยในสถานดูแลผู้สูงอายุ เชียงราย "คนเหล่านี้ต้องการผมมากที่สุด — เพราะไม่มีใครมาเยี่ยมพวกเขาอีกแล้ว"</figcaption>
+    </figure>
+
+    <h2>
+      "ผมเห็นแล้วว่าการถูกลืมเป็นอย่างไร และตัดสินใจว่าจะนิ่งเฉยไม่ได้"
+      <span>สัมภาษณ์พิเศษ นพ. วิชัย ศรีสุข — หมอที่ทิ้งเงินเดือน 120,000 บาทเพื่อช่วยคนที่ไม่มีใครเหลือ</span>
+    </h2>
+
+    <p><b>นพ. วิชัย ศรีสุข:</b> "ครั้งแรกที่ผมเข้าไปในสถานดูแลผู้สูงอายุ เป็นอาสาสมัครตอนอายุ 28 ที่เชียงราย ในโครงการแพทย์อาสา และผมไม่พร้อมกับสิ่งที่เห็น ผู้หญิงคนหนึ่ง อายุ 76 ปี ยายอำนวย นั่งอยู่ที่ขอบเตียง เท้าบวม เข่างอไม่ได้ สี่เดือนแล้วที่ไม่ได้ออกจากห้อง แกจับมือผมแล้วพูดว่า:</p>
+
+    <p class="quote-inline">
+      "หมอ ลูกสาวพาแม่มาที่นี่ตอนแม่ลงบันไดไม่ได้แล้ว บอกว่าดูแลแม่ไม่ไหว สองปีแล้ว ไม่เคยกลับมาเยี่ยมเลย"
+    </p>
+
+    <p><b>ตอนนั้นผมเข้าใจเลยว่า พวกเขาคือคนที่ต้องการผมมากที่สุด — คนที่โลกลืมเพราะเดินไม่ได้แล้ว</b></p>
+
+    <figure>
+      <img class="img-card" src="images/TH_photo_02.jpg" alt="นพ. วิชัย ศรีสุข">
+      <figcaption>นพ. วิชัย ศรีสุข ผู้เชี่ยวชาญด้านออร์โธปิดิกส์และเวชศาสตร์การบาดเจ็บ จบการศึกษาจากคณะแพทยศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย ฝึกอบรมที่โรงพยาบาลศิริราชและ Singapore General Hospital ก่อนจะเริ่มทำงานในสถานดูแลผู้สูงอายุ เขาเป็นแพทย์ประจำคลินิกเอกชนย่านสุขุมวิท กรุงเทพฯ</figcaption>
+    </figure>
+
+    <p>
+      นพ. วิชัย พูดเบาๆ แต่มีความเข้มข้นที่ปฏิเสธไม่ได้ กว่าสองปีแล้วที่เขาเดินทางไปตามสถานดูแลผู้สูงอายุทั่วภาคเหนือ — เชียงใหม่ เชียงราย ลำปาง ลำพูน แม่ฮ่องสอน และทุกที่ที่ไป เขาเห็นภาพเดิมซ้ำๆ: ผู้สูงอายุที่ข้อต่อพังแล้ว ไม่มีใครรักษาจริงจัง มีแต่ยาแก้อักเสบที่ทำลายกระเพาะและไต
+    </p>
+
+    <p>
+      "คนเหล่านี้ส่วนใหญ่มาอยู่ที่นี่เพราะข้อต่อ เข่าพัง หลังล็อค สะโพกสึก และพอเดินไม่ได้ ครอบครัวก็ตัดสินใจว่าเป็น «ภาระ» คำนี้ผมได้ยินบ่อยมากในสถานดูแลผู้สูงอายุ: <b>«ภาระ»</b> พ่อแม่ตัวเองถูกเรียกว่าภาระ"
+    </p>
+
+    <div class="quote-inline">
+      "ลูกไม่ได้พาพ่อมาที่นี่เพราะไม่รักพ่อ แต่เพราะพ่อตื่นตีสามร้องครวญเพราะปวดเข่า แล้วไม่มีใครนอนได้ ลูกสะใภ้บอกว่า: «เลือกเอา พ่อหรือฉัน» ลูกเลือกเมีย ตอนนี้ลูกไปอยู่ต่างจังหวัดแล้ว แทบไม่โทรมา"
+      <span class="quote-name">— ลุงประสิทธิ์ อายุ 71 ปี สถานดูแลผู้สูงอายุ ลำปาง</span>
+    </div>
+
+    <h2>
+      "ยาแก้ปวดข้อไม่ใช่ยารักษา — แค่ปิดบังความเสียหาย"
+      <span>นพ. วิชัย อธิบายว่าทำไมยาทั่วไปจากร้านขายยาและสถานดูแลผู้สูงอายุถึงไม่ได้ผล</span>
+    </h2>
+
+    <p><b>นพ. วิชัย ศรีสุข:</b></p>
+
+    <p>
+      — ผมจะพูดตรงๆ: สิ่งที่ผมเห็นในสถานดูแลผู้สูงอายุน่ากลัวมาก คนอายุ 55 ถึง 80 ปี ถูกให้ยาแก้อักเสบแบบเดิมซ้ำๆ เป็นปี — ไดโคลฟีแนค แนพรอกเซน ไอบูโพรเฟน — ที่แค่ระงับอาการปวดไม่กี่ชั่วโมง ไม่ได้ทำอะไรกับต้นเหตุเลย ระหว่างนั้น กระดูกอ่อนก็พังไปเรื่อยๆ น้ำหล่อเลี้ยงข้อหายไป ข้อต่อกลายเป็นกระดูกชนกระดูก สารเคมีในยาเหล่านั้นทำลายกระเพาะ ตับ และไตทุกวัน
+    </p>
+
+    <p>
+      มันเป็นวงจรอุบาทว์: ปวด → ยา → ปวดกลับมาหนักกว่าเดิม → ยาแรงขึ้น → กระเพาะพัง → เพิ่มยาลดกรด → ไตพัง และไม่มีใครบอกความจริงกับพวกเขา: <b>มีทางอื่น — ฟื้นฟูข้อต่อจากภายใน แทนที่จะแค่ปิดบังอาการปวด</b>
+    </p>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="images/TH_photo_03.jpg" alt="ข้อต่อที่เสียหาย">
+      <figcaption>เข่าของยายบัวลอย อายุ 74 ปี สถานดูแลผู้สูงอายุ เชียงใหม่ ข้อเข่าเสื่อมระดับ 3 — กระดูกอ่อนเกือบไม่เหลือแล้ว ห้าเดือนแล้วที่ออกจากห้องไม่ได้ บนโต๊ะข้างเตียงมียาแก้อักเสบหกชนิดที่ไม่ได้ช่วยอะไรเลย ลูกชายซื้อมาจากร้านขายยาต่างๆ หวังว่าสักตัวจะได้ผล แต่ไม่มีตัวไหนได้ผลเลย</figcaption>
+    </figure>
+
+    <p class="red-txt">
+      อาการปวดเข่า หลัง หรือสะโพกหลังอายุ 45 ปี <b>ไม่ใช่ "เรื่องปกติของวัย"</b> — มันเป็นสัญญาณว่ากระดูกอ่อนกำลังพังและน้ำหล่อเลี้ยงข้อกำลังหายไป ใครก็ตามที่พยายามปิดบังด้วยยาแก้อักเสบ กำลังทำลายข้อต่อของตัวเองอย่างช้าๆ แต่แน่นอน
+    </p>
+
+    <figure class="Figure" style="text-align:center">
+      <img src="images/photo_04.jpg" alt="ข้อต่อปกติ vs ข้อต่อเสื่อม" style="margin:0 auto">
+      <figcaption>
+        <b>ซ้าย: ข้อต่อปกติ มีกระดูกอ่อนเต็มและน้ำหล่อเลี้ยงข้อเพียงพอ ขวา: ข้อต่อเสื่อม — กระดูกอ่อนสึก อักเสบเรื้อรัง กระดูกชนกระดูก นี่คือความจริงของผู้สูงอายุชาวไทยกว่า 80% ที่อายุเกิน 60 ปี ยาแก้อักเสบไม่ได้ฟื้นฟูกระดูกอ่อน — แค่ฆ่าอาการปวดขณะที่ทุกอย่างพังทลาย</b>
+      </figcaption>
+    </figure>
+
+    <p class="red-txt">
+      ยาแก้อักเสบแค่บล็อกสัญญาณปวด ขณะที่ข้อต่อยังคงพังเงียบๆ ถ้าไม่มีการฟื้นฟูกระดูกอ่อนจริงๆ ข้อต่อจะพังถาวร — และถึงตอนนั้น เหลือแค่สองทางเลือก: รถเข็น หรือผ่าตัดเปลี่ยนข้อที่โรงพยาบาลเอกชนราคา 350,000 บาทขึ้นไป และโรงพยาบาลรัฐต้องรอคิวเป็นปี ไม่มีทางไหนที่จะคืนชีวิตจริงๆ กลับมาได้
+    </p>
+
+    <p><b>นพ. วิชัย ศรีสุข:</b></p>
+
+    <p>
+      — กรุณาเข้าใจความรุนแรงของสถานการณ์ สำหรับผู้สูงอายุเหล่านี้จำนวนมาก กระดูกอ่อนในเข่า กระดูกสันหลัง หรือสะโพก สึกไปแล้ว 70-90% เดิน — ถ้ายังเดินได้ — กระดูกชนกระดูก ทุกก้าวคือการทรมาน <b class="red-txt">ยาแก้อักเสบทั่วไปไม่สามารถฟื้นฟูกระดูกอ่อนได้ — แค่ปิดบังอาการปวดขณะที่ทุกอย่างพังทลาย!</b>
+    </p>
+
+    <p>
+      และสิ่งที่ทำลายจิตใจผมมากที่สุดคืออะไร? ความจริงที่ว่าคนเหล่านี้ไม่มีใครเหลือแล้ว ครอบครัวทิ้งพวกเขาในวินาทีที่ข้อต่อพัง อยู่คนเดียว บนเตียง ในห้องเล็กๆ รอคอย บางคนไม่รู้ด้วยซ้ำว่ารอคอยอะไร ลูกๆ อยู่อีกจังหวัด บางคนไปทำงานต่างประเทศ ส่งเงินมาทุกเดือน แต่แทบไม่กลับมาเยี่ยม และยายก็รอ ทุกวัน ในสถานดูแลผู้สูงอายุ
+    </p>
+
+    <div class="quote-inline">
+      "เลี้ยงลูกมาสี่คน ทำนาสี่สิบปี ข้าว ผัก มะม่วง พอเข่าพังเดินไม่ไหว ลูกก็พามาทิ้งไว้ที่นี่ เหมือนสำหรับพวกเขา แม่ไม่มีตัวตนแล้ว เหมือนตายแล้ว"
+      <span class="quote-name">— ยายประนอม อายุ 82 ปี สถานดูแลผู้สูงอายุ เชียงราย</span>
+    </div>
+
+    <div class="quote-inline">
+      "ไปทำงานต่างประเทศยี่สิบปี ก่อสร้างที่ไต้หวัน กลับมาเชียงใหม่อายุ 55 มีเงินเก็บนิดหน่อย หลังเริ่มพังตอนอายุ 60 หมอนรองกระดูกเคลื่อน ปวดร้าวลงขา อายุ 70 ยืนตัวตรงไม่ได้แล้ว ลูกบอกดูแลที่บ้านไม่ไหว ลูกทำงานอยู่กรุงเทพฯ มีครอบครัวแล้ว เข้าใจ แต่สถานการณ์แบบนี้มันปวดกว่าหลังอีก"
+      <span class="quote-name">— ลุงอาทร อายุ 70 ปี สถานดูแลผู้สูงอายุ ลำปาง</span>
+    </div>
+
+    <h2>
+      เรื่องราวที่เปลี่ยนชีวิตผม — และจะเปลี่ยนมุมมองของคุณเกี่ยวกับวัยชรา
+    </h2>
+
+    <p><b>นพ. วิชัย ศรีสุข:</b></p>
+
+    <p>— ให้ผมเล่าสิ่งที่เห็นทุกสัปดาห์ ไม่ใช่ตัวเลข ไม่ใช่สถิติ แต่เป็นคน คนที่มีชื่อ มีเรื่องราว มีลูกหลานที่ไม่มาเยี่ยมอีกแล้ว</p>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="images/TH_photo_05.jpg" alt="ยายบัวลอย ในสถานดูแลผู้สูงอายุ">
+      <figcaption>ยายบัวลอย อายุ 77 ปี จากเชียงใหม่ ข้ออักเสบรูมาตอยด์ที่มือทั้งสองข้าง — จับแก้วน้ำหรือแต่งตัวเองไม่ได้แล้ว สามีเสียชีวิตเมื่อสองปีก่อน ลูกไปทำงานที่กรุงเทพฯ "ไปร้านขายยา ให้ยามา 12 ตัว ทุกตัวทำลายกระเพาะ แต่ข้อก็ยังปวดเหมือนเดิม นพ. วิชัย มาหาเราตอนเพื่อนบ้านบอกว่าแม่ปอกมะม่วงเองไม่ได้แล้ว"</figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      "หวีผมเองไม่ได้แล้ว รินน้ำใส่แก้วไม่ได้แล้ว มือไม่เชื่อฟังเลย ตอนเช้ามองมือตัวเอง จำไม่ได้แล้ว — บวม งอ เหมือนไม่ใช่ของเรา ลูกสะใภ้บอกว่า: «จะฝากหลานให้แม่เลี้ยงได้ยังไง ในเมื่อแม่จับช้อนยังไม่ได้» พูดถูก แต่คำพูดนั้นฆ่าเราข้างใน"
+      <span class="quote-name">— ยายบัวลอย อายุ 77 ปี</span>
+    </div>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="images/TH_photo_06.jpg" alt="ลุงอาทร ในสถานดูแลผู้สูงอายุ">
+      <figcaption>ลุงอาทร อายุ 75 ปี จากลำปาง หมอนรองกระดูกเคลื่อน L4-L5 ข้อสะโพกอักเสบทั้งสองข้าง แปดเดือนแล้วที่ลุกไม่ขึ้น "หมอบอกว่าแก่เกินไปจะผ่าตัด ยอมรับเถอะ อย่าหวัง นพ. วิชัย แค่มานั่งข้างๆ จับเข่าลุง แล้วบอกว่า: «ลุงอาทร สองอาทิตย์เดี๋ยวเราไปไร่กัน» แล้วก็เป็นอย่างนั้นจริงๆ"</figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      "ทำนามาสี่สิบปี ข้าว ผัก กาแฟ ตอนเงินไม่พอก็ไปทำงานต่างประเทศสักพัก จนเช้าวันหนึ่ง ยกหัวจากหมอนไม่ขึ้น ลูกสองคนไปอยู่กรุงเทพฯ กับต่างจังหวัด ส่งเงินมาทุกเดือน โทรมาตอนปีใหม่ แต่ใครจะมาให้น้ำพ่อตอนไอกลางดึก พอกิน Cartirex ของหมอวิชัย สี่อาทิตย์หลังจากนั้น ผ่าฟืนได้แล้ว ไม่เยอะ แต่พอให้ตัวเองอุ่นด้วยมือตัวเอง"
+      <span class="quote-name">— ลุงอาทร อายุ 75 ปี</span>
+    </div>
+
+    <p><b>อาการเหล่านี้ที่ผมพบบ่อยในสถานดูแลผู้สูงอายุ — และคนไทยนับล้านมองข้าม คิดว่า "แค่อายุมาก":</b></p>
+    <ul>
+      <li>ปวดเข่ารุนแรงเวลาขึ้นลงบันได — หรือทุกการเคลื่อนไหว</li>
+      <li>ข้อแข็งตอนเช้า — "เหมือนเป็นไม้" ขยับไม่ได้ 30-60 นาทีหลังตื่น</li>
+      <li>ปวดหลังเรื้อรัง — ก้มไม่ได้ ลุกจากเตียงไม่ได้</li>
+      <li>เข่า ข้อเท้า หรือนิ้วบวม</li>
+      <li>ข้อกรอบแกรบหรือมีเสียงทุกครั้งที่ขยับ</li>
+      <li>ปวดสะโพกร้าวลงต้นขา — เดินไกลกว่า 50 เมตรไม่ได้</li>
+      <li>นิ้วบิดงอ มีปุ่ม — จับอะไรไม่ได้</li>
+      <li>ชาที่เท้าหรือแขน — สัญญาณของหมอนรองกระดูกเคลื่อนหรือเส้นประสาทถูกกด</li>
+      <li>รู้สึก "เหมือนมีดแทง" ที่เอวเวลายืดตัว</li>
+      <li>หลังโค้งงอ ท่าทางผิดปกติ — กระดูกสันหลังคด</li>
+      <li>ปวดตอนกลางคืนนอนไม่หลับ — ตื่น 4-5 ครั้งตลอดคืน</li>
+    </ul>
+
+    <p>
+      ทุกอาการเหล่านี้คือสัญญาณเตือน และหลังอายุ 45-50 ปี ถ้ามองข้าม มีทางเดียว:
+      <b class="red-txt">เดินไม่ได้ถาวร รถเข็น พึ่งพาคนอื่นทุกอย่าง — และในหลายกรณี ถูกทิ้งไว้ในสถานดูแลผู้สูงอายุ ที่ลูกหลานมาเยี่ยมปีละครั้ง</b>
+    </p>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          ทุกวันที่ผ่านไปโดยไม่ทำอะไรกับข้อต่อ คือหนึ่งวันที่ใกล้กับการเดินไม่ได้ถาวรมากขึ้น! ผู้สูงอายุชาวไทยหลายพันคนลงเอยในสถานดูแลผู้สูงอายุเพราะมองข้ามอาการปวด — หรือแค่กินยาที่ไม่ได้แก้ปัญหาอะไร ลงมือเดี๋ยวนี้ — เพื่อตัวเองหรือคนที่คุณรัก — ก่อนที่จะสายเกินไป!
+        </span>
+      </p>
+    </div>
+
+    <h2>
+      "ผมตัดสินใจว่าต้องมีทางฟื้นฟูข้อต่อ — ไม่ใช่แค่ฆ่าอาการปวด"
+      <span>หมอวัย 34 ปี ชักชวนศูนย์วิจัยไทยพัฒนาสิ่งที่อุตสาหกรรมยาปฏิเสธ</span>
+    </h2>
+
+    <p><b>นพ. วิชัย ศรีสุข:</b></p>
+
+    <p>
+      — หลังจากไปเยี่ยมสถานดูแลผู้สูงอายุมาหนึ่งปี ผมเข้าใจความจริงอันเจ็บปวด: ยาแก้อักเสบช่วยอะไรไม่ได้ ยาพวกนี้แค่ฆ่าสัญญาณเตือนของร่างกาย ขณะที่ข้อต่อพังไปเรื่อยๆ ผมต้องการอะไรที่แตกต่าง — วิธีที่ฟื้นฟูกระดูกอ่อนจากภายใน คืนน้ำหล่อเลี้ยงข้อ และหยุดการอักเสบในระดับเซลล์
+    </p>
+
+    <p>
+      ผมติดต่อศูนย์วิจัยที่เคยร่วมงานตอนฝึกอบรมที่ Singapore General Hospital แสดงให้พวกเขาเห็นเคสต่างๆ รูปถ่าย ผลแล็บของผู้ป่วยในสถานดูแลผู้สูงอายุ พาทีมวิจัยไปภาคเหนือจริงๆ — ให้เห็นด้วยตาตัวเองว่าเกิดอะไรขึ้น พวกเขาตกใจมาก
+    </p>
+
+    <p>
+      เราทำงานร่วมกันกว่าสิบเดือน ทดลองกว่า 180 สูตร จนในที่สุดก็พบสูตรที่ใช่ — แคปซูลอาหารเสริมที่เมื่อกินวันละ 2 เม็ด จะถูกดูดซึมเข้ากระแสเลือดและมุ่งเป้าไปที่ข้อต่อจากภายใน ไม่ใช่ยาเม็ดธรรมดาที่ทำลายกระเพาะ แต่เป็นแคปซูลที่พัฒนาขึ้นเฉพาะเพื่อการฟื้นฟูข้อต่อ — มีสารออกฤทธิ์เข้มข้นที่ดูดซึมได้ดีกว่ากลูโคซามีนในร้านขายยาทั่วไปถึง 5 เท่า
+    </p>
+
+    <div class="recept">
+      <p><b>สารออกฤทธิ์หลักในสูตร Cartirex:</b></p>
+      <ul class="my-ul-0-green size1">
+        <li><b>สารสกัดจาก Boswellia serrata</b>
+          <font>สารต้านอักเสบธรรมชาติ หยุดการทำลายกระดูกอ่อน</font>
+        </li>
+        <li><b>กลูโคซามีนและคอนดรอยตินในรูปแบบออกฤทธิ์</b>
+          <font>วัสดุก่อสร้างของกระดูกอ่อน — อาหารสำหรับเซลล์</font>
+        </li>
+        <li><b>กรดไฮยาลูโรนิกโมเลกุลต่ำ</b>
+          <font>คืนน้ำหล่อเลี้ยงข้อ — "น้ำมันหล่อลื่น" ตามธรรมชาติของข้อต่อ</font>
+        </li>
+        <li><b>คอลลาเจนชนิดที่ 2 และ MSM</b>
+          <font>เสริมความแข็งแรงของเอ็นและเส้นเอ็นรอบข้อต่อ</font>
+        </li>
+        <li><b>สารสกัดขมิ้นชันและขิง</b>
+          <font>บรรเทาอาการปวดและบวมอย่างรวดเร็ว</font>
+        </li>
+      </ul>
+      <p style="margin-top:14px;margin-bottom:0;color:var(--color-text-muted);font-size:14px;line-height:1.5;">สูตรยังมีสารสกัดหายากอีก 14 ชนิด ในสัดส่วนที่คำนวณอย่างละเอียด แม้แค่ผิดไป 0.1% แคปซูลก็จะดูดซึมเข้ากระแสเลือดไม่ได้อย่างถูกต้อง</p>
+    </div>
+
+    <h2>
+      นี่คือที่มาของ Cartirex — แคปซูลอาหารเสริมตัวเดียวที่มุ่งเป้าฟื้นฟูข้อต่อในระดับเซลล์จากภายใน
+    </h2>
+
+    <p><b>นพ. วิชัย ศรีสุข:</b></p>
+
+    <p>
+      — เราทำงานร่วมกับศูนย์วิจัยจนได้ผลิตภัณฑ์นี้: แคปซูลอาหารเสริมที่กินวันละสองเม็ด เช้าและเย็น พร้อมน้ำ ชื่อว่า Cartirex ต่างจากยาเม็ดทั่วไป — ใช้ระบบนำส่งพิเศษที่ปกป้องสารออกฤทธิ์จากกรดในกระเพาะ ทำให้ถึงลำไส้ได้ครบถ้วน จากนั้นดูดซึมเข้ากระแสเลือดและส่งตรงไปยังข้อต่อทั่วร่างกาย — เข่า หลัง สะโพก มือ คอ หนึ่งกล่องมี 60 แคปซูล เพียงพอสำหรับหนึ่งเดือนเต็ม
+    </p>
+
+    <img src="images/prod.png" alt="Cartirex แคปซูลบำรุงข้อต่อ" style="width:78%;max-width:540px;display:block;margin:18px auto">
+
+    <p>
+      ความลับอยู่ที่ "เทคโนโลยีเพิ่มการดูดซึม" ที่ทีมของเราพัฒนาในห้องปฏิบัติการ ระบบนี้ทำให้สารออกฤทธิ์ดูดซึมเข้ากระแสเลือดได้ดีกว่ากลูโคซามีนทั่วไปในร้านขายยาถึง 5 เท่า นี่คือเหตุผลว่าทำไมจึงรู้สึกดีขึ้นภายในไม่กี่วัน ไม่ใช่รอ 3-6 เดือนแบบที่อื่น
+    </p>
+
+    <p class="pachino-ramka2">
+      ไม่มีอะไรเหมือน "Cartirex" ทุกส่วนประกอบ — ในความเข้มข้นที่แม่นยำ — กระตุ้นการฟื้นฟูกระดูกอ่อน คืนน้ำหล่อเลี้ยงข้อ และหยุดการอักเสบ เป็นแคปซูลอาหารเสริมตัวเดียวที่ผลิตขึ้นเฉพาะเพื่อการฟื้นฟูข้อต่อ มีการรับรองการดูดซึม ไม่ทำลายกระเพาะเหมือนยาแก้อักเสบทั่วไป และที่สำคัญที่สุด: ได้ผลแม้อายุ 70, 80, 85 ปี ผู้ป่วยกลุ่มแรกที่ทดลองคือผู้สูงอายุ — คนที่ไม่มีใครรักษาอีกแล้ว
+    </p>
+
+    <p><b>นพ. วิชัย ศรีสุข:</b></p>
+
+    <p>
+      — ผู้ป่วยกลุ่มแรกของผมคือผู้สูงอายุในสถานดูแลผู้สูงอายุ คนที่ครอบครัวทิ้ง ผมให้ Cartirex พวกเขา วันละสองเม็ด แล้วรอ วันที่สาม — ยายประนอม ที่สี่เดือนลุกจากเตียงไม่ได้ ก้าวเดินก้าวแรกด้วยตัวเอง เราร้องไห้ด้วยกันทั้งคู่
+    </p>
+
+    <h2>
+      สี่กลไกที่ Cartirex ฟื้นฟูข้อต่อและคืนความสามารถในการเคลื่อนไหว — ไม่ว่าจะอายุเท่าไหร่
+    </h2>
+
+    <div class="obertk512">
+      <h1>ผลลัพธ์หลัก 4 ประการของแคปซูล "Cartirex":</h1>
+      <div class="block-offer-actions-block">
+        <ol>
+          <li>
+            <font>ขจัดอาการปวดและการอักเสบ</font>
+            <span>ภายใน 24 ชั่วโมงแรกหลังกิน สารสกัดจาก boswellia ขมิ้นชัน และขิง จะลดอาการปวดและการอักเสบ ไม่ได้บล็อกสัญญาณประสาทเหมือนยาแก้อักเสบ — แต่ดับการอักเสบที่ต้นตอ</span>
+          </li>
+          <li>
+            <font>ฟื้นฟูกระดูกอ่อนข้อต่อ</font>
+            <span>กลูโคซามีน คอนดรอยติน และคอลลาเจนชนิดที่ 2 ดูดซึมเข้ากระแสเลือดและส่งไปยังข้อต่อ กระตุ้นเซลล์กระดูกอ่อน (chondrocytes) ให้สร้างเนื้อเยื่อกระดูกอ่อนใหม่ กระบวนการเริ่มหลังกินสม่ำเสมอ 3-5 วัน</span>
+          </li>
+          <li>
+            <font>คืนน้ำหล่อเลี้ยงข้อ</font>
+            <span>กรดไฮยาลูโรนิกโมเลกุลต่ำเข้าสู่ข้อต่อและคืนน้ำหล่อเลี้ยงข้อ — "น้ำมันหล่อลื่น" ตามธรรมชาติ ทำให้กระดูกไม่เสียดสีกัน ข้อเคลื่อนไหวได้ลื่นไหลและไม่เจ็บ</span>
+          </li>
+          <li>
+            <font>ปกป้องและป้องกันระยะยาว</font>
+            <span>MSM และแร่ธาตุรวมเสริมความแข็งแรงของเอ็นและเส้นเอ็นรอบข้อต่อ ป้องกันการบาดเจ็บในอนาคต หลังกิน 30-60 วัน ข้อต่อจะได้รับการปกป้องอย่างเสถียรที่คงอยู่หลายเดือน</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <h2>
+      เรื่องราวที่สอนผมว่า ไม่เคยสายเกินไป
+    </h2>
+
+    <p><b>นพ. วิชัย ศรีสุข:</b></p>
+
+    <p>— นี่คือบางคนที่ผมเห็นด้วยตาทุกสัปดาห์ คนที่ไม่มีใครให้โอกาส คนที่ตอนนี้เดินได้อีกครั้งแล้ว</p>
+
+    <div class="rev-block">
+      <img class="img-card2" src="images/TH_photo_08.jpg" alt="ยายประนอม หลังการรักษา">
+      <p><b>ยายประนอม อายุ 82 ปี สถานดูแลผู้สูงอายุ เชียงราย</b> สี่เดือนลุกจากเตียงไม่ได้ วันที่ 3 หลังกิน Cartirex ก้าวเดินก้าวแรกด้วยตัวเอง หลังจาก 30 วัน ออกไปเดินที่ระเบียงได้โดยไม่ต้องมีคนช่วย "ไม่มีใครคาดหวัง แม้แต่ตัวเอง นพ. วิชัย มาอาทิตย์ละครั้ง แค่มาดูแม่ จับเข่าแม่ แล้วพยักหน้า"</p>
+      <font><b>ผลลัพธ์ใน 30 วัน:</b> เดินได้ด้วยตัวเอง ข้อไม่แข็งตอนเช้า อาการปวดลดจาก 9/10 เหลือ 2/10</font>
+    </div>
+
+    <div class="rev-block">
+      <img class="img-card2" src="images/TH_photo_09.jpg" alt="ลุงอาทร หลังการรักษา">
+      <p><b>ลุงอาทร อายุ 70 ปี อดีตแรงงานต่างประเทศกลับจากไต้หวัน</b> หมอนรองกระดูกเคลื่อน ปวดร้าวลงขา ยืนได้ไม่เกิน 5 นาที ภายใน 6 สัปดาห์ — กลับไปทำไร่ ดูแลแปลงปลูกทุกวัน "คิดว่าหลังพังตลอดชีวิตแล้ว พร้อมยอมรับชีวิตคนพิการ ผิดไปแล้ว กิน Cartirex ของหมอวิชัย รู้สึกเหมือนหนุ่มขึ้นยี่สิบปี"</p>
+      <font><b>ผลลัพธ์ใน 45 วัน:</b> หายปวดเอวรุนแรง กลับมาเคลื่อนไหวได้ ครั้งแรกในรอบ 4 ปีที่นอนหลับสนิททั้งคืน</font>
+    </div>
+
+    <h2>
+      ทำไม Cartirex ไม่มีขายตามร้านขายยา Boots และ Watson's? แล้วจะได้มาอย่างไร?
+    </h2>
+
+    <p><b>นพ. วิชัย ศรีสุข:</b></p>
+
+    <p>น่าเสียดายที่ Cartirex ผลิตยากและแพง ส่วนประกอบหายาก — กรดไฮยาลูโรนิกโมเลกุลต่ำ คอลลาเจนชนิดที่ 2 บริสุทธิ์ สารสกัด boswellia เข้มข้น — หาได้ยากในปริมาณที่ต้องการ การผลิตครอบคลุมความต้องการทั้งหมดไม่ได้</p>
+
+    <p>ต้องใช้เวลาอีก 2-3 ปี ก่อนจะไปถึงร้านขายยา Boots และ Watson's จนถึงตอนนั้น จำหน่ายออนไลน์เท่านั้น ผ่านโปรแกรมสนับสนุน ปีละสองครั้ง <span class="red-txt">ส่วนลดสูงสุดถึง 50%</span> — สำคัญมากสำหรับผู้สูงอายุชาวไทยที่ได้รับเบี้ยยังชีพเดือนละ 600-1,000 บาท</p>
+
+    <p>
+      เมื่อเครือข่ายร้านขายยารู้ว่าสูตรนี้ได้ผลแค่ไหน ต้องการขายในราคากล่องละ 2,500 บาท ผมปฏิเสธ ผมไม่ได้ทำเพื่อเงิน — ผมทำเพื่อคนในสถานดูแลผู้สูงอายุ เพื่อผู้สูงอายุที่มีรายได้แค่เดือนละ 600-1,000 บาท ต้องเลือกระหว่างยากับข้าว
+    </p>
+
+    <div class="price-cascade">
+      <div class="price-cascade-title">ราคาที่เราตกลงกัน:</div>
+      <div class="price-cascade-item">
+        <span class="price-cascade-label">ราคาที่ร้านขายยาต้องการ</span>
+        <span class="price-cascade-amount">2,500 THB</span>
+      </div>
+      <div class="price-cascade-item">
+        <span class="price-cascade-label">ราคาในประเทศเอเชียอื่น</span>
+        <span class="price-cascade-amount">1,800 THB</span>
+      </div>
+      <div class="price-cascade-item">
+        <span class="price-cascade-label">ราคาที่เราเสนอตอนนี้</span>
+        <span class="price-cascade-amount">1,500 THB</span>
+      </div>
+      <div class="price-cascade-final">
+        <span class="price-cascade-label">ส่วนลดสำหรับผู้อ่านวันนี้</span>
+        <span class="price-cascade-amount">990 THB</span>
+      </div>
+    </div>
+
+    <p>
+      ขอร้องเลย: อย่าพลาดโปรแกรมสนับสนุนนี้ ไม่ใช่แค่เพื่อตัวเอง — แต่เพื่อพ่อแม่ ปู่ย่าตายาย คนที่คุณรักที่อาจกำลังทนทุกข์อยู่เงียบๆ หรือคนที่อยู่ในสถานดูแลผู้สูงอายุ คนเดียว ไม่มีใครส่งอะไรให้ ให้คุณเป็นคนสร้างความเปลี่ยนแปลง
+    </p>
+
+    <p class="red-txt"><b>สั่งซื้อได้โดยกรอกแบบฟอร์มด้านล่าง</b></p>
+
+    <h2>
+      โอกาสสุดท้ายในการรับ Cartirex ในปีนี้ — เพื่อตัวคุณหรือคนที่คุณรักที่กำลังทนทุกข์เงียบๆ
+    </h2>
+
+    <img alt="Cartirex" src="images/FF2.jpeg" style="margin:0 auto;display:block;max-width:500px;width:100%;margin-top:24px;margin-bottom:20px">
+
+    <p><b>นพ. วิชัย ศรีสุข:</b></p>
+
+    <p>
+      — ผมจัดสรร Cartirex ไว้ 20,000 กล่อง สำหรับผู้อ่านของเว็บไซต์นี้โดยเฉพาะ คนไทยอายุ 40 ปีขึ้นไปสามารถรับ <font class="red-txt">ส่วนลดสูงสุด 50%</font> แต่โปรแกรมจะสิ้นสุดใน <span><script>dtime_nums(0, true)</script></span>
+    </p>
+
+    <p>อย่ารอจนขึ้นบันไดไม่ได้ จนเข่าพังถาวร จนหลังล็อค และที่สำคัญที่สุด — อย่ารอจนกลายเป็น "ภาระ" ในสายตาครอบครัว กิน Cartirex เพียงคอร์สเดียวก็กระตุ้นการฟื้นฟูกระดูกอ่อนตามธรรมชาติ — จากนั้นร่างกายจะทำงานต่อเอง ไม่ต้องกินยาตลอดชีวิต ไม่ต้องกินยาเม็ด ไม่ต้องปวดกลับมา แค่ก้าวเดียว แล้วร่างกายจะจำได้ว่าชีวิตที่ไม่ปวดเป็นอย่างไร</p>
+
+    <p>กรอกชื่อและเบอร์โทรศัพท์ของคุณ เจ้าหน้าที่จะโทรกลับเพื่อเลือกโปรแกรมที่เหมาะสมและจัดส่งภายใน 2-3 วันผ่าน Kerry Express หรือ Flash Express ถึงที่อยู่ของคุณทั่วประเทศไทย</p>
+
+    <p><b>ด้วยความหวังและความเคารพ — นพ. วิชัย ศรีสุข ดูแลคนที่เรารัก บางทีสิ่งเดียวที่พวกเขาต้องการคือรู้ว่ายังไม่ถูกลืม</b></p>
+
+    <p class="pachino-ramka">
+      <span class="ramka-title">อัปเดต: <span><script>dtime_nums(-2, true)</script></span>:</span>
+      เนื่องจากความสนใจอย่างล้นหลาม สินค้าอาจหมดเร็วกว่าที่คาด! วันนี้ —
+      <font><span><script>dtime_nums(0, true)</script></span> — เป็นวันสุดท้ายของโปรแกรม</font> หรือจนกว่าสินค้าจะหมด
+    </p>
+
+    <center><img src="images/prod.png" style="max-width:340px;width:100%"></center><br>
+
+    <center>
+      <p class="noclose-cta red-txt">
+        ระวัง! อย่าปิดหรือรีเฟรชหน้านี้ มิฉะนั้น Cartirex ที่สำรองไว้สำหรับคุณจะถูกมอบให้คนอื่น!
+      </p>
+      <span class="pre-cta">
+        คุณสามารถร่วมโปรแกรมได้ — ที่ของคุณถูกสำรองไว้แล้ว:
+        <span class="nowrap">หมายเลข <font class="number-me" style="border-bottom:2px solid var(--color-danger);font-weight:700">19&nbsp;974</font></span>
+      </span>
+    </center>
+
+    <span id="form"></span>
+    <span id="oneform"></span>
+    <div class="pachinoform">
+      <div class="pachinoform_title">
+        <div class="pachinoform_title_logo">
+          <img alt="" src="images/56d9b0017d1d_d58505c9.png">
+        </div>
+        <div class="pachinoform_title_text">
+          <b>แบบฟอร์มสั่งซื้ออย่างเป็นทางการ</b>
+          หมายเลข <font class="number-me nowrap">19&nbsp;974</font> / <font class="nowrap">20 000</font>
+        </div>
+      </div>
+      <div class="pachinoform_order">
+        เพื่อรับ <b>ส่วนลด 50%</b> กรุณากรอกชื่อและเบอร์โทรศัพท์ด้านล่าง แล้วกดปุ่ม "สั่งซื้อเลย"
+      </div>
+      <div class="pachinoform_value">
+        สินค้าคงเหลือ:
+        <span class="blc-pck">
+          <strong class="pachinoform_value_current left-pack">33</strong>
+          <strong class="pachinoform_value_total"> /1000</strong>
+        </span>
+      </div>
+      <div class="pachinoform_price">
+        <div class="pachinoform_price_old"><span class="price_old">1,980 THB</span></div>
+        <div class="pachinoform_price_new"><span class="price_main">990 THB</span></div>
+      </div>
+      <form id="order_form" action="order.php" method="POST">
+        <input type="hidden" name="sub1" value="{subid}">
+        <input type="hidden" name="country" value="TH">
+        <div class="name-input">
+          <label for="name-input">ชื่อ</label>
+          <input autocomplete="name" id="name-input" name="name" placeholder="กรุณากรอกชื่อของคุณ" required="" type="text" value="">
+        </div>
+        <div class="phone-input">
+          <label for="phone-input">เบอร์โทรศัพท์</label>
+          <input autocomplete="tel" id="phone-input" maxlength="20" name="phone" pattern="^[\-+() 0-9]{8,20}$" placeholder="กรุณากรอกเบอร์โทรศัพท์" required="" type="tel" value="">
+        </div>
+        <button class="button-submit" type="submit">สั่งซื้อเลย</button>
+      </form>
+      <div class="pachinoform_footer">
+        จัดส่งทั่วประเทศไทยภายใน 2-3 วัน<br>ผ่าน Kerry Express หรือ Flash Express
+        <br>
+        <img alt="" src="images/b0110a32ff2e_8322b1b5.png" style="width:auto">
+      </div>
+    </div>
+
+    <div class="comments comments-fb" id="pluginComments">
+      <div class="comments__header">
+        <div class="comments__left-box">
+          <p class="comments__header-title">ความคิดเห็น</p>
+        </div>
+      </div>
+
+      <div class="comments__item-list">
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/092f16892178_b762df04.png" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">มาลี สุขสันต์</p>
+              <p class="startdate">2 ชั่วโมงที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">อ่านแล้วน้ำตาไหล แม่อายุ 76 ปี อยู่สถานดูแลผู้สูงอายุที่เชียงใหม่มาสองปีแล้ว — เพราะเข่าพังแล้วดูแลแม่ไม่ไหว นี่คือความผิดที่ใหญ่ที่สุดในชีวิต สั่ง Cartirex ให้แม่แล้ว หวังว่ายังไม่สาย หวังว่าจะได้ผล</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/14fcabaa91a3_d3871213.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">สมศรี วงศ์ประเสริฐ</p>
+              <p class="startdate">5 ชั่วโมงที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">ได้รับ Cartirex เมื่อวันศุกร์ กินวันละสองเม็ด เช้าเย็น หลังจาก 5 วัน ปวดลดลงมาก ขึ้นลงบันไดได้โดยไม่ต้องจับราว! เรื่องราวของหมอวิชัยทำให้ตัดสินใจสั่ง คนดีจริงๆ</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/1dcbfabe6827_57a19553.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">ประนอม จิตรเกษม</p>
+              <p class="startdate">8 ชั่วโมงที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">อายุ 69 ปีค่ะ ปวดหลังมาสี่ปี หมอนรองกระดูกเคลื่อนกับปวดร้าวลงขา ก้มลงผูกเชือกรองเท้าไม่ได้ หมอให้แต่ยาแก้อักเสบจนกระเพาะพัง กิน Cartirex สามอาทิตย์ — ปวดแทบหายหมด ไปตลาดเองได้ ทำกับข้าวเองได้ ชีวิตกลับมาแล้ว</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/7099c502f996_b89c4cc9.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">สมชาย พัฒนกิจ</p>
+              <p class="startdate">12 ชั่วโมงที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">นั่งทำงานออฟฟิศวันละ 10 ชั่วโมง หลังกับคอพังหมด หมอบอก: "เปลี่ยนงานหรือไม่ก็ผ่าตัด" ผมเลือก Cartirex หลังจาก 5 อาทิตย์ — ไม่มีอาการปวดเลย และนับถือหมอวิชัยมาก — ในโลกที่ทุกคนคิดแต่เรื่องเงิน เขาขึ้นเหนือไปเยี่ยมผู้สูงอายุที่ถูกลืมในสถานดูแลผู้สูงอายุ</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/71bb14a12f9e_280a6001.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">วิภา ศรีสว่าง</p>
+              <p class="startdate">14 ชั่วโมงที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">พูดตรงๆ ตอนแรกไม่เชื่อ สินค้าในอินเทอร์เน็ตมีเยอะแยะ หมดศรัทธาแล้ว อ่านบทความนี้เพราะแม่สามีเดินไม่ได้แล้ว สิ้นหวังจริงๆ สั่งมา บอกตัวเองว่า "ถ้าไม่ได้ผล เสีย 990 บาท" สามอาทิตย์ผ่านไป แม่สามีเมื่อวานลุกจากเก้าอี้เองได้! แม่สามี! ที่ 8 เดือนลุกเองไม่ได้ ตอนนี้ไม่รู้จะพูดอะไร เขียนให้คนที่ลังเลเหมือนฉัน</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/9e5c0e0e0ef7_57accffe.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">สุพรรณ ทองดี</p>
+              <p class="startdate">16 ชั่วโมงที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">สั่ง 3 กล่อง — ให้ตัวเอง (เข่า) ให้เมีย (มือ ข้ออักเสบ) และให้แม่ในสถานดูแลผู้สูงอายุที่เชียงราย ไปเยี่ยมแม่บ่อยไม่ได้เพราะอยู่กรุงเทพฯ เลยส่งของที่แม่ต้องการไปให้ หวังว่าจะได้ผลดีกับแม่เหมือนกัน ขอบคุณสำหรับบทความนี้</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/73d3a879cef9_4a9ce85c.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">นิตยา แก้วมณี</p>
+              <p class="startdate">18 ชั่วโมงที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">กำลังคิดจะสั่งให้พ่อ สามปีแล้วที่อยู่สถานดูแลผู้สูงอายุ — เข่าพังหมดแล้ว ท่านยอมแพ้แล้ว แทบไม่พูด คิดว่า Cartirex จะช่วยได้ไหมคะ อายุ 78 แล้ว?</p>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img class="comments__item-avatar" src="images/7536079073c5_564ff00a.jpg" alt="">
+              <div class="comments__item-info">
+                <p class="comments__item-name">สำราญ อินทร์แก้ว</p>
+                <p class="startdate">17 ชั่วโมงที่แล้ว</p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">นิตยาคะ แม่ฉันอายุ 82! ข้อเข่าเสื่อมรุนแรงทั้งสองข้าง ลุกจากเตียงไม่ได้ กิน Cartirex สองเดือน — ตอนนี้เดินออกไปที่ระเบียงเองได้แล้ว ไม่ได้พูดเกินจริง ตอนไปเยี่ยมครั้งล่าสุด แม่ยืนรอที่ประตู ร้องไห้ด้วยกันทั้งคู่ สั่งเลยค่ะ พ่อสมควรได้รับโอกาสนี้</p>
+            </div>
+          </div>
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img class="comments__item-avatar" src="images/bcbe20e0b5d2_b241da99.jpg" alt="">
+              <div class="comments__item-info">
+                <p class="comments__item-name">วิเชียร ใจดี</p>
+                <p class="startdate">15 ชั่วโมงที่แล้ว</p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">นิตยา สั่งเลยครับ ไม่ต้องลังเล อายุ 78 ผมก็เกือบต้องนั่งรถเข็นแล้ว — ข้อสะโพกอักเสบ กิน Cartirex สองเดือน ตอนนี้ยืนได้แล้ว จริงๆ พ่อคุณต้องการมากกว่าที่คุณคิด</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/daeecf66dcf6_e1c9bf1a.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">บุญมา คำแก้ว</p>
+              <p class="startdate">20 ชั่วโมงที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">กิน Cartirex มาอาทิตย์หนึ่งแล้ว เข่ากับเอว ตอนเช้าไม่ "แข็งเป็นไม้" แล้ว ก้มได้ ลุกได้โดยไม่ต้อง "โอ๊ย" สั่งให้เพื่อนบ้านด้วย อายุ 73 อยู่คนเดียว เกาะผนังเดินในบ้าน</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/8ba73d45c164_4ede289a.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">ลัดดา พูนสุข</p>
+              <p class="startdate">1 วันที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">ยอมรับว่าตอนแรกสงสัยบทความนี้ ลองมาเยอะแล้ว สินค้าที่โฆษณาเกินจริง แต่เรื่องราวของหมอวิชัยโดนใจ เลยลองเพราะเข่าปวดมา 5 ปี กินมาเดือนหนึ่ง — ทำสวนได้สบาย ไม่ได้บอกว่าปาฏิหาริย์ แต่บอกว่าได้ผล ให้โอกาสตัวเองเถอะ</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/c364fa7fabf3_734a4c7f.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">ทองใบ ศรีสุข</p>
+              <p class="startdate">1 วันที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">อายุ 82 ปี ปีที่แล้วเข้าห้องน้ำเองไม่ได้ ลูกๆ คุยกันเรื่องส่งไปสถานดูแลผู้สูงอายุ ลอง Cartirex — ไม่ได้หวังอะไรมาก แล้วก็ได้ผล! เดินเอง แต่งตัวเอง เดินไปเปิดประตูเอง ลูกๆ ไม่พูดเรื่องสถานดูแลผู้สูงอายุอีกแล้ว นี่คือความสุขที่ยิ่งใหญ่ที่สุดของแม่</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/d770c7a4cbdf_467ee117.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">ประสิทธิ์ แสงทอง</p>
+              <p class="startdate">1 วันที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">เมียขึ้นบันไดไม่ได้ เกาะผนังร้องไห้เพราะปวด คิดว่าจะเสียเมียไป — ไม่ใช่เพราะโรค แต่เพราะสิ้นหวัง สั่ง Cartirex ตอนลดราคา สี่อาทิตย์ผ่านไป — เมื่อวานไปตลาดเองแล้วกลับมาพร้อมดอกไม้! ดอกไม้! ขอบคุณจากใจ</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/658f969bb746_3d8e16cd.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">สมจิตร รัตนะ</p>
+              <p class="startdate">1 วันที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">สั่ง 4 กล่อง — ให้แม่ (สถานดูแลผู้สูงอายุ เข่า) ให้พ่อ (สถานดูแลผู้สูงอายุ หลัง) และอีกสองกล่องให้ตัวเอง (มือ ข้ออักเสบที่นิ้ว เขียนหนังสือไม่ได้แล้ว) เรื่องราวในบทความนี้ทำให้เจ็บข้างใน ควรทำนานแล้ว ไม่มีข้ออ้างอีกแล้ว</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/df3e8c2eb745_86a29b61.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">อรุณ มาลัย</p>
+              <p class="startdate">2 วันที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">ได้รับ Cartirex แล้วค่ะ — Kerry Express ส่งภายใน 2 วัน! เอาไปให้แม่ที่สถานดูแลผู้สูงอายุแล้ว หวังจากใจว่าจะได้ผล จะส่งบทความนี้ให้เจ้าหน้าที่ที่สถานดูแลด้วย — บางทีเขาจะติดต่อหมอวิชัย</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img class="comments__item-avatar" src="images/dcc5cfe80d60_5aa7f8f7.jpg" alt="">
+            <div class="comments__item-info">
+              <p class="comments__item-name">สำราญ ทวีผล</p>
+              <p class="startdate">2 วันที่แล้ว</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">ไปหา Cartirex ที่ Boots กับ Watson's — ไม่มี บอกว่าสั่งจากเว็บนี้เท่านั้น หวังว่ายังมีอยู่ ด่วนมากครับ ปู่อายุ 81 แล้ว เดินไม่ได้จริงๆ</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-container">
+        <form class="custom-form">
+          <div class="custom-form__top-field">
+            <div class="custom-form__ava-block">
+              <label class="custom-form__ava-label">
+                <span class="custom-form__ava-label_red-text">*</span><br>เพิ่มรูป
+              </label>
+            </div>
+            <input type="text" disabled class="custom-form__name" placeholder="ชื่อของคุณ">
+          </div>
+          <textarea class="custom-form__message" disabled placeholder="เขียนความคิดเห็น..."></textarea>
+          <div class="custom-form__bottom-field">
+            <label class="custom-form__photo-label">แนบรูปภาพ</label>
+            <button type="button" disabled class="custom-form__btn">ส่ง</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="trust-strip">
+    <div class="trust-item"><span class="trust-item-icon">&#x1f6e1;&#xfe0f;</span> คุณภาพรับรอง</div>
+    <div class="trust-item"><span class="trust-item-icon">&#x1f69a;</span> จัดส่ง 2-3 วัน</div>
+    <div class="trust-item"><span class="trust-item-icon">&#x2695;&#xfe0f;</span> ไม่ต้องมีใบสั่งยา</div>
+    <div class="trust-item"><span class="trust-item-icon">&#x1f512;</span> สั่งซื้อปลอดภัย</div>
+  </div>
+
+  <div class="clinical-footer">
+    ข้อมูลในหน้านี้มีไว้เพื่อการศึกษาเท่านั้น ไม่ใช่การทดแทนคำปรึกษาจากแพทย์
+  </div>
+
+<script>
+var LAZY = document.querySelectorAll('img');
+for (var i = 0; i < LAZY.length; i++) {
+  LAZY[i].setAttribute('loading', 'lazy');
+}
+</script>
+
+<script>
+document.addEventListener('click', function(e) {
+  var link = e.target.closest('a');
+  if (link) {
+    e.preventDefault();
+    var target = document.getElementById('oneform');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+});
+</script>
+
+<script>
+(function() {
+  var nameInputs = document.querySelectorAll('[name="name"]');
+  nameInputs.forEach(function(input) {
+    input.addEventListener('input', function() {
+      var val = this.value;
+      var cleaned = val
+        .replace(/[^\p{L}\s]/gu, '')
+        .replace(/^\s+/, '')
+        .replace(/\s\s+/, ' ');
+      var parts = cleaned.split(' ');
+      if (parts.length > 3) {
+        cleaned = parts.slice(0, 3).join(' ');
+      }
+      this.value = cleaned;
+    });
+    input.addEventListener('blur', function() {
+      this.value = this.value.trim();
+    });
+  });
+
+  var phoneInputs = document.querySelectorAll('[name="phone"]');
+  phoneInputs.forEach(function(input) {
+    input.addEventListener('input', function() {
+      this.value = this.value.replace(/[^\d+\-() ]/g, '');
+    });
+  });
+})();
+</script>
+
+<script>
+document.getElementById('order_form').addEventListener('submit', function(e) {
+  var nameInput = this.querySelector('input[name="name"]');
+  var phoneInput = this.querySelector('input[name="phone"]');
+  nameInput.value = nameInput.value.trim();
+  if (!nameInput.value) {
+    e.preventDefault();
+    alert('กรุณากรอกชื่อที่ถูกต้อง!');
+    return false;
+  }
+  if (!phoneInput.value || phoneInput.value.replace(/\D/g,'').length < 7) {
+    e.preventDefault();
+    alert('กรุณากรอกเบอร์โทรศัพท์ที่ถูกต้อง!');
+    return false;
+  }
+});
+</script>
+
+<script src="js/ywbackfix.js"
+    data-redirect="true"
+    data-links='["https://nutrivition.top/VXsVxCX?sun={sub_id_30}"]'>
+</script>
+    <p style="opacity: 0;">{_box:KGBCwdSb}</p>
+</body>
+</html>
