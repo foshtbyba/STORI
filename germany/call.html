@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Danke für Ihre Bestellung!</title>
+  <link rel="icon" href="images/flexosamine.png?=v1">
+  <!-- Meta Pixel -->
+  <script>
+    !function (f, b, e, v, n, t, s) {
+      if (f.fbq) return; n = f.fbq = function () { n.callMethod ?
+        n.callMethod.apply(n, arguments) : n.queue.push(arguments) };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+      n.queue = []; t = b.createElement(e); t.async = !0;
+      t.src = v; s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s)
+    }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+    (function () {
+      var p = new URLSearchParams(window.location.search).get('fbpx');
+      if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+      if (!p) { try { p = localStorage.getItem('fb_pixel'); } catch (e) {} }
+      if (p) { fbq('init', p); fbq('track', 'PageView'); fbq('track', 'Lead'); }
+    })();
+  </script>
+  <!-- End Meta Pixel -->
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #f7fafc;
+      color: #1a2b42;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .thanks {
+      background: #fff;
+      max-width: 520px;
+      margin: 20px;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(10, 92, 158, 0.10);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .thanks img {
+      max-width: 280px;
+      width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto 20px;
+    }
+
+    .thanks h1 {
+      color: #0a5c9e;
+      font-size: 28px;
+      margin: 0 0 12px;
+    }
+
+    .thanks p {
+      font-size: 17px;
+      line-height: 1.5;
+      margin: 8px 0;
+    }
+
+    .order-id {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #6b7a8f;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="thanks">
+    <img src="images/flexosamine.png" alt="Flexosamine Pro" loading="lazy">
+    <h1>Danke für Ihre Bestellung!</h1>
+    <p>Ihre Bestellung wurde erfolgreich registriert.</p>
+    <p>Unser Berater ruft Sie in Kürze an, um die Lieferung zu bestätigen.</p>
+    <div class="order-id" id="order-id"></div>
+  </div>
+
+  <script>
+    (function () {
+      var id = new URLSearchParams(window.location.search).get('order_id');
+      if (id) { document.getElementById('order-id').textContent = 'Bestellnummer: ' + id; }
+    })();
+  </script>
+</body>
+
+</html>
