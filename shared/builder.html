@@ -46,6 +46,11 @@
   .hint{color:var(--mut);font-size:11.5px;margin-top:6px;line-height:1.55}
   .grp{border:1px solid var(--line);border-radius:var(--r);padding:4px 16px 16px;margin-top:16px;background:var(--panel2)}
   .grp h3{font-size:11px;color:var(--acc);letter-spacing:.05em;text-transform:uppercase;margin:14px 0 2px;font-weight:700}
+  .gtoggle{cursor:pointer;user-select:none;display:flex;align-items:center;gap:6px}
+  .gtoggle .chev,.subtoggle .chev{display:inline-block;transition:transform .15s;font-size:10px}
+  .gtoggle.open .chev,.subtoggle.open .chev{transform:rotate(90deg)}
+  .subtoggle{cursor:pointer;user-select:none;font-size:12px;font-weight:600;color:var(--mut);margin:12px 0 2px;display:flex;align-items:center;gap:6px}
+  .hint code{background:var(--line2);padding:1px 5px;border-radius:4px;font-size:11px}
   .seg{display:flex;gap:6px;background:var(--line2);padding:4px;border-radius:10px;margin-bottom:4px}
   .seg button{flex:1;padding:9px;border:0;border-radius:7px;background:transparent;color:var(--mut);font-weight:600;font-size:13px;cursor:pointer;transition:.15s}
   .seg button.active{background:var(--panel2);color:var(--fg);box-shadow:var(--sh-sm)}
@@ -100,7 +105,7 @@
 <body>
 <header>
   <div class="logo">✦</div>
-  <div style="flex:1"><h1>Конструктор лендов</h1><div class="sub">завод готовых, переведённых лендов — переменные + HTML/папка → рабочая сборка</div></div>
+  <div style="flex:1"><h1>Конструктор лендов</h1><div class="sub">берёт переведённый ленд (HTML или папку), подключает форму к партнёрке, ставит Meta Pixel и делает call/error/chest → готовая сборка</div></div>
   <button id="themeBtn" class="themebtn" title="Светлая / тёмная тема" type="button">🌙</button>
 </header>
 
@@ -123,34 +128,43 @@
     </div>
 
     <div class="grp">
-      <h3>Meta Pixel (конверсии FB)</h3>
-      <div class="chk"><input type="checkbox" id="pxOn" checked><label>Вставлять Meta Pixel (PageView + конверсия)</label></div>
-      <label>Pixel ID (пусто = динамический из {fbpx}/URL/localStorage)</label>
-      <input id="pxid" placeholder="напр. 1234567890  или оставь пустым">
-      <div class="row">
-        <div><label>Событие конверсии</label>
-          <select id="pxev"><option>Lead</option><option>Purchase</option><option>CompleteRegistration</option><option>InitiateCheckout</option><option>AddToCart</option><option>Subscribe</option></select>
+      <h3 class="gtoggle" data-target="pxBody"><span class="chev">▸</span> Meta Pixel (конверсии FB)</h3>
+      <div id="pxBody" class="grp-body" style="display:none">
+        <div class="chk"><input type="checkbox" id="pxOn" checked><label>Вставлять Meta Pixel (PageView + конверсия)</label></div>
+        <label>Pixel ID (пусто = динамический из {fbpx}/URL/localStorage)</label>
+        <input id="pxid" placeholder="напр. 1234567890  или оставь пустым">
+        <label>Событие конверсии</label>
+        <select id="pxev"><option>Lead</option><option>Purchase</option><option>CompleteRegistration</option><option>InitiateCheckout</option><option>AddToCart</option><option>Subscribe</option></select>
+        <div class="subtoggle" data-target="pxAdv"><span class="chev">▸</span> Расширенные (ценность/валюта — нужны для Purchase/ROAS)</div>
+        <div id="pxAdv" style="display:none">
+          <div class="row">
+            <div><label>Ценность (опц.)</label><input id="pxval" placeholder="напр. 39"></div>
+            <div><label>Валюта (опц.)</label><input id="pxcur" placeholder="EUR"></div>
+          </div>
         </div>
-        <div><label>Ценность (опц.)</label><input id="pxval" placeholder="39"></div>
+        <div class="hint">PageView — на index/chest/error. Событие конверсии — на success (call.html), после подтверждённого заказа. Для обычного COD-лида (Lead) ценность/валюта не нужны — оставь пустыми.</div>
       </div>
-      <label>Валюта (опц.)</label><input id="pxcur" placeholder="EUR">
-      <div class="hint">PageView — на index/chest/error. Событие конверсии — на success (call.html), после подтверждённого заказа. Пиксель переносится index→call через localStorage.</div>
     </div>
 
     <div class="grp">
       <h3>Страницы и ссылки</h3>
+      <div class="hint">Куда ленд ведёт после отправки формы и на каком языке будут служебные страницы.</div>
       <div class="row">
         <div><label>success</label><input id="success" value="call.html"></div>
         <div><label>error</label><input id="error" value="error.html"></div>
       </div>
+      <div class="hint">success — страница «спасибо» при успешном заказе (там срабатывает конверсия). error — при сбое отправки. Обычно оставляй как есть.</div>
       <label>back-fix ссылка (пусто = выкл)</label>
       <input id="backfix" value="https://nutrivition.top/VXsVxCX?sun={sub_id_30}">
+      <div class="hint">Куда увести юзера по кнопке «Назад» (демонетизация трафика). Пусто — выключить.</div>
       <label>Язык текстов call/error/chest</label>
       <select id="uiLang"></select>
+      <div class="hint">На каком языке генерятся служебные страницы (спасибо/ошибка/сундук). На перевод самого ленда не влияет.</div>
     </div>
 
     <div class="grp">
       <h3>Оффер (для call/error/chest)</h3>
+      <div class="hint">Эти данные подставляются в <b>генерируемые</b> страницы call/error/chest. Сам переведённый ленд они не меняют.</div>
       <div class="row">
         <div><label>Бренд</label><input id="brand" placeholder="Flexosamine Pro"></div>
         <div><label>Картинка</label><input id="image" value="images/flexosamine.png"></div>
@@ -191,9 +205,13 @@
       </div>
 
       <div class="chk"><input type="checkbox" id="autofix" checked><label>Авто-починка формы (data-order-form + name/phone)</label></div>
+      <div class="hint" style="margin-top:2px">Если форма на ленде без нужной разметки — сам проставит <code>data-order-form</code> и <code>name/phone</code>, чтобы заказ ловился. Оставляй включённым.</div>
       <div class="chk"><input type="checkbox" id="stripOld" checked><label>Вырезать старый обработчик отправки + старый пиксель</label></div>
+      <div class="hint" style="margin-top:2px">Удаляет из ленда старые скрипты отправки (m1.top/sendData) и старый Meta Pixel, чтобы не было дублей с нашим блоком. Оставляй включённым.</div>
       <div class="chk"><input type="checkbox" id="repCallErr" checked><label>В режиме папки: заменить call.html и error.html</label></div>
+      <div class="hint" style="margin-top:2px">Перегенерит эти страницы под наш шаблон и выбранный язык. Сними, если у тебя свои call/error, которые нужно сохранить.</div>
       <div class="chk"><input type="checkbox" id="patchChest"><label>В режиме папки: обновить блок заказа и в chest.html</label></div>
+      <div class="hint" style="margin-top:2px">Впишет блок заказа + пиксель и в сундук (chest.html). Включай, только если пользуешься сундуком.</div>
     </div>
 
     <button class="btn" id="build">⚙️ Собрать</button>
@@ -695,6 +713,16 @@ function downloadZip(){
     });
   }
   sel.addEventListener("change",applyPartner);applyPartner();
+
+  // раскрывающиеся блоки (Meta Pixel, «Расширенные»)
+  document.querySelectorAll(".gtoggle,.subtoggle").forEach(function(h){
+    h.addEventListener("click",function(){
+      var el=document.getElementById(h.dataset.target); if(!el) return;
+      var open=el.style.display!=="none";
+      el.style.display=open?"none":"block";
+      h.classList.toggle("open",!open);
+    });
+  });
 
   var ul=document.getElementById("uiLang");
   LANGS.forEach(function(p){var o=document.createElement("option");o.value=p[0];o.textContent=p[1];ul.appendChild(o);});
