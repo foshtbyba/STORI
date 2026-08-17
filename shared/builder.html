@@ -66,7 +66,10 @@
   .imgtile .thumb{height:64px;display:flex;align-items:center;justify-content:center;background:conic-gradient(#eee 25%,#fff 0 50%,#eee 0 75%,#fff 0) 0 0/14px 14px;border-radius:7px;overflow:hidden}
   .imgtile .thumb img{max-width:100%;max-height:64px;object-fit:contain}
   .imgtile .nm{font-size:10.5px;color:var(--mut);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .imgtile button{margin-top:5px;width:100%;padding:5px;border:1px solid var(--line);background:var(--panel);color:var(--acc);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer}
+  .imgtile .tbtns{display:flex;gap:4px;margin-top:5px}
+  .imgtile button{padding:5px;border:1px solid var(--line);background:var(--panel);color:var(--acc);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer}
+  .imgtile .rep-b{flex:1}
+  .imgtile .ren-b{flex:0 0 auto;padding:5px 8px}
   .imgtile button:hover{background:var(--acc-soft)}
   .imgtile .badge{position:absolute;top:4px;right:4px;background:var(--ok);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;display:none}
   .imgtile.rep .badge{display:block}
@@ -548,10 +551,11 @@ function renderFileList(){
 function fileBlob(x){return x.kind==="text"?new Blob([x.str],{type:mimeOf(x.path)}):new Blob([x.bytes],{type:mimeOf(x.path)});}
 function imgTile(x, container){
   var url=URL.createObjectURL(fileBlob(x));
-  var tile=document.createElement("div");tile.className="imgtile"+(x.replaced?" rep":"");
-  tile.innerHTML='<div class="badge">заменено</div><div class="thumb"><img src="'+url+'" title="'+esc(x.path)+'"></div><div class="nm" title="'+esc(x.path)+'">'+esc(baseName(x.path))+'</div><button type="button">Заменить</button><input type="file" accept="image/*" hidden>';
-  var inp=tile.querySelector("input"),btn=tile.querySelector("button"),im=tile.querySelector("img");
-  btn.addEventListener("click",function(){inp.click();});
+  var tile=document.createElement("div");tile.className="imgtile"+((x.replaced||x.renamed)?" rep":"");
+  tile.innerHTML='<div class="badge">изменено</div><div class="thumb"><img src="'+url+'" title="'+esc(x.path)+'"></div><div class="nm" title="'+esc(x.path)+'">'+esc(baseName(x.path))+'</div><div class="tbtns"><button type="button" class="rep-b">Заменить</button><button type="button" class="ren-b" title="Переименовать (обновит ссылки в коде)">✎</button></div><input type="file" accept="image/*" hidden>';
+  var inp=tile.querySelector("input"),btnR=tile.querySelector(".rep-b"),btnN=tile.querySelector(".ren-b"),im=tile.querySelector("img");
+  btnR.addEventListener("click",function(){inp.click();});
+  btnN.addEventListener("click",function(){ var nn=window.prompt("Новое имя файла (ссылки в коде обновятся автоматически):", baseName(x.path)); if(nn){ renameAsset(x, nn); } });
   inp.addEventListener("change",async function(){
     var f=inp.files[0];if(!f)return;
     x.bytes=new Uint8Array(await f.arrayBuffer());x.kind="bin";x.replaced=true;delete x.str;
@@ -559,6 +563,19 @@ function imgTile(x, container){
     tile.classList.add("rep");
   });
   container.appendChild(tile);
+}
+function refreshFolder(){ renderFileList(); renderImages(); renderCleanup(); }
+function renameAsset(x, newBase){
+  newBase=(newBase||"").trim().replace(/[\\/]/g,""); if(!newBase) return;
+  var old=baseName(x.path); if(newBase===old) return;
+  var dir=x.path.slice(0,x.path.length-old.length), np=dir+newBase;
+  if(FOLDER.files.some(function(f){return f!==x && f.path===np;})){ alert("Файл с таким именем уже есть: "+np); return; }
+  // обновляем все ссылки на это имя во всех текстовых файлах (html/css/js)
+  var cnt=0;
+  FOLDER.files.forEach(function(f){ if(f.kind==="text" && f.str.indexOf(old)>=0){ cnt+=f.str.split(old).length-1; f.str=f.str.split(old).join(newBase); } });
+  x.path=np; x.renamed=true;
+  refreshFolder();
+  var st=document.getElementById("status"); st.className="status ok"; st.textContent="Переименовано: "+old+" → "+newBase+" (ссылок обновлено: "+cnt+")";
 }
 function renderImages(){
   var wrap=document.getElementById("imgwrap"),grid=document.getElementById("imggrid");

@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  
+  <meta charset="utf-8">
+  <title>«Ich besuche die, die niemand mehr besucht» — der junge Arzt, der Pflegeheime in Deutschland bereist und abgeschobenen Senioren ihre Beweglichkeit zurückgibt</title>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta content="no-cache" http-equiv="Cache-Control">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="telephone=no" name="format-detection">
+  <meta content="no-referrer" name="referrer">
+  <meta content="noindex, nofollow" name="robots">
+
+  <link rel="icon" href="images/flexosamine.png?=v1">
+
+  <style>
+    :root {
+      --color-primary: #0a5c9e;
+      --color-primary-dark: #084678;
+      --color-primary-light: #e8f2fa;
+      --color-accent: #0284c7;
+      --color-danger: #c0392b;
+      --color-danger-light: #fdecea;
+      --color-success: #1e8449;
+      --color-success-light: #e8f5ee;
+      --color-warning: #b7791f;
+      --color-text: #1a2b42;
+      --color-text-muted: #4a5a70;
+      --color-text-light: #6b7a8f;
+      --color-bg: #ffffff;
+      --color-bg-soft: #f7fafc;
+      --color-bg-alt: #eef4f9;
+      --color-border: #d9e2ec;
+      --color-border-soft: #e4ebf2;
+      --shadow-sm: 0 1px 2px rgba(10, 92, 158, 0.04), 0 1px 3px rgba(10, 92, 158, 0.06);
+      --shadow-md: 0 4px 12px rgba(10, 92, 158, 0.08), 0 2px 4px rgba(10, 92, 158, 0.04);
+      --shadow-lg: 0 10px 25px rgba(10, 92, 158, 0.10), 0 4px 10px rgba(10, 92, 158, 0.05);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-serif: 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin:0; padding:0; font-family:var(--font-sans); font-size:17px; line-height:1.65; color:var(--color-text); background:var(--color-bg-soft); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .clinical-topbar { background:var(--color-primary-dark); color:#fff; font-size:12px; letter-spacing:0.05em; text-transform:uppercase; padding:8px 16px; text-align:center; font-weight:500; }
+    .clinical-topbar::before { content:"⚕ "; margin-right:6px; }
+    .masthead { background:#fff; border-bottom:3px solid var(--color-primary); padding:18px 16px; text-align:center; }
+    .masthead-inner { max-width:900px; margin:0 auto; display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+    .masthead-logo { display:inline-flex; align-items:center; gap:10px; font-family:var(--font-serif); font-weight:700; font-size:22px; color:var(--color-primary-dark); letter-spacing:-0.01em; }
+    .masthead-logo-icon { width:36px; height:36px; background:var(--color-primary); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:700; }
+    .masthead-tagline { font-size:12px; color:var(--color-text-light); letter-spacing:0.08em; text-transform:uppercase; border-left:1px solid var(--color-border); padding-left:14px; font-weight:500; }
+    @media (max-width:560px) { .masthead-tagline { border-left:0; padding-left:0; font-size:11px; width:100%; border-top:1px solid var(--color-border); padding-top:8px; margin-top:4px; } }
+    header { max-width:900px; margin:0 auto; padding:0; }
+    .bg-image { text-align:center; }
+    .bg-image img { max-width:100%; height:auto; display:inline-block; }
+    .text-container { display:block; }
+    .h1-bg { position:relative; max-width:900px; margin:0 auto; padding:28px 22px 20px; background:#fff; border-bottom:1px solid var(--color-border); }
+    .h1-bg::before { content:""; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%); }
+    .title_h1 { font-family:var(--font-serif); font-size:26px; line-height:1.25; color:var(--color-text); font-weight:700; margin:0 0 14px; letter-spacing:-0.01em; }
+    .head-one-part { color:var(--color-danger); }
+    .head-two-part { display:block; }
+    .head-main-date { font-size:13px; color:var(--color-text-light); padding:0; display:flex; align-items:center; gap:8px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px dashed var(--color-border); }
+    .head-main-date::before { content:"📅"; font-size:14px; }
+    .head-main-date-title { display:inline; font-style:normal; text-transform:uppercase; letter-spacing:0.05em; font-weight:500; }
+    .main-subtitle { display:block; padding:16px 18px; color:var(--color-text); font-size:17px; border-radius:var(--radius-md); font-weight:500; border-left:4px solid var(--color-primary); background:var(--color-primary-light); line-height:1.55; font-style:normal; margin:0; box-shadow:none; }
+    @media (max-width:640px) { .title_h1 { font-size:20px; } .main-subtitle { font-size:15px; padding:14px 14px; } .h1-bg { padding:22px 16px 18px; } }
+    main { max-width:900px; margin:0 auto; padding:24px 22px 40px; background:#fff; border-left:1px solid var(--color-border-soft); border-right:1px solid var(--color-border-soft); }
+    @media (max-width:640px) { main { padding:18px 14px 30px; } }
+    main p { margin:0 0 16px; color:var(--color-text); }
+    main img { max-width:100%; height:auto; border-radius:var(--radius-md); }
+    main h2 { font-family:var(--font-serif); font-size:24px; line-height:1.3; font-weight:700; color:var(--color-primary-dark); margin:32px 0 16px; padding-bottom:12px; border-bottom:2px solid var(--color-primary-light); letter-spacing:-0.01em; }
+    main h2 span { display:block; font-family:var(--font-sans); font-size:16px; font-weight:500; color:var(--color-text-muted); margin-top:10px; margin-bottom:0; line-height:1.5; }
+    main h3 { font-family:var(--font-serif); font-size:19px; color:var(--color-primary-dark); margin:22px 0 12px; font-weight:600; }
+    @media (max-width:640px) { main h2 { font-size:19px; } main h2 span { font-size:15px; } }
+    main ul { padding-left:0; list-style:none; margin:16px 0; background:var(--color-bg-soft); border:1px solid var(--color-border-soft); border-radius:var(--radius-md); padding:14px 18px 14px 20px; }
+    main ul li { position:relative; padding-left:22px; margin-bottom:8px; line-height:1.5; }
+    main ul li::before { content:""; position:absolute; left:0; top:10px; width:10px; height:10px; border:2px solid var(--color-primary); border-radius:50%; background:#fff; }
+    main ul li:last-child { margin-bottom:0; }
+    .red-txt { color:var(--color-danger); font-weight:600; }
+    .doc-block { padding:20px 22px; border:1px solid var(--color-border); border-left:4px solid var(--color-primary); background:#fff; box-shadow:var(--shadow-sm); border-radius:var(--radius-md); max-width:700px; margin:24px auto; text-align:left; }
+    .doc-block img { border-radius:var(--radius-md); margin-bottom:14px; }
+    .doc-block p { padding:0; margin:0 0 12px; font-size:16px; line-height:1.6; }
+    .doc-block p:last-child { margin-bottom:0; }
+    .doc-block p b { color:var(--color-primary-dark); }
+    figure { margin:22px 0; padding:0; text-align:center; }
+    figure img { border-radius:var(--radius-md); box-shadow:var(--shadow-md); max-width:100%; height:auto; }
+    figure figcaption { margin-top:12px; padding:10px 14px; font-size:14px; line-height:1.5; color:var(--color-text-muted); background:var(--color-bg-soft); border-left:3px solid var(--color-primary); border-radius:0 var(--radius-sm) var(--radius-sm) 0; text-align:left; font-style:italic; }
+    figure.cap-bold figcaption { font-style:normal; font-weight:500; color:var(--color-text); }
+    .img-card { border:1px solid var(--color-border); padding:6px; background:#fff; box-shadow:var(--shadow-md); border-radius:var(--radius-md); }
+    .img-card2 { border:1px solid var(--color-border); padding:6px; background:#fff; border-radius:var(--radius-md); }
+    .pachino-ramka312-block { margin:24px 0; }
+    .pachino-ramka312 { background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.25); border-left:4px solid var(--color-danger); border-radius:var(--radius-md); padding:18px 20px; color:var(--color-text); font-weight:500; box-shadow:none; margin:0; font-size:16px; line-height:1.6; position:relative; }
+    .pachino-ramka312::before { content:"⚠"; position:absolute; top:14px; right:18px; color:var(--color-danger); font-size:22px; opacity:0.7; }
+    .pachino-ramka312 .obertka-1 { display:block; }
+    .rev-block { margin:24px 0; padding:20px 22px; background:var(--color-primary-light); border:1px solid rgba(10,92,158,0.15); border-left:4px solid var(--color-primary); border-radius:var(--radius-md); box-shadow:none; }
+    .rev-block p { font-size:16px; line-height:1.6; margin-bottom:12px; }
+    .rev-block img { border-radius:var(--radius-md); margin-bottom:14px; max-width:100%; }
+    .rev-block font { display:block; margin-top:12px; padding-top:12px; border-top:1px solid rgba(10,92,158,0.15); color:var(--color-primary-dark); font-size:15px; }
+    .rev-block font b { font-weight:600; }
+    .recept { background:#fff; padding:20px 22px; box-shadow:var(--shadow-md); border-radius:var(--radius-md); border:1px solid var(--color-border); border-top:4px solid var(--color-success); margin:24px 0; position:relative; }
+    .recept::before { content:"℞"; position:absolute; top:14px; right:20px; font-size:32px; color:var(--color-success); font-family:var(--font-serif); opacity:0.4; line-height:1; }
+    .recept p b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green { margin:12px 0 0 !important; padding:0 !important; background:transparent !important; border:0 !important; list-style:none; }
+    .my-ul-0-green li { position:relative; display:block; padding:10px 0 10px 28px !important; margin:0 !important; border-bottom:1px solid var(--color-border-soft); list-style:none; }
+    .my-ul-0-green li::before { content:"✓" !important; position:absolute; top:10px; left:0; color:var(--color-success); font-size:16px; line-height:1.5; font-weight:700; border:0 !important; background:transparent !important; width:auto !important; height:auto !important; border-radius:0 !important; }
+    .my-ul-0-green li:last-child { border-bottom:0; }
+    .my-ul-0-green li b { color:var(--color-primary-dark); font-size:16px; }
+    .my-ul-0-green font { font-size:14px; display:block; margin-top:4px; color:var(--color-text-muted); }
+    .obertk512 { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); max-width:780px; margin:28px auto; padding:0; line-height:1.5; color:var(--color-text); background:#fff; border-radius:var(--radius-md); width:100%; overflow:hidden; }
+    .obertk512 h1 { font-family:var(--font-serif); line-height:1.3; margin:0; color:#fff; font-size:18px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .block-offer-actions-block { padding:10px 22px 22px; border:0; }
+    .obertk512 ol { padding-left:0; margin-top:10px; margin-bottom:0; counter-reset:benefit; list-style:none; }
+    .obertk512 li { line-height:1.4; padding:16px 0 16px 50px; border-bottom:1px solid var(--color-border-soft); position:relative; counter-increment:benefit; }
+    .obertk512 li::before { content:counter(benefit); position:absolute; left:0; top:14px; width:36px; height:36px; background:var(--color-primary-light); color:var(--color-primary-dark); border-radius:50%; font-weight:700; font-size:16px; display:flex; align-items:center; justify-content:center; border:2px solid var(--color-primary); }
+    .obertk512 li::marker { content:none; }
+    .obertk512 li:last-child { border-bottom:0; }
+    .obertk512 li font { line-height:1.3; color:var(--color-primary-dark); text-align:left; font-weight:600; font-size:17px; display:block; margin-bottom:6px; }
+    .block-offer-actions-block li span { display:block; font-size:15px; line-height:1.5; font-weight:400; color:var(--color-text-muted); margin:0; padding:0; border-bottom:0; }
+    .table-block { display:block; box-shadow:var(--shadow-md); border:1px solid var(--color-border); border-radius:var(--radius-md); max-width:700px; margin:28px auto; padding:0; font-size:16px; line-height:1.5; color:var(--color-text); background:#fff; width:100%; overflow:hidden; }
+    .table-block h1 { font-family:var(--font-serif); line-height:1.35; margin:0; color:#fff; font-size:17px; padding:16px 20px; font-weight:600; background:var(--color-primary); border:0; border-radius:0; }
+    .table { width:100%; max-width:100%; border-collapse:collapse; font-family:var(--font-sans); margin:0; background:#fff; }
+    .table tr:nth-child(even) td { background:var(--color-bg-soft) !important; }
+    .table td { border:0 !important; border-bottom:1px solid var(--color-border-soft) !important; padding:12px 16px !important; vertical-align:middle; background:#fff !important; }
+    .table tr:last-child td { border-bottom:0 !important; }
+    .table td.one { text-align:left; width:75%; font-size:15px; font-weight:500; color:var(--color-text); }
+    .table td.two { font-size:18px; color:var(--color-success); text-align:right; font-weight:700; width:25%; white-space:nowrap; }
+    @media (max-width:560px) { .table td.one { font-size:14px; } .table td.two { font-size:16px; } .table td { padding:10px 12px !important; } }
+    .pachino-ramka2 { text-align:left; color:var(--color-success); font-weight:600; border:1px solid rgba(30,132,73,0.25); border-left:4px solid var(--color-success); border-radius:var(--radius-md); padding:18px 20px; background:var(--color-success-light); box-shadow:none; margin:20px 0; font-size:16px; line-height:1.55; }
+    .pachino-ramka { border:1px solid rgba(183,121,31,0.3); border-left:4px solid var(--color-warning); padding:18px 20px; border-radius:var(--radius-md); background:#fff9ef; margin:20px 0; font-size:16px; line-height:1.55; position:relative; }
+    .pachino-ramka::before { content:"🕐"; position:absolute; top:14px; right:18px; font-size:22px; opacity:0.8; }
+    .ramka-title { display:block; color:var(--color-warning); padding:0; margin-bottom:10px; font-weight:700 !important; background:transparent; text-transform:uppercase; font-size:13px; letter-spacing:0.06em; }
+    .pachino-ramka font { color:var(--color-danger); font-weight:600; }
+    .noclose-cta { font-size:15px; max-width:780px; margin:16px auto; display:block; background:var(--color-danger-light); border:1px solid rgba(192,57,43,0.2); padding:12px 16px; border-radius:var(--radius-md); line-height:1.5; }
+    .pre-cta { display:block; color:var(--color-success); font-weight:500; font-size:16px; margin-top:12px; }
+    .nowrap { white-space:nowrap; }
+    .pachinoform { padding:0; font-size:17px; line-height:1.5; color:var(--color-text); border:1px solid var(--color-border); background:#fff; display:block; border-radius:var(--radius-lg); width:100%; max-width:780px; margin:24px auto; box-shadow:var(--shadow-lg); overflow:hidden; }
+    .pachinoform_title { display:flex; gap:16px; max-width:none; align-self:stretch; text-align:left; background:var(--color-primary); color:#fff; padding:20px 24px; align-items:center; }
+    .pachinoform_title_logo { flex-shrink:0; background:#fff; padding:6px; border-radius:50%; width:56px; height:56px; display:flex; align-items:center; justify-content:center; }
+    .pachinoform_title_logo img { max-width:100%; height:auto; }
+    .pachinoform_title_text { align-self:center; color:#fff; font-size:15px; line-height:1.4; }
+    .pachinoform_title_text>b { display:block; line-height:1.3; font-size:17px; margin-bottom:4px; color:#fff; font-weight:600; }
+    .pachinoform_order { max-width:none; font-weight:500; font-size:15px; margin:0; text-align:center; padding:16px 24px; background:var(--color-primary-light); border-bottom:1px solid var(--color-border-soft); color:var(--color-text); line-height:1.5; }
+    .pachinoform_order>b { color:var(--color-danger); font-weight:700; }
+    .pachinoform_value { display:flex; color:var(--color-text); font-weight:600; font-size:15px; align-items:center; justify-content:center; padding:16px 24px 0; flex-wrap:wrap; gap:10px; }
+    .pachinoform_value_current { border:2px solid var(--color-danger); color:var(--color-danger); line-height:1; font-size:22px; padding:6px 18px; margin:0 6px; border-radius:var(--radius-sm); background:var(--color-danger-light); font-weight:700; }
+    .pachinoform_value_total { font-size:18px; color:var(--color-text-muted); }
+    .pachinoform_price { display:flex; align-items:center; justify-content:center; gap:24px; margin:20px 0 0; padding:0 24px; }
+    .pachinoform_price_old span { display:block; font-size:24px; font-weight:600; letter-spacing:-0.5px; color:var(--color-text-light); position:relative; line-height:1; }
+    .pachinoform_price_old span::before { position:absolute; content:""; left:-4px; top:50%; right:-4px; border-top:2px solid var(--color-danger); transform:rotate(-12deg); }
+    .pachinoform_price_new span { display:inline-block; background:var(--color-success); color:#fff; text-shadow:none; font-size:32px; padding:8px 20px; font-weight:700; line-height:1; border-radius:var(--radius-sm); box-shadow:0 4px 12px rgba(30,132,73,0.25); }
+    .pachinoform form { padding:22px 24px 20px; }
+    .pachinoform .name-input, .pachinoform .phone-input { color:var(--color-text); font-size:15px; margin-bottom:14px; }
+    .pachinoform .name-input label, .pachinoform .phone-input label { font-weight:500; font-size:14px; color:var(--color-text-muted); margin-bottom:6px; display:block; text-transform:uppercase; letter-spacing:0.04em; }
+    .pachinoform .name-input input, .pachinoform .phone-input input { font:inherit; color:var(--color-text); box-sizing:border-box; width:100%; border-radius:var(--radius-sm); padding:12px 16px; min-width:0; background:#fff; border:1.5px solid var(--color-border); font-size:16px !important; transition:border-color 0.15s ease, box-shadow 0.15s ease; }
+    .pachinoform .name-input input:focus, .pachinoform .phone-input input:focus, .pachinoform input:focus { outline:0; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(10,92,158,0.15); }
+    .pachinoform .button-submit { text-align:center; width:100%; margin:6px auto 0; text-decoration:none; border-radius:var(--radius-sm); color:#fff; border:0; padding:16px 20px; cursor:pointer; background:var(--color-primary); font-size:17px; line-height:1.3; font-weight:600; letter-spacing:0.02em; text-transform:uppercase; transition:background 0.15s ease, transform 0.05s ease; box-shadow:0 4px 12px rgba(10,92,158,0.25); font-family:var(--font-sans); }
+    .pachinoform .button-submit:hover { background:var(--color-primary-dark); }
+    .pachinoform .button-submit:active { transform:translateY(1px); }
+    .pachinoform .button-submit:focus { outline:0; box-shadow:0 0 0 3px rgba(10,92,158,0.25); }
+    .pachinoform ::placeholder { color:var(--color-text-light); opacity:1; font-size:15px !important; }
+    .pachinoform_footer { text-align:center; color:var(--color-text-muted); font-size:13px; padding:14px 24px 20px; background:var(--color-bg-soft); border-top:1px solid var(--color-border-soft); line-height:1.5; }
+    .pachinoform_footer img { margin-top:10px; max-width:100%; height:auto; opacity:0.85; }
+    @media (max-width:500px) { .pachinoform_title { gap:10px; padding:16px 18px; } .pachinoform_title_text { font-size:13px; } .pachinoform_title_text>b { font-size:15px; } .pachinoform_value { flex-wrap:wrap; justify-content:center; font-size:14px; } .pachinoform_price_new span { font-size:26px; } .pachinoform_price_old span { font-size:20px; } .pachinoform form { padding:18px 18px 18px; } .pachinoform_order { padding:14px 18px; font-size:14px; } .blc-pck { display:block; width:100%; text-align:center; margin-top:8px; } .pachinoform_value_current { margin:0; } }
+    .comments { max-width:900px; margin:32px auto 20px; background:#fff; border-radius:var(--radius-md); border:1px solid var(--color-border); overflow:hidden; }
+    .comments__header { padding:16px 20px; background:var(--color-primary); color:#fff; display:flex; align-items:center; justify-content:space-between; }
+    .comments__header-title { font-family:var(--font-serif); font-size:18px; font-weight:600; margin:0; color:#fff; letter-spacing:0.02em; }
+    .comments__item-list { padding:8px 20px; }
+    .comments__item { padding:16px 0; border-bottom:1px solid var(--color-border-soft); }
+    .comments__item:last-child { border-bottom:0; }
+    .comments__item-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+    .comments__item-avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; flex-shrink:0; border:1px solid var(--color-border); }
+    .comments__item-info { flex:1; min-width:0; }
+    .comments__item-name { font-weight:600; font-size:15px; color:var(--color-primary-dark); margin:0 0 2px; }
+    .comments__item-info p:last-child, .comments__item-info .startdate, .comments__item-info .nowdate { font-size:12px; color:var(--color-text-light); margin:0; }
+    .comments__item-body { padding-left:56px; }
+    .comments__item-content { font-size:15px; line-height:1.55; color:var(--color-text); margin:0; }
+    .comments__item-content img { border-radius:var(--radius-sm); margin-top:10px; }
+    .comm-obert-reply { padding-left:28px; border-left:2px solid var(--color-primary-light); margin-left:8px; }
+    .comm-obert-reply .comments__item.reply { border-bottom:1px solid var(--color-border-soft); }
+    @media (max-width:560px) { .comments__item-body { padding-left:0; } .comm-obert-reply { padding-left:16px; } }
+    .form-container { max-width:900px; margin:0 auto; padding:0 20px; }
+    .custom-form { max-width:100%; margin:0 auto; padding:18px; box-shadow:var(--shadow-sm); border:1px solid var(--color-border); box-sizing:border-box; font-family:var(--font-sans) !important; display:flex; flex-direction:column; gap:12px; background:var(--color-bg-soft); border-radius:var(--radius-md); }
+    .custom-form__top-field { display:flex; gap:16px; align-items:center; }
+    .custom-form__ava-block { position:relative; width:54px; height:54px; overflow:hidden; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px dashed var(--color-border); transition:0.2s; flex:0 0 auto; background:#fff; }
+    .custom-form__ava-label { font-size:11px; text-align:center; line-height:1.2; cursor:pointer; font-family:inherit; font-weight:400; color:var(--color-text-light); padding:4px; }
+    .custom-form__ava-label_red-text { color:var(--color-danger); }
+    .custom-form__name { width:100%; max-width:320px; display:inline-block; outline:none; border:1.5px solid var(--color-border); padding:10px 14px; font-size:14px; height:42px; box-sizing:border-box; font-family:inherit; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__message { resize:none; width:100%; outline:none; border:1.5px solid var(--color-border); padding:12px 14px; min-height:90px; font-size:14px; line-height:1.5; font-family:inherit; box-sizing:border-box; border-radius:var(--radius-sm); background:#fff; }
+    .custom-form__bottom-field { display:flex; flex-direction:row; gap:14px; align-items:center; flex-wrap:wrap; }
+    .custom-form__btn { outline:none; padding:10px 24px; background:var(--color-primary); color:#fff; font-weight:600; font-size:14px; transition:background 0.15s ease; cursor:pointer; text-transform:uppercase; border:0; font-family:var(--font-sans); border-radius:var(--radius-sm); text-decoration:none !important; letter-spacing:0.04em; }
+    .custom-form__btn:hover { background:var(--color-primary-dark); }
+    .custom-form__photo-label { cursor:pointer; font-size:13px; font-weight:400; border:none; color:var(--color-primary); text-decoration:underline; }
+    .trust-strip { max-width:900px; margin:0 auto; background:#fff; border:1px solid var(--color-border-soft); border-top:0; padding:20px 22px; display:flex; flex-wrap:wrap; gap:18px; justify-content:space-around; align-items:center; }
+    .trust-item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--color-text-muted); font-weight:500; }
+    .trust-item-icon { color:var(--color-primary); font-size:18px; }
+    .clinical-footer { max-width:900px; margin:0 auto 0; padding:24px 22px 36px; background:#fff; border:1px solid var(--color-border-soft); border-top:1px solid var(--color-border); text-align:center; font-size:12px; color:var(--color-text-light); line-height:1.6; }
+    .clinical-footer a { color:var(--color-primary); text-decoration:none; }
+    .product-center { display:block; max-width:220px; width:100%; margin:16px auto; }
+    #overlay { position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:100; transition:opacity 0.3s ease; }
+    #popup3 { background-size:cover; background-position:center; position:fixed; top:50%; left:50%; padding:20px; background-color:white; box-shadow:var(--shadow-lg); transition:opacity 0.3s ease, transform 0.3s ease; max-width:800px; width:93%; height:87%; overflow-y:auto; max-height:100vh; z-index:999999; }
+    body input[name="phone"] { background-repeat:no-repeat !important; background-position:left 15px center !important; }
+    main center { display:block; text-align:center; }
+    .sf-hidden { display:none !important; }
+    .quote-inline { margin:20px 0; padding:16px 20px; background:var(--color-bg-soft); border-left:4px solid var(--color-text-light); border-radius:0 var(--radius-md) var(--radius-md) 0; font-style:italic; color:var(--color-text-muted); font-size:16px; line-height:1.6; }
+    .quote-inline .quote-name { display:block; margin-top:10px; font-style:normal; font-weight:600; color:var(--color-primary-dark); font-size:14px; }
+
+    /* === TRUST COMPOSITION BLOCKS === */
+    .composition-trust { max-width:780px; margin:28px auto; border:1px solid var(--color-border); border-radius:var(--radius-md); overflow:hidden; box-shadow:var(--shadow-md); background:#fff; }
+    .composition-trust__header { background:linear-gradient(135deg, var(--color-success) 0%, #16a34a 100%); color:#fff; padding:16px 22px; display:flex; align-items:center; gap:12px; }
+    .composition-trust__header-icon { font-size:26px; flex-shrink:0; }
+    .composition-trust__header-text { font-family:var(--font-serif); font-size:17px; font-weight:600; line-height:1.3; }
+    .composition-trust__body { padding:20px 22px; }
+    .composition-trust__item { display:flex; gap:16px; align-items:flex-start; padding:16px 0; border-bottom:1px solid var(--color-border-soft); }
+    .composition-trust__item:last-child { border-bottom:0; }
+    .composition-trust__icon-wrap { flex-shrink:0; width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; }
+    .composition-trust__icon-wrap.ct-blue { background:var(--color-primary-light); border:2px solid var(--color-primary); }
+    .composition-trust__icon-wrap.ct-orange { background:#fef3c7; border:2px solid #d97706; }
+    .composition-trust__icon-wrap.ct-green { background:var(--color-success-light); border:2px solid var(--color-success); }
+    .composition-trust__info h4 { margin:0 0 4px; font-size:16px; font-weight:700; color:var(--color-primary-dark); }
+    .composition-trust__info p { margin:0; font-size:14px; line-height:1.5; color:var(--color-text-muted); }
+    .composition-trust__info .ct-dose { display:inline-block; margin-top:6px; background:var(--color-bg-alt); border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:3px 10px; font-size:12px; font-weight:600; color:var(--color-primary-dark); letter-spacing:0.03em; }
+    .cert-strip { max-width:780px; margin:20px auto; display:flex; flex-wrap:wrap; gap:12px; justify-content:center; }
+    .cert-badge { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:10px 16px; font-size:13px; font-weight:500; color:var(--color-text); box-shadow:var(--shadow-sm); }
+    .cert-badge-icon { font-size:20px; flex-shrink:0; }
+    @media (max-width:560px) { .composition-trust__item { flex-direction:column; align-items:center; text-align:center; gap:10px; } .cert-badge { font-size:12px; padding:8px 12px; } }
+
+    @media (max-width:480px) { body { font-size:16px; } main p { font-size:16px; } .doc-block { padding:16px; } .rev-block { padding:16px; } .recept { padding:16px; } .block-offer-actions-block { padding:6px 16px 16px; } .obertk512 li { padding-left:44px; } .obertk512 li::before { width:30px; height:30px; font-size:14px; } }
+    @keyframes example { 0% { opacity:0; } 100% { opacity:1; } }
+    @keyframes blinker { from { opacity:1.0; } to { opacity:0.7; } }
+  </style>
+
+  
+  
+</head>
+
+<body>
+
+  <div class="clinical-topbar">Sonderreportage · Gesundheit und Gesellschaft</div>
+
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div class="masthead-logo">
+        <span class="masthead-logo-icon">+</span>
+        <span>GesundheitsInfo Deutschland</span>
+      </div>
+      <div class="masthead-tagline">Berichte über die öffentliche Gesundheit</div>
+    </div>
+  </div>
+
+  <header>
+    <div class="bg-image"></div>
+  </header>
+  <div class="text-container"></div>
+  <div class="h1-bg split">
+    <h1 class="title_h1">
+      <span class="head-one-part">«WENN DU NICHT MEHR GEHEN KANNST, VERGISST DICH DEINE FAMILIE.»</span>
+      <span class="head-two-part">DER JUNGE ARZT, DER PFLEGEHEIME IN DEUTSCHLAND BEREIST UND ABGESCHOBENEN SENIOREN ZURÜCKGIBT, WAS NIEMAND SONST KANN: IHRE GELENKE UND IHRE WÜRDE. SEINE METHODE HAT DIE GESAMTE ÄRZTESCHAFT SCHOCKIERT.</span>
+    </h1>
+
+    <div class="tdate head-main-date">
+      <span class="head-main-date-title">Veröffentlicht: </span>
+      <span class="startdate">15.08.2025, 09:36</span>
+    </div>
+
+    <div class="main-subtitle">
+      Wie Dr. Markus Weber, gerade einmal 30 Jahre alt, seine Karriere in einer Privatklinik in München aufgab, um zu tun, was kein anderer Arzt wollte: Pflegeheime in ganz Deutschland zu bereisen und die von ihren Familien abgeschobenen Senioren zu behandeln — gerade weil sie nicht mehr gehen, nicht mehr stehen, nichts mehr allein tun konnten. Und wie die Methode, die er zusammen mit einem Forschungszentrum entwickelte, ihnen ihre Beweglichkeit zurückgab — ohne Operation und ohne Tabletten für den Rest des Lebens.
+    </div>
+  </div>
+
+  <main>
+
+    <img alt="Dr. Markus Weber untersucht das Knie einer Patientin in einem Pflegeheim" src="https://static.joxi.pro/1778142925769-2045c9ea-f00c-48ab-ae5d-6e56aec020f0.jpg" style="margin-bottom:14px;margin-top:0">
+
+    <p>
+      Wir kamen an einem Dienstagmorgen in Regensburg an. Der Weg zum Pflegeheim führt durch enge Straßen, vorbei an alten Häusern und bellenden Hunden. «Suchen Sie den jungen Arzt?» — fragte uns die Frau vom Laden an der Ecke. «Er kommt jeden Donnerstag. Die Alten warten an der Tür auf ihn. Manche weinen, wenn sie ihn sehen.»
+    </p>
+    <p>
+      So hörten wir zum ersten Mal von Dr. Markus Weber — dem 30-jährigen Arzt, der seine Stelle in einer Privatklinik in München aufgab, um zu tun, was kein anderer Arzt tun wollte: Pflegeheime in ganz Deutschland zu bereisen und die von ihren Familien abgeschobenen Senioren zu behandeln.
+    </p>
+    <p>
+      Der Grund für das Abschieben? Fast immer derselbe: <b>die Alten konnten nicht mehr gehen.</b> Die Knie versagten. Die Wirbelsäule verkrümmte sich. Die Hände zitterten so sehr, dass sie keinen Löffel mehr halten konnten. Und genau in diesem Moment — gerade als sie am meisten Hilfe brauchten — entschied die Familie, dass es zu viel war. Zu schwierig. Zu teuer. Und sie brachten sie ins Pflegeheim.
+    </p>
+
+    <div class="quote-inline">
+      «Mein Sohn sagte zu mir: "Mama, ich kann dich nicht ständig aus dem Sessel heben. Ich kann nicht mehr." Am nächsten Tag brachte er mich ins Heim. Seit 3 Jahren besucht er mich nicht.»
+      <span class="quote-name">— Frau Erika, 79 Jahre, Pflegeheim in Regensburg</span>
+    </div>
+
+    <div class="quote-inline">
+      «Als meine Knie ganz blockierten, sagte meine Frau, sie könne nicht mit einem Invaliden leben. Sie ging. Die Kinder stellten sich auf ihre Seite. Man brachte mich hierher und verschwand.»
+      <span class="quote-name">— Herr Helmut, 73 Jahre, Pflegeheim in Leipzig</span>
+    </div>
+
+    <h2>
+      «Ich habe gesehen, wie sich Verlassenheit anfühlt. Und ich beschloss, nicht tatenlos zuzusehen»
+      <span>Exklusivinterview mit Dr. Markus Weber — dem Arzt, der auf ein Gehalt von 6.000 € im Monat verzichtete, um jenen zu helfen, die niemanden haben</span>
+    </h2>
+
+    <div class="doc-block">
+      <img alt="Dr. Markus Weber" src="https://static.joxi.pro/1778142925769-8d31ed89-cd31-449a-8c51-6ff1a0bfb48e.jpg">
+      <p>Dr. Markus Weber: «Ich betrat zum ersten Mal ein Pflegeheim als Freiwilliger, mit 28 Jahren. Ich war nicht auf das vorbereitet, was ich sah. Eine 76-jährige Frau, Frau Rosa, saß auf der Bettkante, die Füße geschwollen, die Knie ließen sich nicht mehr beugen. Seit 4 Monaten hatte sie ihr Zimmer nicht verlassen. Sie nahm meine Hand und sagte:
+        <b>"Herr Doktor, meine Tochter brachte mich hierher, als ich die Treppe nicht mehr hinunterkam. Sie sagte, sie könne mich nicht mehr pflegen. Das war vor zwei Jahren. Seitdem war sie nicht mehr da."</b>
+      </p>
+      <p><b>IN DIESEM MOMENT VERSTAND ICH, DASS GERADE DIESE MENSCHEN MICH AM MEISTEN BRAUCHEN —
+          <span class="red-txt">JENE, DIE DIE GANZE WELT VERGESSEN HAT, NUR WEIL SIE NICHT MEHR GEHEN KÖNNEN.»</span></b>
+      </p>
+    </div>
+
+    <p>
+      Dr. Weber spricht ruhig, aber mit einer Intensität, die man nicht ignorieren kann. Seit zwei Jahren bereist er Pflegeheime in ganz Deutschland — von München bis Hamburg, von Köln bis Dresden. Und überall findet er dasselbe trostlose Bild: Senioren mit zerstörten Gelenken, die keine echte Behandlung erhalten, nur entzündungshemmende Tabletten, die ihnen Magen und Nieren ruinieren.
+    </p>
+
+    <p>
+      «Die meisten dieser Menschen kamen wegen der Gelenke hierher. Die Knie versagten. Die Wirbelsäule blockierte. Die Hüfte verschliss. Und in dem Moment, in dem sie nicht mehr allein gehen konnten, entschied die Familie, dass sie eine Last seien. Das ist das Wort, das ich in den Heimen am häufigsten höre: <b>«Last»</b>. Sie bezeichnen ihre eigenen Eltern als Last.»
+    </p>
+
+    <div class="quote-inline">
+      «Man brachte mich nicht her, weil man mich nicht liebt. Man brachte mich her, weil ich um 3 Uhr nachts vor Knieschmerzen schrie und niemand schlafen konnte. Meine Schwiegertochter sagte: entweder ich gehe, oder sie geht. Mein Sohn wählte sie.»
+      <span class="quote-name">— Herr Werner, 71 Jahre, Pflegeheim in Nürnberg</span>
+    </div>
+
+    <h2>
+      «Tabletten für die Gelenke lösen nichts — sie verschleiern nur die Zerstörung»
+      <span>Dr. Weber erklärt, warum die herkömmliche Behandlung in Heimen und Apotheken scheitert</span>
+    </h2>
+
+    <p><b>Dr. Markus Weber:</b></p>
+    <p>— Ich sage es Ihnen mit aller Ehrlichkeit: Was ich in diesen Heimen sah, hat mich entsetzt. Menschen von 55 bis 80 Jahren, denen man jahrelang dieselben Entzündungshemmer gibt — Tabletten, die den Schmerz für ein paar Stunden verschleiern, ohne die Ursache zu behandeln. Der Knorpel wird weiter zerstört. Die Gelenkflüssigkeit verschwindet. Die Gelenke reiben Knochen auf Knochen. Und die Chemie der Tabletten zerstört ihnen Tag für Tag Magen, Leber und Nieren.
+    </p>
+
+    <p>Es ist ein Teufelskreis: Schmerz → Tabletten → der Schmerz kommt stärker zurück → stärkere Tabletten → der Magen versagt → man fügt Magentabletten hinzu → die Nieren versagen. Und niemand sagt ihnen die Wahrheit: <b>dass es eine Methode gibt, das Gelenk von innen zu regenerieren, statt nur den Schmerz zu betäuben.</b>
+    </p>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-a94978b4-3738-4aeb-950e-312b652009ac.jpg">
+      <figcaption>
+        Die Knie von Frau Marta, 74 Jahre, Pflegeheim in Dresden. Arthrose Grad 3, der Knorpel ist fast vollständig zerstört. Seit 5 Monaten hat sie ihr Zimmer nicht verlassen. Auf ihrem Nachttisch — 6 Sorten Tabletten, die nichts geändert haben.
+      </figcaption>
+    </figure>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Schmerzen in Knien, Wirbelsäule oder Hüfte nach dem 45. Lebensjahr sind nicht «normal für das Alter» — sie sind ein Signal dafür, dass sich der Gelenkknorpel zerstört und die Gelenkflüssigkeit verschwindet.
+          <br><br>
+          Entzündungshemmende Tabletten blockieren nur das Schmerzsignal, während die Zerstörung im Stillen weitergeht. Ohne echte Regeneration des Knorpels verschleißt das Gelenk vollständig — und dann bleibt nur der Rollstuhl oder eine Prothesen-Operation.
+        </span>
+      </p>
+    </div>
+
+    <p><b>Dr. Markus Weber:</b></p>
+
+    <p>— Bitte verstehen Sie den Ernst der Lage. Bei den meisten dieser Senioren ist der Knorpel von Knie, Wirbelsäule oder Hüfte zu 70-90 % zerstört. Sie gehen — wenn sie überhaupt noch gehen — Knochen auf Knochen. Jeder Schritt ist eine Qual. <b>HERKÖMMLICHE TABLETTEN KÖNNEN DEN KNORPEL NICHT WIEDERAUFBAUEN — SIE VERSCHLEIERN NUR DEN SCHMERZ, BIS ALLES ZUSAMMENBRICHT!</b>
+    </p>
+
+    <p>
+      Und was mich am meisten schmerzt: Diese Menschen haben niemanden. Die Familie hat sie genau dann verlassen, als die Gelenke versagten. Sie sind allein, im Bett, in einem kleinen Zimmer, und warten. Manche wissen nicht mehr, worauf sie warten.
+    </p>
+
+    <div class="quote-inline">
+      «Ich habe drei Kinder großgezogen. 40 Jahre auf dem Feld gearbeitet. Und als meine Knie versagten und ich nicht mehr allein zur Toilette konnte — brachte man mich ins Heim. Als würde ich für sie nicht mehr existieren. Als wäre ich schon gestorben.»
+      <span class="quote-name">— Frau Ingrid, 82 Jahre, Pflegeheim in Bremen</span>
+    </div>
+
+    <div class="quote-inline">
+      «Ich war 35 Jahre Maurer. Meine Wirbelsäule versagte mit 62 — Bandscheibenvorfall, Ischias, ich konnte nicht mehr stehen. Mein Sohn sagte, er könne nicht zu Hause bleiben, um mich zu pflegen. Er hat seine Arbeit, seine Familie. Ich verstehe das. Aber es tut mehr weh als der Rücken.»
+      <span class="quote-name">— Herr Klaus, 68 Jahre, Pflegeheim in Hannover</span>
+    </div>
+
+    <figure class="Figure" style="text-align:center">
+      <img src="https://static.joxi.pro/1778142925769-057465eb-7a53-45e0-ba84-1b9038913030.jpg" style="margin:0 auto">
+      <figcaption>
+        <b>Links: gesundes Gelenk mit intaktem Knorpel und ausreichend Gelenkflüssigkeit. Rechts: zerstörtes Gelenk — verschlissener Knorpel, chronische Entzündung, Knochen auf Knochen. Das ist die Realität von über 80 % der Senioren in den Heimen. Entzündungshemmende Tabletten bauen den Knorpel nicht wieder auf.</b>
+      </figcaption>
+    </figure>
+
+    <p class="red-txt">
+      Wichtig: In 2 von 3 Fällen verschlechtern sich die Gelenke weiter, selbst wenn täglich Schmerztabletten genommen werden, weil die eigentliche Ursache — die Zerstörung des Knorpels und das Verschwinden der Gelenkflüssigkeit — ungelöst bleibt.
+    </p>
+
+    <p class="red-txt">
+      Nach Jahren mit Entzündungshemmern verlieren viele Patienten nicht nur die Beweglichkeit, sondern auch Magen, Leber und Nieren. Geschwüre, Leberversagen, Nierenentzündung — das ist der Preis, den jene zahlen, denen niemand eine echte Alternative anbot.
+    </p>
+
+    <h2>
+      Die Geschichten, die mein Leben verändert haben — und Ihre Sicht auf das Alter verändern werden
+    </h2>
+
+    <p><b>Dr. Markus Weber:</b></p>
+
+    <p>— Lassen Sie mich erzählen, was ich jede Woche sehe. Keine Zahlen. Keine Statistiken. Menschen. Menschen mit Namen, mit Geschichten, mit Kindern, die nicht mehr kommen.</p>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-ab7d1e11-8df2-44ee-b472-2a3be72bb7b3.jpg">
+      <figcaption>
+        Frau Traudl, 77 Jahre. Rheumatoide Arthritis in beiden Händen — sie kann keine Tasse halten, sich nicht allein anziehen. Ihre Tochter brachte sie vor 2 Jahren ins Heim: «Ich kann dich nicht jeden Morgen anziehen, ich habe auch mein Leben.»
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      «Ich kann mir nicht einmal mehr die Haare kämmen. Kein Wasser einschenken. Meine Hände gehorchen mir nicht. Morgens sehe ich sie an und erkenne sie nicht wieder — geschwollen, verkrümmt, als gehörten sie nicht zu mir. Meine Schwiegertochter sagte einmal: "Wie soll ich ihr die Enkel überlassen, wenn sie nicht mal einen Löffel halten kann?" Sie hatte recht. Aber diese Worte haben mich innerlich getötet.»
+      <span class="quote-name">— Frau Traudl, 77 Jahre</span>
+    </div>
+
+    <figure class="cap-bold">
+      <img class="img-card" src="https://static.joxi.pro/1778142925769-980707f6-6c1c-40ec-96a5-61c8c9dcde54.jpg">
+      <figcaption>
+        Herr Ernst, 75 Jahre. Bandscheibenvorfall L4-L5, beidseitige Hüftarthrose. Seit 8 Monaten kann er nicht mehr aufstehen. «Man sagte ihm, er sei zu alt für eine Operation. Man sagte ihm, er solle sich damit abfinden.»
+      </figcaption>
+    </figure>
+
+    <div class="quote-inline">
+      «Ich war mein ganzes Leben Landwirt. Ich habe tausende Hektar gepflügt. Jetzt kann ich mich nicht einmal allein im Bett umdrehen. Die Wirbelsäule blockiert, die Hüfte versteift. Meine Kinder arbeiten in Berlin. Sie schicken Geld fürs Heim und sonst nichts. Ich mache ihnen keinen Vorwurf. Aber nachts, wenn es schmerzt und niemand kommt… frage ich mich, ob das das Ende ist.»
+      <span class="quote-name">— Herr Ernst, 75 Jahre</span>
+    </div>
+
+    <p><b>Das sind die Symptome, die ich in den Heimen am häufigsten sehe — und die Millionen Deutsche ignorieren:</b></p>
+    <ul>
+      <li>Starke Knieschmerzen beim Treppensteigen — oder bei jeder Bewegung;</li>
+      <li>Morgensteifigkeit — der Körper ist «wie aus Holz», bewegt sich 30-60 Minuten nach dem Aufwachen nicht;</li>
+      <li>Chronische Rückenschmerzen — man kann sich nicht bücken, nicht aus dem Bett aufstehen;</li>
+      <li>Geschwollene Knie, Knöchel oder Finger;</li>
+      <li>Knacken und Knirschen in den Gelenken bei jeder Bewegung;</li>
+      <li>Hüftschmerzen, die in den Oberschenkel ausstrahlen — man kann keine 50 Meter mehr gehen;</li>
+      <li>Verformte, knotige Finger — man kann nichts mehr greifen;</li>
+      <li>Taubheitsgefühl in Beinen oder Händen — Zeichen eines Bandscheibenvorfalls oder eingeklemmten Nervs;</li>
+      <li>Ein «stechendes» Gefühl im unteren Rücken beim Aufstehen;</li>
+      <li>Gekrümmte Wirbelsäule, gebückte Haltung — fortschreitende Kyphose;</li>
+      <li>Nächtliche Schmerzen, die den Schlaf rauben — 4-5-maliges Aufwachen pro Nacht;</li>
+    </ul>
+
+    <p>
+      Jedes dieser Symptome ist ein Warnsignal. Und nach dem 45.-50. Lebensjahr führt das Ignorieren zu nur einem Ende:
+      <b class="red-txt">VÖLLIGE UNBEWEGLICHKEIT, ROLLSTUHL, KOMPLETTE ABHÄNGIGKEIT VON ANDEREN — UND IN VIELEN FÄLLEN DAS PFLEGEHEIM.</b>
+    </p>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          Jeder Tag mit unbehandelten Gelenken bringt Sie der dauerhaften Unbeweglichkeit näher!
+          Tausende Senioren landeten in den Heimen genau deshalb, weil sie den Schmerz ignorierten — oder nur Tabletten nahmen, die die Ursache nicht behoben.
+          Handeln Sie jetzt — für sich selbst oder für Ihre Angehörigen — bevor es zu spät ist!
+        </span>
+      </p>
+    </div>
+
+    <h2>
+      «Ich beschloss, dass es einen Weg geben muss, die Gelenke zu regenerieren — nicht nur den Schmerz zu betäuben»
+      <span>Wie ein 30-jähriger Arzt ein Forschungszentrum überzeugte, etwas zu entwickeln, das die Pharmaindustrie verweigert</span>
+    </h2>
+
+    <p><b>Dr. Markus Weber:</b></p>
+    <p>
+      — Nach einem Jahr voller Heimbesuche erkannte ich eine schmerzhafte Wahrheit: Mit Entzündungshemmern rette ich niemanden. Diese Medikamente bringen nur den Alarm des Körpers zum Schweigen, während das Gelenk sich weiter zerstört. Ich brauchte etwas völlig anderes: eine Methode, die den Knorpel von innen regeneriert, die Gelenkflüssigkeit wiederherstellt und die Entzündung auf zellulärer Ebene stoppt.
+    </p>
+    <p>
+      Ich wandte mich an ein Forschungszentrum, mit dem ich während meiner Facharztausbildung zusammengearbeitet hatte. Ich zeigte ihnen die Fälle, die Fotos, die Untersuchungsergebnisse meiner Heimpatienten. Ich nahm die Forscher mit in die Heime — damit sie mit eigenen Augen sähen, was dort geschieht. Sie waren schockiert.
+    </p>
+    <p>
+      Wir arbeiteten mehr als 10 Monate zusammen. Wir testeten über 180 Kombinationen. Und schließlich fanden wir die exakte Formel — Kapseln, die nach der Einnahme direkt zum Gelenkgewebe gelangen und die natürliche Regeneration des Knorpels aktivieren. Keine entzündungshemmende Tablette, die nur den Schmerz verschleiert. Ein fortschrittliches Gelenkpräparat, das von innen wirkt, wo es wirklich gebraucht wird.
+    </p>
+
+    <div class="recept">
+      <p><b>Die von Dr. Weber entwickelte Kapselformel enthält 4 Wirkstoffe in exakter Konzentration:</b></p>
+      <ul class="my-ul-0-green size1">
+        <li><b>Kurkuma-Extrakt (Curcumin)</b>
+          <font>Starkes natürliches Entzündungs- und Schmerzmittel: stoppt entzündliche Prozesse und lindert Gelenkschmerzen, ohne Magen und Nieren zu schädigen</font>
+        </li>
+        <li><b>Haifischknorpel</b>
+          <font>Natürliche Quelle von Chondroitin und Kollagen: nährt und regeneriert den verschlissenen Gelenkknorpel</font>
+        </li>
+        <li><b>Natriumhyaluronat</b>
+          <font>Stellt die Gelenkflüssigkeit wieder her — das natürliche «Schmiermittel» des Gelenks — damit die Knochen nicht mehr aneinander reiben</font>
+        </li>
+        <li><b>Schwarzer-Pfeffer-Extrakt (Piperin)</b>
+          <font>Vervielfacht die Aufnahme der übrigen Wirkstoffe, damit sie direkt zum betroffenen Gelenk gelangen</font>
+        </li>
+      </ul>
+    </div>
+
+    <!-- === TRUST: DETAILLIERTE ZUSAMMENSETZUNG === -->
+    <div class="composition-trust">
+      <div class="composition-trust__header">
+        <span class="composition-trust__header-icon">🔬</span>
+        <span class="composition-trust__header-text">Geprüfte Zusammensetzung — therapeutische Konzentration pro Kapsel</span>
+      </div>
+      <div class="composition-trust__body">
+        <div class="composition-trust__item">
+          <div class="composition-trust__icon-wrap ct-orange">🌿</div>
+          <div class="composition-trust__info">
+            <h4>Kurkuma-Extrakt (95 % Curcuminoide)</h4>
+            <p>Standardisiert auf 95 % aktive Curcuminoide mit verbesserter Aufnahmetechnologie. Hemmt die Enzyme COX-2 und LOX, die für die chronische Gelenkentzündung verantwortlich sind — ohne die Magen-Nebenwirkungen chemischer Entzündungshemmer.</p>
+            <span class="ct-dose">200 mg pro Kapsel</span>
+          </div>
+        </div>
+        <div class="composition-trust__item">
+          <div class="composition-trust__icon-wrap ct-blue">🦈</div>
+          <div class="composition-trust__info">
+            <h4>Haifischknorpel</h4>
+            <p>Natürliche Quelle von Chondroitin und Kollagen Typ II. Stimuliert direkt die Chondrozyten, um die Knorpelmatrix zu regenerieren und die verschlissene Gelenkelastizität wiederherzustellen.</p>
+            <span class="ct-dose">500 mg pro Kapsel</span>
+          </div>
+        </div>
+        <div class="composition-trust__item">
+          <div class="composition-trust__icon-wrap ct-green">💧</div>
+          <div class="composition-trust__info">
+            <h4>Natriumhyaluronat</h4>
+            <p>Stellt die Gelenkflüssigkeit wieder her — das natürliche «Schmiermittel» des Gelenks. Reduziert die Reibung Knochen auf Knochen und bringt eine geschmeidige, schmerzfreie Bewegung zurück.</p>
+            <span class="ct-dose">100 mg pro Kapsel</span>
+          </div>
+        </div>
+        <div class="composition-trust__item">
+          <div class="composition-trust__icon-wrap ct-orange">🌶️</div>
+          <div class="composition-trust__info">
+            <h4>Schwarzer-Pfeffer-Extrakt (Piperin)</h4>
+            <p>Vervielfacht die Aufnahme der übrigen Wirkstoffe und sorgt dafür, dass sie direkt zum betroffenen Gelenk gelangen und mit voller Kraft wirken.</p>
+            <span class="ct-dose">10 mg pro Kapsel</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === TRUST: ZERTIFIZIERUNGS-BADGES === -->
+    <div class="cert-strip">
+      <div class="cert-badge"><span class="cert-badge-icon">🧪</span> Klinisch getestete Formel</div>
+      <div class="cert-badge"><span class="cert-badge-icon">🏭</span> Herstellung nach GMP-Norm</div>
+      <div class="cert-badge"><span class="cert-badge-icon">🚫</span> Glutenfrei · Laktosefrei</div>
+      <div class="cert-badge"><span class="cert-badge-icon">🍃</span> 100 % natürliche Inhaltsstoffe</div>
+      <div class="cert-badge"><span class="cert-badge-icon">✅</span> Made in EU · Geprüfte Qualität</div>
+    </div>
+
+    <p>
+      Diese Inhaltsstoffe sind in der nötigen Konzentration schwer zu beschaffen. Sie in den exakten Verhältnissen zu kombinieren erfordert eine spezielle Technologie — weichen die Verhältnisse auch nur um 0,1 % ab, erreichen die Kapseln nicht die nötige Bioverfügbarkeit und aktivieren die Knorpelregeneration nicht.
+    </p>
+
+    <h2>
+      So entstand Flexosamine Pro — die einzigen Kapseln, die all diese Inhaltsstoffe in perfekten Verhältnissen für die vollständige Regeneration der Gelenke enthalten
+    </h2>
+    <p><b>Dr. Markus Weber:</b></p>
+    <p>
+      — Gemeinsam mit dem Forschungszentrum gelang es uns, dieses Produkt herzustellen: Kapseln zur oralen Einnahme, die direkt auf die betroffenen Gelenke wirken — Knie, Wirbelsäule, Hüfte, Hände, Nacken. Es heißt Flexosamine Pro. Man nimmt 1 Kapsel alle 12 Stunden (eine morgens und eine abends), am besten zu den Mahlzeiten und mit einem Glas Wasser. Jede Dose enthält 20 Kapseln — also 10 Tage Behandlung. Die Wirkstoffe gelangen über den Blutkreislauf direkt zum Gelenkgewebe — mit hoher Bioverfügbarkeit und ohne die Nebenwirkungen herkömmlicher Entzündungshemmer.
+    </p>
+
+    <img src="images/flexosamine.png?=v1" style="width:78%;max-width:340px;display:block;margin:18px auto">
+
+    <p>
+      Das Geheimnis liegt in der «Technologie der fortschrittlichen Gelenk-Bioverfügbarkeit», die wir mit dem Laborteam entwickelt haben. Diese Methode lässt die Wirkstoffe direkt zum Knorpelgewebe gelangen — dorthin, wo der Knorpel sich zerstört — mit 5-mal höherer Wirksamkeit als jedes gängige Gelenkpräparat auf dem Markt.
+    </p>
+    <p class="pachino-ramka2">
+      «Flexosamine Pro» hat keine Konkurrenz. Jeder Inhaltsstoff — in exakter Konzentration — aktiviert die Regeneration des Knorpels, die Wiederherstellung der Gelenkflüssigkeit und das Stoppen der Entzündung. Es sind die einzigen Kapseln, die auf zellulärer Ebene wirken, direkt an den betroffenen Gelenken — Knie, Wirbelsäule, Hüfte, Hände, Nacken — ohne den Magen zu schädigen. Und das Wichtigste: Sie wirken sogar bei Menschen von 70, 80, 85 Jahren. Ich habe sie zuerst an meinen Heimpatienten getestet — an Menschen, die niemand sonst behandelte.
+    </p>
+
+    <p><b>Dr. Markus Weber:</b></p>
+    <p>
+      — Die ersten Patienten waren die abgeschobenen Senioren aus den Heimen. Menschen, die ihre Familien im Stich gelassen hatten. Ich gab ihnen die Flexosamine-Pro-Kapseln. Und wartete. Am dritten Tag — Frau Ingrid, die seit 4 Monaten nicht aus dem Bett aufgestanden war, machte allein ihre ersten Schritte. Wir weinten beide.
+    </p>
+
+    <h2>
+      4 Wirkmechanismen, mit denen Flexosamine Pro die Gelenke regeneriert und die Beweglichkeit zurückgibt — in jedem Alter
+    </h2>
+
+    <div class="obertk512">
+      <h1>Die 4 Hauptwirkungen der Kapseln «Flexosamine Pro»:</h1>
+      <div class="block-offer-actions-block">
+        <ol>
+          <li>
+            <font>Beseitigung von Schmerz und Entzündung:</font>
+            <span>Bereits in den ersten 15-30 Minuten nach der Einnahme beseitigt das Curcumin aus dem Kurkuma-Extrakt den Schmerz und reduziert die Entzündung. Nicht durch Blockieren des Nervensignals (wie Entzündungshemmer) — sondern durch Stoppen des Entzündungsprozesses an seinem Ursprung.</span>
+          </li>
+          <li>
+            <font>Regeneration des Gelenkknorpels:</font>
+            <span>Der Haifischknorpel liefert natürliches Chondroitin und Kollagen, die zum Gelenkgewebe gelangen und die Chondrozyten (Knorpelzellen) aktivieren und die Bildung von neuem Knorpelgewebe anregen. Dieser Prozess beginnt ab dem 3.-5. Tag der kontinuierlichen Anwendung — und braucht Wochen der kontinuierlichen Anwendung, um abgeschlossen zu werden.</span>
+          </li>
+          <li>
+            <font>Wiederherstellung der Gelenkflüssigkeit:</font>
+            <span>Das Natriumhyaluronat stellt die Gelenkflüssigkeit wieder her — das natürliche «Schmiermittel» des Gelenks. Dadurch reiben die Knochen nicht mehr aneinander, und die Bewegung wird wieder geschmeidig und schmerzfrei.</span>
+          </li>
+          <li>
+            <font>Maximale Aufnahme und langfristiger Schutz:</font>
+            <span>Das Piperin aus dem Schwarzer-Pfeffer-Extrakt vervielfacht die Aufnahme der übrigen Wirkstoffe und sorgt dafür, dass sie direkt zum Gelenk gelangen und mit voller Kraft wirken. Deshalb ist die Wirkung kumulativ: Nach 30-60 Tagen kontinuierlicher Anwendung erhält das Gelenk einen stabilen Schutz, der über Monate anhält.</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <h2>
+      «Ich testete Flexosamine Pro zuerst an meinen Heimpatienten — die Ergebnisse übertrafen alles, was ich in 6 Jahren Praxis gesehen hatte»
+      <span>Tests mit 2.340 Personen, von 45 bis 86 Jahren</span>
+    </h2>
+
+    <p><b>Dr. Markus Weber:</b></p>
+    <p>
+      — Die ersten Patienten waren die abgeschobenen Senioren aus den Heimen. Jene, die niemand sonst behandelte. Die Ergebnisse waren so beeindruckend, dass das Forschungszentrum die Tests auf eine Gruppe von über 2.300 Personen aus ganz Deutschland ausweitete — quer durch alle Arten von Gelenkproblemen: Knie, Wirbelsäule, Hüften, Hände, Nacken.
+    </p>
+    <p>
+      Ich sah Menschen von 80 Jahren, die nicht gehen konnten — und die 6 Wochen später allein in den Hof des Heims hinausgingen. Die Pflegerinnen weinten. Ich weinte mit ihnen.
+    </p>
+
+    <div class="table-block">
+      <h1 class="title_h1">
+        Testergebnisse von «Flexosamine Pro» — Kontrollgruppe: 2.340 Personen, 45-86 Jahre
+      </h1>
+      <table class="table">
+        <tbody>
+          <tr><td class="one">Vollständige Beseitigung von Knieschmerzen</td><td class="two">96,2 %</td></tr>
+          <tr><td class="one">Beseitigung von Rückenschmerzen und Morgensteifigkeit</td><td class="two">94,7 %</td></tr>
+          <tr><td class="one">Arthrose Grad 1-2 (vollständige Wiederherstellung der Beweglichkeit)</td><td class="two">98,1 %</td></tr>
+          <tr><td class="one">Arthrose Grad 3 (deutliche Besserung)</td><td class="two">87,3 %</td></tr>
+          <tr><td class="one">Hüftarthrose (Hüftschmerzen)</td><td class="two">91,5 %</td></tr>
+          <tr><td class="one">Bandscheibenvorfall (weniger Schmerz und Taubheit)</td><td class="two">89,4 %</td></tr>
+          <tr><td class="one">Rheumatoide Arthritis (Finger)</td><td class="two">93,8 %</td></tr>
+          <tr><td class="one">Vollständige Wiederherstellung der Gelenkbeweglichkeit</td><td class="two">95,6 %</td></tr>
+          <tr><td class="one">Beseitigung von Schwellungen und nächtlichen Krämpfen</td><td class="two">97,0 %</td></tr>
+          <tr><td class="one">Fähigkeit, ohne Hilfe zu gehen</td><td class="two">94,3 %</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>
+      Die Fälle, die mir das Herz brachen — und die größte Hoffnung gaben
+      <span>
+        Frau Käthe, 84 Jahre. In ein Heim abgeschoben, als die Knie versagten. Nach 2 Monaten mit Flexosamine Pro — ging sie zum ersten Mal seit 3 Jahren allein in den Hof.
+      </span>
+    </h2>
+
+    <p>
+      Frau Käthe Baumann war die erste Patientin von Dr. Weber im Pflegeheim in Augsburg. Mit 84 Jahren, Arthrose Grad 3 in beiden Knien und Hüftarthrose links, konnte sie seit 14 Monaten nicht mehr gehen. Ihr Sohn brachte sie, weil er «sie nicht mehr zur Toilette tragen konnte». Seit zwei Jahren hat er sie nicht besucht.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1778142925769-b234c916-2418-43cd-a09b-52da3b198c19.jpg">
+      <p>
+        «Ich glaubte nicht, dass ich je wieder gehen würde. Meine Knie waren so geschwollen, dass ich sie nicht beugen konnte. Man fuhr mich im Rollstuhl durchs Zimmer. Morgens wachte ich auf und konnte eine Stunde lang keinen Finger bewegen. Es war, als wäre mein Körper gestorben, aber ich lebte noch.
+      </p>
+      <p>
+        <b>
+          Mein Sohn brachte mich hierher, weil ich nicht mehr aus dem Bett aufstehen konnte. Er sagte: "Mama, ich besuche dich jeden Sonntag." Seit zwei Jahren kommt er nicht. Ich mache ihm keinen Vorwurf — er hat sein Leben. Aber nachts, wenn der Schmerz mich weckt und niemand an meiner Seite ist… ist es sehr schwer.
+        </b>
+      </p>
+      <p>
+        <b>
+          Und dann kam Dr. Weber. Er war der Erste, der meine Knie ohne angewiderten Blick berührte. Er erklärte mir, was in den Gelenken vor sich ging. Und er gab mir die Kapseln. Nach einer Woche konnte ich das linke Knie beugen. Nach einem Monat stand ich allein aus dem Bett auf. Nach zwei Monaten — ging ich in den Hof. Seit 3 Jahren war ich nicht mehr draußen.
+        </b>
+      </p>
+      <p>
+        Die Pflegerin weinte, als sie mich sah. Ich weinte mehr. Nicht, weil ich gehen konnte. Sondern weil jemand — ein junger Arzt, den ich nie gekannt hatte — mir mehr gab als mein eigener Sohn.
+      </p>
+      <font>
+        <b>Käthe Baumann, 84 Jahre, Pflegeheim in Augsburg</b>
+      </font>
+    </div>
+
+    <p>
+      Ein weiterer Fall: Herr Peter, 58 Jahre, sein ganzes Leben Maurer, mit einer von Bandscheibenvorfällen zerstörten Wirbelsäule. Seine Frau verließ ihn, als er nicht mehr arbeiten konnte.
+    </p>
+
+    <div class="gray-bg rev-block">
+      <img class="img-card2" src="https://static.joxi.pro/1778231772577-8cb35c1e-9544-4e7d-a204-3adb8dab1167.jpg">
+      <p>
+        «Ich war 30 Jahre Maurer. Meine Wirbelsäule versagte mit 54 — zwei Bandscheibenvorfälle und Ischias. Ich konnte weder stehen noch liegen. Alles tat weh. Meine Frau ging — sie sagte, sie könne keinen Invaliden pflegen. Ich mache ihr keinen Vorwurf.
+      </p>
+      <p>
+        <b>
+          Meine Schwester hörte von einer Nachbarin von Dr. Weber. Sie schickte mir die Flexosamine-Pro-Kapseln. Ich begann, sie zu nehmen, eine morgens und eine abends. Am dritten Tag spürte ich die erste Linderung. Nach 3 Wochen — konnte ich wieder zum Laden gehen. Nach 2 Monaten — arbeitete ich wieder in Teilzeit.
+        </b>
+      </p>
+      <p>
+        Manchmal wache ich morgens auf, stehe ohne Schmerzen aus dem Bett auf und halte einen Moment inne. Ich stehe da und kann nicht glauben, dass es wahr ist. Dass es nicht mehr wehtut. Ohne Dr. Weber wäre ich vielleicht jetzt auch in einem Pflegeheim.»
+      </p>
+    </div>
+
+    <h2>
+      «Flexosamine Pro behandelt nicht nur den Schmerz — es regeneriert das ganze Gelenk von innen»
+      <span>
+        Nicht nur die Senioren aus den Heimen profitieren. Jeder über 45, der die ersten Anzeichen spürt, kann die Katastrophe verhindern.
+      </span>
+    </h2>
+
+    <p><b>Dr. Markus Weber:</b></p>
+
+    <p>
+      — Die Mindestanwendungsdauer beträgt 30 Tage, aber bei schweren Fällen von Arthrose oder Bandscheibenvorfall können 2-3 Monate nötig sein. In allen Fällen jedoch — ausnahmslos — zeigen sich ein Nachlassen des Schmerzes, eine Regeneration des Knorpels und eine Wiederherstellung der Beweglichkeit.
+    </p>
+
+    <p>
+      Flexosamine Pro wirkt ab der ersten Einnahme: Der Schmerz lässt nach, die Entzündung geht zurück, die Bewegung wird leichter. Aber die wahre Magie geschieht mit der Zeit: Der Knorpel regeneriert sich, die Gelenkflüssigkeit kehrt zurück, das Gelenk «verjüngt» sich von innen.
+      <b class="red-txt">
+        Ich habe Menschen von 80 Jahren wieder gehen sehen. Ich habe Hände, die keine Tasse halten konnten, einen Löffel zum Mund führen sehen. Ich habe gekrümmte Wirbelsäulen sich aufrichten sehen. Und in jedem Fall — sah ich Freudentränen.
+      </b>
+    </p>
+
+    <center>
+      <p><b>
+          Dank der Methode von Dr. Weber haben über 12.000 Menschen in Deutschland die Beweglichkeit ihrer Gelenke zurückgewonnen. Hier einige Fälle:
+        </b></p>
+    </center>
+
+    <figure>
+      <img src="https://static.joxi.pro/1778231772578-9726873a-2c7c-4420-b4fa-5ee3b4e2a2d4.jpg">
+      <figcaption>Mann, 65 Jahre. Arthrose Grad 3 in beiden Knien — konnte keine Treppe steigen. Flexosamine Pro in 60 Tagen: volle Beweglichkeit, schmerzfrei.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778231772578-f42f3b4b-a8fe-4848-af94-856f52d4c215.jpg">
+      <figcaption>Frau, 58 Jahre. Chronische Rückenschmerzen und Bandscheibenvorfall L5-S1. Flexosamine Pro in 45 Tagen: Schmerz beseitigt, machte wieder den Haushalt.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778231772577-e6808761-9bf9-4a00-80da-dec46dae59d7.jpg">
+      <figcaption>Frau, 72 Jahre. Schwere RA in den Fingern — konnte keine Tasse halten. Flexosamine Pro in 2 Monaten: Finger beweglich, Schwellung verschwunden.</figcaption>
+    </figure>
+
+    <figure>
+      <img class="img-card" src="https://static.joxi.pro/1778231772577-9988ee5a-6140-4f85-894e-53c8b4c3e287.jpg">
+      <figcaption>Mann, 70 Jahre. Fortgeschrittene Hüftarthrose — ging nur mit Gehhilfe. Flexosamine Pro in 2,5 Monaten: geht allein, schmerzfrei.</figcaption>
+    </figure>
+
+    <p><b>Dr. Markus Weber:</b></p>
+    <p>
+      — Diese Fälle sind der lebende Beweis, dass Gelenke sich regenerieren können — selbst wenn die Diagnose wie ein Urteil klang. Ohne Operation. Ohne Tabletten, die den Magen zerstören. Und was mir die größte Freude macht: Viele dieser Menschen sind Senioren aus den Heimen — jene, die die Welt vergaß. <b>Aber ich habe sie nicht vergessen. Und Flexosamine Pro vergisst sie auch nicht.</b>
+    </p>
+
+    <div id="overlay" style="display:none;opacity:0"></div>
+    <div id="popup3" style="display:none;opacity:0;transform:translate(-50%,-50%) scale(0.8)"></div>
+
+    <h2>
+      Warum wird Flexosamine Pro nicht in Apotheken verkauft? Und wie bekommt man es?
+    </h2>
+
+    <p><b>Dr. Markus Weber:</b></p>
+
+    <p>Leider ist die Herstellung von Flexosamine Pro ein komplexer und kostspieliger Prozess. Die Inhaltsstoffe sind knapp — zertifizierter Haifischknorpel, reines Natriumhyaluronat, konzentrierter Kurkuma-Extrakt — und in den nötigen Mengen schwer zu beschaffen. Wir können nicht die gesamte Nachfrage decken.</p>
+
+    <p>Es dauert mindestens 2-3 Jahre, bis Flexosamine Pro in die Apotheken kommt. Bis dahin wird das Produkt ausschließlich online vertrieben, im Rahmen von Förderprogrammen, zweimal im Jahr. Die
+      <font class="red-txt">Preise des Förderprogramms sind besonders günstig</font>
+      — was für Senioren mit begrenzter Rente entscheidend ist.
+    </p>
+
+    <p>
+      Ich bitte Sie: VERPASSEN SIE DAS FÖRDERPROGRAMM NICHT. Nicht nur für sich selbst — sondern für Ihre Eltern, Ihre Großeltern, Ihre Angehörigen, die vielleicht im Stillen leiden. Oder für jene, die bereits in einem Pflegeheim sind, allein, und denen niemand etwas schickt. Seien Sie derjenige, der den Unterschied macht.
+    </p>
+
+    <p class="red-txt"><b>Zum Bestellen nutzen Sie bitte das Formular unten.</b></p>
+
+    <h2>
+      1 Dose oder die vollständige Kur? — Warum «mit einer Packung ausprobieren» rausgeworfenes Geld ist
+      <span>Dr. Weber erklärt, warum Flexosamine Pro IMMER als Kur eingenommen wird — und nie als einzelne «Probier»-Dose</span>
+    </h2>
+
+    <p><b>Dr. Markus Weber:</b></p>
+    <p>
+      — Ich verstehe die Versuchung, «nur eine Packung zum Ausprobieren» zu bestellen, vollkommen. Fast alle denken so. Aber lassen Sie mich so ehrlich zu Ihnen sein, wie ich es zu meinen Heimpatienten bin: <b>Eine Dose Flexosamine Pro sind 20 Kapseln — gerade einmal 10 Tage Behandlung.</b> Und in 10 Tagen kann sich der Knorpel noch nicht regenerieren.
+    </p>
+    <p>
+      Was in diesen ersten Tagen passiert, ist, dass der Schmerz nachlässt und die Entzündung zurückgeht — Sie spüren eine echte, schnelle Linderung. Deshalb ist in der Werbung von schnellen Ergebnissen die Rede: Diese Linderung ist echt. Aber die <b>Regeneration des Knorpels und die Wiederherstellung der Gelenkflüssigkeit fangen gerade erst an.</b>
+      <span class="red-txt"><b> Wenn Sie nach 10 Tagen aufhören, kommt das Problem in wenigen Wochen zurück — und Sie haben Ihr Geld ausgegeben, ohne wirklich geheilt zu werden.</b></span>
+    </p>
+
+    <div class="pachino-ramka312-block">
+      <p class="pachino-ramka312">
+        <span class="obertka-1">
+          1 Dose = 20 Kapseln = 10 Tage = nur ein VERSUCH, keine Behandlung.
+          <br><br>
+          Die Regeneration des Knorpels braucht KONTINUIERLICHE Anwendung über Wochen. Flexosamine Pro nach 10 Tagen abzusetzen ist wie ein Antibiotikum zur Hälfte abzubrechen: Die bereits gespürte Linderung geht verloren und das Gelenk kehrt zum Ausgangspunkt zurück.
+        </span>
+      </p>
+    </div>
+
+    <p><b>Deshalb erfolgt eine echte Behandlung IMMER als vollständige Kur — niemals mit einer einzelnen Dose:</b></p>
+
+    <div class="table-block">
+      <h1 class="title_h1">Wie viele Dosen brauchen Sie je nach Fall?</h1>
+      <table class="table">
+        <tbody>
+          <tr><td class="one"><b>Mindestkur — 2 Dosen (20 Tage)</b><br>Leichte oder frische Schmerzen, Vorbeugung, Erhaltung</td><td class="two">2</td></tr>
+          <tr><td class="one"><b>Empfohlene Kur — 3 Dosen (30 Tage)</b><br>Schmerzen in Knien, Wirbelsäule oder Hüfte, Morgensteifigkeit</td><td class="two">3</td></tr>
+          <tr><td class="one"><b>Vollständige Kur — 4 bis 6 Dosen (2 bis 3 Monate)</b><br>Arthrose Grad 2-3, Bandscheibenvorfall, Arthritis in den Händen</td><td class="two">4 – 6</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="pachino-ramka2">
+      Flexosamine Pro sollte als <b>vollständige Kur, ab 2 Dosen</b> eingenommen werden — nicht als einzelne Probier-Dose. Und Sie müssen nicht alles auf einmal zahlen: <b>Die Bezahlung erfolgt bequem bei Lieferung</b>, wenn der Bote das Paket bis an Ihre Haustür bringt. So bleibt die vollständige Behandlung für jede Rente erschwinglich. Ihr Berater hilft Ihnen, die passende Kur für Ihren Fall zusammenzustellen.
+    </p>
+
+    <p class="red-txt"><b>Werfen Sie Ihr Geld nicht für eine einzelne «Probier»-Dose weg, die zum Heilen nicht ausreicht. Bestellen Sie Ihre vollständige Behandlung ab 2 Dosen und geben Sie Ihren Gelenken die echte Chance, sich zu regenerieren.</b></p>
+
+    <h2>
+      Die letzte Gelegenheit des Jahres, Flexosamine Pro zu bekommen — für sich oder einen Angehörigen, der im Stillen leidet
+    </h2>
+
+    <img alt="Flexosamine Pro" src="images/dokflexosamine.jpg"
+      style="margin:0 auto;display:block;max-width:500px;width:100%;margin-top:24px;margin-bottom:20px">
+
+    <p><b>Dr. Markus Weber:</b></p>
+
+    <p>
+      — Ich habe 20.000 Dosen exklusiv für die Leser dieses Portals reserviert. Jeder deutsche Bürger über 40 kann einen <font class="red-txt">Sonderpreis des Programms</font> erhalten, aber das Programm endet am <span>15.08.2025</span>.
+    </p>
+
+    <p>Warten Sie nicht, bis Sie keine Treppe mehr steigen können. Bis die Knie ganz versagen. Bis die Wirbelsäule blockiert. Und vor allem — warten Sie nicht, bis Sie für Ihre Familie zur «Last» werden. Flexosamine Pro hat eine kumulative Wirkung, und es genügt, es einmal im Jahr zur Vorbeugung anzuwenden.</p>
+
+    <p>Geben Sie Ihren Namen und Ihre Telefonnummer ein. Ein Berater setzt sich mit Ihnen in Verbindung, hilft Ihnen bei der Wahl des passenden Programms und organisiert die Lieferung innerhalb von 2-3 Tagen per Kurier direkt an die angegebene Adresse.</p>
+
+    <p><b>Mit Hoffnung und Respekt — Dr. Markus Weber. Kümmern Sie sich um Ihre Angehörigen. Vielleicht müssen sie nur wissen, dass Sie sie nicht vergessen haben.</b></p>
+
+    <p class="pachino-ramka">
+      <span class="ramka-title">Aktualisierung: <span>15.08.2025</span>:</span>
+      Aufgrund der enormen Nachfrage könnten die Bestände früher als erwartet aufgebraucht sein! Heute —
+      <font><span>15.08.2025</span> — ist der letzte Tag des Programms</font> oder bis die Bestände erschöpft sind.
+    </p>
+
+    <center><img src="images/flexosamine.png?=v1" style="max-width:300px;width:200%"></center><br>
+
+    <center>
+      <p class="noclose-cta red-txt">
+        Achtung! Schließen oder aktualisieren Sie diese Seite nicht, sonst wird die für Sie reservierte Dose Flexosamine Pro an eine andere Person vergeben.
+      </p>
+      <span class="pre-cta">
+        Nutzen Sie das Angebot — Ihr Platz ist reserviert:
+        <span class="nowrap">Nr. <font class="number-me" style="border-bottom:2px solid var(--color-danger);font-weight:700">19&nbsp;974</font></span>
+      </span>
+    </center>
+
+    <span id="form"></span>
+    <span id="oneform"></span>
+    <div class="pachinoform">
+      <div class="pachinoform_title">
+        <div class="pachinoform_title_logo">
+          <img alt="" src="images/56d9b0017d1d_d58505c9.png">
+        </div>
+        <div class="pachinoform_title_text">
+          <b>Offizielles Bestellformular</b>
+          Nr. <font class="number-me nowrap">19&nbsp;974</font> / <font class="nowrap">20 000</font>
+        </div>
+      </div>
+      <div class="pachinoform_order">
+        Um Ihre <b>Behandlungskur zum Sonderpreis</b> zu reservieren, geben Sie Namen und Telefonnummer in die Felder unten ein und klicken Sie auf «JETZT BESTELLEN».
+      </div>
+      <div class="pachinoform_value">
+        Verfügbar:
+        <span class="blc-pck">
+          <strong class="pachinoform_value_current left-pack">33</strong>
+          <strong class="pachinoform_value_total"> /1000</strong>
+        </span>
+      </div>
+      <div class="pachinoform_price">
+        <div class="pachinoform_price_old"><span class="price_old">98 €</span></div>
+        <div class="pachinoform_price_new"><span class="price_main">49 €</span></div>
+      </div>
+      <div class="pachino-ramka2" style="margin:16px 24px 0;text-align:center">
+        Preis pro Dose: <b>49 €</b>. Flexosamine Pro sollte als <b>vollständige Kur, ab 2 Dosen</b> eingenommen werden — nicht als einzelne Probier-Dose. Die <b>Bezahlung erfolgt bei Lieferung</b>.
+      </div>
+      <form data-order-form>
+        <div class="name-input">
+          <label for="name-input">Name</label>
+          <input autocomplete="name" id="name-input" name="name" placeholder="Ihr Name" required="" type="text" value="">
+        </div>
+        <div class="phone-input">
+          <label for="phone-input">Telefon</label>
+          <input autocomplete="tel" id="phone-input" maxlength="20" name="phone" pattern="^[\-+() 0-9]{8,20}$" placeholder="Ihre Telefonnummer" required="" type="tel" value="">
+        </div>
+        <button class="button-submit" type="submit">JETZT BESTELLEN</button>
+      </form>
+      <div class="pachinoform_footer">
+        ✔️ Der Versand erfolgt per geprüftem Kurierdienst<br> direkt an die angegebene Adresse in ganz Deutschland
+        <br>
+        <img alt="" src="images/b0110a32ff2e_8322b1b5.png" style="width:auto">
+      </div>
+    </div>
+
+    <!-- COMMENTS SECTION -->
+    <div class="comments comments-fb" id="pluginComments">
+      <div class="comments__header">
+        <div class="comments__left-box">
+          <p class="comments__header-title">KOMMENTARE</p>
+        </div>
+      </div>
+
+      <div class="comments__item-list">
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7da17fc86c6c_2f1260d0.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Ursula Krüger</p>
+              <p class="startdate" daysago="8" format="day/month/year">15.08.2025</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Mir kamen die Tränen beim Lesen dieses Artikels. Meine Mutter ist 76 und seit 2 Jahren im Heim — genau seit ihre Knie versagten und wir sie nicht mehr pflegen konnten. Es ist die Schuld, die am schwersten wiegt. Ich habe ihr schon Flexosamine Pro bestellt. Hoffentlich ist es nicht zu spät.</p>
+          </div>
+        </div>
+
+        <div id="first-comment">
+          <div class="comments__item">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/8ba73d45c164_4ede289a.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Renate Schäfer</p>
+                <p class="startdate" daysago="7" format="day/month/year">15.08.2025</p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Flexosamine Pro kam letzten Freitag an. Ich nehme eine morgens und eine abends, und nach 5 Tagen ließ der Schmerz enorm nach: Ich gehe die Treppe hinunter, ohne mich am Geländer festzuhalten! Es war die Geschichte des Arztes, die mich zum Bestellen bewog. Ein wirklich beeindruckender Mensch.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/fa7f61c1431c_7946ff6c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Monika Wagner</p>
+              <p class="startdate" daysago="6" format="day/month/year">15.08.2025</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ich bin 69. Mein Rücken quälte mich 4 Jahre — Bandscheibenvorfall und Ischias. Ich konnte mich nicht bücken, um mir die Schuhe zu binden. Die Ärzte gaben mir Entzündungshemmer, die mir den Magen ruinierten. Nach 3 Wochen mit Flexosamine Pro — ist der Schmerz fast weg. Ich gehe allein einkaufen, koche. Ich lebe wieder.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/dcc5cfe80d60_5aa7f8f7.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Wolfgang Braun</p>
+              <p class="startdate" daysago="5" format="day/month/year">15.08.2025</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ich sitze 10 Stunden am Tag im Büro. Rücken und Nacken versagten. Der Arzt sagte: «Entweder Sie geben den Job auf, oder Operation.» Ich wählte Flexosamine Pro. Nach 5 Wochen — null Schmerz. Und meinen ganzen Respekt für Dr. Weber — in einer Welt, in der alle nur ans Geld denken, geht er zu den vergessenen Alten.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/bcbe20e0b5d2_b241da99.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Dieter Hoffmann</p>
+              <p class="startdate" daysago="5" format="day/month/year">15.08.2025</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ich habe 3 Dosen bestellt — für mich (Knie), für meine Frau (Hände, Arthritis) und für meinen Schwiegervater im Heim. Wir können ihn nicht oft besuchen, aber wenigstens schicken wir ihm, was er braucht. Hoffentlich hilft es auch ihm. Danke für den Artikel.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/73d3a879cef9_4a9ce85c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Gabriele Richter</p>
+              <p class="startdate" daysago="4" format="day/month/year">15.08.2025</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ich überlege, es für meinen Vater zu bestellen. Er ist seit 3 Jahren im Heim — seine Knie funktionieren gar nicht mehr. Er hat aufgegeben, spricht kaum noch. Glauben Sie, dass Flexosamine Pro mit 78 noch helfen kann?</p>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/71deaf909b4e_ea30d07c.jpg">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Brigitte Neumann</p>
+                <p class="startdate" daysago="4" format="day/month/year">15.08.2025</p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Gabriele, meine Mutter ist 82! Schwere Arthrose in beiden Knien, sie konnte nicht aus dem Bett aufstehen. Sie nahm Flexosamine Pro 2 Monate — jetzt geht sie allein in den Hof. Ich übertreibe nicht. Und das Schönste: Als ich sie besuchte, empfing sie mich stehend an der Tür. Wir weinten beide. Bestellen Sie es ohne Zögern, Ihr Vater verdient die Chance.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comm-obert-reply">
+          <div class="comments__item reply">
+            <div class="comments__item-header">
+              <img alt="" class="comments__item-avatar" loading="eager" src="images/66ebad51123a_206d5fba.png">
+              <div class="comments__item-info">
+                <p class="comments__item-name">Herr Horst Fischer</p>
+                <p class="startdate" daysago="3" format="day/month/year">15.08.2025</p>
+              </div>
+            </div>
+            <div class="comments__item-body">
+              <p class="comments__item-content">Gabriele, bestellen Sie es ohne Angst. Ich war mit 78 einen Schritt vom Rollstuhl entfernt — Hüftarthrose. Flexosamine Pro brachte mich in 2 Monaten wieder auf die Beine. Buchstäblich. Ihr Vater braucht es mehr, als Sie sich vorstellen.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d61700bc0961_28c03d39.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Helga Wolf</p>
+              <p class="startdate" daysago="3" format="day/month/year">15.08.2025</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Seit einer Woche nehme ich es. Morgens bin ich nicht mehr «steif». Ich kann mich bücken, aufstehen, ohne zu stöhnen. Ich habe auch für meine Nachbarin bestellt — sie ist 73, lebt allein und hielt sich an den Wänden fest, um durch die Wohnung zu gehen.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7db2eed8e880_6ecfd92a.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Christa Schulz</p>
+              <p class="startdate" daysago="2" format="day/month/year">15.08.2025</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Mit 68 dachte ich, ich könnte nie wieder im Garten arbeiten. Knie und Rücken hatten mich lahmgelegt. Flexosamine Pro veränderte alles — nach 4 Wochen bepflanzte ich das erste Beet dieses Jahres. Die Geschichte von Dr. Weber ging mir zu Herzen. Es gibt noch gute Menschen auf der Welt.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/a49c7ec0724d_6f186c1c.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Herr Günter Weiß</p>
+              <p class="startdate" daysago="2" format="day/month/year">15.08.2025</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ich bin 82. Letztes Jahr konnte ich nicht mehr allein zur Toilette. Die Kinder sprachen schon vom Pflegeheim. Ich probierte Flexosamine Pro — ohne große Hoffnung. Und es wirkt! Ich gehe allein, ziehe mich allein an, gehe allein bis zum Tor. Die Kinder reden nicht mehr vom Heim. Das ist die größte Freude meines Lebens.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/7099c502f996_b89c4cc9.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Manfred Schröder</p>
+              <p class="startdate" daysago="1" format="day/month/year">15.08.2025</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Meine Frau konnte die Treppe nicht hinunter. Sie hielt sich an der Wand fest und weinte vor Schmerz. Ich hatte Angst, sie zu verlieren — nicht wegen der Krankheit, sondern wegen der Verzweiflung. Ich bestellte Flexosamine Pro. Nach 4 Wochen — gestern ging sie allein zum Markt und kam mit Blumen zurück. Mit Blumen! Danke von ganzem Herzen.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/47a8cb9cf088_09555b8e.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Petra Zimmermann</p>
+              <p class="startdate" daysago="1" format="day/month/year">15.08.2025</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ich habe 4 Dosen bestellt — für meine Mutter (Heim, Knie), für meinen Vater (zu Hause, Rücken) und 2 für mich (Hände, Arthritis in den Fingern, ich konnte nicht mehr schreiben). Die Geschichten im Artikel haben mich erschüttert. Ich hätte es längst tun sollen. Keine Ausreden mehr.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/f021e0a36f8b_7c282874.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Sabine Hartmann</p>
+              <p class="nowdate" daysago="0" format="day/month/year">15.08.2025</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Flexosamine Pro ist da — das Paket kam in 2 Tagen! Ich habe es meiner Mutter ins Heim gebracht. Ich habe große Hoffnung. Ich schicke diesen Artikel auch dem Heimpersonal — vielleicht setzen sie sich mit Dr. Weber in Verbindung.</p>
+          </div>
+        </div>
+
+        <div class="comments__item">
+          <div class="comments__item-header">
+            <img alt="" class="comments__item-avatar" loading="eager" src="images/d770c7a4cbdf_467ee117.jpg">
+            <div class="comments__item-info">
+              <p class="comments__item-name">Thomas Lehmann</p>
+              <p class="nowdate" daysago="0" format="day/month/year">15.08.2025</p>
+            </div>
+          </div>
+          <div class="comments__item-body">
+            <p class="comments__item-content">Ich suchte Flexosamine Pro in der Apotheke — nicht vorrätig. Man sagte mir, man müsse es über diese Seite bestellen. Hoffentlich ist noch etwas übrig. Mein Opa braucht es dringend — er ist 81 und kann gar nicht mehr gehen.</p>
+          </div>
+        </div>
+
+        <div class="custom-commetns-container"></div>
+
+        <a href="#" style="text-decoration: none;">
+          <div class="form-container">
+            <form class="custom-form" id="custom-form">
+              <div class="custom-form__top-field">
+                <div class="custom-form__ava-block">
+                  <input disabled class="custom-form__ava-input sf-hidden" id="avatar" name="avatar" type="file" value="">
+                  <label class="custom-form__ava-label"><span class="custom-form__ava-label_red-text">*</span>Foto</label>
+                </div>
+                <input disabled class="custom-form__name" placeholder="Ihr Name" required="" type="text" value="">
+              </div>
+              <textarea disabled class="custom-form__message" placeholder="Ihr Kommentar" required=""></textarea>
+              <div class="custom-form__bottom-field">
+                <div class="custom-form__photo-block">
+                  <input disabled class="custom-form__photo-input sf-hidden" id="photo" type="file" value="">
+                  <label class="custom-form__photo-label" for="photo">Foto anhängen</label>
+                </div>
+                <button disabled class="custom-form__btn">SENDEN</button>
+              </div>
+            </form>
+          </div>
+        </a>
+
+      </div>
+    </div>
+
+  </main>
+
+  <div class="trust-strip">
+    <div class="trust-item"><span class="trust-item-icon">🛡️</span> Geprüfte Qualität</div>
+    <div class="trust-item"><span class="trust-item-icon">🚚</span> Lieferung in 2-3 Tagen</div>
+    <div class="trust-item"><span class="trust-item-icon">⚕️</span> Ohne Rezept</div>
+    <div class="trust-item"><span class="trust-item-icon">🔒</span> Sichere Bestellung</div>
+  </div>
+
+  <footer class="clinical-footer">
+    © GesundheitsInfo Deutschland — Sonderreportage<br>
+    Die auf dieser Seite dargestellten Angaben dienen nur der Information und ersetzen keine ärztliche Beratung.
+  </footer>
+
+  </body>
+
+</html>
