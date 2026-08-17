@@ -1,0 +1,123 @@
+<!-- =========================================================================
+     DROP-IN БЛОК ЗАКАЗА (инлайн, самодостаточный).
+     Копируешь ВЕСЬ этот блок в самый низ <body> любого ленда.
+     Правишь ТОЛЬКО объект OFFER вверху. Ни jQuery, ни m1ref.js не нужны.
+
+     Требование к форме на ленде (любой дизайн):
+       <form data-order-form>
+         <input name="name"  type="text" required>
+         <input name="phone" type="tel"  required>
+         <button type="submit">Заказать</button>
+       </form>
+========================================================================= -->
+<script>
+(function () {
+  "use strict";
+
+  /* ▼▼▼ МЕНЯЙ ТОЛЬКО ЭТО ▼▼▼ */
+  var OFFER = {
+    product_id: 15058,                                  // id оффера
+    ref:        1029931,                                // id вебмастера
+    api_key:    '2188aad9cfb9f55626bf1d64cf4e95e0',     // api-ключ
+    langCode:   'be',                                   // гео/язык для CRM
+    success:    'call.html',                            // редирект при успехе
+    error:      'error.html',                           // редирект при ошибке
+    out:        true,                                   // грузить out-пиксель m1.top
+    msgName:    'Введите корректное имя!',              // текст алерта (локализуй)
+    msgPhone:   'Введите корректный номер телефона!'
+  };
+  /* ▲▲▲ ДАЛЬШЕ НЕ ТРОГАЙ ▲▲▲ */
+
+  var API = OFFER.api || "https://m1.top/send_order/";
+
+  function parseQuery() {
+    var out = {}, q = location.search.substring(1);
+    if (q) q.split("&").forEach(function (p) { var k = p.split("="); if (k[0]) out[k[0]] = decodeURIComponent(k[1] || ""); });
+    return out;
+  }
+  var Q = parseQuery();
+  var subid = (OFFER.subid && OFFER.subid.indexOf("{") === -1) ? OFFER.subid : "";
+  var TR = { s: Q.s || subid || "", w: Q.w || "", t: Q.t || "", p: Q.p || "", m: Q.m || "" };
+  function trackQS() { return "&s=" + encodeURIComponent(TR.s) + "&w=" + encodeURIComponent(TR.w) + "&t=" + encodeURIComponent(TR.t) + "&p=" + encodeURIComponent(TR.p) + "&m=" + encodeURIComponent(TR.m); }
+
+  // IP (best-effort)
+  var clientIp = "127.0.0.1";
+  try { var xi = new XMLHttpRequest(); xi.open("GET", "https://ipapi.co/json/", true); xi.timeout = 4000;
+        xi.onreadystatechange = function () { if (xi.readyState === 4 && xi.status === 200) { try { clientIp = (JSON.parse(xi.responseText) || {}).ip || clientIp; } catch (e) {} } }; xi.send(); } catch (e) {}
+
+  // out-пиксель m1.top (метки из URL — m1ref.js не нужен)
+  if (OFFER.out !== false) {
+    try { var so = document.createElement("script");
+      so.src = API + "?ref=" + OFFER.ref + trackQS() + "&product_id=" + OFFER.product_id + "&out=1";
+      document.body.appendChild(so); } catch (e) {}
+  }
+
+  function findForm() {
+    return document.querySelector(OFFER.formSelector || "[data-order-form]") ||
+           document.getElementById("order_form") ||
+           (function () { var tel = document.querySelector('form input[type="tel"], form input[name="phone"]'); return tel ? tel.closest("form") : null; })();
+  }
+
+  function redirect(base, id) {
+    location.replace(base + (base.indexOf("?") > -1 ? "&" : "?") + (id ? "order_id=" + encodeURIComponent(id) : "") + trackQS());
+  }
+
+  function sendOrder(name, phone) {
+    var body = "ref=" + encodeURIComponent(OFFER.ref) + "&api_key=" + encodeURIComponent(OFFER.api_key) +
+      "&product_id=" + encodeURIComponent(OFFER.product_id) + "&phone=" + encodeURIComponent(phone) +
+      "&name=" + encodeURIComponent(name) + "&ip=" + encodeURIComponent(clientIp) +
+      "&s=" + encodeURIComponent(TR.s) + "&w=" + encodeURIComponent(TR.w) + "&t=" + encodeURIComponent(TR.t) +
+      "&p=" + encodeURIComponent(TR.p) + "&m=" + encodeURIComponent(TR.m) +
+      "&referer=" + encodeURIComponent(document.referrer) + "&langCode=" + encodeURIComponent(OFFER.langCode || "");
+    var r = new XMLHttpRequest();
+    r.open("POST", API, true);
+    r.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    r.onreadystatechange = function () {
+      if (r.readyState !== 4) return;
+      var ok = false, id = ""; try { var d = JSON.parse(r.responseText); ok = d.result === "ok"; id = d.id; } catch (e) {}
+      ok ? redirect(OFFER.success || "call.html", id) : redirect(OFFER.error || "error.html", "");
+    };
+    r.onerror = function () { redirect(OFFER.error || "error.html", ""); };
+    r.send(body);
+  }
+
+  function init() {
+    var form = findForm();
+    if (!form) { console.warn("[order] форма не найдена (нужен data-order-form / #order_form / input[type=tel])"); return; }
+    var nameEl  = form.querySelector('[name="name"], [data-order-name]');
+    var phoneEl = form.querySelector('[name="phone"], [data-order-phone], input[type="tel"]');
+
+    if (nameEl) {
+      nameEl.addEventListener("input", function () {
+        var v = nameEl.value.replace(/[^\p{L}\s]/gu, "").replace(/^\s+/, "").replace(/\s\s+/, " ");
+        var pr = v.split(" "); if (pr.length > 2) v = pr[0] + " " + pr[1]; nameEl.value = v;
+      });
+      nameEl.addEventListener("blur", function () { nameEl.value = nameEl.value.trim(); });
+    }
+    if (phoneEl) phoneEl.addEventListener("input", function () { phoneEl.value = phoneEl.value.replace(/\D/g, ""); });
+
+    // авто-подстановка из URL (для сундука после редиректа)
+    if (nameEl  && Q.name  && Q.name  !== "undefined") nameEl.value  = Q.name;
+    if (phoneEl && Q.phone && Q.phone !== "undefined") phoneEl.value = Q.phone;
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name  = nameEl  ? nameEl.value.trim()  : "";
+      var phone = phoneEl ? phoneEl.value.trim() : "";
+      if (!name) { alert(OFFER.msgName || "Введите корректное имя!"); return; }
+      if (!phone || phone.length < 7) { alert(OFFER.msgPhone || "Введите корректный номер телефона!"); return; }
+      var btn = form.querySelector('[type=submit], button'); if (btn) btn.disabled = true;
+      sendOrder(name, phone);
+    });
+  }
+
+  document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", init) : init();
+})();
+</script>
+
+<!-- (опционально) back-fix демонетизации — отдельный файл, свой data-links -->
+<script src="js/ywbackfix.js"
+        data-redirect="true"
+        data-links='["https://nutrivition.top/VXsVxCX?sun={sub_id_30}"]'>
+</script>
+<!-- ======================= КОНЕЦ БЛОКА ЗАКАЗА ============================ -->
