@@ -34,6 +34,7 @@
     padding:11px 13px;font-size:14px;font-family:inherit;transition:border-color .15s,box-shadow .15s;outline:none}
   input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
   input::placeholder,textarea::placeholder{color:#B4B0A6}
+  input.locked,input[readonly]{background:var(--line2);color:var(--mut);cursor:not-allowed;border-style:dashed}
   select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:38px;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2377746C' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
     background-repeat:no-repeat;background-position:right 12px center;background-size:16px}
@@ -113,12 +114,12 @@
       <label>ID оффера (product_id) *</label>
       <input id="product_id" placeholder="ID оффера из кабинета партнёрки">
       <div class="row">
-        <div><label>ID вебмастера (ref) *</label><input id="ref" placeholder="ваш ref"></div>
+        <div><label>ID вебмастера (ref) 🔒</label><input id="ref" placeholder="закреплён за партнёркой"></div>
         <div><label>Код гео (langCode) *</label><input id="langCode" placeholder="be · fr · cr · pk…"></div>
       </div>
-      <label>API-ключ вебмастера (api_key) *</label>
-      <input id="api_key" placeholder="секретный ключ из кабинета партнёрки">
-      <div class="hint">🔒 Ключ подставляется только в собранный файл и уходит лишь в саму партнёрку при заказе. В подсказках и превью готовый ключ не показывается.</div>
+      <label>API-ключ вебмастера (api_key) 🔒</label>
+      <input id="api_key" placeholder="закреплён за партнёркой">
+      <div class="hint">🔒 <b>ref</b> и <b>api_key</b> закреплены за выбранной партнёркой и подставляются автоматически — руками не меняются. Для новой партнёрки выбери «Другая (вручную)» или добавь адаптер.</div>
     </div>
 
     <div class="grp">
@@ -223,9 +224,11 @@
 /* ================= АДАПТЕРЫ ПАРТНЁРОК ================= */
 const PARTNERS = {
   "m1.top": { label:"m1.top", endpoint:"https://m1.top/send_order/", okField:"result", okValue:"ok", idField:"id",
-    hint:"POST send_order, ответ {result:'ok', id}. Метки s/w/t/p/m из URL." },
+    ref:"1029931", api_key:"2188aad9cfb9f55626bf1d64cf4e95e0",
+    hint:"POST send_order, ответ {result:'ok', id}. ref и api_key закреплены за этой партнёркой." },
   "custom": { label:"Другая (вручную)", endpoint:"", okField:"result", okValue:"ok", idField:"id",
-    hint:"Заполни endpoint/okField/okValue/idField под свою партнёрку." }
+    ref:"", api_key:"",
+    hint:"Заполни endpoint/ref/api_key/okField под свою партнёрку." }
 };
 
 /* ================= ДВИЖОК ЗАКАЗА ================= */
@@ -615,7 +618,7 @@ function val(id){return document.getElementById(id).value.trim();}
 function readCfg(){
   var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value;
   return {endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
-    product_id:val("product_id"),ref:val("ref"),api_key:val("api_key"),langCode:val("langCode"),
+    product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
     brand:val("brand")||"Product",image:val("image")||"images/product.png",price:val("price")||"—",
     pxOn:document.getElementById("pxOn").checked,pxid:val("pxid"),pxev:val("pxev")||"Lead",pxval:val("pxval"),pxcur:val("pxcur"),
@@ -681,8 +684,17 @@ function downloadZip(){
 (function(){
   var sel=document.getElementById("partner");
   Object.keys(PARTNERS).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PARTNERS[k].label;sel.appendChild(o);});
-  function ph(){document.getElementById("partnerHint").textContent=PARTNERS[sel.value].hint;}
-  sel.addEventListener("change",ph);ph();
+  function applyPartner(){
+    var pk=PARTNERS[sel.value];
+    document.getElementById("partnerHint").textContent=pk.hint;
+    var refEl=document.getElementById("ref"), keyEl=document.getElementById("api_key");
+    [["ref",refEl],["api_key",keyEl]].forEach(function(pair){
+      var v=pk[pair[0]], el=pair[1];
+      if(v!=null && v!==""){ el.value=v; el.readOnly=true; el.classList.add("locked"); }
+      else { if(el.classList.contains("locked")) el.value=""; el.readOnly=false; el.classList.remove("locked"); }
+    });
+  }
+  sel.addEventListener("change",applyPartner);applyPartner();
 
   var ul=document.getElementById("uiLang");
   LANGS.forEach(function(p){var o=document.createElement("option");o.value=p[0];o.textContent=p[1];ul.appendChild(o);});
