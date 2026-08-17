@@ -11,6 +11,12 @@
     --ok:#2E7D57; --ok-soft:#E6F1EA; --warn:#B7791F; --field:#FFFFFF;
     --sh-sm:0 1px 2px rgba(40,30,20,.05); --sh-md:0 4px 16px rgba(40,30,20,.07); --r:12px; --r-sm:9px;
   }
+  :root[data-theme="dark"]{
+    --bg:#262624; --panel:#2F2E2C; --panel2:#201F1E; --line:#3E3C38; --line2:#343330;
+    --fg:#ECEAE3; --mut:#A8A49B; --acc:#D97757; --acc-dark:#C96442; --acc-soft:#3A2C25;
+    --ok:#4ADE9E; --ok-soft:#1E2E26; --warn:#E0A93B; --field:#1B1A19;
+    --sh-sm:0 1px 2px rgba(0,0,0,.3); --sh-md:0 4px 16px rgba(0,0,0,.4);
+  }
   *{box-sizing:border-box}
   html,body{height:100%}
   body{margin:0;font-family:'Söhne',ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
@@ -77,29 +83,37 @@
   .out{width:100%;min-height:62vh;background:var(--panel2);border:1px solid var(--line);border-radius:var(--r);color:#3a382f;
     font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;padding:14px;white-space:pre;overflow:auto;box-shadow:var(--sh-sm)}
   iframe{width:100%;min-height:62vh;border:1px solid var(--line);border-radius:var(--r);background:#fff;box-shadow:var(--sh-sm)}
+  body,input,select,textarea,.grp,.tab,.btn,.dl button{transition:background .2s ease,color .2s ease,border-color .2s ease}
+  .drop.drag{border-color:var(--acc);background:var(--acc-soft)}
+  .out{color:var(--fg)}
+  .themebtn{margin-left:auto;flex:0 0 auto;width:38px;height:38px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);border-radius:9px;cursor:pointer;font-size:16px;line-height:1;box-shadow:var(--sh-sm)}
+  .themebtn:hover{border-color:var(--acc)}
+  :root[data-theme="dark"] select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A8A49B' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")}
 </style>
 </head>
 <body>
 <header>
   <div class="logo">✦</div>
-  <div><h1>Конструктор лендов</h1><div class="sub">оффлайн · перевод + чистый HTML/папка → готовая сборка с пикселем · api_key остаётся в браузере</div></div>
+  <div style="flex:1"><h1>Конструктор лендов</h1><div class="sub">завод готовых, переведённых лендов — переменные + HTML/папка → рабочая сборка</div></div>
+  <button id="themeBtn" class="themebtn" title="Светлая / тёмная тема" type="button">🌙</button>
 </header>
 
 <div class="wrap">
   <div class="panel left">
     <div class="grp">
       <h3>Партнёрка</h3>
-      <label>Оффер-нетворк (адаптер)</label>
+      <label>Партнёрка (API приёма заказов)</label>
       <select id="partner"></select>
       <div class="hint" id="partnerHint"></div>
-      <label>product_id *</label>
-      <input id="product_id" placeholder="15058">
+      <label>ID оффера (product_id) *</label>
+      <input id="product_id" placeholder="ID оффера из кабинета партнёрки">
       <div class="row">
-        <div><label>ref *</label><input id="ref" value="1029931"></div>
-        <div><label>langCode *</label><input id="langCode" placeholder="be"></div>
+        <div><label>ID вебмастера (ref) *</label><input id="ref" placeholder="ваш ref"></div>
+        <div><label>Код гео (langCode) *</label><input id="langCode" placeholder="be · fr · cr · pk…"></div>
       </div>
-      <label>api_key *</label>
-      <input id="api_key" placeholder="2188aad9cfb9f55626bf1d64cf4e95e0">
+      <label>API-ключ вебмастера (api_key) *</label>
+      <input id="api_key" placeholder="секретный ключ из кабинета партнёрки">
+      <div class="hint">🔒 Ключ подставляется только в собранный файл и уходит лишь в саму партнёрку при заказе. В подсказках и превью готовый ключ не показывается.</div>
     </div>
 
     <div class="grp">
@@ -311,7 +325,10 @@ function orderBlock(cfg){
   if(cfg.backfix) l.push('<script src="js/ywbackfix.js" data-redirect="true" data-links=\'["'+cfg.backfix+'"]\'><\/script>');
   l.push("<!-- ===== конец блока ===== -->");return l.join("\n");
 }
-function stripPixel(html){return html.replace(/<!--\s*Meta Pixel\s*-->[\s\S]*?<!--\s*End Meta Pixel\s*-->/gi,"").replace(/<script[^>]*>[\s\S]*?fbevents\.js[\s\S]*?<\/script>/gi,"").replace(/<noscript>\s*<img[^>]*facebook\.com\/tr[^>]*><\/noscript>/gi,"");}
+function stripPixel(html){return html
+  .replace(/<!--\s*Meta Pixel\s*-->[\s\S]*?<!--\s*End Meta Pixel\s*-->/gi,"")
+  .replace(/<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?fbevents\.js(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"")
+  .replace(/<noscript>\s*<img[^>]*facebook\.com\/tr[^>]*>\s*<\/noscript>/gi,"");}
 function injectHead(html,snip){
   if(!snip) return html;
   if(/<\/head>/i.test(html)) return html.replace(/<\/head>/i,snip+"\n</head>");
@@ -322,9 +339,10 @@ function injectHead(html,snip){
 function patchHtml(cfg, html){
   if(!html || !html.trim()) return "<!-- пусто -->";
   if(cfg.stripOld){
-    html=html.replace(/<script[^>]*>[\s\S]*?send_order[\s\S]*?<\/script>/gi,function(m){return /sendData|order_form|product_id/.test(m)?"<!-- [конструктор] старый обработчик удалён -->":m;});
-    html=html.replace(/<script[^>]*m1ref\.js[^>]*><\/script>/gi,"");
-    html=html.replace(/<script[^>]*ywbackfix\.js[^>]*>[\s\S]*?<\/script>/gi,"");
+    // безопасно: матч в пределах ОДНОГО <script>, не пересекая границы тегов
+    html=html.replace(/<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?send_order(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"<!-- [конструктор] старый обработчик удалён -->");
+    html=html.replace(/<script\b[^>]*\bm1ref\.js[^>]*>(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");
+    html=html.replace(/<script\b[^>]*\bywbackfix\.js[^>]*>(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");
   }
   if(cfg.pxOn){ html=stripPixel(html); html=injectHead(html,pixelBlock(cfg,false)); }
   if(cfg.autofix){
@@ -444,18 +462,39 @@ var TEXT_EXT=/\.(html?|css|js|json|svg|txt|xml|webmanifest|map)$/i;
 var IMG_EXT=/\.(png|jpe?g|webp|gif|svg|ico|avif|bmp)$/i;
 function baseName(p){return p.split("/").pop();}
 function mimeOf(p){var e=(p.split(".").pop()||"").toLowerCase();return {png:"image/png",jpg:"image/jpeg",jpeg:"image/jpeg",webp:"image/webp",gif:"image/gif",svg:"image/svg+xml",ico:"image/x-icon",avif:"image/avif",bmp:"image/bmp"}[e]||"application/octet-stream";}
-async function readFolder(fileList){
-  var files=Array.from(fileList); if(!files.length) return null;
+async function ingest(items){ // items:[{file, rel}] где rel = "folder/sub/file"
+  if(!items||!items.length) return null;
   var out=[];
-  for(var i=0;i<files.length;i++){
-    var f=files[i];
-    var rel=(f.webkitRelativePath||f.name).split("/").slice(1).join("/")||f.name;
+  for(var i=0;i<items.length;i++){
+    var f=items[i].file;
+    var rel=(items[i].rel||f.name).split("/").slice(1).join("/")||f.name; // срезаем верхнюю папку
     if(TEXT_EXT.test(rel)) out.push({path:rel,kind:"text",str:await f.text()});
     else out.push({path:rel,kind:"bin",bytes:new Uint8Array(await f.arrayBuffer())});
   }
   var idx=out.filter(function(x){return baseName(x.path).toLowerCase()==="index.html";})
              .sort(function(a,b){return a.path.split("/").length-b.path.split("/").length;})[0];
   return {files:out, indexPath: idx?idx.path:null};
+}
+// рекурсивный обход при перетаскивании (webkitGetAsEntry)
+function walkEntry(entry, path, out){
+  return new Promise(function(res){
+    if(entry.isFile){ entry.file(function(f){ out.push({file:f, rel:path+entry.name}); res(); }, function(){res();}); }
+    else if(entry.isDirectory){
+      var rd=entry.createReader(), all=[];
+      (function rb(){ rd.readEntries(function(ents){
+        if(!ents||!ents.length){ (async function(){ for(var i=0;i<all.length;i++){ await walkEntry(all[i], path+entry.name+"/", out); } res(); })(); }
+        else { all=all.concat(Array.prototype.slice.call(ents)); rb(); }
+      }, function(){res();}); })();
+    } else res();
+  });
+}
+async function loadFolder(items){
+  var st=document.getElementById("status");
+  st.className="status"; st.textContent="Читаю папку…";
+  try{ FOLDER=await ingest(items); renderFileList(); renderImages();
+    st.className="status ok";
+    st.textContent=FOLDER?("Загружено файлов: "+FOLDER.files.length+(FOLDER.indexPath?(" · index: "+FOLDER.indexPath):" · ⚠ index.html не найден")):"Пусто";
+  }catch(err){ st.className="status warn"; st.textContent="Ошибка чтения: "+err.message; }
 }
 function renderFileList(){
   var el=document.getElementById("filelist");
@@ -581,14 +620,27 @@ function downloadZip(){
   document.getElementById("modeHtml").addEventListener("click",function(){setMode("html");});
   document.getElementById("modeFolder").addEventListener("click",function(){setMode("folder");});
 
-  document.getElementById("folder").addEventListener("change",async function(e){
-    var st=document.getElementById("status");
-    st.className="status";st.textContent="Читаю папку…";
-    try{ FOLDER=await readFolder(e.target.files); renderFileList(); renderImages();
-      st.className="status ok";
-      st.textContent=FOLDER?("Загружено файлов: "+FOLDER.files.length+(FOLDER.indexPath?(" · index: "+FOLDER.indexPath):" · ⚠ index.html не найден")):"Пусто";
-    }catch(err){st.className="status warn";st.textContent="Ошибка чтения: "+err.message;}
+  document.getElementById("folder").addEventListener("change",function(e){
+    loadFolder(Array.prototype.map.call(e.target.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};}));
   });
+  // drag-and-drop папки в зону загрузки
+  var drop=document.querySelector(".drop");
+  ["dragenter","dragover"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();drop.classList.add("drag");});});
+  ["dragleave","dragend"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();drop.classList.remove("drag");});});
+  drop.addEventListener("drop",async function(e){
+    e.preventDefault();e.stopPropagation();drop.classList.remove("drag");
+    var dt=e.dataTransfer, roots=[];
+    if(dt&&dt.items){ for(var i=0;i<dt.items.length;i++){ var en=dt.items[i].webkitGetAsEntry?dt.items[i].webkitGetAsEntry():null; if(en) roots.push(en); } }
+    if(roots.length){ var out=[]; for(var r=0;r<roots.length;r++){ await walkEntry(roots[r],"",out); } await loadFolder(out.map(function(o){return {file:o.file, rel:o.rel};})); }
+    else if(dt&&dt.files&&dt.files.length){ await loadFolder(Array.prototype.map.call(dt.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};})); }
+  });
+
+  // тема (тумблер + запоминание + системная по умолчанию)
+  function applyTheme(t){ var r=document.documentElement; if(t==="dark"){r.setAttribute("data-theme","dark");document.getElementById("themeBtn").textContent="☀️";} else {r.removeAttribute("data-theme");document.getElementById("themeBtn").textContent="🌙";} }
+  var savedTheme=null; try{savedTheme=localStorage.getItem("lb_theme");}catch(e){}
+  if(!savedTheme) savedTheme=(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  applyTheme(savedTheme);
+  document.getElementById("themeBtn").addEventListener("click",function(){var cur=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";applyTheme(cur);try{localStorage.setItem("lb_theme",cur);}catch(e){}});
 
   document.getElementById("build").addEventListener("click",build);
   document.getElementById("dlzip").addEventListener("click",downloadZip);
