@@ -102,7 +102,7 @@
                   <input type="text" class="input-roulette" name="phone" id="input-phone"
                      placeholder="+374 XX XXX XXX" autocomplete="tel" required="" />
                   <input type="submit" class="submit-roulette" id="chest_submit" value="ՊԱՏՎԷՐԵԼ" />
-                  <input type="hidden" name="data1" value="" />
+                  <input type="hidden" name="data1" value="{subid}" />
                   <div class="ring-loading"></div>
                </form>
             </div>
@@ -133,23 +133,6 @@
    </script>
 
    <script>
-      // Capture data1/subid from URL for Keitaro tracking
-      (function(){
-         var u = new URLSearchParams(location.search);
-         var d1 = u.get('data1') || u.get('subid') || u.get('sub_id') || '';
-         if(d1){
-            try{localStorage.setItem('kt_data1', d1);}catch(e){}
-         } else {
-            try{d1 = localStorage.getItem('kt_data1') || '';}catch(e){}
-         }
-         if(d1){
-            var els = document.querySelectorAll('input[name="data1"]');
-            for(var i=0;i<els.length;i++) els[i].value = d1;
-            var sub = document.querySelector('input[name="subid"]');
-            if(sub) sub.value = d1;
-         }
-      })();
-
       // FORM SUBMIT → KMA VIA success.php
       $(document).ready(function () {
          $('#order_form').submit(function (e) {
