@@ -3,57 +3,87 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Конструктор лендов — завод в 1 клик</title>
+<title>Конструктор лендов</title>
 <style>
-  :root{--bg:#0f1420;--card:#161d2b;--line:#26314a;--fg:#e6ecf5;--mut:#8fa0bd;--acc:#3b82f6;--ok:#22c55e;--warn:#f59e0b}
+  :root{
+    --bg:#F4F3EE; --panel:#FBFAF7; --panel2:#FFFFFF; --line:#E7E4DA; --line2:#EFEDE5;
+    --fg:#26241E; --mut:#77746C; --acc:#C96442; --acc-dark:#B0542F; --acc-soft:#F5E7DF;
+    --ok:#2E7D57; --ok-soft:#E6F1EA; --warn:#B7791F; --field:#FFFFFF;
+    --sh-sm:0 1px 2px rgba(40,30,20,.05); --sh-md:0 4px 16px rgba(40,30,20,.07); --r:12px; --r-sm:9px;
+  }
   *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--fg);font-size:14px}
-  header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
-  header h1{font-size:17px;margin:0}
-  header .sub{color:var(--mut);font-size:12px}
-  .wrap{display:grid;grid-template-columns:400px 1fr;gap:0;min-height:calc(100vh - 54px)}
-  .panel{padding:18px 20px;overflow:auto}
-  .panel.left{border-right:1px solid var(--line);background:var(--card)}
-  label{display:block;font-size:12px;color:var(--mut);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.03em}
-  input,select,textarea{width:100%;background:#0c111b;border:1px solid var(--line);color:var(--fg);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit}
-  textarea{min-height:180px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .btn{margin-top:16px;width:100%;padding:13px;border:0;border-radius:8px;background:var(--acc);color:#fff;font-size:15px;font-weight:600;cursor:pointer}
-  .btn:hover{filter:brightness(1.1)}
-  .btn.sec{background:#243049}
-  .btn.ok{background:var(--ok)}
-  .hint{color:var(--mut);font-size:11.5px;margin-top:4px;line-height:1.5}
-  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-  .tab{padding:7px 12px;border:1px solid var(--line);border-radius:7px;background:#0c111b;color:var(--mut);cursor:pointer;font-size:12.5px}
-  .tab.active{background:var(--acc);color:#fff;border-color:var(--acc)}
-  .out{width:100%;min-height:60vh;background:#0c111b;border:1px solid var(--line);border-radius:8px;color:#d7e0ee;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;padding:12px;white-space:pre;overflow:auto}
-  iframe{width:100%;min-height:60vh;border:1px solid var(--line);border-radius:8px;background:#fff}
-  .dl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-  .dl button{padding:9px 12px;border:1px solid var(--line);background:#0c111b;color:var(--fg);border-radius:7px;cursor:pointer;font-size:12.5px}
-  .dl button.zip{background:var(--ok);color:#04210f;border-color:var(--ok);font-weight:700}
-  .status{font-size:12px;margin-top:10px;min-height:18px}
+  html,body{height:100%}
+  body{margin:0;font-family:'Söhne',ui-sans-serif,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+       background:var(--bg);color:var(--fg);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  header{padding:16px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;background:var(--panel2)}
+  .logo{width:30px;height:30px;border-radius:8px;background:var(--acc);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;box-shadow:var(--sh-sm)}
+  header h1{font-size:17px;margin:0;font-weight:650;letter-spacing:-.01em}
+  header .sub{color:var(--mut);font-size:12.5px}
+  .wrap{display:grid;grid-template-columns:420px 1fr;min-height:calc(100vh - 63px)}
+  .panel{padding:22px 24px;overflow:auto}
+  .panel.left{border-right:1px solid var(--line);background:var(--panel)}
+  label{display:block;font-size:11.5px;color:var(--mut);margin:14px 0 6px;font-weight:600;letter-spacing:.02em}
+  input[type=text],input:not([type]),select,textarea{
+    width:100%;background:var(--field);border:1.5px solid var(--line);color:var(--fg);border-radius:var(--r-sm);
+    padding:11px 13px;font-size:14px;font-family:inherit;transition:border-color .15s,box-shadow .15s;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+  input::placeholder,textarea::placeholder{color:#B4B0A6}
+  select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:38px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2377746C' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 12px center;background-size:16px}
+  textarea{min-height:150px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.55}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .btn{margin-top:20px;width:100%;padding:13px;border:0;border-radius:var(--r-sm);background:var(--acc);color:#fff;
+    font-size:15px;font-weight:600;cursor:pointer;transition:background .15s,transform .04s;box-shadow:var(--sh-sm)}
+  .btn:hover{background:var(--acc-dark)} .btn:active{transform:translateY(1px)}
+  .hint{color:var(--mut);font-size:11.5px;margin-top:6px;line-height:1.55}
+  .grp{border:1px solid var(--line);border-radius:var(--r);padding:4px 16px 16px;margin-top:16px;background:var(--panel2)}
+  .grp h3{font-size:11px;color:var(--acc);letter-spacing:.05em;text-transform:uppercase;margin:14px 0 2px;font-weight:700}
+  .seg{display:flex;gap:6px;background:var(--line2);padding:4px;border-radius:10px;margin-bottom:4px}
+  .seg button{flex:1;padding:9px;border:0;border-radius:7px;background:transparent;color:var(--mut);font-weight:600;font-size:13px;cursor:pointer;transition:.15s}
+  .seg button.active{background:var(--panel2);color:var(--fg);box-shadow:var(--sh-sm)}
+  .chk{display:flex;align-items:flex-start;gap:9px;margin-top:12px}
+  .chk input{width:auto;margin-top:2px;accent-color:var(--acc);width:16px;height:16px}
+  .chk label{margin:0;text-transform:none;letter-spacing:0;font-weight:500;color:var(--fg);font-size:13px;cursor:pointer}
+  .drop{border:2px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;background:var(--panel2);transition:.15s}
+  .drop:hover{border-color:var(--acc);background:var(--acc-soft)}
+  .drop .ic{font-size:26px}
+  .drop .t{font-weight:600;margin-top:6px}
+  .drop .s{color:var(--mut);font-size:12px;margin-top:2px}
+  .drop input{display:none}
+  .filelist{margin-top:12px;max-height:180px;overflow:auto;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel2);font-size:12px}
+  .filelist div{padding:6px 12px;border-bottom:1px solid var(--line2);display:flex;justify-content:space-between;gap:10px}
+  .filelist div:last-child{border-bottom:0}
+  .filelist .tag{color:var(--acc);font-weight:700;font-size:10px;background:var(--acc-soft);padding:1px 7px;border-radius:20px;align-self:center}
+  .filelist .tag.keep{color:var(--mut);background:var(--line2)}
+  .status{font-size:13px;margin-top:14px;min-height:18px;font-weight:500}
   .status.ok{color:var(--ok)} .status.warn{color:var(--warn)}
-  .grp{border:1px solid var(--line);border-radius:10px;padding:2px 14px 14px;margin-top:14px}
-  .grp h3{font-size:12px;color:var(--acc);letter-spacing:.04em;text-transform:uppercase;margin:14px 0 0}
-  .chk{display:flex;align-items:center;gap:8px;margin-top:12px}
-  .chk input{width:auto}
+  .dl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .dl button{padding:10px 14px;border:1.5px solid var(--line);background:var(--panel2);color:var(--fg);border-radius:var(--r-sm);cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+  .dl button:hover{border-color:var(--acc);color:var(--acc)}
+  .dl button.zip{background:var(--acc);color:#fff;border-color:var(--acc)}
+  .dl button.zip:hover{background:var(--acc-dark);color:#fff}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .tab{padding:8px 13px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--mut);cursor:pointer;font-size:12.5px;font-weight:600;transition:.15s}
+  .tab:hover{border-color:var(--acc)} .tab.active{background:var(--acc);color:#fff;border-color:var(--acc)}
+  .out{width:100%;min-height:62vh;background:var(--panel2);border:1px solid var(--line);border-radius:var(--r);color:#3a382f;
+    font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;padding:14px;white-space:pre;overflow:auto;box-shadow:var(--sh-sm)}
+  iframe{width:100%;min-height:62vh;border:1px solid var(--line);border-radius:var(--r);background:#fff;box-shadow:var(--sh-sm)}
 </style>
 </head>
 <body>
 <header>
-  <h1>🏭 Конструктор лендов</h1>
-  <span class="sub">оффлайн · переменные + HTML → готовая папка. api_key не покидает браузер.</span>
+  <div class="logo">✦</div>
+  <div><h1>Конструктор лендов</h1><div class="sub">оффлайн · переменные + HTML/папка → готовая сборка · api_key остаётся в браузере</div></div>
 </header>
 
 <div class="wrap">
-  <!-- ЛЕВО: форма -->
   <div class="panel left">
     <div class="grp">
       <h3>Партнёрка</h3>
       <label>Оффер-нетворк (адаптер)</label>
       <select id="partner"></select>
       <div class="hint" id="partnerHint"></div>
-
       <label>product_id *</label>
       <input id="product_id" placeholder="15058">
       <div class="row">
@@ -70,16 +100,13 @@
         <div><label>success</label><input id="success" value="call.html"></div>
         <div><label>error</label><input id="error" value="error.html"></div>
       </div>
-      <label>back-fix ссылка (демонетизация, пусто = выкл)</label>
+      <label>back-fix ссылка (пусто = выкл)</label>
       <input id="backfix" value="https://nutrivition.top/VXsVxCX?sun={sub_id_30}">
       <label>Язык текстов call/error/chest</label>
       <select id="uiLang">
-        <option value="en">English</option>
-        <option value="ru">Русский</option>
-        <option value="fr">Français</option>
-        <option value="nl">Nederlands</option>
-        <option value="es">Español</option>
-        <option value="de">Deutsch</option>
+        <option value="en">English</option><option value="ru">Русский</option>
+        <option value="fr">Français</option><option value="nl">Nederlands</option>
+        <option value="es">Español</option><option value="de">Deutsch</option>
         <option value="pt">Português</option>
       </select>
     </div>
@@ -87,29 +114,49 @@
     <div class="grp">
       <h3>Оффер (для call/error/chest)</h3>
       <div class="row">
-        <div><label>Название бренда</label><input id="brand" placeholder="Flexosamine Pro"></div>
-        <div><label>Картинка оффера</label><input id="image" value="images/flexosamine.png"></div>
+        <div><label>Бренд</label><input id="brand" placeholder="Flexosamine Pro"></div>
+        <div><label>Картинка</label><input id="image" value="images/flexosamine.png"></div>
       </div>
       <label>Цена (для сундука/страниц)</label>
       <input id="price" placeholder="39 €">
     </div>
 
     <div class="grp">
-      <h3>Исходный HTML ленда</h3>
-      <label>Вставь сырой HTML (index)</label>
-      <textarea id="html" placeholder="<!DOCTYPE html>…"></textarea>
-      <div class="chk"><input type="checkbox" id="autofix" checked><label style="margin:0;text-transform:none;letter-spacing:0">Авто-починка формы (проставить data-order-form + name/phone)</label></div>
-      <div class="chk"><input type="checkbox" id="stripOld" checked><label style="margin:0;text-transform:none;letter-spacing:0">Вырезать старый инлайн-обработчик отправки (m1.top sendData)</label></div>
+      <h3>Источник</h3>
+      <div class="seg">
+        <button id="modeHtml" class="active">Вставить HTML</button>
+        <button id="modeFolder">Загрузить папку</button>
+      </div>
+
+      <div id="paneHtml">
+        <label>Сырой HTML ленда (index)</label>
+        <textarea id="html" placeholder="<!DOCTYPE html>…"></textarea>
+      </div>
+
+      <div id="paneFolder" style="display:none">
+        <label style="margin-top:6px">Папка ленда целиком</label>
+        <label class="drop" for="folder">
+          <div class="ic">📁</div>
+          <div class="t">Выбрать папку ленда</div>
+          <div class="s">index / call / error / chest + images / css / js — всё сохранится</div>
+          <input id="folder" type="file" webkitdirectory directory multiple>
+        </label>
+        <div class="filelist" id="filelist" style="display:none"></div>
+      </div>
+
+      <div class="chk"><input type="checkbox" id="autofix" checked><label>Авто-починка формы (data-order-form + name/phone)</label></div>
+      <div class="chk"><input type="checkbox" id="stripOld" checked><label>Вырезать старый обработчик отправки (m1.top)</label></div>
+      <div class="chk"><input type="checkbox" id="repCallErr" checked><label>В режиме папки: заменить call.html и error.html</label></div>
+      <div class="chk"><input type="checkbox" id="patchChest"><label>В режиме папки: обновить блок заказа и в chest.html</label></div>
     </div>
 
     <button class="btn" id="build">⚙️ Собрать</button>
     <div class="status" id="status"></div>
   </div>
 
-  <!-- ПРАВО: результат -->
   <div class="panel">
     <div class="dl">
-      <button class="zip" id="dlzip">⬇ Скачать всё (zip)</button>
+      <button class="zip" id="dlzip">⬇ Скачать сборку (zip)</button>
       <button data-f="index">index.html</button>
       <button data-f="call">call.html</button>
       <button data-f="error">error.html</button>
@@ -128,23 +175,15 @@
 </div>
 
 <script>
-/* ================= АДАПТЕРЫ ПАРТНЁРОК =================
-   Добавить новую = один объект. Движок читает эти поля из OFFER. */
+/* ================= АДАПТЕРЫ ПАРТНЁРОК ================= */
 const PARTNERS = {
-  "m1.top": {
-    label: "m1.top",
-    endpoint: "https://m1.top/send_order/",
-    okField: "result", okValue: "ok", idField: "id",
-    hint: "Стандарт: POST send_order, ответ {result:'ok', id}. Метки s/w/t/p/m из URL."
-  },
-  "custom": {
-    label: "Другая (задать вручную)",
-    endpoint: "", okField: "result", okValue: "ok", idField: "id",
-    hint: "Заполни endpoint/okField/okValue/idField под свою партнёрку (продвинутое)."
-  }
+  "m1.top": { label:"m1.top", endpoint:"https://m1.top/send_order/", okField:"result", okValue:"ok", idField:"id",
+    hint:"POST send_order, ответ {result:'ok', id}. Метки s/w/t/p/m из URL." },
+  "custom": { label:"Другая (вручную)", endpoint:"", okField:"result", okValue:"ok", idField:"id",
+    hint:"Заполни endpoint/okField/okValue/idField под свою партнёрку." }
 };
 
-/* ================= ДВИЖОК, ВСТРАИВАЕМЫЙ В ЛЕНД ================= */
+/* ================= ДВИЖОК ЗАКАЗА (встраивается в ленд) ================= */
 const ENGINE = `
 (function () {
   "use strict";
@@ -179,81 +218,43 @@ const ENGINE = `
   document.readyState==="loading"?document.addEventListener("DOMContentLoaded",init):init();
 })();`;
 
-/* ================= ЛОКАЛИЗАЦИЯ call/error/chest ================= */
+/* ================= ЛОКАЛИЗАЦИЯ ================= */
 const TXT = {
-  en:{thanks:"Thank you for your order!",tl1:"Your order has been registered.",tl2:"An advisor will contact you shortly to confirm delivery.",ordno:"Order number: ",errt:"Your order has been received!",el1:"We have saved your details.",el2:"An advisor will contact you shortly to confirm delivery.",
-      part:"You are now a participant in the campaign",price:"Every participant can get a natural and effective product for the price of",attn:"Attention:",attnx:"due to high demand, we cannot process every request.",why:"That is why we launched this giveaway: each time a winner is chosen and gets the chance to obtain",atprice:"at an exclusive price.",tryl:"Try your luck!",click:"Click the chest and claim your",reward:"reward",open:"Open",congrats:"Congratulations!!!",winl:"You have just won the chance to buy a pack of",foronly:"for only",phn:"Enter your name",php:"Enter your phone number",recv:"Receive",an:"Please enter a valid name!",ap:"Please enter a valid phone number!",action:"Special offer"},
-  ru:{thanks:"Спасибо за заказ!",tl1:"Ваш заказ принят.",tl2:"Консультант свяжется с вами в ближайшее время для подтверждения доставки.",ordno:"Номер заказа: ",errt:"Ваш заказ получен!",el1:"Мы сохранили ваши данные.",el2:"Консультант свяжется с вами в ближайшее время для подтверждения доставки.",
-      part:"Вы стали участником акции",price:"Каждый участник может получить натуральное и эффективное средство по цене",attn:"Внимание:",attnx:"из-за высокого спроса мы не можем обработать все заявки.",why:"Поэтому мы запустили розыгрыш: каждый раз выбирается победитель, который получает возможность приобрести",atprice:"по эксклюзивной цене.",tryl:"Испытайте удачу!",click:"Нажмите на сундук и заберите свою",reward:"награду",open:"Открыть",congrats:"Поздравляем!!!",winl:"Вы только что выиграли возможность купить упаковку",foronly:"всего за",phn:"Введите ваше имя",php:"Введите ваш номер телефона",recv:"Получить",an:"Введите корректное имя!",ap:"Введите корректный номер телефона!",action:"Специальная акция"},
-  fr:{thanks:"Merci pour votre commande !",tl1:"Votre commande a bien été enregistrée.",tl2:"Un conseiller vous contactera prochainement pour confirmer la livraison.",ordno:"Numéro de commande : ",errt:"Votre commande a bien été reçue !",el1:"Nous avons enregistré vos coordonnées.",el2:"Un conseiller vous contactera prochainement pour confirmer la livraison.",
-      part:"Vous êtes devenu participant à l'action",price:"Chaque participant peut obtenir un produit naturel et efficace au prix de",attn:"Attention :",attnx:"en raison de la forte demande, nous ne pouvons pas traiter toutes les demandes.",why:"C'est pourquoi nous avons lancé cette action : un gagnant est choisi à chaque fois et reçoit la possibilité d'obtenir",atprice:"à un prix exclusif.",tryl:"Tentez votre chance !",click:"Cliquez sur le coffre et récupérez votre",reward:"récompense",open:"Ouvrir",congrats:"Félicitations !!!",winl:"Vous venez de gagner la possibilité d'acheter une boîte de",foronly:"pour seulement",phn:"Entrez votre nom",php:"Entrez votre numéro de téléphone",recv:"Recevoir",an:"Veuillez saisir un nom valide !",ap:"Veuillez saisir un numéro de téléphone valide !",action:"Action spéciale"},
-  nl:{thanks:"Bedankt voor uw bestelling!",tl1:"Uw bestelling is geregistreerd.",tl2:"Een medewerker neemt binnenkort contact met u op om de levering te bevestigen.",ordno:"Bestelnummer: ",errt:"Uw bestelling is ontvangen!",el1:"We hebben uw gegevens opgeslagen.",el2:"Een medewerker neemt binnenkort contact met u op om de levering te bevestigen.",
-      part:"U bent deelnemer geworden aan de actie",price:"Elke deelnemer kan een natuurlijk en werkzaam middel krijgen voor de prijs van",attn:"Let op:",attnx:"door de hoge vraag kunnen we niet alle aanvragen verwerken.",why:"Daarom hebben we deze actie gelanceerd: telkens wordt een winnaar gekozen die de kans krijgt om",atprice:"aan een exclusieve prijs te bemachtigen.",tryl:"Beproef uw geluk!",click:"Klik op de kist en haal uw",reward:"beloning",open:"Openen",congrats:"Proficiat!!!",winl:"U hebt zojuist de kans gewonnen om een potje te kopen van",foronly:"voor slechts",phn:"Voer uw naam in",php:"Voer uw telefoonnummer in",recv:"Ontvangen",an:"Voer een geldige naam in!",ap:"Voer een geldig telefoonnummer in!",action:"Speciale actie"},
-  es:{thanks:"¡Gracias por su pedido!",tl1:"Su pedido ha sido registrado.",tl2:"Un asesor se pondrá en contacto con usted en breve para confirmar la entrega.",ordno:"Número de pedido: ",errt:"¡Su pedido ha sido recibido!",el1:"Hemos guardado sus datos.",el2:"Un asesor se pondrá en contacto con usted en breve para confirmar la entrega.",
-      part:"Usted es ahora participante de la campaña",price:"Cada participante puede obtener un producto natural y eficaz al precio de",attn:"Atención:",attnx:"debido a la alta demanda, no podemos atender todas las solicitudes.",why:"Por eso lanzamos este sorteo: cada vez se elige un ganador que recibe la posibilidad de obtener",atprice:"a un precio exclusivo.",tryl:"¡Pruebe suerte!",click:"Haga clic en el cofre y reclame su",reward:"recompensa",open:"Abrir",congrats:"¡¡¡Felicidades!!!",winl:"Acaba de ganar la posibilidad de comprar un paquete de",foronly:"por solo",phn:"Escriba su nombre",php:"Escriba su número de teléfono",recv:"Recibir",an:"¡Introduzca un nombre válido!",ap:"¡Introduzca un número de teléfono válido!",action:"Oferta especial"},
-  de:{thanks:"Danke für Ihre Bestellung!",tl1:"Ihre Bestellung wurde registriert.",tl2:"Ein Berater setzt sich in Kürze mit Ihnen in Verbindung, um die Lieferung zu bestätigen.",ordno:"Bestellnummer: ",errt:"Ihre Bestellung ist eingegangen!",el1:"Wir haben Ihre Daten gespeichert.",el2:"Ein Berater setzt sich in Kürze mit Ihnen in Verbindung, um die Lieferung zu bestätigen.",
-      part:"Sie sind Teilnehmer der Aktion geworden",price:"Jeder Teilnehmer kann ein natürliches und wirksames Mittel zum Preis von",attn:"Achtung:",attnx:"aufgrund der hohen Nachfrage können wir nicht alle Anfragen bearbeiten.",why:"Deshalb haben wir dieses Gewinnspiel gestartet: jedes Mal wird ein Gewinner ausgewählt und erhält die Möglichkeit,",atprice:"zu einem exklusiven Preis zu bekommen.",tryl:"Versuchen Sie Ihr Glück!",click:"Klicken Sie auf die Truhe und holen Sie sich Ihre",reward:"Belohnung",open:"Öffnen",congrats:"Herzlichen Glückwunsch!!!",winl:"Sie haben soeben die Möglichkeit gewonnen, eine Packung zu kaufen von",foronly:"für nur",phn:"Geben Sie Ihren Namen ein",php:"Geben Sie Ihre Telefonnummer ein",recv:"Erhalten",an:"Bitte geben Sie einen gültigen Namen ein!",ap:"Bitte geben Sie eine gültige Telefonnummer ein!",action:"Sonderaktion"},
-  pt:{thanks:"Obrigado pela sua encomenda!",tl1:"A sua encomenda foi registada.",tl2:"Um consultor entrará em contacto consigo em breve para confirmar a entrega.",ordno:"Número da encomenda: ",errt:"A sua encomenda foi recebida!",el1:"Guardámos os seus dados.",el2:"Um consultor entrará em contacto consigo em breve para confirmar a entrega.",
-      part:"Você tornou-se participante da campanha",price:"Cada participante pode obter um produto natural e eficaz pelo preço de",attn:"Atenção:",attnx:"devido à elevada procura, não conseguimos processar todos os pedidos.",why:"Por isso lançámos este sorteio: de cada vez é escolhido um vencedor que recebe a possibilidade de obter",atprice:"a um preço exclusivo.",tryl:"Tente a sua sorte!",click:"Clique no baú e receba a sua",reward:"recompensa",open:"Abrir",congrats:"Parabéns!!!",winl:"Acabou de ganhar a possibilidade de comprar uma embalagem de",foronly:"por apenas",phn:"Introduza o seu nome",php:"Introduza o seu número de telefone",recv:"Receber",an:"Introduza um nome válido!",ap:"Introduza um número de telefone válido!",action:"Oferta especial"}
+  en:{thanks:"Thank you for your order!",tl1:"Your order has been registered.",tl2:"An advisor will contact you shortly to confirm delivery.",ordno:"Order number: ",errt:"Your order has been received!",el1:"We have saved your details.",el2:"An advisor will contact you shortly to confirm delivery.",part:"You are now a participant in the campaign",price:"Every participant can get a natural and effective product for the price of",attn:"Attention:",attnx:"due to high demand, we cannot process every request.",why:"That is why we launched this giveaway: each time a winner is chosen and gets the chance to obtain",atprice:"at an exclusive price.",tryl:"Try your luck!",click:"Click the chest and claim your",reward:"reward",open:"Open",congrats:"Congratulations!!!",winl:"You have just won the chance to buy a pack of",foronly:"for only",phn:"Enter your name",php:"Enter your phone number",recv:"Receive",an:"Please enter a valid name!",ap:"Please enter a valid phone number!",action:"Special offer"},
+  ru:{thanks:"Спасибо за заказ!",tl1:"Ваш заказ принят.",tl2:"Консультант свяжется с вами в ближайшее время для подтверждения доставки.",ordno:"Номер заказа: ",errt:"Ваш заказ получен!",el1:"Мы сохранили ваши данные.",el2:"Консультант свяжется с вами в ближайшее время для подтверждения доставки.",part:"Вы стали участником акции",price:"Каждый участник может получить натуральное и эффективное средство по цене",attn:"Внимание:",attnx:"из-за высокого спроса мы не можем обработать все заявки.",why:"Поэтому мы запустили розыгрыш: каждый раз выбирается победитель, который получает возможность приобрести",atprice:"по эксклюзивной цене.",tryl:"Испытайте удачу!",click:"Нажмите на сундук и заберите свою",reward:"награду",open:"Открыть",congrats:"Поздравляем!!!",winl:"Вы только что выиграли возможность купить упаковку",foronly:"всего за",phn:"Введите ваше имя",php:"Введите ваш номер телефона",recv:"Получить",an:"Введите корректное имя!",ap:"Введите корректный номер телефона!",action:"Специальная акция"},
+  fr:{thanks:"Merci pour votre commande !",tl1:"Votre commande a bien été enregistrée.",tl2:"Un conseiller vous contactera prochainement pour confirmer la livraison.",ordno:"Numéro de commande : ",errt:"Votre commande a bien été reçue !",el1:"Nous avons enregistré vos coordonnées.",el2:"Un conseiller vous contactera prochainement pour confirmer la livraison.",part:"Vous êtes devenu participant à l'action",price:"Chaque participant peut obtenir un produit naturel et efficace au prix de",attn:"Attention :",attnx:"en raison de la forte demande, nous ne pouvons pas traiter toutes les demandes.",why:"C'est pourquoi nous avons lancé cette action : un gagnant est choisi à chaque fois et reçoit la possibilité d'obtenir",atprice:"à un prix exclusif.",tryl:"Tentez votre chance !",click:"Cliquez sur le coffre et récupérez votre",reward:"récompense",open:"Ouvrir",congrats:"Félicitations !!!",winl:"Vous venez de gagner la possibilité d'acheter une boîte de",foronly:"pour seulement",phn:"Entrez votre nom",php:"Entrez votre numéro de téléphone",recv:"Recevoir",an:"Veuillez saisir un nom valide !",ap:"Veuillez saisir un numéro de téléphone valide !",action:"Action spéciale"},
+  nl:{thanks:"Bedankt voor uw bestelling!",tl1:"Uw bestelling is geregistreerd.",tl2:"Een medewerker neemt binnenkort contact met u op om de levering te bevestigen.",ordno:"Bestelnummer: ",errt:"Uw bestelling is ontvangen!",el1:"We hebben uw gegevens opgeslagen.",el2:"Een medewerker neemt binnenkort contact met u op om de levering te bevestigen.",part:"U bent deelnemer geworden aan de actie",price:"Elke deelnemer kan een natuurlijk en werkzaam middel krijgen voor de prijs van",attn:"Let op:",attnx:"door de hoge vraag kunnen we niet alle aanvragen verwerken.",why:"Daarom hebben we deze actie gelanceerd: telkens wordt een winnaar gekozen die de kans krijgt om",atprice:"aan een exclusieve prijs te bemachtigen.",tryl:"Beproef uw geluk!",click:"Klik op de kist en haal uw",reward:"beloning",open:"Openen",congrats:"Proficiat!!!",winl:"U hebt zojuist de kans gewonnen om een potje te kopen van",foronly:"voor slechts",phn:"Voer uw naam in",php:"Voer uw telefoonnummer in",recv:"Ontvangen",an:"Voer een geldige naam in!",ap:"Voer een geldig telefoonnummer in!",action:"Speciale actie"},
+  es:{thanks:"¡Gracias por su pedido!",tl1:"Su pedido ha sido registrado.",tl2:"Un asesor se pondrá en contacto con usted en breve para confirmar la entrega.",ordno:"Número de pedido: ",errt:"¡Su pedido ha sido recibido!",el1:"Hemos guardado sus datos.",el2:"Un asesor se pondrá en contacto con usted en breve para confirmar la entrega.",part:"Usted es ahora participante de la campaña",price:"Cada participante puede obtener un producto natural y eficaz al precio de",attn:"Atención:",attnx:"debido a la alta demanda, no podemos atender todas las solicitudes.",why:"Por eso lanzamos este sorteo: cada vez se elige un ganador que recibe la posibilidad de obtener",atprice:"a un precio exclusivo.",tryl:"¡Pruebe suerte!",click:"Haga clic en el cofre y reclame su",reward:"recompensa",open:"Abrir",congrats:"¡¡¡Felicidades!!!",winl:"Acaba de ganar la posibilidad de comprar un paquete de",foronly:"por solo",phn:"Escriba su nombre",php:"Escriba su número de teléfono",recv:"Recibir",an:"¡Introduzca un nombre válido!",ap:"¡Introduzca un número de teléfono válido!",action:"Oferta especial"},
+  de:{thanks:"Danke für Ihre Bestellung!",tl1:"Ihre Bestellung wurde registriert.",tl2:"Ein Berater setzt sich in Kürze mit Ihnen in Verbindung, um die Lieferung zu bestätigen.",ordno:"Bestellnummer: ",errt:"Ihre Bestellung ist eingegangen!",el1:"Wir haben Ihre Daten gespeichert.",el2:"Ein Berater setzt sich in Kürze mit Ihnen in Verbindung, um die Lieferung zu bestätigen.",part:"Sie sind Teilnehmer der Aktion geworden",price:"Jeder Teilnehmer kann ein natürliches und wirksames Mittel zum Preis von",attn:"Achtung:",attnx:"aufgrund der hohen Nachfrage können wir nicht alle Anfragen bearbeiten.",why:"Deshalb haben wir dieses Gewinnspiel gestartet: jedes Mal wird ein Gewinner ausgewählt und erhält die Möglichkeit,",atprice:"zu einem exklusiven Preis zu bekommen.",tryl:"Versuchen Sie Ihr Glück!",click:"Klicken Sie auf die Truhe und holen Sie sich Ihre",reward:"Belohnung",open:"Öffnen",congrats:"Herzlichen Glückwunsch!!!",winl:"Sie haben soeben die Möglichkeit gewonnen, eine Packung zu kaufen von",foronly:"für nur",phn:"Geben Sie Ihren Namen ein",php:"Geben Sie Ihre Telefonnummer ein",recv:"Erhalten",an:"Bitte geben Sie einen gültigen Namen ein!",ap:"Bitte geben Sie eine gültige Telefonnummer ein!",action:"Sonderaktion"},
+  pt:{thanks:"Obrigado pela sua encomenda!",tl1:"A sua encomenda foi registada.",tl2:"Um consultor entrará em contacto consigo em breve para confirmar a entrega.",ordno:"Número da encomenda: ",errt:"A sua encomenda foi recebida!",el1:"Guardámos os seus dados.",el2:"Um consultor entrará em contacto consigo em breve para confirmar a entrega.",part:"Você tornou-se participante da campanha",price:"Cada participante pode obter um produto natural e eficaz pelo preço de",attn:"Atenção:",attnx:"devido à elevada procura, não conseguimos processar todos os pedidos.",why:"Por isso lançámos este sorteio: de cada vez é escolhido um vencedor que recebe a possibilidade de obter",atprice:"a um preço exclusivo.",tryl:"Tente a sua sorte!",click:"Clique no baú e receba a sua",reward:"recompensa",open:"Abrir",congrats:"Parabéns!!!",winl:"Acabou de ganhar a possibilidade de comprar uma embalagem de",foronly:"por apenas",phn:"Introduza o seu nome",php:"Introduza o seu número de telefone",recv:"Receber",an:"Introduza um nome válido!",ap:"Introduza um número de telefone válido!",action:"Oferta especial"}
 };
 
-/* ================= ГЕНЕРАЦИЯ ФАЙЛОВ ================= */
+/* ================= ГЕНЕРАЦИЯ ================= */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-
-function offerObject(cfg){
-  var o = {
-    endpoint: cfg.endpoint, okField: cfg.okField, okValue: cfg.okValue, idField: cfg.idField,
-    product_id: cfg.product_id, ref: cfg.ref, api_key: cfg.api_key, langCode: cfg.langCode,
-    success: cfg.success, error: cfg.error, out: true,
-    msgName: cfg.t.an, msgPhone: cfg.t.ap
-  };
-  return o;
-}
-
+function offerObject(cfg){return {endpoint:cfg.endpoint,okField:cfg.okField,okValue:cfg.okValue,idField:cfg.idField,product_id:cfg.product_id,ref:cfg.ref,api_key:cfg.api_key,langCode:cfg.langCode,success:cfg.success,error:cfg.error,out:true,msgName:cfg.t.an,msgPhone:cfg.t.ap};}
 function orderBlock(cfg){
-  var lines = [
-    "<!-- ===== DROP-IN блок заказа (сгенерирован конструктором) ===== -->",
-    "<script>",
-    "var OFFER = " + JSON.stringify(offerObject(cfg), null, 2) + ";",
-    ENGINE,
-    "<\/script>"
-  ];
-  if (cfg.backfix) {
-    lines.push('<script src="js/ywbackfix.js" data-redirect="true" data-links=\'["'+cfg.backfix+'"]\'><\/script>');
-  }
-  lines.push("<!-- ===== конец блока ===== -->");
-  return lines.join("\n");
+  var l=["<!-- ===== DROP-IN блок заказа (конструктор) ===== -->","<script>","var OFFER = "+JSON.stringify(offerObject(cfg),null,2)+";",ENGINE,"<\/script>"];
+  if(cfg.backfix) l.push('<script src="js/ywbackfix.js" data-redirect="true" data-links=\'["'+cfg.backfix+'"]\'><\/script>');
+  l.push("<!-- ===== конец блока ===== -->");return l.join("\n");
 }
-
-function buildIndex(cfg){
-  var html = cfg.html || "";
-  if (!html.trim()) return "<!-- вставь HTML ленда слева -->";
-  // 1) вырезать старый m1.top обработчик, чтобы не было двойной отправки
-  if (cfg.stripOld){
-    html = html.replace(/<script[^>]*>[\s\S]*?send_order[\s\S]*?<\/script>/gi, function(m){
-      return /sendData|order_form|product_id/.test(m) ? "<!-- [конструктор] старый обработчик удалён -->" : m;
-    });
-    html = html.replace(/<script[^>]*m1ref\.js[^>]*><\/script>/gi, "");
-    html = html.replace(/<script[^>]*ywbackfix\.js[^>]*>[\s\S]*?<\/script>/gi, "");
+function patchHtml(cfg, html){
+  if(!html || !html.trim()) return "<!-- пусто -->";
+  if(cfg.stripOld){
+    html=html.replace(/<script[^>]*>[\s\S]*?send_order[\s\S]*?<\/script>/gi,function(m){return /sendData|order_form|product_id/.test(m)?"<!-- [конструктор] старый обработчик удалён -->":m;});
+    html=html.replace(/<script[^>]*m1ref\.js[^>]*><\/script>/gi,"");
+    html=html.replace(/<script[^>]*ywbackfix\.js[^>]*>[\s\S]*?<\/script>/gi,"");
   }
-  // 2) авто-починка формы
-  if (cfg.autofix){
-    html = html.replace(/<form\b(?![^>]*data-order-form)([^>]*)>/i, '<form data-order-form$1>');
-    // name на первый text-input, phone на первый tel
-    if (!/name=["']name["']/i.test(html))
-      html = html.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i, '<input name="name"$1>');
-    if (!/name=["']phone["']/i.test(html))
-      html = html.replace(/<input\b([^>]*type=["']tel["'][^>]*)>/i, function(m,a){ return /name=/.test(a)?m:'<input name="phone" '+a+'>'; });
+  if(cfg.autofix){
+    html=html.replace(/<form\b(?![^>]*data-order-form)([^>]*)>/i,'<form data-order-form$1>');
+    if(!/name=["']name["']/i.test(html)) html=html.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i,'<input name="name"$1>');
+    if(!/name=["']phone["']/i.test(html)) html=html.replace(/<input\b([^>]*type=["']tel["'][^>]*)>/i,function(m,a){return /name=/.test(a)?m:'<input name="phone" '+a+'>';});
   }
-  // 3) вставить блок перед </body>
-  var block = orderBlock(cfg);
-  if (/<\/body>/i.test(html)) html = html.replace(/<\/body>/i, block + "\n</body>");
-  else html += "\n" + block;
+  var block=orderBlock(cfg);
+  if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,block+"\n</body>"); else html+="\n"+block;
   return html;
 }
-
-var PAGE_CSS = "body{margin:0;font-family:'Inter',-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f7fafc;color:#1a2b42;display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center}.thanks{background:#fff;max-width:520px;margin:20px;padding:40px 30px;border-radius:12px;box-shadow:0 10px 25px rgba(10,92,158,.1);display:flex;flex-direction:column;align-items:center}.thanks img{max-width:280px;width:100%;height:auto;margin:0 auto 20px}.thanks h1{color:#0a5c9e;font-size:28px;margin:0 0 12px}.thanks p{font-size:17px;line-height:1.6;margin:8px 0}.order-id{margin-top:18px;font-size:14px;color:#6b7a8f}";
-
+function buildIndex(cfg){return patchHtml(cfg, cfg.html);}
+var PAGE_CSS="body{margin:0;font-family:'Inter',-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f7fafc;color:#1a2b42;display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center}.thanks{background:#fff;max-width:520px;margin:20px;padding:40px 30px;border-radius:12px;box-shadow:0 10px 25px rgba(10,92,158,.1);display:flex;flex-direction:column;align-items:center}.thanks img{max-width:280px;width:100%;height:auto;margin:0 auto 20px}.thanks h1{color:#0a5c9e;font-size:28px;margin:0 0 12px}.thanks p{font-size:17px;line-height:1.6;margin:8px 0}.order-id{margin-top:18px;font-size:14px;color:#6b7a8f}";
 function buildCall(cfg){var t=cfg.t;return `<!DOCTYPE html>
 <html lang="${cfg.langCode}">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -266,7 +267,6 @@ function buildCall(cfg){var t=cfg.t;return `<!DOCTYPE html>
 </div>
 <script>(function(){var id=new URLSearchParams(location.search).get('order_id');if(id)document.getElementById('order-id').textContent='${esc(t.ordno)}'+id;})();<\/script>
 </body></html>`;}
-
 function buildError(cfg){var t=cfg.t;return `<!DOCTYPE html>
 <html lang="${cfg.langCode}">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -276,15 +276,12 @@ function buildError(cfg){var t=cfg.t;return `<!DOCTYPE html>
   <img src="${esc(cfg.image)}" alt="${esc(cfg.brand)}" loading="lazy">
   <h1>${esc(t.errt)}</h1><p>${esc(t.el1)}</p><p>${esc(t.el2)}</p>
 </div></body></html>`;}
-
-function buildChest(cfg){var t=cfg.t,off=offerObject(cfg);
-  return `<!DOCTYPE html>
+function buildChest(cfg){var t=cfg.t;return `<!DOCTYPE html>
 <html lang="${cfg.langCode}">
 <head><meta charset="UTF-8"><meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
 <title>${esc(t.action)}</title>
 <link href="css/styles.css" media="all" rel="stylesheet"><link href="css/css.css" media="all" rel="stylesheet">
-<link rel="icon" href="favicon.ico">
-</head>
+<link rel="icon" href="favicon.ico"></head>
 <body>
 <div class="container">
   <div class="chest"><div class="top_block">
@@ -298,10 +295,8 @@ function buildChest(cfg){var t=cfg.t,off=offerObject(cfg);
   <div class="chest__img_pack" id="chestImg" style="margin-bottom:150px">
     <div class="chest__title_wrap"><h3 class="chest__title">${esc(t.tryl)}</h3>
       <h3 class="chest__subtitle">${esc(t.click)} <span class="danger-text">${esc(t.reward)}</span>!</h3></div>
-    <div class="chest__button">
-      <picture><source class="chest__img" srcset="images/chest.webp" type="image/webp">
-        <img src="images/chest.webp" alt="" class="saleBox"></picture>
-      <button id="pushChest">${esc(t.open)}</button></div>
+    <div class="chest__button"><picture><source class="chest__img" srcset="images/chest.webp" type="image/webp">
+      <img src="images/chest.webp" alt="" class="saleBox"></picture><button id="pushChest">${esc(t.open)}</button></div>
     <div class="chest__img--dinamic chest__img"><picture><source srcset="images/chest_animation.webp" type="image/webp">
       <img src="images/chest_animation.gif" alt="" style="max-width:350px;width:100%"></picture></div>
     <div class="chest__coins"><picture class="chest__img chest__img--opened"><source srcset="images/chest_opened.webp" type="image/webp">
@@ -317,8 +312,7 @@ function buildChest(cfg){var t=cfg.t,off=offerObject(cfg);
       <form id="order_form" data-order-form method="POST" action="">
         <input type="text" minlength="2" class="input-roulette" name="name" id="input-name" placeholder="${esc(t.phn)}" autocomplete="name" required>
         <input maxlength="18" minlength="8" type="tel" class="input-roulette" name="phone" id="input-phone" placeholder="${esc(t.php)}" autocomplete="tel" required>
-        <input type="submit" class="submit-roulette" value="${esc(t.recv)}">
-        <div class="ring-loading"></div>
+        <input type="submit" class="submit-roulette" value="${esc(t.recv)}"><div class="ring-loading"></div>
       </form>
     </div></div>
   </div>
@@ -327,91 +321,168 @@ function buildChest(cfg){var t=cfg.t,off=offerObject(cfg);
 ${orderBlock(cfg)}
 </body></html>`;}
 
-/* ================= МИНИ-ZIP (STORE, без зависимостей) ================= */
+/* ================= МИНИ-ZIP (STORE, текст + бинарь) ================= */
 function crcTable(){var c,t=[];for(var n=0;n<256;n++){c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;}
 var CRCT=crcTable();
 function crc32(u8){var c=0xFFFFFFFF;for(var i=0;i<u8.length;i++)c=CRCT[(c^u8[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
 function strU8(s){return new TextEncoder().encode(s);}
-function wr(arr,n,len){for(var i=0;i<len;i++){arr.push(n&0xFF);n>>>=8;}}
+function u16(v){return [v&255,(v>>8)&255];}
+function u32(v){v=v>>>0;return [v&255,(v>>8)&255,(v>>16)&255,(v>>24)&255];}
 function makeZip(files){
-  var local=[],central=[],offset=0;
+  var chunks=[],central=[],offset=0;
   files.forEach(function(f){
-    var data=strU8(f.str),crc=crc32(data),name=strU8(f.name);
-    var lh=[];wr(lh,0x04034b50,4);wr(lh,20,2);wr(lh,0,2);wr(lh,0,2);wr(lh,0,2);wr(lh,0,2);wr(lh,crc,4);wr(lh,data.length,4);wr(lh,data.length,4);wr(lh,name.length,2);wr(lh,0,2);
-    var rec=lh.concat(Array.from(name),Array.from(data));local.push({rec:rec,off:offset,crc:crc,name:name,len:data.length});offset+=rec.length;
+    var data=f.bytes?f.bytes:strU8(f.str), name=strU8(f.name), crc=crc32(data);
+    var lh=Uint8Array.from([].concat(u32(0x04034b50),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0)));
+    chunks.push(lh,name,data);
+    central.push({crc:crc,len:data.length,name:name,off:offset});
+    offset+=lh.length+name.length+data.length;
   });
-  var localBytes=[];local.forEach(function(l){localBytes=localBytes.concat(l.rec);});
-  var cdStart=offset;
-  local.forEach(function(l){
-    var ch=[];wr(ch,0x02014b50,4);wr(ch,20,2);wr(ch,20,2);wr(ch,0,2);wr(ch,0,2);wr(ch,0,2);wr(ch,0,2);wr(ch,l.crc,4);wr(ch,l.len,4);wr(ch,l.len,4);wr(ch,l.name.length,2);wr(ch,0,2);wr(ch,0,2);wr(ch,0,2);wr(ch,0,2);wr(ch,0,4);wr(ch,l.off,4);
-    central.push(ch.concat(Array.from(l.name)));
+  var cdChunks=[],cdSize=0,cdStart=offset;
+  central.forEach(function(c){
+    var ch=Uint8Array.from([].concat(u32(0x02014b50),u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(c.crc),u32(c.len),u32(c.len),u16(c.name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(c.off)));
+    cdChunks.push(ch,c.name);cdSize+=ch.length+c.name.length;
   });
-  var cdBytes=[];central.forEach(function(c){cdBytes=cdBytes.concat(c);});
-  var end=[];wr(end,0x06054b50,4);wr(end,0,2);wr(end,0,2);wr(end,files.length,2);wr(end,files.length,2);wr(end,cdBytes.length,4);wr(end,cdStart,4);wr(end,0,2);
-  return new Uint8Array(localBytes.concat(cdBytes).concat(end));
+  var end=Uint8Array.from([].concat(u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(cdSize),u32(cdStart),u16(0)));
+  var total=offset+cdSize+end.length,out=new Uint8Array(total),pos=0;
+  chunks.forEach(function(c){out.set(c,pos);pos+=c.length;});
+  cdChunks.forEach(function(c){out.set(c,pos);pos+=c.length;});
+  out.set(end,pos);
+  return out;
 }
 
-/* ================= UI ================= */
-var FILES = {};
-function readCfg(){
-  var pk = PARTNERS[document.getElementById("partner").value];
-  var lang = document.getElementById("uiLang").value;
-  return {
-    endpoint: pk.endpoint || "https://m1.top/send_order/", okField: pk.okField, okValue: pk.okValue, idField: pk.idField,
-    product_id: document.getElementById("product_id").value.trim(),
-    ref: document.getElementById("ref").value.trim(),
-    api_key: document.getElementById("api_key").value.trim(),
-    langCode: document.getElementById("langCode").value.trim(),
-    success: document.getElementById("success").value.trim()||"call.html",
-    error: document.getElementById("error").value.trim()||"error.html",
-    backfix: document.getElementById("backfix").value.trim(),
-    brand: document.getElementById("brand").value.trim()||"Product",
-    image: document.getElementById("image").value.trim()||"images/product.png",
-    price: document.getElementById("price").value.trim()||"—",
-    html: document.getElementById("html").value,
-    autofix: document.getElementById("autofix").checked,
-    stripOld: document.getElementById("stripOld").checked,
-    t: TXT[lang]||TXT.en
-  };
+/* ================= ЧТЕНИЕ ПАПКИ ================= */
+var FOLDER=null; // {files:[{path,kind,str?,bytes?}], indexPath}
+var TEXT_EXT=/\.(html?|css|js|json|svg|txt|xml|webmanifest|map)$/i;
+function baseName(p){return p.split("/").pop();}
+async function readFolder(fileList){
+  var files=Array.from(fileList);
+  if(!files.length) return null;
+  var out=[];
+  for(var i=0;i<files.length;i++){
+    var f=files[i];
+    var rel=(f.webkitRelativePath||f.name).split("/").slice(1).join("/")||f.name; // срезаем верхнюю папку
+    if(TEXT_EXT.test(rel)) out.push({path:rel,kind:"text",str:await f.text()});
+    else out.push({path:rel,kind:"bin",bytes:new Uint8Array(await f.arrayBuffer())});
+  }
+  // индекс — самый неглубокий index.html
+  var idx=out.filter(function(x){return baseName(x.path).toLowerCase()==="index.html";})
+             .sort(function(a,b){return a.path.split("/").length-b.path.split("/").length;})[0];
+  return {files:out, indexPath: idx?idx.path:null};
 }
+function renderFileList(){
+  var el=document.getElementById("filelist");
+  if(!FOLDER){el.style.display="none";return;}
+  el.style.display="block";
+  el.innerHTML=FOLDER.files.map(function(x){
+    var b=baseName(x.path).toLowerCase(),tag="сохранить",cls="tag keep";
+    if(x.path===FOLDER.indexPath){tag="патч";cls="tag";}
+    else if(b==="call.html"||b==="error.html"){tag="замена";cls="tag";}
+    else if(b==="chest.html"){tag="chest";cls="tag";}
+    return '<div><span>'+esc(x.path)+'</span><span class="'+cls+'">'+tag+'</span></div>';
+  }).join("");
+}
+
+/* ================= UI / СБОРКА ================= */
+var MODE="html";
+function readCfg(){
+  var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value;
+  return {endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
+    product_id:val("product_id"),ref:val("ref"),api_key:val("api_key"),langCode:val("langCode"),
+    success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
+    brand:val("brand")||"Product",image:val("image")||"images/product.png",price:val("price")||"—",
+    html:document.getElementById("html").value,autofix:document.getElementById("autofix").checked,
+    stripOld:document.getElementById("stripOld").checked,repCallErr:document.getElementById("repCallErr").checked,
+    patchChest:document.getElementById("patchChest").checked, t:TXT[lang]||TXT.en};
+}
+function val(id){return document.getElementById(id).value.trim();}
+
+var FILES={};
 function build(){
-  var cfg = readCfg();
-  var st = document.getElementById("status");
-  var miss = ["product_id","ref","api_key","langCode"].filter(function(k){return !cfg[k];});
-  if (miss.length){ st.className="status warn"; st.textContent="Заполни обязательные: "+miss.join(", "); }
-  else { st.className="status ok"; st.textContent="Готово ✓ Проверь вкладки и скачай."; }
-  FILES = { index: buildIndex(cfg), call: buildCall(cfg), error: buildError(cfg), chest: buildChest(cfg) };
+  var cfg=readCfg(),st=document.getElementById("status");
+  var miss=["product_id","ref","api_key","langCode"].filter(function(k){return !cfg[k];});
+
+  if(MODE==="folder"){
+    if(!FOLDER){st.className="status warn";st.textContent="Сначала выбери папку ленда.";return;}
+    if(!FOLDER.indexPath){st.className="status warn";st.textContent="В папке не найден index.html.";return;}
+    var idxFile=FOLDER.files.filter(function(x){return x.path===FOLDER.indexPath;})[0];
+    cfg.html=idxFile.str;
+    FILES.index=patchHtml(cfg,idxFile.str);
+    FILES.call=buildCall(cfg); FILES.error=buildError(cfg);
+    var chestFile=FOLDER.files.filter(function(x){return baseName(x.path).toLowerCase()==="chest.html";})[0];
+    FILES.chest=chestFile?(cfg.patchChest?patchHtml(cfg,chestFile.str):chestFile.str):buildChest(cfg);
+  } else {
+    FILES={index:buildIndex(cfg),call:buildCall(cfg),error:buildError(cfg),chest:buildChest(cfg)};
+  }
+
+  if(miss.length){st.className="status warn";st.textContent="Заполни обязательные: "+miss.join(", ");}
+  else{st.className="status ok";st.textContent=MODE==="folder"?"Готово ✓ Скачай папку (zip) — index пропатчен, call/error заменены, остальное сохранено.":"Готово ✓ Проверь вкладки и скачай.";}
   showTab(currentTab);
 }
 var currentTab="index";
 function showTab(t){
   currentTab=t;
   document.querySelectorAll(".tab").forEach(function(el){el.classList.toggle("active",el.dataset.t===t);});
-  var out=document.getElementById("out"), prev=document.getElementById("prev");
+  var out=document.getElementById("out"),prev=document.getElementById("prev");
   if(t==="preview"){out.style.display="none";prev.style.display="block";prev.srcdoc=FILES.index||"";}
   else{prev.style.display="none";out.style.display="block";out.value=FILES[t]||"";}
 }
-function download(name,str){
-  var blob=new Blob([str],{type:"text/html;charset=utf-8"});var a=document.createElement("a");
+function dl(name,data,type){
+  var blob=new Blob([data],{type:type||"text/html;charset=utf-8"}),a=document.createElement("a");
   a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
 }
 function downloadZip(){
-  if(!FILES.index){build();}
-  var zip=makeZip([{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error},{name:"chest.html",str:FILES.chest}]);
-  var blob=new Blob([zip],{type:"application/zip"});var a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);a.download="lander.zip";a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+  if(!FILES.index)build();
+  var cfg=readCfg();
+  if(MODE==="folder"&&FOLDER){
+    var repl={}; repl[FOLDER.indexPath]=FILES.index;
+    var out=FOLDER.files.map(function(x){
+      var b=baseName(x.path).toLowerCase();
+      if(x.path===FOLDER.indexPath) return {name:x.path,str:FILES.index};
+      if(cfg.repCallErr&&b==="call.html") {repl.call=1; return {name:x.path,str:FILES.call};}
+      if(cfg.repCallErr&&b==="error.html"){repl.error=1; return {name:x.path,str:FILES.error};}
+      if(cfg.patchChest&&b==="chest.html") return {name:x.path,str:FILES.chest};
+      return x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes};
+    });
+    // если call/error не было в папке — добавим в корень
+    if(cfg.repCallErr&&!repl.call)  out.push({name:"call.html",str:FILES.call});
+    if(cfg.repCallErr&&!repl.error) out.push({name:"error.html",str:FILES.error});
+    dl("lander.zip",makeZip(out),"application/zip");
+  } else {
+    dl("lander.zip",makeZip([{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error},{name:"chest.html",str:FILES.chest}]),"application/zip");
+  }
 }
 
-// init
+/* init */
 (function(){
   var sel=document.getElementById("partner");
   Object.keys(PARTNERS).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PARTNERS[k].label;sel.appendChild(o);});
   function ph(){document.getElementById("partnerHint").textContent=PARTNERS[sel.value].hint;}
   sel.addEventListener("change",ph);ph();
+
+  function setMode(m){
+    MODE=m;
+    document.getElementById("modeHtml").classList.toggle("active",m==="html");
+    document.getElementById("modeFolder").classList.toggle("active",m==="folder");
+    document.getElementById("paneHtml").style.display=m==="html"?"block":"none";
+    document.getElementById("paneFolder").style.display=m==="folder"?"block":"none";
+    document.getElementById("dlzip").textContent=m==="folder"?"⬇ Скачать папку (zip)":"⬇ Скачать сборку (zip)";
+  }
+  document.getElementById("modeHtml").addEventListener("click",function(){setMode("html");});
+  document.getElementById("modeFolder").addEventListener("click",function(){setMode("folder");});
+
+  document.getElementById("folder").addEventListener("change",async function(e){
+    var st=document.getElementById("status");
+    st.className="status";st.textContent="Читаю папку…";
+    try{ FOLDER=await readFolder(e.target.files); renderFileList();
+      st.className="status ok";
+      st.textContent=FOLDER?("Загружено файлов: "+FOLDER.files.length+(FOLDER.indexPath?(" · index: "+FOLDER.indexPath):" · ⚠ index.html не найден")):"Пусто";
+    }catch(err){st.className="status warn";st.textContent="Ошибка чтения: "+err.message;}
+  });
+
   document.getElementById("build").addEventListener("click",build);
   document.getElementById("dlzip").addEventListener("click",downloadZip);
   document.querySelectorAll(".tab").forEach(function(el){el.addEventListener("click",function(){showTab(el.dataset.t);});});
-  document.querySelectorAll(".dl button[data-f]").forEach(function(b){b.addEventListener("click",function(){if(!FILES.index)build();var f=b.dataset.f;download(f+".html",FILES[f]);});});
+  document.querySelectorAll(".dl button[data-f]").forEach(function(b){b.addEventListener("click",function(){if(!FILES.index)build();var f=b.dataset.f;dl(f+".html",FILES[f]);});});
 })();
 </script>
 </body>
