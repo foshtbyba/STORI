@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Пример ленда (совсем другой дизайн)</title>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;background:#111;color:#eee;margin:0;padding:40px 16px;display:flex;justify-content:center}
+    .box{max-width:420px;width:100%}
+    h1{font-size:22px}
+    form{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+    input{padding:14px;border-radius:8px;border:1px solid #444;background:#1c1c1c;color:#fff;font-size:16px}
+    button{padding:16px;border:0;border-radius:8px;background:#e11d48;color:#fff;font-size:17px;font-weight:700;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Любой оффер, любой дизайн</h1>
+    <p>Форма ниже — единственное требование к разметке. Логику заказа
+       целиком берёт на себя <code>order.js</code>.</p>
+
+    <!-- КОНТРАКТ: data-order-form + поля name/phone -->
+    <form data-order-form>
+      <input name="name"  type="text" placeholder="Ваше имя" required>
+      <input name="phone" type="tel"  placeholder="Телефон"  required>
+      <button type="submit">Оформить заказ</button>
+    </form>
+  </div>
+
+  <!-- ↓↓↓ ЕДИНЫЙ ВСТАВЛЯЕМЫЙ БЛОК (меняется только OFFER) ↓↓↓ -->
+  <script>
+    window.OFFER = {
+      product_id: 15058,
+      ref:        1029931,
+      api_key:    '2188aad9cfb9f55626bf1d64cf4e95e0',
+      langCode:   'be',
+      success:    'call.html',
+      error:      'error.html',
+      out:        false,
+      msgName:    'Введите корректное имя!',
+      msgPhone:   'Введите корректный номер телефона!'
+    };
+  </script>
+  <script src="order.js"></script>
+  <!-- ↑↑↑ конец блока ↑↑↑ -->
+</body>
+</html>
