@@ -85,6 +85,8 @@
   iframe{width:100%;min-height:62vh;border:1px solid var(--line);border-radius:var(--r);background:#fff;box-shadow:var(--sh-sm)}
   body,input,select,textarea,.grp,.tab,.btn,.dl button{transition:background .2s ease,color .2s ease,border-color .2s ease}
   .drop.drag{border-color:var(--acc);background:var(--acc-soft)}
+  .imgsub{grid-column:1/-1;margin-top:8px;padding:6px 2px;font-size:12px;font-weight:600;color:var(--mut);cursor:pointer;user-select:none;border-top:1px dashed var(--line)}
+  .subgrid{grid-column:1/-1}
   .out{color:var(--fg)}
   .themebtn{margin-left:auto;flex:0 0 auto;width:38px;height:38px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);border-radius:9px;cursor:pointer;font-size:16px;line-height:1;box-shadow:var(--sh-sm)}
   .themebtn:hover{border-color:var(--acc)}
@@ -175,8 +177,12 @@
         </label>
         <div class="filelist" id="filelist" style="display:none"></div>
         <div id="imgwrap" style="display:none">
-          <label style="margin-top:14px">Картинки в папке — наведи (превью), «Заменить» = загрузить свою (имя сохраняется)</label>
+          <label style="margin-top:14px">Картинки оффера/дизайна — наведи (превью), «Заменить» = загрузить свою (имя сохраняется). Аватары комментариев спрятаны отдельно.</label>
           <div class="imggrid" id="imggrid"></div>
+        </div>
+        <div id="cleanwrap" style="display:none">
+          <label style="margin-top:14px">🧹 Похоже, не используются — будут удалены из сборки (сними галку, чтобы оставить)</label>
+          <div class="filelist" id="cleanlist"></div>
         </div>
       </div>
 
@@ -338,6 +344,11 @@ function injectHead(html,snip){
 }
 function patchHtml(cfg, html){
   if(!html || !html.trim()) return "<!-- пусто -->";
+  // обновить <html lang> под гео (видимое изменение в шапке)
+  if(cfg.langCode){
+    if(/<html\b[^>]*\blang=/i.test(html)) html=html.replace(/(<html\b[^>]*\blang=")[^"]*(")/i,"$1"+cfg.langCode+"$2");
+    else html=html.replace(/<html\b/i,'<html lang="'+cfg.langCode+'"');
+  }
   if(cfg.stripOld){
     // безопасно: матч в пределах ОДНОГО <script>, не пересекая границы тегов
     html=html.replace(/<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?send_order(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"<!-- [конструктор] старый обработчик удалён -->");
@@ -352,6 +363,9 @@ function patchHtml(cfg, html){
   }
   var block=orderBlock(cfg);
   if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,block+"\n</body>"); else html+="\n"+block;
+  // видимый маркер сверху (чтобы было понятно, что файл собран/изменён)
+  var mark="<!-- ✦ собрано конструктором: +Meta Pixel (head) +блок заказа (перед /body), lang="+(cfg.langCode||"?")+" -->";
+  if(/<!DOCTYPE[^>]*>/i.test(html)) html=html.replace(/<!DOCTYPE[^>]*>/i,function(m){return m+"\n"+mark;}); else html=mark+"\n"+html;
   return html;
 }
 function buildIndex(cfg){return patchHtml(cfg, cfg.html);}
@@ -473,7 +487,30 @@ async function ingest(items){ // items:[{file, rel}] где rel = "folder/sub/fi
   }
   var idx=out.filter(function(x){return baseName(x.path).toLowerCase()==="index.html";})
              .sort(function(a,b){return a.path.split("/").length-b.path.split("/").length;})[0];
-  return {files:out, indexPath: idx?idx.path:null};
+  var idxPath=idx?idx.path:null;
+
+  // весь текст папки (html/css/js) — для поиска ссылок и контекста комментариев
+  var allText=out.filter(function(x){return x.kind==="text";}).map(function(x){return x.str;}).join("\n");
+
+  // фото комментариев/аватары: по классам аватаров в разметке
+  var comm={}, re=/(comments__item-avatar|custom-form__ava)[^>]*?(?:src|href)="([^"]+)"/gi, m;
+  while(m=re.exec(allText)){ comm[baseName(m[2])]=true; }
+
+  // «100% не используется»: имя файла нигде не встречается в тексте (кроме html-страниц и того, что вставляет наш блок)
+  var KEEP={"ywbackfix.js":1,"m1ref.js":1,"dtime.js":1,"bounce.js":1,"favicon.ico":1};
+  function refCount(p){var b=baseName(p);var n=0,i=allText.indexOf(b);while(i>=0){n++;i=allText.indexOf(b,i+1);}return n;}
+  var unused=[];
+  out.forEach(function(x){
+    x.comment=!!comm[baseName(x.path)];
+    var b=baseName(x.path).toLowerCase();
+    if(/\.html?$/.test(b)) return;            // страницы не трогаем автоматически
+    if(KEEP[b]) return;                        // инфраструктурные скрипты оставляем
+    // текстовый файл всегда «встречает» себя один раз внутри allText — считаем это за 0 ссылок
+    var self=(x.kind==="text")?1:0;
+    if(refCount(x.path)-self<=0) unused.push(x.path);
+  });
+
+  return {files:out, indexPath: idxPath, unused:unused};
 }
 // рекурсивный обход при перетаскивании (webkitGetAsEntry)
 function walkEntry(entry, path, out){
@@ -491,9 +528,9 @@ function walkEntry(entry, path, out){
 async function loadFolder(items){
   var st=document.getElementById("status");
   st.className="status"; st.textContent="Читаю папку…";
-  try{ FOLDER=await ingest(items); renderFileList(); renderImages();
+  try{ FOLDER=await ingest(items); renderFileList(); renderImages(); renderCleanup();
     st.className="status ok";
-    st.textContent=FOLDER?("Загружено файлов: "+FOLDER.files.length+(FOLDER.indexPath?(" · index: "+FOLDER.indexPath):" · ⚠ index.html не найден")):"Пусто";
+    st.textContent=FOLDER?("Загружено файлов: "+FOLDER.files.length+(FOLDER.indexPath?(" · index: "+FOLDER.indexPath):" · ⚠ index.html не найден")+(FOLDER.unused&&FOLDER.unused.length?(" · не используются: "+FOLDER.unused.length):"")):"Пусто";
   }catch(err){ st.className="status warn"; st.textContent="Ошибка чтения: "+err.message; }
 }
 function renderFileList(){
@@ -509,25 +546,49 @@ function renderFileList(){
   }).join("");
 }
 function fileBlob(x){return x.kind==="text"?new Blob([x.str],{type:mimeOf(x.path)}):new Blob([x.bytes],{type:mimeOf(x.path)});}
+function imgTile(x, container){
+  var url=URL.createObjectURL(fileBlob(x));
+  var tile=document.createElement("div");tile.className="imgtile"+(x.replaced?" rep":"");
+  tile.innerHTML='<div class="badge">заменено</div><div class="thumb"><img src="'+url+'" title="'+esc(x.path)+'"></div><div class="nm" title="'+esc(x.path)+'">'+esc(baseName(x.path))+'</div><button type="button">Заменить</button><input type="file" accept="image/*" hidden>';
+  var inp=tile.querySelector("input"),btn=tile.querySelector("button"),im=tile.querySelector("img");
+  btn.addEventListener("click",function(){inp.click();});
+  inp.addEventListener("change",async function(){
+    var f=inp.files[0];if(!f)return;
+    x.bytes=new Uint8Array(await f.arrayBuffer());x.kind="bin";x.replaced=true;delete x.str;
+    im.src=URL.createObjectURL(new Blob([x.bytes],{type:f.type||mimeOf(x.path)}));
+    tile.classList.add("rep");
+  });
+  container.appendChild(tile);
+}
 function renderImages(){
   var wrap=document.getElementById("imgwrap"),grid=document.getElementById("imggrid");
   if(!FOLDER){wrap.style.display="none";return;}
   var imgs=FOLDER.files.filter(function(x){return IMG_EXT.test(x.path);});
   if(!imgs.length){wrap.style.display="none";return;}
   wrap.style.display="block";grid.innerHTML="";
-  imgs.forEach(function(x){
-    var url=URL.createObjectURL(fileBlob(x));
-    var tile=document.createElement("div");tile.className="imgtile"+(x.replaced?" rep":"");
-    tile.innerHTML='<div class="badge">заменено</div><div class="thumb"><img src="'+url+'" title="'+esc(x.path)+'"></div><div class="nm" title="'+esc(x.path)+'">'+esc(baseName(x.path))+'</div><button type="button">Заменить</button><input type="file" accept="image/*" hidden>';
-    var inp=tile.querySelector("input"),btn=tile.querySelector("button"),im=tile.querySelector("img");
-    btn.addEventListener("click",function(){inp.click();});
-    inp.addEventListener("change",async function(){
-      var f=inp.files[0];if(!f)return;
-      x.bytes=new Uint8Array(await f.arrayBuffer());x.kind="bin";x.replaced=true;delete x.str;
-      im.src=URL.createObjectURL(new Blob([x.bytes],{type:f.type||mimeOf(x.path)}));
-      tile.classList.add("rep");
-    });
-    grid.appendChild(tile);
+  var main=imgs.filter(function(x){return !x.comment;}), comm=imgs.filter(function(x){return x.comment;});
+  main.forEach(function(x){imgTile(x,grid);});
+  if(comm.length){
+    var box=document.createElement("div");box.className="imggrid subgrid";box.style.display="none";
+    var h=document.createElement("div");h.className="imgsub";
+    function upd(){h.textContent=(box.style.display==="none"?"▸ ":"▾ ")+"Аватары комментариев ("+comm.length+") — обычно не трогаем";}
+    h.addEventListener("click",function(){box.style.display=box.style.display==="none"?"grid":"none";upd();});
+    upd(); grid.appendChild(h); comm.forEach(function(x){imgTile(x,box);}); grid.appendChild(box);
+  }
+}
+var REMOVE={};
+function renderCleanup(){
+  var wrap=document.getElementById("cleanwrap"),list=document.getElementById("cleanlist");
+  REMOVE={};
+  if(!FOLDER||!FOLDER.unused||!FOLDER.unused.length){if(wrap)wrap.style.display="none";return;}
+  wrap.style.display="block";list.innerHTML="";
+  FOLDER.unused.forEach(function(p){
+    REMOVE[p]=true;
+    var row=document.createElement("div");
+    row.innerHTML='<label style="margin:0;display:flex;gap:8px;align-items:center;font-weight:500;text-transform:none;letter-spacing:0;cursor:pointer;flex:1;min-width:0"><input type="checkbox" checked style="width:15px;height:15px;accent-color:var(--acc);flex:0 0 auto"> <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p)+'</span></label><span class="tag">удалить</span>';
+    var cb=row.querySelector("input");
+    cb.addEventListener("change",function(){ if(cb.checked)REMOVE[p]=true; else delete REMOVE[p]; });
+    list.appendChild(row);
   });
 }
 
@@ -583,7 +644,7 @@ function downloadZip(){
   var cfg=readCfg();
   if(MODE==="folder"&&FOLDER){
     var had={};
-    var out=FOLDER.files.map(function(x){
+    var out=FOLDER.files.filter(function(x){return !REMOVE[x.path];}).map(function(x){
       var b=baseName(x.path).toLowerCase();
       if(x.path===FOLDER.indexPath) return {name:x.path,str:FILES.index};
       if(cfg.repCallErr&&b==="call.html"){had.call=1;return {name:x.path,str:FILES.call};}
