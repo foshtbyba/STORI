@@ -45,17 +45,25 @@
   .chk{display:flex;align-items:flex-start;gap:9px;margin-top:12px}
   .chk input{width:auto;margin-top:2px;accent-color:var(--acc);width:16px;height:16px}
   .chk label{margin:0;text-transform:none;letter-spacing:0;font-weight:500;color:var(--fg);font-size:13px;cursor:pointer}
-  .drop{border:2px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;background:var(--panel2);transition:.15s}
+  .drop{border:2px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;background:var(--panel2);transition:.15s;cursor:pointer;display:block}
   .drop:hover{border-color:var(--acc);background:var(--acc-soft)}
-  .drop .ic{font-size:26px}
-  .drop .t{font-weight:600;margin-top:6px}
-  .drop .s{color:var(--mut);font-size:12px;margin-top:2px}
+  .drop .ic{font-size:26px}.drop .t{font-weight:600;margin-top:6px}.drop .s{color:var(--mut);font-size:12px;margin-top:2px}
   .drop input{display:none}
-  .filelist{margin-top:12px;max-height:180px;overflow:auto;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel2);font-size:12px}
+  .filelist{margin-top:12px;max-height:150px;overflow:auto;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel2);font-size:12px}
   .filelist div{padding:6px 12px;border-bottom:1px solid var(--line2);display:flex;justify-content:space-between;gap:10px}
   .filelist div:last-child{border-bottom:0}
   .filelist .tag{color:var(--acc);font-weight:700;font-size:10px;background:var(--acc-soft);padding:1px 7px;border-radius:20px;align-self:center}
   .filelist .tag.keep{color:var(--mut);background:var(--line2)}
+  .imggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:10px}
+  .imgtile{border:1px solid var(--line);border-radius:10px;padding:6px;background:var(--panel2);text-align:center;position:relative}
+  .imgtile.rep{border-color:var(--ok);box-shadow:0 0 0 2px var(--ok-soft)}
+  .imgtile .thumb{height:64px;display:flex;align-items:center;justify-content:center;background:conic-gradient(#eee 25%,#fff 0 50%,#eee 0 75%,#fff 0) 0 0/14px 14px;border-radius:7px;overflow:hidden}
+  .imgtile .thumb img{max-width:100%;max-height:64px;object-fit:contain}
+  .imgtile .nm{font-size:10.5px;color:var(--mut);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .imgtile button{margin-top:5px;width:100%;padding:5px;border:1px solid var(--line);background:var(--panel);color:var(--acc);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer}
+  .imgtile button:hover{background:var(--acc-soft)}
+  .imgtile .badge{position:absolute;top:4px;right:4px;background:var(--ok);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;display:none}
+  .imgtile.rep .badge{display:block}
   .status{font-size:13px;margin-top:14px;min-height:18px;font-weight:500}
   .status.ok{color:var(--ok)} .status.warn{color:var(--warn)}
   .dl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
@@ -74,7 +82,7 @@
 <body>
 <header>
   <div class="logo">✦</div>
-  <div><h1>Конструктор лендов</h1><div class="sub">оффлайн · переменные + HTML/папка → готовая сборка · api_key остаётся в браузере</div></div>
+  <div><h1>Конструктор лендов</h1><div class="sub">оффлайн · перевод + чистый HTML/папка → готовая сборка с пикселем · api_key остаётся в браузере</div></div>
 </header>
 
 <div class="wrap">
@@ -95,6 +103,21 @@
     </div>
 
     <div class="grp">
+      <h3>Meta Pixel (конверсии FB)</h3>
+      <div class="chk"><input type="checkbox" id="pxOn" checked><label>Вставлять Meta Pixel (PageView + конверсия)</label></div>
+      <label>Pixel ID (пусто = динамический из {fbpx}/URL/localStorage)</label>
+      <input id="pxid" placeholder="напр. 1234567890  или оставь пустым">
+      <div class="row">
+        <div><label>Событие конверсии</label>
+          <select id="pxev"><option>Lead</option><option>Purchase</option><option>CompleteRegistration</option><option>InitiateCheckout</option><option>AddToCart</option><option>Subscribe</option></select>
+        </div>
+        <div><label>Ценность (опц.)</label><input id="pxval" placeholder="39"></div>
+      </div>
+      <label>Валюта (опц.)</label><input id="pxcur" placeholder="EUR">
+      <div class="hint">PageView — на index/chest/error. Событие конверсии — на success (call.html), после подтверждённого заказа. Пиксель переносится index→call через localStorage.</div>
+    </div>
+
+    <div class="grp">
       <h3>Страницы и ссылки</h3>
       <div class="row">
         <div><label>success</label><input id="success" value="call.html"></div>
@@ -103,12 +126,7 @@
       <label>back-fix ссылка (пусто = выкл)</label>
       <input id="backfix" value="https://nutrivition.top/VXsVxCX?sun={sub_id_30}">
       <label>Язык текстов call/error/chest</label>
-      <select id="uiLang">
-        <option value="en">English</option><option value="ru">Русский</option>
-        <option value="fr">Français</option><option value="nl">Nederlands</option>
-        <option value="es">Español</option><option value="de">Deutsch</option>
-        <option value="pt">Português</option>
-      </select>
+      <select id="uiLang"></select>
     </div>
 
     <div class="grp">
@@ -117,7 +135,7 @@
         <div><label>Бренд</label><input id="brand" placeholder="Flexosamine Pro"></div>
         <div><label>Картинка</label><input id="image" value="images/flexosamine.png"></div>
       </div>
-      <label>Цена (для сундука/страниц)</label>
+      <label>Цена</label>
       <input id="price" placeholder="39 €">
     </div>
 
@@ -142,10 +160,14 @@
           <input id="folder" type="file" webkitdirectory directory multiple>
         </label>
         <div class="filelist" id="filelist" style="display:none"></div>
+        <div id="imgwrap" style="display:none">
+          <label style="margin-top:14px">Картинки в папке — наведи (превью), «Заменить» = загрузить свою (имя сохраняется)</label>
+          <div class="imggrid" id="imggrid"></div>
+        </div>
       </div>
 
       <div class="chk"><input type="checkbox" id="autofix" checked><label>Авто-починка формы (data-order-form + name/phone)</label></div>
-      <div class="chk"><input type="checkbox" id="stripOld" checked><label>Вырезать старый обработчик отправки (m1.top)</label></div>
+      <div class="chk"><input type="checkbox" id="stripOld" checked><label>Вырезать старый обработчик отправки + старый пиксель</label></div>
       <div class="chk"><input type="checkbox" id="repCallErr" checked><label>В режиме папки: заменить call.html и error.html</label></div>
       <div class="chk"><input type="checkbox" id="patchChest"><label>В режиме папки: обновить блок заказа и в chest.html</label></div>
     </div>
@@ -183,7 +205,7 @@ const PARTNERS = {
     hint:"Заполни endpoint/okField/okValue/idField под свою партнёрку." }
 };
 
-/* ================= ДВИЖОК ЗАКАЗА (встраивается в ленд) ================= */
+/* ================= ДВИЖОК ЗАКАЗА ================= */
 const ENGINE = `
 (function () {
   "use strict";
@@ -218,16 +240,68 @@ const ENGINE = `
   document.readyState==="loading"?document.addEventListener("DOMContentLoaded",init):init();
 })();`;
 
-/* ================= ЛОКАЛИЗАЦИЯ ================= */
+/* ================= META PIXEL ================= */
+function pixelBlock(cfg, conv){
+  if(!cfg.pxOn) return "";
+  var fixed = cfg.pxid ? ("'"+cfg.pxid.replace(/[^0-9]/g,"")+"'") : "''";
+  var convJs = "";
+  if(conv){
+    var ev=(cfg.pxev||"Lead").replace(/[^A-Za-z]/g,"");
+    var pr=[];
+    if(cfg.pxval!=="" && !isNaN(parseFloat(cfg.pxval))) pr.push("value:"+parseFloat(cfg.pxval));
+    if(cfg.pxcur) pr.push("currency:'"+cfg.pxcur.replace(/[^A-Za-z]/g,"").toUpperCase()+"'");
+    convJs=" fbq('track','"+ev+"'"+(pr.length?(",{"+pr.join(",")+"}"):"")+");";
+  }
+  var ns = cfg.pxid ? ('<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id='+cfg.pxid.replace(/[^0-9]/g,"")+'&ev=PageView&noscript=1"/></noscript>') : "";
+  return [
+"<!-- Meta Pixel -->",
+"<script>",
+"!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');",
+"(function(){var PID="+fixed+";var u=new URLSearchParams(location.search).get('fbpx');if(u)PID=u;else{var m='{fbpx}';if(m.indexOf('{')===-1&&m)PID=m;}if(!PID){try{PID=localStorage.getItem('fb_pixel')||'';}catch(e){}}if(PID){try{localStorage.setItem('fb_pixel',PID);}catch(e){}fbq('init',PID);fbq('track','PageView');"+convJs+"}})();",
+"<\/script>",
+ns,
+"<!-- End Meta Pixel -->"
+].join("\n");
+}
+
+/* ================= ЛОКАЛИЗАЦИЯ (call/error/chest) =================
+   Недостающие ключи любого языка берутся из английского (fallback). */
+const LANGS = [["en","English"],["ru","Русский"],["uk","Українська"],["fr","Français"],["nl","Nederlands"],["de","Deutsch"],["es","Español"],["pt","Português"],["it","Italiano"],["pl","Polski"],["ro","Română"],["cs","Čeština"],["sk","Slovenčina"],["hu","Magyar"],["bg","Български"],["el","Ελληνικά"],["hr","Hrvatski"],["sr","Srpski"],["sl","Slovenščina"],["sv","Svenska"],["da","Dansk"],["fi","Suomi"],["no","Norsk"],["lt","Lietuvių"],["lv","Latviešu"],["et","Eesti"],["tr","Türkçe"],["id","Bahasa Indonesia"],["ar","العربية (RTL)"],["ur","اردو (RTL)"],["he","עברית (RTL)"]];
+
 const TXT = {
-  en:{thanks:"Thank you for your order!",tl1:"Your order has been registered.",tl2:"An advisor will contact you shortly to confirm delivery.",ordno:"Order number: ",errt:"Your order has been received!",el1:"We have saved your details.",el2:"An advisor will contact you shortly to confirm delivery.",part:"You are now a participant in the campaign",price:"Every participant can get a natural and effective product for the price of",attn:"Attention:",attnx:"due to high demand, we cannot process every request.",why:"That is why we launched this giveaway: each time a winner is chosen and gets the chance to obtain",atprice:"at an exclusive price.",tryl:"Try your luck!",click:"Click the chest and claim your",reward:"reward",open:"Open",congrats:"Congratulations!!!",winl:"You have just won the chance to buy a pack of",foronly:"for only",phn:"Enter your name",php:"Enter your phone number",recv:"Receive",an:"Please enter a valid name!",ap:"Please enter a valid phone number!",action:"Special offer"},
+  en:{rtl:false,thanks:"Thank you for your order!",tl1:"Your order has been registered.",tl2:"An advisor will contact you shortly to confirm delivery.",ordno:"Order number: ",errt:"Your order has been received!",el1:"We have saved your details.",el2:"An advisor will contact you shortly to confirm delivery.",part:"You are now a participant in the campaign",price:"Every participant can get a natural and effective product for the price of",attn:"Attention:",attnx:"due to high demand, we cannot process every request.",why:"That is why we launched this giveaway: each time a winner is chosen and gets the chance to obtain",atprice:"at an exclusive price.",tryl:"Try your luck!",click:"Click the chest and claim your",reward:"reward",open:"Open",congrats:"Congratulations!!!",winl:"You have just won the chance to buy a pack of",foronly:"for only",phn:"Enter your name",php:"Enter your phone number",recv:"Receive",an:"Please enter a valid name!",ap:"Please enter a valid phone number!",action:"Special offer"},
   ru:{thanks:"Спасибо за заказ!",tl1:"Ваш заказ принят.",tl2:"Консультант свяжется с вами в ближайшее время для подтверждения доставки.",ordno:"Номер заказа: ",errt:"Ваш заказ получен!",el1:"Мы сохранили ваши данные.",el2:"Консультант свяжется с вами в ближайшее время для подтверждения доставки.",part:"Вы стали участником акции",price:"Каждый участник может получить натуральное и эффективное средство по цене",attn:"Внимание:",attnx:"из-за высокого спроса мы не можем обработать все заявки.",why:"Поэтому мы запустили розыгрыш: каждый раз выбирается победитель, который получает возможность приобрести",atprice:"по эксклюзивной цене.",tryl:"Испытайте удачу!",click:"Нажмите на сундук и заберите свою",reward:"награду",open:"Открыть",congrats:"Поздравляем!!!",winl:"Вы только что выиграли возможность купить упаковку",foronly:"всего за",phn:"Введите ваше имя",php:"Введите ваш номер телефона",recv:"Получить",an:"Введите корректное имя!",ap:"Введите корректный номер телефона!",action:"Специальная акция"},
+  uk:{thanks:"Дякуємо за замовлення!",tl1:"Ваше замовлення зареєстровано.",tl2:"Консультант незабаром зв’яжеться з вами для підтвердження доставки.",ordno:"Номер замовлення: ",errt:"Ваше замовлення отримано!",el1:"Ми зберегли ваші дані.",el2:"Консультант незабаром зв’яжеться з вами для підтвердження доставки.",phn:"Введіть ваше ім’я",php:"Введіть ваш номер телефону",recv:"Отримати",an:"Введіть коректне ім’я!",ap:"Введіть коректний номер телефону!",action:"Спеціальна пропозиція"},
   fr:{thanks:"Merci pour votre commande !",tl1:"Votre commande a bien été enregistrée.",tl2:"Un conseiller vous contactera prochainement pour confirmer la livraison.",ordno:"Numéro de commande : ",errt:"Votre commande a bien été reçue !",el1:"Nous avons enregistré vos coordonnées.",el2:"Un conseiller vous contactera prochainement pour confirmer la livraison.",part:"Vous êtes devenu participant à l'action",price:"Chaque participant peut obtenir un produit naturel et efficace au prix de",attn:"Attention :",attnx:"en raison de la forte demande, nous ne pouvons pas traiter toutes les demandes.",why:"C'est pourquoi nous avons lancé cette action : un gagnant est choisi à chaque fois et reçoit la possibilité d'obtenir",atprice:"à un prix exclusif.",tryl:"Tentez votre chance !",click:"Cliquez sur le coffre et récupérez votre",reward:"récompense",open:"Ouvrir",congrats:"Félicitations !!!",winl:"Vous venez de gagner la possibilité d'acheter une boîte de",foronly:"pour seulement",phn:"Entrez votre nom",php:"Entrez votre numéro de téléphone",recv:"Recevoir",an:"Veuillez saisir un nom valide !",ap:"Veuillez saisir un numéro de téléphone valide !",action:"Action spéciale"},
   nl:{thanks:"Bedankt voor uw bestelling!",tl1:"Uw bestelling is geregistreerd.",tl2:"Een medewerker neemt binnenkort contact met u op om de levering te bevestigen.",ordno:"Bestelnummer: ",errt:"Uw bestelling is ontvangen!",el1:"We hebben uw gegevens opgeslagen.",el2:"Een medewerker neemt binnenkort contact met u op om de levering te bevestigen.",part:"U bent deelnemer geworden aan de actie",price:"Elke deelnemer kan een natuurlijk en werkzaam middel krijgen voor de prijs van",attn:"Let op:",attnx:"door de hoge vraag kunnen we niet alle aanvragen verwerken.",why:"Daarom hebben we deze actie gelanceerd: telkens wordt een winnaar gekozen die de kans krijgt om",atprice:"aan een exclusieve prijs te bemachtigen.",tryl:"Beproef uw geluk!",click:"Klik op de kist en haal uw",reward:"beloning",open:"Openen",congrats:"Proficiat!!!",winl:"U hebt zojuist de kans gewonnen om een potje te kopen van",foronly:"voor slechts",phn:"Voer uw naam in",php:"Voer uw telefoonnummer in",recv:"Ontvangen",an:"Voer een geldige naam in!",ap:"Voer een geldig telefoonnummer in!",action:"Speciale actie"},
-  es:{thanks:"¡Gracias por su pedido!",tl1:"Su pedido ha sido registrado.",tl2:"Un asesor se pondrá en contacto con usted en breve para confirmar la entrega.",ordno:"Número de pedido: ",errt:"¡Su pedido ha sido recibido!",el1:"Hemos guardado sus datos.",el2:"Un asesor se pondrá en contacto con usted en breve para confirmar la entrega.",part:"Usted es ahora participante de la campaña",price:"Cada participante puede obtener un producto natural y eficaz al precio de",attn:"Atención:",attnx:"debido a la alta demanda, no podemos atender todas las solicitudes.",why:"Por eso lanzamos este sorteo: cada vez se elige un ganador que recibe la posibilidad de obtener",atprice:"a un precio exclusivo.",tryl:"¡Pruebe suerte!",click:"Haga clic en el cofre y reclame su",reward:"recompensa",open:"Abrir",congrats:"¡¡¡Felicidades!!!",winl:"Acaba de ganar la posibilidad de comprar un paquete de",foronly:"por solo",phn:"Escriba su nombre",php:"Escriba su número de teléfono",recv:"Recibir",an:"¡Introduzca un nombre válido!",ap:"¡Introduzca un número de teléfono válido!",action:"Oferta especial"},
   de:{thanks:"Danke für Ihre Bestellung!",tl1:"Ihre Bestellung wurde registriert.",tl2:"Ein Berater setzt sich in Kürze mit Ihnen in Verbindung, um die Lieferung zu bestätigen.",ordno:"Bestellnummer: ",errt:"Ihre Bestellung ist eingegangen!",el1:"Wir haben Ihre Daten gespeichert.",el2:"Ein Berater setzt sich in Kürze mit Ihnen in Verbindung, um die Lieferung zu bestätigen.",part:"Sie sind Teilnehmer der Aktion geworden",price:"Jeder Teilnehmer kann ein natürliches und wirksames Mittel zum Preis von",attn:"Achtung:",attnx:"aufgrund der hohen Nachfrage können wir nicht alle Anfragen bearbeiten.",why:"Deshalb haben wir dieses Gewinnspiel gestartet: jedes Mal wird ein Gewinner ausgewählt und erhält die Möglichkeit,",atprice:"zu einem exklusiven Preis zu bekommen.",tryl:"Versuchen Sie Ihr Glück!",click:"Klicken Sie auf die Truhe und holen Sie sich Ihre",reward:"Belohnung",open:"Öffnen",congrats:"Herzlichen Glückwunsch!!!",winl:"Sie haben soeben die Möglichkeit gewonnen, eine Packung zu kaufen von",foronly:"für nur",phn:"Geben Sie Ihren Namen ein",php:"Geben Sie Ihre Telefonnummer ein",recv:"Erhalten",an:"Bitte geben Sie einen gültigen Namen ein!",ap:"Bitte geben Sie eine gültige Telefonnummer ein!",action:"Sonderaktion"},
-  pt:{thanks:"Obrigado pela sua encomenda!",tl1:"A sua encomenda foi registada.",tl2:"Um consultor entrará em contacto consigo em breve para confirmar a entrega.",ordno:"Número da encomenda: ",errt:"A sua encomenda foi recebida!",el1:"Guardámos os seus dados.",el2:"Um consultor entrará em contacto consigo em breve para confirmar a entrega.",part:"Você tornou-se participante da campanha",price:"Cada participante pode obter um produto natural e eficaz pelo preço de",attn:"Atenção:",attnx:"devido à elevada procura, não conseguimos processar todos os pedidos.",why:"Por isso lançámos este sorteio: de cada vez é escolhido um vencedor que recebe a possibilidade de obter",atprice:"a um preço exclusivo.",tryl:"Tente a sua sorte!",click:"Clique no baú e receba a sua",reward:"recompensa",open:"Abrir",congrats:"Parabéns!!!",winl:"Acabou de ganhar a possibilidade de comprar uma embalagem de",foronly:"por apenas",phn:"Introduza o seu nome",php:"Introduza o seu número de telefone",recv:"Receber",an:"Introduza um nome válido!",ap:"Introduza um número de telefone válido!",action:"Oferta especial"}
+  es:{thanks:"¡Gracias por su pedido!",tl1:"Su pedido ha sido registrado.",tl2:"Un asesor se pondrá en contacto con usted en breve para confirmar la entrega.",ordno:"Número de pedido: ",errt:"¡Su pedido ha sido recibido!",el1:"Hemos guardado sus datos.",el2:"Un asesor se pondrá en contacto con usted en breve para confirmar la entrega.",part:"Usted es ahora participante de la campaña",price:"Cada participante puede obtener un producto natural y eficaz al precio de",attn:"Atención:",attnx:"debido a la alta demanda, no podemos atender todas las solicitudes.",why:"Por eso lanzamos este sorteo: cada vez se elige un ganador que recibe la posibilidad de obtener",atprice:"a un precio exclusivo.",tryl:"¡Pruebe suerte!",click:"Haga clic en el cofre y reclame su",reward:"recompensa",open:"Abrir",congrats:"¡¡¡Felicidades!!!",winl:"Acaba de ganar la posibilidad de comprar un paquete de",foronly:"por solo",phn:"Escriba su nombre",php:"Escriba su número de teléfono",recv:"Recibir",an:"¡Introduzca un nombre válido!",ap:"¡Introduzca un número de teléfono válido!",action:"Oferta especial"},
+  pt:{thanks:"Obrigado pela sua encomenda!",tl1:"A sua encomenda foi registada.",tl2:"Um consultor entrará em contacto consigo em breve para confirmar a entrega.",ordno:"Número da encomenda: ",errt:"A sua encomenda foi recebida!",el1:"Guardámos os seus dados.",el2:"Um consultor entrará em contacto consigo em breve para confirmar a entrega.",part:"Você tornou-se participante da campanha",price:"Cada participante pode obter um produto natural e eficaz pelo preço de",attn:"Atenção:",attnx:"devido à elevada procura, não conseguimos processar todos os pedidos.",why:"Por isso lançámos este sorteio: de cada vez é escolhido um vencedor que recebe a possibilidade de obter",atprice:"a um preço exclusivo.",tryl:"Tente a sua sorte!",click:"Clique no baú e receba a sua",reward:"recompensa",open:"Abrir",congrats:"Parabéns!!!",winl:"Acabou de ganhar a possibilidade de comprar uma embalagem de",foronly:"por apenas",phn:"Introduza o seu nome",php:"Introduza o seu número de telefone",recv:"Receber",an:"Introduza um nome válido!",ap:"Introduza um número de telefone válido!",action:"Oferta especial"},
+  it:{thanks:"Grazie per il suo ordine!",tl1:"Il suo ordine è stato registrato.",tl2:"Un consulente la contatterà a breve per confermare la consegna.",ordno:"Numero d'ordine: ",errt:"Il suo ordine è stato ricevuto!",el1:"Abbiamo salvato i suoi dati.",el2:"Un consulente la contatterà a breve per confermare la consegna.",phn:"Inserisca il suo nome",php:"Inserisca il suo numero di telefono",recv:"Ricevere",an:"Inserisca un nome valido!",ap:"Inserisca un numero di telefono valido!",action:"Offerta speciale"},
+  pl:{thanks:"Dziękujemy za zamówienie!",tl1:"Twoje zamówienie zostało zarejestrowane.",tl2:"Doradca wkrótce się z Tobą skontaktuje, aby potwierdzić dostawę.",ordno:"Numer zamówienia: ",errt:"Twoje zamówienie zostało przyjęte!",el1:"Zapisaliśmy Twoje dane.",el2:"Doradca wkrótce się z Tobą skontaktuje, aby potwierdzić dostawę.",phn:"Wpisz swoje imię",php:"Wpisz swój numer telefonu",recv:"Odbierz",an:"Podaj prawidłowe imię!",ap:"Podaj prawidłowy numer telefonu!",action:"Oferta specjalna"},
+  ro:{thanks:"Vă mulțumim pentru comandă!",tl1:"Comanda dvs. a fost înregistrată.",tl2:"Un consultant vă va contacta în curând pentru a confirma livrarea.",ordno:"Număr comandă: ",errt:"Comanda dvs. a fost primită!",el1:"Am salvat datele dvs.",el2:"Un consultant vă va contacta în curând pentru a confirma livrarea.",phn:"Introduceți numele dvs.",php:"Introduceți numărul dvs. de telefon",recv:"Primește",an:"Introduceți un nume valid!",ap:"Introduceți un număr de telefon valid!",action:"Ofertă specială"},
+  cs:{thanks:"Děkujeme za vaši objednávku!",tl1:"Vaše objednávka byla zaregistrována.",tl2:"Poradce vás brzy bude kontaktovat pro potvrzení doručení.",ordno:"Číslo objednávky: ",errt:"Vaše objednávka byla přijata!",el1:"Uložili jsme vaše údaje.",el2:"Poradce vás brzy bude kontaktovat pro potvrzení doručení.",phn:"Zadejte své jméno",php:"Zadejte své telefonní číslo",recv:"Přijmout",an:"Zadejte platné jméno!",ap:"Zadejte platné telefonní číslo!",action:"Speciální nabídka"},
+  sk:{thanks:"Ďakujeme za vašu objednávku!",tl1:"Vaša objednávka bola zaregistrovaná.",tl2:"Poradca vás čoskoro bude kontaktovať na potvrdenie doručenia.",ordno:"Číslo objednávky: ",errt:"Vaša objednávka bola prijatá!",el1:"Uložili sme vaše údaje.",el2:"Poradca vás čoskoro bude kontaktovať na potvrdenie doručenia.",phn:"Zadajte svoje meno",php:"Zadajte svoje telefónne číslo",recv:"Prijať",an:"Zadajte platné meno!",ap:"Zadajte platné telefónne číslo!",action:"Špeciálna ponuka"},
+  hu:{thanks:"Köszönjük a rendelését!",tl1:"Rendelését rögzítettük.",tl2:"Tanácsadónk hamarosan felveszi Önnel a kapcsolatot a szállítás megerősítéséhez.",ordno:"Rendelésszám: ",errt:"Rendelését megkaptuk!",el1:"Elmentettük az adatait.",el2:"Tanácsadónk hamarosan felveszi Önnel a kapcsolatot a szállítás megerősítéséhez.",phn:"Adja meg a nevét",php:"Adja meg a telefonszámát",recv:"Fogadás",an:"Adjon meg egy érvényes nevet!",ap:"Adjon meg egy érvényes telefonszámot!",action:"Különleges ajánlat"},
+  bg:{thanks:"Благодарим за поръчката!",tl1:"Вашата поръчка е регистрирана.",tl2:"Консултант ще се свърже с вас скоро, за да потвърди доставката.",ordno:"Номер на поръчката: ",errt:"Вашата поръчка е получена!",el1:"Запазихме вашите данни.",el2:"Консултант ще се свърже с вас скоро, за да потвърди доставката.",phn:"Въведете вашето име",php:"Въведете вашия телефонен номер",recv:"Получаване",an:"Въведете валидно име!",ap:"Въведете валиден телефонен номер!",action:"Специална оферта"},
+  el:{thanks:"Ευχαριστούμε για την παραγγελία σας!",tl1:"Η παραγγελία σας καταχωρήθηκε.",tl2:"Ένας σύμβουλος θα επικοινωνήσει σύντομα μαζί σας για να επιβεβαιώσει την παράδοση.",ordno:"Αριθμός παραγγελίας: ",errt:"Η παραγγελία σας παραλήφθηκε!",el1:"Αποθηκεύσαμε τα στοιχεία σας.",el2:"Ένας σύμβουλος θα επικοινωνήσει σύντομα μαζί σας για να επιβεβαιώσει την παράδοση.",phn:"Εισαγάγετε το όνομά σας",php:"Εισαγάγετε τον αριθμό τηλεφώνου σας",recv:"Λήψη",an:"Εισαγάγετε έγκυρο όνομα!",ap:"Εισαγάγετε έγκυρο αριθμό τηλεφώνου!",action:"Ειδική προσφορά"},
+  hr:{thanks:"Hvala na narudžbi!",tl1:"Vaša narudžba je zabilježena.",tl2:"Savjetnik će vas uskoro kontaktirati radi potvrde dostave.",ordno:"Broj narudžbe: ",errt:"Vaša narudžba je zaprimljena!",el1:"Spremili smo vaše podatke.",el2:"Savjetnik će vas uskoro kontaktirati radi potvrde dostave.",phn:"Unesite svoje ime",php:"Unesite svoj broj telefona",recv:"Primi",an:"Unesite ispravno ime!",ap:"Unesite ispravan broj telefona!",action:"Posebna ponuda"},
+  sr:{thanks:"Hvala na porudžbini!",tl1:"Vaša porudžbina je zabeležena.",tl2:"Savetnik će vas uskoro kontaktirati radi potvrde isporuke.",ordno:"Broj porudžbine: ",errt:"Vaša porudžbina je primljena!",el1:"Sačuvali smo vaše podatke.",el2:"Savetnik će vas uskoro kontaktirati radi potvrde isporuke.",phn:"Unesite svoje ime",php:"Unesite svoj broj telefona",recv:"Primi",an:"Unesite ispravno ime!",ap:"Unesite ispravan broj telefona!",action:"Specijalna ponuda"},
+  sl:{thanks:"Hvala za naročilo!",tl1:"Vaše naročilo je bilo zabeleženo.",tl2:"Svetovalec vas bo kmalu kontaktiral za potrditev dostave.",ordno:"Številka naročila: ",errt:"Vaše naročilo je bilo prejeto!",el1:"Shranili smo vaše podatke.",el2:"Svetovalec vas bo kmalu kontaktiral za potrditev dostave.",phn:"Vnesite svoje ime",php:"Vnesite svojo telefonsko številko",recv:"Prejmi",an:"Vnesite veljavno ime!",ap:"Vnesite veljavno telefonsko številko!",action:"Posebna ponudba"},
+  sv:{thanks:"Tack för din beställning!",tl1:"Din beställning har registrerats.",tl2:"En rådgivare kontaktar dig snart för att bekräfta leveransen.",ordno:"Ordernummer: ",errt:"Din beställning har mottagits!",el1:"Vi har sparat dina uppgifter.",el2:"En rådgivare kontaktar dig snart för att bekräfta leveransen.",phn:"Ange ditt namn",php:"Ange ditt telefonnummer",recv:"Ta emot",an:"Ange ett giltigt namn!",ap:"Ange ett giltigt telefonnummer!",action:"Specialerbjudande"},
+  da:{thanks:"Tak for din bestilling!",tl1:"Din bestilling er registreret.",tl2:"En rådgiver kontakter dig snart for at bekræfte leveringen.",ordno:"Ordrenummer: ",errt:"Din bestilling er modtaget!",el1:"Vi har gemt dine oplysninger.",el2:"En rådgiver kontakter dig snart for at bekræfte leveringen.",phn:"Indtast dit navn",php:"Indtast dit telefonnummer",recv:"Modtag",an:"Indtast et gyldigt navn!",ap:"Indtast et gyldigt telefonnummer!",action:"Særtilbud"},
+  fi:{thanks:"Kiitos tilauksestasi!",tl1:"Tilauksesi on rekisteröity.",tl2:"Neuvoja ottaa sinuun pian yhteyttä vahvistaakseen toimituksen.",ordno:"Tilausnumero: ",errt:"Tilauksesi on vastaanotettu!",el1:"Olemme tallentaneet tietosi.",el2:"Neuvoja ottaa sinuun pian yhteyttä vahvistaakseen toimituksen.",phn:"Anna nimesi",php:"Anna puhelinnumerosi",recv:"Vastaanota",an:"Anna kelvollinen nimi!",ap:"Anna kelvollinen puhelinnumero!",action:"Erikoistarjous"},
+  no:{thanks:"Takk for bestillingen!",tl1:"Bestillingen din er registrert.",tl2:"En rådgiver kontakter deg snart for å bekrefte leveringen.",ordno:"Ordrenummer: ",errt:"Bestillingen din er mottatt!",el1:"Vi har lagret opplysningene dine.",el2:"En rådgiver kontakter deg snart for å bekrefte leveringen.",phn:"Skriv inn navnet ditt",php:"Skriv inn telefonnummeret ditt",recv:"Motta",an:"Skriv inn et gyldig navn!",ap:"Skriv inn et gyldig telefonnummer!",action:"Spesialtilbud"},
+  lt:{thanks:"Ačiū už užsakymą!",tl1:"Jūsų užsakymas užregistruotas.",tl2:"Konsultantas netrukus su jumis susisieks, kad patvirtintų pristatymą.",ordno:"Užsakymo numeris: ",errt:"Jūsų užsakymas gautas!",el1:"Išsaugojome jūsų duomenis.",el2:"Konsultantas netrukus su jumis susisieks, kad patvirtintų pristatymą.",phn:"Įveskite savo vardą",php:"Įveskite savo telefono numerį",recv:"Gauti",an:"Įveskite teisingą vardą!",ap:"Įveskite teisingą telefono numerį!",action:"Specialus pasiūlymas"},
+  lv:{thanks:"Paldies par pasūtījumu!",tl1:"Jūsu pasūtījums ir reģistrēts.",tl2:"Konsultants drīz ar jums sazināsies, lai apstiprinātu piegādi.",ordno:"Pasūtījuma numurs: ",errt:"Jūsu pasūtījums ir saņemts!",el1:"Mēs saglabājām jūsu datus.",el2:"Konsultants drīz ar jums sazināsies, lai apstiprinātu piegādi.",phn:"Ievadiet savu vārdu",php:"Ievadiet savu tālruņa numuru",recv:"Saņemt",an:"Ievadiet derīgu vārdu!",ap:"Ievadiet derīgu tālruņa numuru!",action:"Īpašais piedāvājums"},
+  et:{thanks:"Täname tellimuse eest!",tl1:"Teie tellimus on registreeritud.",tl2:"Nõustaja võtab teiega peagi ühendust, et kohaletoimetamine kinnitada.",ordno:"Tellimuse number: ",errt:"Teie tellimus on vastu võetud!",el1:"Salvestasime teie andmed.",el2:"Nõustaja võtab teiega peagi ühendust, et kohaletoimetamine kinnitada.",phn:"Sisestage oma nimi",php:"Sisestage oma telefoninumber",recv:"Võta vastu",an:"Sisestage kehtiv nimi!",ap:"Sisestage kehtiv telefoninumber!",action:"Eripakkumine"},
+  tr:{thanks:"Siparişiniz için teşekkürler!",tl1:"Siparişiniz kaydedildi.",tl2:"Bir danışman teslimatı onaylamak için kısa süre içinde sizinle iletişime geçecek.",ordno:"Sipariş numarası: ",errt:"Siparişiniz alındı!",el1:"Bilgilerinizi kaydettik.",el2:"Bir danışman teslimatı onaylamak için kısa süre içinde sizinle iletişime geçecek.",part:"Kampanyaya katılımcı oldunuz",price:"Her katılımcı doğal ve etkili bir ürünü şu fiyata alabilir:",attn:"Dikkat:",attnx:"yoğun talep nedeniyle tüm talepleri işleme alamıyoruz.",why:"Bu yüzden bu çekilişi başlattık: her seferinde bir kazanan seçilir ve şunu alma şansı kazanır:",atprice:"özel bir fiyata.",tryl:"Şansınızı deneyin!",click:"Sandığa tıklayın ve",reward:"ödülünüzü alın",open:"Aç",congrats:"Tebrikler!!!",winl:"Az önce şu ürünü satın alma şansı kazandınız:",foronly:"sadece",phn:"Adınızı girin",php:"Telefon numaranızı girin",recv:"Al",an:"Lütfen geçerli bir ad girin!",ap:"Lütfen geçerli bir telefon numarası girin!",action:"Özel teklif"},
+  id:{thanks:"Terima kasih atas pesanan Anda!",tl1:"Pesanan Anda telah terdaftar.",tl2:"Seorang konsultan akan segera menghubungi Anda untuk mengonfirmasi pengiriman.",ordno:"Nomor pesanan: ",errt:"Pesanan Anda telah diterima!",el1:"Kami telah menyimpan data Anda.",el2:"Seorang konsultan akan segera menghubungi Anda untuk mengonfirmasi pengiriman.",phn:"Masukkan nama Anda",php:"Masukkan nomor telepon Anda",recv:"Terima",an:"Masukkan nama yang valid!",ap:"Masukkan nomor telepon yang valid!",action:"Penawaran khusus"},
+  ar:{rtl:true,thanks:"شكرًا على طلبك!",tl1:"تم تسجيل طلبك.",tl2:"سيتواصل معك مستشار قريبًا لتأكيد التوصيل.",ordno:"رقم الطلب: ",errt:"تم استلام طلبك!",el1:"لقد حفظنا بياناتك.",el2:"سيتواصل معك مستشار قريبًا لتأكيد التوصيل.",part:"لقد أصبحت مشاركًا في الحملة",price:"يمكن لكل مشارك الحصول على منتج طبيعي وفعّال بسعر",attn:"تنبيه:",attnx:"بسبب الطلب الكبير لا يمكننا معالجة جميع الطلبات.",why:"لهذا أطلقنا هذا السحب: في كل مرة يتم اختيار فائز يحصل على فرصة الحصول على",atprice:"بسعر حصريّ.",tryl:"جرّب حظّك!",click:"اضغط على الصندوق واحصل على",reward:"مكافأتك",open:"افتح",congrats:"تهانينا!!!",winl:"لقد فزت للتوّ بفرصة شراء عبوة من",foronly:"مقابل فقط",phn:"أدخل اسمك",php:"أدخل رقم هاتفك",recv:"استلام",an:"يرجى إدخال اسم صحيح!",ap:"يرجى إدخال رقم هاتف صحيح!",action:"عرض خاص"},
+  ur:{rtl:true,thanks:"آپ کے آرڈر کا شکریہ!",tl1:"آپ کا آرڈر درج ہو گیا ہے۔",tl2:"ہمارا نمائندہ ترسیل کی تصدیق کے لیے جلد آپ سے رابطہ کرے گا۔",ordno:"آرڈر نمبر: ",errt:"آپ کا آرڈر موصول ہو گیا ہے!",el1:"ہم نے آپ کی معلومات محفوظ کر لی ہیں۔",el2:"ہمارا نمائندہ ترسیل کی تصدیق کے لیے جلد آپ سے رابطہ کرے گا۔",phn:"اپنا نام درج کریں",php:"اپنا فون نمبر درج کریں",recv:"وصول کریں",an:"براہِ کرم درست نام درج کریں!",ap:"براہِ کرم درست فون نمبر درج کریں!",action:"خصوصی پیشکش"},
+  he:{rtl:true,thanks:"תודה על ההזמנה!",tl1:"ההזמנה שלך נרשמה.",tl2:"יועץ ייצור איתך קשר בקרוב לאישור המשלוח.",ordno:"מספר הזמנה: ",errt:"ההזמנה שלך התקבלה!",el1:"שמרנו את הפרטים שלך.",el2:"יועץ ייצור איתך קשר בקרוב לאישור המשלוח.",phn:"הזן את שמך",php:"הזן את מספר הטלפון שלך",recv:"קבל",an:"אנא הזן שם תקין!",ap:"אנא הזן מספר טלפון תקין!",action:"מבצע מיוחד"}
 };
+function T(lang){return Object.assign({},TXT.en,TXT[lang]||{});}
 
 /* ================= ГЕНЕРАЦИЯ ================= */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
@@ -237,6 +311,14 @@ function orderBlock(cfg){
   if(cfg.backfix) l.push('<script src="js/ywbackfix.js" data-redirect="true" data-links=\'["'+cfg.backfix+'"]\'><\/script>');
   l.push("<!-- ===== конец блока ===== -->");return l.join("\n");
 }
+function stripPixel(html){return html.replace(/<!--\s*Meta Pixel\s*-->[\s\S]*?<!--\s*End Meta Pixel\s*-->/gi,"").replace(/<script[^>]*>[\s\S]*?fbevents\.js[\s\S]*?<\/script>/gi,"").replace(/<noscript>\s*<img[^>]*facebook\.com\/tr[^>]*><\/noscript>/gi,"");}
+function injectHead(html,snip){
+  if(!snip) return html;
+  if(/<\/head>/i.test(html)) return html.replace(/<\/head>/i,snip+"\n</head>");
+  if(/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i,function(m){return m+"\n"+snip;});
+  if(/<body[^>]*>/i.test(html)) return html.replace(/<body[^>]*>/i,function(m){return snip+"\n"+m;});
+  return snip+"\n"+html;
+}
 function patchHtml(cfg, html){
   if(!html || !html.trim()) return "<!-- пусто -->";
   if(cfg.stripOld){
@@ -244,6 +326,7 @@ function patchHtml(cfg, html){
     html=html.replace(/<script[^>]*m1ref\.js[^>]*><\/script>/gi,"");
     html=html.replace(/<script[^>]*ywbackfix\.js[^>]*>[\s\S]*?<\/script>/gi,"");
   }
+  if(cfg.pxOn){ html=stripPixel(html); html=injectHead(html,pixelBlock(cfg,false)); }
   if(cfg.autofix){
     html=html.replace(/<form\b(?![^>]*data-order-form)([^>]*)>/i,'<form data-order-form$1>');
     if(!/name=["']name["']/i.test(html)) html=html.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i,'<input name="name"$1>');
@@ -255,10 +338,12 @@ function patchHtml(cfg, html){
 }
 function buildIndex(cfg){return patchHtml(cfg, cfg.html);}
 var PAGE_CSS="body{margin:0;font-family:'Inter',-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f7fafc;color:#1a2b42;display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center}.thanks{background:#fff;max-width:520px;margin:20px;padding:40px 30px;border-radius:12px;box-shadow:0 10px 25px rgba(10,92,158,.1);display:flex;flex-direction:column;align-items:center}.thanks img{max-width:280px;width:100%;height:auto;margin:0 auto 20px}.thanks h1{color:#0a5c9e;font-size:28px;margin:0 0 12px}.thanks p{font-size:17px;line-height:1.6;margin:8px 0}.order-id{margin-top:18px;font-size:14px;color:#6b7a8f}";
+function dirAttr(cfg){return cfg.t.rtl?' dir="rtl"':'';}
 function buildCall(cfg){var t=cfg.t;return `<!DOCTYPE html>
-<html lang="${cfg.langCode}">
+<html lang="${cfg.langCode}"${dirAttr(cfg)}>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${esc(t.thanks)}</title><link rel="icon" href="${esc(cfg.image)}">
+${pixelBlock(cfg,true)}
 <style>${PAGE_CSS}</style></head>
 <body><div class="thanks">
   <img src="${esc(cfg.image)}" alt="${esc(cfg.brand)}" loading="lazy">
@@ -268,20 +353,23 @@ function buildCall(cfg){var t=cfg.t;return `<!DOCTYPE html>
 <script>(function(){var id=new URLSearchParams(location.search).get('order_id');if(id)document.getElementById('order-id').textContent='${esc(t.ordno)}'+id;})();<\/script>
 </body></html>`;}
 function buildError(cfg){var t=cfg.t;return `<!DOCTYPE html>
-<html lang="${cfg.langCode}">
+<html lang="${cfg.langCode}"${dirAttr(cfg)}>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${esc(t.errt)}</title><link rel="icon" href="${esc(cfg.image)}">
+${pixelBlock(cfg,false)}
 <style>${PAGE_CSS}</style></head>
 <body><div class="thanks">
   <img src="${esc(cfg.image)}" alt="${esc(cfg.brand)}" loading="lazy">
   <h1>${esc(t.errt)}</h1><p>${esc(t.el1)}</p><p>${esc(t.el2)}</p>
 </div></body></html>`;}
 function buildChest(cfg){var t=cfg.t;return `<!DOCTYPE html>
-<html lang="${cfg.langCode}">
+<html lang="${cfg.langCode}"${dirAttr(cfg)}>
 <head><meta charset="UTF-8"><meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
 <title>${esc(t.action)}</title>
 <link href="css/styles.css" media="all" rel="stylesheet"><link href="css/css.css" media="all" rel="stylesheet">
-<link rel="icon" href="favicon.ico"></head>
+<link rel="icon" href="favicon.ico">
+${pixelBlock(cfg,false)}
+</head>
 <body>
 <div class="container">
   <div class="chest"><div class="top_block">
@@ -321,7 +409,7 @@ function buildChest(cfg){var t=cfg.t;return `<!DOCTYPE html>
 ${orderBlock(cfg)}
 </body></html>`;}
 
-/* ================= МИНИ-ZIP (STORE, текст + бинарь) ================= */
+/* ================= МИНИ-ZIP (текст + бинарь) ================= */
 function crcTable(){var c,t=[];for(var n=0;n<256;n++){c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;}
 var CRCT=crcTable();
 function crc32(u8){var c=0xFFFFFFFF;for(var i=0;i<u8.length;i++)c=CRCT[(c^u8[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
@@ -350,21 +438,21 @@ function makeZip(files){
   return out;
 }
 
-/* ================= ЧТЕНИЕ ПАПКИ ================= */
-var FOLDER=null; // {files:[{path,kind,str?,bytes?}], indexPath}
+/* ================= ПАПКА + КАРТИНКИ ================= */
+var FOLDER=null;
 var TEXT_EXT=/\.(html?|css|js|json|svg|txt|xml|webmanifest|map)$/i;
+var IMG_EXT=/\.(png|jpe?g|webp|gif|svg|ico|avif|bmp)$/i;
 function baseName(p){return p.split("/").pop();}
+function mimeOf(p){var e=(p.split(".").pop()||"").toLowerCase();return {png:"image/png",jpg:"image/jpeg",jpeg:"image/jpeg",webp:"image/webp",gif:"image/gif",svg:"image/svg+xml",ico:"image/x-icon",avif:"image/avif",bmp:"image/bmp"}[e]||"application/octet-stream";}
 async function readFolder(fileList){
-  var files=Array.from(fileList);
-  if(!files.length) return null;
+  var files=Array.from(fileList); if(!files.length) return null;
   var out=[];
   for(var i=0;i<files.length;i++){
     var f=files[i];
-    var rel=(f.webkitRelativePath||f.name).split("/").slice(1).join("/")||f.name; // срезаем верхнюю папку
+    var rel=(f.webkitRelativePath||f.name).split("/").slice(1).join("/")||f.name;
     if(TEXT_EXT.test(rel)) out.push({path:rel,kind:"text",str:await f.text()});
     else out.push({path:rel,kind:"bin",bytes:new Uint8Array(await f.arrayBuffer())});
   }
-  // индекс — самый неглубокий index.html
   var idx=out.filter(function(x){return baseName(x.path).toLowerCase()==="index.html";})
              .sort(function(a,b){return a.path.split("/").length-b.path.split("/").length;})[0];
   return {files:out, indexPath: idx?idx.path:null};
@@ -381,26 +469,48 @@ function renderFileList(){
     return '<div><span>'+esc(x.path)+'</span><span class="'+cls+'">'+tag+'</span></div>';
   }).join("");
 }
+function fileBlob(x){return x.kind==="text"?new Blob([x.str],{type:mimeOf(x.path)}):new Blob([x.bytes],{type:mimeOf(x.path)});}
+function renderImages(){
+  var wrap=document.getElementById("imgwrap"),grid=document.getElementById("imggrid");
+  if(!FOLDER){wrap.style.display="none";return;}
+  var imgs=FOLDER.files.filter(function(x){return IMG_EXT.test(x.path);});
+  if(!imgs.length){wrap.style.display="none";return;}
+  wrap.style.display="block";grid.innerHTML="";
+  imgs.forEach(function(x){
+    var url=URL.createObjectURL(fileBlob(x));
+    var tile=document.createElement("div");tile.className="imgtile"+(x.replaced?" rep":"");
+    tile.innerHTML='<div class="badge">заменено</div><div class="thumb"><img src="'+url+'" title="'+esc(x.path)+'"></div><div class="nm" title="'+esc(x.path)+'">'+esc(baseName(x.path))+'</div><button type="button">Заменить</button><input type="file" accept="image/*" hidden>';
+    var inp=tile.querySelector("input"),btn=tile.querySelector("button"),im=tile.querySelector("img");
+    btn.addEventListener("click",function(){inp.click();});
+    inp.addEventListener("change",async function(){
+      var f=inp.files[0];if(!f)return;
+      x.bytes=new Uint8Array(await f.arrayBuffer());x.kind="bin";x.replaced=true;delete x.str;
+      im.src=URL.createObjectURL(new Blob([x.bytes],{type:f.type||mimeOf(x.path)}));
+      tile.classList.add("rep");
+    });
+    grid.appendChild(tile);
+  });
+}
 
 /* ================= UI / СБОРКА ================= */
 var MODE="html";
+function val(id){return document.getElementById(id).value.trim();}
 function readCfg(){
   var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value;
   return {endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:val("ref"),api_key:val("api_key"),langCode:val("langCode"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
     brand:val("brand")||"Product",image:val("image")||"images/product.png",price:val("price")||"—",
+    pxOn:document.getElementById("pxOn").checked,pxid:val("pxid"),pxev:val("pxev")||"Lead",pxval:val("pxval"),pxcur:val("pxcur"),
     html:document.getElementById("html").value,autofix:document.getElementById("autofix").checked,
     stripOld:document.getElementById("stripOld").checked,repCallErr:document.getElementById("repCallErr").checked,
-    patchChest:document.getElementById("patchChest").checked, t:TXT[lang]||TXT.en};
+    patchChest:document.getElementById("patchChest").checked, t:T(lang)};
 }
-function val(id){return document.getElementById(id).value.trim();}
-
 var FILES={};
 function build(){
   var cfg=readCfg(),st=document.getElementById("status");
   var miss=["product_id","ref","api_key","langCode"].filter(function(k){return !cfg[k];});
-
+  if(cfg.pxOn && !cfg.pxid) { /* динамический пиксель — норм */ }
   if(MODE==="folder"){
     if(!FOLDER){st.className="status warn";st.textContent="Сначала выбери папку ленда.";return;}
     if(!FOLDER.indexPath){st.className="status warn";st.textContent="В папке не найден index.html.";return;}
@@ -413,9 +523,8 @@ function build(){
   } else {
     FILES={index:buildIndex(cfg),call:buildCall(cfg),error:buildError(cfg),chest:buildChest(cfg)};
   }
-
   if(miss.length){st.className="status warn";st.textContent="Заполни обязательные: "+miss.join(", ");}
-  else{st.className="status ok";st.textContent=MODE==="folder"?"Готово ✓ Скачай папку (zip) — index пропатчен, call/error заменены, остальное сохранено.":"Готово ✓ Проверь вкладки и скачай.";}
+  else{st.className="status ok";st.textContent=(MODE==="folder"?"Готово ✓ Папка: index пропатчен, call/error заменены":"Готово ✓")+(cfg.pxOn?" · Meta Pixel вставлен ("+(cfg.pxid||"динамический {fbpx}")+", конверсия "+cfg.pxev+")":"");}
   showTab(currentTab);
 }
 var currentTab="index";
@@ -434,18 +543,17 @@ function downloadZip(){
   if(!FILES.index)build();
   var cfg=readCfg();
   if(MODE==="folder"&&FOLDER){
-    var repl={}; repl[FOLDER.indexPath]=FILES.index;
+    var had={};
     var out=FOLDER.files.map(function(x){
       var b=baseName(x.path).toLowerCase();
       if(x.path===FOLDER.indexPath) return {name:x.path,str:FILES.index};
-      if(cfg.repCallErr&&b==="call.html") {repl.call=1; return {name:x.path,str:FILES.call};}
-      if(cfg.repCallErr&&b==="error.html"){repl.error=1; return {name:x.path,str:FILES.error};}
+      if(cfg.repCallErr&&b==="call.html"){had.call=1;return {name:x.path,str:FILES.call};}
+      if(cfg.repCallErr&&b==="error.html"){had.error=1;return {name:x.path,str:FILES.error};}
       if(cfg.patchChest&&b==="chest.html") return {name:x.path,str:FILES.chest};
       return x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes};
     });
-    // если call/error не было в папке — добавим в корень
-    if(cfg.repCallErr&&!repl.call)  out.push({name:"call.html",str:FILES.call});
-    if(cfg.repCallErr&&!repl.error) out.push({name:"error.html",str:FILES.error});
+    if(cfg.repCallErr&&!had.call)  out.push({name:"call.html",str:FILES.call});
+    if(cfg.repCallErr&&!had.error) out.push({name:"error.html",str:FILES.error});
     dl("lander.zip",makeZip(out),"application/zip");
   } else {
     dl("lander.zip",makeZip([{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error},{name:"chest.html",str:FILES.chest}]),"application/zip");
@@ -458,6 +566,9 @@ function downloadZip(){
   Object.keys(PARTNERS).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PARTNERS[k].label;sel.appendChild(o);});
   function ph(){document.getElementById("partnerHint").textContent=PARTNERS[sel.value].hint;}
   sel.addEventListener("change",ph);ph();
+
+  var ul=document.getElementById("uiLang");
+  LANGS.forEach(function(p){var o=document.createElement("option");o.value=p[0];o.textContent=p[1];ul.appendChild(o);});
 
   function setMode(m){
     MODE=m;
@@ -473,7 +584,7 @@ function downloadZip(){
   document.getElementById("folder").addEventListener("change",async function(e){
     var st=document.getElementById("status");
     st.className="status";st.textContent="Читаю папку…";
-    try{ FOLDER=await readFolder(e.target.files); renderFileList();
+    try{ FOLDER=await readFolder(e.target.files); renderFileList(); renderImages();
       st.className="status ok";
       st.textContent=FOLDER?("Загружено файлов: "+FOLDER.files.length+(FOLDER.indexPath?(" · index: "+FOLDER.indexPath):" · ⚠ index.html не найден")):"Пусто";
     }catch(err){st.className="status warn";st.textContent="Ошибка чтения: "+err.message;}
