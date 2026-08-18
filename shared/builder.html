@@ -145,20 +145,21 @@
       <label>ID оффера (product_id) *</label>
       <input id="product_id" placeholder="ID оффера из кабинета партнёрки">
       <div class="row">
-        <div id="refWrap"><label>ID вебмастера (ref) 🔒</label><input id="ref" placeholder="закреплён за партнёркой"></div>
+        <div>
+          <div id="refWrap"><label>ID вебмастера (ref) 🔒</label><input id="ref" placeholder="закреплён за партнёркой"></div>
+          <div id="countryWrap" style="display:none"><label>Страна (countryCode) *</label><input id="country" placeholder="CZ · DE · SK… (авто)"></div>
+        </div>
         <div><label>Код гео (langCode) *</label><input id="langCode" placeholder="be · fr · cr · pk…"></div>
       </div>
       <div id="phpFields" style="display:none">
-        <div class="row">
-          <div><label>Страна (countryCode) *</label><input id="country" placeholder="CZ · DE · SK… (авто из гео)"></div>
-          <div><label>URL оригинального лендинга (опц.)</label><input id="landingUrl" placeholder="https://… — адрес ленда из оффера"></div>
-        </div>
+        <label>URL оригинального лендинга (опц.)</label>
+        <input id="landingUrl" placeholder="https://… — адрес ленда из оффера">
         <div class="subtoggle" data-target="shakesAdv"><span class="chev">▸</span> Расширенные (код потока)</div>
         <div id="shakesAdv" style="display:none">
           <label>Код потока (streamCode) — опц.</label>
           <input id="streamCode" placeholder="номер потока из shakes (обычно не нужен)">
         </div>
-        <div class="hint">shakes: форма постит на серверный <b>order.php</b> — он генерируется автоматически с твоим ключом, <b>ID оффера (offerId)</b> и страницами call/error. ref не используется. <b>Страна</b> подставляется автоматически из «Код гео» (можно поправить). <b>streamCode</b> — только для статистики по потокам, обычно не нужен. Загружай ленд <b>папкой</b> — order.php добавится в сборку.</div>
+        <div class="hint">shakes: форма постит на серверный <b>order.php</b> (генерируется автоматически с твоим ключом, <b>ID оффера</b> и страницами call/error). ref не нужен, <b>страна</b> — авто из «Код гео» (можно поправить), <b>streamCode</b> — только для статистики. Загружай ленд <b>папкой</b>.</div>
       </div>
       <label>API-ключ вебмастера (api_key) 🔒</label>
       <input id="api_key" placeholder="закреплён за партнёркой">
@@ -1804,6 +1805,7 @@ function showTopToast(msg,isErr){
     // php-партнёрка (shakes): показываем страну/URL, прячем ref (не нужен), label оффера
     document.getElementById("phpFields").style.display=isPhp?"block":"none";
     document.getElementById("refWrap").style.display=isPhp?"none":"block";
+    document.getElementById("countryWrap").style.display=isPhp?"block":"none";
     if(isPhp){ try{ var cEl=document.getElementById("country"); if(cEl && (!cEl.value||cEl.dataset.auto==="1")){ var cc=ccFromGeo(document.getElementById("langCode").value); if(cc){ cEl.value=cc; cEl.dataset.auto="1"; } } }catch(e){} }
     try{ build(); }catch(e){}
   }
