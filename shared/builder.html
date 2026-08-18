@@ -356,7 +356,41 @@ const TXT = {
   ur:{rtl:true,thanks:"آپ کے آرڈر کا شکریہ!",tl1:"آپ کا آرڈر درج ہو گیا ہے۔",tl2:"ہمارا نمائندہ ترسیل کی تصدیق کے لیے جلد آپ سے رابطہ کرے گا۔",ordno:"آرڈر نمبر: ",errt:"آپ کا آرڈر موصول ہو گیا ہے!",el1:"ہم نے آپ کی معلومات محفوظ کر لی ہیں۔",el2:"ہمارا نمائندہ ترسیل کی تصدیق کے لیے جلد آپ سے رابطہ کرے گا۔",phn:"اپنا نام درج کریں",php:"اپنا فون نمبر درج کریں",recv:"وصول کریں",an:"براہِ کرم درست نام درج کریں!",ap:"براہِ کرم درست فون نمبر درج کریں!",action:"خصوصی پیشکش"},
   he:{rtl:true,thanks:"תודה על ההזמנה!",tl1:"ההזמנה שלך נרשמה.",tl2:"יועץ ייצור איתך קשר בקרוב לאישור המשלוח.",ordno:"מספר הזמנה: ",errt:"ההזמנה שלך התקבלה!",el1:"שמרנו את הפרטים שלך.",el2:"יועץ ייצור איתך קשר בקרוב לאישור המשלוח.",phn:"הזן את שמך",php:"הזן את מספר הטלפון שלך",recv:"קבל",an:"אנא הזן שם תקין!",ap:"אנא הזן מספר טלפון תקין!",action:"מבצע מיוחד"}
 };
-function T(lang){return Object.assign({},TXT.en,TXT[lang]||{});}
+// Тексты страницы ОШИБКИ (заказ НЕ отправлен) — понятно, что надо переоформить. Перекрывают errt/el1/el2 из TXT.
+const ERR = {
+  en:{errt:"Something went wrong",el1:"Your order could not be submitted — the details may be incorrect or there was a glitch.",el2:"Please go back and place your order again.",retry:"Order again"},
+  ru:{errt:"Не удалось оформить заказ",el1:"Возможно, данные введены неверно или произошёл сбой при отправке.",el2:"Пожалуйста, вернитесь и оформите заказ ещё раз.",retry:"Оформить заново"},
+  uk:{errt:"Не вдалося оформити замовлення",el1:"Можливо, дані введено невірно або стався збій під час відправлення.",el2:"Будь ласка, поверніться та оформіть замовлення ще раз.",retry:"Оформити знову"},
+  fr:{errt:"La commande n'a pas pu être envoyée",el1:"Les informations sont peut-être incorrectes ou une erreur s'est produite.",el2:"Veuillez revenir en arrière et repasser votre commande.",retry:"Recommencer la commande"},
+  nl:{errt:"Bestelling kon niet worden verzonden",el1:"Mogelijk zijn de gegevens onjuist of is er een fout opgetreden.",el2:"Ga terug en plaats uw bestelling opnieuw.",retry:"Opnieuw bestellen"},
+  de:{errt:"Bestellung konnte nicht gesendet werden",el1:"Möglicherweise sind die Daten falsch oder es gab einen Fehler.",el2:"Bitte gehen Sie zurück und bestellen Sie erneut.",retry:"Erneut bestellen"},
+  es:{errt:"No se pudo realizar el pedido",el1:"Puede que los datos sean incorrectos o haya ocurrido un error.",el2:"Vuelva atrás y realice el pedido de nuevo.",retry:"Pedir de nuevo"},
+  pt:{errt:"Não foi possível concluir o pedido",el1:"Os dados podem estar incorretos ou ocorreu um erro no envio.",el2:"Volte atrás e faça o pedido novamente.",retry:"Encomendar novamente"},
+  it:{errt:"Impossibile inviare l'ordine",el1:"I dati potrebbero essere errati o si è verificato un errore.",el2:"Torna indietro ed effettua di nuovo l'ordine.",retry:"Ordina di nuovo"},
+  pl:{errt:"Nie udało się złożyć zamówienia",el1:"Dane mogą być nieprawidłowe lub wystąpił błąd wysyłania.",el2:"Wróć i złóż zamówienie ponownie.",retry:"Zamów ponownie"},
+  ro:{errt:"Comanda nu a putut fi trimisă",el1:"Este posibil ca datele să fie incorecte sau să fi apărut o eroare.",el2:"Reveniți și plasați comanda din nou.",retry:"Comandă din nou"},
+  cs:{errt:"Objednávku se nepodařilo odeslat",el1:"Údaje mohou být nesprávné nebo došlo k chybě.",el2:"Vraťte se a objednejte znovu.",retry:"Objednat znovu"},
+  sk:{errt:"Objednávku sa nepodarilo odoslať",el1:"Údaje môžu byť nesprávne alebo došlo k chybe.",el2:"Vráťte sa a objednajte znova.",retry:"Objednať znova"},
+  hu:{errt:"A rendelést nem sikerült elküldeni",el1:"Az adatok hibásak lehetnek, vagy hiba történt a küldés során.",el2:"Kérjük, lépjen vissza és adja le újra a rendelést.",retry:"Újrarendelés"},
+  bg:{errt:"Поръчката не беше изпратена",el1:"Възможно е данните да са грешни или да е възникнала грешка.",el2:"Моля, върнете се и направете поръчката отново.",retry:"Поръчай отново"},
+  el:{errt:"Η παραγγελία δεν στάλθηκε",el1:"Τα στοιχεία μπορεί να είναι λανθασμένα ή προέκυψε σφάλμα.",el2:"Επιστρέψτε και κάντε ξανά την παραγγελία.",retry:"Νέα παραγγελία"},
+  hr:{errt:"Narudžbu nije bilo moguće poslati",el1:"Podaci su možda netočni ili je došlo do pogreške.",el2:"Vratite se i ponovno pošaljite narudžbu.",retry:"Naruči ponovno"},
+  sr:{errt:"Porudžbina nije poslata",el1:"Podaci su možda netačni ili je došlo do greške.",el2:"Vratite se i ponovo pošaljite porudžbinu.",retry:"Poruči ponovo"},
+  sl:{errt:"Naročila ni bilo mogoče poslati",el1:"Podatki so morda napačni ali je prišlo do napake.",el2:"Vrnite se in ponovno oddajte naročilo.",retry:"Naroči znova"},
+  sv:{errt:"Beställningen kunde inte skickas",el1:"Uppgifterna kan vara felaktiga eller så uppstod ett fel.",el2:"Gå tillbaka och lägg din beställning igen.",retry:"Beställ igen"},
+  da:{errt:"Bestillingen kunne ikke sendes",el1:"Oplysningerne kan være forkerte, eller der opstod en fejl.",el2:"Gå tilbage og bestil igen.",retry:"Bestil igen"},
+  fi:{errt:"Tilausta ei voitu lähettää",el1:"Tiedot voivat olla virheellisiä tai tapahtui virhe.",el2:"Palaa takaisin ja tee tilaus uudelleen.",retry:"Tilaa uudelleen"},
+  no:{errt:"Bestillingen kunne ikke sendes",el1:"Opplysningene kan være feil, eller det oppstod en feil.",el2:"Gå tilbake og bestill på nytt.",retry:"Bestill på nytt"},
+  lt:{errt:"Nepavyko pateikti užsakymo",el1:"Duomenys gali būti neteisingi arba įvyko klaida.",el2:"Grįžkite ir pateikite užsakymą dar kartą.",retry:"Užsakyti dar kartą"},
+  lv:{errt:"Pasūtījumu neizdevās nosūtīt",el1:"Dati var būt nepareizi vai radās kļūda.",el2:"Atgriezieties un veiciet pasūtījumu vēlreiz.",retry:"Pasūtīt vēlreiz"},
+  et:{errt:"Tellimuse saatmine ebaõnnestus",el1:"Andmed võivad olla valed või tekkis viga.",el2:"Minge tagasi ja esitage tellimus uuesti.",retry:"Telli uuesti"},
+  tr:{errt:"Sipariş gönderilemedi",el1:"Bilgiler hatalı olabilir veya bir hata oluştu.",el2:"Lütfen geri dönün ve siparişi tekrar verin.",retry:"Tekrar sipariş ver"},
+  id:{errt:"Pesanan tidak dapat dikirim",el1:"Data mungkin salah atau terjadi kesalahan.",el2:"Silakan kembali dan pesan lagi.",retry:"Pesan lagi"},
+  ar:{errt:"تعذّر إرسال الطلب",el1:"قد تكون البيانات غير صحيحة أو حدث خطأ أثناء الإرسال.",el2:"يرجى الرجوع وإعادة تقديم الطلب.",retry:"إعادة الطلب"},
+  ur:{errt:"آرڈر بھیجا نہیں جا سکا",el1:"ممکن ہے معلومات غلط ہوں یا بھیجنے میں خرابی ہوئی ہو۔",el2:"براہِ کرم واپس جا کر دوبارہ آرڈر کریں۔",retry:"دوبارہ آرڈر کریں"},
+  he:{errt:"לא ניתן היה לשלוח את ההזמנה",el1:"ייתכן שהפרטים שגויים או שאירעה תקלה.",el2:"אנא חזור והזמן שוב.",retry:"להזמין שוב"}
+};
+function T(lang){return Object.assign({},TXT.en,ERR.en,TXT[lang]||{},ERR[lang]||{});}
 
 /* ================= ГЕНЕРАЦИЯ ================= */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
@@ -404,7 +438,7 @@ function patchHtml(cfg, html){
   return html;
 }
 function buildIndex(cfg){return patchHtml(cfg, cfg.html);}
-var THANKS_CSS="*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1a2b42;background:radial-gradient(1200px 600px at 50% -10%,#e8f2fa,#f5f8fb 55%)}.card{background:#fff;max-width:460px;width:100%;padding:38px 30px 30px;border-radius:22px;text-align:center;box-shadow:0 24px 60px rgba(10,40,80,.13);animation:pop .45s cubic-bezier(.2,.8,.2,1)}@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}.ic{width:92px;height:92px;margin:0 auto 12px}.ic svg{width:100%;height:100%;fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.ic.ok circle{fill:#eafaf1;stroke:#cdeede}.ic.ok path{stroke:#1e8449;stroke-dasharray:44;stroke-dashoffset:44;animation:draw .55s .2s forwards}.ic.wait circle{fill:#eef4fb;stroke:#d7e6f5}.ic.wait path{stroke:#0a5c9e}@keyframes draw{to{stroke-dashoffset:0}}.prod{max-width:160px;width:62%;height:auto;display:block;margin:8px auto 2px}h1{font-size:25px;line-height:1.25;margin:10px 0 8px;color:#1e8449}.card.err h1{color:#0a5c9e}p{font-size:16px;line-height:1.6;margin:6px 0}.muted{color:#6b7a8f;font-size:14px}.oid{margin-top:16px;font-size:13px;color:#4a5a70;background:#f1f6fb;border:1px solid #e4ecf4;border-radius:30px;padding:7px 16px;display:inline-block}.trust{margin-top:18px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:12px;color:#8a93a3}.trust span{display:inline-flex;align-items:center;gap:5px}";
+var THANKS_CSS="*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1a2b42;background:radial-gradient(1200px 600px at 50% -10%,#e8f2fa,#f5f8fb 55%)}.card{background:#fff;max-width:460px;width:100%;padding:38px 30px 30px;border-radius:22px;text-align:center;box-shadow:0 24px 60px rgba(10,40,80,.13);animation:pop .45s cubic-bezier(.2,.8,.2,1)}@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}.ic{width:92px;height:92px;margin:0 auto 12px}.ic svg{width:100%;height:100%;fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.ic.ok circle{fill:#eafaf1;stroke:#cdeede}.ic.ok path{stroke:#1e8449;stroke-dasharray:44;stroke-dashoffset:44;animation:draw .55s .2s forwards}.ic.wait circle{fill:#eef4fb;stroke:#d7e6f5}.ic.wait path{stroke:#0a5c9e}@keyframes draw{to{stroke-dashoffset:0}}.prod{max-width:160px;width:62%;height:auto;display:block;margin:8px auto 2px}h1{font-size:25px;line-height:1.25;margin:10px 0 8px;color:#1e8449}.card.err h1{color:#c0392b}.ic.err circle{fill:#fdecea;stroke:#f3ccc6}.ic.err path{stroke:#c0392b}.retry{display:inline-block;margin-top:18px;background:#0a5c9e;color:#fff;border:0;border-radius:12px;padding:13px 24px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;box-shadow:0 6px 18px rgba(10,92,158,.25)}.retry:hover{background:#084678}p{font-size:16px;line-height:1.6;margin:6px 0}.muted{color:#6b7a8f;font-size:14px}.oid{margin-top:16px;font-size:13px;color:#4a5a70;background:#f1f6fb;border:1px solid #e4ecf4;border-radius:30px;padding:7px 16px;display:inline-block}.trust{margin-top:18px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:12px;color:#8a93a3}.trust span{display:inline-flex;align-items:center;gap:5px}";
 function dirAttr(cfg){return cfg.t.rtl?' dir="rtl"':'';}
 function pageImg(cfg,slot){var u=(slot==="success"?cfg.successImg:cfg.errorImg)||cfg.image;return u;}
 function buildCall(cfg){var t=cfg.t;var img=pageImg(cfg,"success");return `<!DOCTYPE html>
@@ -432,11 +466,12 @@ ${pixelBlock(cfg,false)}
 <style>${THANKS_CSS}</style></head>
 <body>
 <div class="card err">
-  <div class="ic wait"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M26 14v13l8 5"/></svg></div>
+  <div class="ic err"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M26 15v16"/><path d="M26 37l.02 0"/></svg></div>
   <img class="prod" src="${img}" alt="${esc(cfg.brand)}" loading="lazy">
   <h1>${esc(t.errt)}</h1>
   <p>${esc(t.el1)}</p>
   <p class="muted">${esc(t.el2)}</p>
+  <button class="retry" onclick="history.back()">${esc(t.retry)}</button>
 </div>
 </body></html>`;}
 function buildChest(cfg){var t=cfg.t;return `<!DOCTYPE html>
@@ -759,6 +794,12 @@ function downloadZip(){
 
   var ul=document.getElementById("uiLang");
   LANGS.forEach(function(p){var o=document.createElement("option");o.value=p[0];o.textContent=p[1];ul.appendChild(o);});
+  // авто-подстановка языка call/error/chest из кода гео (выбор вручную остаётся)
+  var GEO2LANG={cr:"es",mx:"es",co:"es",cl:"es",pe:"es",ec:"es",gt:"es",pk:"ur",tn:"ar",ma:"ar",sa:"ar",ae:"ar",eg:"ar",dz:"ar",kw:"ar",qa:"ar",be:"nl",ch:"de",at:"de",br:"pt",gr:"el",cz:"cs",dk:"da",se:"sv",ee:"et",si:"sl",rs:"sr",ua:"uk",gb:"en",uk:"en",us:"en",ie:"en",il:"he"};
+  function hasLang(c){return LANGS.some(function(p){return p[0]===c;});}
+  function langFromGeo(c){c=(c||"").toLowerCase().trim();return GEO2LANG[c]||(hasLang(c)?c:null);}
+  var langEl=document.getElementById("langCode");
+  langEl.addEventListener("input",function(){var L=langFromGeo(langEl.value);if(L){ul.value=L;}});
 
   function setMode(m){
     MODE=m;
