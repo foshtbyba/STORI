@@ -1256,7 +1256,7 @@ function highlightTile(path){
   if(!tile){ var box=document.querySelector(".subgrid"); if(box) box.style.display="grid"; tile=document.querySelector(sel); }
   if(!tile) return;
   document.querySelectorAll(".imgtile.sel").forEach(function(el){el.classList.remove("sel");});
-  tile.classList.add("sel"); tile.scrollIntoView({behavior:"smooth",block:"center"});
+  tile.classList.add("sel"); // выделяем плитку, но НЕ прокручиваем — редактируем прямо в превью
 }
 function replaceAssetPrompt(path){
   var x=assetByPath(path); if(!x) return;
