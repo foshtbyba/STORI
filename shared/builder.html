@@ -967,11 +967,19 @@ ${pixelBlock(cfg,false)}
 ${orderBlock(cfg)}
 </body></html>`;}
 
-// чистка своей папки-сундука: убрать инлайн-скрипты/пиксель/трекер-форму, сохранив jQuery+bounce.js (анимация)
+// какие инлайн-скрипты считаем «мусором» (трекер/отправка/пиксель/даты) — их и вырезаем
+var CHEST_JUNK_RE=/send_order|sendData|send_lead|sendForm|m1\.top|m1ref|api_key|\bproduct_id\b|fbq\s*\(|fbevents|facebook\.com|dtime_nums|ipapi|gtag\s*\(|dataLayer|yandex|\bym\s*\(|_tmr|\{sub_id_30\}|\{subid\}|\{fbpx\}/i;
+// что похоже на логику открытия сундука/анимации — такое НЕ трогаем ни при каких условиях
+var CHEST_KEEP_RE=/pushChest|openChest|chest__|saleBox|\bchest\b|scratch|roulette|spin|wheel|\bcoin|prize|reward|bounce|confetti|animation|requestAnimationFrame|addEventListener\(\s*['"]click/i;
+// чистка своей папки-сундука: вырезаем ТОЛЬКО трекер/пиксель/отправку; скрипты открытия сундука (анимация) сохраняем
 function cleanChestHtml(html){
   html=html.replace(/<!--\s*Meta Pixel[\s\S]*?End Meta Pixel\s*-->/gi,"");
   html=html.replace(/<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?fbevents\.js(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");
-  html=html.replace(/<script(?![^>]*\bsrc=)[^>]*>(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");   // все инлайн-скрипты
+  // инлайн-скрипты: удаляем, только если это трекер/отправка И это НЕ логика сундука
+  html=html.replace(/<script(?![^>]*\bsrc=)[^>]*>((?:(?!<\/script>)[\s\S])*?)<\/script>/gi,function(m,body){
+    if(CHEST_KEEP_RE.test(body)) return m;             // открытие/анимация сундука — сохраняем
+    return CHEST_JUNK_RE.test(body) ? "" : m;          // мусор — вырезаем; неизвестное — оставляем
+  });
   html=html.replace(/<iframe\b[^>]*(?:name|id)="ev_frame"[^>]*>(?:(?!<\/iframe>)[\s\S])*?<\/iframe>/gi,"");
   html=html.replace(/<form\b[^>]*>/i,'<form data-order-form>');                                  // форма -> контракт
   html=html.replace(/<input[^>]*type="hidden"[^>]*>\s*/gi,"");                                    // скрытые поля трекера
