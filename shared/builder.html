@@ -151,9 +151,11 @@
       <div id="phpFields" style="display:none">
         <div class="row">
           <div><label>Страна (countryCode) *</label><input id="country" placeholder="CZ · DE · SK…"></div>
-          <div><label>URL лендинга (опц.)</label><input id="landingUrl" placeholder="https://…"></div>
+          <div><label>Код потока (streamCode)</label><input id="streamCode" placeholder="номер потока из shakes"></div>
         </div>
-        <div class="hint">shakes: форма постит на серверный <b>order.php</b> — он генерируется автоматически с твоим ключом, <b>ID оффера (offerId)</b> и страницами call/error. ref не используется. Загружай ленд <b>папкой</b> — order.php добавится в сборку.</div>
+        <label>URL оригинального лендинга (для статистики)</label>
+        <input id="landingUrl" placeholder="https://… — адрес ленда из оффера">
+        <div class="hint">shakes: форма постит на серверный <b>order.php</b> — он генерируется автоматически с твоим ключом, <b>ID оффера (offerId)</b>, <b>потоком</b> и страницами call/error. ref не используется. <b>streamCode</b> нужен для статистики (создай поток на оффер в shakes). <b>URL лендинга</b> — адрес ленда из оффера, для корректного расчёта статы. Загружай ленд <b>папкой</b> — order.php добавится в сборку.</div>
       </div>
       <label>API-ключ вебмастера (api_key) 🔒</label>
       <input id="api_key" placeholder="закреплён за партнёркой">
@@ -948,7 +950,7 @@ function shakesOrderPhp(cfg){
 "$domain = '"+(cfg.partnerDomain||"shakes.pro")+"';\n"+
 "$landingUrl = '"+(cfg.landingUrl||"")+"';\n"+
 "$offerId = '"+offerId+"';\n"+
-"$streamCode = '';\n"+
+"$streamCode = '"+String(cfg.streamCode||"").replace(/'/g,"")+"';\n"+
 "$successPage = '"+(cfg.success||"call.html")+"';\n"+
 "$errorPage = '"+(cfg.error||"error.html")+"';\n\n"+
 "$url = \"http://$domain?r=/api/order/in&key=$apiKey\";\n"+
@@ -993,6 +995,9 @@ function wireOrderPhpForm(cfg, html){
   return html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
     if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа (декоративные оставляем)
     attrs=attrs.replace(/\s(?:action|method|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"").replace(/\sdata-order-form\b/gi,"");
+    // класс order_form (гайд shakes: за него цепляется countries.js, если подключён)
+    if(/\bclass\s*=\s*["']/i.test(attrs)) attrs=attrs.replace(/(\bclass\s*=\s*["'])([^"']*)(["'])/i,function(m2,a,c,z){ return /\border_form\b/.test(c)?m2:a+(c?c+" ":"")+"order_form"+z; });
+    else attrs=' class="order_form"'+attrs;
     attrs=' action="order.php" method="post"'+attrs;
     var body=inner;
     if(!/name=["']name["']/i.test(body)) body=body.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i,'<input name="name"$1>');
@@ -1480,7 +1485,7 @@ function wirePagePick(id,slot,label){
 function val(id){return document.getElementById(id).value.trim();}
 function readCfg(){
   var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value;
-  return {mode:pk.mode||"js",partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),
+  return {mode:pk.mode||"js",partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
     endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
