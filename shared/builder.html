@@ -766,6 +766,8 @@ function dl(name,data,type){
   var blob=new Blob([data],{type:type||"text/html;charset=utf-8"}),a=document.createElement("a");
   a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
 }
+function safeName(s){return (s||"").trim().replace(/[^\p{L}\p{N}]+/gu,"-").replace(/^-+|-+$/g,"")||"lander";}
+function zipName(cfg){var g=(cfg.langCode||"").trim().toLowerCase();return safeName(cfg.brand)+(g?("_"+g):"")+".zip";}
 function downloadZip(){
   if(!FILES.index)build();
   var cfg=readCfg();
@@ -782,9 +784,9 @@ function downloadZip(){
     if(cfg.repCallErr&&!had.call)  out.push({name:"call.html",str:FILES.call});
     if(cfg.repCallErr&&!had.error) out.push({name:"error.html",str:FILES.error});
     if(cfg.makeChest&&!had.chest&&FILES.chest) out.push({name:"chest.html",str:FILES.chest});
-    dl("lander.zip",makeZip(out),"application/zip");
+    dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
-    dl("lander.zip",makeZip([{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error}]),"application/zip");
+    dl(zipName(cfg),makeZip([{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error}]),"application/zip");
   }
 }
 
