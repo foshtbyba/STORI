@@ -1003,16 +1003,14 @@ function cleanChestHtml(html){
 // чистый стиль формы сундука — чтобы форма всегда выглядела аккуратно, даже если css сундука кривой/не подгрузился
 var CHEST_FORM_CSS="<style>/* chest-form-fix (шаблон)*/.my_form{max-width:420px;margin:16px auto 0;background:#fff;border:1px solid #e4ecf4;border-radius:18px;padding:22px 20px;box-shadow:0 16px 40px rgba(10,40,80,.10);text-align:center;box-sizing:border-box}.my_form .prodImg{max-width:200px;width:70%;height:auto;display:block;margin:0 auto 8px}.my_form .text_popup{font-size:15px;line-height:1.55;margin:0 0 12px;color:#1a2b42}.my_form .text_popup>span:first-child{display:block;font-weight:800;color:#1e8449;font-size:18px;margin-bottom:4px}.my_form form{margin:0}.my_form .input-roulette{display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:14px 16px;font-size:16px;border:1.5px solid #d9e2ec;border-radius:26px;outline:none;background:#fff;color:#1a2b42;font-family:inherit;height:auto;text-align:left}.my_form .input-roulette:focus{border-color:#4aa47c;box-shadow:0 0 0 3px rgba(74,164,124,.15)}.my_form .input-roulette::placeholder{color:#9aa6b6}.my_form .submit-roulette{display:block;width:100%;margin:14px auto 0;padding:16px 20px;border:0;border-radius:40px;background:#4aa47c;color:#fff;font-size:19px;font-weight:700;text-align:center;line-height:1.2;letter-spacing:.2px;cursor:pointer;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;box-shadow:0 8px 20px rgba(74,164,124,.30)}.my_form .submit-roulette:hover{filter:brightness(1.05)}.my_form .ring-loading{display:none}</style>";
 // для сундука ИЗ ПАПКИ — только страховочный минимум с НУЛЕВОЙ специфичностью (:where): родной css старого сундука всегда побеждает, форму не ломаем
+// ТОЛЬКО страховочный фолбэк с нулевой специфичностью (:where): если у сундука есть свой css —
+// он полностью побеждает, вид остаётся как в оригинале. Фолбэк применяется только если стилей нет вообще.
 var CHEST_FORM_FALLBACK="<style>"+
-/* базовый фолбэк с нулевой специфичностью — не переопределяет родной css сундука */
-":where(.my_form){box-sizing:border-box}:where(.my_form .prodImg){max-width:220px;height:auto}:where(.my_form .input-roulette){display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:14px 16px;font-size:16px;border:1.5px solid #d9e2ec;background:#fff;color:#1a2b42;font-family:inherit}:where(.my_form .ring-loading){display:none}"+
-/* явные переопределения: широкие поля/кнопка с НЕБОЛЬШИМ боковым отступом (снимаем родной max-width),
-   кнопка — зелёная, шрифт sans-serif, текст по центру */
-".my_form .input-roulette{display:block!important;box-sizing:border-box!important;width:calc(100% - 24px)!important;max-width:none!important;margin:10px auto!important;padding:15px 20px!important;border-radius:26px!important;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif!important;font-size:16px!important;text-align:left!important}"+
-".my_form .submit-roulette{display:block!important;box-sizing:border-box!important;width:calc(100% - 24px)!important;max-width:none!important;margin:14px auto 0!important;padding:16px 20px!important;border:0!important;border-radius:40px!important;background:#4aa47c!important;color:#fff!important;font-size:19px!important;font-weight:700!important;text-align:center!important;line-height:1.2!important;letter-spacing:.2px!important;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif!important;cursor:pointer;box-shadow:0 8px 20px rgba(74,164,124,.30)!important}"+
-".my_form .submit-roulette:hover{filter:brightness(1.05)}"+
-/* итоговая цена — красным */
-".new_price_val,.new_price_cur{color:#e53935!important;font-weight:800!important}"+
+":where(.my_form){box-sizing:border-box}"+
+":where(.my_form .prodImg){max-width:220px;height:auto}"+
+":where(.my_form .input-roulette){display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:14px 16px;font-size:16px;border:1.5px solid #d9e2ec;border-radius:12px;background:#fff;color:#1a2b42;font-family:inherit}"+
+":where(.my_form .submit-roulette){display:block;width:100%;margin-top:10px;padding:16px;border:0;border-radius:14px;background:#e53935;color:#fff;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit}"+
+":where(.my_form .ring-loading){display:none}"+
 "</style>";
 // ре-брендинг сундука из папки: имя оффера (.productName), цена (.new_price_val), фото товара (.prodImg)
 function brandChest(html, cfg){
