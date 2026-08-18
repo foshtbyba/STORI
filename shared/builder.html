@@ -259,7 +259,8 @@
       <div class="tab" data-t="call">call.html</div>
       <div class="tab" data-t="error">error.html</div>
       <div class="tab" data-t="chest" id="tabChest" style="display:none">chest.html</div>
-      <div class="tab" data-t="preview">👁 превью index</div>
+      <div class="tab" data-t="preview">👁 превью ленд</div>
+      <div class="tab" data-t="cpreview" id="tabCPrev" style="display:none">👁 превью сундук</div>
     </div>
     <textarea class="out" id="out" spellcheck="false" readonly></textarea>
     <iframe id="prev" style="display:none"></iframe>
@@ -1091,9 +1092,11 @@ function renameAsset(x, newBase){
   var old=baseName(x.path); if(newBase===old) return;
   var dir=x.path.slice(0,x.path.length-old.length), np=dir+newBase;
   if(FOLDER.files.some(function(f){return f!==x && f.path===np;})){ alert("Файл с таким именем уже есть: "+np); return; }
-  // обновляем все ссылки на это имя во всех текстовых файлах (html/css/js)
+  // обновляем ссылки, но только когда имя стоит как целый файл (не подстрока другого имени)
+  var esc=old.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+  var re=new RegExp("([\\/\"'(=\\s])"+esc+"(?=[\"'?)\\s]|$)","g");
   var cnt=0;
-  FOLDER.files.forEach(function(f){ if(f.kind==="text" && f.str.indexOf(old)>=0){ cnt+=f.str.split(old).length-1; f.str=f.str.split(old).join(newBase); } });
+  FOLDER.files.forEach(function(f){ if(f.kind==="text"){ var c=(f.str.match(re)||[]).length; if(c){ cnt+=c; f.str=f.str.replace(re,"$1"+newBase); } } });
   x.path=np; x.renamed=true;
   refreshFolder();
   var st=document.getElementById("status"); st.className="status ok"; st.textContent="Переименовано: "+old+" → "+newBase+" (ссылок обновлено: "+cnt+")";
@@ -1181,32 +1184,36 @@ function showTab(t){
   currentTab=t;
   document.querySelectorAll(".tab").forEach(function(el){el.classList.toggle("active",el.dataset.t===t);});
   var out=document.getElementById("out"),prev=document.getElementById("prev");
-  if(t==="preview"){out.style.display="none";prev.style.display="block";renderPreview();}
+  if(t==="preview"){out.style.display="none";prev.style.display="block";renderPreview("index");}
+  else if(t==="cpreview"){out.style.display="none";prev.style.display="block";renderPreview("chest");}
   else{prev.style.display="none";out.style.display="block";out.value=FILES[t]||"";}
 }
 // байты -> base64 (чанками, чтобы не переполнить стек)
 function bytesToB64(b){var C=0x8000,s="";for(var i=0;i<b.length;i+=C){s+=String.fromCharCode.apply(null,b.subarray(i,i+C));}return btoa(s);}
 function toDataURL(f){ return f.kind==="text" ? ("data:"+mimeOf(f.path)+";charset=utf-8,"+encodeURIComponent(f.str)) : ("data:"+mimeOf(f.path)+";base64,"+bytesToB64(f.bytes)); }
-function renderPreview(){
+var PREV_NONCE=0, PREVIEW_TARGET="index";
+function renderPreview(target){
+  target=target||"index"; PREVIEW_TARGET=target;
   var prev=document.getElementById("prev");
+  // для сундука ассеты берём из его папки (если есть) + папки ленда; редактирование фото — только на ленде
+  var srcFiles=(target==="chest"&&CHEST_FOLDER&&CHEST_FOLDER.files.length)?CHEST_FOLDER.files.concat(FOLDER?FOLDER.files:[]):(FOLDER?FOLDER.files:[]);
+  var editable=(target==="index");
   prev.onload=function(){
     try{
       var d=prev.contentDocument; if(!d) return;
-      if(FOLDER){
-        var byBase={}; FOLDER.files.forEach(function(f){ byBase[baseName(f.path).toLowerCase()]=f; });
-        function look(raw){ if(!raw) return null; var b=raw.split("?")[0].split(",")[0].trim().split(" ")[0].split("/").pop().toLowerCase(); return byBase[b]||null; }
-        // локальные фото -> data-uri + data-asset; внешние (CDN) -> data-ext (тоже кликабельны)
-        d.querySelectorAll("img").forEach(function(im){
-          var raw=im.getAttribute("src")||"";
-          if(/^data:/i.test(raw)) return;                       // уже вшитое — не трогаем
-          var f=look(raw);
-          if(f&&IMG_EXT.test(f.path)){ im.src=toDataURL(f); im.setAttribute("data-asset",f.path); }
-          else if(/^https?:\/\//i.test(raw)){ im.setAttribute("data-ext",raw); }  // внешняя картинка
-        });
-        d.querySelectorAll("source").forEach(function(so){ var f=look(so.getAttribute("srcset")); if(f&&IMG_EXT.test(f.path)){ so.setAttribute("srcset",toDataURL(f)); } });
-        d.querySelectorAll('link[rel~="stylesheet"]').forEach(function(lk){ var f=look(lk.getAttribute("href")); if(f){ lk.setAttribute("href",toDataURL(f)); } });
+      var byBase={}; srcFiles.forEach(function(f){ var k=baseName(f.path).toLowerCase(); if(!byBase[k]) byBase[k]=f; });
+      function look(raw){ if(!raw) return null; var b=raw.split("?")[0].split(",")[0].trim().split(" ")[0].split("/").pop().toLowerCase(); return byBase[b]||null; }
+      d.querySelectorAll("img").forEach(function(im){
+        var raw=im.getAttribute("src")||"";
+        if(/^data:/i.test(raw)) return;
+        var f=look(raw);
+        if(f&&IMG_EXT.test(f.path)){ im.src=toDataURL(f); if(editable) im.setAttribute("data-asset",f.path); }
+        else if(editable && /^https?:\/\//i.test(raw)){ im.setAttribute("data-ext",raw); }
+      });
+      d.querySelectorAll("source").forEach(function(so){ var f=look(so.getAttribute("srcset")); if(f&&IMG_EXT.test(f.path)){ so.setAttribute("srcset",toDataURL(f)); } });
+      d.querySelectorAll('link[rel~="stylesheet"]').forEach(function(lk){ var f=look(lk.getAttribute("href")); if(f){ lk.setAttribute("href",toDataURL(f)); } });
+      if(editable){
         var stl=d.createElement("style"); stl.textContent="img[data-asset],img[data-ext]{cursor:zoom-in!important}img[data-asset]:hover{outline:3px solid #C96442!important;outline-offset:2px}img[data-ext]:hover{outline:3px dashed #C96442!important;outline-offset:2px}"; (d.head||d.documentElement).appendChild(stl);
-        // делегированный клик (capture) — ловим раньше скриптов ленда
         d.addEventListener("click",function(ev){
           var t=ev.target, im=(t&&t.closest)?t.closest("img[data-asset],img[data-ext]"):null;
           if(!im) return;
@@ -1218,15 +1225,22 @@ function renderPreview(){
       }
     }catch(e){ console.warn("preview:",e); }
   };
-  prev.srcdoc=FILES.index||"";
+  prev.srcdoc=(FILES[target]||"")+"\n<!--pv"+(++PREV_NONCE)+"-->";  // нонс -> srcdoc всегда уникален -> перерисовка
 }
 function assetByPath(p){return FOLDER?FOLDER.files.filter(function(f){return f.path===p;})[0]:null;}
+// надёжный выбор файла: input держим в DOM, иначе onchange иногда не срабатывает (GC)
+function pickFile(cb){
+  var inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
+  inp.style.cssText="position:fixed;left:-9999px;top:0;opacity:0"; document.body.appendChild(inp);
+  var done=false;
+  inp.addEventListener("change",function(){ done=true; var f=inp.files&&inp.files[0]; try{ if(f) cb(f); } finally{ setTimeout(function(){ if(inp.parentNode) inp.parentNode.removeChild(inp); },0); } });
+  window.addEventListener("focus",function h(){ setTimeout(function(){ if(!done&&inp.parentNode) inp.parentNode.removeChild(inp); window.removeEventListener("focus",h); },1200); });
+  inp.click();
+}
 // внешняя (CDN) картинка: заменить своим файлом — кладём локально в папку и меняем ссылку в коде
 function localizeExternal(url){
   if(!FOLDER){ alert("Замена внешних фото доступна в режиме папки."); return; }
-  var inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
-  inp.onchange=async function(){
-    var file=inp.files[0]; if(!file) return;
+  pickFile(async function(file){
     var fext=((file.name.split(".").pop()||"png").toLowerCase().replace(/[^a-z0-9]/g,""))||"png";
     var urlbase=(url.split("/").pop().split("?")[0]||"").replace(/[^a-zA-Z0-9._-]/g,"");
     var suggest=(urlbase && /\.[a-z0-9]+$/i.test(urlbase)) ? urlbase : ("img."+fext);
@@ -1243,8 +1257,7 @@ function localizeExternal(url){
     FOLDER.files.forEach(function(f){ if(f.kind==="text" && f.str.indexOf(url)>=0){ cnt+=f.str.split(url).length-1; f.str=f.str.split(url).join(p); } });
     refreshFolder(); build(); showTab("preview");
     var st=document.getElementById("status"); st.className="status ok"; st.textContent="Внешнее фото → локальное "+p+" (ссылок обновлено: "+cnt+")";
-  };
-  inp.click();
+  });
 }
 function showExtMenu(px,py,url){
   removeAssetMenu();
@@ -1268,9 +1281,7 @@ function highlightTile(path){
 }
 function replaceAssetPrompt(path){
   var x=assetByPath(path); if(!x) return;
-  var inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
-  inp.onchange=async function(){ var f=inp.files[0]; if(!f) return; x.bytes=new Uint8Array(await f.arrayBuffer()); x.kind="bin"; x.replaced=true; delete x.str; refreshFolder(); build(); showTab("preview"); };
-  inp.click();
+  pickFile(async function(f){ x.bytes=new Uint8Array(await f.arrayBuffer()); x.kind="bin"; x.replaced=true; delete x.str; refreshFolder(); build(); showTab("preview"); });
 }
 function renameAssetPrompt(path){
   var x=assetByPath(path); if(!x) return;
@@ -1321,7 +1332,7 @@ async function loadChestFolder(items){
     renderChestList();
     var mk=document.getElementById("makeChest"); if(!mk.checked){ mk.checked=true; mk.dispatchEvent(new Event("change")); }
     st.className="status ok"; st.textContent=(CHEST_FOLDER&&CHEST_FOLDER.mainPath)?("Сундук: "+CHEST_FOLDER.files.length+" файлов · страница: "+CHEST_FOLDER.mainPath):"Сундук: главная HTML-страница не найдена";
-    build(); showTab("chest");
+    build(); showTab("cpreview");
   }catch(e){ st.className="status warn"; st.textContent="Ошибка чтения сундука: "+e.message; }
 }
 // ЛЕНД (без сундука — сундук отдельным zip)
@@ -1405,7 +1416,7 @@ function downloadChestZip(){
   }
 
   // сундук: опционально — показываем кнопку/вкладку только когда включён
-  function updateChestUI(){var on=document.getElementById("makeChest").checked;document.getElementById("btnChest").style.display=on?"":"none";document.getElementById("tabChest").style.display=on?"":"none";if(!on&&currentTab==="chest")showTab("index");}
+  function updateChestUI(){var on=document.getElementById("makeChest").checked;document.getElementById("btnChest").style.display=on?"":"none";document.getElementById("tabChest").style.display=on?"":"none";document.getElementById("tabCPrev").style.display=on?"":"none";if(!on&&(currentTab==="chest"||currentTab==="cpreview"))showTab("index");}
   document.getElementById("makeChest").addEventListener("change",updateChestUI);updateChestUI();
 
   // раскрывающиеся блоки (Meta Pixel, «Расширенные»)
