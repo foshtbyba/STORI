@@ -661,34 +661,132 @@ const ENGINE = `
 (function () {
   "use strict";
   var API = OFFER.endpoint || "https://m1.top/send_order/";
-  function pq(){var o={},q=location.search.substring(1);if(q)q.split("&").forEach(function(p){var k=p.split("=");if(k[0])o[k[0]]=decodeURIComponent(k[1]||"");});return o;}
-  var Q=pq();
-  var subid=(OFFER.subid&&OFFER.subid.indexOf("{")===-1)?OFFER.subid:"";
-  var TR={s:Q.s||subid||"",w:Q.w||"",t:Q.t||"",p:Q.p||"",m:Q.m||""};
-  function tqs(){return "&s="+encodeURIComponent(TR.s)+"&w="+encodeURIComponent(TR.w)+"&t="+encodeURIComponent(TR.t)+"&p="+encodeURIComponent(TR.p)+"&m="+encodeURIComponent(TR.m);}
-  var ip="127.0.0.1";
-  try{var xi=new XMLHttpRequest();xi.open("GET","https://ipapi.co/json/",true);xi.timeout=4000;xi.onreadystatechange=function(){if(xi.readyState===4&&xi.status===200){try{ip=(JSON.parse(xi.responseText)||{}).ip||ip;}catch(e){}}};xi.send();}catch(e){}
-  if(OFFER.out!==false){try{var so=document.createElement("script");so.src=API+"?ref="+OFFER.ref+tqs()+"&product_id="+OFFER.product_id+"&out=1";document.body.appendChild(so);}catch(e){}}
-  function findForm(){return document.querySelector(OFFER.formSelector||"[data-order-form]")||document.getElementById("order_form")||(function(){var t=document.querySelector('form input[type="tel"], form input[name="phone"]');return t?t.closest("form"):null;})();}
-  function redir(base,id){location.replace(base+(base.indexOf("?")>-1?"&":"?")+(id?"order_id="+encodeURIComponent(id):"")+tqs());}
-  function send(name,phone){
-    var body="ref="+encodeURIComponent(OFFER.ref)+"&api_key="+encodeURIComponent(OFFER.api_key)+"&product_id="+encodeURIComponent(OFFER.product_id)+"&phone="+encodeURIComponent(phone)+"&name="+encodeURIComponent(name)+"&ip="+encodeURIComponent(ip)+"&s="+encodeURIComponent(TR.s)+"&w="+encodeURIComponent(TR.w)+"&t="+encodeURIComponent(TR.t)+"&p="+encodeURIComponent(TR.p)+"&m="+encodeURIComponent(TR.m)+"&referer="+encodeURIComponent(document.referrer)+"&langCode="+encodeURIComponent(OFFER.langCode||"");
-    var r=new XMLHttpRequest();r.open("POST",API,true);r.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-    r.onreadystatechange=function(){if(r.readyState!==4)return;var ok=false,id="";try{var d=JSON.parse(r.responseText);ok=d[OFFER.okField||"result"]===(OFFER.okValue||"ok");id=d[OFFER.idField||"id"];}catch(e){}ok?redir(OFFER.success||"call.html",id):redir(OFFER.error||"error.html","");};
-    r.onerror=function(){redir(OFFER.error||"error.html","");};
+
+  function pq() {
+    var o = {}, q = location.search.substring(1);
+    if (q) q.split("&").forEach(function (p) {
+      var k = p.split("=");
+      if (k[0]) o[k[0]] = decodeURIComponent(k[1] || "");
+    });
+    return o;
+  }
+
+  var Q = pq();
+  var subid = (OFFER.subid && OFFER.subid.indexOf("{") === -1) ? OFFER.subid : "";
+  var TR = { s: Q.s || subid || "", w: Q.w || "", t: Q.t || "", p: Q.p || "", m: Q.m || "" };
+
+  function tqs() {
+    return "&s=" + encodeURIComponent(TR.s) +
+           "&w=" + encodeURIComponent(TR.w) +
+           "&t=" + encodeURIComponent(TR.t) +
+           "&p=" + encodeURIComponent(TR.p) +
+           "&m=" + encodeURIComponent(TR.m);
+  }
+
+  // IP клиента (best-effort)
+  var ip = "127.0.0.1";
+  try {
+    var xi = new XMLHttpRequest();
+    xi.open("GET", "https://ipapi.co/json/", true);
+    xi.timeout = 4000;
+    xi.onreadystatechange = function () {
+      if (xi.readyState === 4 && xi.status === 200) {
+        try { ip = (JSON.parse(xi.responseText) || {}).ip || ip; } catch (e) {}
+      }
+    };
+    xi.send();
+  } catch (e) {}
+
+  // out-пиксель партнёрки
+  if (OFFER.out !== false) {
+    try {
+      var so = document.createElement("script");
+      so.src = API + "?ref=" + OFFER.ref + tqs() + "&product_id=" + OFFER.product_id + "&out=1";
+      document.body.appendChild(so);
+    } catch (e) {}
+  }
+
+  function findForm() {
+    return document.querySelector(OFFER.formSelector || "[data-order-form]") ||
+           document.getElementById("order_form") ||
+           (function () {
+             var t = document.querySelector('form input[type="tel"], form input[name="phone"]');
+             return t ? t.closest("form") : null;
+           })();
+  }
+
+  function redir(base, id) {
+    location.replace(base + (base.indexOf("?") > -1 ? "&" : "?") +
+      (id ? "order_id=" + encodeURIComponent(id) : "") + tqs());
+  }
+
+  function send(name, phone) {
+    var body = "ref=" + encodeURIComponent(OFFER.ref) +
+      "&api_key=" + encodeURIComponent(OFFER.api_key) +
+      "&product_id=" + encodeURIComponent(OFFER.product_id) +
+      "&phone=" + encodeURIComponent(phone) +
+      "&name=" + encodeURIComponent(name) +
+      "&ip=" + encodeURIComponent(ip) +
+      "&s=" + encodeURIComponent(TR.s) +
+      "&w=" + encodeURIComponent(TR.w) +
+      "&t=" + encodeURIComponent(TR.t) +
+      "&p=" + encodeURIComponent(TR.p) +
+      "&m=" + encodeURIComponent(TR.m) +
+      "&referer=" + encodeURIComponent(document.referrer) +
+      "&langCode=" + encodeURIComponent(OFFER.langCode || "");
+    var r = new XMLHttpRequest();
+    r.open("POST", API, true);
+    r.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    r.onreadystatechange = function () {
+      if (r.readyState !== 4) return;
+      var ok = false, id = "";
+      try {
+        var d = JSON.parse(r.responseText);
+        ok = d[OFFER.okField || "result"] === (OFFER.okValue || "ok");
+        id = d[OFFER.idField || "id"];
+      } catch (e) {}
+      ok ? redir(OFFER.success || "call.html", id)
+         : redir(OFFER.error || "error.html", "");
+    };
+    r.onerror = function () { redir(OFFER.error || "error.html", ""); };
     r.send(body);
   }
-  function init(){
-    var f=findForm();if(!f){console.warn("[order] форма не найдена");return;}
-    var n=f.querySelector('[name="name"], [data-order-name]');
-    var p=f.querySelector('[name="phone"], [data-order-phone], input[type="tel"]');
-    if(n){n.addEventListener("input",function(){var v=n.value.replace(/[^\\p{L}\\s]/gu,"").replace(/^\\s+/,"").replace(/\\s\\s+/," ");var pr=v.split(" ");if(pr.length>2)v=pr[0]+" "+pr[1];n.value=v;});n.addEventListener("blur",function(){n.value=n.value.trim();});}
-    if(p)p.addEventListener("input",function(){p.value=p.value.replace(/\\D/g,"");});
-    if(n&&Q.name&&Q.name!=="undefined")n.value=Q.name;
-    if(p&&Q.phone&&Q.phone!=="undefined")p.value=Q.phone;
-    f.addEventListener("submit",function(e){e.preventDefault();var name=n?n.value.trim():"",phone=p?p.value.trim():"";if(!name){alert(OFFER.msgName||"Введите корректное имя!");return;}if(!phone||phone.length<7){alert(OFFER.msgPhone||"Введите корректный номер телефона!");return;}var b=f.querySelector('[type=submit], button');if(b)b.disabled=true;send(name,phone);});
+
+  function init() {
+    var f = findForm();
+    if (!f) { console.warn("[order] форма не найдена"); return; }
+    var n = f.querySelector('[name="name"], [data-order-name]');
+    var p = f.querySelector('[name="phone"], [data-order-phone], input[type="tel"]');
+
+    if (n) {
+      n.addEventListener("input", function () {
+        var v = n.value.replace(/[^\\p{L}\\s]/gu, "").replace(/^\\s+/, "").replace(/\\s\\s+/, " ");
+        var pr = v.split(" ");
+        if (pr.length > 2) v = pr[0] + " " + pr[1];
+        n.value = v;
+      });
+      n.addEventListener("blur", function () { n.value = n.value.trim(); });
+    }
+    if (p) p.addEventListener("input", function () { p.value = p.value.replace(/\\D/g, ""); });
+
+    if (n && Q.name && Q.name !== "undefined") n.value = Q.name;
+    if (p && Q.phone && Q.phone !== "undefined") p.value = Q.phone;
+
+    f.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = n ? n.value.trim() : "";
+      var phone = p ? p.value.trim() : "";
+      if (!name) { alert(OFFER.msgName || "Введите корректное имя!"); return; }
+      if (!phone || phone.length < 7) { alert(OFFER.msgPhone || "Введите корректный номер телефона!"); return; }
+      var b = f.querySelector('[type=submit], button');
+      if (b) b.disabled = true;
+      send(name, phone);
+    });
   }
-  document.readyState==="loading"?document.addEventListener("DOMContentLoaded",init):init();
+
+  document.readyState === "loading"
+    ? document.addEventListener("DOMContentLoaded", init)
+    : init();
 })();`;
 
 /* ================= META PIXEL ================= */
