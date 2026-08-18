@@ -150,12 +150,15 @@
       </div>
       <div id="phpFields" style="display:none">
         <div class="row">
-          <div><label>Страна (countryCode) *</label><input id="country" placeholder="CZ · DE · SK…"></div>
-          <div><label>Код потока (streamCode)</label><input id="streamCode" placeholder="номер потока из shakes"></div>
+          <div><label>Страна (countryCode) *</label><input id="country" placeholder="CZ · DE · SK… (авто из гео)"></div>
+          <div><label>URL оригинального лендинга (опц.)</label><input id="landingUrl" placeholder="https://… — адрес ленда из оффера"></div>
         </div>
-        <label>URL оригинального лендинга (для статистики)</label>
-        <input id="landingUrl" placeholder="https://… — адрес ленда из оффера">
-        <div class="hint">shakes: форма постит на серверный <b>order.php</b> — он генерируется автоматически с твоим ключом, <b>ID оффера (offerId)</b>, <b>потоком</b> и страницами call/error. ref не используется. <b>streamCode</b> нужен для статистики (создай поток на оффер в shakes). <b>URL лендинга</b> — адрес ленда из оффера, для корректного расчёта статы. Загружай ленд <b>папкой</b> — order.php добавится в сборку.</div>
+        <div class="subtoggle" data-target="shakesAdv"><span class="chev">▸</span> Расширенные (код потока)</div>
+        <div id="shakesAdv" style="display:none">
+          <label>Код потока (streamCode) — опц.</label>
+          <input id="streamCode" placeholder="номер потока из shakes (обычно не нужен)">
+        </div>
+        <div class="hint">shakes: форма постит на серверный <b>order.php</b> — он генерируется автоматически с твоим ключом, <b>ID оффера (offerId)</b> и страницами call/error. ref не используется. <b>Страна</b> подставляется автоматически из «Код гео» (можно поправить). <b>streamCode</b> — только для статистики по потокам, обычно не нужен. Загружай ленд <b>папкой</b> — order.php добавится в сборку.</div>
       </div>
       <label>API-ключ вебмастера (api_key) 🔒</label>
       <input id="api_key" placeholder="закреплён за партнёркой">
@@ -1801,6 +1804,7 @@ function showTopToast(msg,isErr){
     // php-партнёрка (shakes): показываем страну/URL, прячем ref (не нужен), label оффера
     document.getElementById("phpFields").style.display=isPhp?"block":"none";
     document.getElementById("refWrap").style.display=isPhp?"none":"block";
+    if(isPhp){ try{ var cEl=document.getElementById("country"); if(cEl && (!cEl.value||cEl.dataset.auto==="1")){ var cc=ccFromGeo(document.getElementById("langCode").value); if(cc){ cEl.value=cc; cEl.dataset.auto="1"; } } }catch(e){} }
     try{ build(); }catch(e){}
   }
   sel.addEventListener("change",applyPartner);applyPartner();
@@ -1841,7 +1845,13 @@ function showTopToast(msg,isErr){
   function hasLang(c){return LANGS.some(function(p){return p[0]===c;});}
   function langFromGeo(c){c=(c||"").toLowerCase().trim();return GEO2LANG[c]||(hasLang(c)?c:null);}
   var langEl=document.getElementById("langCode");
-  langEl.addEventListener("input",function(){var L=langFromGeo(langEl.value);if(L){ul.value=L;}});
+  // код гео/языка -> ISO-2 страна для shakes (fr-BE -> BE, cs -> CZ, pk -> PK, cr -> CR …)
+  var LANG2CC={cs:"CZ",da:"DK",sv:"SE",el:"GR",ur:"PK",he:"IL",uk:"UA",et:"EE",sl:"SI",ja:"JP",ko:"KR",zh:"CN",nb:"NO",nn:"NO",ca:"ES",fa:"IR",hi:"IN",vi:"VN"};
+  function ccFromGeo(v){ v=(v||"").trim(); if(!v) return ""; var m=v.match(/[-_]([a-z]{2})$/i); if(m) return m[1].toUpperCase(); var base=v.slice(0,2).toLowerCase(); return (LANG2CC[base]||base).toUpperCase(); }
+  var countryEl=document.getElementById("country");
+  function autoFillCountry(){ if(!countryEl) return; if(!countryEl.value || countryEl.dataset.auto==="1"){ var cc=ccFromGeo(langEl.value); if(cc){ countryEl.value=cc; countryEl.dataset.auto="1"; } } }
+  langEl.addEventListener("input",function(){ var L=langFromGeo(langEl.value); if(L){ul.value=L;} autoFillCountry(); try{build();}catch(e){} });
+  if(countryEl){ countryEl.addEventListener("input",function(){ countryEl.dataset.auto=countryEl.value?"0":"1"; try{build();}catch(e){} }); }
 
   function setMode(m){
     MODE=m;
