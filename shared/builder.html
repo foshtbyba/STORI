@@ -252,7 +252,7 @@
       <button data-f="index">index.html</button>
       <button data-f="call">call.html</button>
       <button data-f="error">error.html</button>
-      <button data-f="chest" id="btnChest" style="display:none">⬇ Сундук (chest.html)</button>
+      <button id="btnChest" style="display:none">⬇ Сундук (отдельный zip)</button>
     </div>
     <div class="tabs">
       <div class="tab active" data-t="index">index.html</div>
@@ -1258,17 +1258,6 @@ function dl(name,data,type){
 function safeName(s){return (s||"").trim().replace(/[^\p{L}\p{N}]+/gu,"-").replace(/^-+|-+$/g,"")||"lander";}
 function zipName(cfg){var g=(cfg.langCode||"").trim().toLowerCase();return safeName(cfg.brand)+(g?("_"+g):"")+".zip";}
 var YWBACKFIX_JS=(document.getElementById("yw-src")||{}).textContent||"";
-// добавить ассеты своей папки-сундука (css/images/js), не перезаписывая файлы ленда
-function mergeChestAssets(out,cfg){
-  if(!(cfg.makeChest && CHEST_FOLDER)) return;
-  var pres={}; out.forEach(function(f){pres[f.name]=1;});
-  CHEST_FOLDER.files.forEach(function(f){
-    if(f.path===CHEST_FOLDER.mainPath) return;      // это уже chest.html
-    if(/\.html?$/i.test(f.path)) return;            // прочие html сундука не тащим
-    if(pres[f.path]) return;                        // ассеты ленда важнее
-    out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes});
-  });
-}
 function renderChestList(){
   var el=document.getElementById("chestList");
   if(!CHEST_FOLDER){el.style.display="none";return;}
@@ -1294,32 +1283,53 @@ async function loadChestFolder(items){
     build(); showTab("chest");
   }catch(e){ st.className="status warn"; st.textContent="Ошибка чтения сундука: "+e.message; }
 }
+// ЛЕНД (без сундука — сундук отдельным zip)
 function downloadZip(){
   if(!FILES.index)build();
   var cfg=readCfg();
   if(MODE==="folder"&&FOLDER){
     var had={};
-    var out=FOLDER.files.filter(function(x){return !REMOVE[x.path];}).map(function(x){
+    var out=FOLDER.files.filter(function(x){
+      if(REMOVE[x.path]) return false;
+      if(cfg.makeChest && baseName(x.path).toLowerCase()==="chest.html") return false; // сундук уходит в свой zip
+      return true;
+    }).map(function(x){
       var b=baseName(x.path).toLowerCase();
       if(x.path===FOLDER.indexPath) return {name:x.path,str:FILES.index};
       if(cfg.repCallErr&&b==="call.html"){had.call=1;return {name:x.path,str:FILES.call};}
       if(cfg.repCallErr&&b==="error.html"){had.error=1;return {name:x.path,str:FILES.error};}
-      if(cfg.makeChest&&b==="chest.html"){had.chest=1;return {name:x.path,str:FILES.chest};}
-      if(b==="ywbackfix.js"){had.yw=1;return {name:x.path,str:YWBACKFIX_JS};}   // всегда наша версия
+      if(b==="ywbackfix.js"){had.yw=1;return {name:x.path,str:YWBACKFIX_JS};}
       return x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes};
     });
     if(cfg.repCallErr&&!had.call)  out.push({name:"call.html",str:FILES.call});
     if(cfg.repCallErr&&!had.error) out.push({name:"error.html",str:FILES.error});
-    if(cfg.makeChest&&!had.chest&&FILES.chest) out.push({name:"chest.html",str:FILES.chest});
-    if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});             // всегда добавляем файл
-    mergeChestAssets(out,cfg);
+    if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
-    var out2=[{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}];
-    if(cfg.makeChest&&FILES.chest) out2.push({name:"chest.html",str:FILES.chest});
-    mergeChestAssets(out2,cfg);
-    dl(zipName(cfg),makeZip(out2),"application/zip");
+    dl(zipName(cfg),makeZip([{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}]),"application/zip");
   }
+}
+// СУНДУК — отдельный самостоятельный сайт: главная = index.html
+function downloadChestZip(){
+  var cfg=readCfg(); cfg.makeChest=true;
+  build();
+  if(!FILES.chest){ alert("Не удалось собрать сундук."); return; }
+  var out=[
+    {name:"index.html",str:FILES.chest},
+    {name:"call.html",str:FILES.call},
+    {name:"error.html",str:FILES.error},
+    {name:"js/ywbackfix.js",str:YWBACKFIX_JS}
+  ];
+  if(CHEST_FOLDER){
+    var pres={}; out.forEach(function(f){pres[f.name]=1;});
+    CHEST_FOLDER.files.forEach(function(f){
+      if(f.path===CHEST_FOLDER.mainPath) return;   // это уже index.html
+      if(/\.html?$/i.test(f.path)) return;          // прочие html сундука не тащим
+      if(pres[f.path]) return;
+      out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes});
+    });
+  }
+  dl(safeName(cfg.brand)+(cfg.langCode?("_"+cfg.langCode.toLowerCase()):"")+"_chest.zip", makeZip(out), "application/zip");
 }
 
 /* init */
@@ -1414,6 +1424,7 @@ function downloadZip(){
   var htmlTimer;
   document.getElementById("html").addEventListener("input",function(){clearTimeout(htmlTimer);htmlTimer=setTimeout(function(){ if(document.getElementById("html").value.trim()){ build(); if(currentTab!=="preview") showTab("preview"); } },500);});
   document.getElementById("dlzip").addEventListener("click",downloadZip);
+  document.getElementById("btnChest").addEventListener("click",downloadChestZip);
   document.querySelectorAll(".tab").forEach(function(el){el.addEventListener("click",function(){showTab(el.dataset.t);});});
   document.querySelectorAll(".dl button[data-f]").forEach(function(b){b.addEventListener("click",function(){if(!FILES.index)build();var f=b.dataset.f;dl(f+".html",FILES[f]);});});
 })();
