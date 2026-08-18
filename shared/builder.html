@@ -1227,14 +1227,22 @@ function localizeExternal(url){
   var inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
   inp.onchange=async function(){
     var file=inp.files[0]; if(!file) return;
-    var ext=((file.name.split(".").pop()||"png").toLowerCase().replace(/[^a-z0-9]/g,""))||"png";
-    var n=1,p; do{ p="images/img_"+(n++)+"."+ext; }while(FOLDER.files.some(function(f){return f.path===p;}));
+    var fext=((file.name.split(".").pop()||"png").toLowerCase().replace(/[^a-z0-9]/g,""))||"png";
+    var urlbase=(url.split("/").pop().split("?")[0]||"").replace(/[^a-zA-Z0-9._-]/g,"");
+    var suggest=(urlbase && /\.[a-z0-9]+$/i.test(urlbase)) ? urlbase : ("img."+fext);
+    var nn=window.prompt("Имя файла в папке (можно изменить):", suggest);
+    if(nn===null) return;                                  // отмена
+    nn=nn.trim().replace(/[\\/]/g,""); if(!nn) nn="img."+fext;
+    if(!/\.[a-z0-9]+$/i.test(nn)) nn+="."+fext;             // добавим расширение, если забыл
+    var e2=(nn.match(/\.[a-z0-9]+$/i)||["."+fext])[0], stem=nn.replace(/\.[a-z0-9]+$/i,"");
+    var p="images/"+nn, i=1;
+    while(FOLDER.files.some(function(f){return f.path===p;})){ p="images/"+stem+"_"+(i++)+e2; }
     var bytes=new Uint8Array(await file.arrayBuffer());
     FOLDER.files.push({path:p,kind:"bin",bytes:bytes,comment:false});
     var cnt=0;
     FOLDER.files.forEach(function(f){ if(f.kind==="text" && f.str.indexOf(url)>=0){ cnt+=f.str.split(url).length-1; f.str=f.str.split(url).join(p); } });
     refreshFolder(); build(); showTab("preview");
-    var st=document.getElementById("status"); st.className="status ok"; st.textContent="Внешнее фото заменено на локальное "+p+" (ссылок обновлено: "+cnt+")";
+    var st=document.getElementById("status"); st.className="status ok"; st.textContent="Внешнее фото → локальное "+p+" (ссылок обновлено: "+cnt+")";
   };
   inp.click();
 }
@@ -1242,7 +1250,7 @@ function showExtMenu(px,py,url){
   removeAssetMenu();
   var m=document.createElement("div"); m.id="assetMenu"; m.className="assetmenu";
   m.innerHTML='<div class="am-name">внешнее фото · '+esc((url||"").split("/").pop().split("?")[0])+'</div>'+
-    '<button data-a="loc">🖼 Заменить своим фото</button>';
+    '<button data-a="loc">🖼 Заменить и назвать фото</button>';
   document.body.appendChild(m);
   var w=m.offsetWidth||190,h=m.offsetHeight||70;
   m.style.left=Math.max(8,Math.min(px,window.innerWidth-w-8))+"px";
