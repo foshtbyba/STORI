@@ -152,14 +152,15 @@
         </div>
       </div>
       <div id="phpFields" style="display:none">
-        <label>URL оригинального лендинга (опц.)</label>
-        <input id="landingUrl" placeholder="https://… — адрес ленда из оффера">
+        <label>URL оригинального лендинга (landingUrl) *</label>
+        <input id="landingUrl" placeholder="https://… — адрес ленда ИЗ ОФФЕРА shakes">
+        <div class="hint" style="margin-top:2px">⚠ <b>Обязательно.</b> Возьми точный URL лендинга со страницы оффера в shakes. Без него (или с чужим URL) партнёрка <b>не примет лид</b> — заявка не улетит.</div>
         <div class="subtoggle" data-target="shakesAdv"><span class="chev">▸</span> Расширенные (код потока)</div>
         <div id="shakesAdv" style="display:none">
           <label>Код потока (streamCode) — опц.</label>
           <input id="streamCode" placeholder="номер потока из shakes (обычно не нужен)">
         </div>
-        <div class="hint">shakes: форма постит на серверный <b>order.php</b> (генерируется автоматически с твоим ключом, <b>ID оффера</b> и страницами call/error). ref не нужен, <b>страна</b> — авто из «Код гео» (можно поправить), <b>streamCode</b> — только для статистики. Загружай ленд <b>папкой</b>.</div>
+        <div class="hint">shakes: форма постит на серверный <b>order.php</b> (генерируется автоматически с твоим ключом, <b>ID оффера</b>, <b>landingUrl</b> и страницами call/error). ref не нужен, <b>страна</b> — авто из «Код гео», <b>streamCode</b> — только для статистики. Хост должен поддерживать <b>PHP</b>. Загружай ленд <b>папкой</b>.</div>
       </div>
       <label>API-ключ вебмастера (api_key) 🔒</label>
       <input id="api_key" placeholder="закреплён за партнёркой">
@@ -1516,7 +1517,7 @@ function readCfg(){
 var FILES={};
 function build(){
   var cfg=readCfg(),st=document.getElementById("status");
-  var need=(cfg.mode==="php")?["product_id","api_key","country"]:["product_id","ref","api_key","langCode"];
+  var need=(cfg.mode==="php")?["product_id","api_key","country","landingUrl"]:["product_id","ref","api_key","langCode"];
   var miss=need.filter(function(k){return !cfg[k];});
   if(cfg.pxOn && !cfg.pxid) { /* динамический пиксель — норм */ }
   if(MODE==="folder"){
