@@ -176,12 +176,9 @@
       </div>
       <label>Цена</label>
       <input id="price" placeholder="39 €">
-      <label>Своё фото для страниц success / error (опц.)</label>
-      <div class="row">
-        <label class="imgpick" id="pick-success"><span class="t">＋ success</span><b class="x">✕</b><input type="file" accept="image/*" hidden></label>
-        <label class="imgpick" id="pick-error"><span class="t">＋ error</span><b class="x">✕</b><input type="file" accept="image/*" hidden></label>
-      </div>
-      <div class="hint">Не выбрано — на call/error будет картинка оффера. Загрузи свои, чтобы там было именно то, что задумал (встроятся прямо в страницу).</div>
+      <label>Своё фото для call / error (опц.) — одно на обе страницы</label>
+      <label class="imgpick" id="pick-page"><span class="t">＋ фото</span><b class="x">✕</b><input type="file" accept="image/*" hidden></label>
+      <div class="hint">Не выбрано — на call/error встанет картинка оффера из поля <b>«Картинка»</b> выше. В режиме папки это поле заполняется автоматически (подбирается главное фото оффера из папки). Загрузишь своё — встроится прямо в страницу (data-uri), путь не нужен.</div>
     </div>
 
     <div class="grp">
@@ -617,6 +614,7 @@ async function loadFolder(items){
   var st=document.getElementById("status");
   st.className="status"; st.textContent="Читаю папку…";
   try{ FOLDER=await ingest(items); renderFileList(); renderImages(); renderCleanup();
+    var g=guessOfferImage(FOLDER); var imf=document.getElementById("image"); if(g && !imf.value.trim()) imf.value=g;
     st.className="status ok";
     st.textContent=FOLDER?("Загружено файлов: "+FOLDER.files.length+(FOLDER.indexPath?(" · index: "+FOLDER.indexPath):" · ⚠ index.html не найден")+(FOLDER.unused&&FOLDER.unused.length?(" · не используются: "+FOLDER.unused.length):"")):"Пусто";
   }catch(err){ st.className="status warn"; st.textContent="Ошибка чтения: "+err.message; }
@@ -634,6 +632,19 @@ function renderFileList(){
   }).join("");
 }
 function fileBlob(x){return x.kind==="text"?new Blob([x.str],{type:mimeOf(x.path)}):new Blob([x.bytes],{type:mimeOf(x.path)});}
+// главное фото оффера из папки: не аватар, не графика рулетки/иконки, чаще всего упоминается в index
+function guessOfferImage(F){
+  if(!F||!F.indexPath) return null;
+  var idx=F.files.filter(function(x){return x.path===F.indexPath;})[0]; if(!idx) return null;
+  var html=idx.str;
+  var skip=/(chest|coin|animation|favicon|logo|sprite|icon|arrow|star|badge|bg|background|pixel|1x1|loader|spinner)/i;
+  var cand=F.files.filter(function(x){return IMG_EXT.test(x.path) && !x.comment && !skip.test(baseName(x.path));});
+  if(!cand.length) cand=F.files.filter(function(x){return IMG_EXT.test(x.path) && !x.comment;});
+  if(!cand.length) return null;
+  function refN(p){var b=baseName(p),n=0,i=html.indexOf(b);while(i>=0){n++;i=html.indexOf(b,i+1);}return n;}
+  cand.sort(function(a,b){var d=refN(b.path)-refN(a.path); if(d) return d; var sa=a.bytes?a.bytes.length:0,sb=b.bytes?b.bytes.length:0; return sb-sa;});
+  return refN(cand[0].path)>0 ? cand[0].path : null;
+}
 function imgTile(x, container){
   var url=URL.createObjectURL(fileBlob(x));
   var tile=document.createElement("div");tile.className="imgtile"+((x.replaced||x.renamed)?" rep":"");
@@ -696,10 +707,10 @@ function renderCleanup(){
 
 /* ================= UI / СБОРКА ================= */
 var MODE="html";
-var PAGE_IMG={success:null,error:null};
-function wirePagePick(id,slot){
+var PAGE_IMG={page:null};
+function wirePagePick(id,slot,label){
   var box=document.getElementById(id),inp=box.querySelector("input"),tt=box.querySelector(".t"),xx=box.querySelector(".x");
-  box.addEventListener("click",function(e){ if(e.target===xx){ e.preventDefault(); PAGE_IMG[slot]=null; box.classList.remove("has"); box.style.backgroundImage=""; tt.textContent="＋ "+slot; return; } inp.click(); });
+  box.addEventListener("click",function(e){ if(e.target===xx){ e.preventDefault(); PAGE_IMG[slot]=null; box.classList.remove("has"); box.style.backgroundImage=""; tt.textContent=label; return; } inp.click(); });
   inp.addEventListener("change",function(){
     var f=inp.files[0]; if(!f) return;
     var r=new FileReader();
@@ -714,7 +725,7 @@ function readCfg(){
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
     brand:val("brand")||"Product",image:val("image")||"images/product.png",price:val("price")||"—",
-    successImg:PAGE_IMG.success,errorImg:PAGE_IMG.error,
+    successImg:PAGE_IMG.page,errorImg:PAGE_IMG.page,
     pxOn:document.getElementById("pxOn").checked,pxid:val("pxid"),pxev:val("pxev")||"Lead",pxval:val("pxval"),pxcur:val("pxcur"),
     html:document.getElementById("html").value,autofix:document.getElementById("autofix").checked,
     stripOld:document.getElementById("stripOld").checked,repCallErr:document.getElementById("repCallErr").checked,
@@ -792,7 +803,7 @@ function downloadZip(){
     });
   }
   sel.addEventListener("change",applyPartner);applyPartner();
-  wirePagePick("pick-success","success"); wirePagePick("pick-error","error");
+  wirePagePick("pick-page","page","＋ фото");
   // сундук: опционально — показываем кнопку/вкладку только когда включён
   function updateChestUI(){var on=document.getElementById("makeChest").checked;document.getElementById("btnChest").style.display=on?"":"none";document.getElementById("tabChest").style.display=on?"":"none";if(!on&&currentTab==="chest")showTab("index");}
   document.getElementById("makeChest").addEventListener("change",updateChestUI);updateChestUI();
