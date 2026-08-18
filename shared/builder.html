@@ -74,6 +74,10 @@
   .imggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:10px}
   .imgtile{border:1px solid var(--line);border-radius:10px;padding:6px;background:var(--panel2);text-align:center;position:relative}
   .imgtile.rep{border-color:var(--ok);box-shadow:0 0 0 2px var(--ok-soft)}
+  .assetmenu{position:fixed;z-index:99999;background:var(--panel2);border:1px solid var(--line);border-radius:10px;box-shadow:var(--sh-md);padding:6px;min-width:170px}
+  .assetmenu .am-name{font-size:11px;color:var(--mut);padding:4px 8px 6px;border-bottom:1px solid var(--line2);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+  .assetmenu button{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--fg);padding:9px 8px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600}
+  .assetmenu button:hover{background:var(--acc-soft);color:var(--acc-dark)}
   .imgtile.sel{outline:3px solid var(--acc);outline-offset:2px;animation:selpulse .5s ease}
   @keyframes selpulse{0%{outline-color:transparent}100%{outline-color:var(--acc)}}
   .imgtile .thumb{height:64px;display:flex;align-items:center;justify-content:center;background:conic-gradient(#eee 25%,#fff 0 50%,#eee 0 75%,#fff 0) 0 0/14px 14px;border-radius:7px;overflow:hidden}
@@ -1144,25 +1148,56 @@ function resolvePreview(html){
 function renderPreview(){
   var prev=document.getElementById("prev");
   prev.onload=function(){
-    try{ var d=prev.contentDocument; if(!d) return;
+    try{
+      var d=prev.contentDocument; if(!d) return;
+      if(d.head){ var stl=d.createElement("style"); stl.textContent="img{cursor:zoom-in!important}img:hover{outline:3px solid #C96442!important;outline-offset:2px}"; d.head.appendChild(stl); }
       d.querySelectorAll("img").forEach(function(im){
-        im.style.cursor="zoom-in"; im.title="Клик — выбрать это фото для замены / переименования";
-        im.addEventListener("click",function(ev){ ev.preventDefault(); ev.stopPropagation();
-          var p=PREVIEW_MAP[im.src]||PREVIEW_MAP[im.getAttribute("src")]; if(p) selectAsset(p);
-        });
+        im.addEventListener("click",function(ev){
+          var p=PREVIEW_MAP[im.src]||PREVIEW_MAP[im.getAttribute("src")];
+          if(!p) return;                       // внешние/data-uri картинки не редактируем
+          ev.preventDefault(); ev.stopPropagation();
+          var r=prev.getBoundingClientRect();
+          showAssetMenu(r.left+ev.clientX, r.top+ev.clientY, p);
+        }, true);                              // capture — чтобы поймать раньше скриптов ленда
       });
     }catch(e){}
   };
   prev.srcdoc=resolvePreview(FILES.index||"");
 }
-function selectAsset(path){
+function assetByPath(p){return FOLDER?FOLDER.files.filter(function(f){return f.path===p;})[0]:null;}
+function highlightTile(path){
   var sel='.imgtile[data-path="'+path.replace(/"/g,'\\"')+'"]';
   var tile=document.querySelector(sel);
-  if(!tile){ var box=document.querySelector(".subgrid"); if(box){box.style.display="grid";} tile=document.querySelector(sel); }
+  if(!tile){ var box=document.querySelector(".subgrid"); if(box) box.style.display="grid"; tile=document.querySelector(sel); }
   if(!tile) return;
   document.querySelectorAll(".imgtile.sel").forEach(function(el){el.classList.remove("sel");});
-  tile.classList.add("sel");
-  tile.scrollIntoView({behavior:"smooth",block:"center"});
+  tile.classList.add("sel"); tile.scrollIntoView({behavior:"smooth",block:"center"});
+}
+function replaceAssetPrompt(path){
+  var x=assetByPath(path); if(!x) return;
+  var inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
+  inp.onchange=async function(){ var f=inp.files[0]; if(!f) return; x.bytes=new Uint8Array(await f.arrayBuffer()); x.kind="bin"; x.replaced=true; delete x.str; refreshFolder(); build(); showTab("preview"); };
+  inp.click();
+}
+function renameAssetPrompt(path){
+  var x=assetByPath(path); if(!x) return;
+  var nn=window.prompt("Новое имя файла (ссылки в коде обновятся автоматически):", baseName(x.path));
+  if(nn){ renameAsset(x,nn); build(); showTab("preview"); }
+}
+function removeAssetMenu(){var m=document.getElementById("assetMenu");if(m)m.remove();}
+function showAssetMenu(px,py,path){
+  removeAssetMenu(); highlightTile(path);
+  var m=document.createElement("div"); m.id="assetMenu"; m.className="assetmenu";
+  m.innerHTML='<div class="am-name">'+esc(baseName(path))+'</div>'+
+    '<button data-a="rep">🖼 Заменить фото</button>'+
+    '<button data-a="ren">✎ Переименовать</button>';
+  document.body.appendChild(m);
+  var w=m.offsetWidth||170, h=m.offsetHeight||90;
+  m.style.left=Math.max(8,Math.min(px, window.innerWidth-w-8))+"px";
+  m.style.top=Math.max(8,Math.min(py, window.innerHeight-h-8))+"px";
+  m.querySelector('[data-a="rep"]').onclick=function(){removeAssetMenu();replaceAssetPrompt(path);};
+  m.querySelector('[data-a="ren"]').onclick=function(){removeAssetMenu();renameAssetPrompt(path);};
+  setTimeout(function(){window.addEventListener("click",removeAssetMenu,{once:true});window.addEventListener("scroll",removeAssetMenu,{once:true,capture:true});},0);
 }
 function dl(name,data,type){
   var blob=new Blob([data],{type:type||"text/html;charset=utf-8"}),a=document.createElement("a");
