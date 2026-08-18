@@ -90,6 +90,19 @@
   .imgtile button:hover{background:var(--acc-soft)}
   .imgtile .badge{position:absolute;top:4px;right:4px;background:var(--ok);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;display:none}
   .imgtile.rep .badge{display:block}
+  .buildbar{height:6px;border-radius:6px;background:var(--line2);overflow:hidden;margin-top:10px;display:none}
+  .buildbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc-dark));border-radius:6px}
+  .buildbar.run{display:block}
+  .toast{position:fixed;top:-80px;left:50%;transform:translateX(-50%);z-index:100000;display:flex;align-items:center;gap:12px;
+    background:var(--ok);color:#fff;padding:12px 14px 12px 18px;border-radius:14px;box-shadow:0 12px 34px rgba(0,0,0,.28);
+    font-size:15px;font-weight:600;max-width:calc(100vw - 24px);transition:top .35s cubic-bezier(.2,.8,.2,1)}
+  .toast.show{top:16px}
+  .toast.err{background:var(--warn)}
+  .toast .tdl{border:0;background:rgba(255,255,255,.22);color:#fff;font-weight:700;font-size:14px;padding:9px 14px;border-radius:10px;cursor:pointer}
+  .toast .tdl:hover{background:rgba(255,255,255,.32)}
+  .toast.err .tdl{display:none}
+  .toast .tx{border:0;background:transparent;color:#fff;font-size:15px;cursor:pointer;opacity:.85;padding:4px 6px}
+  .toast .tx:hover{opacity:1}
   .status{font-size:13px;margin-top:14px;min-height:18px;font-weight:500}
   .status.ok{color:var(--ok)} .status.warn{color:var(--warn)}
   .dl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
@@ -119,6 +132,8 @@
   <div style="flex:1"><h1>Конструктор лендов</h1><div class="sub">берёт переведённый ленд (HTML или папку), подключает форму к партнёрке, ставит Meta Pixel и делает call/error/chest → готовая сборка</div></div>
   <button id="themeBtn" class="themebtn" title="Светлая / тёмная тема" type="button">🌙</button>
 </header>
+
+<div id="topToast" class="toast"><span class="tmsg"></span><button class="tdl" type="button">⬇ Скачать сборку</button><button class="tx" type="button" title="Закрыть">✕</button></div>
 
 <div class="wrap">
   <div class="panel left">
@@ -243,6 +258,7 @@
     </div>
 
     <button class="btn" id="build">⚙️ Собрать</button>
+    <div id="buildBar" class="buildbar"><i></i></div>
     <div class="status" id="status"></div>
   </div>
 
@@ -1410,6 +1426,36 @@ function downloadChestZip(){
   dl(safeName(cfg.brand)+(cfg.langCode?("_"+cfg.langCode.toLowerCase()):"")+"_chest.zip", makeZip(out), "application/zip");
 }
 
+// сборка с «процессом» ~2.5с -> тост сверху + прокрутка вверх к скачиванию
+function runBuild(){
+  var btn=document.getElementById("build"); if(btn.dataset.busy==="1") return;
+  var bar=document.getElementById("buildBar"), st=document.getElementById("status"), fill=bar.firstChild;
+  btn.dataset.busy="1"; btn.disabled=true; btn.textContent="⏳ Собираю…";
+  st.className="status"; st.textContent="Собираю…";
+  bar.classList.add("run"); fill.style.transition="none"; fill.style.width="0%";
+  var dur=2200+Math.floor(Math.random()*600);
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ fill.style.transition="width "+dur+"ms linear"; fill.style.width="100%"; }); });
+  setTimeout(function(){
+    try{ build(); }catch(e){ st.className="status warn"; st.textContent="Ошибка сборки: "+e.message; }
+    btn.disabled=false; btn.dataset.busy=""; btn.textContent="⚙️ Собрать";
+    setTimeout(function(){ bar.classList.remove("run"); },250);
+    var warn=/warn/.test(st.className);
+    showTopToast(warn ? (st.textContent||"Заполни обязательные поля") : "Готово! Сборка собрана — можно скачивать", warn);
+    if(!warn) scrollTopAll();
+  }, dur);
+}
+function scrollTopAll(){
+  try{window.scrollTo({top:0,behavior:"smooth"});}catch(e){window.scrollTo(0,0);}
+  document.querySelectorAll(".panel").forEach(function(p){ try{p.scrollTo({top:0,behavior:"smooth"});}catch(e){p.scrollTop=0;} });
+}
+var _toastTimer;
+function showTopToast(msg,isErr){
+  var t=document.getElementById("topToast");
+  t.querySelector(".tmsg").textContent=(isErr?"⚠ ":"✓ ")+msg;
+  t.classList.toggle("err",!!isErr);
+  t.classList.add("show");
+  clearTimeout(_toastTimer); _toastTimer=setTimeout(function(){ t.classList.remove("show"); }, isErr?6000:9000);
+}
 /* init */
 (function(){
   var sel=document.getElementById("partner");
@@ -1497,7 +1543,10 @@ function downloadChestZip(){
   applyTheme(savedTheme);
   document.getElementById("themeBtn").addEventListener("click",function(){var cur=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";applyTheme(cur);try{localStorage.setItem("lb_theme",cur);}catch(e){}});
 
-  document.getElementById("build").addEventListener("click",build);
+  document.getElementById("build").addEventListener("click",runBuild);
+  var toast=document.getElementById("topToast");
+  toast.querySelector(".tx").addEventListener("click",function(){toast.classList.remove("show");});
+  toast.querySelector(".tdl").addEventListener("click",function(){ try{downloadZip();}catch(e){} });
   // авто-предпросмотр при вставке/правке HTML (с задержкой)
   var htmlTimer;
   document.getElementById("html").addEventListener("input",function(){clearTimeout(htmlTimer);htmlTimer=setTimeout(function(){ if(document.getElementById("html").value.trim()){ build(); if(currentTab!=="preview") showTab("preview"); } },500);});
