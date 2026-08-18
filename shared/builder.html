@@ -984,7 +984,7 @@ var CHEST_FOLDER=null;
 var TEXT_EXT=/\.(html?|css|js|json|svg|txt|xml|webmanifest|map)$/i;
 var IMG_EXT=/\.(png|jpe?g|webp|gif|svg|ico|avif|bmp)$/i;
 function baseName(p){return p.split("/").pop();}
-function mimeOf(p){var e=(p.split(".").pop()||"").toLowerCase();return {png:"image/png",jpg:"image/jpeg",jpeg:"image/jpeg",webp:"image/webp",gif:"image/gif",svg:"image/svg+xml",ico:"image/x-icon",avif:"image/avif",bmp:"image/bmp"}[e]||"application/octet-stream";}
+function mimeOf(p){var e=(p.split(".").pop()||"").toLowerCase();return {png:"image/png",jpg:"image/jpeg",jpeg:"image/jpeg",webp:"image/webp",gif:"image/gif",svg:"image/svg+xml",ico:"image/x-icon",avif:"image/avif",bmp:"image/bmp",css:"text/css",js:"application/javascript",mjs:"application/javascript",html:"text/html",htm:"text/html",json:"application/json",woff:"font/woff",woff2:"font/woff2",ttf:"font/ttf",otf:"font/otf",eot:"application/vnd.ms-fontobject"}[e]||"application/octet-stream";}
 async function ingest(items){ // items:[{file, rel}] где rel = "folder/sub/file"
   if(!items||!items.length) return null;
   var out=[];
