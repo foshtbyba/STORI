@@ -145,8 +145,15 @@
       <label>ID оффера (product_id) *</label>
       <input id="product_id" placeholder="ID оффера из кабинета партнёрки">
       <div class="row">
-        <div><label>ID вебмастера (ref) 🔒</label><input id="ref" placeholder="закреплён за партнёркой"></div>
+        <div id="refWrap"><label>ID вебмастера (ref) 🔒</label><input id="ref" placeholder="закреплён за партнёркой"></div>
         <div><label>Код гео (langCode) *</label><input id="langCode" placeholder="be · fr · cr · pk…"></div>
+      </div>
+      <div id="phpFields" style="display:none">
+        <div class="row">
+          <div><label>Страна (countryCode) *</label><input id="country" placeholder="CZ · DE · SK…"></div>
+          <div><label>URL лендинга (опц.)</label><input id="landingUrl" placeholder="https://…"></div>
+        </div>
+        <div class="hint">shakes: форма постит на серверный <b>order.php</b> — он генерируется автоматически с твоим ключом, <b>ID оффера (offerId)</b> и страницами call/error. ref не используется. Загружай ленд <b>папкой</b> — order.php добавится в сборку.</div>
       </div>
       <label>API-ключ вебмастера (api_key) 🔒</label>
       <input id="api_key" placeholder="закреплён за партнёркой">
@@ -648,10 +655,12 @@ function trace(msg, style = null) {
 <script>
 /* ================= АДАПТЕРЫ ПАРТНЁРОК ================= */
 const PARTNERS = {
-  "m1.top": { label:"m1.top", endpoint:"https://m1.top/send_order/", okField:"result", okValue:"ok", idField:"id",
+  "m1.top": { label:"m1.top", mode:"js", endpoint:"https://m1.top/send_order/", okField:"result", okValue:"ok", idField:"id",
     ref:"1029931", api_key:"2188aad9cfb9f55626bf1d64cf4e95e0",
-    hint:"POST send_order, ответ {result:'ok', id}. ref и api_key закреплены за этой партнёркой." },
-  "custom": { label:"Другая (вручную)", endpoint:"", okField:"result", okValue:"ok", idField:"id",
+    hint:"JS-приём заказа: POST send_order, ответ {result:'ok', id}. ref и api_key закреплены за этой партнёркой." },
+  "shakes.pro": { label:"shakes.pro", mode:"php", domain:"shakes.pro", api_key:"f825ffeff11da49a86dc5d095c648f3c",
+    hint:"Серверный order.php (генерируется автоматически): форма постит на него. ID оффера = offerId, api_key закреплён, ref не нужен. Заполни ID оффера и страну." },
+  "custom": { label:"Другая (вручную)", mode:"js", endpoint:"", okField:"result", okValue:"ok", idField:"id",
     ref:"", api_key:"",
     hint:"Заполни endpoint/ref/api_key/okField под свою партнёрку." }
 };
@@ -919,13 +928,78 @@ function T(lang){return Object.assign({},TXT.en,ERR.en,CHESTX.en,TXT[lang]||{},E
 /* ================= ГЕНЕРАЦИЯ ================= */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function offerObject(cfg){return {endpoint:cfg.endpoint,okField:cfg.okField,okValue:cfg.okValue,idField:cfg.idField,product_id:cfg.product_id,ref:cfg.ref,api_key:cfg.api_key,langCode:cfg.langCode,success:cfg.success,error:cfg.error,out:true,msgName:cfg.t.an,msgPhone:cfg.t.ap};}
+// back-fix (демонетизация «назад») — общий для всех режимов
+function backfixBlock(cfg){ return cfg.backfix ? '<script src="js/ywbackfix.js" data-redirect="true" data-links=\'["'+cfg.backfix+'"]\'><\/script>' : ""; }
 function orderBlock(cfg){
   var l=[];
   if(cfg.keepComments) l.push("<!-- ===== DROP-IN блок заказа (конструктор) ===== -->");
   l.push("<script>","var OFFER = "+JSON.stringify(offerObject(cfg),null,2)+";",ENGINE,"<\/script>");
-  if(cfg.backfix) l.push('<script src="js/ywbackfix.js" data-redirect="true" data-links=\'["'+cfg.backfix+'"]\'><\/script>');
+  var yw=backfixBlock(cfg); if(yw) l.push(yw);
   if(cfg.keepComments) l.push("<!-- ===== конец блока ===== -->");
   return l.join("\n");
+}
+// страна для shakes: из отдельного поля country или из langCode, ISO-2 верхним регистром
+function shakesCountry(cfg){ return (cfg.country||cfg.langCode||"").toUpperCase().replace(/[^A-Z]/g,"").slice(0,2); }
+// серверный прокси shakes: генерируем order.php с закреплённым apiKey, offerId и нашими call/error
+function shakesOrderPhp(cfg){
+  var offerId=String(cfg.product_id||"").replace(/[^0-9]/g,"");
+  return "<?php\n\n"+
+"$apiKey = '"+(cfg.api_key||"")+"';\n"+
+"$domain = '"+(cfg.partnerDomain||"shakes.pro")+"';\n"+
+"$landingUrl = '"+(cfg.landingUrl||"")+"';\n"+
+"$offerId = '"+offerId+"';\n"+
+"$streamCode = '';\n"+
+"$successPage = '"+(cfg.success||"call.html")+"';\n"+
+"$errorPage = '"+(cfg.error||"error.html")+"';\n\n"+
+"$url = \"http://$domain?r=/api/order/in&key=$apiKey\";\n"+
+"$order = [\n"+
+"    'createdAt' => date('Y-m-d H:i:s'),\n"+
+"    'offerId' => $offerId,\n"+
+"    'landingUrl' => $landingUrl,\n"+
+"    'streamCode' => $streamCode,\n"+
+"    'ip' => (!empty($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null),\n"+
+"    'referrer' => (!empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null),\n"+
+"    'userAgent' => (!empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '-'),\n"+
+"    'name' => (!empty($_POST['name']) ? $_POST['name'] : (!empty($_GET['name']) ? $_GET['name'] : '')),\n"+
+"    'phone' => (!empty($_POST['phone']) ? $_POST['phone'] : (!empty($_GET['phone']) ? $_GET['phone'] : '')),\n"+
+"    'countryCode' => (!empty($_POST['country']) ? $_POST['country'] : (!empty($_GET['country']) ? $_GET['country'] : '"+(shakesCountry(cfg)||"CZ")+"')),\n"+
+"    'comment' => (!empty($_POST['comment']) ? $_POST['comment'] : (!empty($_GET['comment']) ? $_GET['comment'] : '')),\n"+
+"    'sub1' => (!empty($_POST['sub1']) ? $_POST['sub1'] : (!empty($_GET['sub1']) ? $_GET['sub1'] : '')),\n"+
+"    'sub2' => (!empty($_POST['sub2']) ? $_POST['sub2'] : (!empty($_GET['sub2']) ? $_GET['sub2'] : '')),\n"+
+"    'sub3' => (!empty($_POST['sub3']) ? $_POST['sub3'] : (!empty($_GET['sub3']) ? $_GET['sub3'] : '')),\n"+
+"    'sub4' => (!empty($_POST['sub4']) ? $_POST['sub4'] : (!empty($_GET['sub4']) ? $_GET['sub4'] : '')),\n"+
+"];\n\n"+
+"$curl = curl_init();\n"+
+"curl_setopt($curl, CURLOPT_URL, $url);\n"+
+"curl_setopt($curl, CURLOPT_POST, true);\n"+
+"curl_setopt($curl, CURLOPT_POSTFIELDS, $order);\n"+
+"curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);\n"+
+"try {\n"+
+"    $responseBody = curl_exec($curl);\n"+
+"    if (empty($responseBody)) { throw new Exception('Error: Empty response for order.'); }\n"+
+"    $response = json_decode($responseBody, true);\n"+
+"    if (empty($response)) { throw new Exception('Error: Broken json format for order.'); }\n"+
+"    if ($response['status'] != 'ok') { throw new Exception('Error: Order rejected.'); }\n"+
+"    curl_close($curl);\n"+
+"    if (!empty($successPage) && is_file(__DIR__ . '/' . $successPage)) { include __DIR__ . '/' . $successPage; }\n"+
+"} catch (Exception $e) {\n"+
+"    if (!empty($errorPage) && is_file(__DIR__ . '/' . $errorPage)) { include __DIR__ . '/' . $errorPage; }\n"+
+"}\n";
+}
+// режим php: форму заказа шлём нативно на order.php + скрытые sub1/country (JS-движок не вставляем)
+function wireOrderPhpForm(cfg, html){
+  var country=shakesCountry(cfg);
+  var hidden='<input type="hidden" name="sub1" value="{subid}">\n<input type="hidden" name="country" value="'+country+'">\n';
+  return html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
+    if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа (декоративные оставляем)
+    attrs=attrs.replace(/\s(?:action|method|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"").replace(/\sdata-order-form\b/gi,"");
+    attrs=' action="order.php" method="post"'+attrs;
+    var body=inner;
+    if(!/name=["']name["']/i.test(body)) body=body.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i,'<input name="name"$1>');
+    if(!/name=["']phone["']/i.test(body)) body=body.replace(/<input\b([^>]*type=["']tel["'][^>]*)>/i,function(mm,a){return /name=/.test(a)?mm:'<input name="phone" '+a+'>';});
+    body=body.replace(/<input[^>]*name=["'](?:sub1|country)["'][^>]*>\s*/gi,"");   // старые скрытые -> заменим своими
+    return "<form"+attrs+">\n"+hidden+body+"</form>";
+  });
 }
 function stripPixel(html){return html
   .replace(/<!--\s*Meta Pixel\s*-->[\s\S]*?<!--\s*End Meta Pixel\s*-->/gi,"")
@@ -953,13 +1027,20 @@ function patchHtml(cfg, html){
     html=html.replace(/<script\b[^>]*\bywbackfix\.js[^>]*>(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");
   }
   if(cfg.pxOn){ html=stripPixel(html); html=injectHead(html,pixelBlock(cfg,false)); }
-  if(cfg.autofix){
-    html=html.replace(/<form\b(?![^>]*data-order-form)([^>]*)>/i,'<form data-order-form$1>');
-    if(!/name=["']name["']/i.test(html)) html=html.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i,'<input name="name"$1>');
-    if(!/name=["']phone["']/i.test(html)) html=html.replace(/<input\b([^>]*type=["']tel["'][^>]*)>/i,function(m,a){return /name=/.test(a)?m:'<input name="phone" '+a+'>';});
+  if(cfg.mode==="php"){
+    // shakes: форма постит на серверный order.php; JS-движок НЕ вставляем
+    html=wireOrderPhpForm(cfg, html);
+    var yw=backfixBlock(cfg);
+    if(yw){ if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,yw+"\n</body>"); else html+="\n"+yw; }
+  } else {
+    if(cfg.autofix){
+      html=html.replace(/<form\b(?![^>]*data-order-form)([^>]*)>/i,'<form data-order-form$1>');
+      if(!/name=["']name["']/i.test(html)) html=html.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i,'<input name="name"$1>');
+      if(!/name=["']phone["']/i.test(html)) html=html.replace(/<input\b([^>]*type=["']tel["'][^>]*)>/i,function(m,a){return /name=/.test(a)?m:'<input name="phone" '+a+'>';});
+    }
+    var block=orderBlock(cfg);
+    if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,block+"\n</body>"); else html+="\n"+block;
   }
-  var block=orderBlock(cfg);
-  if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,block+"\n</body>"); else html+="\n"+block;
   if(cfg.keepComments){
     // видимый маркер сверху (чтобы было понятно, что файл собран/изменён)
     var mark="<!-- ✦ собрано конструктором: +Meta Pixel (head) +блок заказа (перед /body), lang="+(cfg.langCode||"?")+" -->";
@@ -1399,7 +1480,8 @@ function wirePagePick(id,slot,label){
 function val(id){return document.getElementById(id).value.trim();}
 function readCfg(){
   var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value;
-  return {endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
+  return {mode:pk.mode||"js",partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),
+    endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
     brand:val("brand")||"Product",image:val("image")||"images/product.png",price:val("price")||"—",
@@ -1413,7 +1495,8 @@ function readCfg(){
 var FILES={};
 function build(){
   var cfg=readCfg(),st=document.getElementById("status");
-  var miss=["product_id","ref","api_key","langCode"].filter(function(k){return !cfg[k];});
+  var need=(cfg.mode==="php")?["product_id","api_key","country"]:["product_id","ref","api_key","langCode"];
+  var miss=need.filter(function(k){return !cfg[k];});
   if(cfg.pxOn && !cfg.pxid) { /* динамический пиксель — норм */ }
   if(MODE==="folder"){
     if(!FOLDER){st.className="status warn";st.textContent="Сначала выбери папку ленда.";return;}
@@ -1426,6 +1509,7 @@ function build(){
   } else {
     FILES={index:buildIndex(cfg),call:buildCall(cfg),error:buildError(cfg),chest:chestFromCfg(cfg)};
   }
+  FILES.orderphp=(cfg.mode==="php")?shakesOrderPhp(cfg):"";
   if(miss.length){st.className="status warn";st.textContent="Заполни обязательные: "+miss.join(", ");}
   else{st.className="status ok";st.textContent=(MODE==="folder"?"Готово ✓ Папка: index пропатчен, call/error заменены":"Готово ✓")+(cfg.pxOn?" · Meta Pixel вставлен ("+(cfg.pxid||"динамический {fbpx}")+", конверсия "+cfg.pxev+")":"");}
   showTab(currentTab);
@@ -1583,7 +1667,7 @@ function dl(name,data,type){
   a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
 }
 function safeName(s){return (s||"").trim().replace(/[^\p{L}\p{N}]+/gu,"-").replace(/^-+|-+$/g,"")||"lander";}
-function zipName(cfg){var g=(cfg.langCode||"").trim().toLowerCase();return safeName(cfg.brand)+(g?("_"+g):"")+".zip";}
+function zipName(cfg){var g=((cfg.langCode||cfg.country||"").trim()).toLowerCase();return safeName(cfg.brand)+(g?("_"+g):"")+".zip";}
 var YWBACKFIX_JS=(document.getElementById("yw-src")||{}).textContent||"";
 function renderChestList(){
   var el=document.getElementById("chestList");
@@ -1616,6 +1700,7 @@ async function loadChestFolder(items){
 function downloadZip(){
   if(!FILES.index)build();
   var cfg=readCfg();
+  var isPhp=(cfg.mode==="php");
   if(MODE==="folder"&&FOLDER){
     var had={};
     var out=FOLDER.files.filter(function(x){
@@ -1628,14 +1713,18 @@ function downloadZip(){
       if(cfg.repCallErr&&b==="call.html"){had.call=1;return {name:x.path,str:FILES.call};}
       if(cfg.repCallErr&&b==="error.html"){had.error=1;return {name:x.path,str:FILES.error};}
       if(b==="ywbackfix.js"){had.yw=1;return {name:x.path,str:YWBACKFIX_JS};}
+      if(isPhp&&b==="order.php"){had.php=1;return {name:x.path,str:FILES.orderphp};}   // патчим свой order.php
       return x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes};
     });
     if(cfg.repCallErr&&!had.call)  out.push({name:"call.html",str:FILES.call});
     if(cfg.repCallErr&&!had.error) out.push({name:"error.html",str:FILES.error});
     if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});
+    if(isPhp&&!had.php) out.push({name:"order.php",str:FILES.orderphp});
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
-    dl(zipName(cfg),makeZip([{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}]),"application/zip");
+    var files=[{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}];
+    if(isPhp) files.push({name:"order.php",str:FILES.orderphp});
+    dl(zipName(cfg),makeZip(files),"application/zip");
   }
 }
 // СУНДУК — отдельный самостоятельный сайт: главная = index.html
@@ -1696,7 +1785,7 @@ function showTopToast(msg,isErr){
   var sel=document.getElementById("partner");
   Object.keys(PARTNERS).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PARTNERS[k].label;sel.appendChild(o);});
   function applyPartner(){
-    var pk=PARTNERS[sel.value];
+    var pk=PARTNERS[sel.value], isPhp=(pk.mode==="php");
     document.getElementById("partnerHint").textContent=pk.hint;
     var refEl=document.getElementById("ref"), keyEl=document.getElementById("api_key");
     [["ref",refEl],["api_key",keyEl]].forEach(function(pair){
@@ -1704,6 +1793,10 @@ function showTopToast(msg,isErr){
       if(v!=null && v!==""){ el.value=v; el.readOnly=true; el.classList.add("locked"); }
       else { if(el.classList.contains("locked")) el.value=""; el.readOnly=false; el.classList.remove("locked"); }
     });
+    // php-партнёрка (shakes): показываем страну/URL, прячем ref (не нужен), label оффера
+    document.getElementById("phpFields").style.display=isPhp?"block":"none";
+    document.getElementById("refWrap").style.display=isPhp?"none":"block";
+    try{ build(); }catch(e){}
   }
   sel.addEventListener("change",applyPartner);applyPartner();
   wirePagePick("pick-page","page","＋ фото");
