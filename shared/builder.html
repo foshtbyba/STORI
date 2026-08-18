@@ -1336,7 +1336,12 @@ function renderPreview(target){
         else if(editable && /^https?:\/\//i.test(raw)){ im.setAttribute("data-ext",raw); }
       });
       d.querySelectorAll("source").forEach(function(so){ var f=look(so.getAttribute("srcset")); if(f&&IMG_EXT.test(f.path)){ so.setAttribute("srcset",toDataURL(f)); } });
-      d.querySelectorAll('link[rel~="stylesheet"]').forEach(function(lk){ var f=look(lk.getAttribute("href")); if(f){ lk.setAttribute("href",toDataURL(f)); } });
+      // url(...) внутри css -> data-uri (фоны, картинки блоков, шрифты) — иначе превью «беднее» оригинала
+      function resolveCssUrls(css){ return css.replace(/url\(\s*(['"]?)([^'")]+)\1\s*\)/gi,function(m,q,ref){ if(/^(data:|https?:|#)/i.test(ref)) return m; var f=look(ref); return f?('url("'+toDataURL(f)+'")'):m; }); }
+      // внешние стили сундука: инлайним как <style> с уже разрешёнными url() (так надёжнее, чем data-uri ссылка)
+      d.querySelectorAll('link[rel~="stylesheet"]').forEach(function(lk){ var f=look(lk.getAttribute("href")); if(f&&f.kind==="text"){ var st=d.createElement("style"); st.textContent=resolveCssUrls(f.str); if(lk.parentNode) lk.parentNode.replaceChild(st,lk); } else if(f){ lk.setAttribute("href",toDataURL(f)); } });
+      // и в инлайновых <style> тоже разрешаем url()
+      d.querySelectorAll("style").forEach(function(st){ if(st.textContent&&/url\(/i.test(st.textContent)){ st.textContent=resolveCssUrls(st.textContent); } });
       if(editable){
         var stl=d.createElement("style"); stl.textContent="img[data-asset],img[data-ext]{cursor:zoom-in!important}img[data-asset]:hover{outline:3px solid #C96442!important;outline-offset:2px}img[data-ext]:hover{outline:3px dashed #C96442!important;outline-offset:2px}"; (d.head||d.documentElement).appendChild(stl);
         d.addEventListener("click",function(ev){
