@@ -139,9 +139,19 @@
     </div>
 
     <div class="grp">
-      <h3>Сундук (chest.html)</h3>
-      <div class="chk"><input type="checkbox" id="makeChest"><label>Делать сундук (chest.html)</label></div>
-      <div class="hint">Отдельная страница-рулетка «крутите — выиграли скидку». Нужна не всегда. Если включено — появится кнопка «⬇ Сундук», фото берётся то же, что на call/error. В папке: существующий сундук патчится (блок заказа + пиксель), если его нет — генерируется.</div>
+      <h3 class="gtoggle" data-target="chestBody"><span class="chev">▸</span> Сундук (chest.html)</h3>
+      <div id="chestBody" class="grp-body" style="display:none">
+        <div class="chk"><input type="checkbox" id="makeChest"><label>Делать сундук (chest.html)</label></div>
+        <div class="hint">Отдельная страница-рулетка «крутите — выиграли скидку». Нужна не всегда. Если включено — появится кнопка «⬇ Сундук», текст переводится на язык ленда, фото берётся то же, что на call/error. Без своей папки — генерируется по образцу.</div>
+        <label style="margin-top:8px">Или своя папка сундука (опц.) — почистится и отпатчится как ленд</label>
+        <label class="drop" for="chestFolder" id="chestDrop">
+          <div class="ic">🎁</div>
+          <div class="t">Папка сундука</div>
+          <div class="s">главная страница станет chest.html (наш блок заказа + пиксель + язык), ассеты css/images/js добавятся в сборку</div>
+          <input id="chestFolder" type="file" webkitdirectory directory multiple>
+        </label>
+        <div class="filelist" id="chestList" style="display:none"></div>
+      </div>
     </div>
 
     <div class="grp">
@@ -757,7 +767,25 @@ const ERR = {
   ur:{errt:"آرڈر بھیجا نہیں جا سکا",el1:"ممکن ہے معلومات غلط ہوں یا بھیجنے میں خرابی ہوئی ہو۔",el2:"براہِ کرم واپس جا کر دوبارہ آرڈر کریں۔",retry:"دوبارہ آرڈر کریں"},
   he:{errt:"לא ניתן היה לשלוח את ההזמנה",el1:"ייתכן שהפרטים שגויים או שאירעה תקלה.",el2:"אנא חזור והזמן שוב.",retry:"להזמין שוב"}
 };
-function T(lang){return Object.assign({},TXT.en,ERR.en,TXT[lang]||{},ERR[lang]||{});}
+// строка-инструкция в форме сундука (англ-фолбэк для остальных языков)
+const CHESTX={
+  en:{chestOrder:"To receive the product, enter your name and phone number below and press «Order»."},
+  ru:{chestOrder:"Чтобы получить препарат, впишите имя и номер телефона ниже и нажмите «Заказать»."},
+  uk:{chestOrder:"Щоб отримати препарат, впишіть ім’я та номер телефону нижче й натисніть «Замовити»."},
+  fr:{chestOrder:"Pour recevoir le produit, saisissez votre nom et votre numéro de téléphone ci-dessous et cliquez sur «Commander»."},
+  nl:{chestOrder:"Om het product te ontvangen, vul hieronder uw naam en telefoonnummer in en klik op «Bestellen»."},
+  de:{chestOrder:"Um das Produkt zu erhalten, geben Sie unten Ihren Namen und Ihre Telefonnummer ein und klicken Sie auf «Bestellen»."},
+  es:{chestOrder:"Para recibir el producto, escriba su nombre y número de teléfono abajo y pulse «Pedir»."},
+  pt:{chestOrder:"Para receber o produto, introduza o seu nome e número de telefone abaixo e clique em «Encomendar»."},
+  it:{chestOrder:"Per ricevere il prodotto, inserisci nome e numero di telefono qui sotto e premi «Ordina»."},
+  pl:{chestOrder:"Aby otrzymać preparat, wpisz swoje imię i numer telefonu poniżej i naciśnij «Zamów»."},
+  ro:{chestOrder:"Pentru a primi produsul, introduceți numele și numărul de telefon mai jos și apăsați «Comandă»."},
+  tr:{chestOrder:"Ürünü almak için adınızı ve telefon numaranızı aşağıya girin ve «Sipariş Ver» tuşuna basın."},
+  ar:{chestOrder:"للحصول على المنتج، أدخل اسمك ورقم هاتفك في الأسفل واضغط «اطلب»."},
+  ur:{chestOrder:"پروڈکٹ حاصل کرنے کے لیے نیچے اپنا نام اور فون نمبر درج کریں اور «آرڈر کریں» دبائیں۔"},
+  he:{chestOrder:"כדי לקבל את המוצר, הזן למטה את שמך ומספר הטלפון ולחץ «הזמן»."}
+};
+function T(lang){return Object.assign({},TXT.en,ERR.en,CHESTX.en,TXT[lang]||{},ERR[lang]||{},CHESTX[lang]||{});}
 
 /* ================= ГЕНЕРАЦИЯ ================= */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
@@ -852,14 +880,14 @@ ${pixelBlock(cfg,false)}
 <body>
 <div class="container">
   <div class="chest"><div class="top_block">
-    <h1>${esc(t.part)} "<span class="productName">${esc(cfg.brand)}</span>"!</h1>
+    <h1>${esc(t.part)} «<span class="productName">${esc(cfg.brand)}</span>»!</h1>
     <p class="vis_big"><span style="font-weight:500">${esc(t.price)} <b class="new_price_val">${esc(cfg.price)}</b>!</span></p>
   </div></div>
   <div class="select_block">
     <h2 class="select_block__title"><span style="color:red">${esc(t.attn)}</span> ${esc(t.attnx)}</h2>
     <p class="text_big">${esc(t.why)} <span class="productName">${esc(cfg.brand)}</span> — ${esc(t.atprice)}</p>
   </div>
-  <div class="chest__img_pack" id="chestImg" style="margin-bottom:150px">
+  <div class="chest__img_pack" id="chestImg">
     <div class="chest__title_wrap"><h3 class="chest__title">${esc(t.tryl)}</h3>
       <h3 class="chest__subtitle">${esc(t.click)} <span class="danger-text">${esc(t.reward)}</span>!</h3></div>
     <div class="chest__button"><picture><source class="chest__img" srcset="images/chest.webp" type="image/webp">
@@ -873,9 +901,10 @@ ${pixelBlock(cfg,false)}
         <picture class="front"><source srcset="images/coin2.webp" type="image/webp"><img src="images/coin2.png" alt="" style="max-width:350px;width:100%"></picture>
       </div></div>
     <div class="chest__order"><div class="my_form">
-      <img src="${pageImg(cfg,"success")}" alt="" class="prodImg" style="max-width:200px">
+      <img src="${pageImg(cfg,"success")}" alt="" class="prodImg" style="max-width:240px">
       <div class="text_popup"><span style="display:block">${esc(t.congrats)}</span> ${esc(t.winl)} <span class="productName">${esc(cfg.brand)}</span> ${esc(t.foronly)} <b class="new_price_val">${esc(cfg.price)}</b>!</div>
-      <br><br><span id="oneform"></span>
+      <p style="text-align:center;font-size:15px;color:#444;margin:0 0 12px">${esc(t.chestOrder)}</p>
+      <br><span id="oneform"></span>
       <form id="order_form" data-order-form method="POST" action="">
         <input type="text" minlength="2" class="input-roulette" name="name" id="input-name" placeholder="${esc(t.phn)}" autocomplete="name" required>
         <input maxlength="18" minlength="8" type="tel" class="input-roulette" name="phone" id="input-phone" placeholder="${esc(t.php)}" autocomplete="tel" required>
@@ -887,6 +916,31 @@ ${pixelBlock(cfg,false)}
 <script src="js/bounce.js"><\/script>
 ${orderBlock(cfg)}
 </body></html>`;}
+
+// чистка своей папки-сундука: убрать инлайн-скрипты/пиксель/трекер-форму, сохранив jQuery+bounce.js (анимация)
+function cleanChestHtml(html){
+  html=html.replace(/<!--\s*Meta Pixel[\s\S]*?End Meta Pixel\s*-->/gi,"");
+  html=html.replace(/<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?fbevents\.js(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");
+  html=html.replace(/<script(?![^>]*\bsrc=)[^>]*>(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");   // все инлайн-скрипты
+  html=html.replace(/<iframe\b[^>]*(?:name|id)="ev_frame"[^>]*>(?:(?!<\/iframe>)[\s\S])*?<\/iframe>/gi,"");
+  html=html.replace(/<form\b[^>]*>/i,'<form data-order-form>');                                  // форма -> контракт
+  html=html.replace(/<input[^>]*type="hidden"[^>]*>\s*/gi,"");                                    // скрытые поля трекера
+  html=html.replace(/\{fbpx\}|\{subid\}|\{sub_id_30\}/g,"");
+  return html;
+}
+// источник сундука: своя папка -> чистим+патчим; иначе существующий chest.html из папки ленда -> патч; иначе шаблон
+function chestFromCfg(cfg){
+  if(!cfg.makeChest) return "";
+  if(CHEST_FOLDER && CHEST_FOLDER.mainPath){
+    var mf=CHEST_FOLDER.files.filter(function(x){return x.path===CHEST_FOLDER.mainPath;})[0];
+    if(mf) return patchHtml(cfg, cleanChestHtml(mf.str));
+  }
+  if(MODE==="folder" && FOLDER){
+    var cf=FOLDER.files.filter(function(x){return baseName(x.path).toLowerCase()==="chest.html";})[0];
+    if(cf) return patchHtml(cfg, cf.str);
+  }
+  return buildChest(cfg);
+}
 
 /* ================= МИНИ-ZIP (текст + бинарь) ================= */
 function crcTable(){var c,t=[];for(var n=0;n<256;n++){c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;}
@@ -919,6 +973,7 @@ function makeZip(files){
 
 /* ================= ПАПКА + КАРТИНКИ ================= */
 var FOLDER=null;
+var CHEST_FOLDER=null;
 var TEXT_EXT=/\.(html?|css|js|json|svg|txt|xml|webmanifest|map)$/i;
 var IMG_EXT=/\.(png|jpe?g|webp|gif|svg|ico|avif|bmp)$/i;
 function baseName(p){return p.split("/").pop();}
@@ -1113,12 +1168,9 @@ function build(){
     cfg.html=idxFile.str;
     FILES.index=patchHtml(cfg,idxFile.str);
     FILES.call=buildCall(cfg); FILES.error=buildError(cfg);
-    if(cfg.makeChest){
-      var chestFile=FOLDER.files.filter(function(x){return baseName(x.path).toLowerCase()==="chest.html";})[0];
-      FILES.chest=chestFile?patchHtml(cfg,chestFile.str):buildChest(cfg);
-    } else FILES.chest="";
+    FILES.chest=chestFromCfg(cfg);
   } else {
-    FILES={index:buildIndex(cfg),call:buildCall(cfg),error:buildError(cfg),chest:cfg.makeChest?buildChest(cfg):""};
+    FILES={index:buildIndex(cfg),call:buildCall(cfg),error:buildError(cfg),chest:chestFromCfg(cfg)};
   }
   if(miss.length){st.className="status warn";st.textContent="Заполни обязательные: "+miss.join(", ");}
   else{st.className="status ok";st.textContent=(MODE==="folder"?"Готово ✓ Папка: index пропатчен, call/error заменены":"Готово ✓")+(cfg.pxOn?" · Meta Pixel вставлен ("+(cfg.pxid||"динамический {fbpx}")+", конверсия "+cfg.pxev+")":"");}
@@ -1206,6 +1258,42 @@ function dl(name,data,type){
 function safeName(s){return (s||"").trim().replace(/[^\p{L}\p{N}]+/gu,"-").replace(/^-+|-+$/g,"")||"lander";}
 function zipName(cfg){var g=(cfg.langCode||"").trim().toLowerCase();return safeName(cfg.brand)+(g?("_"+g):"")+".zip";}
 var YWBACKFIX_JS=(document.getElementById("yw-src")||{}).textContent||"";
+// добавить ассеты своей папки-сундука (css/images/js), не перезаписывая файлы ленда
+function mergeChestAssets(out,cfg){
+  if(!(cfg.makeChest && CHEST_FOLDER)) return;
+  var pres={}; out.forEach(function(f){pres[f.name]=1;});
+  CHEST_FOLDER.files.forEach(function(f){
+    if(f.path===CHEST_FOLDER.mainPath) return;      // это уже chest.html
+    if(/\.html?$/i.test(f.path)) return;            // прочие html сундука не тащим
+    if(pres[f.path]) return;                        // ассеты ленда важнее
+    out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes});
+  });
+}
+function renderChestList(){
+  var el=document.getElementById("chestList");
+  if(!CHEST_FOLDER){el.style.display="none";return;}
+  el.style.display="block";
+  el.innerHTML=CHEST_FOLDER.files.map(function(x){
+    var main=(x.path===CHEST_FOLDER.mainPath);
+    return '<div><span>'+esc(x.path)+'</span><span class="tag'+(main?"":" keep")+'">'+(main?"chest":"ассет")+'</span></div>';
+  }).join("");
+}
+async function loadChestFolder(items){
+  var st=document.getElementById("status"); st.className="status"; st.textContent="Читаю папку сундука…";
+  try{
+    CHEST_FOLDER=await ingest(items);
+    if(CHEST_FOLDER){
+      var htmls=CHEST_FOLDER.files.filter(function(x){return /\.html?$/i.test(x.path);});
+      var ch=htmls.filter(function(x){return baseName(x.path).toLowerCase()==="chest.html";})[0];
+      var ix=htmls.filter(function(x){return x.path===CHEST_FOLDER.indexPath;})[0];
+      CHEST_FOLDER.mainPath=((ch||ix||htmls[0])||{}).path||null;
+    }
+    renderChestList();
+    var mk=document.getElementById("makeChest"); if(!mk.checked){ mk.checked=true; mk.dispatchEvent(new Event("change")); }
+    st.className="status ok"; st.textContent=(CHEST_FOLDER&&CHEST_FOLDER.mainPath)?("Сундук: "+CHEST_FOLDER.files.length+" файлов · страница: "+CHEST_FOLDER.mainPath):"Сундук: главная HTML-страница не найдена";
+    build(); showTab("chest");
+  }catch(e){ st.className="status warn"; st.textContent="Ошибка чтения сундука: "+e.message; }
+}
 function downloadZip(){
   if(!FILES.index)build();
   var cfg=readCfg();
@@ -1224,9 +1312,13 @@ function downloadZip(){
     if(cfg.repCallErr&&!had.error) out.push({name:"error.html",str:FILES.error});
     if(cfg.makeChest&&!had.chest&&FILES.chest) out.push({name:"chest.html",str:FILES.chest});
     if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});             // всегда добавляем файл
+    mergeChestAssets(out,cfg);
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
-    dl(zipName(cfg),makeZip([{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}]),"application/zip");
+    var out2=[{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}];
+    if(cfg.makeChest&&FILES.chest) out2.push({name:"chest.html",str:FILES.chest});
+    mergeChestAssets(out2,cfg);
+    dl(zipName(cfg),makeZip(out2),"application/zip");
   }
 }
 
@@ -1246,6 +1338,21 @@ function downloadZip(){
   }
   sel.addEventListener("change",applyPartner);applyPartner();
   wirePagePick("pick-page","page","＋ фото");
+  // папка сундука: выбор + drag-and-drop
+  var cfi=document.getElementById("chestFolder");
+  if(cfi){
+    cfi.addEventListener("change",function(e){ loadChestFolder(Array.prototype.map.call(e.target.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};})); });
+    var cdrop=document.getElementById("chestDrop");
+    ["dragenter","dragover"].forEach(function(ev){cdrop.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();cdrop.classList.add("drag");});});
+    ["dragleave","dragend"].forEach(function(ev){cdrop.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();cdrop.classList.remove("drag");});});
+    cdrop.addEventListener("drop",async function(e){ e.preventDefault();e.stopPropagation();cdrop.classList.remove("drag");
+      var dt=e.dataTransfer,roots=[];
+      if(dt&&dt.items){for(var i=0;i<dt.items.length;i++){var en=dt.items[i].webkitGetAsEntry?dt.items[i].webkitGetAsEntry():null;if(en)roots.push(en);}}
+      if(roots.length){var out=[];for(var r=0;r<roots.length;r++){await walkEntry(roots[r],"",out);}await loadChestFolder(out.map(function(o){return {file:o.file, rel:o.rel};}));}
+      else if(dt&&dt.files&&dt.files.length){await loadChestFolder(Array.prototype.map.call(dt.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};}));}
+    });
+  }
+
   // сундук: опционально — показываем кнопку/вкладку только когда включён
   function updateChestUI(){var on=document.getElementById("makeChest").checked;document.getElementById("btnChest").style.display=on?"":"none";document.getElementById("tabChest").style.display=on?"":"none";if(!on&&currentTab==="chest")showTab("index");}
   document.getElementById("makeChest").addEventListener("change",updateChestUI);updateChestUI();
