@@ -145,11 +145,11 @@
       <label>ID оффера (product_id) *</label>
       <input id="product_id" placeholder="ID оффера из кабинета партнёрки">
       <div class="row">
+        <div><label>Код гео (langCode) *</label><input id="langCode" placeholder="be · fr · cr · pk…"></div>
         <div>
           <div id="refWrap"><label>ID вебмастера (ref) 🔒</label><input id="ref" placeholder="закреплён за партнёркой"></div>
           <div id="countryWrap" style="display:none"><label>Страна (countryCode) *</label><input id="country" placeholder="CZ · DE · SK… (авто)"></div>
         </div>
-        <div><label>Код гео (langCode) *</label><input id="langCode" placeholder="be · fr · cr · pk…"></div>
       </div>
       <div id="phpFields" style="display:none">
         <label>URL оригинального лендинга (опц.)</label>
@@ -1022,7 +1022,7 @@ function injectHead(html,snip){
   return snip+"\n"+html;
 }
 function patchHtml(cfg, html){
-  if(!html || !html.trim()) return "<!-- пусто -->";
+  if(!html || !html.trim()) return "<!-- Вставь папку с лендом (или HTML ленда) -->";
   // обновить <html lang> под гео (видимое изменение в шапке)
   if(cfg.langCode){
     if(/<html\b[^>]*\blang=/i.test(html)) html=html.replace(/(<html\b[^>]*\blang=")[^"]*(")/i,"$1"+cfg.langCode+"$2");
