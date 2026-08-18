@@ -1195,18 +1195,25 @@ function renderPreview(){
       if(FOLDER){
         var byBase={}; FOLDER.files.forEach(function(f){ byBase[baseName(f.path).toLowerCase()]=f; });
         function look(raw){ if(!raw) return null; var b=raw.split("?")[0].split(",")[0].trim().split(" ")[0].split("/").pop().toLowerCase(); return byBase[b]||null; }
-        // подменяем картинки/стили на data-uri (грузятся всегда) и метим фото data-asset
-        d.querySelectorAll("img").forEach(function(im){ var f=look(im.getAttribute("src")); if(f&&IMG_EXT.test(f.path)){ im.src=toDataURL(f); im.setAttribute("data-asset",f.path); } });
+        // локальные фото -> data-uri + data-asset; внешние (CDN) -> data-ext (тоже кликабельны)
+        d.querySelectorAll("img").forEach(function(im){
+          var raw=im.getAttribute("src")||"";
+          if(/^data:/i.test(raw)) return;                       // уже вшитое — не трогаем
+          var f=look(raw);
+          if(f&&IMG_EXT.test(f.path)){ im.src=toDataURL(f); im.setAttribute("data-asset",f.path); }
+          else if(/^https?:\/\//i.test(raw)){ im.setAttribute("data-ext",raw); }  // внешняя картинка
+        });
         d.querySelectorAll("source").forEach(function(so){ var f=look(so.getAttribute("srcset")); if(f&&IMG_EXT.test(f.path)){ so.setAttribute("srcset",toDataURL(f)); } });
         d.querySelectorAll('link[rel~="stylesheet"]').forEach(function(lk){ var f=look(lk.getAttribute("href")); if(f){ lk.setAttribute("href",toDataURL(f)); } });
-        var stl=d.createElement("style"); stl.textContent="img[data-asset]{cursor:zoom-in!important}img[data-asset]:hover{outline:3px solid #C96442!important;outline-offset:2px}"; (d.head||d.documentElement).appendChild(stl);
+        var stl=d.createElement("style"); stl.textContent="img[data-asset],img[data-ext]{cursor:zoom-in!important}img[data-asset]:hover{outline:3px solid #C96442!important;outline-offset:2px}img[data-ext]:hover{outline:3px dashed #C96442!important;outline-offset:2px}"; (d.head||d.documentElement).appendChild(stl);
         // делегированный клик (capture) — ловим раньше скриптов ленда
         d.addEventListener("click",function(ev){
-          var t=ev.target, im=(t&&t.closest)?t.closest("img[data-asset]"):null;
+          var t=ev.target, im=(t&&t.closest)?t.closest("img[data-asset],img[data-ext]"):null;
           if(!im) return;
           ev.preventDefault(); ev.stopPropagation();
-          var r=prev.getBoundingClientRect();
-          showAssetMenu(r.left+(ev.clientX||0), r.top+(ev.clientY||0), im.getAttribute("data-asset"));
+          var r=prev.getBoundingClientRect(), px=r.left+(ev.clientX||0), py=r.top+(ev.clientY||0);
+          if(im.hasAttribute("data-asset")) showAssetMenu(px,py,im.getAttribute("data-asset"));
+          else showExtMenu(px,py,im.getAttribute("data-ext"));
         }, true);
       }
     }catch(e){ console.warn("preview:",e); }
@@ -1214,6 +1221,35 @@ function renderPreview(){
   prev.srcdoc=FILES.index||"";
 }
 function assetByPath(p){return FOLDER?FOLDER.files.filter(function(f){return f.path===p;})[0]:null;}
+// внешняя (CDN) картинка: заменить своим файлом — кладём локально в папку и меняем ссылку в коде
+function localizeExternal(url){
+  if(!FOLDER){ alert("Замена внешних фото доступна в режиме папки."); return; }
+  var inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
+  inp.onchange=async function(){
+    var file=inp.files[0]; if(!file) return;
+    var ext=((file.name.split(".").pop()||"png").toLowerCase().replace(/[^a-z0-9]/g,""))||"png";
+    var n=1,p; do{ p="images/img_"+(n++)+"."+ext; }while(FOLDER.files.some(function(f){return f.path===p;}));
+    var bytes=new Uint8Array(await file.arrayBuffer());
+    FOLDER.files.push({path:p,kind:"bin",bytes:bytes,comment:false});
+    var cnt=0;
+    FOLDER.files.forEach(function(f){ if(f.kind==="text" && f.str.indexOf(url)>=0){ cnt+=f.str.split(url).length-1; f.str=f.str.split(url).join(p); } });
+    refreshFolder(); build(); showTab("preview");
+    var st=document.getElementById("status"); st.className="status ok"; st.textContent="Внешнее фото заменено на локальное "+p+" (ссылок обновлено: "+cnt+")";
+  };
+  inp.click();
+}
+function showExtMenu(px,py,url){
+  removeAssetMenu();
+  var m=document.createElement("div"); m.id="assetMenu"; m.className="assetmenu";
+  m.innerHTML='<div class="am-name">внешнее фото · '+esc((url||"").split("/").pop().split("?")[0])+'</div>'+
+    '<button data-a="loc">🖼 Заменить своим фото</button>';
+  document.body.appendChild(m);
+  var w=m.offsetWidth||190,h=m.offsetHeight||70;
+  m.style.left=Math.max(8,Math.min(px,window.innerWidth-w-8))+"px";
+  m.style.top=Math.max(8,Math.min(py,window.innerHeight-h-8))+"px";
+  m.querySelector('[data-a="loc"]').onclick=function(){removeAssetMenu();localizeExternal(url);};
+  setTimeout(function(){window.addEventListener("click",removeAssetMenu,{once:true});window.addEventListener("scroll",removeAssetMenu,{once:true,capture:true});},0);
+}
 function highlightTile(path){
   var sel='.imgtile[data-path="'+path.replace(/"/g,'\\"')+'"]';
   var tile=document.querySelector(sel);
