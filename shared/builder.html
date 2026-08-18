@@ -922,9 +922,8 @@ function priceParts(s){s=String(s||"");var m=s.match(/\d[\d\s.,'’]*\d|\d/);ret
 function doubleCalc(s){
   s=String(s||""); var m=s.match(/\d[\d\s.,'’]*\d|\d/);
   if(!m) return {num:s, full:s};
-  var token=m[0], hasDec=/[.,]\d{1,2}$/.test(token), digits=token.replace(/\D/g,""); if(!digits) return {num:s, full:s};
-  var val=parseInt(digits,10), dbl=val*2;
-  if(!hasDec && dbl>=20 && dbl<100000) dbl=Math.round(dbl/10)*10;     // круглая «до»-цена (78 -> 80)
+  var token=m[0], digits=token.replace(/\D/g,""); if(!digits) return {num:s, full:s};
+  var val=parseInt(digits,10), dbl=val*2;                             // ровно ×2 (39 -> 78)
   var sep=(token.match(/[.,\s'’]/)||[""])[0], num=String(dbl);
   if(sep && dbl>=1000) num=dbl.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep===" "?" ":sep);
   return {num:num, full:s.replace(token, num)};
