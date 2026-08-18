@@ -915,7 +915,21 @@ function halfCalc(s){
   return {num:num, full:s.replace(token, num)};
 }
 function halfPrice(s){return halfCalc(s).full;}
-function buildChest(cfg){var t=cfg.t,half=halfPrice(cfg.price);return `<!DOCTYPE html>
+// введённая цена как есть -> {num:"39", full:"39 €"} (num — только число, для случая отдельной валюты)
+function priceParts(s){s=String(s||"");var m=s.match(/\d[\d\s.,'’]*\d|\d/);return {num:m?m[0]:s, full:s};}
+// «старая» (зачёркнутая) цена для сундука = удвоенная введённая, округлённая до круглого числа
+// doubleCalc("39 €") -> {num:"80", full:"80 €"}
+function doubleCalc(s){
+  s=String(s||""); var m=s.match(/\d[\d\s.,'’]*\d|\d/);
+  if(!m) return {num:s, full:s};
+  var token=m[0], hasDec=/[.,]\d{1,2}$/.test(token), digits=token.replace(/\D/g,""); if(!digits) return {num:s, full:s};
+  var val=parseInt(digits,10), dbl=val*2;
+  if(!hasDec && dbl>=20 && dbl<100000) dbl=Math.round(dbl/10)*10;     // круглая «до»-цена (78 -> 80)
+  var sep=(token.match(/[.,\s'’]/)||[""])[0], num=String(dbl);
+  if(sep && dbl>=1000) num=dbl.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep===" "?" ":sep);
+  return {num:num, full:s.replace(token, num)};
+}
+function buildChest(cfg){var t=cfg.t,was=doubleCalc(cfg.price).full,now=cfg.price;return `<!DOCTYPE html>
 <html lang="${cfg.langCode}"${dirAttr(cfg)}>
 <head><meta charset="UTF-8"><meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
 <title>${esc(t.action)}</title>
@@ -931,7 +945,7 @@ ${pixelBlock(cfg,false)}
 <div class="container">
   <div class="chest"><div class="top_block">
     <h1>${esc(t.part)} «<span class="productName">${esc(cfg.brand)}</span>»!</h1>
-    <p class="vis_big"><span style="font-weight:500">${esc(t.price)} <b style="text-decoration:line-through;color:#999">${esc(cfg.price)}</b> — <b class="new_price_val" style="color:#e53935;font-weight:800">${esc(half)}</b>!</span></p>
+    <p class="vis_big"><span style="font-weight:500">${esc(t.price)} <b style="text-decoration:line-through;color:#999">${esc(was)}</b> — <b class="new_price_val" style="color:#e53935;font-weight:800">${esc(now)}</b>!</span></p>
   </div></div>
   <div class="select_block">
     <h2 class="select_block__title"><span style="color:red">${esc(t.attn)}</span> ${esc(t.attnx)}</h2>
@@ -952,7 +966,7 @@ ${pixelBlock(cfg,false)}
       </div></div>
     <div class="chest__order"><div class="my_form">
       <img src="${pageImg(cfg,"success")}" alt="" class="prodImg" style="max-width:240px">
-      <div class="text_popup"><span style="display:block">${esc(t.congrats)}</span> ${esc(t.winl)} <span class="productName">${esc(cfg.brand)}</span> ${esc(t.foronly)} <b style="text-decoration:line-through;color:#999">${esc(cfg.price)}</b> <b class="new_price_val" style="color:#e53935">${esc(half)}</b>!</div>
+      <div class="text_popup"><span style="display:block">${esc(t.congrats)}</span> ${esc(t.winl)} <span class="productName">${esc(cfg.brand)}</span> ${esc(t.foronly)} <b style="text-decoration:line-through;color:#999">${esc(was)}</b> <b class="new_price_val" style="color:#e53935">${esc(now)}</b>!</div>
       <p style="text-align:center;font-size:15px;color:#444;margin:0 0 12px">${esc(t.chestOrder)}</p>
       <br><span id="oneform"></span>
       <form id="order_form" data-order-form method="POST" action="">
@@ -988,18 +1002,26 @@ function cleanChestHtml(html){
 }
 // источник сундука: своя папка -> чистим+патчим; иначе существующий chest.html из папки ленда -> патч; иначе шаблон
 // чистый стиль формы сундука — чтобы форма всегда выглядела аккуратно, даже если css сундука кривой/не подгрузился
-var CHEST_FORM_CSS="<style>/* chest-form-fix*/.my_form{max-width:420px;margin:16px auto 0;background:#fff;border:1px solid #e4ecf4;border-radius:18px;padding:22px 20px;box-shadow:0 16px 40px rgba(10,40,80,.10);text-align:center;box-sizing:border-box}.my_form .prodImg{max-width:200px;width:70%;height:auto;display:block;margin:0 auto 8px}.my_form .text_popup{font-size:15px;line-height:1.55;margin:0 0 12px;color:#1a2b42}.my_form .text_popup span{display:block;font-weight:800;color:#1e8449;font-size:18px;margin-bottom:4px}.my_form form{margin:0}.my_form .input-roulette{display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:14px 16px;font-size:16px;border:1.5px solid #d9e2ec;border-radius:12px;outline:none;background:#fff;color:#1a2b42;font-family:inherit;height:auto;text-align:left}.my_form .input-roulette:focus{border-color:#0a5c9e;box-shadow:0 0 0 3px rgba(10,92,158,.15)}.my_form .input-roulette::placeholder{color:#9aa6b6}.my_form .submit-roulette{display:block;width:100%;margin-top:8px;padding:16px;border:0;border-radius:12px;background:#e53935;color:#fff;font-size:18px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 8px 20px rgba(229,57,53,.28)}.my_form .submit-roulette:hover{filter:brightness(1.06)}.my_form .ring-loading{display:none}</style>";
+var CHEST_FORM_CSS="<style>/* chest-form-fix (шаблон)*/.my_form{max-width:420px;margin:16px auto 0;background:#fff;border:1px solid #e4ecf4;border-radius:18px;padding:22px 20px;box-shadow:0 16px 40px rgba(10,40,80,.10);text-align:center;box-sizing:border-box}.my_form .prodImg{max-width:200px;width:70%;height:auto;display:block;margin:0 auto 8px}.my_form .text_popup{font-size:15px;line-height:1.55;margin:0 0 12px;color:#1a2b42}.my_form .text_popup>span:first-child{display:block;font-weight:800;color:#1e8449;font-size:18px;margin-bottom:4px}.my_form form{margin:0}.my_form .input-roulette{display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:14px 16px;font-size:16px;border:1.5px solid #d9e2ec;border-radius:12px;outline:none;background:#fff;color:#1a2b42;font-family:inherit;height:auto;text-align:left}.my_form .input-roulette:focus{border-color:#0a5c9e;box-shadow:0 0 0 3px rgba(10,92,158,.15)}.my_form .input-roulette::placeholder{color:#9aa6b6}.my_form .submit-roulette{display:block;width:100%;margin-top:8px;padding:16px;border:0;border-radius:12px;background:#e53935;color:#fff;font-size:18px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 8px 20px rgba(229,57,53,.28)}.my_form .submit-roulette:hover{filter:brightness(1.06)}.my_form .ring-loading{display:none}</style>";
+// для сундука ИЗ ПАПКИ — только страховочный минимум с НУЛЕВОЙ специфичностью (:where): родной css старого сундука всегда побеждает, форму не ломаем
+var CHEST_FORM_FALLBACK="<style>/* chest-form fallback: не переопределяет родной css сундука */:where(.my_form){box-sizing:border-box}:where(.my_form .prodImg){max-width:220px;height:auto}:where(.my_form .input-roulette){display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:14px 16px;font-size:16px;border:1.5px solid #d9e2ec;border-radius:12px;background:#fff;color:#1a2b42;font-family:inherit}:where(.my_form .submit-roulette){display:block;width:100%;margin-top:8px;padding:16px;border:0;border-radius:12px;background:#e53935;color:#fff;font-size:18px;font-weight:800;cursor:pointer;font-family:inherit}:where(.my_form .ring-loading){display:none}</style>";
 // ре-брендинг сундука из папки: имя оффера (.productName), цена (.new_price_val), фото товара (.prodImg)
 function brandChest(html, cfg){
-  var img=pageImg(cfg,"success"), hc=halfCalc(cfg.price);
+  var img=pageImg(cfg,"success"), was=doubleCalc(cfg.price), now=priceParts(cfg.price);
   // имя оффера (.productName). Закрывающий тег может быть многострочным: </span\n>
   html=html.replace(/(<span\b[^>]*class="[^"]*\bproductName\b[^"]*"[^>]*>)[\s\S]*?(<\/span\s*>)/gi,function(m,a,b){return a+esc(cfg.brand)+b;});
-  // зачёркнутая «старая» цена -> введённая полная цена
-  html=html.replace(/(<(?:b|span|strong)\b[^>]*line-through[^>]*>)[\s\S]*?(<\/(?:b|span|strong)\s*>)/gi,function(m,a,b){return a+esc(cfg.price)+b;});
-  // скидочная цена (.new_price_val). Если рядом есть отдельная .new_price_cur — подставляем ТОЛЬКО число (иначе валюта задвоится)
+  // уже существующая зачёркнутая «старая» цена -> удвоенная (напр. 39 -> 80)
+  html=html.replace(/(<(?:b|span|strong)\b[^>]*line-through[^>]*>)[\s\S]*?(<\/(?:b|span|strong)\s*>)/gi,function(m,a,b){return a+esc(was.full)+b;});
+  // итоговая цена (.new_price_val) -> введённая цена. Если рядом отдельная .new_price_cur — только число (иначе валюта задвоится)
   html=html.replace(/(<(?:b|span|strong)\b[^>]*class="[^"]*\bnew_price_val\b[^"]*"[^>]*>)([\s\S]*?)(<\/(?:b|span|strong)\s*>)/gi,function(m,a,inner,b){
     var t=inner.replace(/&nbsp;|&#160;|\s/g,""); var onlyNum=/^[\d.,'’]+$/.test(t);
-    return a+esc(onlyNum?hc.num:hc.full)+b;
+    return a+esc(onlyNum?now.num:now.full)+b;
+  });
+  // если перед итоговой ценой НЕТ зачёркнутой старой — вставляем её («80 € →» перед «39 €»)
+  html=html.replace(/(<(?:b|span|strong)\b[^>]*class="[^"]*\bnew_price_val\b[^"]*"[^>]*>)/gi,function(m,tag,offset){
+    var before=html.slice(Math.max(0,offset-90),offset);
+    if(/line-through/i.test(before)) return m;             // уже есть зачёркнутая рядом
+    return '<span style="text-decoration:line-through;color:#9aa3ad;font-weight:600;margin-right:7px">'+esc(was.full)+'</span>'+m;
   });
   // фото товара (.prodImg): и src-до-class, и class-до-src
   html=html.replace(/(<img\b[^>]*\bclass="[^"]*\bprodImg\b[^"]*"[^>]*\bsrc=")[^"]*(")/gi,function(m,a,b){return a+img+b;});
@@ -1010,11 +1032,11 @@ function chestFromCfg(cfg){
   if(!cfg.makeChest) return "";
   if(CHEST_FOLDER && CHEST_FOLDER.mainPath){
     var mf=CHEST_FOLDER.files.filter(function(x){return x.path===CHEST_FOLDER.mainPath;})[0];
-    if(mf) return injectHead(patchHtml(cfg, brandChest(cleanChestHtml(mf.str),cfg)), CHEST_FORM_CSS);
+    if(mf) return injectHead(patchHtml(cfg, brandChest(cleanChestHtml(mf.str),cfg)), CHEST_FORM_FALLBACK);
   }
   if(MODE==="folder" && FOLDER){
     var cf=FOLDER.files.filter(function(x){return baseName(x.path).toLowerCase()==="chest.html";})[0];
-    if(cf) return injectHead(patchHtml(cfg, brandChest(cf.str,cfg)), CHEST_FORM_CSS);
+    if(cf) return injectHead(patchHtml(cfg, brandChest(cf.str,cfg)), CHEST_FORM_FALLBACK);
   }
   return buildChest(cfg);
 }
