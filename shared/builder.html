@@ -1342,8 +1342,12 @@ function inlineScripts(html, srcFiles){
   });
 }
 function renderPreview(target){
-  target=target||"index"; PREVIEW_TARGET=target;
+  target=target||"index";
   var prev=document.getElementById("prev");
+  // перерисовка того же таргета (замена/переименование фото) — сохраняем позицию прокрутки, чтобы не кидало вверх
+  var keepScroll=null;
+  if(PREVIEW_TARGET===target){ try{ var cw0=prev.contentWindow; if(cw0) keepScroll={x:cw0.scrollX||0,y:cw0.scrollY||0}; }catch(e){} }
+  PREVIEW_TARGET=target;
   // для сундука ассеты берём из его папки (если есть) + папки ленда; редактирование фото — только на ленде
   var srcFiles=(target==="chest"&&CHEST_FOLDER&&CHEST_FOLDER.files.length)?CHEST_FOLDER.files.concat(FOLDER?FOLDER.files:[]):(FOLDER?FOLDER.files:[]);
   var editable=(target==="index");
@@ -1378,6 +1382,8 @@ function renderPreview(target){
         }, true);
       }
     }catch(e){ console.warn("preview:",e); }
+    // вернуть позицию прокрутки после перерисовки (сразу и ещё раз после декодирования картинок)
+    if(keepScroll){ try{ var cw=prev.contentWindow; if(cw){ cw.scrollTo(keepScroll.x,keepScroll.y); requestAnimationFrame(function(){ try{cw.scrollTo(keepScroll.x,keepScroll.y);}catch(e){} }); setTimeout(function(){ try{cw.scrollTo(keepScroll.x,keepScroll.y);}catch(e){} },60); } }catch(e){} }
   };
   prev.srcdoc=inlineScripts(FILES[target]||"",srcFiles)+"\n<!--pv"+(++PREV_NONCE)+"-->";  // нонс -> srcdoc всегда уникален -> перерисовка
 }
