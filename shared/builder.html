@@ -1184,37 +1184,34 @@ function showTab(t){
   if(t==="preview"){out.style.display="none";prev.style.display="block";renderPreview();}
   else{prev.style.display="none";out.style.display="block";out.value=FILES[t]||"";}
 }
-var PREVIEW_MAP={};
-// подменяем ссылки на файлы папки на blob-URL, чтобы в предпросмотре реально грузились картинки/стили
-function resolvePreview(html){
-  Object.keys(PREVIEW_MAP).forEach(function(u){try{URL.revokeObjectURL(u);}catch(e){}}); PREVIEW_MAP={};
-  if(MODE!=="folder"||!FOLDER) return html;
-  FOLDER.files.forEach(function(f){
-    if(!/\.(png|jpe?g|gif|webp|avif|bmp|svg|ico|css)$/i.test(f.path)) return;
-    var url=URL.createObjectURL(fileBlob(f)); PREVIEW_MAP[url]=f.path;
-    var e=f.path.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
-    html=html.replace(new RegExp('(["\'(])'+e+'(\\?[^"\'()]*)?',"g"),"$1"+url);
-  });
-  return html;
-}
+// байты -> base64 (чанками, чтобы не переполнить стек)
+function bytesToB64(b){var C=0x8000,s="";for(var i=0;i<b.length;i+=C){s+=String.fromCharCode.apply(null,b.subarray(i,i+C));}return btoa(s);}
+function toDataURL(f){ return f.kind==="text" ? ("data:"+mimeOf(f.path)+";charset=utf-8,"+encodeURIComponent(f.str)) : ("data:"+mimeOf(f.path)+";base64,"+bytesToB64(f.bytes)); }
 function renderPreview(){
   var prev=document.getElementById("prev");
   prev.onload=function(){
     try{
       var d=prev.contentDocument; if(!d) return;
-      if(d.head){ var stl=d.createElement("style"); stl.textContent="img{cursor:zoom-in!important}img:hover{outline:3px solid #C96442!important;outline-offset:2px}"; d.head.appendChild(stl); }
-      d.querySelectorAll("img").forEach(function(im){
-        im.addEventListener("click",function(ev){
-          var p=PREVIEW_MAP[im.src]||PREVIEW_MAP[im.getAttribute("src")];
-          if(!p) return;                       // внешние/data-uri картинки не редактируем
+      if(FOLDER){
+        var byBase={}; FOLDER.files.forEach(function(f){ byBase[baseName(f.path).toLowerCase()]=f; });
+        function look(raw){ if(!raw) return null; var b=raw.split("?")[0].split(",")[0].trim().split(" ")[0].split("/").pop().toLowerCase(); return byBase[b]||null; }
+        // подменяем картинки/стили на data-uri (грузятся всегда) и метим фото data-asset
+        d.querySelectorAll("img").forEach(function(im){ var f=look(im.getAttribute("src")); if(f&&IMG_EXT.test(f.path)){ im.src=toDataURL(f); im.setAttribute("data-asset",f.path); } });
+        d.querySelectorAll("source").forEach(function(so){ var f=look(so.getAttribute("srcset")); if(f&&IMG_EXT.test(f.path)){ so.setAttribute("srcset",toDataURL(f)); } });
+        d.querySelectorAll('link[rel~="stylesheet"]').forEach(function(lk){ var f=look(lk.getAttribute("href")); if(f){ lk.setAttribute("href",toDataURL(f)); } });
+        var stl=d.createElement("style"); stl.textContent="img[data-asset]{cursor:zoom-in!important}img[data-asset]:hover{outline:3px solid #C96442!important;outline-offset:2px}"; (d.head||d.documentElement).appendChild(stl);
+        // делегированный клик (capture) — ловим раньше скриптов ленда
+        d.addEventListener("click",function(ev){
+          var t=ev.target, im=(t&&t.closest)?t.closest("img[data-asset]"):null;
+          if(!im) return;
           ev.preventDefault(); ev.stopPropagation();
           var r=prev.getBoundingClientRect();
-          showAssetMenu(r.left+ev.clientX, r.top+ev.clientY, p);
-        }, true);                              // capture — чтобы поймать раньше скриптов ленда
-      });
-    }catch(e){}
+          showAssetMenu(r.left+(ev.clientX||0), r.top+(ev.clientY||0), im.getAttribute("data-asset"));
+        }, true);
+      }
+    }catch(e){ console.warn("preview:",e); }
   };
-  prev.srcdoc=resolvePreview(FILES.index||"");
+  prev.srcdoc=FILES.index||"";
 }
 function assetByPath(p){return FOLDER?FOLDER.files.filter(function(f){return f.path===p;})[0]:null;}
 function highlightTile(path){
