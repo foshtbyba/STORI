@@ -1010,10 +1010,11 @@ var CHEST_FORM_CSS="<style>/* chest-form-fix (шаблон)*/.my_form{max-width:
 // для сундука ИЗ ПАПКИ — только страховочный минимум с НУЛЕВОЙ специфичностью (:where): родной css старого сундука всегда побеждает, форму не ломаем
 // ТОЛЬКО страховочный фолбэк с нулевой специфичностью (:where): если у сундука есть свой css —
 // он полностью побеждает, вид остаётся как в оригинале. Фолбэк применяется только если стилей нет вообще.
+// ВАЖНО: не задаём box-sizing — родной css сундука считает высоту полей в content-box,
+// а border-box (даже через :where) молча ужимал поля (height:32px становился полной высотой -> «тонкие поля»).
 var CHEST_FORM_FALLBACK="<style>"+
-":where(.my_form){box-sizing:border-box}"+
 ":where(.my_form .prodImg){max-width:220px;height:auto}"+
-":where(.my_form .input-roulette){display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:14px 16px;font-size:16px;border:1.5px solid #d9e2ec;border-radius:12px;background:#fff;color:#1a2b42;font-family:inherit}"+
+":where(.my_form .input-roulette){display:block;width:100%;margin:10px 0;padding:14px 16px;font-size:16px;border:1.5px solid #d9e2ec;border-radius:12px;background:#fff;color:#1a2b42;font-family:inherit}"+
 ":where(.my_form .submit-roulette){display:block;width:100%;margin-top:10px;padding:16px;border:0;border-radius:14px;background:#e53935;color:#fff;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit}"+
 ":where(.my_form .ring-loading){display:none}"+
 "</style>";
