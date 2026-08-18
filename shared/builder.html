@@ -805,8 +805,20 @@ function pixelBlock(cfg, conv){
   return [
 "<!-- Meta Pixel -->",
 "<script>",
+// стандартный загрузчик Facebook — везде идёт минифицированным, так и оставляем
 "!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');",
-"(function(){var PID="+fixed+";var u=new URLSearchParams(location.search).get('fbpx');if(u)PID=u;else{var m='{fbpx}';if(m.indexOf('{')===-1&&m)PID=m;}if(!PID){try{PID=localStorage.getItem('fb_pixel')||'';}catch(e){}}if(PID){try{localStorage.setItem('fb_pixel',PID);}catch(e){}fbq('init',PID);fbq('track','PageView');"+convJs+"}})();",
+"(function () {",
+"  var PID = "+fixed+";",
+"  var u = new URLSearchParams(location.search).get('fbpx');",
+"  if (u) PID = u;",
+"  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }",
+"  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }",
+"  if (PID) {",
+"    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}",
+"    fbq('init', PID);",
+"    fbq('track', 'PageView');"+convJs,
+"  }",
+"})();",
 "<\/script>",
 ns,
 "<!-- End Meta Pixel -->"
@@ -984,7 +996,12 @@ ${pixelBlock(cfg,true)}
   <p class="muted">${esc(t.tl2)}</p>
   <div class="oid" id="order-id"></div>
 </div>
-<script>(function(){var id=new URLSearchParams(location.search).get('order_id');if(id)document.getElementById('order-id').textContent='${esc(t.ordno)}'+id;})();<\/script>
+<script>
+(function () {
+  var id = new URLSearchParams(location.search).get('order_id');
+  if (id) document.getElementById('order-id').textContent = '${esc(t.ordno)}' + id;
+})();
+<\/script>
 </body></html>`;}
 function buildError(cfg){var t=cfg.t;var img=pageImg(cfg,"error");return `<!DOCTYPE html>
 <html lang="${cfg.langCode}"${dirAttr(cfg)}>
