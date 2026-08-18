@@ -265,7 +265,7 @@
       <div class="chk"><input type="checkbox" id="autofix" checked><label>Авто-починка формы (data-order-form + name/phone)</label></div>
       <div class="hint" style="margin-top:2px">Если форма на ленде без нужной разметки — сам проставит <code>data-order-form</code> и <code>name/phone</code>, чтобы заказ ловился. Оставляй включённым.</div>
       <div class="chk"><input type="checkbox" id="stripOld" checked><label>Вырезать старый обработчик отправки + старый пиксель</label></div>
-      <div class="hint" style="margin-top:2px">Удаляет из ленда старые скрипты отправки (m1.top/sendData) и старый Meta Pixel, чтобы не было дублей с нашим блоком. Оставляй включённым.</div>
+      <div class="hint" style="margin-top:2px">Удаляет старые скрипты отправки <b>любой известной партнёрки</b> (m1.top/sendData, shakes order.php-обработчик, countries.js…) и старый Meta Pixel, чтобы не было дублей с нашим блоком. Оставляй включённым. Сними, только если хочешь сохранить чужой обработчик формы (напр. countries.js для «умной» формы shakes).</div>
       <div class="chk"><input type="checkbox" id="repCallErr" checked><label>В режиме папки: заменить call.html и error.html</label></div>
       <div class="hint" style="margin-top:2px">Перегенерит эти страницы под наш шаблон и выбранный язык. Сними, если у тебя свои call/error, которые нужно сохранить.</div>
       <div class="chk"><input type="checkbox" id="keepComments"><label>Оставлять комментарии-пояснения в коде</label></div>
@@ -842,7 +842,7 @@ ns,
 
 /* ================= ЛОКАЛИЗАЦИЯ (call/error/chest) =================
    Недостающие ключи любого языка берутся из английского (fallback). */
-const LANGS = [["en","English"],["ru","Русский"],["uk","Українська"],["fr","Français"],["nl","Nederlands"],["de","Deutsch"],["es","Español"],["pt","Português"],["it","Italiano"],["pl","Polski"],["ro","Română"],["cs","Čeština"],["sk","Slovenčina"],["hu","Magyar"],["bg","Български"],["el","Ελληνικά"],["hr","Hrvatski"],["sr","Srpski"],["sl","Slovenščina"],["sv","Svenska"],["da","Dansk"],["fi","Suomi"],["no","Norsk"],["lt","Lietuvių"],["lv","Latviešu"],["et","Eesti"],["tr","Türkçe"],["id","Bahasa Indonesia"],["ar","العربية (RTL)"],["ur","اردو (RTL)"],["he","עברית (RTL)"]];
+const LANGS = [["en","English"],["ru","Русский"],["uk","Українська"],["fr","Français"],["nl","Nederlands"],["de","Deutsch"],["es","Español"],["pt","Português"],["it","Italiano"],["pl","Polski"],["ro","Română"],["cs","Čeština"],["sk","Slovenčina"],["hu","Magyar"],["bg","Български"],["el","Ελληνικά"],["hr","Hrvatski"],["sr","Srpski"],["sl","Slovenščina"],["sv","Svenska"],["da","Dansk"],["fi","Suomi"],["no","Norsk"],["lt","Lietuvių"],["lv","Latviešu"],["et","Eesti"],["tr","Türkçe"],["id","Bahasa Indonesia"],["tl","Filipino"],["th","ไทย (Thai)"],["ar","العربية (RTL)"],["ur","اردو (RTL)"],["he","עברית (RTL)"]];
 
 const TXT = {
   en:{rtl:false,thanks:"Thank you for your order!",tl1:"Your order has been registered.",tl2:"An advisor will contact you shortly to confirm delivery.",ordno:"Order number: ",errt:"Your order has been received!",el1:"We have saved your details.",el2:"An advisor will contact you shortly to confirm delivery.",part:"You are now a participant in the campaign",price:"Every participant can get a natural and effective product for the price of",attn:"Attention:",attnx:"due to high demand, we cannot process every request.",why:"That is why we launched this giveaway: each time a winner is chosen and gets the chance to obtain",atprice:"at an exclusive price.",tryl:"Try your luck!",click:"Click the chest and claim your",reward:"reward",open:"Open",congrats:"Congratulations!!!",winl:"You have just won the chance to buy a pack of",foronly:"for only",phn:"Enter your name",php:"Enter your phone number",recv:"Receive",an:"Please enter a valid name!",ap:"Please enter a valid phone number!",action:"Special offer"},
@@ -873,6 +873,8 @@ const TXT = {
   et:{thanks:"Täname tellimuse eest!",tl1:"Teie tellimus on registreeritud.",tl2:"Nõustaja võtab teiega peagi ühendust, et kohaletoimetamine kinnitada.",ordno:"Tellimuse number: ",errt:"Teie tellimus on vastu võetud!",el1:"Salvestasime teie andmed.",el2:"Nõustaja võtab teiega peagi ühendust, et kohaletoimetamine kinnitada.",phn:"Sisestage oma nimi",php:"Sisestage oma telefoninumber",recv:"Võta vastu",an:"Sisestage kehtiv nimi!",ap:"Sisestage kehtiv telefoninumber!",action:"Eripakkumine"},
   tr:{thanks:"Siparişiniz için teşekkürler!",tl1:"Siparişiniz kaydedildi.",tl2:"Bir danışman teslimatı onaylamak için kısa süre içinde sizinle iletişime geçecek.",ordno:"Sipariş numarası: ",errt:"Siparişiniz alındı!",el1:"Bilgilerinizi kaydettik.",el2:"Bir danışman teslimatı onaylamak için kısa süre içinde sizinle iletişime geçecek.",part:"Kampanyaya katılımcı oldunuz",price:"Her katılımcı doğal ve etkili bir ürünü şu fiyata alabilir:",attn:"Dikkat:",attnx:"yoğun talep nedeniyle tüm talepleri işleme alamıyoruz.",why:"Bu yüzden bu çekilişi başlattık: her seferinde bir kazanan seçilir ve şunu alma şansı kazanır:",atprice:"özel bir fiyata.",tryl:"Şansınızı deneyin!",click:"Sandığa tıklayın ve",reward:"ödülünüzü alın",open:"Aç",congrats:"Tebrikler!!!",winl:"Az önce şu ürünü satın alma şansı kazandınız:",foronly:"sadece",phn:"Adınızı girin",php:"Telefon numaranızı girin",recv:"Al",an:"Lütfen geçerli bir ad girin!",ap:"Lütfen geçerli bir telefon numarası girin!",action:"Özel teklif"},
   id:{thanks:"Terima kasih atas pesanan Anda!",tl1:"Pesanan Anda telah terdaftar.",tl2:"Seorang konsultan akan segera menghubungi Anda untuk mengonfirmasi pengiriman.",ordno:"Nomor pesanan: ",errt:"Pesanan Anda telah diterima!",el1:"Kami telah menyimpan data Anda.",el2:"Seorang konsultan akan segera menghubungi Anda untuk mengonfirmasi pengiriman.",phn:"Masukkan nama Anda",php:"Masukkan nomor telepon Anda",recv:"Terima",an:"Masukkan nama yang valid!",ap:"Masukkan nomor telepon yang valid!",action:"Penawaran khusus"},
+  tl:{thanks:"Salamat sa iyong order!",tl1:"Naitala na ang iyong order.",tl2:"Makikipag-ugnayan sa iyo ang isang consultant sa lalong madaling panahon upang kumpirmahin ang paghahatid.",ordno:"Numero ng order: ",errt:"Natanggap na ang iyong order!",el1:"Na-save na namin ang iyong mga detalye.",el2:"Makikipag-ugnayan sa iyo ang isang consultant sa lalong madaling panahon upang kumpirmahin ang paghahatid.",part:"Naging kalahok ka na sa promo",price:"Bawat kalahok ay makakakuha ng natural at epektibong produkto sa halagang",attn:"Pansin:",attnx:"dahil sa mataas na demand, hindi namin kayang iproseso ang lahat ng kahilingan.",why:"Kaya naglunsad kami ng raffle na ito: sa bawat pagkakataon ay pumipili ng panalo na magkakaroon ng pagkakataong makuha ang",atprice:"sa eksklusibong presyo.",tryl:"Subukan ang iyong swerte!",click:"I-click ang kaban at kunin ang iyong",reward:"gantimpala",open:"Buksan",congrats:"Binabati kita!!!",winl:"Kakapanalo mo lang ang pagkakataong bumili ng isang pakete ng",foronly:"sa halagang",phn:"Ilagay ang iyong pangalan",php:"Ilagay ang iyong numero ng telepono",recv:"Tanggapin",an:"Mangyaring maglagay ng wastong pangalan!",ap:"Mangyaring maglagay ng wastong numero ng telepono!",action:"Espesyal na alok"},
+  th:{thanks:"ขอบคุณสำหรับคำสั่งซื้อของคุณ!",tl1:"คำสั่งซื้อของคุณได้รับการบันทึกแล้ว",tl2:"ที่ปรึกษาจะติดต่อคุณในไม่ช้าเพื่อยืนยันการจัดส่ง",ordno:"หมายเลขคำสั่งซื้อ: ",errt:"ได้รับคำสั่งซื้อของคุณแล้ว!",el1:"เราได้บันทึกข้อมูลของคุณแล้ว",el2:"ที่ปรึกษาจะติดต่อคุณในไม่ช้าเพื่อยืนยันการจัดส่ง",part:"คุณได้เข้าร่วมแคมเปญแล้ว",price:"ผู้เข้าร่วมทุกคนสามารถรับผลิตภัณฑ์จากธรรมชาติที่มีประสิทธิภาพในราคา",attn:"โปรดทราบ:",attnx:"เนื่องจากมีความต้องการสูง เราไม่สามารถดำเนินการทุกคำขอได้",why:"ด้วยเหตุนี้เราจึงจัดการจับรางวัลนี้ขึ้น: แต่ละครั้งจะมีการเลือกผู้ชนะที่จะได้รับโอกาสในการซื้อ",atprice:"ในราคาพิเศษ",tryl:"ลองเสี่ยงโชคดูสิ!",click:"คลิกที่หีบสมบัติแล้วรับ",reward:"รางวัลของคุณ",open:"เปิด",congrats:"ยินดีด้วย!!!",winl:"คุณเพิ่งได้รับโอกาสในการซื้อผลิตภัณฑ์หนึ่งแพ็คของ",foronly:"เพียง",phn:"กรอกชื่อของคุณ",php:"กรอกหมายเลขโทรศัพท์ของคุณ",recv:"รับ",an:"กรุณากรอกชื่อที่ถูกต้อง!",ap:"กรุณากรอกหมายเลขโทรศัพท์ที่ถูกต้อง!",action:"ข้อเสนอพิเศษ"},
   ar:{rtl:true,thanks:"شكرًا على طلبك!",tl1:"تم تسجيل طلبك.",tl2:"سيتواصل معك مستشار قريبًا لتأكيد التوصيل.",ordno:"رقم الطلب: ",errt:"تم استلام طلبك!",el1:"لقد حفظنا بياناتك.",el2:"سيتواصل معك مستشار قريبًا لتأكيد التوصيل.",part:"لقد أصبحت مشاركًا في الحملة",price:"يمكن لكل مشارك الحصول على منتج طبيعي وفعّال بسعر",attn:"تنبيه:",attnx:"بسبب الطلب الكبير لا يمكننا معالجة جميع الطلبات.",why:"لهذا أطلقنا هذا السحب: في كل مرة يتم اختيار فائز يحصل على فرصة الحصول على",atprice:"بسعر حصريّ.",tryl:"جرّب حظّك!",click:"اضغط على الصندوق واحصل على",reward:"مكافأتك",open:"افتح",congrats:"تهانينا!!!",winl:"لقد فزت للتوّ بفرصة شراء عبوة من",foronly:"مقابل فقط",phn:"أدخل اسمك",php:"أدخل رقم هاتفك",recv:"استلام",an:"يرجى إدخال اسم صحيح!",ap:"يرجى إدخال رقم هاتف صحيح!",action:"عرض خاص"},
   ur:{rtl:true,thanks:"آپ کے آرڈر کا شکریہ!",tl1:"آپ کا آرڈر درج ہو گیا ہے۔",tl2:"ہمارا نمائندہ ترسیل کی تصدیق کے لیے جلد آپ سے رابطہ کرے گا۔",ordno:"آرڈر نمبر: ",errt:"آپ کا آرڈر موصول ہو گیا ہے!",el1:"ہم نے آپ کی معلومات محفوظ کر لی ہیں۔",el2:"ہمارا نمائندہ ترسیل کی تصدیق کے لیے جلد آپ سے رابطہ کرے گا۔",phn:"اپنا نام درج کریں",php:"اپنا فون نمبر درج کریں",recv:"وصول کریں",an:"براہِ کرم درست نام درج کریں!",ap:"براہِ کرم درست فون نمبر درج کریں!",action:"خصوصی پیشکش"},
   he:{rtl:true,thanks:"תודה על ההזמנה!",tl1:"ההזמנה שלך נרשמה.",tl2:"יועץ ייצור איתך קשר בקרוב לאישור המשלוח.",ordno:"מספר הזמנה: ",errt:"ההזמנה שלך התקבלה!",el1:"שמרנו את הפרטים שלך.",el2:"יועץ ייצור איתך קשר בקרוב לאישור המשלוח.",phn:"הזן את שמך",php:"הזן את מספר הטלפון שלך",recv:"קבל",an:"אנא הזן שם תקין!",ap:"אנא הזן מספר טלפון תקין!",action:"מבצע מיוחד"}
@@ -907,6 +909,8 @@ const ERR = {
   et:{errt:"Tellimuse saatmine ebaõnnestus",el1:"Andmed võivad olla valed või tekkis viga.",el2:"Minge tagasi ja esitage tellimus uuesti.",retry:"Telli uuesti"},
   tr:{errt:"Sipariş gönderilemedi",el1:"Bilgiler hatalı olabilir veya bir hata oluştu.",el2:"Lütfen geri dönün ve siparişi tekrar verin.",retry:"Tekrar sipariş ver"},
   id:{errt:"Pesanan tidak dapat dikirim",el1:"Data mungkin salah atau terjadi kesalahan.",el2:"Silakan kembali dan pesan lagi.",retry:"Pesan lagi"},
+  tl:{errt:"Hindi naisumite ang order",el1:"Maaaring mali ang mga detalye o nagkaroon ng problema sa pagpapadala.",el2:"Mangyaring bumalik at mag-order muli.",retry:"Mag-order muli"},
+  th:{errt:"ไม่สามารถส่งคำสั่งซื้อได้",el1:"ข้อมูลอาจไม่ถูกต้องหรือเกิดข้อผิดพลาดในการส่ง",el2:"กรุณากลับไปและสั่งซื้ออีกครั้ง",retry:"สั่งซื้ออีกครั้ง"},
   ar:{errt:"تعذّر إرسال الطلب",el1:"قد تكون البيانات غير صحيحة أو حدث خطأ أثناء الإرسال.",el2:"يرجى الرجوع وإعادة تقديم الطلب.",retry:"إعادة الطلب"},
   ur:{errt:"آرڈر بھیجا نہیں جا سکا",el1:"ممکن ہے معلومات غلط ہوں یا بھیجنے میں خرابی ہوئی ہو۔",el2:"براہِ کرم واپس جا کر دوبارہ آرڈر کریں۔",retry:"دوبارہ آرڈر کریں"},
   he:{errt:"לא ניתן היה לשלוח את ההזמנה",el1:"ייתכן שהפרטים שגויים או שאירעה תקלה.",el2:"אנא חזור והזמן שוב.",retry:"להזמין שוב"}
@@ -925,6 +929,8 @@ const CHESTX={
   pl:{chestOrder:"Aby otrzymać preparat, wpisz swoje imię i numer telefonu poniżej i naciśnij «Zamów»."},
   ro:{chestOrder:"Pentru a primi produsul, introduceți numele și numărul de telefon mai jos și apăsați «Comandă»."},
   tr:{chestOrder:"Ürünü almak için adınızı ve telefon numaranızı aşağıya girin ve «Sipariş Ver» tuşuna basın."},
+  tl:{chestOrder:"Upang matanggap ang produkto, ilagay ang iyong pangalan at numero ng telepono sa ibaba at pindutin ang «Order»."},
+  th:{chestOrder:"หากต้องการรับผลิตภัณฑ์ กรอกชื่อและหมายเลขโทรศัพท์ด้านล่างแล้วกด «สั่งซื้อ»"},
   ar:{chestOrder:"للحصول على المنتج، أدخل اسمك ورقم هاتفك في الأسفل واضغط «اطلب»."},
   ur:{chestOrder:"پروڈکٹ حاصل کرنے کے لیے نیچے اپنا نام اور فون نمبر درج کریں اور «آرڈر کریں» دبائیں۔"},
   he:{chestOrder:"כדי לקבל את המוצר, הזן למטה את שמך ומספר הטלפון ולחץ «הזמן»."}
@@ -1021,6 +1027,10 @@ function injectHead(html,snip){
   if(/<body[^>]*>/i.test(html)) return html.replace(/<body[^>]*>/i,function(m){return snip+"\n"+m;});
   return snip+"\n"+html;
 }
+// сигнатуры «старых обработчиков заказа» ВСЕХ известных партнёрок (для галки «Вырезать старый обработчик»).
+// Расширяй при добавлении новой партнёрки: тело инлайн-скрипта и внешние src её обработчика.
+var ORDER_HANDLER_BODY=/send_order|sendData|send_lead|sendForm|order\.php|m1\.top|m1ref|\/api\/order\//i;
+var ORDER_HANDLER_SRC=/\b(?:m1ref|countries|countrieslist)[^"']*\.js/i;
 function patchHtml(cfg, html){
   if(!html || !html.trim()) return "<!-- Вставь папку с лендом (или HTML ленда) -->";
   // обновить <html lang> под гео (видимое изменение в шапке)
@@ -1029,10 +1039,12 @@ function patchHtml(cfg, html){
     else html=html.replace(/<html\b/i,'<html lang="'+cfg.langCode+'"');
   }
   if(cfg.stripOld){
-    // безопасно: матч в пределах ОДНОГО <script>, не пересекая границы тегов
     var oldMark=cfg.keepComments?"<!-- [конструктор] старый обработчик удалён -->":"";
-    html=html.replace(/<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?send_order(?:(?!<\/script>)[\s\S])*?<\/script>/gi,oldMark);
-    html=html.replace(/<script\b[^>]*\bm1ref\.js[^>]*>(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");
+    // ИНЛАЙН-скрипты любого известного обработчика заказа (m1.top send_order/sendData, shakes order.php, /api/order/ …)
+    // матч в пределах ОДНОГО <script>, не пересекая границы тегов
+    html=html.replace(/<script(?![^>]*\bsrc=)[^>]*>((?:(?!<\/script>)[\s\S])*?)<\/script>/gi,function(m,body){ return ORDER_HANDLER_BODY.test(body)?oldMark:m; });
+    // ВНЕШНИЕ скрипты обработчиков (m1ref.js, countries*.js, countrieslist*.js) + старый ywbackfix (свой добавим заново)
+    html=html.replace(/<script\b[^>]*\bsrc=["'][^"']*["'][^>]*>\s*<\/script>/gi,function(m){ return ORDER_HANDLER_SRC.test(m)?"":m; });
     html=html.replace(/<script\b[^>]*\bywbackfix\.js[^>]*>(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");
   }
   if(cfg.pxOn){ html=stripPixel(html); html=injectHead(html,pixelBlock(cfg,false)); }
