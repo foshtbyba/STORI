@@ -74,6 +74,8 @@
   .imggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;margin-top:10px}
   .imgtile{border:1px solid var(--line);border-radius:10px;padding:6px;background:var(--panel2);text-align:center;position:relative}
   .imgtile.rep{border-color:var(--ok);box-shadow:0 0 0 2px var(--ok-soft)}
+  .imgtile.sel{outline:3px solid var(--acc);outline-offset:2px;animation:selpulse .5s ease}
+  @keyframes selpulse{0%{outline-color:transparent}100%{outline-color:var(--acc)}}
   .imgtile .thumb{height:64px;display:flex;align-items:center;justify-content:center;background:conic-gradient(#eee 25%,#fff 0 50%,#eee 0 75%,#fff 0) 0 0/14px 14px;border-radius:7px;overflow:hidden}
   .imgtile .thumb img{max-width:100%;max-height:64px;object-fit:contain}
   .imgtile .nm{font-size:10.5px;color:var(--mut);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -980,6 +982,7 @@ async function loadFolder(items){
     var g=guessOfferImage(FOLDER); var imf=document.getElementById("image"); if(g && !imf.value.trim()) imf.value=g;
     st.className="status ok";
     st.textContent=FOLDER?("Загружено файлов: "+FOLDER.files.length+(FOLDER.indexPath?(" · index: "+FOLDER.indexPath):" · ⚠ index.html не найден")+(FOLDER.unused&&FOLDER.unused.length?(" · не используются: "+FOLDER.unused.length):"")):"Пусто";
+    if(FOLDER&&FOLDER.indexPath){ build(); showTab("preview"); }   // предпросмотр сразу
   }catch(err){ st.className="status warn"; st.textContent="Ошибка чтения: "+err.message; }
 }
 function renderFileList(){
@@ -1010,7 +1013,7 @@ function guessOfferImage(F){
 }
 function imgTile(x, container){
   var url=URL.createObjectURL(fileBlob(x));
-  var tile=document.createElement("div");tile.className="imgtile"+((x.replaced||x.renamed)?" rep":"");
+  var tile=document.createElement("div");tile.className="imgtile"+((x.replaced||x.renamed)?" rep":"");tile.setAttribute("data-path",x.path);
   tile.innerHTML='<div class="badge">изменено</div><div class="thumb"><img src="'+url+'" title="'+esc(x.path)+'"></div><div class="nm" title="'+esc(x.path)+'">'+esc(baseName(x.path))+'</div><div class="tbtns"><button type="button" class="rep-b">Заменить</button><button type="button" class="ren-b" title="Переименовать (обновит ссылки в коде)">✎</button></div><input type="file" accept="image/*" hidden>';
   var inp=tile.querySelector("input"),btnR=tile.querySelector(".rep-b"),btnN=tile.querySelector(".ren-b"),im=tile.querySelector("img");
   btnR.addEventListener("click",function(){inp.click();});
@@ -1122,8 +1125,44 @@ function showTab(t){
   currentTab=t;
   document.querySelectorAll(".tab").forEach(function(el){el.classList.toggle("active",el.dataset.t===t);});
   var out=document.getElementById("out"),prev=document.getElementById("prev");
-  if(t==="preview"){out.style.display="none";prev.style.display="block";prev.srcdoc=FILES.index||"";}
+  if(t==="preview"){out.style.display="none";prev.style.display="block";renderPreview();}
   else{prev.style.display="none";out.style.display="block";out.value=FILES[t]||"";}
+}
+var PREVIEW_MAP={};
+// подменяем ссылки на файлы папки на blob-URL, чтобы в предпросмотре реально грузились картинки/стили
+function resolvePreview(html){
+  Object.keys(PREVIEW_MAP).forEach(function(u){try{URL.revokeObjectURL(u);}catch(e){}}); PREVIEW_MAP={};
+  if(MODE!=="folder"||!FOLDER) return html;
+  FOLDER.files.forEach(function(f){
+    if(!/\.(png|jpe?g|gif|webp|avif|bmp|svg|ico|css)$/i.test(f.path)) return;
+    var url=URL.createObjectURL(fileBlob(f)); PREVIEW_MAP[url]=f.path;
+    var e=f.path.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    html=html.replace(new RegExp('(["\'(])'+e+'(\\?[^"\'()]*)?',"g"),"$1"+url);
+  });
+  return html;
+}
+function renderPreview(){
+  var prev=document.getElementById("prev");
+  prev.onload=function(){
+    try{ var d=prev.contentDocument; if(!d) return;
+      d.querySelectorAll("img").forEach(function(im){
+        im.style.cursor="zoom-in"; im.title="Клик — выбрать это фото для замены / переименования";
+        im.addEventListener("click",function(ev){ ev.preventDefault(); ev.stopPropagation();
+          var p=PREVIEW_MAP[im.src]||PREVIEW_MAP[im.getAttribute("src")]; if(p) selectAsset(p);
+        });
+      });
+    }catch(e){}
+  };
+  prev.srcdoc=resolvePreview(FILES.index||"");
+}
+function selectAsset(path){
+  var sel='.imgtile[data-path="'+path.replace(/"/g,'\\"')+'"]';
+  var tile=document.querySelector(sel);
+  if(!tile){ var box=document.querySelector(".subgrid"); if(box){box.style.display="grid";} tile=document.querySelector(sel); }
+  if(!tile) return;
+  document.querySelectorAll(".imgtile.sel").forEach(function(el){el.classList.remove("sel");});
+  tile.classList.add("sel");
+  tile.scrollIntoView({behavior:"smooth",block:"center"});
 }
 function dl(name,data,type){
   var blob=new Blob([data],{type:type||"text/html;charset=utf-8"}),a=document.createElement("a");
@@ -1229,6 +1268,9 @@ function downloadZip(){
   document.getElementById("themeBtn").addEventListener("click",function(){var cur=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";applyTheme(cur);try{localStorage.setItem("lb_theme",cur);}catch(e){}});
 
   document.getElementById("build").addEventListener("click",build);
+  // авто-предпросмотр при вставке/правке HTML (с задержкой)
+  var htmlTimer;
+  document.getElementById("html").addEventListener("input",function(){clearTimeout(htmlTimer);htmlTimer=setTimeout(function(){ if(document.getElementById("html").value.trim()){ build(); if(currentTab!=="preview") showTab("preview"); } },500);});
   document.getElementById("dlzip").addEventListener("click",downloadZip);
   document.querySelectorAll(".tab").forEach(function(el){el.addEventListener("click",function(){showTab(el.dataset.t);});});
   document.querySelectorAll(".dl button[data-f]").forEach(function(b){b.addEventListener("click",function(){if(!FILES.index)build();var f=b.dataset.f;dl(f+".html",FILES[f]);});});
