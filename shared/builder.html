@@ -255,6 +255,8 @@
       <div class="hint" style="margin-top:2px">Удаляет из ленда старые скрипты отправки (m1.top/sendData) и старый Meta Pixel, чтобы не было дублей с нашим блоком. Оставляй включённым.</div>
       <div class="chk"><input type="checkbox" id="repCallErr" checked><label>В режиме папки: заменить call.html и error.html</label></div>
       <div class="hint" style="margin-top:2px">Перегенерит эти страницы под наш шаблон и выбранный язык. Сними, если у тебя свои call/error, которые нужно сохранить.</div>
+      <div class="chk"><input type="checkbox" id="keepComments"><label>Оставлять комментарии-пояснения в коде</label></div>
+      <div class="hint" style="margin-top:2px">По умолчанию выключено: готовый ленд чистый, без служебных <code>&lt;!-- … --&gt;</code> конструктора. Включи, если хочешь видеть пометки, что и куда вставлено.</div>
     </div>
 
     <button class="btn" id="build">⚙️ Собрать</button>
@@ -808,9 +810,12 @@ function T(lang){return Object.assign({},TXT.en,ERR.en,CHESTX.en,TXT[lang]||{},E
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function offerObject(cfg){return {endpoint:cfg.endpoint,okField:cfg.okField,okValue:cfg.okValue,idField:cfg.idField,product_id:cfg.product_id,ref:cfg.ref,api_key:cfg.api_key,langCode:cfg.langCode,success:cfg.success,error:cfg.error,out:true,msgName:cfg.t.an,msgPhone:cfg.t.ap};}
 function orderBlock(cfg){
-  var l=["<!-- ===== DROP-IN блок заказа (конструктор) ===== -->","<script>","var OFFER = "+JSON.stringify(offerObject(cfg),null,2)+";",ENGINE,"<\/script>"];
+  var l=[];
+  if(cfg.keepComments) l.push("<!-- ===== DROP-IN блок заказа (конструктор) ===== -->");
+  l.push("<script>","var OFFER = "+JSON.stringify(offerObject(cfg),null,2)+";",ENGINE,"<\/script>");
   if(cfg.backfix) l.push('<script src="js/ywbackfix.js" data-redirect="true" data-links=\'["'+cfg.backfix+'"]\'><\/script>');
-  l.push("<!-- ===== конец блока ===== -->");return l.join("\n");
+  if(cfg.keepComments) l.push("<!-- ===== конец блока ===== -->");
+  return l.join("\n");
 }
 function stripPixel(html){return html
   .replace(/<!--\s*Meta Pixel\s*-->[\s\S]*?<!--\s*End Meta Pixel\s*-->/gi,"")
@@ -832,7 +837,8 @@ function patchHtml(cfg, html){
   }
   if(cfg.stripOld){
     // безопасно: матч в пределах ОДНОГО <script>, не пересекая границы тегов
-    html=html.replace(/<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?send_order(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"<!-- [конструктор] старый обработчик удалён -->");
+    var oldMark=cfg.keepComments?"<!-- [конструктор] старый обработчик удалён -->":"";
+    html=html.replace(/<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?send_order(?:(?!<\/script>)[\s\S])*?<\/script>/gi,oldMark);
     html=html.replace(/<script\b[^>]*\bm1ref\.js[^>]*>(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");
     html=html.replace(/<script\b[^>]*\bywbackfix\.js[^>]*>(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");
   }
@@ -844,10 +850,22 @@ function patchHtml(cfg, html){
   }
   var block=orderBlock(cfg);
   if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,block+"\n</body>"); else html+="\n"+block;
-  // видимый маркер сверху (чтобы было понятно, что файл собран/изменён)
-  var mark="<!-- ✦ собрано конструктором: +Meta Pixel (head) +блок заказа (перед /body), lang="+(cfg.langCode||"?")+" -->";
-  if(/<!DOCTYPE[^>]*>/i.test(html)) html=html.replace(/<!DOCTYPE[^>]*>/i,function(m){return m+"\n"+mark;}); else html=mark+"\n"+html;
+  if(cfg.keepComments){
+    // видимый маркер сверху (чтобы было понятно, что файл собран/изменён)
+    var mark="<!-- ✦ собрано конструктором: +Meta Pixel (head) +блок заказа (перед /body), lang="+(cfg.langCode||"?")+" -->";
+    if(/<!DOCTYPE[^>]*>/i.test(html)) html=html.replace(/<!DOCTYPE[^>]*>/i,function(m){return m+"\n"+mark;}); else html=mark+"\n"+html;
+  } else {
+    html=stripBuildComments(html);
+  }
   return html;
+}
+// убрать служебные пояснения-комментарии конструктора и подчистить пустые строки (условные комментарии IE не трогаем)
+function stripBuildComments(html){
+  return html
+    .replace(/<!--\s*(?:✦|=====|\[конструктор\])[\s\S]*?-->/g,"")   // маркеры конструктора
+    .replace(/<!--\s*(?:МЕНЯЙ|ДАЛЬШЕ НЕ|DROP-IN|конец блока|пусто)[\s\S]*?-->/gi,"")
+    .replace(/[ \t]+\n/g,"\n")                                       // хвостовые пробелы
+    .replace(/\n{3,}/g,"\n\n");                                      // не больше одной пустой строки подряд
 }
 function buildIndex(cfg){return patchHtml(cfg, cfg.html);}
 var THANKS_CSS="*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1a2b42;background:radial-gradient(1200px 600px at 50% -10%,#e8f2fa,#f5f8fb 55%)}.card{background:#fff;max-width:460px;width:100%;padding:38px 30px 30px;border-radius:22px;text-align:center;box-shadow:0 24px 60px rgba(10,40,80,.13);animation:pop .45s cubic-bezier(.2,.8,.2,1)}@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}.ic{width:92px;height:92px;margin:0 auto 12px}.ic svg{width:100%;height:100%;fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.ic.ok circle{fill:#eafaf1;stroke:#cdeede}.ic.ok path{stroke:#1e8449;stroke-dasharray:44;stroke-dashoffset:44;animation:draw .55s .2s forwards}.ic.wait circle{fill:#eef4fb;stroke:#d7e6f5}.ic.wait path{stroke:#0a5c9e}@keyframes draw{to{stroke-dashoffset:0}}.prod{max-width:160px;width:62%;height:auto;display:block;margin:8px auto 2px}h1{font-size:25px;line-height:1.25;margin:10px 0 8px;color:#1e8449}.card.err h1{color:#c0392b}.ic.err circle{fill:#fdecea;stroke:#f3ccc6}.ic.err path{stroke:#c0392b}.retry{display:inline-block;margin-top:18px;background:#0a5c9e;color:#fff;border:0;border-radius:12px;padding:13px 24px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;box-shadow:0 6px 18px rgba(10,92,158,.25)}.retry:hover{background:#084678}p{font-size:16px;line-height:1.6;margin:6px 0}.muted{color:#6b7a8f;font-size:14px}.oid{margin-top:16px;font-size:13px;color:#4a5a70;background:#f1f6fb;border:1px solid #e4ecf4;border-radius:30px;padding:7px 16px;display:inline-block}.trust{margin-top:18px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:12px;color:#8a93a3}.trust span{display:inline-flex;align-items:center;gap:5px}";
@@ -1207,7 +1225,8 @@ function readCfg(){
     pxOn:document.getElementById("pxOn").checked,pxid:val("pxid"),pxev:val("pxev")||"Lead",pxval:val("pxval"),pxcur:val("pxcur"),
     html:document.getElementById("html").value,autofix:document.getElementById("autofix").checked,
     stripOld:document.getElementById("stripOld").checked,repCallErr:document.getElementById("repCallErr").checked,
-    makeChest:document.getElementById("makeChest").checked, t:T(lang)};
+    makeChest:document.getElementById("makeChest").checked,
+    keepComments:document.getElementById("keepComments").checked, t:T(lang)};
 }
 var FILES={};
 function build(){
