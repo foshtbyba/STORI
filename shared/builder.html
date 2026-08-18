@@ -1053,6 +1053,24 @@ function chestFromCfg(cfg){
   }
   return buildChest(cfg);
 }
+// какие локальные css/js/картинки главный html сундука требует, но их НЕТ в загруженной папке
+// (главная причина «сундук без стилей»: залили index.html без папки css/)
+function chestMissingAssets(){
+  if(!CHEST_FOLDER||!CHEST_FOLDER.mainPath) return [];
+  var mf=CHEST_FOLDER.files.filter(function(x){return x.path===CHEST_FOLDER.mainPath;})[0];
+  if(!mf) return [];
+  var have={}; CHEST_FOLDER.files.forEach(function(f){ have[f.path.toLowerCase()]=1; have[baseName(f.path).toLowerCase()]=1; });
+  var refs=[], re=/(?:href|src)\s*=\s*["']([^"']+)["']/gi, m;
+  while(m=re.exec(mf.str)){
+    var u=m[1].split("?")[0].split("#")[0];
+    if(/^(https?:|data:|mailto:|tel:|\/\/)/i.test(u) || u.charAt(0)==="#") continue;    // внешние/якоря — не наши
+    if(!/\.(css|js|png|jpe?g|webp|gif|svg|ico|avif|bmp|woff2?|ttf|otf)$/i.test(u)) continue;
+    var key=u.replace(/^\.?\//,"").toLowerCase();
+    if(have[key]||have[baseName(u).toLowerCase()]) continue;
+    if(refs.indexOf(u)<0) refs.push(u);
+  }
+  return refs;
+}
 
 /* ================= МИНИ-ZIP (текст + бинарь) ================= */
 function crcTable(){var c,t=[];for(var n=0;n<256;n++){c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;}
@@ -1462,6 +1480,8 @@ async function loadChestFolder(items){
     renderChestList();
     var mk=document.getElementById("makeChest"); if(!mk.checked){ mk.checked=true; mk.dispatchEvent(new Event("change")); }
     st.className="status ok"; st.textContent=(CHEST_FOLDER&&CHEST_FOLDER.mainPath)?("Сундук: "+CHEST_FOLDER.files.length+" файлов · страница: "+CHEST_FOLDER.mainPath):"Сундук: главная HTML-страница не найдена";
+    var miss=chestMissingAssets();
+    if(miss.length){ st.className="status warn"; st.textContent="⚠ Сундук без части файлов: не хватает "+miss.slice(0,6).join(", ")+(miss.length>6?(" и ещё "+(miss.length-6)):"")+". Из-за этого пропадают стили/скрипты — загрузи папку ЦЕЛИКОМ (с css/, js/, images/), а не один index.html."; }
     build(); showTab("cpreview");
   }catch(e){ st.className="status warn"; st.textContent="Ошибка чтения сундука: "+e.message; }
 }
