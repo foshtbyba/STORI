@@ -171,8 +171,8 @@
       <h3>Оффер (для call/error/chest)</h3>
       <div class="hint">Эти данные подставляются в <b>генерируемые</b> страницы call/error/chest. Сам переведённый ленд они не меняют.</div>
       <div class="row">
-        <div><label>Бренд</label><input id="brand" placeholder="Flexosamine Pro"></div>
-        <div><label>Картинка</label><input id="image" value="images/flexosamine.png"></div>
+        <div><label>Бренд</label><input id="brand" placeholder="Имя оффера"></div>
+        <div><label>Картинка</label><input id="image" placeholder="images/product.png"></div>
       </div>
       <label>Цена</label>
       <input id="price" placeholder="39 €">
@@ -221,7 +221,8 @@
       <div class="hint" style="margin-top:2px">Удаляет из ленда старые скрипты отправки (m1.top/sendData) и старый Meta Pixel, чтобы не было дублей с нашим блоком. Оставляй включённым.</div>
       <div class="chk"><input type="checkbox" id="repCallErr" checked><label>В режиме папки: заменить call.html и error.html</label></div>
       <div class="hint" style="margin-top:2px">Перегенерит эти страницы под наш шаблон и выбранный язык. Сними, если у тебя свои call/error, которые нужно сохранить.</div>
-      <div class="chk"><input type="checkbox" id="patchChest"><label>В режиме папки: обновить блок заказа и в chest.html</label></div>
+      <div class="chk"><input type="checkbox" id="makeChest"><label>Делать сундук (chest.html)</label></div>
+      <div class="hint" style="margin-top:2px">Отдельная страница-рулетка «крутите — выиграли скидку». Нужна не всегда. Если включено — появится кнопка «⬇ Сундук», фото берётся то же, что на call/error. В папке: существующий сундук патчится (блок заказа + пиксель), если его нет — генерируется.</div>
       <div class="hint" style="margin-top:2px">Впишет блок заказа + пиксель и в сундук (chest.html). Включай, только если пользуешься сундуком.</div>
     </div>
 
@@ -235,13 +236,13 @@
       <button data-f="index">index.html</button>
       <button data-f="call">call.html</button>
       <button data-f="error">error.html</button>
-      <button data-f="chest">chest.html</button>
+      <button data-f="chest" id="btnChest" style="display:none">⬇ Сундук (chest.html)</button>
     </div>
     <div class="tabs">
       <div class="tab active" data-t="index">index.html</div>
       <div class="tab" data-t="call">call.html</div>
       <div class="tab" data-t="error">error.html</div>
-      <div class="tab" data-t="chest">chest.html</div>
+      <div class="tab" data-t="chest" id="tabChest" style="display:none">chest.html</div>
       <div class="tab" data-t="preview">👁 превью index</div>
     </div>
     <textarea class="out" id="out" spellcheck="false" readonly></textarea>
@@ -506,7 +507,7 @@ ${pixelBlock(cfg,false)}
         <picture class="front"><source srcset="images/coin2.webp" type="image/webp"><img src="images/coin2.png" alt="" style="max-width:350px;width:100%"></picture>
       </div></div>
     <div class="chest__order"><div class="my_form">
-      <img src="${esc(cfg.image)}" alt="" class="prodImg" style="max-width:200px">
+      <img src="${pageImg(cfg,"success")}" alt="" class="prodImg" style="max-width:200px">
       <div class="text_popup"><span style="display:block">${esc(t.congrats)}</span> ${esc(t.winl)} <span class="productName">${esc(cfg.brand)}</span> ${esc(t.foronly)} <b class="new_price_val">${esc(cfg.price)}</b>!</div>
       <br><br><span id="oneform"></span>
       <form id="order_form" data-order-form method="POST" action="">
@@ -581,12 +582,20 @@ async function ingest(items){ // items:[{file, rel}] где rel = "folder/sub/fi
   var KEEP={"favicon.ico":1};
   function refCount(p){var b=baseName(p);var n=0,i=allText.indexOf(b);while(i>=0){n++;i=allText.indexOf(b,i+1);}return n;}
   var unused=[];
+  var CORE={"call.html":1,"error.html":1,"chest.html":1};
   out.forEach(function(x){
     x.comment=!!comm[baseName(x.path)];
     var b=baseName(x.path).toLowerCase();
-    if(!CLEAN_EXT.test(b)) return;   // только фото/видео; css/js/шрифты/svg/html — мимо
+    if(x.path===idxPath) return;                         // выбранный index — не трогаем
+    if(/\.html?$/.test(b)){                              // левые/мусорные HTML
+      if(CORE[b]) return;                                // call/error/chest — не трогаем
+      if(b==="index.html"){ unused.push(x.path); return; }        // дубль индекса — лишний
+      if(refCount(x.path)<=0){ unused.push(x.path); return; }     // страница нигде не подключена
+      return;
+    }
+    if(!CLEAN_EXT.test(b)) return;                       // css/js/шрифты/svg — не трогаем
     if(KEEP[b]) return;
-    if(refCount(x.path)<=0) unused.push(x.path);   // имя нигде не встречается в html/css/js
+    if(refCount(x.path)<=0) unused.push(x.path);         // неиспользуемое фото/видео
   });
 
   return {files:out, indexPath: idxPath, unused:unused};
@@ -709,7 +718,7 @@ function readCfg(){
     pxOn:document.getElementById("pxOn").checked,pxid:val("pxid"),pxev:val("pxev")||"Lead",pxval:val("pxval"),pxcur:val("pxcur"),
     html:document.getElementById("html").value,autofix:document.getElementById("autofix").checked,
     stripOld:document.getElementById("stripOld").checked,repCallErr:document.getElementById("repCallErr").checked,
-    patchChest:document.getElementById("patchChest").checked, t:T(lang)};
+    makeChest:document.getElementById("makeChest").checked, t:T(lang)};
 }
 var FILES={};
 function build(){
@@ -723,10 +732,12 @@ function build(){
     cfg.html=idxFile.str;
     FILES.index=patchHtml(cfg,idxFile.str);
     FILES.call=buildCall(cfg); FILES.error=buildError(cfg);
-    var chestFile=FOLDER.files.filter(function(x){return baseName(x.path).toLowerCase()==="chest.html";})[0];
-    FILES.chest=chestFile?(cfg.patchChest?patchHtml(cfg,chestFile.str):chestFile.str):buildChest(cfg);
+    if(cfg.makeChest){
+      var chestFile=FOLDER.files.filter(function(x){return baseName(x.path).toLowerCase()==="chest.html";})[0];
+      FILES.chest=chestFile?patchHtml(cfg,chestFile.str):buildChest(cfg);
+    } else FILES.chest="";
   } else {
-    FILES={index:buildIndex(cfg),call:buildCall(cfg),error:buildError(cfg),chest:buildChest(cfg)};
+    FILES={index:buildIndex(cfg),call:buildCall(cfg),error:buildError(cfg),chest:cfg.makeChest?buildChest(cfg):""};
   }
   if(miss.length){st.className="status warn";st.textContent="Заполни обязательные: "+miss.join(", ");}
   else{st.className="status ok";st.textContent=(MODE==="folder"?"Готово ✓ Папка: index пропатчен, call/error заменены":"Готово ✓")+(cfg.pxOn?" · Meta Pixel вставлен ("+(cfg.pxid||"динамический {fbpx}")+", конверсия "+cfg.pxev+")":"");}
@@ -754,14 +765,15 @@ function downloadZip(){
       if(x.path===FOLDER.indexPath) return {name:x.path,str:FILES.index};
       if(cfg.repCallErr&&b==="call.html"){had.call=1;return {name:x.path,str:FILES.call};}
       if(cfg.repCallErr&&b==="error.html"){had.error=1;return {name:x.path,str:FILES.error};}
-      if(cfg.patchChest&&b==="chest.html") return {name:x.path,str:FILES.chest};
+      if(cfg.makeChest&&b==="chest.html"){had.chest=1;return {name:x.path,str:FILES.chest};}
       return x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes};
     });
     if(cfg.repCallErr&&!had.call)  out.push({name:"call.html",str:FILES.call});
     if(cfg.repCallErr&&!had.error) out.push({name:"error.html",str:FILES.error});
+    if(cfg.makeChest&&!had.chest&&FILES.chest) out.push({name:"chest.html",str:FILES.chest});
     dl("lander.zip",makeZip(out),"application/zip");
   } else {
-    dl("lander.zip",makeZip([{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error},{name:"chest.html",str:FILES.chest}]),"application/zip");
+    dl("lander.zip",makeZip([{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error}]),"application/zip");
   }
 }
 
@@ -781,6 +793,9 @@ function downloadZip(){
   }
   sel.addEventListener("change",applyPartner);applyPartner();
   wirePagePick("pick-success","success"); wirePagePick("pick-error","error");
+  // сундук: опционально — показываем кнопку/вкладку только когда включён
+  function updateChestUI(){var on=document.getElementById("makeChest").checked;document.getElementById("btnChest").style.display=on?"":"none";document.getElementById("tabChest").style.display=on?"":"none";if(!on&&currentTab==="chest")showTab("index");}
+  document.getElementById("makeChest").addEventListener("change",updateChestUI);updateChestUI();
 
   // раскрывающиеся блоки (Meta Pixel, «Расширенные»)
   document.querySelectorAll(".gtoggle,.subtoggle").forEach(function(h){
