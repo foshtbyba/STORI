@@ -133,6 +133,12 @@
     </div>
 
     <div class="grp">
+      <h3>Сундук (chest.html)</h3>
+      <div class="chk"><input type="checkbox" id="makeChest"><label>Делать сундук (chest.html)</label></div>
+      <div class="hint">Отдельная страница-рулетка «крутите — выиграли скидку». Нужна не всегда. Если включено — появится кнопка «⬇ Сундук», фото берётся то же, что на call/error. В папке: существующий сундук патчится (блок заказа + пиксель), если его нет — генерируется.</div>
+    </div>
+
+    <div class="grp">
       <h3 class="gtoggle" data-target="pxBody"><span class="chev">▸</span> Meta Pixel (конверсии FB)</h3>
       <div id="pxBody" class="grp-body" style="display:none">
         <div class="chk"><input type="checkbox" id="pxOn" checked><label>Вставлять Meta Pixel (PageView + конверсия)</label></div>
@@ -218,9 +224,6 @@
       <div class="hint" style="margin-top:2px">Удаляет из ленда старые скрипты отправки (m1.top/sendData) и старый Meta Pixel, чтобы не было дублей с нашим блоком. Оставляй включённым.</div>
       <div class="chk"><input type="checkbox" id="repCallErr" checked><label>В режиме папки: заменить call.html и error.html</label></div>
       <div class="hint" style="margin-top:2px">Перегенерит эти страницы под наш шаблон и выбранный язык. Сними, если у тебя свои call/error, которые нужно сохранить.</div>
-      <div class="chk"><input type="checkbox" id="makeChest"><label>Делать сундук (chest.html)</label></div>
-      <div class="hint" style="margin-top:2px">Отдельная страница-рулетка «крутите — выиграли скидку». Нужна не всегда. Если включено — появится кнопка «⬇ Сундук», фото берётся то же, что на call/error. В папке: существующий сундук патчится (блок заказа + пиксель), если его нет — генерируется.</div>
-      <div class="hint" style="margin-top:2px">Впишет блок заказа + пиксель и в сундук (chest.html). Включай, только если пользуешься сундуком.</div>
     </div>
 
     <button class="btn" id="build">⚙️ Собрать</button>
