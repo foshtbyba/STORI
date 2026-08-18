@@ -994,7 +994,12 @@ function cleanChestHtml(html){
     return CHEST_JUNK_RE.test(body) ? "" : m;          // мусор — вырезаем; неизвестное — оставляем
   });
   html=html.replace(/<iframe\b[^>]*(?:name|id)="ev_frame"[^>]*>(?:(?!<\/iframe>)[\s\S])*?<\/iframe>/gi,"");
-  html=html.replace(/<form\b[^>]*>/i,'<form data-order-form>');                                  // форма -> контракт
+  // форма -> контракт: СОХРАНЯЕМ id/class (за них может цепляться css), убираем только action/method/onsubmit/name
+  html=html.replace(/<form\b([^>]*)>/i,function(m,attrs){
+    attrs=attrs.replace(/\s(?:action|method|onsubmit|name)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"");
+    if(!/\bdata-order-form\b/i.test(attrs)) attrs=" data-order-form"+attrs;
+    return "<form"+attrs+">";
+  });
   html=html.replace(/<input[^>]*type="hidden"[^>]*>\s*/gi,"");                                    // скрытые поля трекера
   html=html.replace(/\{fbpx\}|\{subid\}|\{sub_id_30\}/g,"");
   return html;
