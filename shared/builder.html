@@ -1142,6 +1142,13 @@ function patchHandlerFile(str, cfg){
   }
   return str;
 }
+// распознаём типовые «страницы спасибо/ошибки» по имени (call.html, error.html, success.php, thanks.html …).
+// Лишние (НЕ активные success/error текущей партнёрки) выкидываем из папки, чтобы не засоряли ленд.
+var SUCC_ERR_STEMS=/^(?:call|calls|success|succes|thanks|thankyou|thank[-_]you|spasibo|error|erorr)$/i;
+function isSuccErrPage(name){
+  var b=String(name||"").toLowerCase(), m=b.match(/^(.*)\.(html?|php)$/);
+  return !!m && SUCC_ERR_STEMS.test(m[1]);
+}
 // php-режим: заполнить скрытое sub1 меткой subid из URL (?s/?subid) или keitaro_subid — как надёжная ловля у m1.
 // Если ничего нет и стоит литерал {subid} (Keitaro не подставил) — чистим, чтобы не улетал мусор.
 function phpSubidScript(cfg){
@@ -1928,10 +1935,13 @@ function downloadZip(){
   var isPhp=(cfg.mode==="php"), genPhp=isPhp&&!!FILES.orderphp;
   function idxName(p){ return cfg.mainExt==="php" ? p.replace(/index\.html?$/i,"index.php") : p; }   // limonad -> index.php
   if(MODE==="folder"&&FOLDER){
-    var had={};
+    var had={}, succL=cfg.successName.toLowerCase(), errL=cfg.errorName.toLowerCase();
     var out=FOLDER.files.filter(function(x){
       if(REMOVE[x.path]) return false;
       if(cfg.makeChest && baseName(x.path).toLowerCase()==="chest.html") return false; // сундук уходит в свой zip
+      var b=baseName(x.path).toLowerCase();
+      // лишние старые спасибо/ошибка (не активные success/error партнёрки) — выкидываем, чтобы не засоряли папку
+      if(x.path!==FOLDER.indexPath && isSuccErrPage(b) && b!==succL && b!==errL) return false;
       return true;
     }).map(function(x){
       var b=baseName(x.path).toLowerCase(), succ=cfg.successName.toLowerCase(), errn=cfg.errorName.toLowerCase(), nf=(cfg.needFile||"").toLowerCase();
