@@ -1004,6 +1004,25 @@ function shakesOrderPhp(cfg){
 "    if (!empty($errorPage) && is_file(__DIR__ . '/' . $errorPage)) { include __DIR__ . '/' . $errorPage; }\n"+
 "}\n";
 }
+// php-режим: заполнить скрытое sub1 меткой subid из URL (?s/?subid) или keitaro_subid — как надёжная ловля у m1.
+// Если ничего нет и стоит литерал {subid} (Keitaro не подставил) — чистим, чтобы не улетал мусор.
+function phpSubidScript(){
+  return [
+"<script>",
+"(function () {",
+"  try {",
+"    var q = new URLSearchParams(location.search);",
+"    var ks = (typeof keitaro_subid !== \"undefined\" && String(keitaro_subid).indexOf(\"{\") === -1) ? keitaro_subid : \"\";",
+"    var s = q.get(\"s\") || q.get(\"subid\") || ks || \"\";",
+"    document.querySelectorAll('input[name=\"sub1\"]').forEach(function (el) {",
+"      if (s) el.value = s;",
+"      else if (String(el.value).indexOf(\"{\") !== -1) el.value = \"\";",
+"    });",
+"  } catch (e) {}",
+"})();",
+"<\/script>"
+  ].join("\n");
+}
 // режим php: форму заказа шлём нативно на order.php + скрытые sub1/country (JS-движок не вставляем)
 function wireOrderPhpForm(cfg, html){
   var country=shakesCountry(cfg);
@@ -1057,8 +1076,10 @@ function patchHtml(cfg, html){
   if(cfg.mode==="php"){
     // shakes: форма постит на серверный order.php; JS-движок НЕ вставляем
     html=wireOrderPhpForm(cfg, html);
-    var yw=backfixBlock(cfg);
-    if(yw){ if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,yw+"\n</body>"); else html+="\n"+yw; }
+    // та же надёжная ловля subid, что и у m1: URL ?s/?subid или keitaro_subid -> в скрытое sub1
+    var tail=phpSubidScript();
+    var yw=backfixBlock(cfg); if(yw) tail+="\n"+yw;
+    if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,tail+"\n</body>"); else html+="\n"+tail;
   } else {
     if(cfg.autofix){
       html=html.replace(/<form\b(?![^>]*data-order-form)([^>]*)>/i,'<form data-order-form$1>');
