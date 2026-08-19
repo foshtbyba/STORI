@@ -1146,7 +1146,12 @@ function doubleCalc(s){
   if(sep && dbl>=1000) num=dbl.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep===" "?" ":sep);
   return {num:num, full:s.replace(token, num)};
 }
-function buildChest(cfg){var t=cfg.t,was=doubleCalc(cfg.price).full,now=cfg.price;return `<!DOCTYPE html>
+function buildChest(cfg){var t=cfg.t,was=doubleCalc(cfg.price).full,now=cfg.price,isPhp=(cfg.mode==="php");
+  var formOpen=isPhp
+    ? '<form id="order_form" class="order_form" action="order.php" method="post">\n        <input type="hidden" name="sub1" value="{subid}">\n        <input type="hidden" name="country" value="'+shakesCountry(cfg)+'">'
+    : '<form id="order_form" data-order-form method="POST" action="">';
+  var orderTail=isPhp?backfixBlock(cfg):orderBlock(cfg);
+  return `<!DOCTYPE html>
 <html lang="${cfg.langCode}"${dirAttr(cfg)}>
 <head><meta charset="UTF-8"><meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
 <title>${esc(t.action)}</title>
@@ -1186,7 +1191,7 @@ ${pixelBlock(cfg,false)}
       <div class="text_popup"><span style="display:block">${esc(t.congrats)}</span> ${esc(t.winl)} <span class="productName">${esc(cfg.brand)}</span> ${esc(t.foronly)} <b style="text-decoration:line-through;color:#999">${esc(was)}</b> <b class="new_price_val" style="color:#e53935">${esc(now)}</b>!</div>
       <p style="text-align:center;font-size:15px;color:#444;margin:0 0 12px">${esc(t.chestOrder)}</p>
       <br><span id="oneform"></span>
-      <form id="order_form" data-order-form method="POST" action="">
+      ${formOpen}
         <input type="text" minlength="2" class="input-roulette" name="name" id="input-name" placeholder="${esc(t.phn)}" autocomplete="name" required>
         <input maxlength="18" minlength="8" type="tel" class="input-roulette" name="phone" id="input-phone" placeholder="${esc(t.php)}" autocomplete="tel" required>
         <input type="submit" class="submit-roulette" value="${esc(t.recv)}"><div class="ring-loading"></div>
@@ -1195,7 +1200,7 @@ ${pixelBlock(cfg,false)}
   </div>
 </div>
 <script src="js/bounce.js"><\/script>
-${orderBlock(cfg)}
+${orderTail}
 </body></html>`;}
 
 // какие инлайн-скрипты считаем «мусором» (трекер/отправка/пиксель/даты) — их и вырезаем
@@ -1760,11 +1765,13 @@ function downloadChestZip(){
     {name:"error.html",str:FILES.error},
     {name:"js/ywbackfix.js",str:YWBACKFIX_JS}
   ];
+  if(cfg.mode==="php" && FILES.orderphp) out.push({name:"order.php",str:FILES.orderphp});   // серверный прокси shakes и для сундука
   if(CHEST_FOLDER){
     var pres={}; out.forEach(function(f){pres[f.name]=1;});
     CHEST_FOLDER.files.forEach(function(f){
       if(f.path===CHEST_FOLDER.mainPath) return;   // это уже index.html
       if(/\.html?$/i.test(f.path)) return;          // прочие html сундука не тащим
+      if(cfg.mode==="php" && baseName(f.path).toLowerCase()==="order.php") return;  // свой order.php уже добавлен
       if(pres[f.path]) return;
       out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes});
     });
