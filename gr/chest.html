@@ -185,6 +185,16 @@ document.addEventListener('click', function(e) {
 </script>
 
 <script>
+(function() {
+  var sun = new URLSearchParams(window.location.search).get('sun');
+  if (sun) {
+    var el = document.querySelectorAll('input[name="clickid"]');
+    el.forEach(function(inp) { inp.value = sun; });
+  }
+})();
+</script>
+
+<script>
 document.getElementById('order_form').addEventListener('submit', function(e) {
   var nameInput = this.querySelector('input[name="name"]');
   var phoneInput = this.querySelector('input[name="phone"]');
