@@ -944,7 +944,7 @@ function T(lang){return Object.assign({},TXT.en,ERR.en,CHESTX.en,TXT[lang]||{},E
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function offerObject(cfg){return {endpoint:cfg.endpoint,okField:cfg.okField,okValue:cfg.okValue,idField:cfg.idField,product_id:cfg.product_id,ref:cfg.ref,api_key:cfg.api_key,langCode:cfg.langCode,success:cfg.success,error:cfg.error,out:true,msgName:cfg.t.an,msgPhone:cfg.t.ap};}
 // back-fix (демонетизация «назад») — общий для всех режимов. В сундуке не нужен (cfg.noBackfix)
-function backfixBlock(cfg){ return (cfg.backfix && !cfg.noBackfix) ? '<script src="js/ywbackfix.js" data-redirect="true" data-links=\'["'+cfg.backfix+'"]\'><\/script>' : ""; }
+function backfixBlock(cfg){ return (cfg.backfix && !cfg.noBackfix) ? '<script src="js/ywbackfix.js"\n        data-redirect="true"\n        data-links=\'["'+cfg.backfix+'"]\'>\n<\/script>' : ""; }
 function orderBlock(cfg){
   var l=[];
   if(cfg.keepComments) l.push("<!-- ===== DROP-IN блок заказа (конструктор) ===== -->");
