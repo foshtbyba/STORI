@@ -169,10 +169,14 @@
         <label class="drop" for="handlerFile" id="handlerDrop" style="padding:14px">
           <div class="ic">🍋</div>
           <div class="t" id="handlerDropT">Загрузи lemon.php</div>
-          <div class="s" id="handlerDropS">свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся в сборку, редиректы патчатся под наши файлы.</div>
+          <div class="s" id="handlerDropS">свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся в сборку как есть, байт-в-байт.</div>
           <input id="handlerFile" type="file" accept=".php">
         </label>
-        <div class="hint">⚠ <b>lemon.php у каждого оффера свой</b> (внутри его OFFER_ID и токен). Загружай новый под каждый оффер — конструктор не переиспользует старый. success.php/error.php генерятся сами.</div>
+        <div id="handlerBadge" style="display:none;margin-top:8px;padding:10px 12px;border:1.5px solid #1e8449;background:#eafaf1;border-radius:10px;color:#14663a;font-weight:700;display:none;align-items:center;justify-content:space-between;gap:10px">
+          <span id="handlerBadgeT">✓ lemon.php добавлен</span>
+          <a id="handlerClear" href="#" style="color:#c0392b;font-weight:700;text-decoration:none;font-size:13px;white-space:nowrap">✕ убрать</a>
+        </div>
+        <div class="hint">⚠ <b>lemon.php у каждого оффера свой</b> (внутри его OFFER_ID и токен). Загружай новый под каждый оффер. Файл кладётся в сборку <b>без изменений</b> (мы его не трогаем). success.php/error.php генерятся сами.</div>
       </div>
       <div id="apiKeyWrap">
         <label>API-ключ вебмастера (api_key) 🔒</label>
@@ -1128,16 +1132,9 @@ function limonadErrorPhp(cfg){
 // страницы спасибо/ошибки: для limonad — свои .php-генераторы, иначе обычные call/error
 function successFile(cfg){ return cfg.pageGen==="limonad"?limonadSuccessPhp(cfg):buildCall(cfg); }
 function errorFile(cfg){ return cfg.pageGen==="limonad"?limonadErrorPhp(cfg):buildError(cfg); }
-// патч загруженного lemon.php под наши имена файлов (редиректы index.php -> index.html).
-// ВАЖНО: код внутрь lemon.php НЕ вставляем (никаких ob_start/error_reporting) — на живом сервере это ломало
-// редирект/давало белый экран. Оригинальный lemon.php оффера работает как есть, только чиним имена редиректов.
-function patchHandlerFile(str, cfg){
-  if(!str) return str;
-  str=str.replace(/^﻿/,"");                       // убираем UTF-8 BOM (иначе вывод ДО <?php -> headers already sent)
-  str=str.replace(/^[\s﻿]+(?=<\?php\b)/i,"");     // убираем пустые строки/пробелы ПЕРЕД <?php
-  if(cfg.mainExt!=="php") str=str.replace(/(['"])index\.php\1/g,"$1index.html$1");   // ленд у нас index.html
-  return str;
-}
+// lemon.php НЕ трогаем вообще: кладём в сборку байт-в-байт, как загрузил пользователь.
+// (Любая правка содержимого — редиректы, ob_start и т.п. — на живом сервере ломала заказ/давала белый экран.)
+function patchHandlerFile(str, cfg){ return str; }   // no-op, оставлен для совместимости вызовов
 // распознаём типовые «страницы спасибо/ошибки» по имени (call.html, error.html, success.php, thanks.html …).
 // Лишние (НЕ активные success/error текущей партнёрки) выкидываем из папки, чтобы не засоряли ленд.
 var SUCC_ERR_STEMS=/^(?:call|calls|success|succes|thanks|thankyou|thank[-_]you|spasibo|error|erorr)$/i;
@@ -1512,7 +1509,44 @@ function makeZip(files){
 /* ================= ПАПКА + КАРТИНКИ ================= */
 var FOLDER=null;
 var CHEST_FOLDER=null;
-var UP_HANDLER={name:"",str:""};   // загруженный обработчик (lemon.php) — свой под каждый оффер
+var UP_HANDLER={name:"",bytes:null,str:""};   // загруженный обработчик (lemon.php) — храним СЫРЫЕ байты, кладём как есть
+function handlerLoaded(){ return !!(UP_HANDLER && UP_HANDLER.bytes && UP_HANDLER.bytes.length); }
+// zip-элемент обработчика: всегда сырые байты (без единой правки)
+function handlerEntry(name){ return {name:name, bytes:UP_HANDLER.bytes}; }
+// сохранить/восстановить загруженный lemon.php между перезагрузками страницы и сменой папки — чтобы не слетал
+function saveHandlerLS(){
+  try{
+    if(handlerLoaded()){ var b=UP_HANDLER.bytes, s=""; for(var i=0;i<b.length;i++) s+=String.fromCharCode(b[i]);
+      localStorage.setItem("up_handler", JSON.stringify({name:UP_HANDLER.name, orig:UP_HANDLER.orig||"", b64:btoa(s)})); }
+    else localStorage.removeItem("up_handler");
+  }catch(e){}
+}
+function restoreHandlerLS(){
+  try{ var raw=localStorage.getItem("up_handler"); if(!raw) return;
+    var o=JSON.parse(raw); if(!o||!o.b64) return;
+    var bin=atob(o.b64), arr=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    UP_HANDLER={name:o.name||"lemon.php", orig:o.orig||"", bytes:arr, str:bin};
+  }catch(e){}
+}
+function renderHandlerState(){
+  var drop=document.getElementById("handlerDrop"), t=document.getElementById("handlerDropT"),
+      s=document.getElementById("handlerDropS"), badge=document.getElementById("handlerBadge"),
+      bt=document.getElementById("handlerBadgeT");
+  if(!t) return;
+  if(handlerLoaded()){
+    var kb=(UP_HANDLER.bytes.length/1024).toFixed(1), nm=UP_HANDLER.orig||UP_HANDLER.name||"lemon.php";
+    t.textContent="✓ файл добавлен";
+    if(s) s.textContent="нажми, чтобы заменить другим lemon.php";
+    if(drop){ drop.style.borderColor="#1e8449"; drop.style.background="#eafaf1"; }
+    if(badge){ badge.style.display="flex"; }
+    if(bt) bt.textContent="✓ "+nm+" добавлен · "+kb+" КБ · кладётся как есть";
+  } else {
+    t.textContent="Загрузи lemon.php";
+    if(s) s.textContent="свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся в сборку как есть, байт-в-байт.";
+    if(drop){ drop.style.borderColor=""; drop.style.background=""; }
+    if(badge){ badge.style.display="none"; }
+  }
+}
 var TEXT_EXT=/\.(html?|css|js|json|svg|txt|xml|webmanifest|map)$/i;
 var IMG_EXT=/\.(png|jpe?g|webp|gif|svg|ico|avif|bmp)$/i;
 function baseName(p){return p.split("/").pop();}
@@ -1576,8 +1610,7 @@ function walkEntry(entry, path, out){
 async function loadFolder(items){
   var st=document.getElementById("status");
   st.className="status"; st.textContent="Читаю папку…";
-  UP_HANDLER={name:"",str:""};   // новая папка = возможно новый оффер: сбрасываем загруженный lemon.php
-  var _ht=document.getElementById("handlerDropT"); if(_ht) _ht.textContent="Загрузи lemon.php";
+  // загруженный lemon.php НЕ сбрасываем при смене папки — чтобы добавление не слетало (видно по зелёной плашке; заменить/убрать — вручную)
   try{ FOLDER=await ingest(items); renderFileList(); renderImages(); renderCleanup();
     var g=guessOfferImage(FOLDER); var imf=document.getElementById("image"); if(g && !imf.value.trim()) imf.value=g;
     st.className="status ok";
@@ -1727,7 +1760,7 @@ function build(){
   FILES.orderphp=(cfg.mode==="php" && cfg.phpGen)?orderPhpFor(cfg):"";   // limonad handler (lemon.php) не генерим — он из архива оффера
   // проверка обязательного внешнего файла-обработчика (lemon.php для limonad): в папке ИЛИ загружен отдельно
   var inFolder=MODE==="folder" && FOLDER && FOLDER.files.some(function(f){return baseName(f.path).toLowerCase()===cfg.needFile.toLowerCase();});
-  var needFileMissing=cfg.needFile && !inFolder && !(UP_HANDLER.str && UP_HANDLER.name.toLowerCase()===cfg.needFile.toLowerCase());
+  var needFileMissing=cfg.needFile && !inFolder && !handlerLoaded();
   if(miss.length){st.className="status warn";st.textContent="Заполни обязательные: "+miss.join(", ");}
   else if(needFileMissing){st.className="status warn";st.textContent="⚠ Нет "+cfg.needFile+"! Загрузи его в поле выше (🍋) или положи в папку ленда — бери из архива ИМЕННО этого оффера. Без него лид не уйдёт.";}
   else{st.className="status ok";st.textContent=(MODE==="folder"?"Готово ✓ Папка: index пропатчен, call/error заменены":"Готово ✓")+(cfg.pxOn?" · Meta Pixel вставлен ("+(cfg.pxid||"динамический {fbpx}")+", конверсия "+cfg.pxev+")":"")+(cfg.needFile?(" · "+cfg.needFile+" на месте ✓"):"");}
@@ -1946,7 +1979,7 @@ function downloadZip(){
       if(b===errn){had.error=1;return {name:x.path,str:cfg.repCallErr?FILES.error:x.str};}
       if(b==="ywbackfix.js"){had.yw=1;return {name:x.path,str:YWBACKFIX_JS};}
       if(genPhp&&b==="order.php"){had.php=1;return {name:x.path,str:FILES.orderphp};}   // патчим свой order.php (shakes/hamsters)
-      if(nf&&b===nf){had.handler=1;return {name:x.path,str:UP_HANDLER.str||patchHandlerFile(x.str,cfg)};}   // lemon.php: загруженный или из папки (пропатченный)
+      if(nf&&b===nf){had.handler=1;return handlerLoaded()?handlerEntry(x.path):(x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes});}   // lemon.php: загруженный (сырые байты) или из папки как есть
       return x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes};
     });
     // страницы success/error ОБЯЗАНЫ существовать — это цель редиректа lemon.php/order.php/ENGINE. Если в папке их нет — добавляем всегда (иначе после отправки белый экран)
@@ -1954,12 +1987,12 @@ function downloadZip(){
     if(!had.error) out.push({name:cfg.errorName,str:FILES.error});
     if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});
     if(genPhp&&!had.php) out.push({name:"order.php",str:FILES.orderphp});
-    if(cfg.needFile&&UP_HANDLER.str&&!had.handler) out.push({name:cfg.needFile,str:UP_HANDLER.str});
+    if(cfg.needFile&&handlerLoaded()&&!had.handler) out.push(handlerEntry(cfg.needFile));
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
     var files=[{name:cfg.mainExt==="php"?"index.php":"index.html",str:FILES.index},{name:cfg.successName,str:FILES.call},{name:cfg.errorName,str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}];
     if(genPhp) files.push({name:"order.php",str:FILES.orderphp});
-    if(cfg.needFile&&UP_HANDLER.str) files.push({name:cfg.needFile,str:UP_HANDLER.str});
+    if(cfg.needFile&&handlerLoaded()) files.push(handlerEntry(cfg.needFile));
     dl(zipName(cfg),makeZip(files),"application/zip");
   }
 }
@@ -1984,11 +2017,11 @@ function downloadChestZip(){
       if(baseName(f.path).toLowerCase()==="ywbackfix.js") return;  // back-fix в сундук не тащим
       if(cfg.mode==="php" && baseName(f.path).toLowerCase()==="order.php") return;  // свой order.php уже добавлен
       if(pres[f.path]) return;
-      if(nf && baseName(f.path).toLowerCase()===nf){ hadHandler=true; out.push({name:f.path,str:UP_HANDLER.str||patchHandlerFile(f.str,cfg)}); return; }  // lemon.php: тот же пропатченный/hardened, что и в ленде
+      if(nf && baseName(f.path).toLowerCase()===nf){ hadHandler=true; out.push(handlerLoaded()?handlerEntry(f.path):(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes})); return; }  // lemon.php: как есть (сырые байты / файл из папки)
       out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes});
     });
   }
-  if(cfg.needFile && UP_HANDLER.str && !hadHandler) out.push({name:cfg.needFile,str:UP_HANDLER.str});   // lemon.php только загружен -> тоже кладём в сундук
+  if(cfg.needFile && handlerLoaded() && !hadHandler) out.push(handlerEntry(cfg.needFile));   // lemon.php только загружен -> тоже кладём в сундук (как есть)
   dl(safeName(cfg.brand)+(cfg.langCode?("_"+cfg.langCode.toLowerCase()):"")+"_chest.zip", makeZip(out), "application/zip");
 }
 
@@ -2062,11 +2095,19 @@ function showTopToast(msg,isErr){
     hfi.addEventListener("change",async function(e){
       var f=e.target.files&&e.target.files[0]; if(!f) return;
       var cfg=readCfg();
-      UP_HANDLER={name:(cfg.needFile||"lemon.php"), str:patchHandlerFile(await f.text(), cfg)};
-      var t=document.getElementById("handlerDropT"); if(t) t.textContent="✓ "+f.name+" загружен";
+      var buf=new Uint8Array(await f.arrayBuffer());                 // СЫРЫЕ байты — кладём как есть, ничего не меняем
+      var bin=""; for(var i=0;i<buf.length;i++) bin+=String.fromCharCode(buf[i]);
+      UP_HANDLER={name:(cfg.needFile||"lemon.php"), orig:f.name, bytes:buf, str:bin};
+      saveHandlerLS(); renderHandlerState();
       try{ build(); }catch(_){}
     });
   }
+  var hclr=document.getElementById("handlerClear");
+  if(hclr){ hclr.addEventListener("click",function(e){ e.preventDefault();
+    UP_HANDLER={name:"",bytes:null,str:""}; var hf=document.getElementById("handlerFile"); if(hf) hf.value="";
+    saveHandlerLS(); renderHandlerState(); try{ build(); }catch(_){}
+  }); }
+  restoreHandlerLS(); renderHandlerState();   // восстановить ранее загруженный lemon.php (не слетает между перезагрузками)
   var cfi=document.getElementById("chestFolder");
   if(cfi){
     cfi.addEventListener("change",function(e){ loadChestFolder(Array.prototype.map.call(e.target.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};})); });
