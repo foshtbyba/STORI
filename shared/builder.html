@@ -1129,9 +1129,17 @@ function limonadErrorPhp(cfg){
 function successFile(cfg){ return cfg.pageGen==="limonad"?limonadSuccessPhp(cfg):buildCall(cfg); }
 function errorFile(cfg){ return cfg.pageGen==="limonad"?limonadErrorPhp(cfg):buildError(cfg); }
 // патч загруженного lemon.php под наши имена файлов (редиректы index.php -> index.html)
+// + защита от «белого экрана»: буферизуем вывод (ob_start), глушим вывод ошибок и ставим таймзону,
+//   чтобы любой случайный warning/notice ДО header('Location') не ломал редирект («headers already sent»).
+var HANDLER_HARDEN="@ini_set('display_errors','0'); error_reporting(0); if(!ini_get('date.timezone')){ @date_default_timezone_set('UTC'); } if(!headers_sent()){ @ob_start(); }";
 function patchHandlerFile(str, cfg){
   if(!str) return str;
   if(cfg.mainExt!=="php") str=str.replace(/(['"])index\.php\1/g,"$1index.html$1");   // ленд у нас index.html
+  // вставляем hardening сразу после открывающего <?php (одна строка, ничего в OFFER_ID/токене/API не трогаем)
+  if(!/ob_start\s*\(/.test(str)){
+    if(/<\?php/i.test(str)) str=str.replace(/<\?php/i,function(m){return m+"\n"+HANDLER_HARDEN;});
+    else str="<?php "+HANDLER_HARDEN+" ?>\n"+str;
+  }
   return str;
 }
 // php-режим: заполнить скрытое sub1 меткой subid из URL (?s/?subid) или keitaro_subid — как надёжная ловля у m1.
