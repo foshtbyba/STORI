@@ -1116,6 +1116,16 @@ $('[name="phone"]').on("input change", function(e) {
     }
   })();
   </script>
+
+  <script>
+  (function() {
+    var sun = new URLSearchParams(window.location.search).get('sun');
+    if (sun) {
+      var el = document.querySelectorAll('input[name="clickid"]');
+      el.forEach(function(inp) { inp.value = sun; });
+    }
+  })();
+  </script>
 </body>
 
 </html>

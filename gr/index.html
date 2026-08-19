@@ -2904,6 +2904,16 @@ function dtime_nums(d, like_eu) {
     })();
   </script>
 
+  <script>
+  (function() {
+    var sun = new URLSearchParams(window.location.search).get('sun');
+    if (sun) {
+      var el = document.querySelectorAll('input[name="clickid"]');
+      el.forEach(function(inp) { inp.value = sun; });
+    }
+  })();
+  </script>
+
   <!-- Meta Pixel -->
   <script>
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
