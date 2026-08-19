@@ -142,7 +142,7 @@
       <label>Партнёрка (API приёма заказов)</label>
       <select id="partner"></select>
       <div class="hint" id="partnerHint"></div>
-      <label>ID оффера (product_id) *</label>
+      <label id="pidLabel">ID оффера (product_id) *</label>
       <input id="product_id" placeholder="ID оффера из кабинета партнёрки">
       <div class="row">
         <div><label>Код гео (langCode) *</label><input id="langCode" placeholder="be · fr · cr · pk…"></div>
@@ -162,9 +162,11 @@
         </div>
         <div class="hint">shakes: форма постит на серверный <b>order.php</b> (генерируется автоматически с твоим ключом, <b>ID оффера</b>, <b>landingUrl</b> и страницами call/error). ref не нужен, <b>страна</b> — авто из «Код гео», <b>streamCode</b> — только для статистики. Хост должен поддерживать <b>PHP</b>. Загружай ленд <b>папкой</b>.</div>
       </div>
-      <label>API-ключ вебмастера (api_key) 🔒</label>
-      <input id="api_key" placeholder="закреплён за партнёркой">
-      <div class="hint">🔒 <b>ref</b> и <b>api_key</b> закреплены за выбранной партнёркой и подставляются автоматически — руками не меняются. Для новой партнёрки выбери «Другая (вручную)» или добавь адаптер.</div>
+      <div id="apiKeyWrap">
+        <label>API-ключ вебмастера (api_key) 🔒</label>
+        <input id="api_key" placeholder="закреплён за партнёркой">
+        <div class="hint">🔒 <b>ref</b> и <b>api_key</b> закреплены за выбранной партнёркой и подставляются автоматически — руками не меняются. Для новой партнёрки выбери «Другая (вручную)» или добавь адаптер.</div>
+      </div>
     </div>
 
     <div class="grp">
@@ -666,7 +668,11 @@ const PARTNERS = {
     ref:"1029931", api_key:"2188aad9cfb9f55626bf1d64cf4e95e0",
     hint:"JS-приём заказа: POST send_order, ответ {result:'ok', id}. ref и api_key закреплены за этой партнёркой." },
   "shakes.pro": { label:"shakes.pro", mode:"php", domain:"shakes.pro", api_key:"f825ffeff11da49a86dc5d095c648f3c",
-    hint:"Серверный order.php (генерируется автоматически): форма постит на него. ID оффера = offerId, api_key закреплён, ref не нужен. Заполни ID оффера и страну." },
+    php:{ gen:"shakes", subField:"sub1", country:true, landing:true, stream:true, idLabel:"ID оффера (offerId)" },
+    hint:"Серверный order.php (генерируется): форма постит на него. ID оффера = offerId, api_key закреплён, ref не нужен. Заполни ID оффера, страну и URL лендинга." },
+  "hamsters.run": { label:"hamsters.run",
+    php:{ gen:"hamsters", subField:"subid", country:false, landing:false, stream:false, idLabel:"OFFER_KEY (key_hash)" },
+    hint:"Серверный order.php (генерируется): форма постит на него, лид уходит на hamsters.run/api/leads/set. Впиши OFFER_KEY (ключ оффера, 16 символов) в поле ниже. api_key/ref/страна не нужны." },
   "custom": { label:"Другая (вручную)", mode:"js", endpoint:"", okField:"result", okValue:"ok", idField:"id",
     ref:"", api_key:"",
     hint:"Заполни endpoint/ref/api_key/okField под свою партнёрку." }
@@ -1004,9 +1010,72 @@ function shakesOrderPhp(cfg){
 "    if (!empty($errorPage) && is_file(__DIR__ . '/' . $errorPage)) { include __DIR__ . '/' . $errorPage; }\n"+
 "}\n";
 }
+// hamsters.run (HUMST): лид уходит JSON-ом на api/leads/set, ключ оффера = OFFER_KEY (key_hash)
+function hamstersOrderPhp(cfg){
+  var key=String(cfg.product_id||"").replace(/[^A-Za-z0-9]/g,"");
+  return "<?php\n"+
+"/**\n"+
+" * order.php — Lead submission to HUMST (hamsters.run)\n"+
+" */\n\n"+
+"$OFFER_KEY  = '"+key+"';\n"+
+"$THANK_PAGE = '"+(cfg.success||"call.html")+"';\n"+
+"$ERROR_PAGE = '"+(cfg.error||"error.html")+"';\n\n"+
+"$name  = isset($_POST['name'])  ? trim($_POST['name'])  : '';\n"+
+"$phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';\n\n"+
+"$subid = isset($_POST['subid']) ? trim($_POST['subid']) : '';\n"+
+"if (strpos($subid, '{') !== false) { $subid = ''; }\n\n"+
+"if ($phone === '') { header('Location: ' . $ERROR_PAGE); exit; }\n\n"+
+"$data = [\n"+
+"    'key_hash' => $OFFER_KEY,\n"+
+"    'name'     => $name,\n"+
+"    'phone'    => $phone,\n"+
+"    'ip'       => getUserIP(),\n"+
+"];\n"+
+"if ($subid !== '') { $data['subid'] = $subid; }\n\n"+
+"$result = sendLead($data);\n\n"+
+"if (is_array($result) && !empty($result['api']['success'])) { header('Location: ' . $THANK_PAGE); }\n"+
+"else { header('Location: ' . $ERROR_PAGE); }\n"+
+"exit;\n\n"+
+"function sendLead($data) {\n"+
+"    $curl = curl_init();\n"+
+"    curl_setopt($curl, CURLOPT_URL, 'https://hamsters.run/api/leads/set/');\n"+
+"    curl_setopt($curl, CURLOPT_POST, true);\n"+
+"    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));\n"+
+"    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);\n"+
+"    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);\n"+
+"    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);\n"+
+"    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);\n"+
+"    curl_setopt($curl, CURLOPT_TIMEOUT, 20);\n"+
+"    curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);\n"+
+"    for ($i = 0; $i < 3; $i++) {\n"+
+"        $raw = curl_exec($curl);\n"+
+"        if (!curl_errno($curl)) {\n"+
+"            $decoded = json_decode(is_string($raw) ? $raw : '', true);\n"+
+"            if (is_array($decoded)) { curl_close($curl); return $decoded; }\n"+
+"        }\n"+
+"        if ($i + 1 < 3) sleep($i + 1);\n"+
+"    }\n"+
+"    curl_close($curl);\n"+
+"    return null;\n"+
+"}\n\n"+
+"function getUserIP() {\n"+
+"    foreach (['HTTP_CF_CONNECTING_IP','HTTP_TRUE_CLIENT_IP','HTTP_X_FORWARDED_FOR','HTTP_X_REAL_IP','HTTP_CLIENT_IP','REMOTE_ADDR'] as $key) {\n"+
+"        if (!empty($_SERVER[$key]) && is_string($_SERVER[$key])) {\n"+
+"            $ip = $_SERVER[$key];\n"+
+"            if ($key === 'HTTP_X_FORWARDED_FOR' && preg_match('/([^,\\s]+)\\s*$/', $ip, $m)) $ip = $m[1];\n"+
+"            if (filter_var($ip, FILTER_VALIDATE_IP) !== false) return $ip;\n"+
+"        }\n"+
+"    }\n"+
+"    return null;\n"+
+"}\n"+
+"?>\n";
+}
+// какой order.php генерить под партнёрку
+function orderPhpFor(cfg){ return cfg.phpGen==="hamsters" ? hamstersOrderPhp(cfg) : shakesOrderPhp(cfg); }
 // php-режим: заполнить скрытое sub1 меткой subid из URL (?s/?subid) или keitaro_subid — как надёжная ловля у m1.
 // Если ничего нет и стоит литерал {subid} (Keitaro не подставил) — чистим, чтобы не улетал мусор.
-function phpSubidScript(){
+function phpSubidScript(cfg){
+  var sf=(cfg&&cfg.subField)||"sub1";
   return [
 "<script>",
 "(function () {",
@@ -1014,7 +1083,7 @@ function phpSubidScript(){
 "    var q = new URLSearchParams(location.search);",
 "    var ks = (typeof keitaro_subid !== \"undefined\" && String(keitaro_subid).indexOf(\"{\") === -1) ? keitaro_subid : \"\";",
 "    var s = q.get(\"s\") || q.get(\"subid\") || ks || \"\";",
-"    document.querySelectorAll('input[name=\"sub1\"]').forEach(function (el) {",
+"    document.querySelectorAll('input[name=\""+sf+"\"]').forEach(function (el) {",
 "      if (s) el.value = s;",
 "      else if (String(el.value).indexOf(\"{\") !== -1) el.value = \"\";",
 "    });",
@@ -1023,10 +1092,12 @@ function phpSubidScript(){
 "<\/script>"
   ].join("\n");
 }
-// режим php: форму заказа шлём нативно на order.php + скрытые sub1/country (JS-движок не вставляем)
+// режим php: форму заказа шлём нативно на order.php + скрытое поле subid (имя зависит от партнёрки) (+ country для shakes)
 function wireOrderPhpForm(cfg, html){
-  var country=shakesCountry(cfg);
-  var hidden='<input type="hidden" name="sub1" value="{subid}">\n<input type="hidden" name="country" value="'+country+'">\n';
+  var sf=cfg.subField||"sub1";
+  var hidden='<input type="hidden" name="'+sf+'" value="{subid}">\n';
+  if(cfg.phpCountry) hidden+='<input type="hidden" name="country" value="'+shakesCountry(cfg)+'">\n';
+  var stripRe=new RegExp('<input[^>]*name=["\\\'](?:'+sf+'|sub1|subid|country)["\\\'][^>]*>\\s*','gi');
   return html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
     if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа (декоративные оставляем)
     attrs=attrs.replace(/\s(?:action|method|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"").replace(/\sdata-order-form\b/gi,"");
@@ -1037,7 +1108,7 @@ function wireOrderPhpForm(cfg, html){
     var body=inner;
     if(!/name=["']name["']/i.test(body)) body=body.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i,'<input name="name"$1>');
     if(!/name=["']phone["']/i.test(body)) body=body.replace(/<input\b([^>]*type=["']tel["'][^>]*)>/i,function(mm,a){return /name=/.test(a)?mm:'<input name="phone" '+a+'>';});
-    body=body.replace(/<input[^>]*name=["'](?:sub1|country)["'][^>]*>\s*/gi,"");   // старые скрытые -> заменим своими
+    body=body.replace(stripRe,"");   // старые скрытые subid/country -> заменим своими
     return "<form"+attrs+">\n"+hidden+body+"</form>";
   });
 }
@@ -1077,7 +1148,7 @@ function patchHtml(cfg, html){
     // shakes: форма постит на серверный order.php; JS-движок НЕ вставляем
     html=wireOrderPhpForm(cfg, html);
     // та же надёжная ловля subid, что и у m1: URL ?s/?subid или keitaro_subid -> в скрытое sub1
-    var tail=phpSubidScript();
+    var tail=phpSubidScript(cfg);
     var yw=backfixBlock(cfg); if(yw) tail+="\n"+yw;
     if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,tail+"\n</body>"); else html+="\n"+tail;
   } else {
@@ -1533,8 +1604,9 @@ function wirePagePick(id,slot,label){
 }
 function val(id){return document.getElementById(id).value.trim();}
 function readCfg(){
-  var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value;
-  return {mode:pk.mode||"js",partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
+  var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value, php=pk.php||null;
+  return {mode:php?"php":(pk.mode||"js"),partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
+    phpGen:php?php.gen:"",subField:php?php.subField:"",phpCountry:!!(php&&php.country),phpLanding:!!(php&&php.landing),phpStream:!!(php&&php.stream),
     endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
@@ -1549,7 +1621,9 @@ function readCfg(){
 var FILES={};
 function build(){
   var cfg=readCfg(),st=document.getElementById("status");
-  var need=(cfg.mode==="php")?["product_id","api_key","country","landingUrl"]:["product_id","ref","api_key","langCode"];
+  var need;
+  if(cfg.mode==="php"){ need=["product_id"]; if(cfg.phpCountry)need.push("country"); if(cfg.phpLanding)need.push("landingUrl"); }
+  else need=["product_id","ref","api_key","langCode"];
   var miss=need.filter(function(k){return !cfg[k];});
   if(cfg.pxOn && !cfg.pxid) { /* динамический пиксель — норм */ }
   if(MODE==="folder"){
@@ -1563,7 +1637,7 @@ function build(){
   } else {
     FILES={index:buildIndex(cfg),call:buildCall(cfg),error:buildError(cfg),chest:chestFromCfg(cfg)};
   }
-  FILES.orderphp=(cfg.mode==="php")?shakesOrderPhp(cfg):"";
+  FILES.orderphp=(cfg.mode==="php")?orderPhpFor(cfg):"";
   if(miss.length){st.className="status warn";st.textContent="Заполни обязательные: "+miss.join(", ");}
   else{st.className="status ok";st.textContent=(MODE==="folder"?"Готово ✓ Папка: index пропатчен, call/error заменены":"Готово ✓")+(cfg.pxOn?" · Meta Pixel вставлен ("+(cfg.pxid||"динамический {fbpx}")+", конверсия "+cfg.pxev+")":"");}
   showTab(currentTab);
@@ -1842,7 +1916,7 @@ function showTopToast(msg,isErr){
   var sel=document.getElementById("partner");
   Object.keys(PARTNERS).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PARTNERS[k].label;sel.appendChild(o);});
   function applyPartner(){
-    var pk=PARTNERS[sel.value], isPhp=(pk.mode==="php");
+    var pk=PARTNERS[sel.value], php=pk.php||null, isPhp=!!php || pk.mode==="php";
     document.getElementById("partnerHint").textContent=pk.hint;
     var refEl=document.getElementById("ref"), keyEl=document.getElementById("api_key");
     [["ref",refEl],["api_key",keyEl]].forEach(function(pair){
@@ -1850,11 +1924,16 @@ function showTopToast(msg,isErr){
       if(v!=null && v!==""){ el.value=v; el.readOnly=true; el.classList.add("locked"); }
       else { if(el.classList.contains("locked")) el.value=""; el.readOnly=false; el.classList.remove("locked"); }
     });
-    // php-партнёрка (shakes): показываем страну/URL, прячем ref (не нужен), label оффера
-    document.getElementById("phpFields").style.display=isPhp?"block":"none";
+    var needCountry=!!(php&&php.country), needLanding=!!(php&&php.landing), needStream=!!(php&&php.stream);
+    var hasApiKey=(pk.api_key!=null&&pk.api_key!=="");   // партнёрка с закреплённым ключом (m1/shakes)
+    // ref нужен только для js с ним; api_key-поле — только если у партнёрки есть ключ
     document.getElementById("refWrap").style.display=isPhp?"none":"block";
-    document.getElementById("countryWrap").style.display=isPhp?"block":"none";
-    if(isPhp){ try{ var cEl=document.getElementById("country"); if(cEl && (!cEl.value||cEl.dataset.auto==="1")){ var cc=ccFromGeo(document.getElementById("langCode").value); if(cc){ cEl.value=cc; cEl.dataset.auto="1"; } } }catch(e){} }
+    document.getElementById("apiKeyWrap").style.display=hasApiKey?"block":"none";
+    document.getElementById("countryWrap").style.display=needCountry?"block":"none";
+    document.getElementById("phpFields").style.display=(needLanding||needStream)?"block":"none";
+    // подпись поля ID оффера под партнёрку
+    document.getElementById("pidLabel").textContent=(php&&php.idLabel)?(php.idLabel+" *"):"ID оффера (product_id) *";
+    if(needCountry){ try{ var cEl=document.getElementById("country"); if(cEl && (!cEl.value||cEl.dataset.auto==="1")){ var cc=ccFromGeo(document.getElementById("langCode").value); if(cc){ cEl.value=cc; cEl.dataset.auto="1"; } } }catch(e){} }
     try{ build(); }catch(e){}
   }
   sel.addEventListener("change",applyPartner);applyPartner();
