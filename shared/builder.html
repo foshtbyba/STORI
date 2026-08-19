@@ -145,8 +145,8 @@
       <label id="pidLabel">ID оффера (product_id) *</label>
       <input id="product_id" placeholder="ID оффера из кабинета партнёрки">
       <div class="row">
-        <div><label>Код гео (langCode) *</label><input id="langCode" placeholder="be · fr · cr · pk…"></div>
-        <div>
+        <div id="langWrap"><label>Код гео (langCode) *</label><input id="langCode" placeholder="be · fr · cr · pk…"></div>
+        <div id="partnerCell">
           <div id="refWrap"><label>ID вебмастера (ref) 🔒</label><input id="ref" placeholder="закреплён за партнёркой"></div>
           <div id="countryWrap" style="display:none"><label>Страна (countryCode) *</label><input id="country" placeholder="CZ · DE · SK… (авто)"></div>
         </div>
@@ -1244,10 +1244,16 @@ function doubleCalc(s){
   return {num:num, full:s.replace(token, num)};
 }
 function buildChest(cfg){var t=cfg.t,was=doubleCalc(cfg.price).full,now=cfg.price,isPhp=(cfg.mode==="php");
-  var formOpen=isPhp
-    ? '<form id="order_form" class="order_form" action="order.php" method="post">\n        <input type="hidden" name="sub1" value="{subid}">\n        <input type="hidden" name="country" value="'+shakesCountry(cfg)+'">'
-    : '<form id="order_form" data-order-form method="POST" action="">';
-  var orderTail=isPhp?backfixBlock(cfg):orderBlock(cfg);
+  var formOpen, orderTail;
+  if(isPhp){
+    var sf=cfg.subField||"sub1";
+    formOpen='<form id="order_form" class="order_form" action="order.php" method="post">\n        <input type="hidden" name="'+sf+'" value="{subid}">';
+    if(cfg.phpCountry) formOpen+='\n        <input type="hidden" name="country" value="'+shakesCountry(cfg)+'">';
+    orderTail=phpSubidScript(cfg); var yw=backfixBlock(cfg); if(yw) orderTail+="\n"+yw;   // ловля subid (+ back-fix, если не сундук)
+  } else {
+    formOpen='<form id="order_form" data-order-form method="POST" action="">';
+    orderTail=orderBlock(cfg);
+  }
   return `<!DOCTYPE html>
 <html lang="${cfg.langCode}"${dirAttr(cfg)}>
 <head><meta charset="UTF-8"><meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
@@ -1935,12 +1941,17 @@ function showTopToast(msg,isErr){
       else { if(el.classList.contains("locked")) el.value=""; el.readOnly=false; el.classList.remove("locked"); }
     });
     var needCountry=!!(php&&php.country), needLanding=!!(php&&php.landing), needStream=!!(php&&php.stream);
-    var hasApiKey=(pk.api_key!=null&&pk.api_key!=="");   // партнёрка с закреплённым ключом (m1/shakes)
-    // ref нужен только для js с ним; api_key-поле — только если у партнёрки есть ключ
-    document.getElementById("refWrap").style.display=isPhp?"none":"block";
-    document.getElementById("apiKeyWrap").style.display=hasApiKey?"block":"none";
+    var hasFixedKeys=(pk.api_key!=null&&pk.api_key!=="")||(pk.ref!=null&&pk.ref!=="");   // закреплённые ключи (m1)
+    // ref/api_key показываем ТОЛЬКО когда их надо вводить вручную (custom); у m1 они закреплены -> скрыты
+    var manual=(!isPhp && !hasFixedKeys);
+    document.getElementById("refWrap").style.display=manual?"block":"none";
+    document.getElementById("apiKeyWrap").style.display=manual?"block":"none";
     document.getElementById("countryWrap").style.display=needCountry?"block":"none";
     document.getElementById("phpFields").style.display=(needLanding||needStream)?"block":"none";
+    // если в правой ячейке ряда ничего не показано (m1/hamsters) — «Код гео» на всю ширину, без пустого места
+    var cellUsed=manual||needCountry;
+    document.getElementById("partnerCell").style.display=cellUsed?"":"none";
+    document.getElementById("langWrap").style.gridColumn=cellUsed?"":"1 / -1";
     // подпись поля ID оффера под партнёрку
     document.getElementById("pidLabel").textContent=(php&&php.idLabel)?(php.idLabel+" *"):"ID оффера (product_id) *";
     if(needCountry){ try{ var cEl=document.getElementById("country"); if(cEl && (!cEl.value||cEl.dataset.auto==="1")){ var cc=ccFromGeo(document.getElementById("langCode").value); if(cc){ cEl.value=cc; cEl.dataset.auto="1"; } } }catch(e){} }
