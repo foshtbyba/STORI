@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="el">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport" />
+    <meta content="noindex, nofollow" name="robots" />
+    <title>Ειδική προσφορά - Fortuflex</title>
+    <link rel="icon" href="images/product.png" />
+    <link href="css/styles.css" media="all" rel="stylesheet" />
+    <link href="css/css.css" media="all" rel="stylesheet" />
+
+    <script>
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      (function () {
+        var p = new URLSearchParams(location.search).get('fbpx');
+        if (!p) { var m = '{fbpx}'; if (m.indexOf('{') === -1) p = m; }
+        if (p) { try { localStorage.setItem('fb_pixel', p); } catch (e) {} }
+        if (!p) { try { p = localStorage.getItem('fb_pixel'); } catch (e) {} }
+        if (p) { fbq('init', p); fbq('track', 'PageView'); }
+      })();
+    </script>
+</head>
+
+<body>
+  <span id="oneform"></span>
+    <div class="container">
+        <div class="chest">
+            <div class="top_block">
+                <h1>Συμμετέχετε στην προσφορά «<span class="productName">Fortuflex</span>»!</h1>
+                <p class="vis_big">
+                    <span style="font-weight: 500">
+                  Κάθε συμμετέχων σε αυτή την προσφορά μπορεί να αποκτήσει ένα φυσικό και αποτελεσματικό προϊόν με μόνο <b class="new_price_val">39</b>&nbsp;<b class="new_price_cur">€</b>.</span>
+                </p>
+            </div>
+        </div>
+        <div class="select_block">
+            <h2 class="select_block__title"><span style="color: red">Προσοχή!</span> Λόγω μεγάλης ζήτησης, δεν μπορούμε να εξυπηρετήσουμε όλους τους πελάτες.</h2>
+            <p class="text_big">
+                Γι' αυτό οργανώσαμε αυτή την κλήρωση που επιλέγει τους νικητές έναν-έναν και σας δίνει την ευκαιρία να αποκτήσετε το
+                <span class="productName">Fortuflex</span> σε ειδική τιμή.
+            </p>
+        </div>
+        <div class="chest__img_pack" id="chestImg">
+            <div class="chest__title_wrap">
+                <h3 class="chest__title">Δοκιμάστε την τύχη σας!</h3>
+                <h3 class="chest__subtitle">Πατήστε στο σεντούκι και κερδίστε το <span class="danger-text">δώρο σας</span>!
+                </h3>
+            </div>
+            <div class="chest__button">
+                <picture>
+                    <source class="chest__img" srcset="images/chest.webp" type="image/webp" />
+                    <img src="images/chest.webp" alt="" class="saleBox" />
+                </picture>
+                <button id="pushChest">Άνοιξε</button>
+            </div>
+            <div class="chest__img--dinamic chest__img">
+                <picture>
+                    <source srcset="images/chest_animation.webp" type="image/webp" />
+                    <img src="images/chest_animation.gif" alt="" style="max-width: 350px; width: 100%" />
+                </picture>
+            </div>
+            <div class="chest__coins">
+                <picture class="chest__img chest__img--opened">
+                    <source srcset="images/chest_opened.webp" type="image/webp" />
+                    <img src="images/chest_opened.png" alt="" style="max-width: 350px; width: 100%" />
+                </picture>
+                <div class="chest__rotate">
+                    <picture class="back">
+                        <source srcset="images/coin2.webp" type="image/webp" />
+                        <img src="images/coin2.png" alt="" style="max-width: 350px; width: 100%" />
+                    </picture>
+                    <picture class="front">
+                        <source srcset="images/coin2.webp" type="image/webp" />
+                        <img src="images/coin2.png" alt="" style="max-width: 350px; width: 100%" />
+                    </picture>
+                </div>
+            </div>
+            <div class="chest__order">
+                <div class="my_form">
+                    <img src="images/product.png" alt="Fortuflex" class="prodImg" style="max-width: 200px" />
+                    <div class="text_popup">
+                        <span style="display: block">Συγχαρητήρια!</span> Κερδίσατε έκπτωση 50% στο <span class="productName">Fortuflex</span>! Μπορείτε να το αποκτήσετε με μόνο <b class="new_price_val" style="color:red">39</b>&nbsp;<b class="new_price_cur"
+                            style="color:red">€</b>!
+                    </div>
+                    <br /><br />
+                    <form id="order_form" method="POST" action="lemon.php">
+                        <input type="hidden" name="utm_campaign" value="" />
+                        <input type="hidden" name="utm_content" value="" />
+                        <input type="hidden" name="utm_medium" value="" />
+                        <input type="hidden" name="utm_source" value="" />
+                        <input type="hidden" name="utm_term" value="" />
+                        <input type="hidden" name="clickid" value="{subid}" />
+                        <input type="hidden" name="fbpxl" value="" />
+                        <input type="text" minlength="2" class="input-roulette" name="name" id="input-name" placeholder="Εισάγετε το όνομά σας" autocomplete="name" required="" />
+                        <input maxlength="18" minlength="8" type="tel" class="input-roulette" name="phone" id="input-phone" placeholder="Εισάγετε τον αριθμό τηλεφώνου" autocomplete="tel" required="" />
+                        <input type="submit" class="submit-roulette" value="Υποβολή παραγγελίας" />
+                        <div class="ring-loading"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/bounce.js"></script>
+
+<script>
+var LAZY = document.querySelectorAll('img');
+for (var i = 0; i < LAZY.length; i++) {
+  LAZY[i].setAttribute('loading', 'lazy');
+}
+</script>
+
+<script>
+document.addEventListener('click', function(e) {
+  var link = e.target.closest('a');
+  if (link) {
+    e.preventDefault();
+    var target = document.getElementById('oneform');
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  }
+});
+</script>
+
+<script>
+(function() {
+  var nameInput = document.querySelector('[name="name"]');
+  if (nameInput) {
+    nameInput.addEventListener('input', function() {
+      var val = this.value;
+      var cleaned = val
+        .replace(/[^\p{L}\s]/gu, '')
+        .replace(/^\s+/, '')
+        .replace(/\s\s+/, ' ');
+      var parts = cleaned.split(' ');
+      if (parts.length > 3) cleaned = parts.slice(0, 3).join(' ');
+      this.value = cleaned;
+    });
+    nameInput.addEventListener('blur', function() {
+      this.value = this.value.trim();
+    });
+  }
+
+  var phoneInput = document.querySelector('[name="phone"]');
+  if (phoneInput) {
+    phoneInput.addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g, '');
+      this.setAttribute('pattern', '[0-9]{6,}');
+    });
+  }
+})();
+</script>
+
+<script>
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var fields = ['utm_campaign','utm_content','utm_medium','utm_source','utm_term','clickid'];
+  fields.forEach(function(f) {
+    var val = params.get(f);
+    if (val) {
+      var inp = document.querySelector('input[name="' + f + '"]');
+      if (inp) inp.value = val;
+    }
+  });
+
+  var fbpxl = params.get('fbpxl') || params.get('fbpx') || '';
+  if (fbpxl) {
+    var fbInp = document.querySelector('input[name="fbpxl"]');
+    if (fbInp) fbInp.value = fbpxl;
+    try { localStorage.setItem('fb_pixel', fbpxl); } catch(e) {}
+  } else {
+    try {
+      var stored = localStorage.getItem('fb_pixel');
+      if (stored) {
+        var fbInp2 = document.querySelector('input[name="fbpxl"]');
+        if (fbInp2) fbInp2.value = stored;
+      }
+    } catch(e) {}
+  }
+})();
+</script>
+
+<script>
+document.getElementById('order_form').addEventListener('submit', function(e) {
+  var nameInput = this.querySelector('input[name="name"]');
+  var phoneInput = this.querySelector('input[name="phone"]');
+  nameInput.value = nameInput.value.trim();
+  if (!nameInput.value) {
+    e.preventDefault();
+    alert('Παρακαλώ εισάγετε ένα έγκυρο όνομα!');
+    return false;
+  }
+  if (!phoneInput.value || phoneInput.value.replace(/\D/g,'').length < 7) {
+    e.preventDefault();
+    alert('Παρακαλώ εισάγετε έναν έγκυρο αριθμό τηλεφώνου!');
+    return false;
+  }
+});
+</script>
+
+</body>
+</html>
