@@ -689,7 +689,9 @@ const ENGINE = `
 
   var Q = pq();
   var subid = (OFFER.subid && OFFER.subid.indexOf("{") === -1) ? OFFER.subid : "";
-  var TR = { s: Q.s || subid || "", w: Q.w || "", t: Q.t || "", p: Q.p || "", m: Q.m || "" };
+  // subid из URL (?s=) или из глобала Keitaro (keitaro_subid), как в родных лендах: client_s = QueryString.s || keitaro_subid
+  var ks = ""; try { if (typeof keitaro_subid !== "undefined" && String(keitaro_subid).indexOf("{") === -1) ks = keitaro_subid; } catch (e) {}
+  var TR = { s: Q.s || ks || subid || "", w: Q.w || "", t: Q.t || "", p: Q.p || "", m: Q.m || "" };
 
   function tqs() {
     return "&s=" + encodeURIComponent(TR.s) +
