@@ -943,8 +943,8 @@ function T(lang){return Object.assign({},TXT.en,ERR.en,CHESTX.en,TXT[lang]||{},E
 /* ================= ГЕНЕРАЦИЯ ================= */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function offerObject(cfg){return {endpoint:cfg.endpoint,okField:cfg.okField,okValue:cfg.okValue,idField:cfg.idField,product_id:cfg.product_id,ref:cfg.ref,api_key:cfg.api_key,langCode:cfg.langCode,success:cfg.success,error:cfg.error,out:true,msgName:cfg.t.an,msgPhone:cfg.t.ap};}
-// back-fix (демонетизация «назад») — общий для всех режимов
-function backfixBlock(cfg){ return cfg.backfix ? '<script src="js/ywbackfix.js" data-redirect="true" data-links=\'["'+cfg.backfix+'"]\'><\/script>' : ""; }
+// back-fix (демонетизация «назад») — общий для всех режимов. В сундуке не нужен (cfg.noBackfix)
+function backfixBlock(cfg){ return (cfg.backfix && !cfg.noBackfix) ? '<script src="js/ywbackfix.js" data-redirect="true" data-links=\'["'+cfg.backfix+'"]\'><\/script>' : ""; }
 function orderBlock(cfg){
   var l=[];
   if(cfg.keepComments) l.push("<!-- ===== DROP-IN блок заказа (конструктор) ===== -->");
@@ -1274,15 +1274,16 @@ function brandChest(html, cfg){
 }
 function chestFromCfg(cfg){
   if(!cfg.makeChest) return "";
+  var c=Object.assign({},cfg,{noBackfix:true});   // в сундуке back-fix (ywbackfix) не нужен
   if(CHEST_FOLDER && CHEST_FOLDER.mainPath){
     var mf=CHEST_FOLDER.files.filter(function(x){return x.path===CHEST_FOLDER.mainPath;})[0];
-    if(mf) return injectHead(patchHtml(cfg, brandChest(cleanChestHtml(mf.str),cfg)), CHEST_FORM_FALLBACK);
+    if(mf) return injectHead(patchHtml(c, brandChest(cleanChestHtml(mf.str),c)), CHEST_FORM_FALLBACK);
   }
   if(MODE==="folder" && FOLDER){
     var cf=FOLDER.files.filter(function(x){return baseName(x.path).toLowerCase()==="chest.html";})[0];
-    if(cf) return injectHead(patchHtml(cfg, brandChest(cf.str,cfg)), CHEST_FORM_FALLBACK);
+    if(cf) return injectHead(patchHtml(c, brandChest(cf.str,c)), CHEST_FORM_FALLBACK);
   }
-  return buildChest(cfg);
+  return buildChest(c);
 }
 // какие локальные css/js/картинки главный html сундука требует, но их НЕТ в загруженной папке
 // (главная причина «сундук без стилей»: залили index.html без папки css/)
@@ -1764,8 +1765,8 @@ function downloadChestZip(){
   var out=[
     {name:"index.html",str:FILES.chest},
     {name:"call.html",str:FILES.call},
-    {name:"error.html",str:FILES.error},
-    {name:"js/ywbackfix.js",str:YWBACKFIX_JS}
+    {name:"error.html",str:FILES.error}
+    // js/ywbackfix.js в сундук НЕ кладём — back-fix там не нужен
   ];
   if(cfg.mode==="php" && FILES.orderphp) out.push({name:"order.php",str:FILES.orderphp});   // серверный прокси shakes и для сундука
   if(CHEST_FOLDER){
@@ -1773,6 +1774,7 @@ function downloadChestZip(){
     CHEST_FOLDER.files.forEach(function(f){
       if(f.path===CHEST_FOLDER.mainPath) return;   // это уже index.html
       if(/\.html?$/i.test(f.path)) return;          // прочие html сундука не тащим
+      if(baseName(f.path).toLowerCase()==="ywbackfix.js") return;  // back-fix в сундук не тащим
       if(cfg.mode==="php" && baseName(f.path).toLowerCase()==="order.php") return;  // свой order.php уже добавлен
       if(pres[f.path]) return;
       out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes});
