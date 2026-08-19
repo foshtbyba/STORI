@@ -1103,23 +1103,25 @@ function limonadPixel(cfg){
 }
 // success.php для limonad: страница «спасибо» + пиксель по fbpxl + приветствие по $_GET['name'] (lemon.php шлёт ?name=&fbpxl=)
 function limonadSuccessPhp(cfg){
-  var t=cfg.t, dir=t.rtl?' dir="rtl"':'';
+  var t=cfg.t, dir=t.rtl?' dir="rtl"':'', img=pageImg(cfg,"success");
   return '<!DOCTYPE html>\n<html lang="'+cfg.langCode+'"'+dir+'>\n<head>\n'+
 '<meta charset="utf-8">\n<title>'+esc(t.thanks)+'</title>\n'+
 '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<meta name="robots" content="noindex, nofollow">\n'+
 '<style>'+THANKS_CSS+'</style>\n'+limonadPixel(cfg)+'\n</head>\n<body>\n'+
 '<div class="card">\n'+
 '  <div class="ic ok"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 8 16-16"/></svg></div>\n'+
+(img?'  <img class="prod" src="'+img+'" alt="'+esc(cfg.brand)+'" loading="lazy">\n':'')+
 '  <h1>'+esc(t.thanks)+'</h1>\n'+
 "  <p><?php if (!empty($_GET['name'])): ?><b><?php echo htmlspecialchars($_GET['name'], ENT_QUOTES, 'UTF-8'); ?></b> — <?php endif; ?>"+esc(t.tl1)+'</p>\n'+
 '  <p class="muted">'+esc(t.tl2)+'</p>\n'+
 '</div>\n</body>\n</html>\n';
 }
 function limonadErrorPhp(cfg){
-  var t=cfg.t, dir=t.rtl?' dir="rtl"':'';
+  var t=cfg.t, dir=t.rtl?' dir="rtl"':'', img=pageImg(cfg,"error");
   return '<!DOCTYPE html>\n<html lang="'+cfg.langCode+'"'+dir+'>\n<head>\n<meta charset="utf-8">\n<title>'+esc(t.errt)+'</title>\n'+
 '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<style>'+THANKS_CSS+'</style>\n</head>\n<body>\n'+
 '<div class="card err">\n  <div class="ic err"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M26 15v16"/><path d="M26 37l.02 0"/></svg></div>\n'+
+(img?'  <img class="prod" src="'+img+'" alt="'+esc(cfg.brand)+'" loading="lazy">\n':'')+
 '  <h1>'+esc(t.errt)+'</h1>\n  <p>'+esc(t.el1)+'</p>\n  <p class="muted">'+esc(t.el2)+'</p>\n'+
 '  <button class="retry" onclick="history.back()">'+esc(t.retry)+'</button>\n</div>\n</body>\n</html>\n';
 }
