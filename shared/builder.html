@@ -676,9 +676,10 @@ const PARTNERS = {
     php:{ gen:"hamsters", subField:"subid", country:false, landing:false, stream:false, idLabel:"OFFER_KEY (key_hash)" },
     hint:"Серверный order.php (генерируется): форма постит на него, лид уходит на hamsters.run/api/leads/set. Впиши OFFER_KEY (ключ оффера, 16 символов) в поле ниже. api_key/ref/страна не нужны." },
   "limonad.com": { label:"limonad.com",
-    php:{ gen:"", action:"lemon.php", subField:"clickid", noId:true, mainExt:"php", country:false, landing:false, stream:false,
+    php:{ gen:"", action:"lemon.php", subField:"clickid", noId:true, country:false, landing:false, stream:false,
+      needFile:"lemon.php", successPage:"success.php", errorPage:"error.php",
       extraHidden:'<input type="hidden" name="utm_campaign" value="">\n        <input type="hidden" name="utm_content" value="">\n        <input type="hidden" name="utm_medium" value="">\n        <input type="hidden" name="utm_source" value="">\n        <input type="hidden" name="utm_term" value="">\n        <input type="hidden" name="fbpxl" value="">\n' },
-    hint:"Форма постит на lemon.php. ВАЖНО: файлы lemon.php и success.php бери из архива оффера limonad и клади в папку ленда — конструктор их НЕ генерит. Главный файл сохраняется как index.php. subid идёт в поле clickid. ID оффера/ключи не нужны (они в lemon.php)." },
+    hint:"Форма постит на lemon.php (index остаётся .html). ВАЖНО: файл lemon.php бери из архива оффера limonad и клади в папку ленда — конструктор его НЕ генерит (без него форма не отправит заказ). success.php и error.php конструктор генерит сам. subid идёт в поле clickid. ID оффера/ключи не нужны." },
   "custom": { label:"Другая (вручную)", mode:"js", endpoint:"", okField:"result", okValue:"ok", idField:"id",
     ref:"", api_key:"",
     hint:"Заполни endpoint/ref/api_key/okField под свою партнёрку." }
@@ -1623,6 +1624,7 @@ function readCfg(){
   return {mode:php?"php":(pk.mode||"js"),partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
     phpGen:php?php.gen:"",subField:php?php.subField:"",phpCountry:!!(php&&php.country),phpLanding:!!(php&&php.landing),phpStream:!!(php&&php.stream),
     phpAction:php?(php.action||"order.php"):"",phpNoId:!!(php&&php.noId),mainExt:php?(php.mainExt||"html"):"html",phpExtraHidden:php?(php.extraHidden||""):"",
+    needFile:php?(php.needFile||""):"",successName:(php&&php.successPage)||"call.html",errorName:(php&&php.errorPage)||"error.html",
     endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
@@ -1654,8 +1656,11 @@ function build(){
     FILES={index:buildIndex(cfg),call:buildCall(cfg),error:buildError(cfg),chest:chestFromCfg(cfg)};
   }
   FILES.orderphp=(cfg.mode==="php" && cfg.phpGen)?orderPhpFor(cfg):"";   // limonad handler (lemon.php) не генерим — он из архива оффера
+  // проверка обязательного внешнего файла-обработчика (lemon.php для limonad)
+  var needFileMissing=cfg.needFile && !(MODE==="folder" && FOLDER && FOLDER.files.some(function(f){return baseName(f.path).toLowerCase()===cfg.needFile.toLowerCase();}));
   if(miss.length){st.className="status warn";st.textContent="Заполни обязательные: "+miss.join(", ");}
-  else{st.className="status ok";st.textContent=(MODE==="folder"?"Готово ✓ Папка: index пропатчен, call/error заменены":"Готово ✓")+(cfg.pxOn?" · Meta Pixel вставлен ("+(cfg.pxid||"динамический {fbpx}")+", конверсия "+cfg.pxev+")":"");}
+  else if(needFileMissing){st.className="status warn";st.textContent="⚠ Нет файла "+cfg.needFile+" в папке! Возьми его из архива оффера "+PARTNERS[document.getElementById("partner").value].label+" и положи в папку ленда — без него форма не отправит заказ. Загружай ленд ПАПКОЙ.";}
+  else{st.className="status ok";st.textContent=(MODE==="folder"?"Готово ✓ Папка: index пропатчен, call/error заменены":"Готово ✓")+(cfg.pxOn?" · Meta Pixel вставлен ("+(cfg.pxid||"динамический {fbpx}")+", конверсия "+cfg.pxev+")":"")+(cfg.needFile?(" · "+cfg.needFile+" на месте ✓"):"");}
   showTab(currentTab);
 }
 var currentTab="index";
@@ -1862,21 +1867,21 @@ function downloadZip(){
       if(cfg.makeChest && baseName(x.path).toLowerCase()==="chest.html") return false; // сундук уходит в свой zip
       return true;
     }).map(function(x){
-      var b=baseName(x.path).toLowerCase();
+      var b=baseName(x.path).toLowerCase(), succ=cfg.successName.toLowerCase(), errn=cfg.errorName.toLowerCase();
       if(x.path===FOLDER.indexPath) return {name:idxName(x.path),str:FILES.index};
-      if(cfg.repCallErr&&b==="call.html"){had.call=1;return {name:x.path,str:FILES.call};}
-      if(cfg.repCallErr&&b==="error.html"){had.error=1;return {name:x.path,str:FILES.error};}
+      if(cfg.repCallErr&&b===succ){had.call=1;return {name:x.path,str:FILES.call};}    // старый success -> наш новый
+      if(cfg.repCallErr&&b===errn){had.error=1;return {name:x.path,str:FILES.error};}
       if(b==="ywbackfix.js"){had.yw=1;return {name:x.path,str:YWBACKFIX_JS};}
       if(genPhp&&b==="order.php"){had.php=1;return {name:x.path,str:FILES.orderphp};}   // патчим свой order.php (shakes/hamsters)
       return x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes};
     });
-    if(cfg.repCallErr&&!had.call)  out.push({name:"call.html",str:FILES.call});
-    if(cfg.repCallErr&&!had.error) out.push({name:"error.html",str:FILES.error});
+    if(cfg.repCallErr&&!had.call)  out.push({name:cfg.successName,str:FILES.call});
+    if(cfg.repCallErr&&!had.error) out.push({name:cfg.errorName,str:FILES.error});
     if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});
     if(genPhp&&!had.php) out.push({name:"order.php",str:FILES.orderphp});
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
-    var files=[{name:cfg.mainExt==="php"?"index.php":"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}];
+    var files=[{name:cfg.mainExt==="php"?"index.php":"index.html",str:FILES.index},{name:cfg.successName,str:FILES.call},{name:cfg.errorName,str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}];
     if(genPhp) files.push({name:"order.php",str:FILES.orderphp});
     dl(zipName(cfg),makeZip(files),"application/zip");
   }
@@ -1888,8 +1893,8 @@ function downloadChestZip(){
   if(!FILES.chest){ alert("Не удалось собрать сундук."); return; }
   var out=[
     {name:"index.html",str:FILES.chest},
-    {name:"call.html",str:FILES.call},
-    {name:"error.html",str:FILES.error}
+    {name:cfg.successName,str:FILES.call},
+    {name:cfg.errorName,str:FILES.error}
     // js/ywbackfix.js в сундук НЕ кладём — back-fix там не нужен
   ];
   if(cfg.mode==="php" && FILES.orderphp) out.push({name:"order.php",str:FILES.orderphp});   // серверный прокси shakes и для сундука
