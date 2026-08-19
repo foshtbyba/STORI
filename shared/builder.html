@@ -1128,28 +1128,14 @@ function limonadErrorPhp(cfg){
 // страницы спасибо/ошибки: для limonad — свои .php-генераторы, иначе обычные call/error
 function successFile(cfg){ return cfg.pageGen==="limonad"?limonadSuccessPhp(cfg):buildCall(cfg); }
 function errorFile(cfg){ return cfg.pageGen==="limonad"?limonadErrorPhp(cfg):buildError(cfg); }
-// патч загруженного lemon.php под наши имена файлов (редиректы index.php -> index.html)
-// + защита от «белого экрана»: буферизуем вывод (ob_start), глушим вывод ошибок и ставим таймзону,
-//   чтобы любой случайный warning/notice ДО header('Location') не ломал редирект («headers already sent»).
-var HANDLER_HARDEN="@ini_set('display_errors','0'); error_reporting(0); if(!ini_get('date.timezone')){ @date_default_timezone_set('UTC'); } if(!headers_sent()){ @ob_start(); }";
-// безопасно вставить hardening: ПОСЛЕ <?php и ПОСЛЕ ведущих declare()/namespace/use
-// (они по правилам PHP обязаны идти первыми — вставка перед ними = фатал = белый экран).
-function injectHarden(str){
-  var re=/<\?php\b/i, m=re.exec(str);
-  if(!m) return "<?php "+HANDLER_HARDEN+" ?>\n"+str;               // вообще без <?php — оборачиваем
-  var pos=m.index+m[0].length;
-  // пропускаем пробелы/комментарии/declare/namespace/use сразу после <?php
-  var tail=str.slice(pos);
-  var lead=/^(?:\s+|\/\*[\s\S]*?\*\/|\/\/[^\n]*\n|#[^\n]*\n|declare\s*\([^)]*\)\s*;|namespace\s+[^;{]+;|use\s+[^;]+;)*/i.exec(tail);
-  var skip=lead?lead[0].length:0;
-  return str.slice(0,pos+skip)+"\n"+HANDLER_HARDEN+"\n"+str.slice(pos+skip);
-}
+// патч загруженного lemon.php под наши имена файлов (редиректы index.php -> index.html).
+// ВАЖНО: код внутрь lemon.php НЕ вставляем (никаких ob_start/error_reporting) — на живом сервере это ломало
+// редирект/давало белый экран. Оригинальный lemon.php оффера работает как есть, только чиним имена редиректов.
 function patchHandlerFile(str, cfg){
   if(!str) return str;
   str=str.replace(/^﻿/,"");                       // убираем UTF-8 BOM (иначе вывод ДО <?php -> headers already sent)
   str=str.replace(/^[\s﻿]+(?=<\?php\b)/i,"");     // убираем пустые строки/пробелы ПЕРЕД <?php
   if(cfg.mainExt!=="php") str=str.replace(/(['"])index\.php\1/g,"$1index.html$1");   // ленд у нас index.html
-  if(!/@?ob_start\s*\(/.test(str)) str=injectHarden(str);   // hardening (буфер вывода) — чтобы редирект всегда срабатывал
   return str;
 }
 // распознаём типовые «страницы спасибо/ошибки» по имени (call.html, error.html, success.php, thanks.html …).
