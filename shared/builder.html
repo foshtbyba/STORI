@@ -1513,21 +1513,8 @@ var UP_HANDLER={name:"",bytes:null,str:""};   // загруженный обра
 function handlerLoaded(){ return !!(UP_HANDLER && UP_HANDLER.bytes && UP_HANDLER.bytes.length); }
 // zip-элемент обработчика: всегда сырые байты (без единой правки)
 function handlerEntry(name){ return {name:name, bytes:UP_HANDLER.bytes}; }
-// сохранить/восстановить загруженный lemon.php между перезагрузками страницы и сменой папки — чтобы не слетал
-function saveHandlerLS(){
-  try{
-    if(handlerLoaded()){ var b=UP_HANDLER.bytes, s=""; for(var i=0;i<b.length;i++) s+=String.fromCharCode(b[i]);
-      localStorage.setItem("up_handler", JSON.stringify({name:UP_HANDLER.name, orig:UP_HANDLER.orig||"", b64:btoa(s)})); }
-    else localStorage.removeItem("up_handler");
-  }catch(e){}
-}
-function restoreHandlerLS(){
-  try{ var raw=localStorage.getItem("up_handler"); if(!raw) return;
-    var o=JSON.parse(raw); if(!o||!o.b64) return;
-    var bin=atob(o.b64), arr=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
-    UP_HANDLER={name:o.name||"lemon.php", orig:o.orig||"", bytes:arr, str:bin};
-  }catch(e){}
-}
+// ВАЖНО: держим lemon.php только В ПАМЯТИ ТЕКУЩЕЙ СЕССИИ (не сохраняем на диск/localStorage).
+// В сессии не слетает (пересборка, смена папки), но при открытии нового файла билдера с нуля — просит загрузить заново.
 function renderHandlerState(){
   var drop=document.getElementById("handlerDrop"), t=document.getElementById("handlerDropT"),
       s=document.getElementById("handlerDropS"), badge=document.getElementById("handlerBadge"),
@@ -2098,16 +2085,16 @@ function showTopToast(msg,isErr){
       var buf=new Uint8Array(await f.arrayBuffer());                 // СЫРЫЕ байты — кладём как есть, ничего не меняем
       var bin=""; for(var i=0;i<buf.length;i++) bin+=String.fromCharCode(buf[i]);
       UP_HANDLER={name:(cfg.needFile||"lemon.php"), orig:f.name, bytes:buf, str:bin};
-      saveHandlerLS(); renderHandlerState();
+      renderHandlerState();
       try{ build(); }catch(_){}
     });
   }
   var hclr=document.getElementById("handlerClear");
   if(hclr){ hclr.addEventListener("click",function(e){ e.preventDefault();
     UP_HANDLER={name:"",bytes:null,str:""}; var hf=document.getElementById("handlerFile"); if(hf) hf.value="";
-    saveHandlerLS(); renderHandlerState(); try{ build(); }catch(_){}
+    renderHandlerState(); try{ build(); }catch(_){}
   }); }
-  restoreHandlerLS(); renderHandlerState();   // восстановить ранее загруженный lemon.php (не слетает между перезагрузками)
+  renderHandlerState();   // стартовое состояние (в новой сессии lemon.php не загружен -> просит загрузить)
   var cfi=document.getElementById("chestFolder");
   if(cfi){
     cfi.addEventListener("change",function(e){ loadChestFolder(Array.prototype.map.call(e.target.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};})); });
