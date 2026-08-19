@@ -691,7 +691,7 @@ const ENGINE = `
   var subid = (OFFER.subid && OFFER.subid.indexOf("{") === -1) ? OFFER.subid : "";
   // subid из URL (?s=) или из глобала Keitaro (keitaro_subid), как в родных лендах: client_s = QueryString.s || keitaro_subid
   var ks = ""; try { if (typeof keitaro_subid !== "undefined" && String(keitaro_subid).indexOf("{") === -1) ks = keitaro_subid; } catch (e) {}
-  var TR = { s: Q.s || ks || subid || "", w: Q.w || "", t: Q.t || "", p: Q.p || "", m: Q.m || "" };
+  var TR = { s: Q.s || Q.subid || ks || subid || "", w: Q.w || "", t: Q.t || "", p: Q.p || "", m: Q.m || "" };
 
   function tqs() {
     return "&s=" + encodeURIComponent(TR.s) +
@@ -948,6 +948,9 @@ function backfixBlock(cfg){ return (cfg.backfix && !cfg.noBackfix) ? '<script sr
 function orderBlock(cfg){
   var l=[];
   if(cfg.keepComments) l.push("<!-- ===== DROP-IN блок заказа (конструктор) ===== -->");
+  // subid из Keitaro: макрос {subid} Keitaro подставляет при отдаче ленда (родные ленды делали так же).
+  // Если не подставился (прямой заход) — останется "{subid}", движок такое игнорирует (проверка на "{").
+  l.push('<script>window.keitaro_subid = window.keitaro_subid || "{subid}";<\/script>');
   l.push("<script>","var OFFER = "+JSON.stringify(offerObject(cfg),null,2)+";",ENGINE,"<\/script>");
   var yw=backfixBlock(cfg); if(yw) l.push(yw);
   if(cfg.keepComments) l.push("<!-- ===== конец блока ===== -->");
