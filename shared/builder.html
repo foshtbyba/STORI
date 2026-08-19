@@ -1132,14 +1132,24 @@ function errorFile(cfg){ return cfg.pageGen==="limonad"?limonadErrorPhp(cfg):bui
 // + защита от «белого экрана»: буферизуем вывод (ob_start), глушим вывод ошибок и ставим таймзону,
 //   чтобы любой случайный warning/notice ДО header('Location') не ломал редирект («headers already sent»).
 var HANDLER_HARDEN="@ini_set('display_errors','0'); error_reporting(0); if(!ini_get('date.timezone')){ @date_default_timezone_set('UTC'); } if(!headers_sent()){ @ob_start(); }";
+// безопасно вставить hardening: ПОСЛЕ <?php и ПОСЛЕ ведущих declare()/namespace/use
+// (они по правилам PHP обязаны идти первыми — вставка перед ними = фатал = белый экран).
+function injectHarden(str){
+  var re=/<\?php\b/i, m=re.exec(str);
+  if(!m) return "<?php "+HANDLER_HARDEN+" ?>\n"+str;               // вообще без <?php — оборачиваем
+  var pos=m.index+m[0].length;
+  // пропускаем пробелы/комментарии/declare/namespace/use сразу после <?php
+  var tail=str.slice(pos);
+  var lead=/^(?:\s+|\/\*[\s\S]*?\*\/|\/\/[^\n]*\n|#[^\n]*\n|declare\s*\([^)]*\)\s*;|namespace\s+[^;{]+;|use\s+[^;]+;)*/i.exec(tail);
+  var skip=lead?lead[0].length:0;
+  return str.slice(0,pos+skip)+"\n"+HANDLER_HARDEN+"\n"+str.slice(pos+skip);
+}
 function patchHandlerFile(str, cfg){
   if(!str) return str;
+  str=str.replace(/^﻿/,"");                       // убираем UTF-8 BOM (иначе вывод ДО <?php -> headers already sent)
+  str=str.replace(/^[\s﻿]+(?=<\?php\b)/i,"");     // убираем пустые строки/пробелы ПЕРЕД <?php
   if(cfg.mainExt!=="php") str=str.replace(/(['"])index\.php\1/g,"$1index.html$1");   // ленд у нас index.html
-  // вставляем hardening сразу после открывающего <?php (одна строка, ничего в OFFER_ID/токене/API не трогаем)
-  if(!/ob_start\s*\(/.test(str)){
-    if(/<\?php/i.test(str)) str=str.replace(/<\?php/i,function(m){return m+"\n"+HANDLER_HARDEN;});
-    else str="<?php "+HANDLER_HARDEN+" ?>\n"+str;
-  }
+  if(!/@?ob_start\s*\(/.test(str)) str=injectHarden(str);   // hardening (буфер вывода) — чтобы редирект всегда срабатывал
   return str;
 }
 // распознаём типовые «страницы спасибо/ошибки» по имени (call.html, error.html, success.php, thanks.html …).
@@ -1979,6 +1989,7 @@ function downloadChestZip(){
     // js/ywbackfix.js в сундук НЕ кладём — back-fix там не нужен
   ];
   if(cfg.mode==="php" && FILES.orderphp) out.push({name:"order.php",str:FILES.orderphp});   // серверный прокси shakes и для сундука
+  var nf=(cfg.needFile||"").toLowerCase(), hadHandler=false;
   if(CHEST_FOLDER){
     var pres={}; out.forEach(function(f){pres[f.name]=1;});
     CHEST_FOLDER.files.forEach(function(f){
@@ -1987,9 +1998,11 @@ function downloadChestZip(){
       if(baseName(f.path).toLowerCase()==="ywbackfix.js") return;  // back-fix в сундук не тащим
       if(cfg.mode==="php" && baseName(f.path).toLowerCase()==="order.php") return;  // свой order.php уже добавлен
       if(pres[f.path]) return;
+      if(nf && baseName(f.path).toLowerCase()===nf){ hadHandler=true; out.push({name:f.path,str:UP_HANDLER.str||patchHandlerFile(f.str,cfg)}); return; }  // lemon.php: тот же пропатченный/hardened, что и в ленде
       out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes});
     });
   }
+  if(cfg.needFile && UP_HANDLER.str && !hadHandler) out.push({name:cfg.needFile,str:UP_HANDLER.str});   // lemon.php только загружен -> тоже кладём в сундук
   dl(safeName(cfg.brand)+(cfg.langCode?("_"+cfg.langCode.toLowerCase()):"")+"_chest.zip", makeZip(out), "application/zip");
 }
 
