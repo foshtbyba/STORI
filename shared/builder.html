@@ -142,8 +142,10 @@
       <label>Партнёрка (API приёма заказов)</label>
       <select id="partner"></select>
       <div class="hint" id="partnerHint"></div>
-      <label id="pidLabel">ID оффера (product_id) *</label>
-      <input id="product_id" placeholder="ID оффера из кабинета партнёрки">
+      <div id="pidWrap">
+        <label id="pidLabel">ID оффера (product_id) *</label>
+        <input id="product_id" placeholder="ID оффера из кабинета партнёрки">
+      </div>
       <div class="row">
         <div id="langWrap"><label>Код гео (langCode) *</label><input id="langCode" placeholder="be · fr · cr · pk…"></div>
         <div id="partnerCell">
@@ -673,6 +675,10 @@ const PARTNERS = {
   "hamsters.run": { label:"hamsters.run",
     php:{ gen:"hamsters", subField:"subid", country:false, landing:false, stream:false, idLabel:"OFFER_KEY (key_hash)" },
     hint:"Серверный order.php (генерируется): форма постит на него, лид уходит на hamsters.run/api/leads/set. Впиши OFFER_KEY (ключ оффера, 16 символов) в поле ниже. api_key/ref/страна не нужны." },
+  "limonad.com": { label:"limonad.com",
+    php:{ gen:"", action:"lemon.php", subField:"clickid", noId:true, mainExt:"php", country:false, landing:false, stream:false,
+      extraHidden:'<input type="hidden" name="utm_campaign" value="">\n        <input type="hidden" name="utm_content" value="">\n        <input type="hidden" name="utm_medium" value="">\n        <input type="hidden" name="utm_source" value="">\n        <input type="hidden" name="utm_term" value="">\n        <input type="hidden" name="fbpxl" value="">\n' },
+    hint:"Форма постит на lemon.php. ВАЖНО: файлы lemon.php и success.php бери из архива оффера limonad и клади в папку ленда — конструктор их НЕ генерит. Главный файл сохраняется как index.php. subid идёт в поле clickid. ID оффера/ключи не нужны (они в lemon.php)." },
   "custom": { label:"Другая (вручную)", mode:"js", endpoint:"", okField:"result", okValue:"ok", idField:"id",
     ref:"", api_key:"",
     hint:"Заполни endpoint/ref/api_key/okField под свою партнёрку." }
@@ -1094,17 +1100,18 @@ function phpSubidScript(cfg){
 }
 // режим php: форму заказа шлём нативно на order.php + скрытое поле subid (имя зависит от партнёрки) (+ country для shakes)
 function wireOrderPhpForm(cfg, html){
-  var sf=cfg.subField||"sub1";
-  var hidden='<input type="hidden" name="'+sf+'" value="{subid}">\n';
-  if(cfg.phpCountry) hidden+='<input type="hidden" name="country" value="'+shakesCountry(cfg)+'">\n';
-  var stripRe=new RegExp('<input[^>]*name=["\\\'](?:'+sf+'|sub1|subid|country)["\\\'][^>]*>\\s*','gi');
+  var sf=cfg.subField||"sub1", action=cfg.phpAction||"order.php";
+  var hidden='<input type="hidden" name="'+sf+'" value="{subid}">\n        ';
+  if(cfg.phpCountry) hidden+='<input type="hidden" name="country" value="'+shakesCountry(cfg)+'">\n        ';
+  if(cfg.phpExtraHidden) hidden+=cfg.phpExtraHidden;
+  var stripRe=/<input[^>]*name=["'](?:sub1|subid|clickid|country|utm_[a-z]+|fbpxl?)["'][^>]*>\s*/gi;
   return html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
     if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа (декоративные оставляем)
     attrs=attrs.replace(/\s(?:action|method|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"").replace(/\sdata-order-form\b/gi,"");
     // класс order_form (гайд shakes: за него цепляется countries.js, если подключён)
     if(/\bclass\s*=\s*["']/i.test(attrs)) attrs=attrs.replace(/(\bclass\s*=\s*["'])([^"']*)(["'])/i,function(m2,a,c,z){ return /\border_form\b/.test(c)?m2:a+(c?c+" ":"")+"order_form"+z; });
     else attrs=' class="order_form"'+attrs;
-    attrs=' action="order.php" method="post"'+attrs;
+    attrs=' action="'+action+'" method="post"'+attrs;
     var body=inner;
     if(!/name=["']name["']/i.test(body)) body=body.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i,'<input name="name"$1>');
     if(!/name=["']phone["']/i.test(body)) body=body.replace(/<input\b([^>]*type=["']tel["'][^>]*)>/i,function(mm,a){return /name=/.test(a)?mm:'<input name="phone" '+a+'>';});
@@ -1247,8 +1254,9 @@ function buildChest(cfg){var t=cfg.t,was=doubleCalc(cfg.price).full,now=cfg.pric
   var formOpen, orderTail;
   if(isPhp){
     var sf=cfg.subField||"sub1";
-    formOpen='<form id="order_form" class="order_form" action="order.php" method="post">\n        <input type="hidden" name="'+sf+'" value="{subid}">';
+    formOpen='<form id="order_form" class="order_form" action="'+(cfg.phpAction||"order.php")+'" method="post">\n        <input type="hidden" name="'+sf+'" value="{subid}">';
     if(cfg.phpCountry) formOpen+='\n        <input type="hidden" name="country" value="'+shakesCountry(cfg)+'">';
+    if(cfg.phpExtraHidden) formOpen+='\n        '+cfg.phpExtraHidden.trim();
     orderTail=phpSubidScript(cfg); var yw=backfixBlock(cfg); if(yw) orderTail+="\n"+yw;   // ловля subid (+ back-fix, если не сундук)
   } else {
     formOpen='<form id="order_form" data-order-form method="POST" action="">';
@@ -1614,6 +1622,7 @@ function readCfg(){
   var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value, php=pk.php||null;
   return {mode:php?"php":(pk.mode||"js"),partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
     phpGen:php?php.gen:"",subField:php?php.subField:"",phpCountry:!!(php&&php.country),phpLanding:!!(php&&php.landing),phpStream:!!(php&&php.stream),
+    phpAction:php?(php.action||"order.php"):"",phpNoId:!!(php&&php.noId),mainExt:php?(php.mainExt||"html"):"html",phpExtraHidden:php?(php.extraHidden||""):"",
     endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
@@ -1629,7 +1638,7 @@ var FILES={};
 function build(){
   var cfg=readCfg(),st=document.getElementById("status");
   var need;
-  if(cfg.mode==="php"){ need=["product_id"]; if(cfg.phpCountry)need.push("country"); if(cfg.phpLanding)need.push("landingUrl"); }
+  if(cfg.mode==="php"){ need=[]; if(!cfg.phpNoId)need.push("product_id"); if(cfg.phpCountry)need.push("country"); if(cfg.phpLanding)need.push("landingUrl"); }
   else need=["product_id","ref","api_key","langCode"];
   var miss=need.filter(function(k){return !cfg[k];});
   if(cfg.pxOn && !cfg.pxid) { /* динамический пиксель — норм */ }
@@ -1644,7 +1653,7 @@ function build(){
   } else {
     FILES={index:buildIndex(cfg),call:buildCall(cfg),error:buildError(cfg),chest:chestFromCfg(cfg)};
   }
-  FILES.orderphp=(cfg.mode==="php")?orderPhpFor(cfg):"";
+  FILES.orderphp=(cfg.mode==="php" && cfg.phpGen)?orderPhpFor(cfg):"";   // limonad handler (lemon.php) не генерим — он из архива оффера
   if(miss.length){st.className="status warn";st.textContent="Заполни обязательные: "+miss.join(", ");}
   else{st.className="status ok";st.textContent=(MODE==="folder"?"Готово ✓ Папка: index пропатчен, call/error заменены":"Готово ✓")+(cfg.pxOn?" · Meta Pixel вставлен ("+(cfg.pxid||"динамический {fbpx}")+", конверсия "+cfg.pxev+")":"");}
   showTab(currentTab);
@@ -1844,7 +1853,8 @@ async function loadChestFolder(items){
 function downloadZip(){
   if(!FILES.index)build();
   var cfg=readCfg();
-  var isPhp=(cfg.mode==="php");
+  var isPhp=(cfg.mode==="php"), genPhp=isPhp&&!!FILES.orderphp;
+  function idxName(p){ return cfg.mainExt==="php" ? p.replace(/index\.html?$/i,"index.php") : p; }   // limonad -> index.php
   if(MODE==="folder"&&FOLDER){
     var had={};
     var out=FOLDER.files.filter(function(x){
@@ -1853,21 +1863,21 @@ function downloadZip(){
       return true;
     }).map(function(x){
       var b=baseName(x.path).toLowerCase();
-      if(x.path===FOLDER.indexPath) return {name:x.path,str:FILES.index};
+      if(x.path===FOLDER.indexPath) return {name:idxName(x.path),str:FILES.index};
       if(cfg.repCallErr&&b==="call.html"){had.call=1;return {name:x.path,str:FILES.call};}
       if(cfg.repCallErr&&b==="error.html"){had.error=1;return {name:x.path,str:FILES.error};}
       if(b==="ywbackfix.js"){had.yw=1;return {name:x.path,str:YWBACKFIX_JS};}
-      if(isPhp&&b==="order.php"){had.php=1;return {name:x.path,str:FILES.orderphp};}   // патчим свой order.php
+      if(genPhp&&b==="order.php"){had.php=1;return {name:x.path,str:FILES.orderphp};}   // патчим свой order.php (shakes/hamsters)
       return x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes};
     });
     if(cfg.repCallErr&&!had.call)  out.push({name:"call.html",str:FILES.call});
     if(cfg.repCallErr&&!had.error) out.push({name:"error.html",str:FILES.error});
     if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});
-    if(isPhp&&!had.php) out.push({name:"order.php",str:FILES.orderphp});
+    if(genPhp&&!had.php) out.push({name:"order.php",str:FILES.orderphp});
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
-    var files=[{name:"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}];
-    if(isPhp) files.push({name:"order.php",str:FILES.orderphp});
+    var files=[{name:cfg.mainExt==="php"?"index.php":"index.html",str:FILES.index},{name:"call.html",str:FILES.call},{name:"error.html",str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}];
+    if(genPhp) files.push({name:"order.php",str:FILES.orderphp});
     dl(zipName(cfg),makeZip(files),"application/zip");
   }
 }
@@ -1948,6 +1958,7 @@ function showTopToast(msg,isErr){
     document.getElementById("apiKeyWrap").style.display=manual?"block":"none";
     document.getElementById("countryWrap").style.display=needCountry?"block":"none";
     document.getElementById("phpFields").style.display=(needLanding||needStream)?"block":"none";
+    document.getElementById("pidWrap").style.display=(php&&php.noId)?"none":"block";   // limonad: id оффера не нужен (он в lemon.php)
     // если в правой ячейке ряда ничего не показано (m1/hamsters) — «Код гео» на всю ширину, без пустого места
     var cellUsed=manual||needCountry;
     document.getElementById("partnerCell").style.display=cellUsed?"":"none";
