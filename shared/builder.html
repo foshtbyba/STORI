@@ -1543,18 +1543,19 @@ function imgTile(x, container){
   container.appendChild(tile);
 }
 function refreshFolder(){ renderFileList(); renderImages(); renderCleanup(); }
-function renameAsset(x, newBase){
+function renameAsset(x, newBase, F){
+  F=F||FOLDER;
   newBase=(newBase||"").trim().replace(/[\\/]/g,""); if(!newBase) return;
   var old=baseName(x.path); if(newBase===old) return;
   var dir=x.path.slice(0,x.path.length-old.length), np=dir+newBase;
-  if(FOLDER.files.some(function(f){return f!==x && f.path===np;})){ alert("Файл с таким именем уже есть: "+np); return; }
+  if(F.files.some(function(f){return f!==x && f.path===np;})){ alert("Файл с таким именем уже есть: "+np); return; }
   // обновляем ссылки, но только когда имя стоит как целый файл (не подстрока другого имени)
   var esc=old.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
   var re=new RegExp("([\\/\"'(=\\s])"+esc+"(?=[\"'?)\\s]|$)","g");
   var cnt=0;
-  FOLDER.files.forEach(function(f){ if(f.kind==="text"){ var c=(f.str.match(re)||[]).length; if(c){ cnt+=c; f.str=f.str.replace(re,"$1"+newBase); } } });
+  F.files.forEach(function(f){ if(f.kind==="text"){ var c=(f.str.match(re)||[]).length; if(c){ cnt+=c; f.str=f.str.replace(re,"$1"+newBase); } } });
   x.path=np; x.renamed=true;
-  refreshFolder();
+  if(F===FOLDER) refreshFolder(); else if(F===CHEST_FOLDER) renderChestList();
   var st=document.getElementById("status"); st.className="status ok"; st.textContent="Переименовано: "+old+" → "+newBase+" (ссылок обновлено: "+cnt+")";
 }
 function renderImages(){
@@ -1675,9 +1676,10 @@ function renderPreview(target){
   var keepScroll=null;
   if(PREVIEW_TARGET===target){ try{ var cw0=prev.contentWindow; if(cw0) keepScroll={x:cw0.scrollX||0,y:cw0.scrollY||0}; }catch(e){} }
   PREVIEW_TARGET=target;
-  // для сундука ассеты берём из его папки (если есть) + папки ленда; редактирование фото — только на ленде
+  // для сундука ассеты берём из его папки (если есть) + папки ленда; фото можно менять и на ленде, и в сундуке
   var srcFiles=(target==="chest"&&CHEST_FOLDER&&CHEST_FOLDER.files.length)?CHEST_FOLDER.files.concat(FOLDER?FOLDER.files:[]):(FOLDER?FOLDER.files:[]);
-  var editable=(target==="index");
+  var editable=(target==="index"||target==="chest");
+  var editExt=(target==="index");   // внешние (CDN) картинки заменяем только на ленде
   prev.onload=function(){
     try{
       var d=prev.contentDocument; if(!d) return;
@@ -1688,7 +1690,7 @@ function renderPreview(target){
         if(/^data:/i.test(raw)) return;
         var f=look(raw);
         if(f&&IMG_EXT.test(f.path)){ im.src=toDataURL(f); if(editable) im.setAttribute("data-asset",f.path); }
-        else if(editable && /^https?:\/\//i.test(raw)){ im.setAttribute("data-ext",raw); }
+        else if(editExt && /^https?:\/\//i.test(raw)){ im.setAttribute("data-ext",raw); }
       });
       d.querySelectorAll("source").forEach(function(so){ var f=look(so.getAttribute("srcset")); if(f&&IMG_EXT.test(f.path)){ so.setAttribute("srcset",toDataURL(f)); } });
       // url(...) внутри css -> data-uri (фоны, картинки блоков, шрифты) — иначе превью «беднее» оригинала
@@ -1766,14 +1768,22 @@ function highlightTile(path){
   document.querySelectorAll(".imgtile.sel").forEach(function(el){el.classList.remove("sel");});
   tile.classList.add("sel"); // выделяем плитку, но НЕ прокручиваем — редактируем прямо в превью
 }
+// владелец ассета: в превью сундука ищем в CHEST_FOLDER, иначе в папке ленда
+function assetOwner(path){
+  if(PREVIEW_TARGET==="chest" && CHEST_FOLDER){ var c=CHEST_FOLDER.files.filter(function(f){return f.path===path;})[0]; if(c) return {x:c, F:CHEST_FOLDER, chest:true}; }
+  if(FOLDER){ var x=FOLDER.files.filter(function(f){return f.path===path;})[0]; if(x) return {x:x, F:FOLDER, chest:false}; }
+  if(CHEST_FOLDER){ var c2=CHEST_FOLDER.files.filter(function(f){return f.path===path;})[0]; if(c2) return {x:c2, F:CHEST_FOLDER, chest:true}; }
+  return null;
+}
+function refreshAfterAsset(o){ if(o.chest){ renderChestList(); build(); showTab("cpreview"); } else { refreshFolder(); build(); showTab("preview"); } }
 function replaceAssetPrompt(path){
-  var x=assetByPath(path); if(!x) return;
-  pickFile(async function(f){ x.bytes=new Uint8Array(await f.arrayBuffer()); x.kind="bin"; x.replaced=true; delete x.str; refreshFolder(); build(); showTab("preview"); });
+  var o=assetOwner(path); if(!o) return;
+  pickFile(async function(f){ o.x.bytes=new Uint8Array(await f.arrayBuffer()); o.x.kind="bin"; o.x.replaced=true; delete o.x.str; refreshAfterAsset(o); });
 }
 function renameAssetPrompt(path){
-  var x=assetByPath(path); if(!x) return;
-  var nn=window.prompt("Новое имя файла (ссылки в коде обновятся автоматически):", baseName(x.path));
-  if(nn){ renameAsset(x,nn); build(); showTab("preview"); }
+  var o=assetOwner(path); if(!o) return;
+  var nn=window.prompt("Новое имя файла (ссылки в коде обновятся автоматически):", baseName(o.x.path));
+  if(nn){ renameAsset(o.x,nn,o.F); refreshAfterAsset(o); }
 }
 function removeAssetMenu(){var m=document.getElementById("assetMenu");if(m)m.remove();}
 function showAssetMenu(px,py,path){
