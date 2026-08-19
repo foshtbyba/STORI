@@ -166,17 +166,14 @@
       </div>
       <div id="handlerFields" style="display:none">
         <label id="handlerLabel">Файл обработчика (lemon.php) *</label>
-        <label class="drop" for="handlerFile" id="handlerDrop" style="padding:14px">
+        <label class="drop" for="handlerFile" id="handlerDrop" style="padding:14px;position:relative">
+          <b class="x" id="handlerClear" title="Убрать файл" style="position:absolute;top:8px;right:10px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.32);color:#fff;font-size:12px;display:none;align-items:center;justify-content:center;line-height:1;cursor:pointer;z-index:2">✕</b>
           <div class="ic">🍋</div>
           <div class="t" id="handlerDropT">Загрузи lemon.php</div>
-          <div class="s" id="handlerDropS">свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся в сборку как есть, байт-в-байт.</div>
+          <div class="s" id="handlerDropS">свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся как есть.</div>
           <input id="handlerFile" type="file" accept=".php">
         </label>
-        <div id="handlerBadge" style="display:none;margin-top:8px;padding:10px 12px;border:1.5px solid #1e8449;background:#eafaf1;border-radius:10px;color:#14663a;font-weight:700;display:none;align-items:center;justify-content:space-between;gap:10px">
-          <span id="handlerBadgeT">✓ lemon.php добавлен</span>
-          <a id="handlerClear" href="#" style="color:#c0392b;font-weight:700;text-decoration:none;font-size:13px;white-space:nowrap">✕ убрать</a>
-        </div>
-        <div class="hint">⚠ <b>lemon.php у каждого оффера свой</b> (внутри его OFFER_ID и токен). Загружай новый под каждый оффер. Файл кладётся в сборку <b>без изменений</b> (мы его не трогаем). success.php/error.php генерятся сами.</div>
+        <div class="hint">⚠ <b>lemon.php у каждого оффера свой</b> (внутри его OFFER_ID и токен). Загружай новый под каждый оффер. Файл кладётся в сборку <b>без изменений</b>. success.php/error.php генерятся сами.</div>
       </div>
       <div id="apiKeyWrap">
         <label>API-ключ вебмастера (api_key) 🔒</label>
@@ -1517,21 +1514,19 @@ function handlerEntry(name){ return {name:name, bytes:UP_HANDLER.bytes}; }
 // В сессии не слетает (пересборка, смена папки), но при открытии нового файла билдера с нуля — просит загрузить заново.
 function renderHandlerState(){
   var drop=document.getElementById("handlerDrop"), t=document.getElementById("handlerDropT"),
-      s=document.getElementById("handlerDropS"), badge=document.getElementById("handlerBadge"),
-      bt=document.getElementById("handlerBadgeT");
+      s=document.getElementById("handlerDropS"), clr=document.getElementById("handlerClear");
   if(!t) return;
   if(handlerLoaded()){
-    var kb=(UP_HANDLER.bytes.length/1024).toFixed(1), nm=UP_HANDLER.orig||UP_HANDLER.name||"lemon.php";
-    t.textContent="✓ файл добавлен";
+    var nm=UP_HANDLER.orig||UP_HANDLER.name||"lemon.php";
+    t.textContent="✓ "+nm+" добавлен";
     if(s) s.textContent="нажми, чтобы заменить другим lemon.php";
-    if(drop){ drop.style.borderColor="#1e8449"; drop.style.background="#eafaf1"; }
-    if(badge){ badge.style.display="flex"; }
-    if(bt) bt.textContent="✓ "+nm+" добавлен · "+kb+" КБ · кладётся как есть";
+    if(drop){ drop.style.borderColor="#a9d8bf"; drop.style.background="#f4faf6"; }   // мягкий зелёный
+    if(clr) clr.style.display="flex";
   } else {
     t.textContent="Загрузи lemon.php";
-    if(s) s.textContent="свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся в сборку как есть, байт-в-байт.";
+    if(s) s.textContent="свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся как есть.";
     if(drop){ drop.style.borderColor=""; drop.style.background=""; }
-    if(badge){ badge.style.display="none"; }
+    if(clr) clr.style.display="none";
   }
 }
 var TEXT_EXT=/\.(html?|css|js|json|svg|txt|xml|webmanifest|map)$/i;
@@ -2090,7 +2085,7 @@ function showTopToast(msg,isErr){
     });
   }
   var hclr=document.getElementById("handlerClear");
-  if(hclr){ hclr.addEventListener("click",function(e){ e.preventDefault();
+  if(hclr){ hclr.addEventListener("click",function(e){ e.preventDefault(); e.stopPropagation();   // не открывать диалог выбора файла
     UP_HANDLER={name:"",bytes:null,str:""}; var hf=document.getElementById("handlerFile"); if(hf) hf.value="";
     renderHandlerState(); try{ build(); }catch(_){}
   }); }
