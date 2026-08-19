@@ -164,6 +164,16 @@
         </div>
         <div class="hint">shakes: форма постит на серверный <b>order.php</b> (генерируется автоматически с твоим ключом, <b>ID оффера</b>, <b>landingUrl</b> и страницами call/error). ref не нужен, <b>страна</b> — авто из «Код гео», <b>streamCode</b> — только для статистики. Хост должен поддерживать <b>PHP</b>. Загружай ленд <b>папкой</b>.</div>
       </div>
+      <div id="handlerFields" style="display:none">
+        <label id="handlerLabel">Файл обработчика (lemon.php) *</label>
+        <label class="drop" for="handlerFile" id="handlerDrop" style="padding:14px">
+          <div class="ic">🍋</div>
+          <div class="t" id="handlerDropT">Загрузи lemon.php</div>
+          <div class="s" id="handlerDropS">свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся в сборку, редиректы патчатся под наши файлы.</div>
+          <input id="handlerFile" type="file" accept=".php">
+        </label>
+        <div class="hint">⚠ <b>lemon.php у каждого оффера свой</b> (внутри его OFFER_ID и токен). Загружай новый под каждый оффер — конструктор не переиспользует старый. success.php/error.php генерятся сами.</div>
+      </div>
       <div id="apiKeyWrap">
         <label>API-ключ вебмастера (api_key) 🔒</label>
         <input id="api_key" placeholder="закреплён за партнёркой">
@@ -677,7 +687,7 @@ const PARTNERS = {
     hint:"Серверный order.php (генерируется): форма постит на него, лид уходит на hamsters.run/api/leads/set. Впиши OFFER_KEY (ключ оффера, 16 символов) в поле ниже. api_key/ref/страна не нужны." },
   "limonad.com": { label:"limonad.com",
     php:{ gen:"", action:"lemon.php", subField:"clickid", noId:true, country:false, landing:false, stream:false,
-      needFile:"lemon.php", successPage:"success.php", errorPage:"error.php",
+      needFile:"lemon.php", successPage:"success.php", errorPage:"error.php", pageGen:"limonad",
       extraHidden:'<input type="hidden" name="utm_campaign" value="">\n        <input type="hidden" name="utm_content" value="">\n        <input type="hidden" name="utm_medium" value="">\n        <input type="hidden" name="utm_source" value="">\n        <input type="hidden" name="utm_term" value="">\n        <input type="hidden" name="fbpxl" value="">\n' },
     hint:"Форма постит на lemon.php (index остаётся .html). ВАЖНО: файл lemon.php бери из архива оффера limonad и клади в папку ленда — конструктор его НЕ генерит (без него форма не отправит заказ). success.php и error.php конструктор генерит сам. subid идёт в поле clickid. ID оффера/ключи не нужны." },
   "custom": { label:"Другая (вручную)", mode:"js", endpoint:"", okField:"result", okValue:"ok", idField:"id",
@@ -1079,6 +1089,49 @@ function hamstersOrderPhp(cfg){
 }
 // какой order.php генерить под партнёрку
 function orderPhpFor(cfg){ return cfg.phpGen==="hamsters" ? hamstersOrderPhp(cfg) : shakesOrderPhp(cfg); }
+// FB-пиксель для success.php (limonad): id берётся из ?fbpxl или localStorage, срабатывает конверсия
+function limonadPixel(cfg){
+  if(!cfg.pxOn) return "";
+  var ev=(cfg.pxev||"Lead").replace(/[^A-Za-z]/g,""), pr=[];
+  if(cfg.pxval!=="" && !isNaN(parseFloat(cfg.pxval))) pr.push("value:"+parseFloat(cfg.pxval));
+  if(cfg.pxcur) pr.push("currency:'"+cfg.pxcur.replace(/[^A-Za-z]/g,"").toUpperCase()+"'");
+  var args="'"+ev+"'"+(pr.length?(",{"+pr.join(",")+"}"):"");
+  return "<script>\n"+
+"!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');\n"+
+"(function(){var p=new URLSearchParams(location.search).get('fbpxl');if(!p){try{p=localStorage.getItem('fb_pixel');}catch(e){}}if(p){fbq('init',p);fbq('track',"+args+");}})();\n"+
+"<\/script>";
+}
+// success.php для limonad: страница «спасибо» + пиксель по fbpxl + приветствие по $_GET['name'] (lemon.php шлёт ?name=&fbpxl=)
+function limonadSuccessPhp(cfg){
+  var t=cfg.t, dir=t.rtl?' dir="rtl"':'';
+  return '<!DOCTYPE html>\n<html lang="'+cfg.langCode+'"'+dir+'>\n<head>\n'+
+'<meta charset="utf-8">\n<title>'+esc(t.thanks)+'</title>\n'+
+'<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<meta name="robots" content="noindex, nofollow">\n'+
+'<style>'+THANKS_CSS+'</style>\n'+limonadPixel(cfg)+'\n</head>\n<body>\n'+
+'<div class="card">\n'+
+'  <div class="ic ok"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 8 16-16"/></svg></div>\n'+
+'  <h1>'+esc(t.thanks)+'</h1>\n'+
+"  <p><?php if (!empty($_GET['name'])): ?><b><?php echo htmlspecialchars($_GET['name'], ENT_QUOTES, 'UTF-8'); ?></b> — <?php endif; ?>"+esc(t.tl1)+'</p>\n'+
+'  <p class="muted">'+esc(t.tl2)+'</p>\n'+
+'</div>\n</body>\n</html>\n';
+}
+function limonadErrorPhp(cfg){
+  var t=cfg.t, dir=t.rtl?' dir="rtl"':'';
+  return '<!DOCTYPE html>\n<html lang="'+cfg.langCode+'"'+dir+'>\n<head>\n<meta charset="utf-8">\n<title>'+esc(t.errt)+'</title>\n'+
+'<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<style>'+THANKS_CSS+'</style>\n</head>\n<body>\n'+
+'<div class="card err">\n  <div class="ic err"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M26 15v16"/><path d="M26 37l.02 0"/></svg></div>\n'+
+'  <h1>'+esc(t.errt)+'</h1>\n  <p>'+esc(t.el1)+'</p>\n  <p class="muted">'+esc(t.el2)+'</p>\n'+
+'  <button class="retry" onclick="history.back()">'+esc(t.retry)+'</button>\n</div>\n</body>\n</html>\n';
+}
+// страницы спасибо/ошибки: для limonad — свои .php-генераторы, иначе обычные call/error
+function successFile(cfg){ return cfg.pageGen==="limonad"?limonadSuccessPhp(cfg):buildCall(cfg); }
+function errorFile(cfg){ return cfg.pageGen==="limonad"?limonadErrorPhp(cfg):buildError(cfg); }
+// патч загруженного lemon.php под наши имена файлов (редиректы index.php -> index.html)
+function patchHandlerFile(str, cfg){
+  if(!str) return str;
+  if(cfg.mainExt!=="php") str=str.replace(/(['"])index\.php\1/g,"$1index.html$1");   // ленд у нас index.html
+  return str;
+}
 // php-режим: заполнить скрытое sub1 меткой subid из URL (?s/?subid) или keitaro_subid — как надёжная ловля у m1.
 // Если ничего нет и стоит литерал {subid} (Keitaro не подставил) — чистим, чтобы не улетал мусор.
 function phpSubidScript(cfg){
@@ -1446,6 +1499,7 @@ function makeZip(files){
 /* ================= ПАПКА + КАРТИНКИ ================= */
 var FOLDER=null;
 var CHEST_FOLDER=null;
+var UP_HANDLER={name:"",str:""};   // загруженный обработчик (lemon.php) — свой под каждый оффер
 var TEXT_EXT=/\.(html?|css|js|json|svg|txt|xml|webmanifest|map)$/i;
 var IMG_EXT=/\.(png|jpe?g|webp|gif|svg|ico|avif|bmp)$/i;
 function baseName(p){return p.split("/").pop();}
@@ -1509,6 +1563,8 @@ function walkEntry(entry, path, out){
 async function loadFolder(items){
   var st=document.getElementById("status");
   st.className="status"; st.textContent="Читаю папку…";
+  UP_HANDLER={name:"",str:""};   // новая папка = возможно новый оффер: сбрасываем загруженный lemon.php
+  var _ht=document.getElementById("handlerDropT"); if(_ht) _ht.textContent="Загрузи lemon.php";
   try{ FOLDER=await ingest(items); renderFileList(); renderImages(); renderCleanup();
     var g=guessOfferImage(FOLDER); var imf=document.getElementById("image"); if(g && !imf.value.trim()) imf.value=g;
     st.className="status ok";
@@ -1624,7 +1680,7 @@ function readCfg(){
   return {mode:php?"php":(pk.mode||"js"),partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
     phpGen:php?php.gen:"",subField:php?php.subField:"",phpCountry:!!(php&&php.country),phpLanding:!!(php&&php.landing),phpStream:!!(php&&php.stream),
     phpAction:php?(php.action||"order.php"):"",phpNoId:!!(php&&php.noId),mainExt:php?(php.mainExt||"html"):"html",phpExtraHidden:php?(php.extraHidden||""):"",
-    needFile:php?(php.needFile||""):"",successName:(php&&php.successPage)||"call.html",errorName:(php&&php.errorPage)||"error.html",
+    needFile:php?(php.needFile||""):"",successName:(php&&php.successPage)||"call.html",errorName:(php&&php.errorPage)||"error.html",pageGen:php?(php.pageGen||""):"",
     endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
@@ -1650,16 +1706,17 @@ function build(){
     var idxFile=FOLDER.files.filter(function(x){return x.path===FOLDER.indexPath;})[0];
     cfg.html=idxFile.str;
     FILES.index=patchHtml(cfg,idxFile.str);
-    FILES.call=buildCall(cfg); FILES.error=buildError(cfg);
+    FILES.call=successFile(cfg); FILES.error=errorFile(cfg);
     FILES.chest=chestFromCfg(cfg);
   } else {
-    FILES={index:buildIndex(cfg),call:buildCall(cfg),error:buildError(cfg),chest:chestFromCfg(cfg)};
+    FILES={index:buildIndex(cfg),call:successFile(cfg),error:errorFile(cfg),chest:chestFromCfg(cfg)};
   }
   FILES.orderphp=(cfg.mode==="php" && cfg.phpGen)?orderPhpFor(cfg):"";   // limonad handler (lemon.php) не генерим — он из архива оффера
-  // проверка обязательного внешнего файла-обработчика (lemon.php для limonad)
-  var needFileMissing=cfg.needFile && !(MODE==="folder" && FOLDER && FOLDER.files.some(function(f){return baseName(f.path).toLowerCase()===cfg.needFile.toLowerCase();}));
+  // проверка обязательного внешнего файла-обработчика (lemon.php для limonad): в папке ИЛИ загружен отдельно
+  var inFolder=MODE==="folder" && FOLDER && FOLDER.files.some(function(f){return baseName(f.path).toLowerCase()===cfg.needFile.toLowerCase();});
+  var needFileMissing=cfg.needFile && !inFolder && !(UP_HANDLER.str && UP_HANDLER.name.toLowerCase()===cfg.needFile.toLowerCase());
   if(miss.length){st.className="status warn";st.textContent="Заполни обязательные: "+miss.join(", ");}
-  else if(needFileMissing){st.className="status warn";st.textContent="⚠ Нет файла "+cfg.needFile+" в папке! Возьми его из архива оффера "+PARTNERS[document.getElementById("partner").value].label+" и положи в папку ленда — без него форма не отправит заказ. Загружай ленд ПАПКОЙ.";}
+  else if(needFileMissing){st.className="status warn";st.textContent="⚠ Нет "+cfg.needFile+"! Загрузи его в поле выше (🍋) или положи в папку ленда — бери из архива ИМЕННО этого оффера. Без него лид не уйдёт.";}
   else{st.className="status ok";st.textContent=(MODE==="folder"?"Готово ✓ Папка: index пропатчен, call/error заменены":"Готово ✓")+(cfg.pxOn?" · Meta Pixel вставлен ("+(cfg.pxid||"динамический {fbpx}")+", конверсия "+cfg.pxev+")":"")+(cfg.needFile?(" · "+cfg.needFile+" на месте ✓"):"");}
   showTab(currentTab);
 }
@@ -1867,22 +1924,25 @@ function downloadZip(){
       if(cfg.makeChest && baseName(x.path).toLowerCase()==="chest.html") return false; // сундук уходит в свой zip
       return true;
     }).map(function(x){
-      var b=baseName(x.path).toLowerCase(), succ=cfg.successName.toLowerCase(), errn=cfg.errorName.toLowerCase();
+      var b=baseName(x.path).toLowerCase(), succ=cfg.successName.toLowerCase(), errn=cfg.errorName.toLowerCase(), nf=(cfg.needFile||"").toLowerCase();
       if(x.path===FOLDER.indexPath) return {name:idxName(x.path),str:FILES.index};
       if(cfg.repCallErr&&b===succ){had.call=1;return {name:x.path,str:FILES.call};}    // старый success -> наш новый
       if(cfg.repCallErr&&b===errn){had.error=1;return {name:x.path,str:FILES.error};}
       if(b==="ywbackfix.js"){had.yw=1;return {name:x.path,str:YWBACKFIX_JS};}
       if(genPhp&&b==="order.php"){had.php=1;return {name:x.path,str:FILES.orderphp};}   // патчим свой order.php (shakes/hamsters)
+      if(nf&&b===nf){had.handler=1;return {name:x.path,str:UP_HANDLER.str||patchHandlerFile(x.str,cfg)};}   // lemon.php: загруженный или из папки (пропатченный)
       return x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes};
     });
     if(cfg.repCallErr&&!had.call)  out.push({name:cfg.successName,str:FILES.call});
     if(cfg.repCallErr&&!had.error) out.push({name:cfg.errorName,str:FILES.error});
     if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});
     if(genPhp&&!had.php) out.push({name:"order.php",str:FILES.orderphp});
+    if(cfg.needFile&&UP_HANDLER.str&&!had.handler) out.push({name:cfg.needFile,str:UP_HANDLER.str});
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
     var files=[{name:cfg.mainExt==="php"?"index.php":"index.html",str:FILES.index},{name:cfg.successName,str:FILES.call},{name:cfg.errorName,str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}];
     if(genPhp) files.push({name:"order.php",str:FILES.orderphp});
+    if(cfg.needFile&&UP_HANDLER.str) files.push({name:cfg.needFile,str:UP_HANDLER.str});
     dl(zipName(cfg),makeZip(files),"application/zip");
   }
 }
@@ -1963,6 +2023,7 @@ function showTopToast(msg,isErr){
     document.getElementById("apiKeyWrap").style.display=manual?"block":"none";
     document.getElementById("countryWrap").style.display=needCountry?"block":"none";
     document.getElementById("phpFields").style.display=(needLanding||needStream)?"block":"none";
+    document.getElementById("handlerFields").style.display=(php&&php.needFile)?"block":"none";   // limonad: загрузка lemon.php
     document.getElementById("pidWrap").style.display=(php&&php.noId)?"none":"block";   // limonad: id оффера не нужен (он в lemon.php)
     // если в правой ячейке ряда ничего не показано (m1/hamsters) — «Код гео» на всю ширину, без пустого места
     var cellUsed=manual||needCountry;
@@ -1976,6 +2037,16 @@ function showTopToast(msg,isErr){
   sel.addEventListener("change",applyPartner);applyPartner();
   wirePagePick("pick-page","page","＋ фото");
   // папка сундука: выбор + drag-and-drop
+  var hfi=document.getElementById("handlerFile");
+  if(hfi){
+    hfi.addEventListener("change",async function(e){
+      var f=e.target.files&&e.target.files[0]; if(!f) return;
+      var cfg=readCfg();
+      UP_HANDLER={name:(cfg.needFile||"lemon.php"), str:patchHandlerFile(await f.text(), cfg)};
+      var t=document.getElementById("handlerDropT"); if(t) t.textContent="✓ "+f.name+" загружен";
+      try{ build(); }catch(_){}
+    });
+  }
   var cfi=document.getElementById("chestFolder");
   if(cfi){
     cfi.addEventListener("change",function(e){ loadChestFolder(Array.prototype.map.call(e.target.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};})); });
