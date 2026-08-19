@@ -1928,15 +1928,16 @@ function downloadZip(){
     }).map(function(x){
       var b=baseName(x.path).toLowerCase(), succ=cfg.successName.toLowerCase(), errn=cfg.errorName.toLowerCase(), nf=(cfg.needFile||"").toLowerCase();
       if(x.path===FOLDER.indexPath) return {name:idxName(x.path),str:FILES.index};
-      if(cfg.repCallErr&&b===succ){had.call=1;return {name:x.path,str:FILES.call};}    // старый success -> наш новый
-      if(cfg.repCallErr&&b===errn){had.error=1;return {name:x.path,str:FILES.error};}
+      if(b===succ){had.call=1;return {name:x.path,str:cfg.repCallErr?FILES.call:x.str};}    // success уже в папке: заменяем нашим (если галка) или оставляем как есть
+      if(b===errn){had.error=1;return {name:x.path,str:cfg.repCallErr?FILES.error:x.str};}
       if(b==="ywbackfix.js"){had.yw=1;return {name:x.path,str:YWBACKFIX_JS};}
       if(genPhp&&b==="order.php"){had.php=1;return {name:x.path,str:FILES.orderphp};}   // патчим свой order.php (shakes/hamsters)
       if(nf&&b===nf){had.handler=1;return {name:x.path,str:UP_HANDLER.str||patchHandlerFile(x.str,cfg)};}   // lemon.php: загруженный или из папки (пропатченный)
       return x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes};
     });
-    if(cfg.repCallErr&&!had.call)  out.push({name:cfg.successName,str:FILES.call});
-    if(cfg.repCallErr&&!had.error) out.push({name:cfg.errorName,str:FILES.error});
+    // страницы success/error ОБЯЗАНЫ существовать — это цель редиректа lemon.php/order.php/ENGINE. Если в папке их нет — добавляем всегда (иначе после отправки белый экран)
+    if(!had.call)  out.push({name:cfg.successName,str:FILES.call});
+    if(!had.error) out.push({name:cfg.errorName,str:FILES.error});
     if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});
     if(genPhp&&!had.php) out.push({name:"order.php",str:FILES.orderphp});
     if(cfg.needFile&&UP_HANDLER.str&&!had.handler) out.push({name:cfg.needFile,str:UP_HANDLER.str});
