@@ -691,6 +691,10 @@ const PARTNERS = {
       needFile:"lemon.php", successPage:"success.php", errorPage:"error.php", pageGen:"limonad",
       extraHidden:'<input type="hidden" name="utm_campaign" value="">\n        <input type="hidden" name="utm_content" value="">\n        <input type="hidden" name="utm_medium" value="">\n        <input type="hidden" name="utm_source" value="">\n        <input type="hidden" name="utm_term" value="">\n        <input type="hidden" name="fbpxl" value="">\n' },
     hint:"Форма постит на lemon.php (index остаётся .html). ВАЖНО: файл lemon.php бери из архива оффера limonad и клади в папку ленда — конструктор его НЕ генерит (без него форма не отправит заказ). success.php и error.php конструктор генерит сам. subid идёт в поле clickid. ID оффера/ключи не нужны." },
+  "everad.com": { label:"everad.com", mode:"everad",
+    ev:{ action:"https://tracker.everad.com/conversion/new", subField:"sid5", pxField:"sid1",
+         idLabel:"Campaign ID (campaign_id)", country:true, successPage:"success.html", errorPage:"error.html" },
+    hint:"everad: форма постит в трекер everad через скрытый iframe, потом редирект на success.html. Нужен только Campaign ID оффера (country_code — авто из «Код гео»). subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." },
   "custom": { label:"Другая (вручную)", mode:"js", endpoint:"", okField:"result", okValue:"ok", idField:"id",
     ref:"", api_key:"",
     hint:"Заполни endpoint/ref/api_key/okField под свою партнёрку." }
@@ -1180,6 +1184,72 @@ function wireOrderPhpForm(cfg, html){
     return "<form"+attrs+">\n"+hidden+body+"</form>";
   });
 }
+/* ===== everad: форма постит в трекер everad (iframe) -> редирект на success.html ===== */
+// коды набора по гео: если нац.номер нужной длины — добавляем префикс страны (как в рабочем ленде PL: 9 цифр -> +48)
+var EV_DIAL={ PL:{code:"48",len:9}, RO:{code:"40",len:9}, CZ:{code:"420",len:9}, SK:{code:"421",len:9}, HU:{code:"36",len:9}, GR:{code:"30",len:10}, ES:{code:"34",len:9}, PT:{code:"351",len:9}, BG:{code:"359",len:9}, IT:{code:"39",len:10}, HR:{code:"385",len:9} };
+function evCountryCode(cfg){ return (cfg.country||cfg.langCode||"").toUpperCase().replace(/[^A-Z]/g,"").slice(0,2); }
+// собрать скрытые поля everad-формы (campaign_id, country_code, пиксель sid1, subid sid5)
+function everadHidden(cfg){
+  var cc=evCountryCode(cfg), camp=(cfg.evCampaign||"").replace(/[^0-9]/g,""), sf=cfg.subField||"sid5", pxf=cfg.evPxField||"sid1";
+  return '<input type="hidden" name="campaign_id" value="'+camp+'">\n        '
+       + '<input type="hidden" name="country_code" value="'+cc+'">\n        '
+       + '<input type="hidden" name="'+pxf+'" value="" id="ev_sid1">\n        '
+       + '<input type="hidden" name="'+sf+'" value="{subid}">\n        ';
+}
+// перепривязать существующую форму ленда под everad (action в трекер + target=iframe + скрытые поля)
+function wireEveradForm(cfg, html){
+  var action=cfg.evAction||"https://tracker.everad.com/conversion/new";
+  html=html.replace(/<iframe\b[^>]*name=["']ev_frame["'][^>]*>\s*<\/iframe>/gi,"");   // старый iframe уберём, добавим свой
+  var stripRe=/<input[^>]*name=["'](?:campaign_id|country_code|sid1|sid5|sid\d|clickid|subid|sub1)["'][^>]*>\s*/gi;
+  return html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
+    if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа — не трогаем
+    attrs=attrs.replace(/\s(?:action|method|target|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"");
+    if(!/\bid\s*=\s*["']ev_order_form["']/i.test(attrs)) attrs=' id="ev_order_form"'+attrs;
+    attrs=' action="'+action+'" method="post" target="ev_frame"'+attrs;
+    var body=inner.replace(stripRe,"");
+    if(!/name=["']name["']/i.test(body)) body=body.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i,'<input name="name"$1>');
+    if(!/name=["']phone["']/i.test(body)) body=body.replace(/<input\b([^>]*type=["']tel["'][^>]*)>/i,function(mm,a){return /name=/.test(a)?mm:'<input name="phone" '+a+'>';});
+    if(!/id=["']ev_submit_btn["']/i.test(body)) body=body.replace(/<(button|input)\b([^>]*type=["']submit["'][^>]*)>/i,function(mm,tag,a){ return /\bid=/.test(a)?mm:'<'+tag+' id="ev_submit_btn" '+a+'>'; });
+    return '<form'+attrs+'>\n        '+everadHidden(cfg)+body+'</form>\n      <iframe name="ev_frame" id="ev_frame" style="display:none;width:0;height:0;border:0"></iframe>';
+  });
+}
+// хвост everad: ловля subid(sid5)+пикселя(sid1) из URL/keitaro + сабмит (нормализация телефона -> iframe load -> success.html)
+function everadTail(cfg){
+  var sf=cfg.subField||"sid5", pxf=cfg.evPxField||"sid1", succ=cfg.successName||"success.html";
+  var dial=EV_DIAL[evCountryCode(cfg)]||null;
+  var phoneJs = dial
+    ? "      var v=String(ph.value).replace(/\\D/g,''); if(v.length==="+dial.len+"){ v='"+dial.code+"'+v; } ph.value=v;"
+    : "      ph.value=String(ph.value).replace(/\\D/g,'');";
+  return [
+"<script>",
+"(function(){",
+"  try{",
+"    var q=new URLSearchParams(location.search);",
+"    var ks=(typeof keitaro_subid!==\"undefined\" && String(keitaro_subid).indexOf(\"{\")===-1)?keitaro_subid:\"\";",
+"    var s=q.get(\"s\")||q.get(\"subid\")||ks||\"\";",
+"    document.querySelectorAll('input[name=\""+sf+"\"]').forEach(function(el){ if(s) el.value=s; else if(String(el.value).indexOf(\"{\")!==-1) el.value=\"\"; });",
+"    var p=q.get(\"fbpx\"); if(!p){ try{ p=localStorage.getItem(\"fb_pixel\")||\"\"; }catch(e){} }",
+"    var s1=document.querySelector('input[name=\""+pxf+"\"]'); if(s1&&p) s1.value=p;",
+"  }catch(e){}",
+"})();",
+"(function(){",
+"  var form=document.getElementById('ev_order_form'), btn=document.getElementById('ev_submit_btn');",
+"  if(!form) return;",
+"  form.addEventListener('submit', function(e){",
+"    var ph=form.querySelector('[name=\"phone\"]');",
+"    if(ph){",
+phoneJs,
+"    }",
+"    if(btn){ btn.disabled=true; btn.style.opacity='0.7'; }",
+"    var done=false; function go(){ if(done) return; done=true; window.location.href='"+succ+"'; }",
+"    var ifr=document.getElementById('ev_frame');",
+"    if(ifr) ifr.addEventListener('load', function(){ setTimeout(go,500); }, {once:true});",
+"    setTimeout(go,3000);",
+"  });",
+"})();",
+"<\/script>"
+  ].join("\n");
+}
 function stripPixel(html){return html
   .replace(/<!--\s*Meta Pixel\s*-->[\s\S]*?<!--\s*End Meta Pixel\s*-->/gi,"")
   .replace(/<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?fbevents\.js(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"")
@@ -1219,6 +1289,16 @@ function patchHtml(cfg, html){
     var tail=phpSubidScript(cfg);
     var yw=backfixBlock(cfg); if(yw) tail+="\n"+yw;
     if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,tail+"\n</body>"); else html+="\n"+tail;
+  } else if(cfg.mode==="everad"){
+    // everad: форма постит в трекер everad через скрытый iframe, потом редирект на success.html
+    if(!cfg.backfix){ var bfm=html.match(/<script\b[^>]*ywbackfix\.js[^>]*data-links=['"]\s*\[\s*"([^"]+)"/i); if(bfm) cfg.backfix=bfm[1]; }  // сохраним рабочий back-fix из ленда
+    // убираем родные everad-скрипты сабмита/ловли (свои добавим) и старый ywbackfix — иначе двойной сабмит/бекфикс
+    html=html.replace(/<script(?![^>]*\bsrc=)[^>]*>((?:(?!<\/script>)[\s\S])*?)<\/script>/gi,function(m,body){ return /ev_order_form|ev_submit_btn|ev_frame|tracker\.everad\.com/i.test(body)?"":m; });
+    html=html.replace(/<script\b[^>]*\bywbackfix\.js[^>]*>(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");
+    html=wireEveradForm(cfg, html);
+    var etail=everadTail(cfg);
+    var eyw=backfixBlock(cfg); if(eyw) etail+="\n"+eyw;
+    if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,etail+"\n</body>"); else html+="\n"+etail;
   } else {
     if(cfg.autofix){
       html=html.replace(/<form\b(?![^>]*data-order-form)([^>]*)>/i,'<form data-order-form$1>');
@@ -1319,6 +1399,9 @@ function buildChest(cfg){var t=cfg.t,was=doubleCalc(cfg.price).full,now=cfg.pric
     if(cfg.phpCountry) formOpen+='\n        <input type="hidden" name="country" value="'+shakesCountry(cfg)+'">';
     if(cfg.phpExtraHidden) formOpen+='\n        '+cfg.phpExtraHidden.trim();
     orderTail=phpSubidScript(cfg); var yw=backfixBlock(cfg); if(yw) orderTail+="\n"+yw;   // ловля subid (+ back-fix, если не сундук)
+  } else if(cfg.mode==="everad"){
+    formOpen='<form id="ev_order_form" class="order_form" action="'+(cfg.evAction||"https://tracker.everad.com/conversion/new")+'" method="post" target="ev_frame">\n        '+everadHidden(cfg).trim();
+    orderTail='<iframe name="ev_frame" id="ev_frame" style="display:none;width:0;height:0;border:0"></iframe>\n'+everadTail(cfg);   // back-fix в сундук не тащим
   } else {
     formOpen='<form id="order_form" data-order-form method="POST" action="">';
     orderTail=orderBlock(cfg);
@@ -1704,11 +1787,12 @@ function wirePagePick(id,slot,label){
 }
 function val(id){return document.getElementById(id).value.trim();}
 function readCfg(){
-  var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value, php=pk.php||null;
-  return {mode:php?"php":(pk.mode||"js"),partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
-    phpGen:php?php.gen:"",subField:php?php.subField:"",phpCountry:!!(php&&php.country),phpLanding:!!(php&&php.landing),phpStream:!!(php&&php.stream),
+  var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value, php=pk.php||null, ev=pk.ev||null;
+  return {mode:php?"php":(ev?"everad":(pk.mode||"js")),partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
+    phpGen:php?php.gen:"",subField:php?php.subField:(ev?ev.subField:""),phpCountry:!!(php&&php.country),phpLanding:!!(php&&php.landing),phpStream:!!(php&&php.stream),
     phpAction:php?(php.action||"order.php"):"",phpNoId:!!(php&&php.noId),mainExt:php?(php.mainExt||"html"):"html",phpExtraHidden:php?(php.extraHidden||""):"",
-    needFile:php?(php.needFile||""):"",successName:(php&&php.successPage)||"call.html",errorName:(php&&php.errorPage)||"error.html",pageGen:php?(php.pageGen||""):"",
+    evAction:ev?ev.action:"",evPxField:ev?ev.pxField:"",evCampaign:val("product_id"),
+    needFile:php?(php.needFile||""):"",successName:(php&&php.successPage)||(ev&&ev.successPage)||"call.html",errorName:(php&&php.errorPage)||(ev&&ev.errorPage)||"error.html",pageGen:php?(php.pageGen||""):"",
     endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
@@ -1725,6 +1809,7 @@ function build(){
   var cfg=readCfg(),st=document.getElementById("status");
   var need;
   if(cfg.mode==="php"){ need=[]; if(!cfg.phpNoId)need.push("product_id"); if(cfg.phpCountry)need.push("country"); if(cfg.phpLanding)need.push("landingUrl"); }
+  else if(cfg.mode==="everad"){ need=["product_id","langCode"]; }   // campaign_id + гео; country_code авто из гео
   else need=["product_id","ref","api_key","langCode"];
   var miss=need.filter(function(k){return !cfg[k];});
   if(cfg.pxOn && !cfg.pxid) { /* динамический пиксель — норм */ }
@@ -2042,7 +2127,7 @@ function showTopToast(msg,isErr){
   var sel=document.getElementById("partner");
   Object.keys(PARTNERS).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PARTNERS[k].label;sel.appendChild(o);});
   function applyPartner(){
-    var pk=PARTNERS[sel.value], php=pk.php||null, isPhp=!!php || pk.mode==="php";
+    var pk=PARTNERS[sel.value], php=pk.php||null, ev=pk.ev||null, isPhp=!!php || pk.mode==="php", isEverad=!!ev || pk.mode==="everad";
     document.getElementById("partnerHint").textContent=pk.hint;
     var refEl=document.getElementById("ref"), keyEl=document.getElementById("api_key");
     [["ref",refEl],["api_key",keyEl]].forEach(function(pair){
@@ -2050,22 +2135,22 @@ function showTopToast(msg,isErr){
       if(v!=null && v!==""){ el.value=v; el.readOnly=true; el.classList.add("locked"); }
       else { if(el.classList.contains("locked")) el.value=""; el.readOnly=false; el.classList.remove("locked"); }
     });
-    var needCountry=!!(php&&php.country), needLanding=!!(php&&php.landing), needStream=!!(php&&php.stream);
+    var needCountry=!!(php&&php.country)||!!(ev&&ev.country), needLanding=!!(php&&php.landing), needStream=!!(php&&php.stream);
     var hasFixedKeys=(pk.api_key!=null&&pk.api_key!=="")||(pk.ref!=null&&pk.ref!=="");   // закреплённые ключи (m1)
-    // ref/api_key показываем ТОЛЬКО когда их надо вводить вручную (custom); у m1 они закреплены -> скрыты
-    var manual=(!isPhp && !hasFixedKeys);
+    // ref/api_key показываем ТОЛЬКО когда их надо вводить вручную (custom); у m1/everad они не нужны -> скрыты
+    var manual=(!isPhp && !isEverad && !hasFixedKeys);
     document.getElementById("refWrap").style.display=manual?"block":"none";
     document.getElementById("apiKeyWrap").style.display=manual?"block":"none";
     document.getElementById("countryWrap").style.display=needCountry?"block":"none";
     document.getElementById("phpFields").style.display=(needLanding||needStream)?"block":"none";
     document.getElementById("handlerFields").style.display=(php&&php.needFile)?"block":"none";   // limonad: загрузка lemon.php
-    document.getElementById("pidWrap").style.display=(php&&php.noId)?"none":"block";   // limonad: id оффера не нужен (он в lemon.php)
+    document.getElementById("pidWrap").style.display=(php&&php.noId)?"none":"block";   // limonad: id оффера не нужен (он в lemon.php); everad: нужен campaign_id
     // если в правой ячейке ряда ничего не показано (m1/hamsters) — «Код гео» на всю ширину, без пустого места
     var cellUsed=manual||needCountry;
     document.getElementById("partnerCell").style.display=cellUsed?"":"none";
     document.getElementById("langWrap").style.gridColumn=cellUsed?"":"1 / -1";
     // подпись поля ID оффера под партнёрку
-    document.getElementById("pidLabel").textContent=(php&&php.idLabel)?(php.idLabel+" *"):"ID оффера (product_id) *";
+    document.getElementById("pidLabel").textContent=((php&&php.idLabel)||(ev&&ev.idLabel)||"ID оффера (product_id)")+" *";
     if(needCountry){ try{ var cEl=document.getElementById("country"); if(cEl && (!cEl.value||cEl.dataset.auto==="1")){ var cc=ccFromGeo(document.getElementById("langCode").value); if(cc){ cEl.value=cc; cEl.dataset.auto="1"; } } }catch(e){} }
     try{ build(); }catch(e){}
   }
