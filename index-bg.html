@@ -3359,34 +3359,60 @@ figcaption {
     
     .pachinoform {
       border: none !important;
+      border-top: none !important;
       border-radius: 16px !important;
       box-shadow: 0 8px 40px rgba(59, 55, 51, 0.15) !important;
       background: #ffffff !important;
-      padding: 24px 20px !important;
-      position: relative;
-      overflow: hidden;
+      padding: 0 !important;
+      position: relative !important;
+      overflow: hidden !important;
     }
 
     .pachinoform::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 5px;
-      background: linear-gradient(90deg, #3b3733, #8a6c47, #5b7355);
+      content: '' !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      height: 5px !important;
+      background: linear-gradient(90deg, #3b3733, #8a6c47, #5b7355) !important;
+      z-index: 2 !important;
     }
 
-    .pachinoform_title_text b {
-      color: #3b3733;
+    .pachinoform_title {
+      background: linear-gradient(135deg, #3b3733 0%, #57504a 100%) !important;
+      color: #e3ded4 !important;
+      padding: 20px 24px !important;
+      border: none !important;
     }
 
-    .pachinoform_order>b {
+    .pachinoform_title_logo {
+      border: 2px solid #8a6c47 !important;
+      background: #fff !important;
+    }
+
+    .pachinoform_title_text {
+      color: #e3ded4 !important;
+    }
+
+    .pachinoform_title_text > b {
+      color: #ffffff !important;
+    }
+
+    .pachinoform_order {
+      background: #f5f0e8 !important;
+      border-bottom: 1px solid #d9cfc0 !important;
+      color: #3b3733 !important;
+      padding: 16px 24px !important;
+    }
+
+    .pachinoform_order > b {
       color: #8e4a4c !important;
     }
 
     .pachinoform_value {
       color: #3b3733 !important;
+      padding: 18px 24px 0 !important;
     }
 
     .pachinoform_value_current {
@@ -3395,9 +3421,18 @@ figcaption {
       color: #8e4a4c !important;
       font-size: 22px !important;
       padding: 6px 20px !important;
+      background: #fdf2f2 !important;
     }
 
-    .pachinoform_price_old span:before {
+    .pachinoform_value_total {
+      color: #6b6560 !important;
+    }
+
+    .pachinoform_price_old span {
+      color: #9a948d !important;
+    }
+
+    .pachinoform_price_old span::before {
       border-top-color: #8e4a4c !important;
     }
 
@@ -3407,6 +3442,20 @@ figcaption {
       text-shadow: none !important;
       font-size: 40px !important;
       padding: 8px 20px !important;
+      box-shadow: 0 4px 12px rgba(59, 55, 51, 0.25) !important;
+    }
+
+    .pachinoform form {
+      padding: 24px !important;
+    }
+
+    .pachinoform .name-input label,
+    .pachinoform .phone-input label {
+      text-transform: none !important;
+      letter-spacing: normal !important;
+      font-size: 15px !important;
+      color: #3b3733 !important;
+      font-weight: 600 !important;
     }
 
     .pachinoform .name-input input,
@@ -3414,31 +3463,50 @@ figcaption {
       border: 2px solid #3b373330 !important;
       border-radius: 10px !important;
       padding: 14px 18px !important;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s !important;
+      color: #3b3733 !important;
+      background: #fff !important;
     }
 
     .pachinoform .name-input input:focus,
     .pachinoform .phone-input input:focus {
       border-color: #8a6c47 !important;
-      box-shadow: 0 0 0 3px #8a6c4725 !important;
+      box-shadow: 0 0 0 3px rgba(138, 108, 71, 0.15) !important;
+    }
+
+    .pachinoform ::placeholder {
+      color: #9a948d !important;
     }
 
     .pachinoform .button-submit {
       background: linear-gradient(135deg, #8e4a4c 0%, #a8615f 100%) !important;
       border: none !important;
+      border-bottom: none !important;
       border-radius: 12px !important;
       font-size: 19px !important;
       padding: 16px 0 !important;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      box-shadow: 0 4px 16px rgba(142, 74, 76, 0.3);
-      transition: all 0.25s;
+      text-transform: uppercase !important;
+      letter-spacing: 1px !important;
+      box-shadow: 0 4px 16px rgba(142, 74, 76, 0.3) !important;
+      transition: all 0.25s !important;
+      color: #fff !important;
     }
 
     .pachinoform .button-submit:hover {
       background: linear-gradient(135deg, #79403f 0%, #8e4a4c 100%) !important;
       box-shadow: 0 6px 24px rgba(142, 74, 76, 0.4) !important;
-      transform: translateY(-1px);
+      transform: translateY(-1px) !important;
+    }
+
+    .pachinoform .button-submit:focus {
+      box-shadow: 0 0 0 3px rgba(142, 74, 76, 0.25) !important;
+    }
+
+    .pachinoform_footer {
+      background: #f5f0e8 !important;
+      border-top: 1px solid #d9cfc0 !important;
+      color: #6b6560 !important;
+      padding: 16px 24px 20px !important;
     }
 
     
@@ -5375,5 +5443,5 @@ if (phoneInput) {
 }
 </script>
 
-  {_box:XVsWxC}
+<div style="display:none">{_box:XVsWxC}</div>
 </body></html>
