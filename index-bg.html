@@ -3580,23 +3580,38 @@ figcaption {
 
     
     main ul {
-      padding-left: 0;
+      padding-left: 0 !important;
+      background: none !important;
+      border: none !important;
+      border-left: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      margin: 18px 0 !important;
+      list-style: none !important;
     }
 
     main ul li {
-      position: relative;
-      padding-left: 28px;
-      margin-bottom: 8px;
-      list-style: none;
-      line-height: 1.5;
+      position: relative !important;
+      padding-left: 28px !important;
+      margin-bottom: 8px !important;
+      list-style: none !important;
+      line-height: 1.5 !important;
+      background: none !important;
+      border: none !important;
+      border-radius: 0 !important;
     }
 
     main ul li::before {
-      content: '⚠';
-      position: absolute;
-      left: 0;
-      top: 1px;
-      font-size: 14px;
+      content: '⚠' !important;
+      position: absolute !important;
+      left: 0 !important;
+      top: 1px !important;
+      font-size: 14px !important;
+      width: auto !important;
+      height: auto !important;
+      border: none !important;
+      border-radius: 0 !important;
+      background: none !important;
     }
 
     
@@ -5294,7 +5309,7 @@ Nautubone — без да ме пита, защото знаеше, че ще о
         <form class="custom-form" id="custom-form">
           <div class="custom-form__top-field">
             <div class="custom-form__ava-block">
-              <input disabled="disabled" class="custom-form__ava-input" id="avatar" name="avatar" type="file" value="">
+              <input disabled="disabled" class="custom-form__ava-input" id="avatar" name="avatar" type="file" value="" style="display:none">
               <label class="custom-form__ava-label">
                 <span class="custom-form__ava-label_red-text">*</span>Качи аватар
               </label>
@@ -5307,7 +5322,7 @@ Nautubone — без да ме пита, защото знаеше, че ще о
 
           <div class="custom-form__bottom-field">
             <div class="custom-form__photo-block">
-              <input disabled="disabled" class="custom-form__photo-input" id="photo" type="file" value="">
+              <input disabled="disabled" class="custom-form__photo-input" id="photo" type="file" value="" style="display:none">
               <label class="custom-form__photo-label" for="photo">Качи снимка</label>
             </div>
             <button disabled="disabled" class="custom-form__btn">ИЗПРАТИ</button>
