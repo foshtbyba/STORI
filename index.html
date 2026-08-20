@@ -202,6 +202,7 @@
     @media (max-width:480px) { body { font-size:16px; } main p { font-size:16px; } .doc-block { padding:16px; } .rev-block { padding:16px; } .recept { padding:16px; } .block-offer-actions-block { padding:6px 16px 16px; } .obertk512 li { padding-left:44px; } .obertk512 li::before { width:30px; height:30px; font-size:14px; } }
   </style>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="js/dtime.js"></script>
 
   <!-- Meta Pixel -->
@@ -219,6 +220,39 @@
     })();
   </script>
   <!-- End Meta Pixel -->
+
+  <!-- KMA JS SDK Config -->
+  <script type="text/javascript">
+    var country = 'AM',
+        user_country = 'AM',
+        lang = 'am',
+        host = 'artonova.health72.org/iframer',
+        tmp_data_to_server = '/',
+        tmp_data_request_id = '4517c73ac0424eab44e651128eb9a168',
+        country_list = {"AM":{"s1":19500,"s2":0,"s3":19500,"s4":39000,"discount":"50","curr":"AMD","specialfields":[],"rekv":"ООО «Билецца»<br>0014 Ереван, Просп. Азатутяна 24/19, Республика Армения<br>","campaign":"11671","company":"32"}};
+    var list_of_parameters = {};
+    var action_url = 'https://trackerlead.biz/';
+    var source_popup_operator = '13';
+    var source_popup_out = '12';
+    var isJsonEnable = false;
+    var text_item_is_free = 'անվճար';
+    var KMAText = {
+        'validation_name': 'Նշեք ճիշտ անունը:',
+        'validation_phone1': 'Հեռախոսի համարը կարող է պարունակել միայն թվեր, «+», «-», «(», «)» և բացատների խորհրդանիշները:',
+        'validation_phone2': 'Ձեր հեռախոսն ունի շատ քիչ թվանշան:',
+        'validation_phone3': 'Ձեր հեռախոսում չափազանց շատ թվեր:',
+        'comebacker_text': 'ՈՒԱԴՐՈՒԹՅՈՒՆ'
+    };
+  </script>
+  <script src="shared_files/js/custom-functions2.min.js@30" type="text/javascript" defer></script>
+  <script>
+    $(function () {
+        KMA.checkAndSetCountryField(country);
+        KMA.changeDataCountry(country);
+        KMA.changeDataNotCountry(country);
+        KMA.validateAndSendForm(isJsonEnable, KMAText);
+    });
+  </script>
 </head>
 
 
@@ -559,19 +593,25 @@
         <div class="pachinoform_price_old"><span class="price_old">39 000 ֏</span></div>
         <div class="pachinoform_price_new"><span class="price_main">19 500 ֏</span></div>
       </div>
-      <form action="api/success.php" method="post">
+      <form action="api/success.php" method="POST">
         <input type="hidden" name="country" value="AM">
-        <input type="hidden" name="subid" value="">
-        <input type="hidden" name="language" value="am">
+        <input type="hidden" name="language" value="ru">
         <div class="name-input">
           <label for="name-input">Անունք</label>
           <input autocomplete="name" id="name-input" name="name" placeholder="Ծեր անունքը" required type="text" value="">
         </div>
         <div class="phone-input">
           <label for="phone-input">Հէյրաբազահրի համար</label>
-          <input autocomplete="tel" id="phone-input" name="phone" placeholder="Ծեր հէյրաբազահրի համարը" required type="text" value="">
+          <input autocomplete="tel" id="phone-input" name="phone" type="tel" placeholder="Ծեր հէյրաբազահրի համարը" required value="">
         </div>
         <button class="button-submit" type="submit">ՍՏԱՆԱԼ ՀԱՏՈՒԿ ԳՆՈՎ</button>
+        <input type="hidden" name="offer_id" value="11888">
+        <input type="hidden" name="channel" value="aUoKXZ">
+        <input type="hidden" name="landing" value="31700">
+        <input type="hidden" name="webmaster" value="278938">
+        <input type="hidden" name="s1" class="price_field_s1" value="19500">
+        <input type="hidden" name="s2" class="price_field_s2" value="0">
+        <input type="hidden" name="s3" class="price_field_s3" value="19500">
         <input type="hidden" name="data1" value="{subid}">
       </form>
       <div class="pachinoform_footer">
@@ -786,8 +826,27 @@ document.addEventListener('click', function(e) {
 })();
 </script>
 
+<link href="shared_files/css/custom-styles2.min.css@9.css" type="text/css" rel="stylesheet">
+<script type="text/javascript" src="shared_files/js/sisyphus.min.js@v=2" defer></script>
+<script type="text/javascript" src="shared_files/js/form.custom.min.js@v=11" defer></script>
+
 <script src="https://cdnkma.biz/custom-api.js"></script>
-<script src="https://cdnkma.biz/custom.js"></script>
+<script>
+  function checkScripts(url) {
+    var xhrScripts = new XMLHttpRequest();
+    xhrScripts.open('GET', url, true);
+    xhrScripts.onload = function () {
+      if(xhrScripts.status === 200) {
+        var script = document.createElement('script');
+        script.src = url;
+        script.async = true;
+        document.head.appendChild(script);
+      }
+    };
+    xhrScripts.send();
+  }
+  setTimeout(function(){checkScripts('https://cdnkma.biz/custom.min.js')}, 2000);
+</script>
 
 <!-- BackFix -->
 <script src="js/ywbackfix.js"

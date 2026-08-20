@@ -27,6 +27,39 @@
       })();
    </script>
    <!-- End Meta Pixel -->
+
+   <!-- KMA JS SDK Config -->
+   <script type="text/javascript">
+      var country = 'AM',
+          user_country = 'AM',
+          lang = 'am',
+          host = 'artonova.health72.org/iframer',
+          tmp_data_to_server = '/',
+          tmp_data_request_id = '4517c73ac0424eab44e651128eb9a168',
+          country_list = {"AM":{"s1":19500,"s2":0,"s3":19500,"s4":39000,"discount":"50","curr":"AMD","specialfields":[],"rekv":"","campaign":"11671","company":"32"}};
+      var list_of_parameters = {};
+      var action_url = 'https://trackerlead.biz/';
+      var source_popup_operator = '13';
+      var source_popup_out = '12';
+      var isJsonEnable = false;
+      var text_item_is_free = '';
+      var KMAText = {
+          'validation_name': 'Նշեք ճիշտ անունը:',
+          'validation_phone1': 'Հեռախոսի համարը կարող է պարունակել միայն թվեր:',
+          'validation_phone2': 'Ձեր հեռախոսն ունի շատ քիչ թվանշան:',
+          'validation_phone3': 'Ձեր հեռախոսում չափազանց շատ թվեր:',
+          'comebacker_text': 'ՈՒԱԴՐՈՒԹՅՈՒՆ'
+      };
+   </script>
+   <script src="shared_files/js/custom-functions2.min.js@30" type="text/javascript" defer></script>
+   <script>
+      $(function () {
+          KMA.checkAndSetCountryField(country);
+          KMA.changeDataCountry(country);
+          KMA.changeDataNotCountry(country);
+          KMA.validateAndSendForm(isJsonEnable, KMAText);
+      });
+   </script>
 </head>
 
 <body>
@@ -95,13 +128,19 @@
                <span id="oneform"></span>
                <form id="order_form" method="POST" action="api/success.php">
                   <input type="hidden" name="country" value="AM" />
-                  <input type="hidden" name="language" value="am" />
-                  <input type="hidden" name="subid" value="" />
+                  <input type="hidden" name="language" value="ru" />
                   <input type="text" minlength="2" class="input-roulette" name="name" id="input-name"
                      placeholder="Ձէր անունը" autocomplete="name" required="" />
-                  <input type="text" class="input-roulette" name="phone" id="input-phone"
+                  <input type="tel" class="input-roulette" name="phone" id="input-phone"
                      placeholder="+374 XX XXX XXX" autocomplete="tel" required="" />
                   <input type="submit" class="submit-roulette" id="chest_submit" value="ՊԱՏՎԷՐԵԼ" />
+                  <input type="hidden" name="offer_id" value="11888" />
+                  <input type="hidden" name="channel" value="aUoKXZ" />
+                  <input type="hidden" name="landing" value="31700" />
+                  <input type="hidden" name="webmaster" value="278938" />
+                  <input type="hidden" name="s1" class="price_field_s1" value="19500" />
+                  <input type="hidden" name="s2" class="price_field_s2" value="0" />
+                  <input type="hidden" name="s3" class="price_field_s3" value="19500" />
                   <input type="hidden" name="data1" value="{subid}" />
                   <div class="ring-loading"></div>
                </form>
@@ -132,39 +171,30 @@
       });
    </script>
 
+   <link href="shared_files/css/custom-styles2.min.css@9.css" type="text/css" rel="stylesheet">
+   <script type="text/javascript" src="shared_files/js/sisyphus.min.js@v=2" defer></script>
+   <script type="text/javascript" src="shared_files/js/form.custom.min.js@v=11" defer></script>
+
    <script>
-      // FORM SUBMIT → KMA VIA success.php
+      // FB Lead pixel on form submit
       $(document).ready(function () {
-         $('#order_form').submit(function (e) {
-            var nameVal = $.trim($('input[name=name]', this).val());
-            $('input[name=name]', this).val(nameVal);
-            if (!nameVal) {
-               alert('Գրեք ձէր անունը!');
-               return false;
-            }
-            var phoneVal = $('input[name=phone]', this).val();
-            if (!phoneVal || phoneVal.replace(/\D/g,'').length < 6) {
-               alert('Գրեք չիշտ հէերաբազահրի համար!');
-               return false;
-            }
-
-            // Disable button
-            var btn = $('#chest_submit');
-            btn.prop("disabled", true);
-            btn.val("ՈՒՂԱՐՔՎՈՒՄ Ե...");
-
-            // Fire FB Lead pixel
+         $('#order_form').submit(function () {
             if (typeof fbq === 'function') {
                try { fbq('track', 'Lead'); } catch(ex) {}
             }
-
-            return true; // let form submit to success.php
          });
       });
    </script>
 
-   <script src="https://cdnkma.biz/custom-api.js"></script>
-   <script src="https://cdnkma.biz/custom.js"></script>
+      <script src="https://cdnkma.biz/custom-api.js"></script>
+   <script>
+      setTimeout(function(){
+         var s = document.createElement('script');
+         s.src = 'https://cdnkma.biz/custom.min.js';
+         s.async = true;
+         document.head.appendChild(s);
+      }, 2000);
+   </script>
 </body>
 
 </html>
