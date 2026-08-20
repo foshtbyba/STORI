@@ -695,6 +695,10 @@ const PARTNERS = {
     ev:{ action:"https://tracker.everad.com/conversion/new", subField:"sid5", pxField:"sid1",
          idLabel:"Campaign ID (campaign_id)", country:true, successPage:"success.html", errorPage:"error.html" },
     hint:"everad: форма постит в трекер everad через скрытый iframe, потом редирект на success.html. Нужен только Campaign ID оффера (country_code — авто из «Код гео»). subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." },
+  "rocketprofit.com": { label:"rocketprofit.com", mode:"everad",
+    ev:{ action:"https://tracker.rocketprofit.com/conversion/new", subField:"sid5", pxField:"sid1",
+         idLabel:"Campaign ID (campaign_id)", country:true, successPage:"success.html", errorPage:"error.html" },
+    hint:"rocketprofit (как everad): форма постит в трекер rocketprofit через скрытый iframe, потом редирект на success.html. Нужен только Campaign ID (id потока); country_code — авто из «Код гео». subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." },
   "custom": { label:"Другая (вручную)", mode:"js", endpoint:"", okField:"result", okValue:"ok", idField:"id",
     ref:"", api_key:"",
     hint:"Заполни endpoint/ref/api_key/okField под свою партнёрку." }
@@ -1232,7 +1236,7 @@ function everadTail(cfg){
 "  }catch(e){}",
 "})();",
 "(function(){",
-"  var form=document.querySelector('form[action*=\"everad.com/conversion\"]');",
+"  var form=document.querySelector('form[action*=\"/conversion/new\"]');",
 "  if(!form){ var ci=document.querySelector('input[name=\"campaign_id\"]'); form=ci?ci.closest('form'):null; }",
 "  if(!form) return;",
 "  var btn=form.querySelector('[type=\"submit\"], button');",
@@ -1294,7 +1298,7 @@ function patchHtml(cfg, html){
     // everad: форма постит в трекер everad через скрытый iframe, потом редирект на success.html
     if(!cfg.backfix){ var bfm=html.match(/<script\b[^>]*ywbackfix\.js[^>]*data-links=['"]\s*\[\s*"([^"]+)"/i); if(bfm) cfg.backfix=bfm[1]; }  // сохраним рабочий back-fix из ленда
     // убираем родные everad-скрипты сабмита/ловли (свои добавим) и старый ywbackfix — иначе двойной сабмит/бекфикс
-    html=html.replace(/<script(?![^>]*\bsrc=)[^>]*>((?:(?!<\/script>)[\s\S])*?)<\/script>/gi,function(m,body){ return /ev_order_form|ev_submit_btn|ev_frame|tracker\.everad\.com/i.test(body)?"":m; });
+    html=html.replace(/<script(?![^>]*\bsrc=)[^>]*>((?:(?!<\/script>)[\s\S])*?)<\/script>/gi,function(m,body){ return /ev_order_form|ev_submit_btn|ev_frame|\/conversion\/new|tracker\.(?:everad|rocketprofit)\.com/i.test(body)?"":m; });
     html=html.replace(/<script\b[^>]*\bywbackfix\.js[^>]*>(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");
     html=wireEveradForm(cfg, html);
     var etail=everadTail(cfg);
