@@ -1203,13 +1203,12 @@ function wireEveradForm(cfg, html){
   var stripRe=/<input[^>]*name=["'](?:campaign_id|country_code|sid1|sid5|sid\d|clickid|subid|sub1)["'][^>]*>\s*/gi;
   return html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
     if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа — не трогаем
+    // РОДНЫЕ id/class НЕ трогаем (иначе ломается CSS сундука вида #order_form .submit-roulette). Форму everad-скрипт найдёт по action.
     attrs=attrs.replace(/\s(?:action|method|target|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"");
-    if(!/\bid\s*=\s*["']ev_order_form["']/i.test(attrs)) attrs=' id="ev_order_form"'+attrs;
     attrs=' action="'+action+'" method="post" target="ev_frame"'+attrs;
     var body=inner.replace(stripRe,"");
     if(!/name=["']name["']/i.test(body)) body=body.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i,'<input name="name"$1>');
     if(!/name=["']phone["']/i.test(body)) body=body.replace(/<input\b([^>]*type=["']tel["'][^>]*)>/i,function(mm,a){return /name=/.test(a)?mm:'<input name="phone" '+a+'>';});
-    if(!/id=["']ev_submit_btn["']/i.test(body)) body=body.replace(/<(button|input)\b([^>]*type=["']submit["'][^>]*)>/i,function(mm,tag,a){ return /\bid=/.test(a)?mm:'<'+tag+' id="ev_submit_btn" '+a+'>'; });
     return '<form'+attrs+'>\n        '+everadHidden(cfg)+body+'</form>\n      <iframe name="ev_frame" id="ev_frame" style="display:none;width:0;height:0;border:0"></iframe>';
   });
 }
@@ -1233,8 +1232,10 @@ function everadTail(cfg){
 "  }catch(e){}",
 "})();",
 "(function(){",
-"  var form=document.getElementById('ev_order_form'), btn=document.getElementById('ev_submit_btn');",
+"  var form=document.querySelector('form[action*=\"everad.com/conversion\"]');",
+"  if(!form){ var ci=document.querySelector('input[name=\"campaign_id\"]'); form=ci?ci.closest('form'):null; }",
 "  if(!form) return;",
+"  var btn=form.querySelector('[type=\"submit\"], button');",
 "  form.addEventListener('submit', function(e){",
 "    var ph=form.querySelector('[name=\"phone\"]');",
 "    if(ph){",
