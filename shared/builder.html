@@ -1147,6 +1147,12 @@ function isSuccErrPage(name){
   var b=String(name||"").toLowerCase(), m=b.match(/^(.*)\.(html?|php)$/);
   return !!m && SUCC_ERR_STEMS.test(m[1]);
 }
+// известные серверные обработчики заказа партнёрок (lemon.php у limonad, subscribe.php у everad/rocketprofit, order.php у shakes/hamsters)
+var KNOWN_HANDLERS=/^(?:lemon|subscribe1?|subscription|order|handler)\.php$/i;
+// какой обработчик нужен ТЕКУЩЕЙ партнёрке (иначе — ни одного)
+function activeHandler(cfg){ return (cfg.needFile||"").toLowerCase() || ((cfg.mode==="php" && cfg.phpGen)?"order.php":""); }
+// файл-обработчик ЧУЖОЙ партнёрки (напр. lemon.php при everad) — такой из папки выкидываем, чтобы не мусорил
+function isForeignHandler(name, cfg){ var b=String(name||"").toLowerCase(); return KNOWN_HANDLERS.test(b) && b!==activeHandler(cfg); }
 // php-режим: заполнить скрытое sub1 меткой subid из URL (?s/?subid) или keitaro_subid — как надёжная ловля у m1.
 // Если ничего нет и стоит литерал {subid} (Keitaro не подставил) — чистим, чтобы не улетал мусор.
 function phpSubidScript(cfg){
@@ -2043,6 +2049,8 @@ function downloadZip(){
       var b=baseName(x.path).toLowerCase();
       // лишние старые спасибо/ошибка (не активные success/error партнёрки) — выкидываем, чтобы не засоряли папку
       if(x.path!==FOLDER.indexPath && isSuccErrPage(b) && b!==succL && b!==errL) return false;
+      // чужой серверный обработчик (напр. lemon.php при everad/rocketprofit/m1) — выкидываем
+      if(isForeignHandler(b, cfg)) return false;
       return true;
     }).map(function(x){
       var b=baseName(x.path).toLowerCase(), succ=cfg.successName.toLowerCase(), errn=cfg.errorName.toLowerCase(), nf=(cfg.needFile||"").toLowerCase();
@@ -2090,6 +2098,7 @@ function downloadChestZip(){
       if(cfg.mode==="php" && baseName(f.path).toLowerCase()==="order.php") return;  // свой order.php уже добавлен
       if(pres[f.path]) return;
       if(nf && baseName(f.path).toLowerCase()===nf){ hadHandler=true; out.push(handlerLoaded()?handlerEntry(f.path):(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes})); return; }  // lemon.php: как есть (сырые байты / файл из папки)
+      if(isForeignHandler(baseName(f.path), cfg)) return;   // чужой обработчик (lemon.php при everad и т.п.) — не тащим в сундук
       out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes});
     });
   }
