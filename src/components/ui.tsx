@@ -1,0 +1,119 @@
+import type { ReactNode } from 'react';
+
+export function Panel({
+  children,
+  className = '',
+  as: Tag = 'section',
+}: {
+  children: ReactNode;
+  className?: string;
+  as?: 'section' | 'div' | 'form' | 'article';
+}) {
+  return (
+    <Tag className={`rounded-[26px] border border-line bg-panel ${className}`}>{children}</Tag>
+  );
+}
+
+export function Badge({ children, tint = 'bg-raise' }: { children: ReactNode; tint?: string }) {
+  return (
+    <span
+      className={`flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full ${tint}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+export function PanelHead({
+  icon,
+  tint,
+  title,
+  aside,
+  right,
+}: {
+  icon: ReactNode;
+  tint?: string;
+  title: string;
+  aside?: ReactNode;
+  right?: ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-[13px]">
+        <Badge tint={tint}>{icon}</Badge>
+        <h2 className="text-[17px] font-semibold tracking-[-0.015em]">{title}</h2>
+        {aside ? (
+          <>
+            <span className="h-5 w-px bg-line2" />
+            {aside}
+          </>
+        ) : null}
+      </div>
+      {right}
+    </div>
+  );
+}
+
+export function Pill({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <span className={`inline-flex items-center gap-2 rounded-full px-3.5 py-2 ${className}`}>
+      {children}
+    </span>
+  );
+}
+
+export function Sub({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <div className={`rounded-[18px] bg-sub ${className}`}>{children}</div>;
+}
+
+export function Field({ label, value, hint }: { label: string; value: ReactNode; hint?: ReactNode }) {
+  return (
+    <div>
+      <div className="text-[11.5px] text-mute">{label}</div>
+      <div className="n mt-1.5 text-[13.5px] font-semibold">{value}</div>
+      {hint ? <div className="mt-1 text-[11px] text-dim">{hint}</div> : null}
+    </div>
+  );
+}
+
+export function Avatar({
+  initials,
+  color,
+  size = 36,
+  filled = false,
+}: {
+  initials: string;
+  color: string;
+  size?: number;
+  filled?: boolean;
+}) {
+  return (
+    <span
+      className="n flex shrink-0 items-center justify-center rounded-full font-semibold"
+      style={{
+        width: size,
+        height: size,
+        fontSize: size * 0.32,
+        background: filled ? color : '#232324',
+        color: filled ? '#141414' : color,
+        border: filled ? 'none' : `1.5px solid ${color}`,
+      }}
+    >
+      {initials}
+    </span>
+  );
+}
+
+export function Empty({ children }: { children: ReactNode }) {
+  return (
+    <div className="rounded-[18px] border border-dashed border-line px-6 py-10 text-center text-[13px] text-mute">
+      {children}
+    </div>
+  );
+}

@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Manrope", "Helvetica Neue", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-bg: #141414;
+  --color-panel: #1c1c1d;
+  --color-sub: #232324;
+  --color-raise: #292929;
+  --color-line: #2e2e2f;
+  --color-line2: #3a3a3b;
+
+  --color-text: #e4e4e4;
+  --color-soft: #c4c4c4;
+  --color-mid: #a8a8a8;
+  --color-mute: #8a8a8a;
+  --color-dim: #6a6a6a;
+  --color-faint: #4a4a4a;
+
+  --color-sage: #b4c68c;
+  --color-rust: #ce6e58;
+  --color-teal: #6fa9a0;
+  --color-amber: #d2a06a;
+  --color-steel: #8fa3a8;
+
+  --color-sage-t: #252e1e;
+  --color-rust-t: #2c1f1a;
+  --color-teal-t: #1e2a28;
+  --color-amber-t: #2e271c;
+  --color-steel-t: #23292b;
+}
+
+html,
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+.n {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.lab {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-dim);
+}
+
+input,
+textarea,
+select {
+  color-scheme: dark;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-sage);
+  outline-offset: 2px;
+}

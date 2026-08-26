@@ -1,0 +1,217 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // SQLite keeps the dev setup to a single file. Switch provider to
+  // "postgresql" and point DATABASE_URL at the server for production —
+  // no model in this schema depends on SQLite-specific behaviour.
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Roles are strings because SQLite has no enum type; the union lives in
+/// src/lib/roles.ts so both layers stay in step.
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("BUYER")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  buyer Buyer?
+}
+
+/// A buyer is the unit everything is reported against. Kept separate from
+/// User so an admin can hold a buyer profile too, and so a buyer can be
+/// archived without deleting the account.
+model Buyer {
+  id       String  @id @default(cuid())
+  userId   String  @unique
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  handle   String  @unique
+  initials String
+  color    String  @default("#8A8A8A")
+  source   String  @default("Facebook")
+  teamId   String?
+  team     Team?   @relation(fields: [teamId], references: [id])
+  archived Boolean @default(false)
+
+  /// When true the buyer's own consumables are subtracted before the
+  /// salary rate is applied. Configurable per buyer on purpose.
+  consumablesAffectSalary Boolean @default(true)
+
+  salaryRuleId String?
+  salaryRule   SalaryRule? @relation(fields: [salaryRuleId], references: [id])
+
+  days        DayReport[]
+  consumables ConsumableEntry[]
+  bonuses     Bonus[]
+  payouts     Payout[]
+}
+
+model Team {
+  id     String  @id @default(cuid())
+  name   String
+  leadId String?
+  buyers Buyer[]
+}
+
+/// The ladder. Tiers are stored as JSON so a rule can be reshaped without a
+/// migration: [{ "fromCents": 80000, "ratePct": 30 }, ...]
+model SalaryRule {
+  id         String  @id @default(cuid())
+  name       String
+  tiersJson  String
+  /// Fixed monthly salary paid on top of the percentage, in USD cents.
+  fixedCents Int     @default(0)
+  buyers     Buyer[]
+}
+
+model PaymentMethod {
+  id            String      @id @default(cuid())
+  name          String      @unique
+  /// Commission in basis points: 450 = 4.50%. Snapshotted onto every day
+  /// report so historic numbers never move when this changes.
+  commissionBps Int         @default(450)
+  archived      Boolean     @default(false)
+  days          DayReport[]
+}
+
+model Offer {
+  id         String      @id @default(cuid())
+  name       String
+  vertical   String      @default("")
+  network    String      @default("")
+  status     String      @default("ACTIVE")
+  /// Free text — payout terms are negotiated, not computed.
+  payout     String      @default("")
+  geosJson   String      @default("[]")
+  bansJson   String      @default("[]")
+  notesJson  String      @default("[]")
+  previewUrl String?
+  updatedAt  DateTime    @updatedAt
+  createdAt  DateTime    @default(now())
+  days       DayReport[]
+}
+
+/// One row per buyer per offer per day.
+model DayReport {
+  id       String   @id @default(cuid())
+  date     DateTime
+  buyerId  String
+  buyer    Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  offerId  String?
+  offer    Offer?   @relation(fields: [offerId], references: [id])
+  source   String   @default("Facebook")
+  geosJson String   @default("[]")
+
+  revenueCents  Int
+  spendNetCents Int
+
+  paymentMethodId String?
+  paymentMethod   PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
+  /// Snapshot of the commission actually charged, in basis points.
+  commissionBps   Int            @default(450)
+  /// spendNet grossed up by the commission. Stored, not derived, so a later
+  /// rate change cannot rewrite a closed period.
+  spendGrossCents Int
+
+  note      String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([buyerId, date, offerId, source])
+  @@index([date])
+  @@index([buyerId, date])
+}
+
+model ConsumableType {
+  id      String            @id @default(cuid())
+  name    String            @unique
+  color   String            @default("#A5735A")
+  entries ConsumableEntry[]
+}
+
+model ConsumableEntry {
+  id         String         @id @default(cuid())
+  date       DateTime
+  typeId     String
+  type       ConsumableType @relation(fields: [typeId], references: [id])
+  /// Null means the cost sits on the team rather than on one buyer.
+  buyerId    String?
+  buyer      Buyer?         @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+  qty        Int            @default(1)
+  totalCents Int
+  note       String         @default("")
+  createdAt  DateTime       @default(now())
+
+  @@index([date])
+  @@index([buyerId, date])
+}
+
+model Bonus {
+  id          String   @id @default(cuid())
+  buyerId     String
+  buyer       Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  periodKey   String
+  amountCents Int
+  note        String   @default("")
+  createdAt   DateTime @default(now())
+
+  @@index([periodKey])
+}
+
+/// A month. Closing one freezes its day reports and stamps the FX rate the
+/// payroll was actually computed at.
+model Period {
+  id        String    @id @default(cuid())
+  key       String    @unique
+  status    String    @default("OPEN")
+  rubPerUsd Int       @default(8000)
+  closedAt  DateTime?
+  payouts   Payout[]
+}
+
+model Payout {
+  id       String @id @default(cuid())
+  periodId String
+  period   Period @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  buyerId  String
+  buyer    Buyer  @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+
+  profitCents     Int
+  consumableCents Int
+  baseCents       Int
+  ratePct         Int
+  salaryCents     Int
+  bonusCents      Int
+  totalCents      Int
+  status          String    @default("PENDING")
+  paidAt          DateTime?
+
+  @@unique([periodId, buyerId])
+}
+
+model Setting {
+  key   String @id
+  value String
+}
+
+/// Every write to a money-bearing row lands here. Without it there is no
+/// answer to "who changed my numbers".
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actorName String   @default("")
+  entity    String
+  entityId  String
+  action    String
+  diffJson  String   @default("{}")
+  at        DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([at])
+}

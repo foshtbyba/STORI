@@ -1,0 +1,242 @@
+import { requireUser } from '@/lib/auth';
+import { canSeeTeam, type Role } from '@/lib/roles';
+import { currentPeriodKey, teamSummary, dailySeries, buyerSummary } from '@/lib/queries';
+import { usd, rub, sum, profitOf } from '@/lib/money';
+import { periodLabel } from '@/lib/period';
+import { Panel, PanelHead, Sub, Avatar, Empty } from '@/components/ui';
+import { ProfitBars, Meter } from '@/components/Charts';
+import { IconChart, IconWallet, IconBox, IconWarn, IconUsers } from '@/components/icons';
+import BuyerCabinet from '@/components/BuyerCabinet';
+
+export default async function HomePage() {
+  const user = await requireUser();
+  const key = await currentPeriodKey();
+
+  if (!canSeeTeam(user.role as Role)) {
+    if (!user.buyer) return <Empty>У аккаунта нет профиля баера — попроси админа его создать.</Empty>;
+    const data = await buyerSummary(user.buyer.id, key);
+    if (!data) return <Empty>Нет данных за {periodLabel(key)}.</Empty>;
+    return <BuyerCabinet data={data} />;
+  }
+
+  const summary = await teamSummary(key);
+  const series = dailySeries(key, summary.days);
+  const rate = summary.period.rubPerUsd;
+  const best = series.reduce((a, b) => (b.profitCents > a.profitCents ? b : a), series[0]);
+  const positiveDays = series.filter((d) => d.profitCents > 0).length;
+
+  const byType = new Map<string, { name: string; color: string; cents: number }>();
+  for (const c of summary.consumables) {
+    const row = byType.get(c.typeId) ?? { name: c.type.name, color: c.type.color, cents: 0 };
+    row.cents += c.totalCents;
+    byType.set(c.typeId, row);
+  }
+  const consumables = [...byType.values()].sort((a, b) => b.cents - a.cents);
+  const worstConsumable = consumables[0]?.cents ?? 1;
+
+  const alerts: { color: string; text: string }[] = [];
+  for (const row of summary.buyers) {
+    if (row.days === 0) alerts.push({ color: '#ce6e58', text: `${row.buyer.handle} — ни одного отчёта за период` });
+    else if (row.profitCents < 0) alerts.push({ color: '#ce6e58', text: `${row.buyer.handle} — период в минусе` });
+  }
+  const leader = summary.buyers[0];
+  if (leader && leader.ratePct >= 50) {
+    alerts.push({ color: '#b4c68c', text: `${leader.buyer.handle} закрыл верхний порог ставки` });
+  }
+
+  return (
+    <div className="flex flex-col gap-3.5">
+      <div className="grid grid-cols-[1.55fr_1fr] gap-3.5">
+        <Panel className="p-6">
+          <PanelHead
+            icon={<IconChart color="#b4c68c" />}
+            tint="bg-sage-t"
+            title="Чистый профит"
+            aside={<span className="text-[15px] text-sage">{periodLabel(key)}</span>}
+          />
+          <div className="mt-4 text-[76px] font-bold leading-none tracking-[-0.035em]">
+            <span className="text-[42px] text-mute">$</span>
+            {usd(summary.totals.profitCents).replace('$', '')}
+          </div>
+          <div className="n mt-2.5 text-[12.5px] text-mute">
+            {rub(summary.totals.profitCents, rate)} · курс {(rate / 100).toFixed(0)} ₽/$
+          </div>
+          <div className="mt-6 grid grid-cols-4 gap-3">
+            {[
+              { label: 'Оборот', value: usd(summary.totals.revenueCents), color: 'text-text' },
+              { label: 'Расход с комиссией', value: usd(summary.totals.spendGrossCents), color: 'text-text' },
+              { label: 'ROI', value: `${summary.totals.roi.toFixed(1).replace('.', ',')}%`, color: 'text-sage' },
+              {
+                label: 'Дней в плюс',
+                value: `${positiveDays} из ${series.length}`,
+                color: 'text-text',
+              },
+            ].map((s) => (
+              <Sub key={s.label} className="px-4 py-3.5">
+                <div className="text-[11.5px] text-mute">{s.label}</div>
+                <div className={`n mt-2 text-[19px] font-semibold ${s.color}`}>{s.value}</div>
+              </Sub>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel className="flex flex-col p-6">
+          <PanelHead icon={<IconWallet color="#b4c68c" />} tint="bg-sage-t" title="Остаётся команде" />
+          <div className="mt-4 text-[46px] font-bold leading-none tracking-[-0.03em]">
+            <span className="text-[26px] text-mute">$</span>
+            {usd(summary.totals.teamNetCents).replace('$', '')}
+          </div>
+          <div className="flex-1" />
+          {[
+            { name: 'Расходники', cents: summary.totals.consumableCents },
+            { name: 'Зарплата баеров', cents: summary.totals.payoutCents },
+            { name: 'Комиссия за пополнения', cents: summary.totals.commissionCents },
+          ].map((row) => (
+            <div key={row.name} className="flex items-center justify-between border-t border-line py-2.5">
+              <span className="text-[13px] text-soft">{row.name}</span>
+              <span className="n text-[13.5px] text-rust">− {usd(row.cents)}</span>
+            </div>
+          ))}
+        </Panel>
+      </div>
+
+      <Panel className="p-6">
+        <PanelHead
+          icon={<IconChart color="#b4c68c" />}
+          tint="bg-sage-t"
+          title="Профит по дням"
+          aside={<span className="text-[12.5px] text-mute">после комиссии, до расходников и ЗП</span>}
+          right={
+            <span className="rounded-full bg-sub px-3.5 py-1.5">
+              <span className="n text-[12.5px] text-soft">
+                пик {String(best.date.getUTCDate()).padStart(2, '0')}.
+                {String(best.date.getUTCMonth() + 1).padStart(2, '0')} · {usd(best.profitCents)}
+              </span>
+            </span>
+          }
+        />
+        <div className="mt-5">
+          <ProfitBars data={series} />
+        </div>
+      </Panel>
+
+      <div className="grid grid-cols-[1.85fr_1fr] gap-3.5">
+        <Panel className="flex flex-col p-6">
+          <PanelHead
+            icon={<IconUsers color="#b4c68c" />}
+            tint="bg-sage-t"
+            title="Баеры"
+            aside={<span className="text-[12.5px] text-mute">{summary.buyers.length} человек</span>}
+          />
+          <div className="mt-4 grid grid-cols-[1.7fr_repeat(4,1fr)_1.1fr] pb-2.5">
+            <span className="lab">Баер</span>
+            <span className="lab text-right">Доход</span>
+            <span className="lab text-right">Спенд</span>
+            <span className="lab text-right">С комиссией</span>
+            <span className="lab text-right">Профит</span>
+            <span className="lab text-right">ROI · доля</span>
+          </div>
+          {summary.buyers.map((row) => (
+            <div
+              key={row.buyer.id}
+              className="grid grid-cols-[1.7fr_repeat(4,1fr)_1.1fr] items-center border-t border-line py-3"
+            >
+              <span className="flex items-center gap-3">
+                <Avatar initials={row.buyer.initials} color={row.buyer.color} />
+                <span>
+                  <span className="block text-[14.5px] font-semibold">{row.buyer.handle}</span>
+                  <span className="block text-[11.5px] text-mute">
+                    {row.buyer.source} · {row.days} дн.
+                  </span>
+                </span>
+              </span>
+              <span className="n text-right text-[13.5px] text-soft">{usd(row.revenueCents)}</span>
+              <span className="n text-right text-[13.5px] text-mute">{usd(row.spendNetCents)}</span>
+              <span className="n text-right text-[13.5px] text-mute">{usd(row.spendGrossCents)}</span>
+              <span
+                className="n text-right text-[18px] font-semibold"
+                style={{ color: row.profitCents >= 0 ? '#b4c68c' : '#ce6e58' }}
+              >
+                {usd(row.profitCents)}
+              </span>
+              <span className="flex items-center justify-end gap-3">
+                <span className="n text-[12.5px]" style={{ color: row.roi >= 25 ? '#b4c68c' : '#ce6e58' }}>
+                  {row.roi.toFixed(1).replace('.', ',')}%
+                </span>
+                <span className="h-1.5 w-14 rounded-full bg-sub">
+                  <span
+                    className="block h-1.5 rounded-full"
+                    style={{
+                      width: `${Math.max(0, Math.min(100, (row.profitCents / Math.max(1, summary.buyers[0].profitCents)) * 100))}%`,
+                      background: row.profitCents >= 0 ? '#b4c68c' : '#ce6e58',
+                    }}
+                  />
+                </span>
+              </span>
+            </div>
+          ))}
+          <div className="flex-1" />
+          <Sub className="mt-2.5 grid grid-cols-[1.7fr_repeat(4,1fr)_1.1fr] items-center px-4 py-3.5">
+            <span className="lab text-text">Итого</span>
+            <span className="n text-right text-[13.5px]">{usd(summary.totals.revenueCents)}</span>
+            <span className="n text-right text-[13.5px]">{usd(summary.totals.spendNetCents)}</span>
+            <span className="n text-right text-[13.5px]">{usd(summary.totals.spendGrossCents)}</span>
+            <span className="n text-right text-[18px] font-semibold text-sage">
+              {usd(summary.totals.profitCents)}
+            </span>
+            <span className="n text-right text-[12.5px] text-sage">
+              {summary.totals.roi.toFixed(1).replace('.', ',')}%
+            </span>
+          </Sub>
+        </Panel>
+
+        <div className="flex flex-col gap-3.5">
+          <Panel className="flex-1 p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <span className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-rust-t">
+                  <IconBox color="#ce6e58" size={17} />
+                </span>
+                <span className="text-[15.5px] font-semibold">Расходники</span>
+              </span>
+              <span className="n text-[17px] font-semibold text-rust">
+                {usd(summary.totals.consumableCents)}
+              </span>
+            </div>
+            {consumables.length === 0 ? (
+              <Empty>За период ничего не списано.</Empty>
+            ) : (
+              consumables.map((c) => (
+                <div key={c.name} className="mb-3 flex items-center gap-3">
+                  <span className="h-2 w-2 shrink-0 rounded-sm" style={{ background: c.color }} />
+                  <span className="w-[122px] shrink-0 text-[12.5px] text-soft">{c.name}</span>
+                  <Meter value={c.cents} max={worstConsumable} color={c.color} />
+                  <span className="n w-12 text-right text-[12px] text-mid">{usd(c.cents)}</span>
+                </div>
+              ))
+            )}
+          </Panel>
+
+          <Panel className="flex-1 p-5">
+            <div className="mb-3.5 flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-rust-t">
+                <IconWarn color="#ce6e58" size={17} />
+              </span>
+              <span className="text-[15.5px] font-semibold">Требует внимания</span>
+            </div>
+            {alerts.length === 0 ? (
+              <Empty>Всё спокойно.</Empty>
+            ) : (
+              alerts.slice(0, 5).map((a, i) => (
+                <Sub key={i} className="mb-2.5 flex gap-3 px-3.5 py-3">
+                  <span className="w-[3px] shrink-0 rounded-sm" style={{ background: a.color }} />
+                  <span className="text-[12.5px] leading-relaxed">{a.text}</span>
+                </Sub>
+              ))
+            )}
+          </Panel>
+        </div>
+      </div>
+    </div>
+  );
+}
