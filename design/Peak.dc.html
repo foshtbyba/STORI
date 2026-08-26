@@ -7,174 +7,324 @@
 <body>
 <x-dc>
 <helmet>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Oswald:wght@200;300;400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
   <style>
-    body { margin: 0; background: #1E1E21; font-family: 'Golos Text', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; color: #D4D4D4; }
+    body { margin: 0; background: #141416; font-family: 'Manrope', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; color: #D4D4D4; }
     a { color: #A4B183; text-decoration: none; } a:hover { color: #C3624C; }
     .n { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
-    .d { font-family: 'Oswald', 'Golos Text', sans-serif; font-weight: 300; letter-spacing: -0.01em; }
-    .lab { font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 400; letter-spacing: 0.24em; text-transform: uppercase; color: #5B5B5D; }
-    .rule { height: 1px; background: #33333A; }
+    .p { background: #1E1E21; border: 1px solid #2C2C31; border-radius: 26px; }
+    .b { width: 42px; height: 42px; border-radius: 50%; background: #292930; display: flex; align-items: center; justify-content: center; flex: 0 0 42px; }
+    .ib { width: 32px; height: 32px; border-radius: 50%; background: #26262A; display: flex; align-items: center; justify-content: center; flex: 0 0 32px; }
+    .h { font-size: 17px; font-weight: 600; letter-spacing: -0.015em; }
+    .s { font-size: 12.5px; color: #5B5B5D; }
+    .lab { font-size: 10.5px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; color: #5B5B5D; }
+    .pill { border-radius: 999px; }
+    .sub { background: #26262A; border-radius: 18px; }
   </style>
 </helmet>
 
-<div style="display: flex; width: 1440px; min-height: 1200px; background: #1E1E21; color: #D4D4D4;">
-
-  <aside style="width: 76px; flex: 0 0 76px; border-right: 1px solid #33333A; display: flex; flex-direction: column; align-items: center; padding: 24px 0 22px 0;">
-    <div style="width: 32px; height: 32px; border: 1px solid #A4B183; display: flex; align-items: center; justify-content: center;">
-      <span class="d" style="font-size: 16px; font-weight: 500; color: #A4B183;">S</span>
-    </div>
-    <div style="height: 22px;"></div>
-    <div class="lab" style="writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: 0.42em; font-size: 9.5px;">STORI · TEAM</div>
-    <div style="height: 30px;"></div>
-    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><path d="M3 20h18M3 20V9l9-6 9 6v11"/><path d="M9 20v-6h6v6"/></svg>
-      </div>
-      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
-      </div>
-      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #26262A; border-left: 2px solid #A4B183;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.5"><path d="M3 21l9-16 9 16z"/><path d="M8.5 12.5h7"/></svg>
-      </div>
-      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><path d="M21 8l-9-4.5L3 8l9 4.5L21 8z"/><path d="M3 8v8l9 4.5L21 16V8"/></svg>
-      </div>
-      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><rect x="3" y="6" width="18" height="13"/><path d="M3 10.5h18"/></svg>
-      </div>
-      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><path d="M3 12.5V4h8.5L21 13.5 12.5 22 3 12.5z"/><circle cx="8" cy="8" r="1.3"/></svg>
-      </div>
-    </div>
-    <div style="flex-grow: 1;"></div>
-    <div style="width: 32px; height: 32px; border: 1px solid #33333A; display: flex; align-items: center; justify-content: center;">
-      <span class="n" style="font-size: 10px; color: #5B5B5D;">AD</span>
-    </div>
-  </aside>
-
-  <main style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column;">
-
-    <div style="display: flex; align-items: center; justify-content: space-between; height: 66px; padding: 0 40px; border-bottom: 1px solid #33333A;">
-      <div style="display: flex; align-items: center; gap: 13px;">
-        <span class="lab" style="color: #D4D4D4;">Вершина</span>
-        <span class="lab">/</span>
-        <span class="lab">Рейтинг за август</span>
-      </div>
-      <div style="display: flex; align-items: center; gap: 26px;">
-        <div style="display: flex; align-items: center; gap: 22px;">
-          <span class="lab">Неделя</span>
-          <span class="lab" style="color: #D4D4D4; border-bottom: 1px solid #A4B183; padding-bottom: 3px;">Месяц</span>
-          <span class="lab">Квартал</span>
+<div style="width: 1440px; min-height: 1040px; background: #141416; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+    <div class="p" style="display: flex; align-items: center; justify-content: space-between; height: 78px; padding: 0 14px 0 16px;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div class="b" style="background: #2E3327;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.7" stroke-linejoin="round"><path d="M2.5 20h19L14 5l-3.4 6.5L8.4 8z"/></svg>
         </div>
-        <div style="width: 1px; height: 20px; background: #33333A;"></div>
-        <span class="n" style="font-size: 11.5px; color: #5B5B5D;">01.08 — 26.08.2026</span>
+        <span style="font-size: 19px; font-weight: 700; letter-spacing: -0.02em;">Команда STORI</span>
+        <span style="width: 1px; height: 22px; background: #33333A;"></span>
+        <span class="n" style="font-size: 16px; color: #8A8A8D;">01–26.08.26</span>
       </div>
-    </div>
-
-    <!-- TITLE BAND -->
-    <div style="display: flex; align-items: flex-end; justify-content: space-between; padding: 32px 40px 14px 40px;">
-      <div>
-        <div class="d" style="font-size: 62px; line-height: 0.94; font-weight: 200; letter-spacing: 0.02em; text-transform: uppercase;">Вершина</div>
-        <div style="font-size: 13px; color: #5B5B5D; margin-top: 12px; max-width: 460px; line-height: 1.55;">Высота склона равна чистому профиту за месяц. Пунктир — пороги ставки: кто перевалил линию, тот забирает следующий процент.</div>
-      </div>
-      <div style="display: flex; align-items: flex-end; gap: 34px;">
-        <div>
-          <span class="lab" style="font-size: 10px;">Высшая точка</span>
-          <div class="d n" style="font-size: 32px; font-weight: 300; margin-top: 8px; color: #A4B183;">$12 600</div>
-          <div class="d" style="font-size: 14px; color: #5B5B5D; letter-spacing: 0.1em; margin-top: 2px;">NOMAD</div>
+      <div style="display: flex; align-items: center; gap: 22px;">
+        <div style="display: flex; align-items: center; gap: 9px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.7"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+          <span style="font-size: 14px; color: #A9A9AC;">5 баеров</span>
         </div>
-        <div style="width: 1px; height: 62px; background: #33333A;"></div>
-        <div>
-          <span class="lab" style="font-size: 10px;">Снеговая линия</span>
-          <div class="d n" style="font-size: 32px; font-weight: 300; margin-top: 8px;">$10 000</div>
-          <div class="d" style="font-size: 14px; color: #5B5B5D; letter-spacing: 0.1em; margin-top: 2px;">СТАВКА 50%</div>
+        <span style="width: 1px; height: 20px; background: #2C2C31;"></span>
+        <div style="display: flex; align-items: center; gap: 9px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.7" stroke-linejoin="round"><path d="M3 19h18L14.5 6l-3 5.5L9.5 9z"/></svg>
+          <span class="n" style="font-size: 14px; color: #A4B183;">$34 700</span>
         </div>
-      </div>
-    </div>
-
-    <!-- MOUNTAIN -->
-    <div style="position: relative; padding: 0 20px;">
-      <svg viewBox="0 70 1370 710" style="display: block; width: 100%; height: auto;">
-        <sc-for list="{{ ticks }}" as="k" hint-placeholder-count="120">
-          <line x1="{{ k.x1 }}" y1="{{ k.y1 }}" x2="{{ k.x2 }}" y2="{{ k.y2 }}" stroke="{{ k.c }}" stroke-width="{{ k.w }}"/>
-        </sc-for>
-        <ellipse cx="640" cy="585" rx="520" ry="145.6" fill="none" stroke="#33333A" stroke-width="1"/>
-        <text x="640" y="416" text-anchor="middle" fill="#5B5B5D" stroke="#1E1E21" stroke-width="5" paint-order="stroke" font-family="Oswald, sans-serif" font-size="16" letter-spacing="3">С</text>
-        <text x="1204" y="591" text-anchor="middle" fill="#5B5B5D" stroke="#1E1E21" stroke-width="5" paint-order="stroke" font-family="Oswald, sans-serif" font-size="16" letter-spacing="3">В</text>
-        <text x="640" y="766" text-anchor="middle" fill="#5B5B5D" stroke="#1E1E21" stroke-width="5" paint-order="stroke" font-family="Oswald, sans-serif" font-size="16" letter-spacing="3">Ю</text>
-        <text x="76" y="591" text-anchor="middle" fill="#5B5B5D" stroke="#1E1E21" stroke-width="5" paint-order="stroke" font-family="Oswald, sans-serif" font-size="16" letter-spacing="3">З</text>
-
-        <path d="{{ body }}" fill="#232326"/>
-        <path d="{{ snow }}" fill="#2C2C31"/>
-        <sc-for list="{{ ridges }}" as="r" hint-placeholder-count="14">
-          <path d="{{ r }}" fill="none" stroke="#43434A" stroke-width="0.9"/>
-        </sc-for>
-        <sc-for list="{{ contours }}" as="c" hint-placeholder-count="38">
-          <path d="{{ c.d }}" fill="none" stroke="{{ c.s }}" stroke-width="{{ c.w }}"/>
-        </sc-for>
-        <path d="{{ route }}" fill="none" stroke="#D4D4D4" stroke-width="1.8" stroke-dasharray="6 6" opacity="0.45" stroke-linecap="round"/>
-
-        <line x1="1265" y1="235" x2="1265" y2="585" stroke="#33333A" stroke-width="1"/>
-        <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="4">
-          <g>
-            <line x1="{{ t.x1 }}" y1="{{ t.y }}" x2="1255" y2="{{ t.y }}" stroke="{{ t.c }}" stroke-width="1" stroke-dasharray="4 6" opacity="{{ t.o }}"/>
-            <line x1="1259" y1="{{ t.y }}" x2="1271" y2="{{ t.y }}" stroke="{{ t.c }}" stroke-width="1.4"/>
-          </g>
-        </sc-for>
-        <text x="1281" y="239" fill="#A4B183" font-family="JetBrains Mono, monospace" font-size="12">$12 600</text>
-        <text x="1281" y="253" fill="#5B5B5D" font-family="Oswald, sans-serif" font-size="10" letter-spacing="1.6">ВЕРШИНА</text>
-        <text x="1281" y="311" fill="#A4B183" font-family="JetBrains Mono, monospace" font-size="12">$10 000</text>
-        <text x="1281" y="325" fill="#5B5B5D" font-family="Oswald, sans-serif" font-size="10" letter-spacing="1.6">СТАВКА 50%</text>
-        <text x="1281" y="450" fill="#D4D4D4" font-family="JetBrains Mono, monospace" font-size="12">$5 000</text>
-        <text x="1281" y="464" fill="#5B5B5D" font-family="Oswald, sans-serif" font-size="10" letter-spacing="1.6">СТАВКА 40%</text>
-        <text x="1281" y="567" fill="#D4D4D4" font-family="JetBrains Mono, monospace" font-size="12">$800</text>
-        <text x="1281" y="581" fill="#5B5B5D" font-family="Oswald, sans-serif" font-size="10" letter-spacing="1.6">СТАВКА 30%</text>
-
-        <sc-for list="{{ pins }}" as="p" hint-placeholder-count="5">
-          <g>
-            <line x1="{{ p.sx }}" y1="{{ p.sy }}" x2="{{ p.sx }}" y2="{{ p.py }}" stroke="{{ p.c }}" stroke-width="1.2"/>
-            <rect x="{{ p.mx }}" y="{{ p.my }}" width="7" height="7" fill="{{ p.c }}"/>
-            <line x1="{{ p.sx }}" y1="{{ p.py }}" x2="{{ p.tx2 }}" y2="{{ p.py }}" stroke="{{ p.c }}" stroke-width="1.2"/>
-          </g>
-        </sc-for>
-
-        <path d="M640 235 L640 112 L682 122 L640 134" fill="#A4B183" stroke="#A4B183" stroke-width="1.6" stroke-linejoin="round"/>
-      </svg>
-
-      <sc-for list="{{ pins }}" as="p" hint-placeholder-count="5">
-        <div style="position: absolute; left: {{ p.left }}%; top: {{ p.top }}%; transform: {{ p.tf }}; text-align: {{ p.ta }}; white-space: nowrap;">
-          <div class="d" style="font-size: 20px; font-weight: 400; letter-spacing: 0.1em; line-height: 1;">{{ p.name }}</div>
-          <div class="n" style="font-size: 15px; margin-top: 6px; color: {{ p.c }};">{{ p.amount }}</div>
-        </div>
-      </sc-for>
-    </div>
-
-    <!-- STRIP -->
-    <div style="border-top: 1px solid #33333A; margin: 22px 40px 0 40px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); flex-grow: 1;">
-      <sc-for list="{{ strip }}" as="s" hint-placeholder-count="5">
-        <div style="padding: 24px 26px 30px 0; border-right: 1px solid #33333A;">
-          <div style="display: flex; align-items: baseline; gap: 12px;">
-            <span class="n" style="font-size: 11px; color: #5B5B5D;">{{ s.pos }}</span>
-            <span class="d" style="font-size: 24px; font-weight: 400; letter-spacing: 0.06em;">{{ s.name }}</span>
+        <div class="pill" style="display: flex; align-items: center; gap: 12px; background: #26262A; padding: 7px 12px 7px 14px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"/><path d="M17 11.5a3 3 0 100-6"/></svg>
+          <div style="display: flex;">
+            <sc-for list="{{ crew }}" as="c" hint-placeholder-count="5">
+              <div class="n" style="width: 32px; height: 32px; border-radius: 50%; background: {{ c.bg }}; border: 2px solid #1E1E21; margin-left: -9px; display: flex; align-items: center; justify-content: center; font-size: 10.5px; color: {{ c.fg }};">{{ c.t }}</div>
+            </sc-for>
           </div>
-          <div class="d n" style="font-size: 30px; font-weight: 300; margin: 14px 0 4px 0; color: {{ s.c }};">{{ s.amount }}</div>
-          <div style="height: 3px; background: #2E2E33; margin-bottom: 14px;">
-            <div style="width: {{ s.pct }}%; height: 3px; background: {{ s.c }};"></div>
-          </div>
-          <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 7px;">
-            <span class="lab" style="font-size: 9.5px;">Ставка</span>
-            <span class="n" style="font-size: 13px; color: {{ s.c }};">{{ s.rate }}</span>
-          </div>
-          <div style="font-size: 11.5px; color: #5B5B5D; line-height: 1.5;">{{ s.gap }}</div>
         </div>
-      </sc-for>
+      </div>
     </div>
-  </main>
+
+  <div style="display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 14px; height: 876px;">
+
+    <!-- METRICS -->
+    <div class="p" style="padding: 20px 22px; display: flex; flex-direction: column;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 13px;">
+          <div class="b">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v8.5h8.5"/></svg>
+          </div>
+          <span class="h">Метрики</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg>
+          <span class="n" style="font-size: 14px;">01–26.08</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg>
+          <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="#5B5B5D"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></div>
+        </div>
+      </div>
+
+      <!-- chart 1 -->
+      <div style="padding-bottom: 22px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.8"><path d="M4 20V9M10 20V4M16 20v-7M22 20h-20"/></svg>
+            <span style="font-size: 14.5px; font-weight: 600;">Профит по дням</span>
+          </div>
+          <span class="n" style="font-size: 13px; color: #8A8A8D;">всего $34 700</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <div style="width: 26px; display: flex; flex-direction: column; justify-content: space-between; height: 126px;">
+            <span class="n" style="font-size: 10px; color: #4E4E55;">3k</span>
+            <span class="n" style="font-size: 10px; color: #4E4E55;">1,5k</span>
+            <span class="n" style="font-size: 10px; color: #4E4E55;">0</span>
+          </div>
+          <div style="flex-grow: 1;">
+            <div style="display: flex; align-items: flex-end; gap: 2.5px; height: 126px;">
+              <sc-for list="{{ bars }}" as="b" hint-placeholder-count="26">
+                <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 126px;">
+                  <div style="width: 100%; height: {{ b.h }}px; background: {{ b.c }}; border-radius: 3px;"></div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="height: 1px; background: #33333A; margin-top: 3px;"></div>
+            <div style="display: flex; align-items: flex-start; gap: 2.5px; height: 20px;">
+              <sc-for list="{{ bars }}" as="b" hint-placeholder-count="26">
+                <div style="flex-grow: 1;"><div style="width: 100%; height: {{ b.nh }}px; background: #C3624C; border-radius: 3px;"></div></div>
+              </sc-for>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+              <span class="n" style="font-size: 10px; color: #4E4E55;">01.08</span>
+              <span class="n" style="font-size: 10px; color: #4E4E55;">09.08</span>
+              <span class="n" style="font-size: 10px; color: #4E4E55;">17.08</span>
+              <span class="n" style="font-size: 10px; color: #4E4E55;">26.08</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: #2C2C31;"></div>
+
+      <!-- chart 2 -->
+      <div style="padding: 22px 0;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.8"><circle cx="6" cy="15" r="1.8"/><circle cx="12" cy="8" r="1.8"/><circle cx="18" cy="13" r="1.8"/><path d="M2 20h20"/></svg>
+            <span style="font-size: 14.5px; font-weight: 600;">ROI по дням</span>
+          </div>
+          <span class="n" style="font-size: 13px; color: #8A8A8D;">сред. 37,2%</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <div style="width: 26px; display: flex; flex-direction: column; justify-content: space-between; height: 126px;">
+            <span class="n" style="font-size: 10px; color: #4E4E55;">70</span>
+            <span class="n" style="font-size: 10px; color: #4E4E55;">25</span>
+            <span class="n" style="font-size: 10px; color: #4E4E55;">−20</span>
+          </div>
+          <div style="flex-grow: 1;">
+            <div style="position: relative; height: 126px;">
+              <div style="position: absolute; left: 0; right: 0; top: {{ avgTop }}%; height: 1px; background: #4E4E55;"></div>
+              <div class="n" style="position: absolute; right: 0; top: 2px; font-size: 10.5px; color: #A4B183;">макс 66%</div>
+              <div class="n" style="position: absolute; right: 0; bottom: 2px; font-size: 10.5px; color: #C3624C;">мин −12%</div>
+              <sc-for list="{{ dots }}" as="d" hint-placeholder-count="26">
+                <div style="position: absolute; left: {{ d.x }}%; top: {{ d.y }}%; width: 7px; height: 7px; border-radius: 50%; background: {{ d.c }}; transform: translate(-50%, -50%);"></div>
+              </sc-for>
+            </div>
+            <div style="height: 1px; background: #33333A;"></div>
+            <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+              <span class="n" style="font-size: 10px; color: #4E4E55;">01.08</span>
+              <span class="n" style="font-size: 10px; color: #4E4E55;">09.08</span>
+              <span class="n" style="font-size: 10px; color: #4E4E55;">17.08</span>
+              <span class="n" style="font-size: 10px; color: #4E4E55;">26.08</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: #2C2C31;"></div>
+
+      <!-- chart 3 -->
+      <div style="padding: 22px 0;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.8"><rect x="3" y="8" width="5" height="12" rx="2.5"/><rect x="10" y="4" width="5" height="16" rx="2.5"/><rect x="17" y="11" width="5" height="9" rx="2.5"/></svg>
+            <span style="font-size: 14.5px; font-weight: 600;">Спенд и профит</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 13px;">
+            <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 3px; background: #6E4237;"></span><span class="s" style="font-size: 11px;">спенд</span></div>
+            <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 3px; background: #A4B183;"></span><span class="s" style="font-size: 11px;">профит</span></div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; height: 132px; padding: 0 6px;">
+          <sc-for list="{{ weeks }}" as="w" hint-placeholder-count="4">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+              <div style="display: flex; align-items: flex-end; gap: 7px; height: 132px;">
+                <div style="width: 22px; height: {{ w.sh }}px; background: #6E4237; border-radius: 11px;"></div>
+                <div style="width: 22px; height: {{ w.ph }}px; background: #A4B183; border-radius: 11px;"></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 10px 20px 0 20px;">
+          <sc-for list="{{ weeks }}" as="w" hint-placeholder-count="4">
+            <span class="n" style="font-size: 10.5px; color: #4E4E55;">{{ w.label }}</span>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: #2C2C31;"></div>
+
+      <!-- chart 4 -->
+      <div style="padding-top: 22px; flex-grow: 1;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C3624C" stroke-width="1.8" stroke-linejoin="round"><path d="M21 8l-9-4.5L3 8l9 4.5z"/><path d="M3 8v8l9 4.5L21 16V8"/></svg>
+            <span style="font-size: 14.5px; font-weight: 600;">Расходники</span>
+          </div>
+          <span class="n" style="font-size: 13px; color: #C3624C;">$3 100</span>
+        </div>
+        <sc-for list="{{ consum }}" as="c" hint-placeholder-count="5">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 11px;">
+            <span style="font-size: 12.5px; color: #A9A9AC; width: 118px; flex: 0 0 118px;">{{ c.name }}</span>
+            <div style="flex-grow: 1; height: 8px; background: #26262A; border-radius: 4px; overflow: hidden;">
+              <div style="width: {{ c.pct }}%; height: 8px; background: #6E4237; border-radius: 4px;"></div>
+            </div>
+            <span class="n" style="font-size: 12px; color: #8A8A8D; width: 46px; text-align: right;">{{ c.sum }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div style="display: flex; flex-direction: column; gap: 14px; min-width: 0;">
+
+      <div class="p" style="padding: 20px 22px 8px 22px; flex-grow: 1; display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 13px;">
+            <div class="b">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.7"><circle cx="6" cy="7" r="2.4"/><circle cx="18" cy="17" r="2.4"/><path d="M8.4 8.2C13 11 11 13 15.8 15.6"/></svg>
+            </div>
+            <span class="h">Вершина</span>
+            <span style="width: 1px; height: 20px; background: #33333A;"></span>
+            <span style="font-size: 15px; color: #A4B183;">Август 2026</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.7"><path d="M4 8l8-4 8 4-8 4z"/><path d="M4 13l8 4 8-4"/></svg></div>
+            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.7"><path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg></div>
+            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.7"><path d="M9 4L3 6.5v14L9 18l6 2.5 6-2.5v-14L15 6.5z"/><path d="M9 4v14M15 6.5v14"/></svg></div>
+            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="#5B5B5D"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></div>
+          </div>
+        </div>
+
+        <div style="position: relative; margin-top: 6px;">
+          <svg viewBox="0 70 1370 706" style="display: block; width: 100%; height: auto;">
+            <sc-for list="{{ ticks }}" as="k" hint-placeholder-count="120">
+              <line x1="{{ k.x1 }}" y1="{{ k.y1 }}" x2="{{ k.x2 }}" y2="{{ k.y2 }}" stroke="{{ k.c }}" stroke-width="{{ k.w }}"/>
+            </sc-for>
+            <ellipse cx="640" cy="585" rx="520" ry="145.6" fill="none" stroke="#5F7357" stroke-width="1.4"/>
+            <text x="640" y="418" text-anchor="middle" fill="#77777F" stroke="#1E1E21" stroke-width="7" paint-order="stroke" font-family="Manrope, sans-serif" font-size="28" font-weight="700" letter-spacing="2">С</text>
+            <text x="1206" y="594" text-anchor="middle" fill="#77777F" stroke="#1E1E21" stroke-width="7" paint-order="stroke" font-family="Manrope, sans-serif" font-size="28" font-weight="700" letter-spacing="2">В</text>
+            <text x="640" y="770" text-anchor="middle" fill="#77777F" stroke="#1E1E21" stroke-width="7" paint-order="stroke" font-family="Manrope, sans-serif" font-size="28" font-weight="700" letter-spacing="2">Ю</text>
+            <text x="74" y="594" text-anchor="middle" fill="#77777F" stroke="#1E1E21" stroke-width="7" paint-order="stroke" font-family="Manrope, sans-serif" font-size="28" font-weight="700" letter-spacing="2">З</text>
+
+            <path d="{{ body }}" fill="#1E1E21"/>
+            <path d="{{ snow }}" fill="#25262A"/>
+            <sc-for list="{{ ridges }}" as="r" hint-placeholder-count="14">
+              <path d="{{ r }}" fill="none" stroke="#3B3B43" stroke-width="0.9"/>
+            </sc-for>
+            <sc-for list="{{ contours }}" as="c" hint-placeholder-count="46">
+              <path d="{{ c.d }}" fill="none" stroke="{{ c.s }}" stroke-width="{{ c.w }}"/>
+            </sc-for>
+            <path d="{{ route }}" fill="none" stroke="#D4D4D4" stroke-width="2" stroke-dasharray="7 7" opacity="0.5" stroke-linecap="round"/>
+
+            <line x1="1268" y1="235" x2="1268" y2="585" stroke="#2C2C31" stroke-width="1"/>
+            <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="3">
+              <g>
+                <line x1="{{ t.x1 }}" y1="{{ t.y }}" x2="1258" y2="{{ t.y }}" stroke="{{ t.c }}" stroke-width="1" stroke-dasharray="4 7" opacity="0.75"/>
+                <line x1="1262" y1="{{ t.y }}" x2="1274" y2="{{ t.y }}" stroke="{{ t.c }}" stroke-width="1.6"/>
+              </g>
+            </sc-for>
+            <text x="1286" y="240" fill="#A4B183" font-family="JetBrains Mono, monospace" font-size="13">$10 000</text>
+            <text x="1286" y="257" fill="#5B5B5D" font-family="Manrope, sans-serif" font-size="11.5" font-weight="600">ставка 50%</text>
+            <text x="1286" y="382" fill="#D4D4D4" font-family="JetBrains Mono, monospace" font-size="13">$5 000</text>
+            <text x="1286" y="399" fill="#5B5B5D" font-family="Manrope, sans-serif" font-size="11.5" font-weight="600">ставка 40%</text>
+            <text x="1286" y="501" fill="#D4D4D4" font-family="JetBrains Mono, monospace" font-size="13">$800</text>
+            <text x="1286" y="518" fill="#5B5B5D" font-family="Manrope, sans-serif" font-size="11.5" font-weight="600">ставка 30%</text>
+
+            <sc-for list="{{ pins }}" as="p" hint-placeholder-count="5">
+              <g>
+                <line x1="{{ p.sx }}" y1="{{ p.sy }}" x2="{{ p.sx }}" y2="{{ p.py }}" stroke="{{ p.stem }}" stroke-width="1.6"/>
+                <ellipse cx="{{ p.sx }}" cy="{{ p.sy }}" rx="4.5" ry="2" fill="{{ p.c }}"/>
+              </g>
+            </sc-for>
+          </svg>
+
+          <sc-for list="{{ pins }}" as="p" hint-placeholder-count="5">
+            <div style="position: absolute; left: {{ p.left }}%; top: {{ p.top }}%; transform: translate(-50%, -50%); width: 40px; height: 40px; border-radius: 50%; background: {{ p.headBg }}; border: 2px solid {{ p.c }}; display: flex; align-items: center; justify-content: center;">
+              <span class="n" style="font-size: 12px; font-weight: 600; color: {{ p.headFg }};">{{ p.ini }}</span>
+            </div>
+          </sc-for>
+          <sc-for list="{{ pins }}" as="p" hint-placeholder-count="5">
+            <div class="pill" style="position: absolute; left: {{ p.left }}%; top: {{ p.top }}%; transform: translate(-50%, calc(-50% - 34px)); background: #26262A; border: 1px solid #33333A; padding: 4px 11px; white-space: nowrap;">
+              <span class="n" style="font-size: 12px; color: {{ p.c }};">{{ p.amount }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- LOG -->
+      <div class="p" style="padding: 20px 22px 22px 22px; flex: 0 0 auto;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+          <div style="display: flex; align-items: center; gap: 13px;">
+            <div class="b">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.7"><rect x="3" y="4" width="18" height="7" rx="3"/><rect x="3" y="13" width="18" height="7" rx="3"/></svg>
+            </div>
+            <span class="h">Журнал</span>
+            <span style="width: 1px; height: 20px; background: #33333A;"></span>
+            <span style="font-size: 15px; color: #A4B183;">Сегодня</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.8"><path d="M12 20V7M7 12l5-5 5 5M4 4h16"/></svg></div>
+            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="#5B5B5D"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></div>
+          </div>
+        </div>
+
+        <sc-for list="{{ log }}" as="l" hint-placeholder-count="2">
+          <div style="display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 18px; align-items: center; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div style="width: 30px; height: 30px; border-radius: 50%; background: {{ l.mbg }}; border: 1.5px solid {{ l.mc }}; display: flex; align-items: center; justify-content: center; flex: 0 0 30px;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: {{ l.mc }};"></span>
+              </div>
+              <div>
+                <div style="font-size: 14.5px; font-weight: 600;">{{ l.title }}</div>
+                <div class="n s" style="font-size: 11.5px; margin-top: 4px;">{{ l.time }}</div>
+              </div>
+            </div>
+            <div class="sub" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 15px 20px;">
+              <sc-for list="{{ l.fields }}" as="fd" hint-placeholder-count="4">
+                <div>
+                  <div class="s" style="font-size: 11.5px;">{{ fd.k }}</div>
+                  <div class="n" style="font-size: 13.5px; margin-top: 6px; color: {{ fd.c }};">{{ fd.v }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
 </div>
 </x-dc>
 
-<script data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
 class Component extends DCLogic {
   renderVals() {
     var CX = 640, CY = 585, RMAX = 400, SQ = 0.28, H = 350, TOP = 12600, RING = 520;
@@ -182,11 +332,8 @@ class Component extends DCLogic {
     var rad = function (t) { return RMAX * Math.pow(1 - t, 1.15); };
     var lift = function (t) { return H * t; };
     var wob = function (a, t) {
-      return 1
-        + 0.085 * Math.sin(3 * a + 0.42 + t * 0.30)
-        + 0.048 * Math.sin(5 * a - 1.15 + t * 0.20)
-        + 0.026 * Math.sin(8 * a + 2.05)
-        + 0.015 * Math.sin(13 * a - 0.35 + t * 0.4);
+      return 1 + 0.085 * Math.sin(3 * a + 0.42 + t * 0.30) + 0.048 * Math.sin(5 * a - 1.15 + t * 0.20)
+        + 0.026 * Math.sin(8 * a + 2.05) + 0.015 * Math.sin(13 * a - 0.35 + t * 0.4);
     };
     var pt = function (a, t) {
       var r = rad(t) * wob(a, t);
@@ -201,106 +348,129 @@ class Component extends DCLogic {
       return s.join(' ') + ' Z';
     };
 
-    // compass ticks
     var ticks = [];
     for (var k = 0; k < 120; k++) {
-      var a = k * 3 * Math.PI / 180;
-      var major = k % 5 === 0, card = k % 30 === 0;
-      var ri = card ? 484 : (major ? 496 : 505);
+      var a = k * 3 * Math.PI / 180, major = k % 5 === 0, card = k % 30 === 0;
+      var ri = card ? 468 : (major ? 484 : 496);
       ticks.push({
         x1: (CX + ri * Math.cos(a)).toFixed(1), y1: (CY + ri * SQ * Math.sin(a)).toFixed(1),
         x2: (CX + RING * Math.cos(a)).toFixed(1), y2: (CY + RING * SQ * Math.sin(a)).toFixed(1),
-        c: card ? '#A4B183' : (major ? '#4A4A50' : '#33333A'),
-        w: card ? '1.6' : '1'
+        c: card ? '#A4B183' : (major ? '#7A7A85' : '#4A4A52'), w: card ? '2' : '1'
       });
     }
 
-    // contours
-    var N = 38, contours = [];
+    var N = 46, contours = [];
     for (var i = 0; i < N; i++) {
       var t = i / (N - 1);
-      contours.push({ d: ringPath(t), s: i % 6 === 0 ? '#575760' : '#3A3A41', w: i % 6 === 0 ? '1.3' : '0.9' });
+      contours.push({ d: ringPath(t), s: i % 6 === 0 ? '#585862' : '#3C3C44', w: i % 6 === 0 ? '1.2' : '0.85' });
     }
 
-    // ridges
     var ridges = [];
     for (var g = 0; g < 14; g++) {
-      var ang = g / 14 * Math.PI * 2 + 0.11;
-      var s = [];
+      var ang = g / 14 * Math.PI * 2 + 0.11, sPts = [];
       for (var q = 0; q <= 30; q++) {
-        var tt = 1 - q / 30;
-        var p = pt(ang, tt);
-        s.push((q === 0 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1));
+        var p = pt(ang, 1 - q / 30);
+        sPts.push((q === 0 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1));
       }
-      ridges.push(s.join(' '));
+      ridges.push(sPts.join(' '));
     }
 
-    // route
     var rp = [];
     for (var m = 0; m <= 60; m++) {
-      var tt2 = 0.02 + (m / 60) * 0.98;
-      var ang2 = (38 + (m / 60) * 118) * Math.PI / 180;
-      var p2 = pt(ang2, tt2);
+      var p2 = pt((38 + (m / 60) * 118) * Math.PI / 180, 0.02 + (m / 60) * 0.98);
       rp.push((m === 0 ? 'M' : 'L') + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1));
     }
 
-    // tiers
-    var tierDefs = [
-      { v: 800, label: '$800', sub: '30%', c: '#5B5B5D', o: '0.9' },
-      { v: 5000, label: '$5 000', sub: '40%', c: '#5B5B5D', o: '0.9' },
-      { v: 10000, label: '$10 000', sub: '50%', c: '#A4B183', o: '1' },
-      { v: 12600, label: '$12 600', sub: 'вершина', c: '#A4B183', o: '0' }
-    ];
-    var tiers = tierDefs.map(function (d) {
-      var t = d.v / TOP, y = CY - lift(t);
-      return { x1: (CX + rad(t) * 1.02).toFixed(1), y: y.toFixed(1), c: d.c, o: d.o };
+    var tiers = [800, 5000, 10000].map(function (v) {
+      var t = v / TOP, y = CY - lift(t);
+      return { x1: (CX + rad(t) * 1.02).toFixed(1), y: y.toFixed(1), c: v >= 10000 ? '#A4B183' : '#5B5B5D' };
     });
 
-    // pins
     var people = [
-      { name: 'NOMAD', v: 12600, ang: 0, stem: 115, dir: 0, c: '#A4B183' },
-      { name: 'SKO', v: 9000, ang: 125, stem: 80, dir: -1, c: '#A4B183' },
-      { name: 'LUNA', v: 7900, ang: 55, stem: 72, dir: 1, c: '#A4B183' },
-      { name: 'VIPER', v: 4200, ang: 155, stem: 100, dir: -1, c: '#D4D4D4' },
-      { name: 'ARTEM', v: 1000, ang: 30, stem: 70, dir: -1, c: '#C3624C' }
+      { name: 'NOMAD', ini: 'NM', v: 12600, ang: 0, stem: 104, lead: true, c: '#A4B183' },
+      { name: 'SKO', ini: 'SK', v: 9000, ang: 128, stem: 76, lead: false, c: '#A4B183' },
+      { name: 'LUNA', ini: 'LN', v: 7900, ang: 52, stem: 70, lead: false, c: '#A4B183' },
+      { name: 'VIPER', ini: 'VP', v: 4200, ang: 158, stem: 84, lead: false, c: '#8A8A8D' },
+      { name: 'ARTEM', ini: 'AR', v: 1000, ang: 32, stem: 66, lead: false, c: '#C3624C' }
     ];
     var pins = people.map(function (p) {
       var t = p.v / TOP;
       var s = p.v === TOP ? [CX, CY - H] : pt(p.ang * Math.PI / 180, t);
       var py = s[1] - p.stem;
-      var tx2 = s[0] + (p.dir === 0 ? 0 : p.dir * 78);
-      var VBY = 70, VBH = 710;
       return {
-        sx: s[0].toFixed(1), sy: s[1].toFixed(1), py: py.toFixed(1),
-        mx: (s[0] - 3.5).toFixed(1), my: (s[1] - 3.5).toFixed(1),
-        tx2: tx2.toFixed(1),
-        left: (tx2 / 1370 * 100).toFixed(2),
-        top: ((py - VBY) / VBH * 100).toFixed(2),
-        tf: p.dir === 0 ? 'translate(-50%, -128%)' : (p.dir > 0 ? 'translate(11px, -50%)' : 'translate(calc(-100% - 11px), -50%)'),
-        ta: p.dir === 0 ? 'center' : (p.dir > 0 ? 'left' : 'right'),
-        name: p.name, amount: '$' + f(p.v), c: p.c
+        sx: s[0].toFixed(1), sy: s[1].toFixed(1), py: (py + 16).toFixed(1),
+        left: (s[0] / 1370 * 100).toFixed(2), top: ((py - 70) / 706 * 100).toFixed(2),
+        ini: p.ini, amount: '$' + f(p.v), c: p.c, stem: p.c,
+        headBg: p.lead ? '#A4B183' : '#26262A',
+        headFg: p.lead ? '#1E1E21' : p.c
       };
     });
 
-    var stripDefs = [
-      { name: 'NOMAD', v: 12600, rate: '50%', gap: 'вершина месяца, разовый бонус за первые $5 000', c: '#A4B183' },
-      { name: 'SKO', v: 9000, rate: '40%', gap: 'до снеговой линии $1 650 — это +$1 660 к выплате', c: '#A4B183' },
-      { name: 'LUNA', v: 7900, rate: '40%', gap: 'до снеговой линии $2 700 — это +$2 080 к выплате', c: '#A4B183' },
-      { name: 'VIPER', v: 4200, rate: '30%', gap: 'до отметки $5 000 не хватает $1 300', c: '#D4D4D4' },
-      { name: 'ARTEM', v: 1000, rate: '—', gap: 'ниже порога $800 после расходников — ставка не открылась', c: '#C3624C' }
-    ];
-    var strip = stripDefs.map(function (s, i) {
+    var daily = [980, 1240, 1510, -320, 760, 1180, 1640, 1420, 890, -180, 1320, 1750, 2560, 1580, 1120, 640, -420, 980, 1460, 2520, 2900, 1720, 1340, 1580, 2600, 1930];
+    var bars = daily.map(function (v) {
       return {
-        pos: '0' + (i + 1), name: s.name, amount: '$' + f(s.v),
-        pct: Math.round(s.v / TOP * 100), rate: s.rate, gap: s.gap, c: s.c
+        h: v > 0 ? Math.max(3, Math.round(v / 2900 * 124)) : 0,
+        nh: v < 0 ? Math.max(3, Math.round(-v / 420 * 18)) : 0,
+        c: '#A4B183'
       };
     });
+
+    var roi = [31, 38, 44, -9, 24, 35, 47, 41, 28, -5, 38, 49, 62, 45, 33, 20, -12, 30, 42, 58, 66, 49, 39, 45, 60, 55];
+    var dots = roi.map(function (v, i) {
+      return {
+        x: (i / 25 * 100).toFixed(2),
+        y: ((70 - v) / 90 * 100).toFixed(2),
+        c: v < 0 ? '#C3624C' : (v >= 45 ? '#A4B183' : '#77836A')
+      };
+    });
+
+    var wdef = [
+      { label: '01–07', s: 24400, p: 7000 },
+      { label: '08–14', s: 25100, p: 8500 },
+      { label: '15–21', s: 23600, p: 9400 },
+      { label: '22–26', s: 20200, p: 9800 }
+    ];
+    var weeks = wdef.map(function (w) {
+      return { label: w.label, sh: Math.round(w.s / 25100 * 130), ph: Math.round(w.p / 25100 * 130) };
+    });
+
+    var craw = [['Аккаунты FB', 1400], ['Прокси', 560], ['Карты', 480], ['Крео', 400], ['Антидетект', 260]];
+    var consum = craw.map(function (c) { return { name: c[0], pct: Math.round(c[1] / 1400 * 100), sum: '$' + f(c[1]) }; });
+
+    var log = [
+      {
+        title: 'Отчёт за день принят', time: '26.08.26, 21:40', mc: '#A4B183', mbg: '#242A20',
+        fields: [
+          { k: 'Баер', v: 'SKO', c: '#D4D4D4' },
+          { k: 'Оффер', v: 'VitaJoint Forte', c: '#D4D4D4' },
+          { k: 'Профит', v: '+$880', c: '#A4B183' },
+          { k: 'Статус', v: 'Принят', c: '#A4B183' }
+        ]
+      },
+      {
+        title: 'Пополнение кабинета', time: '26.08.26, 09:15', mc: '#C3624C', mbg: '#2A211E',
+        fields: [
+          { k: 'Платёжка', v: 'Wise', c: '#D4D4D4' },
+          { k: 'Сумма', v: '$750', c: '#D4D4D4' },
+          { k: 'Комиссия', v: '4,50%', c: '#C3624C' },
+          { k: 'Списано', v: '$780', c: '#C3624C' }
+        ]
+      }
+    ];
+
+    var crew = [
+      { t: 'NM', bg: '#3A4132', fg: '#A4B183' },
+      { t: 'SK', bg: '#33333A', fg: '#D4D4D4' },
+      { t: 'LN', bg: '#33333A', fg: '#D4D4D4' },
+      { t: 'VP', bg: '#33333A', fg: '#D4D4D4' },
+      { t: 'AR', bg: '#3A2B26', fg: '#C3624C' }
+    ];
 
     return {
-      ticks: ticks,
-      body: ringPath(0), snow: ringPath(10000 / TOP),
-      contours: contours, ridges: ridges, route: rp.join(' '),
-      tiers: tiers, pins: pins, strip: strip
+      ticks: ticks, body: ringPath(0), snow: ringPath(10000 / TOP),
+      contours: contours, ridges: ridges, route: rp.join(' '), tiers: tiers, pins: pins,
+      bars: bars, dots: dots, avgTop: ((70 - 37) / 90 * 100).toFixed(2), weeks: weeks,
+      consum: consum, log: log, crew: crew
     };
   }
 }

@@ -7,119 +7,116 @@
 <body>
 <x-dc>
 <helmet>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Oswald:wght@200;300;400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
   <style>
-    body { margin: 0; background: #1E1E21; font-family: 'Golos Text', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; color: #D4D4D4; }
+    body { margin: 0; background: #141416; font-family: 'Manrope', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; color: #D4D4D4; }
     a { color: #A4B183; text-decoration: none; } a:hover { color: #C3624C; }
     .n { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
-    .d { font-family: 'Oswald', 'Golos Text', sans-serif; font-weight: 300; letter-spacing: -0.01em; }
-    .lab { font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 400; letter-spacing: 0.24em; text-transform: uppercase; color: #5B5B5D; }
-    .rule { height: 1px; background: #33333A; }
+    .p { background: #1E1E21; border: 1px solid #2C2C31; border-radius: 26px; }
+    .b { width: 42px; height: 42px; border-radius: 50%; background: #292930; display: flex; align-items: center; justify-content: center; flex: 0 0 42px; }
+    .ib { width: 32px; height: 32px; border-radius: 50%; background: #26262A; display: flex; align-items: center; justify-content: center; flex: 0 0 32px; }
+    .h { font-size: 17px; font-weight: 600; letter-spacing: -0.015em; }
+    .s { font-size: 12.5px; color: #5B5B5D; }
+    .lab { font-size: 10.5px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; color: #5B5B5D; }
+    .pill { border-radius: 999px; }
+    .sub { background: #26262A; border-radius: 18px; }
   </style>
 </helmet>
 
-<div style="width: 390px; min-height: 844px; background: #1E1E21; color: #D4D4D4; display: flex; flex-direction: column;">
+<div style="width: 390px; min-height: 844px; background: #141416; display: flex; flex-direction: column;">
+  <div style="flex-grow: 1; padding: 12px 12px 8px 12px; display: flex; flex-direction: column; gap: 9px;">
 
-  <div style="flex-grow: 1; padding: 22px 22px 10px 22px; display: flex; flex-direction: column;">
-
-    <!-- header -->
-    <div style="display: flex; align-items: center; justify-content: space-between; height: 42px;">
+    <div class="p" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px;">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <div style="width: 34px; height: 34px; border: 1px solid #4A4A50; display: flex; align-items: center; justify-content: center;">
-          <span class="n" style="font-size: 11px; color: #D4D4D4;">SK</span>
-        </div>
+        <div class="n" style="width: 38px; height: 38px; border-radius: 50%; background: #3A4132; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #A4B183;">SK</div>
         <div>
-          <div class="d" style="font-size: 19px; font-weight: 400; letter-spacing: 0.08em; line-height: 1;">SKO</div>
-          <div class="lab" style="font-size: 9px; margin-top: 5px;">среда, 26 августа</div>
+          <div style="font-size: 16px; font-weight: 700; letter-spacing: -0.01em;">SKO</div>
+          <div class="s" style="font-size: 11.5px; margin-top: 3px;">среда, 26 августа</div>
         </div>
       </div>
-      <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #4A5040;">
-        <span style="width: 5px; height: 5px; background: #A4B183;"></span>
-        <span class="n" style="font-size: 12px; color: #A4B183;">+$880</span>
+      <div class="pill" style="display: flex; align-items: center; gap: 7px; background: #242A20; padding: 8px 13px;">
+        <span style="width: 6px; height: 6px; border-radius: 50%; background: #A4B183;"></span>
+        <span class="n" style="font-size: 12.5px; color: #A4B183;">+$880</span>
       </div>
     </div>
 
-    <!-- hero -->
-    <div style="border-top: 1px solid #33333A; margin-top: 18px; padding-top: 18px;">
+    <div class="p" style="padding: 15px 16px 13px 16px;">
       <div style="display: flex; align-items: center; justify-content: space-between;">
-        <span class="lab" style="color: #D4D4D4;">Профит</span>
-        <div style="display: flex; align-items: center; gap: 16px;">
-          <span class="lab" style="font-size: 9px;">День</span>
-          <span class="lab" style="font-size: 9px; color: #D4D4D4; border-bottom: 1px solid #A4B183; padding-bottom: 3px;">Неделя</span>
-          <span class="lab" style="font-size: 9px;">Месяц</span>
+        <div style="display: flex; align-items: center; gap: 11px;">
+          <div class="b" style="width: 34px; height: 34px; flex: 0 0 34px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.8"><path d="M4 18V8M10 18V4M16 18v-6M2 21h20"/></svg></div>
+          <span class="h" style="font-size: 15.5px;">Профит</span>
+        </div>
+        <div class="pill" style="display: flex; background: #26262A; padding: 3px;">
+          <span class="pill" style="padding: 5px 10px; font-size: 11.5px; color: #5B5B5D;">День</span>
+          <span class="pill" style="padding: 5px 10px; font-size: 11.5px; font-weight: 600; background: #33333A;">Неделя</span>
+          <span class="pill" style="padding: 5px 10px; font-size: 11.5px; color: #5B5B5D;">Месяц</span>
         </div>
       </div>
 
-      <div style="display: flex; align-items: baseline; gap: 12px; margin-top: 14px;">
-        <span class="d" style="font-size: 52px; line-height: 1; font-weight: 200; letter-spacing: -0.035em;">
-          <span style="color: #5B5B5D; font-size: 28px; vertical-align: 10px;">$</span>3 700
-        </span>
+      <div style="display: flex; align-items: baseline; gap: 12px; margin-top: 13px;">
+        <span style="font-size: 44px; font-weight: 700; letter-spacing: -0.035em; line-height: 1;"><span style="color: #5B5B5D; font-size: 24px;">$</span>3 700</span>
         <span class="n" style="font-size: 13px; color: #A4B183;">↑ 18,6%</span>
       </div>
-      <div style="font-size: 12px; color: #5B5B5D; margin-top: 6px;">7 дней · средний <span class="n">$530</span> · ROI <span class="n">49,3%</span></div>
+      <div class="s" style="margin-top: 7px;">7 дней · средний <span class="n">$530</span> · ROI <span class="n">49,3%</span></div>
 
       <div style="position: relative; margin-top: 16px;">
-        <svg viewBox="0 0 306 126" style="display: block; width: 100%; height: auto;">
+        <svg viewBox="0 0 306 110" style="display: block; width: 100%; height: auto;">
           <sc-for list="{{ grid }}" as="g" hint-placeholder-count="4">
-            <line x1="0" y1="{{ g.y }}" x2="266" y2="{{ g.y }}" stroke="#2C2C31" stroke-width="1"/>
+            <line x1="0" y1="{{ g.y }}" x2="262" y2="{{ g.y }}" stroke="#2A2A30" stroke-width="1"/>
           </sc-for>
           <path d="{{ areaPath }}" fill="#A4B183" fill-opacity="0.13"/>
-          <path d="{{ linePath }}" fill="none" stroke="#A4B183" stroke-width="2" stroke-linejoin="round"/>
-          <line x1="{{ mx }}" y1="20" x2="{{ mx }}" y2="110" stroke="#5B5B5D" stroke-width="1" stroke-dasharray="3 4"/>
-          <rect x="{{ mrx }}" y="{{ mry }}" width="9" height="9" fill="#1E1E21" stroke="#A4B183" stroke-width="2"/>
+          <path d="{{ linePath }}" fill="none" stroke="#A4B183" stroke-width="2.2" stroke-linejoin="round"/>
+          <line x1="{{ mx }}" y1="16" x2="{{ mx }}" y2="96" stroke="#4E4E55" stroke-width="1" stroke-dasharray="3 4"/>
+          <circle cx="{{ mx }}" cy="{{ my }}" r="5" fill="#141416" stroke="#A4B183" stroke-width="2.4"/>
         </svg>
         <sc-for list="{{ grid }}" as="g" hint-placeholder-count="4">
-          <div class="n" style="position: absolute; right: 0; top: {{ g.top }}%; transform: translateY(-50%); font-size: 10px; color: #5B5B5D;">{{ g.label }}</div>
+          <div class="n" style="position: absolute; right: 0; top: {{ g.top }}%; transform: translateY(-50%); font-size: 10px; color: #4E4E55;">{{ g.label }}</div>
         </sc-for>
-        <div style="position: absolute; left: {{ tipLeft }}%; top: 0; transform: translateX(-50%); background: #D4D4D4; padding: 3px 9px;">
-          <span class="n" style="font-size: 11.5px; color: #1E1E21; font-weight: 500;">$880</span>
+        <div class="pill" style="position: absolute; left: {{ tipLeft }}%; top: -2px; transform: translateX(-50%); background: #D4D4D4; padding: 4px 10px;">
+          <span class="n" style="font-size: 11.5px; color: #1E1E21; font-weight: 600;">$880</span>
         </div>
       </div>
-
-      <div style="display: flex; margin-top: 8px; padding-right: 40px;">
+      <div style="display: flex; margin-top: 8px; padding-right: 44px;">
         <sc-for list="{{ dows }}" as="d" hint-placeholder-count="7">
-          <div class="lab" style="flex-grow: 1; text-align: center; font-size: 9px; color: {{ d.c }};">{{ d.t }}</div>
+          <div class="lab" style="flex-grow: 1; text-align: center; font-size: 9.5px; color: {{ d.c }};">{{ d.t }}</div>
         </sc-for>
       </div>
     </div>
 
-    <!-- tiles -->
-    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 20px; border-top: 1px solid #33333A;">
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
       <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="4">
-        <div style="padding: 13px 14px 14px 0; border-bottom: 1px solid #33333A; border-right: 1px solid #33333A;">
-          <div class="lab" style="font-size: 9px;">{{ t.name }}</div>
-          <div class="d n" style="font-size: 24px; font-weight: 300; margin: 8px 0 6px 0; color: {{ t.vc }};">{{ t.value }}</div>
+        <div class="p" style="padding: 12px 14px;">
+          <div class="s" style="font-size: 11.5px;">{{ t.name }}</div>
+          <div class="n" style="font-size: 23px; font-weight: 700; letter-spacing: -0.03em; margin: 7px 0 5px 0; color: {{ t.vc }};">{{ t.value }}</div>
           <div class="n" style="font-size: 11px; color: {{ t.c }};">{{ t.delta }}</div>
         </div>
       </sc-for>
     </div>
 
-    <!-- salary -->
-    <div style="margin-top: 20px; padding: 15px 16px 16px 16px; background: #26262A; border-left: 2px solid #A4B183;">
-      <div style="display: flex; align-items: baseline; justify-content: space-between;">
+    <div class="p" style="padding: 14px 16px 15px 16px; border-color: #3A4132;">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
         <span class="lab" style="color: #A4B183;">Зарплата за август</span>
-        <span class="n" style="font-size: 11.5px; color: #5B5B5D;">ставка 40%</span>
+        <span class="n s" style="font-size: 11.5px;">ставка 40%</span>
       </div>
-      <div style="display: flex; align-items: baseline; gap: 11px; margin: 11px 0 13px 0;">
-        <span class="d n" style="font-size: 30px; font-weight: 200;">$3 340</span>
-        <span class="n" style="font-size: 12.5px; color: #5B5B5D;">267 200 ₽</span>
+      <div style="display: flex; align-items: baseline; gap: 11px; margin: 10px 0 12px 0;">
+        <span class="n" style="font-size: 30px; font-weight: 700; letter-spacing: -0.03em;">$3 340</span>
+        <span class="n s" style="font-size: 12.5px;">267 200 ₽</span>
       </div>
-      <div style="position: relative; height: 3px; background: #33333A;">
-        <div style="position: absolute; left: 0; top: 0; width: 66.27%; height: 3px; background: #A4B183;"></div>
-        <div style="position: absolute; left: 39.68%; top: -5px; width: 1px; height: 13px; background: #5B5B5D;"></div>
-        <div style="position: absolute; left: 79.37%; top: -5px; width: 1px; height: 13px; background: #A4B183;"></div>
+      <div style="position: relative; height: 7px; background: #26262A; border-radius: 4px;">
+        <div style="position: absolute; left: 0; top: 0; width: 66.27%; height: 7px; background: #A4B183; border-radius: 4px;"></div>
+        <div style="position: absolute; left: 39.68%; top: -3px; width: 2px; height: 13px; background: #5B5B5D; border-radius: 1px;"></div>
+        <div style="position: absolute; left: 79.37%; top: -3px; width: 2px; height: 13px; background: #A4B183; border-radius: 1px;"></div>
       </div>
-      <div style="font-size: 12px; color: #D4D4D4; line-height: 1.55; margin-top: 13px;">До ставки <span class="n" style="color: #A4B183;">50%</span> осталось <span class="n">$1 650</span> — это <span class="n" style="color: #A4B183;">+$1 660</span> к выплате.</div>
+      <div style="font-size: 12.5px; color: #A9A9AC; line-height: 1.55; margin-top: 13px;">До ставки <span class="n" style="color: #A4B183;">50%</span> осталось <span class="n" style="color: #D4D4D4;">$1 650</span> — это <span class="n" style="color: #A4B183;">+$1 660</span> к выплате.</div>
     </div>
 
     <div style="flex-grow: 1;"></div>
   </div>
 
-  <!-- tabs -->
-  <div style="display: flex; border-top: 1px solid #33333A; padding: 6px 10px 18px 10px;">
+  <div class="p" style="margin: 0 12px 12px 12px; display: flex; padding: 6px 5px; border-radius: 24px;">
     <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
-      <div style="flex-grow: 1; height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="{{ t.c }}" stroke-width="1.5"><path d="{{ t.p }}"/></svg>
+      <div style="flex-grow: 1; height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="{{ t.c }}" stroke-width="1.6"><path d="{{ t.p }}"/></svg>
         <span class="lab" style="font-size: 8.5px; color: {{ t.c }};">{{ t.name }}</span>
       </div>
     </sc-for>
@@ -131,10 +128,8 @@
 class Component extends DCLogic {
   renderVals() {
     var vals = [570, 700, 320, 510, 40, 680, 880];
-    var W = 266, TOP = 16, BOT = 110, MAX = 900, VH = 126;
-    var xy = vals.map(function (v, i) {
-      return { x: i * (W / (vals.length - 1)), y: BOT - (v / MAX) * (BOT - TOP) };
-    });
+    var W = 262, TOP = 12, BOT = 96, MAX = 900, VH = 110;
+    var xy = vals.map(function (v, i) { return { x: i * (W / 6), y: BOT - (v / MAX) * (BOT - TOP) }; });
     var line = 'M' + xy[0].x.toFixed(1) + ' ' + xy[0].y.toFixed(1);
     for (var i = 1; i < xy.length; i++) {
       var p0 = xy[i - 1], p1 = xy[i], dx = (p1.x - p0.x) * 0.42;
@@ -144,17 +139,14 @@ class Component extends DCLogic {
       var y = BOT - (g / MAX) * (BOT - TOP);
       return { y: y.toFixed(1), top: (y / VH * 100).toFixed(2), label: g === 0 ? '0' : g };
     });
-    var last = xy[xy.length - 1];
-    var names = ['ЧТ', 'ПТ', 'СБ', 'ВС', 'ПН', 'ВТ', 'СР'];
-    var dows = names.map(function (t, i) { return { t: t, c: i === 6 ? '#A4B183' : '#5B5B5D' }; });
-
+    var last = xy[6];
+    var dows = ['ЧТ', 'ПТ', 'СБ', 'ВС', 'ПН', 'ВТ', 'СР'].map(function (t, i) { return { t: t, c: i === 6 ? '#A4B183' : '#4E4E55' }; });
     var tiles = [
       { name: 'Доход', value: '$11 200', vc: '#D4D4D4', delta: '↑ 12,4%', c: '#A4B183' },
       { name: 'Спенд с комис.', value: '$7 500', vc: '#D4D4D4', delta: '↑ 8,1%', c: '#5B5B5D' },
       { name: 'ROI', value: '49,3%', vc: '#A4B183', delta: '↑ 4,2 п.п.', c: '#A4B183' },
       { name: 'Расходники', value: '$190', vc: '#C3624C', delta: '↓ 9,0%', c: '#A4B183' }
     ];
-
     var tabs = [
       { name: 'Сводка', c: '#A4B183', p: 'M3 20h18M3 20V9l9-6 9 6v11' },
       { name: 'Дни', c: '#5B5B5D', p: 'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4' },
@@ -162,12 +154,10 @@ class Component extends DCLogic {
       { name: 'Расходники', c: '#5B5B5D', p: 'M21 8l-9-4.5L3 8l9 4.5L21 8zM3 8v8l9 4.5L21 16V8' },
       { name: 'Офферы', c: '#5B5B5D', p: 'M3 12.5V4h8.5L21 13.5 12.5 22 3 12.5z' }
     ];
-
     return {
       linePath: line, areaPath: line + ' L' + W + ' ' + BOT + ' L0 ' + BOT + ' Z',
       grid: grid, dows: dows, tiles: tiles, tabs: tabs,
-      mx: last.x.toFixed(1), mrx: (last.x - 4.5).toFixed(1), mry: (last.y - 4.5).toFixed(1),
-      tipLeft: (last.x / 306 * 100).toFixed(2)
+      mx: last.x.toFixed(1), my: last.y.toFixed(1), tipLeft: (last.x / 306 * 100).toFixed(2)
     };
   }
 }
