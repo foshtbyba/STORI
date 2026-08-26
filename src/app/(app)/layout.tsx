@@ -38,18 +38,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="mx-auto flex min-h-screen max-w-[1440px] flex-col gap-3.5 p-4">
       <TopBar
-        title={team ? 'Команда STORI' : (user.buyer?.handle ?? user.name)}
+        title={team ? 'MS TEAM' : (user.buyer?.handle ?? user.name)}
         date={periodLabel(key)}
-        meta={team ? `${crew.length} баеров` : 'вижу только себя'}
-        metric={usd(team ? (summary?.totals.profitCents ?? 0) : (mine?.profitCents ?? 0))}
         crew={crew.map((b) => ({ id: b.id, initials: b.initials, color: b.color, handle: b.handle }))}
+        nav={<Nav items={items} />}
+        role={`${user.name} · ${role === 'ADMIN' ? 'админ' : role === 'LEAD' ? 'тимлид' : 'баер'}`}
       />
-      <div className="flex items-center justify-between">
-        <Nav items={items} />
-        <span className="text-[12.5px] text-dim">
-          {user.name} · {role === 'ADMIN' ? 'админ' : role === 'LEAD' ? 'тимлид' : 'баер'}
-        </span>
-      </div>
       {children}
     </div>
   );

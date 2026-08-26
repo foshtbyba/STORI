@@ -38,7 +38,7 @@ export default async function LoginPage({
             <IconPeak color="#b4c68c" size={22} />
           </span>
           <div>
-            <div className="text-[19px] font-bold tracking-[-0.02em]">STORI</div>
+            <div className="text-[19px] font-bold tracking-[-0.02em]">MS TEAM</div>
             <div className="text-[12.5px] text-mute">учёт команды</div>
           </div>
         </div>

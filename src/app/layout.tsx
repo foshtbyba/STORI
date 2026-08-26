@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'STORI — учёт команды',
+  title: 'MS TEAM — учёт команды',
   description: 'Профит баеров, расходники, зарплата и база офферов',
 };
 

@@ -2,22 +2,22 @@ import Link from 'next/link';
 import { destroySession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import { Avatar, Panel } from './ui';
-import { IconPeak, IconPin, IconLogout } from './icons';
+import { IconPeak, IconLogout } from './icons';
 
 export type Crew = { id: string; initials: string; color: string; handle: string };
 
 export default function TopBar({
   title,
   date,
-  meta,
-  metric,
   crew,
+  nav,
+  role,
 }: {
   title: string;
   date: string;
-  meta: string;
-  metric: string;
   crew: Crew[];
+  nav?: React.ReactNode;
+  role?: string;
 }) {
   async function signOut() {
     'use server';
@@ -26,27 +26,19 @@ export default function TopBar({
   }
 
   return (
-    <Panel as="div" className="flex h-[78px] items-center justify-between pl-4 pr-3.5">
-      <div className="flex items-center gap-4">
-        <Link href="/" className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-sage-t">
+    <Panel as="div" className="flex h-[78px] items-center justify-between gap-6 pl-4 pr-3.5">
+      <div className="flex min-w-0 flex-1 items-center gap-4 overflow-hidden">
+        <Link href="/" className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-sage-t">
           <IconPeak color="#b4c68c" size={22} />
         </Link>
-        <span className="text-[19px] font-bold tracking-[-0.02em]">{title}</span>
-        <span className="h-[22px] w-px bg-line2" />
-        <span className="n text-[16px] text-mid">{date}</span>
+        <span className="shrink-0 text-[19px] font-bold tracking-[-0.02em]">{title}</span>
+        <span className="h-[22px] w-px shrink-0 bg-line2" />
+        <span className="n shrink-0 text-[15px] text-mid">{date}</span>
+        {nav}
+        {role ? <span className="shrink-0 whitespace-nowrap text-[12.5px] text-dim">{role}</span> : null}
       </div>
 
-      <div className="flex items-center gap-5">
-        <span className="flex items-center gap-2.5">
-          <IconPin color="#6fa9a0" size={16} />
-          <span className="text-[14px] text-soft">{meta}</span>
-        </span>
-        <span className="h-5 w-px bg-line" />
-        <span className="flex items-center gap-2.5">
-          <IconPeak color="#b4c68c" size={16} />
-          <span className="n text-[14px] text-sage">{metric}</span>
-        </span>
-
+      <div className="flex shrink-0 items-center gap-4">
         <span className="flex items-center gap-3 rounded-full bg-sub py-1.5 pl-3.5 pr-3">
           <span className="flex">
             {crew.map((c) => (

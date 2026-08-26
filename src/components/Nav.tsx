@@ -9,7 +9,7 @@ export type NavItem = { href: string; label: string; icon: ReactNode };
 export default function Nav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   return (
-    <nav className="flex items-center gap-1.5 rounded-full bg-sub p-1.5">
+    <nav className="flex shrink-0 items-center gap-1 rounded-full bg-sub p-1">
       {items.map((item) => {
         const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
         return (
@@ -17,7 +17,7 @@ export default function Nav({ items }: { items: NavItem[] }) {
             key={item.href}
             href={item.href}
             aria-current={active ? 'page' : undefined}
-            className={`flex items-center gap-2 rounded-full px-3.5 py-2 text-[13px] transition ${
+            className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[12.5px] transition ${
               active ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
             }`}
           >
