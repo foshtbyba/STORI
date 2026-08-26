@@ -7,336 +7,350 @@
 <body>
 <x-dc>
 <helmet>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Oswald:wght@200;300;400;500;600&display=swap">
   <style>
-    body { margin: 0; background: #0d1014; font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; }
-    a { color: #5aa2ff; text-decoration: none; } a:hover { color: #8dbcff; }
-    .n { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
-    .th { font-size: 10px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: #566072; }
-    .td { padding: 13px 14px; border-top: 1px solid #1c222c; font-size: 13px; }
+    body { margin: 0; background: #1E1E21; font-family: 'Golos Text', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; color: #D4D4D4; }
+    a { color: #A4B183; text-decoration: none; } a:hover { color: #C3624C; }
+    .n { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+    .d { font-family: 'Oswald', 'Golos Text', sans-serif; font-weight: 300; letter-spacing: -0.01em; }
+    .lab { font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 400; letter-spacing: 0.24em; text-transform: uppercase; color: #5B5B5D; }
+    .rule { height: 1px; background: #33333A; }
   </style>
 </helmet>
 
-<div style="display: flex; width: 1440px; min-height: 1190px; background: #0d1014; color: #e8ecf2;">
+<div style="display: flex; width: 1440px; min-height: 1300px; background: #1E1E21; color: #D4D4D4;">
 
-  <!-- SIDEBAR -->
-  <aside style="width: 216px; flex: 0 0 216px; background: #101319; border-right: 1px solid #1c222c; display: flex; flex-direction: column; padding: 22px 0;">
-    <div style="display: flex; align-items: center; gap: 10px; padding: 0 20px 26px 20px;">
-      <div style="width: 30px; height: 30px; border-radius: 8px; background: #37d494; display: flex; align-items: center; justify-content: center;">
-        <span class="n" style="color: #0d1014; font-size: 15px; font-weight: 600;">S</span>
+  <!-- RAIL -->
+  <aside style="width: 76px; flex: 0 0 76px; border-right: 1px solid #33333A; display: flex; flex-direction: column; align-items: center; padding: 24px 0 22px 0;">
+    <div style="width: 32px; height: 32px; border: 1px solid #A4B183; display: flex; align-items: center; justify-content: center;">
+      <span class="d" style="font-size: 16px; font-weight: 500; color: #A4B183;">S</span>
+    </div>
+    <div style="height: 22px;"></div>
+    <div class="lab" style="writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: 0.42em; font-size: 9.5px;">STORI · TEAM</div>
+    <div style="height: 30px;"></div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #26262A; border-left: 2px solid #A4B183;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.5"><path d="M3 20h18M3 20V9l9-6 9 6v11"/><path d="M9 20v-6h6v6"/></svg>
       </div>
-      <div>
-        <div style="font-size: 15px; font-weight: 600; letter-spacing: -0.01em;">STORI</div>
-        <div style="font-size: 10px; color: #566072; letter-spacing: 0.05em;">TEAM ANALYTICS</div>
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      </div>
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><path d="M3 21l9-16 9 16z"/><path d="M8.5 12.5h7"/></svg>
+      </div>
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><path d="M21 8l-9-4.5L3 8l9 4.5L21 8z"/><path d="M3 8v8l9 4.5L21 16V8"/></svg>
+      </div>
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><rect x="3" y="6" width="18" height="13"/><path d="M3 10.5h18"/></svg>
+      </div>
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><path d="M3 12.5V4h8.5L21 13.5 12.5 22 3 12.5z"/><circle cx="8" cy="8" r="1.3"/></svg>
       </div>
     </div>
-
-    <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px;">
-      <div style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 8px; background: #1a2029; color: #e8ecf2; font-size: 13px; font-weight: 500;">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#37d494" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-        Дашборд
-      </div>
-      <div style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 8px; color: #7d8899; font-size: 13px;">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7d8899" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
-        Отчёты по дням
-      </div>
-      <div style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 8px; color: #7d8899; font-size: 13px;">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7d8899" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M17 11.5a3 3 0 100-6M18 20c0-2.5-1-4.2-2.5-5.2"/></svg>
-        Баеры
-      </div>
-      <div style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 8px; color: #7d8899; font-size: 13px;">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7d8899" stroke-width="1.8"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
-        Расходники
-      </div>
-      <div style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 8px; color: #7d8899; font-size: 13px;">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7d8899" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1.3" fill="#7d8899" stroke="none"/></svg>
-        Зарплата
-      </div>
-      <div style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 8px; color: #7d8899; font-size: 13px;">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7d8899" stroke-width="1.8"><path d="M3 12.5V4.5A1.5 1.5 0 014.5 3h8l8.5 8.5-9 9L3 12.5z"/><circle cx="8" cy="8" r="1.4"/></svg>
-        Офферы
-      </div>
-      <div style="display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 8px; color: #7d8899; font-size: 13px;">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7d8899" stroke-width="1.8"><path d="M3 20h18"/><rect x="5" y="11" width="3.5" height="9"/><rect x="10.2" y="6" width="3.5" height="14"/><rect x="15.4" y="14" width="3.5" height="6"/></svg>
-        Финансы
-      </div>
-    </div>
-
     <div style="flex-grow: 1;"></div>
-
-    <div style="margin: 0 12px; padding: 12px; border-radius: 10px; background: #151a22; border: 1px solid #1c222c;">
-      <div class="th" style="margin-bottom: 8px;">Период закрыт</div>
-      <div style="font-size: 12px; color: #7d8899; line-height: 1.5;">Июль 2026 — цифры зафиксированы, правки заблокированы.</div>
-    </div>
-
-    <div style="display: flex; align-items: center; gap: 10px; padding: 18px 20px 0 20px;">
-      <div style="width: 30px; height: 30px; border-radius: 50%; background: #232a35; display: flex; align-items: center; justify-content: center;">
-        <span class="n" style="font-size: 12px; color: #b8c2d0;">AD</span>
-      </div>
-      <div style="line-height: 1.3;">
-        <div style="font-size: 12.5px; font-weight: 500;">Админ</div>
-        <div style="font-size: 10.5px; color: #566072;">полный доступ</div>
-      </div>
+    <div style="width: 32px; height: 32px; border: 1px solid #33333A; display: flex; align-items: center; justify-content: center;">
+      <span class="n" style="font-size: 10px; color: #5B5B5D;">AD</span>
     </div>
   </aside>
 
-  <!-- MAIN -->
-  <main style="flex-grow: 1; padding: 24px 28px 32px 28px; display: flex; flex-direction: column; gap: 20px; min-width: 0;">
+  <main style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column;">
 
-    <!-- header -->
-    <div style="display: flex; align-items: flex-end; justify-content: space-between;">
-      <div>
-        <h1 style="margin: 0 0 5px 0; font-size: 25px; font-weight: 600; letter-spacing: -0.02em;">Сводка команды</h1>
-        <div style="font-size: 13px; color: #7d8899;">1 — 26 августа 2026 · 5 баеров · курс {{ rateLabel }} ₽/$</div>
+    <!-- TOPBAR -->
+    <div style="display: flex; align-items: center; justify-content: space-between; height: 66px; padding: 0 40px; border-bottom: 1px solid #33333A;">
+      <div style="display: flex; align-items: center; gap: 13px;">
+        <span class="lab" style="color: #D4D4D4;">Сводка</span>
+        <span class="lab">/</span>
+        <span class="lab">Команда</span>
       </div>
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <div style="display: flex; background: #151a22; border: 1px solid #242b36; border-radius: 9px; padding: 3px;">
-          <span style="padding: 6px 13px; font-size: 12.5px; color: #7d8899;">Неделя</span>
-          <span style="padding: 6px 13px; font-size: 12.5px; border-radius: 6px; background: #232a35; color: #e8ecf2; font-weight: 500;">Месяц</span>
-          <span style="padding: 6px 13px; font-size: 12.5px; color: #7d8899;">Период</span>
+      <div style="display: flex; align-items: center; gap: 26px;">
+        <div style="display: flex; align-items: center; gap: 22px;">
+          <span class="lab">Неделя</span>
+          <span class="lab" style="color: #D4D4D4; border-bottom: 1px solid #A4B183; padding-bottom: 3px;">Месяц</span>
+          <span class="lab">Период</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 9px; border: 1px solid #242b36; background: #151a22; font-size: 12.5px; color: #b8c2d0;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7d8899" stroke-width="2"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg>
-          Выгрузить
+        <div style="width: 1px; height: 20px; background: #33333A;"></div>
+        <span class="n" style="font-size: 11.5px; color: #5B5B5D;">01.08 — 26.08.2026</span>
+        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 15px; border: 1px solid #33333A;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.8"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg>
+          <span class="lab" style="font-size: 10px;">Выгрузить</span>
         </div>
       </div>
     </div>
 
-    <!-- KPI -->
-    <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px;">
-      <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 17px;">
-        <div class="th">Оборот</div>
-        <div class="n" style="font-size: 25px; font-weight: 600; margin: 9px 0 6px 0;">$128 034</div>
-        <div style="font-size: 11.5px; color: #7d8899;">＋18.4% к июлю</div>
-      </div>
-      <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 17px;">
-        <div class="th">Спенд + комиссия</div>
-        <div class="n" style="font-size: 25px; font-weight: 600; margin: 9px 0 6px 0;">$93 397</div>
-        <div style="font-size: 11.5px; color: #7d8899;">из них комиссия <span class="n" style="color: #e5b14a;">$4 023</span></div>
-      </div>
-      <div style="background: #14181f; border: 1px solid #263a31; border-radius: 12px; padding: 16px 17px; box-shadow: inset 0 0 0 1px rgba(55,212,148,0.08);">
-        <div class="th" style="color: #37d494;">Профит</div>
-        <div class="n" style="font-size: 25px; font-weight: 600; margin: 9px 0 6px 0; color: #37d494;">$34 637</div>
-        <div class="n" style="font-size: 11.5px; color: #7d8899;">{{ profitRub }} ₽</div>
-      </div>
-      <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 17px;">
-        <div class="th">ROI</div>
-        <div class="n" style="font-size: 25px; font-weight: 600; margin: 9px 0 6px 0;">37.1%</div>
-        <div style="font-size: 11.5px; color: #7d8899;">21 из 26 дней в плюс</div>
-      </div>
-      <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 17px;">
-        <div class="th">Чистое команде</div>
-        <div class="n" style="font-size: 25px; font-weight: 600; margin: 9px 0 6px 0;">$18 330</div>
-        <div style="font-size: 11.5px; color: #7d8899;">после ЗП и расходников</div>
-      </div>
-    </div>
+    <!-- HERO -->
+    <div style="position: relative; padding: 42px 40px 46px 40px; border-bottom: 1px solid #33333A; overflow: hidden;">
+      <svg viewBox="0 0 1364 320" preserveAspectRatio="none" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.55;">
+        <sc-for list="{{ heroLines }}" as="h" hint-placeholder-count="16">
+          <path d="{{ h }}" fill="none" stroke="#2E2E33" stroke-width="1"/>
+        </sc-for>
+      </svg>
 
-    <!-- CHART -->
-    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 18px 20px 14px 20px;">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+      <div style="position: relative; display: grid; grid-template-columns: minmax(0, 1.45fr) 1px minmax(0, 1fr); gap: 46px; align-items: start;">
         <div>
-          <div style="font-size: 14.5px; font-weight: 600;">Чистый профит по дням</div>
-          <div style="font-size: 11.5px; color: #566072; margin-top: 3px;">после комиссии за пополнение, до расходников и ЗП</div>
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <span class="lab">Чистый профит за период</span>
+            <div style="flex-grow: 1; height: 1px; background: #33333A; max-width: 190px;"></div>
+            <span class="n" style="font-size: 11.5px; color: #A4B183;">＋18,4% к июлю</span>
+          </div>
+          <div class="d" style="font-size: 104px; line-height: 1; font-weight: 200; margin: 20px 0 4px -6px; letter-spacing: -0.035em;">
+            <span style="color: #5B5B5D; font-size: 54px; vertical-align: 22px;">$</span>34 700
+          </div>
+          <div class="n" style="font-size: 13px; color: #5B5B5D; margin-bottom: 34px;">2 776 000 ₽ · курс {{ rateLabel }} ₽/$</div>
+
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid #33333A;">
+            <sc-for list="{{ heroStats }}" as="s" hint-placeholder-count="4">
+              <div style="padding: 16px 20px 0 0; border-right: 1px solid #33333A;">
+                <div class="lab" style="font-size: 10px;">{{ s.label }}</div>
+                <div class="d n" style="font-size: 27px; font-weight: 300; margin-top: 9px; color: {{ s.color }};">{{ s.value }}</div>
+                <div style="font-size: 11.5px; color: #5B5B5D; margin-top: 5px;">{{ s.note }}</div>
+              </div>
+            </sc-for>
+          </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 16px;">
-          <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 9px; height: 9px; border-radius: 2px; background: #37d494;"></span><span style="font-size: 11.5px; color: #7d8899;">плюс</span></div>
-          <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 9px; height: 9px; border-radius: 2px; background: #ff6b5e;"></span><span style="font-size: 11.5px; color: #7d8899;">минус</span></div>
-          <div class="n" style="font-size: 11.5px; color: #566072;">лучший день 21 авг · $2 900</div>
+
+        <div style="width: 1px; background: #33333A; align-self: stretch;"></div>
+
+        <div>
+          <span class="lab">Остаётся команде</span>
+          <div class="d" style="font-size: 58px; line-height: 1; font-weight: 200; margin: 16px 0 20px 0; letter-spacing: -0.03em;">
+            <span style="color: #5B5B5D; font-size: 30px; vertical-align: 12px;">$</span>15 880
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 11px 0; border-top: 1px solid #33333A;">
+              <span style="font-size: 12.5px; color: #5B5B5D;">Расходники</span>
+              <span class="n" style="font-size: 13px; color: #C3624C;">− 3 100</span>
+            </div>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 11px 0; border-top: 1px solid #33333A;">
+              <span style="font-size: 12.5px; color: #5B5B5D;">Зарплата баеров</span>
+              <span class="n" style="font-size: 13px; color: #C3624C;">− 15 720</span>
+            </div>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 11px 0; border-top: 1px solid #33333A;">
+              <span style="font-size: 12.5px; color: #5B5B5D;">Комиссия за пополнения</span>
+              <span class="n" style="font-size: 13px; color: #C3624C;">− 3 900</span>
+            </div>
+          </div>
+          <div style="margin-top: 22px;">
+            <span class="lab" style="font-size: 10px;">Накопительно по дням</span>
+            <svg viewBox="0 0 340 74" style="display: block; width: 100%; height: auto; margin-top: 10px;">
+              <path d="{{ cumArea }}" fill="#A4B183" fill-opacity="0.14"/>
+              <path d="{{ cumLine }}" fill="none" stroke="#A4B183" stroke-width="1.6"/>
+              <line x1="0" y1="73" x2="340" y2="73" stroke="#33333A" stroke-width="1"/>
+            </svg>
+          </div>
         </div>
       </div>
-      <div style="display: flex; align-items: stretch; gap: 5px;">
+    </div>
+
+    <!-- DAILY CHART -->
+    <div style="padding: 30px 40px 26px 40px; border-bottom: 1px solid #33333A;">
+      <div style="display: flex; align-items: center; gap: 18px; margin-bottom: 26px;">
+        <span class="lab" style="color: #D4D4D4;">Профит по дням</span>
+        <div style="flex-grow: 1; height: 1px; background: #33333A;"></div>
+        <div style="display: flex; align-items: center; gap: 7px;"><span style="width: 8px; height: 8px; background: #A4B183;"></span><span class="lab" style="font-size: 10px;">плюс</span></div>
+        <div style="display: flex; align-items: center; gap: 7px;"><span style="width: 8px; height: 8px; background: #C3624C;"></span><span class="lab" style="font-size: 10px;">минус</span></div>
+        <span class="n" style="font-size: 11.5px; color: #5B5B5D;">пик 21.08 · $2 900</span>
+      </div>
+      <div style="display: flex; align-items: stretch; gap: 6px;">
         <sc-for list="{{ bars }}" as="b" hint-placeholder-count="26">
           <div style="flex-grow: 1; display: flex; flex-direction: column;">
-            <div style="height: 176px; display: flex; align-items: flex-end;">
-              <div style="width: 100%; height: {{ b.pos }}px; background: #37d494; border-radius: 3px 3px 0 0;"></div>
+            <div style="height: 24px; display: flex; align-items: flex-end; justify-content: center;">
+              <span class="n" style="font-size: 9.5px; color: #5B5B5D;">{{ b.top }}</span>
             </div>
-            <div style="height: 1px; background: #2a323e;"></div>
-            <div style="height: 30px; display: flex; align-items: flex-start;">
-              <div style="width: 100%; height: {{ b.neg }}px; background: #ff6b5e; border-radius: 0 0 3px 3px;"></div>
+            <div style="height: 178px; display: flex; align-items: flex-end;">
+              <div style="width: 100%; height: {{ b.pos }}px; background: #A4B183;"></div>
             </div>
-            <div class="n" style="height: 16px; text-align: center; font-size: 9.5px; color: #4a5462;">{{ b.label }}</div>
+            <div style="height: 1px; background: #4A4A50;"></div>
+            <div style="height: 34px; display: flex; align-items: flex-start;">
+              <div style="width: 100%; height: {{ b.neg }}px; background: #C3624C;"></div>
+            </div>
+            <div class="n" style="height: 18px; padding-top: 5px; text-align: center; font-size: 9.5px; color: #4A4A50;">{{ b.label }}</div>
           </div>
         </sc-for>
       </div>
     </div>
 
     <!-- BOTTOM -->
-    <div style="display: grid; grid-template-columns: minmax(0, 1.72fr) minmax(0, 1fr); gap: 20px;">
+    <div style="display: grid; grid-template-columns: minmax(0, 1.75fr) 1px minmax(0, 1fr); gap: 40px; padding: 32px 40px 48px 40px; flex-grow: 1;">
 
-      <!-- buyers table -->
-      <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; overflow: hidden;">
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 14px 18px;">
-          <div style="font-size: 14.5px; font-weight: 600;">Баеры за период</div>
-          <span style="font-size: 12px; color: #5aa2ff;">все отчёты →</span>
+      <div>
+        <div style="display: flex; align-items: center; gap: 18px; margin-bottom: 8px;">
+          <span class="lab" style="color: #D4D4D4;">Баеры</span>
+          <div style="flex-grow: 1; height: 1px; background: #33333A;"></div>
+          <span class="lab" style="font-size: 10px;">5 человек</span>
         </div>
-        <div style="display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(5, minmax(0, 1fr)) minmax(0, 1.1fr); padding: 0 18px 8px 18px;">
-          <div class="th">Баер</div>
-          <div class="th" style="text-align: right;">Доход</div>
-          <div class="th" style="text-align: right;">Спенд</div>
-          <div class="th" style="text-align: right;">+комиссия</div>
-          <div class="th" style="text-align: right;">Профит</div>
-          <div class="th" style="text-align: right;">ROI</div>
-          <div class="th" style="text-align: right;">Доля</div>
+        <div style="display: grid; grid-template-columns: minmax(0,1.6fr) repeat(4, minmax(0,1fr)) minmax(0,1.2fr); padding: 12px 0 10px 0;">
+          <div class="lab" style="font-size: 9.5px;">Баер</div>
+          <div class="lab" style="font-size: 9.5px; text-align: right;">Доход</div>
+          <div class="lab" style="font-size: 9.5px; text-align: right;">Спенд</div>
+          <div class="lab" style="font-size: 9.5px; text-align: right;">С комиссией</div>
+          <div class="lab" style="font-size: 9.5px; text-align: right;">Профит</div>
+          <div class="lab" style="font-size: 9.5px; text-align: right;">ROI · доля</div>
         </div>
         <sc-for list="{{ buyers }}" as="b" hint-placeholder-count="5">
-          <div style="display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(5, minmax(0, 1fr)) minmax(0, 1.1fr); align-items: center; padding: 0 18px; border-top: 1px solid #1c222c;">
-            <div style="display: flex; align-items: center; gap: 10px; padding: 13px 0;">
-              <div style="width: 27px; height: 27px; border-radius: 7px; background: #202730; display: flex; align-items: center; justify-content: center; flex: 0 0 27px;">
-                <span class="n" style="font-size: 10.5px; color: #9aa5b4;">{{ b.ini }}</span>
-              </div>
-              <div style="min-width: 0;">
-                <div style="font-size: 13px; font-weight: 500;">{{ b.name }}</div>
-                <div style="font-size: 10.5px; color: #566072;">{{ b.tag }}</div>
+          <div style="display: grid; grid-template-columns: minmax(0,1.6fr) repeat(4, minmax(0,1fr)) minmax(0,1.2fr); align-items: center; border-top: 1px solid #33333A;">
+            <div style="display: flex; align-items: center; gap: 13px; padding: 17px 0;">
+              <span class="n" style="font-size: 10px; color: #4A4A50; width: 14px;">{{ b.pos }}</span>
+              <div>
+                <div class="d" style="font-size: 17px; font-weight: 400; letter-spacing: 0.02em;">{{ b.name }}</div>
+                <div style="font-size: 11px; color: #5B5B5D; margin-top: 2px;">{{ b.tag }}</div>
               </div>
             </div>
-            <div class="n" style="text-align: right; font-size: 13px; color: #b8c2d0;">{{ b.rev }}</div>
-            <div class="n" style="text-align: right; font-size: 13px; color: #b8c2d0;">{{ b.spend }}</div>
-            <div class="n" style="text-align: right; font-size: 13px; color: #7d8899;">{{ b.cost }}</div>
-            <div class="n" style="text-align: right; font-size: 13.5px; font-weight: 600; color: {{ b.color }};">{{ b.profit }}</div>
-            <div class="n" style="text-align: right; font-size: 13px; color: {{ b.color }};">{{ b.roi }}</div>
-            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 9px; padding: 13px 0;">
-              <div style="width: 46px; height: 5px; border-radius: 3px; background: #232a35; overflow: hidden;">
-                <div style="width: {{ b.share }}%; height: 5px; background: #37d494; border-radius: 3px;"></div>
+            <div class="n" style="text-align: right; font-size: 14px; color: #D4D4D4;">{{ b.rev }}</div>
+            <div class="n" style="text-align: right; font-size: 14px; color: #5B5B5D;">{{ b.net }}</div>
+            <div class="n" style="text-align: right; font-size: 14px; color: #5B5B5D;">{{ b.gross }}</div>
+            <div class="n d" style="text-align: right; font-size: 21px; font-weight: 300; color: {{ b.color }};">{{ b.profit }}</div>
+            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+              <span class="n" style="font-size: 12px; color: {{ b.color }};">{{ b.roi }}</span>
+              <div style="width: 62px; height: 3px; background: #2E2E33;">
+                <div style="width: {{ b.share }}%; height: 3px; background: {{ b.color }};"></div>
               </div>
-              <span class="n" style="font-size: 11.5px; color: #7d8899; width: 38px; text-align: right;">{{ b.shareLabel }}</span>
             </div>
           </div>
         </sc-for>
-        <div style="display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(5, minmax(0, 1fr)) minmax(0, 1.1fr); align-items: center; padding: 0 18px; border-top: 1px solid #2a323e; background: #171c24;">
-          <div style="padding: 13px 0; font-size: 12px; font-weight: 600; letter-spacing: 0.03em; color: #7d8899;">ИТОГО</div>
-          <div class="n" style="text-align: right; font-size: 13px; font-weight: 600;">128 034</div>
-          <div class="n" style="text-align: right; font-size: 13px; font-weight: 600;">89 374</div>
-          <div class="n" style="text-align: right; font-size: 13px; font-weight: 600; color: #7d8899;">93 397</div>
-          <div class="n" style="text-align: right; font-size: 13.5px; font-weight: 600; color: #37d494;">34 637</div>
-          <div class="n" style="text-align: right; font-size: 13px; color: #37d494;">37.1%</div>
-          <div></div>
+        <div style="display: grid; grid-template-columns: minmax(0,1.6fr) repeat(4, minmax(0,1fr)) minmax(0,1.2fr); align-items: center; border-top: 1px solid #4A4A50; padding: 15px 0;">
+          <div class="lab" style="font-size: 10px; color: #D4D4D4;">Итого</div>
+          <div class="n" style="text-align: right; font-size: 14px;">128 000</div>
+          <div class="n" style="text-align: right; font-size: 14px;">89 400</div>
+          <div class="n" style="text-align: right; font-size: 14px;">93 300</div>
+          <div class="n d" style="text-align: right; font-size: 21px; font-weight: 300; color: #A4B183;">34 700</div>
+          <div class="n" style="text-align: right; font-size: 12px; color: #A4B183;">37,2%</div>
         </div>
       </div>
 
-      <!-- right column -->
-      <div style="display: flex; flex-direction: column; gap: 20px;">
+      <div style="width: 1px; background: #33333A;"></div>
 
-        <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 18px;">
-          <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px;">
-            <div style="font-size: 14.5px; font-weight: 600;">Расходники</div>
-            <div class="n" style="font-size: 14.5px; font-weight: 600; color: #e5b14a;">$3 105</div>
+      <div style="display: flex; flex-direction: column; gap: 34px;">
+        <div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px;">
+            <span class="lab" style="color: #D4D4D4;">Расходники</span>
+            <span class="n d" style="font-size: 22px; font-weight: 300; color: #C3624C;">$3 100</span>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 11px;">
-            <sc-for list="{{ consum }}" as="c" hint-placeholder-count="5">
-              <div>
-                <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 5px;">
-                  <span style="font-size: 12.5px; color: #b8c2d0;">{{ c.name }}</span>
-                  <span class="n" style="font-size: 12.5px; color: #9aa5b4;">{{ c.amount }}</span>
-                </div>
-                <div style="height: 4px; border-radius: 3px; background: #202730; overflow: hidden;">
-                  <div style="width: {{ c.pct }}%; height: 4px; background: #e5b14a; border-radius: 3px;"></div>
-                </div>
+          <sc-for list="{{ consum }}" as="c" hint-placeholder-count="5">
+            <div style="border-top: 1px solid #33333A; padding: 11px 0 12px 0;">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 7px;">
+                <span style="font-size: 12.5px; color: #D4D4D4;">{{ c.name }}</span>
+                <span class="n" style="font-size: 12.5px; color: #5B5B5D;">{{ c.amount }}</span>
+              </div>
+              <div style="height: 2px; background: #2E2E33;"><div style="width: {{ c.pct }}%; height: 2px; background: #C3624C;"></div></div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px;">
+            <span class="lab" style="color: #D4D4D4;">Комиссия</span>
+            <span class="n d" style="font-size: 22px; font-weight: 300;">$3 900</span>
+          </div>
+          <div style="font-size: 11.5px; color: #5B5B5D; margin-bottom: 12px;">средняя ставка 4,36% · у каждой платёжки своя</div>
+          <sc-for list="{{ pays }}" as="p" hint-placeholder-count="3">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-top: 1px solid #33333A;">
+              <span style="font-size: 12.5px; color: #D4D4D4;">{{ p.name }}</span>
+              <span class="n" style="font-size: 11.5px; color: #5B5B5D;">{{ p.rate }}</span>
+              <span class="n" style="font-size: 12.5px;">{{ p.sum }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div>
+          <span class="lab" style="color: #D4D4D4;">Требует внимания</span>
+          <div style="margin-top: 14px; display: flex; flex-direction: column;">
+            <sc-for list="{{ alerts }}" as="a" hint-placeholder-count="3">
+              <div style="display: flex; gap: 13px; padding: 12px 0; border-top: 1px solid #33333A;">
+                <span style="width: 3px; background: {{ a.color }}; flex: 0 0 3px;"></span>
+                <span style="font-size: 12.5px; color: #D4D4D4; line-height: 1.5;">{{ a.text }}</span>
               </div>
             </sc-for>
           </div>
         </div>
-
-        <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 18px;">
-          <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px;">
-            <div style="font-size: 14.5px; font-weight: 600;">Комиссия за пополнения</div>
-            <div class="n" style="font-size: 14.5px; font-weight: 600;">$4 023</div>
-          </div>
-          <div style="font-size: 11.5px; color: #566072; margin-bottom: 13px;">средняя ставка 4.50% · считается по каждой платёжке отдельно</div>
-          <div style="display: flex; flex-direction: column; gap: 1px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-top: 1px solid #1c222c;">
-              <span style="font-size: 12.5px; color: #b8c2d0;">Wise</span>
-              <span class="n" style="font-size: 11.5px; color: #566072;">4.50%</span>
-              <span class="n" style="font-size: 12.5px;">$1 980</span>
-            </div>
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-top: 1px solid #1c222c;">
-              <span style="font-size: 12.5px; color: #b8c2d0;">Payoneer</span>
-              <span class="n" style="font-size: 11.5px; color: #566072;">4.20%</span>
-              <span class="n" style="font-size: 12.5px;">$1 180</span>
-            </div>
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-top: 1px solid #1c222c;">
-              <span style="font-size: 12.5px; color: #b8c2d0;">Crypto (USDT)</span>
-              <span class="n" style="font-size: 11.5px; color: #566072;">5.00%</span>
-              <span class="n" style="font-size: 12.5px;">$863</span>
-            </div>
-          </div>
-        </div>
-
-        <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 18px;">
-          <div style="font-size: 14.5px; font-weight: 600; margin-bottom: 13px;">Требует внимания</div>
-          <div style="display: flex; flex-direction: column; gap: 12px;">
-            <div style="display: flex; gap: 11px;">
-              <span style="width: 6px; height: 6px; border-radius: 50%; background: #ff6b5e; margin-top: 6px; flex: 0 0 6px;"></span>
-              <div style="font-size: 12.5px; color: #b8c2d0; line-height: 1.45;">ARTEM — 3 дня без отчёта <span style="color: #566072;">(24–26 авг)</span></div>
-            </div>
-            <div style="display: flex; gap: 11px;">
-              <span style="width: 6px; height: 6px; border-radius: 50%; background: #e5b14a; margin-top: 6px; flex: 0 0 6px;"></span>
-              <div style="font-size: 12.5px; color: #b8c2d0; line-height: 1.45;">Keto Slim Pro — кап 150/день выбран к 14:20</div>
-            </div>
-            <div style="display: flex; gap: 11px;">
-              <span style="width: 6px; height: 6px; border-radius: 50%; background: #e5b14a; margin-top: 6px; flex: 0 0 6px;"></span>
-              <div style="font-size: 12.5px; color: #b8c2d0; line-height: 1.45;">VIPER — не отчитался по $1 400 на пополнениях</div>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
-
   </main>
 </div>
 </x-dc>
 
-<script data-dc-script data-props='{"rate":{"editor":"int","default":80,"min":40,"max":200,"unit":"₽/$","section":"Данные"},"$preview":{"width":1440,"height":1190}}'>
+<script data-dc-script data-props='{"rate":{"editor":"int","default":80,"min":40,"max":200,"unit":"₽/$","section":"Данные"},"$preview":{"width":1440,"height":1300}}'>
 class Component extends DCLogic {
   renderVals() {
     var rate = this.props.rate ?? 80;
     var f = function (n) { return Math.round(n).toLocaleString('ru-RU'); };
 
-    var daily = [980, 1240, 1510, -320, 760, 1180, 1640, 1420, 890, -180, 1320, 1750, 2500, 1580, 1120, 640, -420, 980, 1460, 2520, 2900, 1720, 1340, 1580, 2600, 1927];
+    var heroLines = [];
+    for (var i = 0; i < 16; i++) {
+      var t = i / 15;
+      var rx = 130 + t * 470, ry = 34 + t * 132;
+      var pts = [];
+      for (var s = 0; s <= 90; s++) {
+        var a = s / 90 * Math.PI * 2;
+        var w = 1 + 0.09 * Math.sin(3 * a + 0.4 + t * 0.5) + 0.05 * Math.sin(5 * a - 1.1) + 0.03 * Math.sin(9 * a + 2);
+        pts.push((s === 0 ? 'M' : 'L') + (1010 + rx * w * Math.cos(a)).toFixed(1) + ' ' + (150 + ry * w * Math.sin(a)).toFixed(1));
+      }
+      heroLines.push(pts.join(' ') + ' Z');
+    }
+
+    var heroStats = [
+      { label: 'Оборот', value: '$128 000', color: '#D4D4D4', note: 'доход с офферов' },
+      { label: 'Расход с комиссией', value: '$93 300', color: '#D4D4D4', note: 'спенд $89 400' },
+      { label: 'ROI', value: '37,2%', color: '#A4B183', note: '23 из 26 дней в плюс' },
+      { label: 'Средний день', value: '$1 330', color: '#D4D4D4', note: 'лучший $2 900' }
+    ];
+
+    var daily = [980, 1240, 1510, -320, 760, 1180, 1640, 1420, 890, -180, 1320, 1750, 2560, 1580, 1120, 640, -420, 980, 1460, 2520, 2900, 1720, 1340, 1580, 2600, 1930];
     var bars = daily.map(function (v, i) {
       var d = i + 1;
       return {
-        pos: v > 0 ? Math.round(v / 2900 * 176) : 0,
-        neg: v < 0 ? Math.round(-v / 420 * 28) : 0,
-        label: (d === 1 || d % 5 === 0) ? String(d) : ''
+        pos: v > 0 ? Math.round(v / 2900 * 178) : 0,
+        neg: v < 0 ? Math.round(-v / 420 * 32) : 0,
+        label: (d === 1 || d % 5 === 0) ? String(d) : '',
+        top: v === 2900 ? '2 900' : ''
       };
+    });
+
+    var cum = [], acc = 0;
+    daily.forEach(function (v) { acc += v; cum.push(acc); });
+    var cl = 'M';
+    cum.forEach(function (v, i) {
+      cl += (i ? ' L' : '') + (i * (340 / 25)).toFixed(1) + ' ' + (73 - v / 34700 * 66).toFixed(1);
     });
 
     var raw = [
-      { name: 'NOMAD', ini: 'NM', tag: 'Facebook · Nutra DE/AT', rev: 41200, spend: 27350, cost: 28581, profit: 12619, roi: 44.2 },
-      { name: 'SKO', ini: 'SK', tag: 'Facebook · Nutra IT/ES', rev: 30814, spend: 20924, cost: 21866, profit: 8948, roi: 40.9 },
-      { name: 'LUNA', ini: 'LN', tag: 'TikTok · Nutra FR/BE', rev: 24600, spend: 15980, cost: 16699, profit: 7901, roi: 47.3 },
-      { name: 'VIPER', ini: 'VP', tag: 'Facebook · Finance PL', rev: 18940, spend: 14100, cost: 14735, profit: 4205, roi: 28.5 },
-      { name: 'ARTEM', ini: 'AR', tag: 'Google UAC · Nutra RO', rev: 12480, spend: 11020, cost: 11516, profit: 964, roi: 8.4 }
+      { name: 'NOMAD', tag: 'Facebook · Nutra DE/AT', rev: 41200, net: 27400, gross: 28600, profit: 12600, roi: 44.1 },
+      { name: 'SKO', tag: 'Facebook · Nutra IT/ES', rev: 30800, net: 20900, gross: 21800, profit: 9000, roi: 41.3 },
+      { name: 'LUNA', tag: 'TikTok · Nutra FR/BE', rev: 24600, net: 16000, gross: 16700, profit: 7900, roi: 47.3 },
+      { name: 'VIPER', tag: 'Facebook · Finance PL', rev: 18900, net: 14100, gross: 14700, profit: 4200, roi: 28.6 },
+      { name: 'ARTEM', tag: 'Google UAC · Nutra RO', rev: 12500, net: 11000, gross: 11500, profit: 1000, roi: 8.7 }
     ];
-    var buyers = raw.map(function (b) {
-      var share = b.profit / 34637 * 100;
+    var buyers = raw.map(function (b, i) {
       return {
-        name: b.name, ini: b.ini, tag: b.tag,
-        rev: f(b.rev), spend: f(b.spend), cost: f(b.cost),
-        profit: f(b.profit), roi: b.roi.toFixed(1) + '%',
-        color: b.roi >= 25 ? '#37d494' : '#e5b14a',
-        share: Math.round(share), shareLabel: share.toFixed(1) + '%'
+        pos: '0' + (i + 1), name: b.name, tag: b.tag,
+        rev: f(b.rev), net: f(b.net), gross: f(b.gross), profit: f(b.profit),
+        roi: b.roi.toFixed(1).replace('.', ',') + '%',
+        color: b.roi >= 25 ? '#A4B183' : '#C3624C',
+        share: Math.round(b.profit / 12600 * 100)
       };
     });
 
-    var craw = [
-      { name: 'Аккаунты Facebook', v: 1420 },
-      { name: 'Прокси', v: 560 },
-      { name: 'Карты и платёжки', v: 480 },
-      { name: 'Крео и дизайн', v: 385 },
-      { name: 'Антидетект', v: 260 }
+    var craw = [['Аккаунты Facebook', 1400], ['Прокси', 560], ['Карты и платёжки', 480], ['Крео и дизайн', 400], ['Антидетект', 260]];
+    var consum = craw.map(function (c) { return { name: c[0], amount: '$' + f(c[1]), pct: Math.round(c[1] / 1400 * 100) }; });
+
+    var pays = [
+      { name: 'Wise', rate: '4,50%', sum: '$1 900' },
+      { name: 'Payoneer', rate: '4,20%', sum: '$1 150' },
+      { name: 'Crypto · USDT', rate: '5,00%', sum: '$850' }
     ];
-    var consum = craw.map(function (c) {
-      return { name: c.name, amount: '$' + f(c.v), pct: Math.round(c.v / 1420 * 100) };
-    });
+
+    var alerts = [
+      { color: '#C3624C', text: 'ARTEM — 3 дня без отчёта (24–26.08)' },
+      { color: '#C3624C', text: 'VIPER не отчитался по $1 400 на пополнениях' },
+      { color: '#A4B183', text: 'NOMAD первым в команде закрыл $10 000' }
+    ];
 
     return {
       rateLabel: String(rate),
-      profitRub: f(34637 * rate),
+      heroLines: heroLines, heroStats: heroStats,
       bars: bars,
-      buyers: buyers,
-      consum: consum
+      cumLine: cl, cumArea: cl + ' L340 73 L0 73 Z',
+      buyers: buyers, consum: consum, pays: pays, alerts: alerts
     };
   }
 }

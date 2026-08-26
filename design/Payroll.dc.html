@@ -7,235 +7,252 @@
 <body>
 <x-dc>
 <helmet>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Oswald:wght@200;300;400;500;600&display=swap">
   <style>
-    body { margin: 0; background: #0d1014; font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; }
-    a { color: #5aa2ff; text-decoration: none; } a:hover { color: #8dbcff; }
-    .n { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
-    .th { font-size: 10px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: #566072; }
-    .row { display: grid; grid-template-columns: minmax(0,1.45fr) minmax(0,1fr) minmax(0,1.05fr) minmax(0,1fr) minmax(0,0.8fr) minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr) minmax(0,1.1fr) minmax(0,1.15fr); align-items: center; }
+    body { margin: 0; background: #1E1E21; font-family: 'Golos Text', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; color: #D4D4D4; }
+    a { color: #A4B183; text-decoration: none; } a:hover { color: #C3624C; }
+    .n { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+    .d { font-family: 'Oswald', 'Golos Text', sans-serif; font-weight: 300; letter-spacing: -0.01em; }
+    .lab { font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 400; letter-spacing: 0.24em; text-transform: uppercase; color: #5B5B5D; }
+    .rule { height: 1px; background: #33333A; }
   </style>
 </helmet>
 
-<div style="width: 1440px; min-height: 1110px; background: #0d1014; color: #e8ecf2; padding: 26px 28px 30px 28px; display: flex; flex-direction: column; gap: 20px;">
-
-  <div style="display: flex; align-items: flex-end; justify-content: space-between;">
-    <div>
-      <h1 style="margin: 0 0 5px 0; font-size: 25px; font-weight: 600; letter-spacing: -0.02em;">Зарплата — август 2026</h1>
-      <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #7d8899;">
-        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #e5b14a;"></span>период открыт</span>
-        <span style="color: #2a323e;">·</span>
-        <span>расходники списываются на баера</span>
-        <span style="color: #2a323e;">·</span>
-        <span>курс <span class="n">{{ rateLabel }}</span> ₽/$</span>
+<div style="display: flex; width: 1440px; min-height: 1200px; background: #1E1E21; color: #D4D4D4;">
+  <aside style="width: 76px; flex: 0 0 76px; border-right: 1px solid #33333A; display: flex; flex-direction: column; align-items: center; padding: 24px 0 22px 0;">
+    <div style="width: 32px; height: 32px; border: 1px solid #A4B183; display: flex; align-items: center; justify-content: center;">
+      <span class="d" style="font-size: 16px; font-weight: 500; color: #A4B183;">S</span>
+    </div>
+    <div style="height: 22px;"></div>
+    <div class="lab" style="writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: 0.42em; font-size: 9.5px;">STORI · TEAM</div>
+    <div style="height: 30px;"></div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><path d="M3 20h18M3 20V9l9-6 9 6v11"/><path d="M9 20v-6h6v6"/></svg>
+      </div>
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      </div>
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><path d="M3 21l9-16 9 16z"/><path d="M8.5 12.5h7"/></svg>
+      </div>
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><path d="M21 8l-9-4.5L3 8l9 4.5L21 8z"/><path d="M3 8v8l9 4.5L21 16V8"/></svg>
+      </div>
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: #26262A; border-left: 2px solid #A4B183;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.5"><rect x="3" y="6" width="18" height="13"/><path d="M3 10.5h18"/></svg>
+      </div>
+      <div style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.5"><path d="M3 12.5V4h8.5L21 13.5 12.5 22 3 12.5z"/><circle cx="8" cy="8" r="1.3"/></svg>
       </div>
     </div>
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <div style="padding: 10px 17px; border-radius: 9px; border: 1px solid #242b36; background: #151a22; font-size: 13px; color: #b8c2d0;">Выгрузить в XLSX</div>
-      <div style="padding: 10px 19px; border-radius: 9px; background: #232a35; border: 1px solid #333d4c; font-size: 13px; font-weight: 600; color: #e8ecf2;">Закрыть период и зафиксировать</div>
+    <div style="flex-grow: 1;"></div>
+    <div style="width: 32px; height: 32px; border: 1px solid #33333A; display: flex; align-items: center; justify-content: center;">
+      <span class="n" style="font-size: 10px; color: #5B5B5D;">AD</span>
     </div>
-  </div>
+  </aside>
+  <main style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column;">
 
-  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;">
-    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 17px;">
-      <div class="th">Фонд ЗП</div>
-      <div class="n" style="font-size: 25px; font-weight: 600; margin: 9px 0 6px 0;">$15 702</div>
-      <div class="n" style="font-size: 11.5px; color: #7d8899;">{{ fundRub }} ₽</div>
-    </div>
-    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 17px;">
-      <div class="th">Средняя ставка</div>
-      <div class="n" style="font-size: 25px; font-weight: 600; margin: 9px 0 6px 0;">41,9%</div>
-      <div style="font-size: 11.5px; color: #7d8899;">от базы <span class="n">$31 532</span></div>
-    </div>
-    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 17px;">
-      <div class="th">Бонусы</div>
-      <div class="n" style="font-size: 25px; font-weight: 600; margin: 9px 0 6px 0; color: #37d494;">$2 500</div>
-      <div style="font-size: 11.5px; color: #7d8899;">1 разовый · NOMAD</div>
-    </div>
-    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 17px;">
-      <div class="th">Остаётся команде</div>
-      <div class="n" style="font-size: 25px; font-weight: 600; margin: 9px 0 6px 0;">$15 830</div>
-      <div style="font-size: 11.5px; color: #7d8899;">профит − расходники − ЗП</div>
-    </div>
-  </div>
-
-  <!-- TABLE -->
-  <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 14px; overflow: hidden;">
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 17px 20px 14px 20px;">
-      <div style="font-size: 14.5px; font-weight: 600;">Расчётный лист</div>
-      <div style="display: flex; align-items: center; gap: 16px; font-size: 11.5px; color: #566072;">
-        <span>база = профит − расходники</span>
-        <span style="color: #2a323e;">·</span>
-        <span>ставка берётся по достигнутому порогу и применяется ко всей базе</span>
+    <div style="display: flex; align-items: center; justify-content: space-between; height: 66px; padding: 0 40px; border-bottom: 1px solid #33333A;">
+      <div style="display: flex; align-items: center; gap: 13px;">
+        <span class="lab" style="color: #D4D4D4;">Зарплата</span>
+        <span class="lab">/</span>
+        <span class="lab">Август 2026</span>
+        <span style="width: 5px; height: 5px; background: #C3624C; margin-left: 8px;"></span>
+        <span class="lab" style="color: #C3624C;">период открыт</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <span class="n" style="font-size: 11.5px; color: #5B5B5D;">курс {{ rateLabel }} ₽/$</span>
+        <div style="padding: 9px 16px; border: 1px solid #33333A;"><span class="lab" style="font-size: 10px;">Выгрузить</span></div>
+        <div style="padding: 9px 17px; border: 1px solid #A4B183;"><span class="lab" style="font-size: 10px; color: #A4B183;">Закрыть период</span></div>
       </div>
     </div>
-    <div class="row" style="padding: 0 20px 9px 20px;">
-      <div class="th">Баер</div>
-      <div class="th" style="text-align: right;">Профит</div>
-      <div class="th" style="text-align: right;">Расходники</div>
-      <div class="th" style="text-align: right;">База</div>
-      <div class="th" style="text-align: right;">Ставка</div>
-      <div class="th" style="text-align: right;">ЗП, $</div>
-      <div class="th" style="text-align: right;">ЗП, ₽</div>
-      <div class="th" style="text-align: right;">Бонус</div>
-      <div class="th" style="text-align: right;">К выплате</div>
-      <div class="th" style="text-align: right;">Статус</div>
-    </div>
-    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
-      <div class="row" style="padding: 0 20px; border-top: 1px solid #1c222c;">
-        <div style="display: flex; align-items: center; gap: 11px; padding: 15px 0;">
-          <div style="width: 29px; height: 29px; border-radius: 8px; background: #1d2530; display: flex; align-items: center; justify-content: center; flex: 0 0 29px;">
-            <span class="n" style="font-size: 10.5px; color: #9aa5b4;">{{ r.ini }}</span>
-          </div>
-          <div>
-            <div style="font-size: 13.5px; font-weight: 500;">{{ r.name }}</div>
-            <div class="n" style="font-size: 10.5px; color: #566072;">{{ r.tier }}</div>
-          </div>
+
+    <!-- HERO -->
+    <div style="display: grid; grid-template-columns: minmax(0, 1.1fr) repeat(3, minmax(0, 1fr)); border-bottom: 1px solid #33333A;">
+      <div style="padding: 34px 30px 36px 40px; border-right: 1px solid #33333A;">
+        <span class="lab">Фонд зарплаты</span>
+        <div class="d" style="font-size: 76px; line-height: 1; font-weight: 200; margin: 16px 0 6px -4px; letter-spacing: -0.035em;">
+          <span style="color: #5B5B5D; font-size: 40px; vertical-align: 16px;">$</span>15 720
         </div>
-        <div class="n" style="text-align: right; font-size: 13px; color: #b8c2d0;">{{ r.profit }}</div>
-        <div class="n" style="text-align: right; font-size: 13px; color: #e5b14a;">{{ r.cons }}</div>
-        <div class="n" style="text-align: right; font-size: 13px; font-weight: 600;">{{ r.base }}</div>
-        <div class="n" style="text-align: right; font-size: 13px; color: {{ r.rateColor }}; font-weight: 600;">{{ r.rate }}</div>
-        <div class="n" style="text-align: right; font-size: 13.5px; font-weight: 600; color: {{ r.rateColor }};">{{ r.pay }}</div>
-        <div class="n" style="text-align: right; font-size: 13px; color: #7d8899;">{{ r.payRub }}</div>
-        <div class="n" style="text-align: right; font-size: 13px; color: #37d494;">{{ r.bonus }}</div>
-        <div class="n" style="text-align: right; font-size: 14px; font-weight: 600;">{{ r.total }}</div>
-        <div style="text-align: right; padding: 15px 0;">
-          <span style="display: inline-block; padding: 5px 11px; border-radius: 20px; font-size: 11px; background: {{ r.badgeBg }}; color: {{ r.badgeFg }};">{{ r.status }}</span>
-        </div>
+        <div class="n" style="font-size: 13.5px; color: #5B5B5D;">{{ fundRub }} ₽ · выплата 5 сентября</div>
       </div>
-    </sc-for>
-    <div class="row" style="padding: 0 20px; border-top: 1px solid #2a323e; background: #171c24;">
-      <div style="padding: 15px 0; font-size: 12px; font-weight: 600; letter-spacing: 0.03em; color: #7d8899;">ИТОГО</div>
-      <div class="n" style="text-align: right; font-size: 13px; font-weight: 600;">34 637</div>
-      <div class="n" style="text-align: right; font-size: 13px; font-weight: 600; color: #e5b14a;">3 105</div>
-      <div class="n" style="text-align: right; font-size: 13px; font-weight: 600;">31 532</div>
-      <div class="n" style="text-align: right; font-size: 13px; color: #7d8899;">41,9%</div>
-      <div class="n" style="text-align: right; font-size: 13.5px; font-weight: 600;">13 202</div>
-      <div class="n" style="text-align: right; font-size: 13px; color: #7d8899;">{{ salaryRub }}</div>
-      <div class="n" style="text-align: right; font-size: 13px; color: #37d494;">2 500</div>
-      <div class="n" style="text-align: right; font-size: 14px; font-weight: 600; color: #37d494;">15 702</div>
-      <div></div>
-    </div>
-  </div>
-
-  <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px;">
-
-    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 14px; padding: 18px 20px 8px 20px;">
-      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px;">
-        <div style="font-size: 14.5px; font-weight: 600;">Лесенка ставок</div>
-        <span style="font-size: 11.5px; color: #566072;">настраивается для каждого баера</span>
-      </div>
-      <div style="display: grid; grid-template-columns: minmax(0,1fr) minmax(0,0.8fr) minmax(0,1fr) minmax(0,1fr); padding: 12px 0 8px 0;">
-        <div class="th">База от</div>
-        <div class="th" style="text-align: right;">Ставка</div>
-        <div class="th" style="text-align: right;">ЗП, $</div>
-        <div class="th" style="text-align: right;">ЗП, ₽</div>
-      </div>
-      <sc-for list="{{ ladder }}" as="l" hint-placeholder-count="5">
-        <div style="display: grid; grid-template-columns: minmax(0,1fr) minmax(0,0.8fr) minmax(0,1fr) minmax(0,1fr); align-items: center; padding: 11px 0; border-top: 1px solid #1c222c;">
-          <div class="n" style="font-size: 13px; color: #b8c2d0;">{{ l.from }}</div>
-          <div class="n" style="text-align: right; font-size: 13px; color: #37d494; font-weight: 600;">{{ l.rate }}</div>
-          <div class="n" style="text-align: right; font-size: 13px;">{{ l.pay }}</div>
-          <div class="n" style="text-align: right; font-size: 13px; color: #7d8899;">{{ l.payRub }}</div>
+      <sc-for list="{{ heroStats }}" as="s" hint-placeholder-count="3">
+        <div style="padding: 34px 30px 36px 30px; border-right: 1px solid #33333A;">
+          <div class="lab" style="font-size: 9.5px;">{{ s.label }}</div>
+          <div class="d n" style="font-size: 34px; font-weight: 300; margin: 14px 0 8px 0; color: {{ s.c }};">{{ s.value }}</div>
+          <div style="font-size: 11.5px; color: #5B5B5D; line-height: 1.5;">{{ s.note }}</div>
         </div>
       </sc-for>
-      <div style="padding: 13px 0 16px 0; border-top: 1px solid #1c222c;">
-        <div style="font-size: 12px; color: #7d8899; line-height: 1.55;">Разовый бонус: первое закрытие <span class="n">$5 000</span> — <span class="n" style="color: #37d494;">+200 000 ₽</span> на руки.</div>
-      </div>
     </div>
 
-    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 14px; padding: 18px 20px;">
-      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 5px;">
-        <div style="font-size: 14.5px; font-weight: 600;">Мёртвые зоны порогов</div>
-        <span style="font-size: 11.5px; color: #566072;">сколько стоит не дотянуть</span>
+    <!-- TABLE -->
+    <div style="padding: 30px 40px 0 40px;">
+      <div style="display: flex; align-items: center; gap: 18px;">
+        <span class="lab" style="color: #D4D4D4;">Расчётный лист</span>
+        <div style="flex-grow: 1; height: 1px; background: #33333A;"></div>
+        <span class="lab" style="font-size: 9.5px;">база = профит − расходники · ставка по достигнутому порогу применяется ко всей базе</span>
       </div>
-      <div style="font-size: 12px; color: #7d8899; line-height: 1.5; margin-bottom: 14px;">Ставка применяется ко всей базе, поэтому у самого порога небольшой прирост профита резко меняет выплату. Покажи это баеру — это дешевле любой мотивации.</div>
-      <sc-for list="{{ gaps }}" as="g" hint-placeholder-count="4">
-        <div style="display: flex; align-items: center; gap: 14px; padding: 13px 0; border-top: 1px solid #1c222c;">
-          <div style="width: 44px; flex: 0 0 44px; font-size: 12.5px; font-weight: 600;">{{ g.name }}</div>
-          <div style="flex-grow: 1; min-width: 0;">
-            <div style="font-size: 12.5px; color: #b8c2d0; margin-bottom: 6px;">не хватает <span class="n" style="font-weight: 600;">{{ g.need }}</span> до порога <span class="n">{{ g.threshold }}</span></div>
-            <div style="height: 5px; border-radius: 3px; background: #202730; overflow: hidden;">
-              <div style="width: {{ g.pct }}%; height: 5px; background: {{ g.color }}; border-radius: 3px;"></div>
+      <div style="display: grid; grid-template-columns: minmax(0,1.5fr) repeat(3, minmax(0,1fr)) minmax(0,0.7fr) minmax(0,1fr) minmax(0,1.1fr) minmax(0,0.9fr) minmax(0,1.1fr); padding: 18px 0 10px 0;">
+        <div class="lab" style="font-size: 9.5px;">Баер</div>
+        <div class="lab" style="font-size: 9.5px; text-align: right;">Профит</div>
+        <div class="lab" style="font-size: 9.5px; text-align: right;">Расходники</div>
+        <div class="lab" style="font-size: 9.5px; text-align: right;">База</div>
+        <div class="lab" style="font-size: 9.5px; text-align: right;">Ставка</div>
+        <div class="lab" style="font-size: 9.5px; text-align: right;">ЗП, $</div>
+        <div class="lab" style="font-size: 9.5px; text-align: right;">ЗП, ₽</div>
+        <div class="lab" style="font-size: 9.5px; text-align: right;">Бонус</div>
+        <div class="lab" style="font-size: 9.5px; text-align: right;">К выплате</div>
+      </div>
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+        <div style="display: grid; grid-template-columns: minmax(0,1.5fr) repeat(3, minmax(0,1fr)) minmax(0,0.7fr) minmax(0,1fr) minmax(0,1.1fr) minmax(0,0.9fr) minmax(0,1.1fr); align-items: center; border-top: 1px solid #33333A; padding: 16px 0;">
+          <div style="display: flex; align-items: center; gap: 13px;">
+            <span class="n" style="font-size: 10px; color: #5B5B5D; width: 14px;">{{ r.pos }}</span>
+            <div>
+              <div class="d" style="font-size: 18px; font-weight: 400; letter-spacing: 0.05em;">{{ r.name }}</div>
+              <div class="lab" style="font-size: 9px; margin-top: 3px;">{{ r.tier }}</div>
             </div>
           </div>
-          <div style="text-align: right; flex: 0 0 92px;">
-            <div class="n" style="font-size: 14px; font-weight: 600; color: #37d494;">{{ g.gain }}</div>
-            <div style="font-size: 10.5px; color: #566072;">к выплате</div>
-          </div>
+          <div class="n" style="text-align: right; font-size: 13.5px; color: #D4D4D4;">{{ r.profit }}</div>
+          <div class="n" style="text-align: right; font-size: 13.5px; color: #C3624C;">{{ r.cons }}</div>
+          <div class="n" style="text-align: right; font-size: 13.5px; color: #D4D4D4;">{{ r.base }}</div>
+          <div class="n" style="text-align: right; font-size: 13.5px; color: {{ r.c }};">{{ r.rate }}</div>
+          <div class="n d" style="text-align: right; font-size: 21px; font-weight: 300; color: {{ r.c }};">{{ r.pay }}</div>
+          <div class="n" style="text-align: right; font-size: 13px; color: #5B5B5D;">{{ r.payRub }}</div>
+          <div class="n" style="text-align: right; font-size: 13.5px; color: {{ r.bonusC }};">{{ r.bonus }}</div>
+          <div class="n d" style="text-align: right; font-size: 21px; font-weight: 300;">{{ r.total }}</div>
         </div>
       </sc-for>
+      <div style="display: grid; grid-template-columns: minmax(0,1.5fr) repeat(3, minmax(0,1fr)) minmax(0,0.7fr) minmax(0,1fr) minmax(0,1.1fr) minmax(0,0.9fr) minmax(0,1.1fr); align-items: center; border-top: 1px solid #4A4A50; padding: 17px 0;">
+        <div class="lab" style="font-size: 10px; color: #D4D4D4;">Итого</div>
+        <div class="n" style="text-align: right; font-size: 13.5px;">34 700</div>
+        <div class="n" style="text-align: right; font-size: 13.5px; color: #C3624C;">−3 100</div>
+        <div class="n" style="text-align: right; font-size: 13.5px;">31 600</div>
+        <div class="n" style="text-align: right; font-size: 13.5px; color: #5B5B5D;">41,8%</div>
+        <div class="n d" style="text-align: right; font-size: 21px; font-weight: 300;">13 220</div>
+        <div class="n" style="text-align: right; font-size: 13px; color: #5B5B5D;">{{ salaryRub }}</div>
+        <div class="n" style="text-align: right; font-size: 13.5px; color: #A4B183;">+2 500</div>
+        <div class="n d" style="text-align: right; font-size: 21px; font-weight: 300; color: #A4B183;">15 720</div>
+      </div>
     </div>
-  </div>
+
+    <!-- LADDER + ZONES -->
+    <div style="display: grid; grid-template-columns: minmax(0, 1.25fr) 1px minmax(0, 1fr); gap: 40px; padding: 38px 40px 46px 40px; flex-grow: 1;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 18px; margin-bottom: 26px;">
+          <span class="lab" style="color: #D4D4D4;">Лесенка ставок</span>
+          <div style="flex-grow: 1; height: 1px; background: #33333A;"></div>
+          <span class="lab" style="font-size: 9.5px;">настраивается на каждого баера</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; align-items: end;">
+          <sc-for list="{{ ladder }}" as="l" hint-placeholder-count="5">
+            <div>
+              <div class="n" style="font-size: 12.5px; color: #5B5B5D; margin-bottom: 9px;">{{ l.from }}</div>
+              <div style="height: {{ l.h }}px; background: #26262A; border-top: 3px solid {{ l.c }}; display: flex; align-items: flex-start; justify-content: center; padding-top: 14px;">
+                <span class="d n" style="font-size: 26px; font-weight: 300; color: {{ l.c }};">{{ l.rate }}</span>
+              </div>
+              <div style="border-top: 1px solid #33333A; padding-top: 11px;">
+                <div class="n" style="font-size: 14px;">{{ l.pay }}</div>
+                <div class="n" style="font-size: 11.5px; color: #5B5B5D; margin-top: 4px;">{{ l.payRub }} ₽</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="border-top: 1px solid #33333A; margin-top: 22px; padding-top: 14px; font-size: 12.5px; color: #5B5B5D; line-height: 1.6;">
+          Разовый бонус: первое закрытие <span class="n" style="color: #D4D4D4;">$5 000</span> — <span class="n" style="color: #A4B183;">+200 000 ₽</span> на руки. В августе его забрал NOMAD.
+        </div>
+      </div>
+
+      <div style="width: 1px; background: #33333A;"></div>
+
+      <div>
+        <div style="display: flex; align-items: center; gap: 18px; margin-bottom: 12px;">
+          <span class="lab" style="color: #D4D4D4;">Мёртвые зоны</span>
+          <div style="flex-grow: 1; height: 1px; background: #33333A;"></div>
+        </div>
+        <div style="font-size: 12px; color: #5B5B5D; line-height: 1.6; margin-bottom: 8px;">Ставка умножает всю базу, поэтому у самого порога пара сотен профита меняет выплату на тысячи. Показывай это баеру — работает лучше любой мотивации.</div>
+        <sc-for list="{{ gaps }}" as="g" hint-placeholder-count="4">
+          <div style="border-top: 1px solid #33333A; padding: 15px 0;">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px;">
+              <span class="d" style="font-size: 17px; font-weight: 400; letter-spacing: 0.05em;">{{ g.name }}</span>
+              <span class="d n" style="font-size: 20px; font-weight: 300; color: #A4B183;">{{ g.gain }}</span>
+            </div>
+            <div style="height: 3px; background: #2E2E33; margin-bottom: 9px;">
+              <div style="width: {{ g.pct }}%; height: 3px; background: {{ g.c }};"></div>
+            </div>
+            <div style="font-size: 11.5px; color: #5B5B5D;">не хватает <span class="n" style="color: #D4D4D4;">{{ g.need }}</span> до порога <span class="n">{{ g.th }}</span></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </main>
 </div>
 </x-dc>
 
-<script data-dc-script data-props='{"rate":{"editor":"int","default":80,"min":40,"max":200,"unit":"₽/$","section":"Данные"},"$preview":{"width":1440,"height":1110}}'>
+<script data-dc-script data-props='{"rate":{"editor":"int","default":80,"min":40,"max":200,"unit":"₽/$","section":"Данные"},"$preview":{"width":1440,"height":1200}}'>
 class Component extends DCLogic {
   renderVals() {
     var rate = this.props.rate ?? 80;
     var f = function (n) { return Math.round(n).toLocaleString('ru-RU'); };
-    var m = function (n) { return '$' + f(n); };
+
+    var heroStats = [
+      { label: 'Средняя ставка', value: '41,8%', c: '#D4D4D4', note: 'от базы $31 600' },
+      { label: 'Разовые бонусы', value: '$2 500', c: '#A4B183', note: 'NOMAD — первые $5 000' },
+      { label: 'Остаётся команде', value: '$15 880', c: '#D4D4D4', note: 'профит − расходники − ЗП' }
+    ];
 
     var raw = [
-      { name: 'NOMAD', ini: 'NM', profit: 12619, cons: 910, rate: 50, tier: 'порог $10 000', bonus: 2500, status: 'к выплате' },
-      { name: 'SKO', ini: 'SK', profit: 8948, cons: 640, rate: 40, tier: 'порог $5 000', bonus: 0, status: 'к выплате' },
-      { name: 'LUNA', ini: 'LN', profit: 7901, cons: 605, rate: 40, tier: 'порог $5 000', bonus: 0, status: 'к выплате' },
-      { name: 'VIPER', ini: 'VP', profit: 4205, cons: 520, rate: 30, tier: 'порог $800', bonus: 0, status: 'к выплате' },
-      { name: 'ARTEM', ini: 'AR', profit: 964, cons: 430, rate: 0, tier: 'порог не взят', bonus: 0, status: 'ниже порога' }
+      { name: 'NOMAD', profit: 12600, cons: 900, r: 50, tier: 'порог $10 000', bonus: 2500 },
+      { name: 'SKO', profit: 9000, cons: 650, r: 40, tier: 'порог $5 000', bonus: 0 },
+      { name: 'LUNA', profit: 7900, cons: 600, r: 40, tier: 'порог $5 000', bonus: 0 },
+      { name: 'VIPER', profit: 4200, cons: 500, r: 30, tier: 'порог $800', bonus: 0 },
+      { name: 'ARTEM', profit: 1000, cons: 450, r: 0, tier: 'порог не взят', bonus: 0 }
     ];
-    var rows = raw.map(function (r) {
-      var base = r.profit - r.cons;
-      var pay = Math.round(base * r.rate / 100);
-      var ok = r.rate > 0;
+    var rows = raw.map(function (b, i) {
+      var base = b.profit - b.cons, pay = Math.round(base * b.r / 100 / 10) * 10, ok = b.r > 0;
       return {
-        name: r.name, ini: r.ini, tier: r.tier,
-        profit: f(r.profit), cons: '−' + f(r.cons), base: f(base),
-        rate: ok ? r.rate + '%' : '—',
-        rateColor: ok ? '#37d494' : '#ff6b5e',
-        pay: ok ? f(pay) : '0',
-        payRub: f(pay * rate),
-        bonus: r.bonus ? '+' + f(r.bonus) : '—',
-        total: f(pay + r.bonus),
-        status: r.status,
-        badgeBg: ok ? '#16211c' : '#241a19',
-        badgeFg: ok ? '#37d494' : '#ff6b5e'
+        pos: '0' + (i + 1), name: b.name, tier: b.tier,
+        profit: f(b.profit), cons: '−' + f(b.cons), base: f(base),
+        rate: ok ? b.r + '%' : '—',
+        pay: ok ? f(pay) : '0', payRub: f(pay * rate),
+        bonus: b.bonus ? '+' + f(b.bonus) : '—',
+        bonusC: b.bonus ? '#A4B183' : '#5B5B5D',
+        total: f(pay + b.bonus),
+        c: ok ? '#A4B183' : '#C3624C'
       };
     });
 
-    var ladderDefs = [
-      { from: 800, r: 30 }, { from: 1600, r: 30 }, { from: 2400, r: 30 },
-      { from: 5000, r: 40 }, { from: 10000, r: 50 }
-    ];
-    var ladder = ladderDefs.map(function (l) {
-      var pay = l.from * l.r / 100;
-      return { from: m(l.from), rate: l.r + '%', pay: m(pay), payRub: f(pay * rate) + ' ₽' };
+    var ldef = [{ v: 800, r: 30 }, { v: 1600, r: 30 }, { v: 2400, r: 30 }, { v: 5000, r: 40 }, { v: 10000, r: 50 }];
+    var ladder = ldef.map(function (l) {
+      var pay = l.v * l.r / 100;
+      return {
+        from: 'от $' + f(l.v), rate: l.r + '%',
+        h: Math.round(l.r * 2.9),
+        c: l.r >= 50 ? '#A4B183' : (l.r >= 40 ? '#8B9A6E' : '#6E7A57'),
+        pay: '$' + f(pay), payRub: f(pay * rate)
+      };
     });
 
-    var gapDefs = [
-      { name: 'SKO', base: 8308, th: 10000, r: 50, cur: 40 },
-      { name: 'LUNA', base: 7296, th: 10000, r: 50, cur: 40 },
-      { name: 'VIPER', base: 3685, th: 5000, r: 40, cur: 30 },
-      { name: 'ARTEM', base: 534, th: 800, r: 30, cur: 0 }
+    var gdef = [
+      { name: 'SKO', base: 8350, th: 10000, nr: 50, cr: 40 },
+      { name: 'LUNA', base: 7300, th: 10000, nr: 50, cr: 40 },
+      { name: 'VIPER', base: 3700, th: 5000, nr: 40, cr: 30 },
+      { name: 'ARTEM', base: 550, th: 800, nr: 30, cr: 0 }
     ];
-    var gaps = gapDefs.map(function (g) {
-      var gain = g.th * g.r / 100 - g.base * g.cur / 100;
+    var gaps = gdef.map(function (g) {
+      var gain = Math.round((g.th * g.nr / 100 - g.base * g.cr / 100) / 10) * 10;
+      var pct = g.base / g.th * 100;
       return {
-        name: g.name,
-        need: m(g.th - g.base),
-        threshold: m(g.th),
-        gain: '+' + m(Math.round(gain)),
-        pct: Math.round(g.base / g.th * 100),
-        color: g.base / g.th > 0.75 ? '#37d494' : '#e5b14a'
+        name: g.name, need: '$' + f(g.th - g.base), th: '$' + f(g.th),
+        gain: '+$' + f(gain), pct: Math.round(pct),
+        c: pct > 75 ? '#A4B183' : '#C3624C'
       };
     });
 
     return {
       rateLabel: String(rate),
-      fundRub: f(15702 * rate),
-      salaryRub: f(13202 * rate),
-      rows: rows, ladder: ladder, gaps: gaps
+      fundRub: f(15720 * rate), salaryRub: f(13220 * rate),
+      heroStats: heroStats, rows: rows, ladder: ladder, gaps: gaps
     };
   }
 }
