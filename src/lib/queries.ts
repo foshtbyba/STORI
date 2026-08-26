@@ -6,8 +6,19 @@ import { computePayout, parseTiers, DEFAULT_TIERS } from './salary';
 import { fetchRate, rateIsStale } from './rate';
 
 export async function getPeriod(key: string) {
-  const existing = await prisma.period.findUnique({ where: { key } });
-  const period = existing ?? (await prisma.period.create({ data: { key } }));
+  // Первый заход в новый месяц приходит сразу с нескольких серверных
+  // компонентов одной страницы. Пара «найти и создать» на этом гонится:
+  // все промахиваются мимо пустой таблицы и лезут вставлять, побеждает один,
+  // остальные падают на уникальном ключе. Поэтому вставка атомарная, а гонку
+  // на уровне базы гасим повторным чтением.
+  let period;
+  try {
+    period = await prisma.period.upsert({ where: { key }, update: {}, create: { key } });
+  } catch {
+    const existing = await prisma.period.findUnique({ where: { key } });
+    if (!existing) throw new Error(`Не удалось завести период ${key}.`);
+    period = existing;
+  }
 
   // Закрытый период держит курс, при котором считалась выплата, — трогать его
   // нельзя. Ручной курс тоже не перезаписываем: его выставили осознанно.

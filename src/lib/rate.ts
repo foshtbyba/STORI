@@ -29,7 +29,17 @@ const SOURCES: { name: string; url: string; pick: (data: unknown) => number | nu
 
 export type FetchedRate = { hundredths: number; source: string };
 
+/**
+ * Если наружу не пускают, каждый рендер страницы упирался бы в два таймаута
+ * подряд. После полного промаха держим паузу — сайт остаётся быстрым и на
+ * сервере без исходящей сети.
+ */
+const RETRY_AFTER_MS = 5 * 60 * 1000;
+let nextAttemptAt = 0;
+
 export async function fetchRate(): Promise<FetchedRate | null> {
+  if (Date.now() < nextAttemptAt) return null;
+
   for (const source of SOURCES) {
     try {
       const response = await fetch(source.url, {
@@ -41,11 +51,13 @@ export async function fetchRate(): Promise<FetchedRate | null> {
       // Отсекаем явную чушь: курс вне этого коридора означает сломанный ответ,
       // а не событие на рынке.
       if (!value || value < 10 || value > 1000) continue;
+      nextAttemptAt = 0;
       return { hundredths: Math.round(value * 100), source: source.name };
     } catch {
       // Источник не ответил — пробуем следующий.
     }
   }
+  nextAttemptAt = Date.now() + RETRY_AFTER_MS;
   return null;
 }
 
