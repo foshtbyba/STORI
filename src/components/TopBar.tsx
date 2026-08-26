@@ -35,7 +35,7 @@ export default function TopBar({
         <span className="h-[22px] w-px shrink-0 bg-line2" />
         <span className="n shrink-0 text-[15px] text-mid">{date}</span>
         {nav}
-        {role ? <span className="shrink-0 whitespace-nowrap text-[12.5px] text-dim">{role}</span> : null}
+        {role ? <span className="ml-auto shrink-0 whitespace-nowrap pl-4 text-[12.5px] text-dim">{role}</span> : null}
       </div>
 
       <div className="flex shrink-0 items-center gap-4">
