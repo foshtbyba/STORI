@@ -15,14 +15,21 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
+# apt печатает мало и медленно, поэтому шаги проговариваются вслух: без этого
+# установка docker выглядит как зависший скрипт.
 echo "==> Проверяю зависимости"
 if ! command -v openssl >/dev/null 2>&1 || ! command -v curl >/dev/null 2>&1; then
-  apt-get update -qq && apt-get install -y -qq openssl curl
+  echo "    ставлю openssl и curl (полминуты)"
+  apt-get update -qq && apt-get install -y openssl curl
 fi
 if ! command -v docker >/dev/null 2>&1; then
+  echo "    ставлю docker — это 2-5 минут, вывода почти не будет"
   apt-get update -qq
-  apt-get install -y -qq docker.io docker-compose-v2
+  apt-get install -y docker.io docker-compose-v2
   systemctl enable --now docker
+  echo "    docker готов"
+else
+  echo "    docker уже стоит"
 fi
 if ! docker compose version >/dev/null 2>&1; then
   apt-get install -y -qq docker-compose-v2
@@ -60,6 +67,7 @@ echo "==> Переключаю Prisma на postgresql"
 sed -i -E 's/provider = "sqlite"/provider = "postgresql"/' prisma/schema.prisma
 
 echo "==> Собираю и поднимаю контейнеры"
+echo "    первая сборка занимает 3-5 минут"
 docker compose up -d --build
 
 echo
