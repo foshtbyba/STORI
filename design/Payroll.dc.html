@@ -1,0 +1,244 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #0d1014; font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #5aa2ff; text-decoration: none; } a:hover { color: #8dbcff; }
+    .n { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+    .th { font-size: 10px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: #566072; }
+    .row { display: grid; grid-template-columns: minmax(0,1.45fr) minmax(0,1fr) minmax(0,1.05fr) minmax(0,1fr) minmax(0,0.8fr) minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr) minmax(0,1.1fr) minmax(0,1.15fr); align-items: center; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; min-height: 1110px; background: #0d1014; color: #e8ecf2; padding: 26px 28px 30px 28px; display: flex; flex-direction: column; gap: 20px;">
+
+  <div style="display: flex; align-items: flex-end; justify-content: space-between;">
+    <div>
+      <h1 style="margin: 0 0 5px 0; font-size: 25px; font-weight: 600; letter-spacing: -0.02em;">Зарплата — август 2026</h1>
+      <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #7d8899;">
+        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #e5b14a;"></span>период открыт</span>
+        <span style="color: #2a323e;">·</span>
+        <span>расходники списываются на баера</span>
+        <span style="color: #2a323e;">·</span>
+        <span>курс <span class="n">{{ rateLabel }}</span> ₽/$</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="padding: 10px 17px; border-radius: 9px; border: 1px solid #242b36; background: #151a22; font-size: 13px; color: #b8c2d0;">Выгрузить в XLSX</div>
+      <div style="padding: 10px 19px; border-radius: 9px; background: #232a35; border: 1px solid #333d4c; font-size: 13px; font-weight: 600; color: #e8ecf2;">Закрыть период и зафиксировать</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;">
+    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 17px;">
+      <div class="th">Фонд ЗП</div>
+      <div class="n" style="font-size: 25px; font-weight: 600; margin: 9px 0 6px 0;">$15 702</div>
+      <div class="n" style="font-size: 11.5px; color: #7d8899;">{{ fundRub }} ₽</div>
+    </div>
+    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 17px;">
+      <div class="th">Средняя ставка</div>
+      <div class="n" style="font-size: 25px; font-weight: 600; margin: 9px 0 6px 0;">41,9%</div>
+      <div style="font-size: 11.5px; color: #7d8899;">от базы <span class="n">$31 532</span></div>
+    </div>
+    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 17px;">
+      <div class="th">Бонусы</div>
+      <div class="n" style="font-size: 25px; font-weight: 600; margin: 9px 0 6px 0; color: #37d494;">$2 500</div>
+      <div style="font-size: 11.5px; color: #7d8899;">1 разовый · NOMAD</div>
+    </div>
+    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 12px; padding: 16px 17px;">
+      <div class="th">Остаётся команде</div>
+      <div class="n" style="font-size: 25px; font-weight: 600; margin: 9px 0 6px 0;">$15 830</div>
+      <div style="font-size: 11.5px; color: #7d8899;">профит − расходники − ЗП</div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 14px; overflow: hidden;">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 17px 20px 14px 20px;">
+      <div style="font-size: 14.5px; font-weight: 600;">Расчётный лист</div>
+      <div style="display: flex; align-items: center; gap: 16px; font-size: 11.5px; color: #566072;">
+        <span>база = профит − расходники</span>
+        <span style="color: #2a323e;">·</span>
+        <span>ставка берётся по достигнутому порогу и применяется ко всей базе</span>
+      </div>
+    </div>
+    <div class="row" style="padding: 0 20px 9px 20px;">
+      <div class="th">Баер</div>
+      <div class="th" style="text-align: right;">Профит</div>
+      <div class="th" style="text-align: right;">Расходники</div>
+      <div class="th" style="text-align: right;">База</div>
+      <div class="th" style="text-align: right;">Ставка</div>
+      <div class="th" style="text-align: right;">ЗП, $</div>
+      <div class="th" style="text-align: right;">ЗП, ₽</div>
+      <div class="th" style="text-align: right;">Бонус</div>
+      <div class="th" style="text-align: right;">К выплате</div>
+      <div class="th" style="text-align: right;">Статус</div>
+    </div>
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+      <div class="row" style="padding: 0 20px; border-top: 1px solid #1c222c;">
+        <div style="display: flex; align-items: center; gap: 11px; padding: 15px 0;">
+          <div style="width: 29px; height: 29px; border-radius: 8px; background: #1d2530; display: flex; align-items: center; justify-content: center; flex: 0 0 29px;">
+            <span class="n" style="font-size: 10.5px; color: #9aa5b4;">{{ r.ini }}</span>
+          </div>
+          <div>
+            <div style="font-size: 13.5px; font-weight: 500;">{{ r.name }}</div>
+            <div class="n" style="font-size: 10.5px; color: #566072;">{{ r.tier }}</div>
+          </div>
+        </div>
+        <div class="n" style="text-align: right; font-size: 13px; color: #b8c2d0;">{{ r.profit }}</div>
+        <div class="n" style="text-align: right; font-size: 13px; color: #e5b14a;">{{ r.cons }}</div>
+        <div class="n" style="text-align: right; font-size: 13px; font-weight: 600;">{{ r.base }}</div>
+        <div class="n" style="text-align: right; font-size: 13px; color: {{ r.rateColor }}; font-weight: 600;">{{ r.rate }}</div>
+        <div class="n" style="text-align: right; font-size: 13.5px; font-weight: 600; color: {{ r.rateColor }};">{{ r.pay }}</div>
+        <div class="n" style="text-align: right; font-size: 13px; color: #7d8899;">{{ r.payRub }}</div>
+        <div class="n" style="text-align: right; font-size: 13px; color: #37d494;">{{ r.bonus }}</div>
+        <div class="n" style="text-align: right; font-size: 14px; font-weight: 600;">{{ r.total }}</div>
+        <div style="text-align: right; padding: 15px 0;">
+          <span style="display: inline-block; padding: 5px 11px; border-radius: 20px; font-size: 11px; background: {{ r.badgeBg }}; color: {{ r.badgeFg }};">{{ r.status }}</span>
+        </div>
+      </div>
+    </sc-for>
+    <div class="row" style="padding: 0 20px; border-top: 1px solid #2a323e; background: #171c24;">
+      <div style="padding: 15px 0; font-size: 12px; font-weight: 600; letter-spacing: 0.03em; color: #7d8899;">ИТОГО</div>
+      <div class="n" style="text-align: right; font-size: 13px; font-weight: 600;">34 637</div>
+      <div class="n" style="text-align: right; font-size: 13px; font-weight: 600; color: #e5b14a;">3 105</div>
+      <div class="n" style="text-align: right; font-size: 13px; font-weight: 600;">31 532</div>
+      <div class="n" style="text-align: right; font-size: 13px; color: #7d8899;">41,9%</div>
+      <div class="n" style="text-align: right; font-size: 13.5px; font-weight: 600;">13 202</div>
+      <div class="n" style="text-align: right; font-size: 13px; color: #7d8899;">{{ salaryRub }}</div>
+      <div class="n" style="text-align: right; font-size: 13px; color: #37d494;">2 500</div>
+      <div class="n" style="text-align: right; font-size: 14px; font-weight: 600; color: #37d494;">15 702</div>
+      <div></div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 20px;">
+
+    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 14px; padding: 18px 20px 8px 20px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px;">
+        <div style="font-size: 14.5px; font-weight: 600;">Лесенка ставок</div>
+        <span style="font-size: 11.5px; color: #566072;">настраивается для каждого баера</span>
+      </div>
+      <div style="display: grid; grid-template-columns: minmax(0,1fr) minmax(0,0.8fr) minmax(0,1fr) minmax(0,1fr); padding: 12px 0 8px 0;">
+        <div class="th">База от</div>
+        <div class="th" style="text-align: right;">Ставка</div>
+        <div class="th" style="text-align: right;">ЗП, $</div>
+        <div class="th" style="text-align: right;">ЗП, ₽</div>
+      </div>
+      <sc-for list="{{ ladder }}" as="l" hint-placeholder-count="5">
+        <div style="display: grid; grid-template-columns: minmax(0,1fr) minmax(0,0.8fr) minmax(0,1fr) minmax(0,1fr); align-items: center; padding: 11px 0; border-top: 1px solid #1c222c;">
+          <div class="n" style="font-size: 13px; color: #b8c2d0;">{{ l.from }}</div>
+          <div class="n" style="text-align: right; font-size: 13px; color: #37d494; font-weight: 600;">{{ l.rate }}</div>
+          <div class="n" style="text-align: right; font-size: 13px;">{{ l.pay }}</div>
+          <div class="n" style="text-align: right; font-size: 13px; color: #7d8899;">{{ l.payRub }}</div>
+        </div>
+      </sc-for>
+      <div style="padding: 13px 0 16px 0; border-top: 1px solid #1c222c;">
+        <div style="font-size: 12px; color: #7d8899; line-height: 1.55;">Разовый бонус: первое закрытие <span class="n">$5 000</span> — <span class="n" style="color: #37d494;">+200 000 ₽</span> на руки.</div>
+      </div>
+    </div>
+
+    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 14px; padding: 18px 20px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 5px;">
+        <div style="font-size: 14.5px; font-weight: 600;">Мёртвые зоны порогов</div>
+        <span style="font-size: 11.5px; color: #566072;">сколько стоит не дотянуть</span>
+      </div>
+      <div style="font-size: 12px; color: #7d8899; line-height: 1.5; margin-bottom: 14px;">Ставка применяется ко всей базе, поэтому у самого порога небольшой прирост профита резко меняет выплату. Покажи это баеру — это дешевле любой мотивации.</div>
+      <sc-for list="{{ gaps }}" as="g" hint-placeholder-count="4">
+        <div style="display: flex; align-items: center; gap: 14px; padding: 13px 0; border-top: 1px solid #1c222c;">
+          <div style="width: 44px; flex: 0 0 44px; font-size: 12.5px; font-weight: 600;">{{ g.name }}</div>
+          <div style="flex-grow: 1; min-width: 0;">
+            <div style="font-size: 12.5px; color: #b8c2d0; margin-bottom: 6px;">не хватает <span class="n" style="font-weight: 600;">{{ g.need }}</span> до порога <span class="n">{{ g.threshold }}</span></div>
+            <div style="height: 5px; border-radius: 3px; background: #202730; overflow: hidden;">
+              <div style="width: {{ g.pct }}%; height: 5px; background: {{ g.color }}; border-radius: 3px;"></div>
+            </div>
+          </div>
+          <div style="text-align: right; flex: 0 0 92px;">
+            <div class="n" style="font-size: 14px; font-weight: 600; color: #37d494;">{{ g.gain }}</div>
+            <div style="font-size: 10.5px; color: #566072;">к выплате</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"rate":{"editor":"int","default":80,"min":40,"max":200,"unit":"₽/$","section":"Данные"},"$preview":{"width":1440,"height":1110}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var rate = this.props.rate ?? 80;
+    var f = function (n) { return Math.round(n).toLocaleString('ru-RU'); };
+    var m = function (n) { return '$' + f(n); };
+
+    var raw = [
+      { name: 'NOMAD', ini: 'NM', profit: 12619, cons: 910, rate: 50, tier: 'порог $10 000', bonus: 2500, status: 'к выплате' },
+      { name: 'SKO', ini: 'SK', profit: 8948, cons: 640, rate: 40, tier: 'порог $5 000', bonus: 0, status: 'к выплате' },
+      { name: 'LUNA', ini: 'LN', profit: 7901, cons: 605, rate: 40, tier: 'порог $5 000', bonus: 0, status: 'к выплате' },
+      { name: 'VIPER', ini: 'VP', profit: 4205, cons: 520, rate: 30, tier: 'порог $800', bonus: 0, status: 'к выплате' },
+      { name: 'ARTEM', ini: 'AR', profit: 964, cons: 430, rate: 0, tier: 'порог не взят', bonus: 0, status: 'ниже порога' }
+    ];
+    var rows = raw.map(function (r) {
+      var base = r.profit - r.cons;
+      var pay = Math.round(base * r.rate / 100);
+      var ok = r.rate > 0;
+      return {
+        name: r.name, ini: r.ini, tier: r.tier,
+        profit: f(r.profit), cons: '−' + f(r.cons), base: f(base),
+        rate: ok ? r.rate + '%' : '—',
+        rateColor: ok ? '#37d494' : '#ff6b5e',
+        pay: ok ? f(pay) : '0',
+        payRub: f(pay * rate),
+        bonus: r.bonus ? '+' + f(r.bonus) : '—',
+        total: f(pay + r.bonus),
+        status: r.status,
+        badgeBg: ok ? '#16211c' : '#241a19',
+        badgeFg: ok ? '#37d494' : '#ff6b5e'
+      };
+    });
+
+    var ladderDefs = [
+      { from: 800, r: 30 }, { from: 1600, r: 30 }, { from: 2400, r: 30 },
+      { from: 5000, r: 40 }, { from: 10000, r: 50 }
+    ];
+    var ladder = ladderDefs.map(function (l) {
+      var pay = l.from * l.r / 100;
+      return { from: m(l.from), rate: l.r + '%', pay: m(pay), payRub: f(pay * rate) + ' ₽' };
+    });
+
+    var gapDefs = [
+      { name: 'SKO', base: 8308, th: 10000, r: 50, cur: 40 },
+      { name: 'LUNA', base: 7296, th: 10000, r: 50, cur: 40 },
+      { name: 'VIPER', base: 3685, th: 5000, r: 40, cur: 30 },
+      { name: 'ARTEM', base: 534, th: 800, r: 30, cur: 0 }
+    ];
+    var gaps = gapDefs.map(function (g) {
+      var gain = g.th * g.r / 100 - g.base * g.cur / 100;
+      return {
+        name: g.name,
+        need: m(g.th - g.base),
+        threshold: m(g.th),
+        gain: '+' + m(Math.round(gain)),
+        pct: Math.round(g.base / g.th * 100),
+        color: g.base / g.th > 0.75 ? '#37d494' : '#e5b14a'
+      };
+    });
+
+    return {
+      rateLabel: String(rate),
+      fundRub: f(15702 * rate),
+      salaryRub: f(13202 * rate),
+      rows: rows, ladder: ladder, gaps: gaps
+    };
+  }
+}
+</script>
+</body>
+</html>

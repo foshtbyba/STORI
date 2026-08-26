@@ -1,0 +1,270 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #0d1014; font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #5aa2ff; text-decoration: none; } a:hover { color: #8dbcff; }
+    .n { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+    .th { font-size: 10px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: #566072; }
+    .lbl { font-size: 11.5px; color: #7d8899; margin-bottom: 7px; display: block; }
+    .fld { background: #0f1319; border: 1px solid #262e3a; border-radius: 9px; padding: 11px 13px; font-size: 14px; color: #e8ecf2; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; min-height: 1150px; background: #0d1014; color: #e8ecf2; padding: 26px 28px 30px 28px; display: flex; flex-direction: column; gap: 20px;">
+
+  <div style="display: flex; align-items: flex-end; justify-content: space-between;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 9px; margin-bottom: 7px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#566072" stroke-width="2.2"><path d="M15 5l-7 7 7 7"/></svg>
+        <span style="font-size: 12.5px; color: #7d8899;">Мои дни</span>
+      </div>
+      <h1 style="margin: 0; font-size: 25px; font-weight: 600; letter-spacing: -0.02em;">Отчёт за 26 августа</h1>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="padding: 10px 17px; border-radius: 9px; border: 1px solid #242b36; background: #151a22; font-size: 13px; color: #b8c2d0;">Отмена</div>
+      <div style="padding: 10px 19px; border-radius: 9px; background: #37d494; color: #0d1014; font-size: 13px; font-weight: 600;">Сохранить день</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1.32fr) minmax(0, 1fr); gap: 20px; align-items: start;">
+
+    <!-- FORM -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+
+      <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 14px; padding: 20px 22px 22px 22px;">
+        <div style="font-size: 14.5px; font-weight: 600; margin-bottom: 18px;">Связка</div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px;">
+          <div>
+            <span class="lbl">Дата</span>
+            <div class="fld n" style="display: flex; align-items: center; justify-content: space-between;">
+              26.08.2026
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#566072" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+            </div>
+          </div>
+          <div>
+            <span class="lbl">Баер</span>
+            <div class="fld" style="display: flex; align-items: center; gap: 9px; color: #7d8899;">
+              <span style="width: 20px; height: 20px; border-radius: 6px; background: #232a35; display: flex; align-items: center; justify-content: center;"><span class="n" style="font-size: 9px; color: #b8c2d0;">SK</span></span>
+              SKO
+              <span style="font-size: 11px; color: #4a5462; margin-left: auto;">закреплён</span>
+            </div>
+          </div>
+          <div>
+            <span class="lbl">Источник</span>
+            <div class="fld" style="display: flex; align-items: center; justify-content: space-between;">
+              Facebook
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#566072" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px;">
+          <div>
+            <span class="lbl">Оффер</span>
+            <div class="fld" style="display: flex; align-items: center; gap: 10px;">
+              <span style="width: 22px; height: 22px; border-radius: 6px; background: #1f3a30; display: flex; align-items: center; justify-content: center;"><span class="n" style="font-size: 9px; color: #37d494;">VJ</span></span>
+              VitaJoint Forte
+              <span class="n" style="font-size: 11px; color: #566072; margin-left: auto;">CPA $28</span>
+            </div>
+          </div>
+          <div>
+            <span class="lbl">Гео</span>
+            <div style="display: flex; gap: 7px; align-items: center; height: 43px;">
+              <span class="n" style="padding: 7px 12px; border-radius: 8px; background: #1d2530; border: 1px solid #2b3646; font-size: 12.5px;">IT</span>
+              <span class="n" style="padding: 7px 12px; border-radius: 8px; background: #1d2530; border: 1px solid #2b3646; font-size: 12.5px;">ES</span>
+              <span style="padding: 7px 11px; border-radius: 8px; border: 1px dashed #2b3646; font-size: 12.5px; color: #566072;">＋</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 14px; padding: 20px 22px 22px 22px;">
+        <div style="font-size: 14.5px; font-weight: 600; margin-bottom: 18px;">Деньги за день</div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px;">
+          <div>
+            <span class="lbl">Доход за рекламу</span>
+            <div class="fld n" style="display: flex; align-items: center; gap: 8px; border-color: #2f4a3e; font-size: 17px;">
+              <span style="color: #566072;">$</span>1 660
+            </div>
+          </div>
+          <div>
+            <span class="lbl">Расход на рекламу (спенд)</span>
+            <div class="fld n" style="display: flex; align-items: center; gap: 8px; font-size: 17px;">
+              <span style="color: #566072;">$</span>750
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid #1c222c; padding-top: 18px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+            <div style="font-size: 13px; font-weight: 500; color: #b8c2d0;">Пополнение рекламного кабинета</div>
+            <span style="font-size: 11.5px; color: #566072;">комиссия берётся из настроек платёжки, но правится вручную</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.15fr); gap: 14px; align-items: end;">
+            <div>
+              <span class="lbl">Платёжка</span>
+              <div class="fld" style="display: flex; align-items: center; justify-content: space-between; font-size: 13.5px;">
+                Wise
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#566072" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+            </div>
+            <div>
+              <span class="lbl">Сумма пополнения</span>
+              <div class="fld n" style="font-size: 13.5px;"><span style="color: #566072;">$</span>750</div>
+            </div>
+            <div>
+              <span class="lbl">Комиссия</span>
+              <div class="fld n" style="display: flex; align-items: center; justify-content: space-between; font-size: 13.5px;">
+                4,50<span style="color: #566072;">%</span>
+              </div>
+            </div>
+            <div>
+              <span class="lbl">Списано с баланса</span>
+              <div class="fld n" style="font-size: 13.5px; background: #171c24; border-color: #2f3a2e; color: #e5b14a;">$784 <span style="color: #4a5462; font-size: 11.5px;">＝ 750 × 1,045</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid #1c222c; padding-top: 18px; margin-top: 18px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px;">
+            <div style="font-size: 13px; font-weight: 500; color: #b8c2d0;">Расходники за день</div>
+            <span style="font-size: 12px; color: #5aa2ff;">＋ добавить</span>
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <div style="display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr) minmax(0, 0.7fr) 20px; gap: 14px; align-items: center; padding: 10px 0; border-top: 1px solid #1c222c;">
+              <span style="font-size: 12.5px; color: #7d8899;">Аккаунты FB</span>
+              <span style="font-size: 12.5px; color: #b8c2d0;">3 шт · автореги, выдал тимлид</span>
+              <span class="n" style="font-size: 13px; text-align: right;">$60</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a5462" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr) minmax(0, 0.7fr) 20px; gap: 14px; align-items: center; padding: 10px 0; border-top: 1px solid #1c222c;">
+              <span style="font-size: 12.5px; color: #7d8899;">Прокси</span>
+              <span style="font-size: 12.5px; color: #b8c2d0;">2 порта IT · до 31.08</span>
+              <span class="n" style="font-size: 13px; text-align: right;">$14</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a5462" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid #1c222c; padding-top: 18px; margin-top: 18px;">
+          <span class="lbl">Комментарий к дню</span>
+          <div class="fld" style="min-height: 52px; font-size: 13px; color: #566072;">Что было с креативами, банами, капами…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: live calc + import -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+
+      <div style="background: #14181f; border: 1px solid #263a31; border-radius: 14px; padding: 20px 22px 22px 22px;">
+        <div class="th" style="color: #37d494; margin-bottom: 16px;">Расчёт дня</div>
+        <div style="display: flex; flex-direction: column;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 11px 0;">
+            <span style="font-size: 13px; color: #b8c2d0;">Доход</span>
+            <span class="n" style="font-size: 15px;">$1 660</span>
+          </div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 11px 0; border-top: 1px solid #1c222c;">
+            <span style="font-size: 13px; color: #b8c2d0;">Спенд</span>
+            <span class="n" style="font-size: 15px; color: #b8c2d0;">− $750</span>
+          </div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 11px 0; border-top: 1px solid #1c222c;">
+            <span style="font-size: 13px; color: #b8c2d0;">Комиссия за пополнение <span class="n" style="color: #566072;">4,50%</span></span>
+            <span class="n" style="font-size: 15px; color: #e5b14a;">− $34</span>
+          </div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 14px 0; border-top: 1px solid #2a323e;">
+            <span style="font-size: 14px; font-weight: 600;">Чистый профит</span>
+            <span class="n" style="font-size: 24px; font-weight: 600; color: #37d494;">$876</span>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 6px;">
+          <div style="background: #0f1319; border-radius: 10px; padding: 12px 13px;">
+            <div class="th">ROI</div>
+            <div class="n" style="font-size: 18px; font-weight: 600; margin-top: 6px; color: #37d494;">111,7%</div>
+          </div>
+          <div style="background: #0f1319; border-radius: 10px; padding: 12px 13px;">
+            <div class="th">Расходники дня</div>
+            <div class="n" style="font-size: 18px; font-weight: 600; margin-top: 6px; color: #e5b14a;">$74</div>
+          </div>
+        </div>
+        <div style="margin-top: 14px; padding: 13px 14px; border-radius: 10px; background: #16211c; border: 1px solid #27453a;">
+          <div style="font-size: 12.5px; color: #b8c2d0; line-height: 1.55;">База ЗП за август станет <span class="n" style="font-weight: 600;">$8 308</span>. До ставки <span class="n" style="color: #37d494; font-weight: 600;">50%</span> — <span class="n" style="font-weight: 600;">$1 692</span>.</div>
+        </div>
+      </div>
+
+      <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 14px; padding: 20px 22px 22px 22px;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 5px;">
+          <div style="font-size: 14.5px; font-weight: 600;">Быстрый ввод</div>
+          <span style="font-size: 11.5px; color: #566072;">твой формат</span>
+        </div>
+        <div style="font-size: 12px; color: #7d8899; line-height: 1.5; margin-bottom: 14px;">Вставь строки как обычно пишешь. Третье число — расход уже с комиссией; если его нет, посчитаем по ставке платёжки.</div>
+        <div class="n" style="background: #0f1319; border: 1px solid #262e3a; border-radius: 10px; padding: 14px 15px; font-size: 13px; line-height: 1.95; color: #b8c2d0;">
+          sko 30814 - 20924 + 21909<br>
+          nomad 41200 - 27350 + 28581<br>
+          luna 24600 - 15980 + 16699<br>
+          <span style="color: #4a5462;">artem 12480 - 11020</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin: 15px 0 11px 0;">
+          <span class="th">Разобрано — 4 строки</span>
+          <span style="font-size: 12px; color: #5aa2ff;">период: 20–26 авг</span>
+        </div>
+        <div style="display: grid; grid-template-columns: minmax(0, 1.1fr) repeat(3, minmax(0, 1fr)) minmax(0, 0.9fr);">
+          <div class="th">Баер</div>
+          <div class="th" style="text-align: right;">Доход</div>
+          <div class="th" style="text-align: right;">Спенд</div>
+          <div class="th" style="text-align: right;">С комис.</div>
+          <div class="th" style="text-align: right;">Профит</div>
+        </div>
+        <sc-for list="{{ parsed }}" as="p" hint-placeholder-count="4">
+          <div style="display: grid; grid-template-columns: minmax(0, 1.1fr) repeat(3, minmax(0, 1fr)) minmax(0, 0.9fr); align-items: center; padding: 10px 0; border-top: 1px solid #1c222c;">
+            <div style="font-size: 12.5px; font-weight: 500;">{{ p.name }}</div>
+            <div class="n" style="text-align: right; font-size: 12.5px; color: #b8c2d0;">{{ p.rev }}</div>
+            <div class="n" style="text-align: right; font-size: 12.5px; color: #b8c2d0;">{{ p.spend }}</div>
+            <div class="n" style="text-align: right; font-size: 12.5px; color: {{ p.costColor }};">{{ p.cost }}</div>
+            <div class="n" style="text-align: right; font-size: 13px; font-weight: 600; color: #37d494;">{{ p.profit }}</div>
+          </div>
+        </sc-for>
+        <div style="margin-top: 13px; padding: 11px 13px; border-radius: 9px; background: #1c1a15; border: 1px solid #3a3220;">
+          <div style="font-size: 11.5px; color: #d9c48c; line-height: 1.55;">У ARTEM третьего числа нет — комиссия посчитана по Wise 4,50%. Значение подсвечено, проверь.</div>
+        </div>
+        <div style="display: flex; gap: 11px; margin-top: 16px;">
+          <div style="flex-grow: 1; text-align: center; padding: 11px; border-radius: 9px; background: #37d494; color: #0d1014; font-size: 13px; font-weight: 600;">Импортировать 4 дня</div>
+          <div style="padding: 11px 17px; border-radius: 9px; border: 1px solid #242b36; font-size: 13px; color: #b8c2d0;">Очистить</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":1150}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var f = function (n) { return Math.round(n).toLocaleString('ru-RU'); };
+    var rows = [
+      { name: 'SKO', rev: 30814, spend: 20924, cost: 21909, auto: false },
+      { name: 'NOMAD', rev: 41200, spend: 27350, cost: 28581, auto: false },
+      { name: 'LUNA', rev: 24600, spend: 15980, cost: 16699, auto: false },
+      { name: 'ARTEM', rev: 12480, spend: 11020, cost: 11516, auto: true }
+    ];
+    var parsed = rows.map(function (r) {
+      return {
+        name: r.name,
+        rev: f(r.rev), spend: f(r.spend), cost: f(r.cost),
+        costColor: r.auto ? '#e5b14a' : '#7d8899',
+        profit: '+' + f(r.rev - r.cost)
+      };
+    });
+    return { parsed: parsed };
+  }
+}
+</script>
+</body>
+</html>

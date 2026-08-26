@@ -1,0 +1,231 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #0d1014; font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #5aa2ff; text-decoration: none; } a:hover { color: #8dbcff; }
+    .n { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+    .th { font-size: 10px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: #566072; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; min-height: 900px; background: #0d1014; color: #e8ecf2; padding: 26px 28px 30px 28px; display: flex; flex-direction: column; gap: 20px;">
+
+  <div style="display: flex; align-items: flex-end; justify-content: space-between;">
+    <div>
+      <h1 style="margin: 0 0 5px 0; font-size: 25px; font-weight: 600; letter-spacing: -0.02em;">Вершина</h1>
+      <div style="font-size: 13px; color: #7d8899;">Высота = профит за август. Снеговые линии — пороги ставки ЗП.</div>
+    </div>
+    <div style="display: flex; background: #151a22; border: 1px solid #242b36; border-radius: 9px; padding: 3px;">
+      <span style="padding: 6px 13px; font-size: 12.5px; color: #7d8899;">Неделя</span>
+      <span style="padding: 6px 13px; font-size: 12.5px; border-radius: 6px; background: #232a35; font-weight: 500;">Месяц</span>
+      <span style="padding: 6px 13px; font-size: 12.5px; color: #7d8899;">Квартал</span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 20px; align-items: stretch;">
+
+    <!-- MOUNTAIN -->
+    <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 14px; padding: 8px; overflow: hidden;">
+      <svg viewBox="0 0 900 640" style="display: block; width: 100%; height: auto;">
+        <!-- ground ring -->
+        <ellipse cx="450" cy="470" rx="345" ry="104" fill="none" stroke="#1e2833" stroke-width="1"/>
+        <ellipse cx="450" cy="470" rx="331" ry="99" fill="none" stroke="#243d47" stroke-width="1.4"/>
+
+        <!-- mountain body -->
+        <path d="{{ baseFill }}" fill="#111823"/>
+
+        <!-- contours -->
+        <sc-for list="{{ contours }}" as="c" hint-placeholder-count="30">
+          <path d="{{ c.d }}" fill="none" stroke="{{ c.stroke }}" stroke-width="{{ c.w }}"/>
+        </sc-for>
+
+        <!-- tier lines -->
+        <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="3">
+          <g>
+            <line x1="{{ t.x1 }}" y1="{{ t.y }}" x2="792" y2="{{ t.y }}" stroke="#2e3a48" stroke-width="1" stroke-dasharray="3 5"/>
+            <text x="890" y="{{ t.ty }}" text-anchor="end" fill="#7d8899" font-family="IBM Plex Mono, monospace" font-size="12">{{ t.label }}</text>
+            <text x="890" y="{{ t.ty2 }}" text-anchor="end" fill="#4a5462" font-family="Space Grotesk, sans-serif" font-size="10.5">{{ t.sub }}</text>
+          </g>
+        </sc-for>
+
+        <!-- pins -->
+        <sc-for list="{{ pins }}" as="p" hint-placeholder-count="5">
+          <g>
+            <line x1="{{ p.x }}" y1="{{ p.y }}" x2="{{ p.x }}" y2="{{ p.my }}" stroke="{{ p.color }}" stroke-width="1.6"/>
+            <circle cx="{{ p.x }}" cy="{{ p.y }}" r="3" fill="{{ p.color }}"/>
+            <circle cx="{{ p.x }}" cy="{{ p.my }}" r="19" fill="#171d26" stroke="{{ p.color }}" stroke-width="1.6"/>
+            <text x="{{ p.x }}" y="{{ p.ty }}" text-anchor="middle" fill="{{ p.color }}" font-family="IBM Plex Mono, monospace" font-size="11" font-weight="600">{{ p.ini }}</text>
+            <text x="{{ p.x }}" y="{{ p.ly }}" text-anchor="middle" fill="#e8ecf2" font-family="Space Grotesk, sans-serif" font-size="12" font-weight="600">{{ p.name }}</text>
+            <text x="{{ p.x }}" y="{{ p.ly2 }}" text-anchor="middle" fill="#7d8899" font-family="IBM Plex Mono, monospace" font-size="11">{{ p.amount }}</text>
+          </g>
+        </sc-for>
+
+        <!-- summit flag -->
+        <g>
+          <path d="M450 174 L450 148 L471 155 L450 162" fill="#37d494" stroke="#37d494" stroke-width="1.4" stroke-linejoin="round"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- RANKING -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 14px; padding: 18px 18px 8px 18px;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px;">
+          <div style="font-size: 14.5px; font-weight: 600;">Позиции команды</div>
+          <span class="th">Профит · ставка</span>
+        </div>
+        <sc-for list="{{ rank }}" as="r" hint-placeholder-count="5">
+          <div style="display: flex; align-items: center; gap: 13px; padding: 14px 0; border-top: 1px solid #1c222c;">
+            <span class="n" style="font-size: 17px; font-weight: 600; color: {{ r.posColor }}; width: 22px;">{{ r.pos }}</span>
+            <div style="width: 34px; height: 34px; border-radius: 9px; background: #1d2530; border: 1px solid {{ r.color }}; display: flex; align-items: center; justify-content: center; flex: 0 0 34px;">
+              <span class="n" style="font-size: 11.5px; color: {{ r.color }};">{{ r.ini }}</span>
+            </div>
+            <div style="flex-grow: 1; min-width: 0;">
+              <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px;">
+                <span style="font-size: 13.5px; font-weight: 500;">{{ r.name }}</span>
+                <span class="n" style="font-size: 13.5px; font-weight: 600; color: {{ r.color }};">{{ r.amount }}</span>
+              </div>
+              <div style="height: 5px; border-radius: 3px; background: #202730; overflow: hidden;">
+                <div style="width: {{ r.pct }}%; height: 5px; background: {{ r.color }}; border-radius: 3px;"></div>
+              </div>
+              <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 6px;">
+                <span style="font-size: 11px; color: #566072;">{{ r.gap }}</span>
+                <span class="n" style="font-size: 11px; color: {{ r.color }};">{{ r.rateLabel }}</span>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="background: #14181f; border: 1px solid #1f2630; border-radius: 14px; padding: 17px 18px;">
+        <div style="font-size: 14.5px; font-weight: 600; margin-bottom: 12px;">Движение за неделю</div>
+        <div style="display: flex; flex-direction: column; gap: 11px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#37d494" stroke-width="2.4"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+            <span style="font-size: 12.5px; color: #b8c2d0;">LUNA поднялась с 4-го на 3-е место</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#37d494" stroke-width="2.4"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+            <span style="font-size: 12.5px; color: #b8c2d0;">NOMAD первым в команде взял <span class="n">$10 000</span></span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b5e" stroke-width="2.4"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+            <span style="font-size: 12.5px; color: #b8c2d0;">ARTEM ушёл ниже порога <span class="n">$800</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #16211c; border: 1px solid #27453a; border-radius: 14px; padding: 17px 18px;">
+        <div class="th" style="color: #37d494;">Ближе всех к следующей ставке</div>
+        <div style="display: flex; align-items: baseline; gap: 10px; margin: 9px 0 5px 0;">
+          <span style="font-size: 17px; font-weight: 600;">SKO</span>
+          <span class="n" style="font-size: 17px; font-weight: 600; color: #37d494;">$1 692</span>
+        </div>
+        <div style="font-size: 12px; color: #b8c2d0; line-height: 1.5;">до порога <span class="n">$10 000</span> — ставка вырастет с 40% до 50%, это <span class="n" style="color: #37d494;">+$1 677</span> к его выплате.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var CX = 450, CY = 470, RMAX = 300, SQ = 0.30, H = 300, TOP = 12619;
+    var f = function (n) { return Math.round(n).toLocaleString('ru-RU'); };
+    var radiusAt = function (t) { return RMAX * Math.pow(1 - t, 1.15); };
+    var liftAt = function (t) { return H * t; };
+
+    // contour rings
+    var N = 30, contours = [];
+    for (var i = 0; i < N; i++) {
+      var t = i / (N - 1);
+      var rx = radiusAt(t), lift = liftAt(t);
+      var cy = CY - lift;
+      var pts = [], STEPS = 84;
+      for (var s = 0; s <= STEPS; s++) {
+        var a = s / STEPS * Math.PI * 2;
+        var wob = 1
+          + 0.075 * Math.sin(3 * a + 0.55 + t * 0.32)
+          + 0.045 * Math.sin(5 * a - 1.2 + t * 0.22)
+          + 0.028 * Math.sin(8 * a + 2.1)
+          + 0.018 * Math.sin(13 * a - 0.4 + t * 0.45);
+        var r = rx * wob;
+        var x = CX + r * Math.cos(a);
+        var y = cy + r * SQ * Math.sin(a);
+        pts.push((s === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1));
+      }
+      contours.push({
+        d: pts.join(' ') + ' Z',
+        stroke: i % 5 === 0 ? '#475a70' : '#2c3a49',
+        w: i % 5 === 0 ? '1.4' : '1'
+      });
+    }
+
+    // tier lines
+    var tierDefs = [
+      { v: 800, label: '$800', sub: 'ставка 30%' },
+      { v: 5000, label: '$5 000', sub: 'ставка 40%' },
+      { v: 10000, label: '$10 000', sub: 'ставка 50%' }
+    ];
+    var tiers = tierDefs.map(function (d) {
+      var t = d.v / TOP;
+      var y = CY - liftAt(t);
+      return {
+        x1: (CX + radiusAt(t) * 0.98).toFixed(0),
+        y: y.toFixed(0), ty: (y + 3).toFixed(0), ty2: (y + 16).toFixed(0),
+        label: d.label, sub: d.sub
+      };
+    });
+
+    // buyer pins
+    var people = [
+      { name: 'NOMAD', ini: 'NM', v: 12619, ang: 90, stem: 96, color: '#37d494' },
+      { name: 'SKO', ini: 'SK', v: 8948, ang: 130, stem: 74, color: '#37d494' },
+      { name: 'LUNA', ini: 'LN', v: 7901, ang: 50, stem: 66, color: '#5aa2ff' },
+      { name: 'VIPER', ini: 'VP', v: 4205, ang: 160, stem: 70, color: '#e5b14a' },
+      { name: 'ARTEM', ini: 'AR', v: 964, ang: 35, stem: 66, color: '#ff6b5e' }
+    ];
+    var pins = people.map(function (p) {
+      var t = p.v / TOP;
+      var rx = radiusAt(t), lift = liftAt(t);
+      var a = p.ang * Math.PI / 180;
+      var x = CX + rx * Math.cos(a);
+      var y = CY - lift + rx * SQ * Math.sin(a);
+      var my = y - p.stem;
+      return {
+        x: x.toFixed(0), y: y.toFixed(0), my: my.toFixed(0),
+        ty: (my + 4).toFixed(0), ly: (my - 30).toFixed(0), ly2: (my - 44).toFixed(0),
+        ini: p.ini, name: p.name, amount: '$' + f(p.v), color: p.color
+      };
+    });
+
+    // ranking list
+    var sorted = people.slice().sort(function (a, b) { return b.v - a.v; });
+    var gaps = ['вершина месяца', 'до 1-го места $3 671', 'до 2-го места $1 047', 'до 3-го места $3 696', 'до порога $800 — $166'];
+    var rates = ['50%', '40%', '40%', '30%', '— ниже порога'];
+    var rank = sorted.map(function (p, i) {
+      return {
+        pos: String(i + 1),
+        posColor: i === 0 ? '#37d494' : '#566072',
+        ini: p.ini, name: p.name, color: p.color,
+        amount: '$' + f(p.v),
+        pct: Math.round(p.v / TOP * 100),
+        gap: gaps[i], rateLabel: rates[i]
+      };
+    });
+
+    return { baseFill: contours[0].d, contours: contours, tiers: tiers, pins: pins, rank: rank };
+  }
+}
+</script>
+</body>
+</html>
