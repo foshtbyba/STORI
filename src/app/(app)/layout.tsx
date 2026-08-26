@@ -31,7 +31,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     { href: '/peak', label: 'Вершина', icon: <IconPeak size={15} /> },
     { href: '/days', label: 'Дни', icon: <IconCalendar size={15} /> },
     { href: '/consumables', label: 'Расходники', icon: <IconBox size={15} /> },
-    ...(team ? [{ href: '/payroll', label: 'Зарплата', icon: <IconWallet size={15} /> }] : []),
+    { href: '/attendance', label: 'Календарь', icon: <IconCalendar size={15} /> },
+    { href: '/payroll', label: 'Зарплата', icon: <IconWallet size={15} /> },
     { href: '/offers', label: 'Офферы', icon: <IconTag size={15} /> },
   ];
 
@@ -42,7 +43,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         date={periodLabel(key)}
         crew={crew.map((b) => ({ id: b.id, initials: b.initials, color: b.color, handle: b.handle }))}
         nav={<Nav items={items} />}
-        role={`${user.name} · ${role === 'ADMIN' ? 'админ' : role === 'LEAD' ? 'тимлид' : 'баер'}`}
+        role={role}
       />
       {children}
     </div>

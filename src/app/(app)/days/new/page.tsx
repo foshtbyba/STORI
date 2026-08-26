@@ -1,41 +1,77 @@
-import { requireUser, scopeBuyerId } from '@/lib/auth';
+import { requireTeamView } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { canSeeTeam, type Role } from '@/lib/roles';
+import { periodKey } from '@/lib/period';
+import { DEFAULT_COMMISSION_BPS } from '@/lib/money';
+import { GRID_CONSUMABLE_NOTE } from '@/lib/consumables';
+import DayGrid, { type GridSeed } from '@/components/DayGrid';
 import DayForm from '@/components/DayForm';
 import QuickImport from '@/components/QuickImport';
 
-export default async function NewDayPage() {
-  const user = await requireUser();
-  const team = canSeeTeam(user.role as Role);
-  const scoped = scopeBuyerId(user);
-
-  const [buyers, offers, methods] = await Promise.all([
-    prisma.buyer.findMany({
-      where: { archived: false, ...(scoped ? { id: scoped } : {}) },
-      orderBy: { handle: 'asc' },
-    }),
-    prisma.offer.findMany({ where: { status: { in: ['ACTIVE', 'TEST'] } }, orderBy: { name: 'asc' } }),
-    prisma.paymentMethod.findMany({ where: { archived: false }, orderBy: { name: 'asc' } }),
-  ]);
+// Отчёты заводит только команда: баер видит свои дни, но не редактирует их.
+// Баера сюда не пускаем — requireTeamView отправит его в кабинет.
+export default async function NewDayPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ date?: string }>;
+}) {
+  await requireTeamView();
+  const { date } = await searchParams;
 
   const today = new Date().toISOString().slice(0, 10);
+  const day = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : today;
+  const when = new Date(`${day}T00:00:00.000Z`);
+
+  const [buyers, offers, methods, types, saved, entries, period] = await Promise.all([
+    prisma.buyer.findMany({ where: { archived: false }, orderBy: { handle: 'asc' } }),
+    prisma.offer.findMany({ where: { status: { in: ['ACTIVE', 'TEST'] } }, orderBy: { name: 'asc' } }),
+    prisma.paymentMethod.findMany({ where: { archived: false }, orderBy: { name: 'asc' } }),
+    prisma.consumableType.findMany({ orderBy: { name: 'asc' } }),
+    prisma.dayReport.findMany({ where: { date: when, offerId: null } }),
+    prisma.consumableEntry.findMany({ where: { date: when, note: GRID_CONSUMABLE_NOTE } }),
+    prisma.period.findUnique({ where: { key: periodKey(when) } }),
+  ]);
+
+  const defaultBps = DEFAULT_COMMISSION_BPS;
+  const num = (cents: number) => (cents % 100 === 0 ? String(cents / 100) : (cents / 100).toFixed(2));
+
+  // Таблица открывается уже заполненной тем, что записано на эту дату, — так
+  // правка дня не превращается в повторный ввод всех цифр.
+  const seed: GridSeed[] = buyers.map((b) => {
+    const row = saved.find((d) => d.buyerId === b.id && d.source === b.source);
+    const entry = entries.find((e) => e.buyerId === b.id);
+    return {
+      buyerId: b.id,
+      revenue: row ? num(row.revenueCents) : '',
+      spend: row ? num(row.spendNetCents) : '',
+      pct: ((row?.commissionBps ?? defaultBps) / 100).toString(),
+      consumable: entry ? num(entry.totalCents) : '',
+    };
+  });
 
   return (
     <div className="flex flex-col gap-3.5">
+      <DayGrid
+        date={day}
+        buyers={buyers.map((b) => ({ id: b.id, handle: b.handle, initials: b.initials, color: b.color }))}
+        types={types.map((t) => ({ id: t.id, name: t.name }))}
+        seed={seed}
+        seedTypeId={entries[0]?.typeId ?? types[0]?.id ?? ''}
+        defaultPct={(defaultBps / 100).toString()}
+        locked={period?.status === 'CLOSED'}
+      />
+
       <DayForm
-        today={today}
+        today={day}
         buyers={buyers.map((b) => ({ id: b.id, label: b.handle }))}
         offers={offers.map((o) => ({ id: o.id, label: o.name }))}
         methods={methods.map((m) => ({ id: m.id, label: m.name, bps: m.commissionBps }))}
-        lockedBuyerId={scoped}
       />
-      {team ? (
-        <QuickImport
-          today={today}
-          defaultBps={methods[0]?.commissionBps ?? 450}
-          knownHandles={buyers.map((b) => b.handle)}
-        />
-      ) : null}
+
+      <QuickImport
+        today={day}
+        defaultBps={defaultBps}
+        knownHandles={buyers.map((b) => b.handle)}
+      />
     </div>
   );
 }

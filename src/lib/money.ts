@@ -2,39 +2,68 @@
  * Money is stored as integer USD cents everywhere. Nothing in the app holds a
  * float amount, so totals never drift.
  *
- * Display rounding is separate and deliberately lossy: the team writes round
- * numbers, so the UI shows round numbers. Totals are always rounded from the
- * exact sum rather than from already-rounded parts, which means a column of
- * rounded rows can differ from its rounded total by a few dollars. That is the
- * honest trade — the alternative is a total that does not match the ledger.
+ * Отчётные экраны показывают суммы как есть, без округления: цифра в таблице
+ * обязана сходиться с цифрой в расчёте зарплаты до цента. Округление живёт
+ * ровно в одном месте — на «Вершине», где важен порядок, а не точность.
  */
 
-/** Round for display: tens under $1k, hundreds under $100k, thousands above. */
-export function roundForDisplay(cents: number): number {
+/**
+ * Шкала округления для горы: чем крупнее сумма, тем крупнее шаг. До $1k — по
+ * сотне, дальше 500 / 1k / 5k / 10k / 50k / 100k.
+ */
+export function roundForPeak(cents: number): number {
   const dollars = cents / 100;
   const abs = Math.abs(dollars);
-  const step = abs < 1000 ? 10 : abs < 100_000 ? 100 : 1000;
+  const step =
+    abs < 1_000 ? 100
+    : abs < 5_000 ? 500
+    : abs < 10_000 ? 1_000
+    : abs < 50_000 ? 5_000
+    : abs < 100_000 ? 10_000
+    : abs < 500_000 ? 50_000
+    : 100_000;
   return Math.round(dollars / step) * step;
 }
 
-export function usd(cents: number, opts: { sign?: boolean; exact?: boolean } = {}) {
-  const value = opts.exact ? cents / 100 : roundForDisplay(cents);
-  const body = '$' + Math.abs(value).toLocaleString('ru-RU');
-  if (opts.sign && value > 0) return '+' + body;
+function money(value: number, symbol: string, sign?: boolean) {
+  const body =
+    symbol === '$'
+      ? '$' + fmt(Math.abs(value))
+      : fmt(Math.abs(value)) + ' ' + symbol;
+  if (sign && value > 0) return '+' + body;
   return value < 0 ? '−' + body : body;
 }
 
-export function rub(cents: number, rubPerUsd: number) {
+/** Целые суммы печатаем без хвоста, дробные — с двумя знаками. */
+function fmt(value: number) {
+  return Number.isInteger(value)
+    ? value.toLocaleString('ru-RU')
+    : value.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+export function usd(cents: number, opts: { sign?: boolean; round?: boolean } = {}) {
+  const value = opts.round ? roundForPeak(cents) : cents / 100;
+  return money(value, '$', opts.sign);
+}
+
+export function rub(cents: number, rubPerUsd: number, opts: { round?: boolean } = {}) {
   // rubPerUsd is stored in hundredths so 8000 means 80.00 ₽/$
   const value = Math.round((cents * rubPerUsd) / 100 / 100);
+  if (!opts.round) return money(value, '₽');
   const step = Math.abs(value) < 100_000 ? 100 : 1000;
-  return (Math.round(value / step) * step).toLocaleString('ru-RU') + ' ₽';
+  return money(Math.round(value / step) * step, '₽');
 }
 
 export function pct(part: number, whole: number, digits = 1) {
   if (!whole) return '—';
   return ((part / whole) * 100).toFixed(digits).replace('.', ',') + '%';
 }
+
+/**
+ * Комиссия за пополнение по умолчанию — 4,50%. Платёжка может быть своя, но
+ * в формах предзаполняем эту: команда работает с ней.
+ */
+export const DEFAULT_COMMISSION_BPS = 450;
 
 /** Gross a net ad spend up by the commission charged on the top-up. */
 export function grossUp(spendNetCents: number, commissionBps: number) {

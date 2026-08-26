@@ -68,10 +68,60 @@ export async function reopenPeriod(key: string) {
   return { ok: true as const };
 }
 
-export async function setRate(key: string, rubPerUsd: number) {
-  await requireAdmin();
-  await prisma.period.update({ where: { key }, data: { rubPerUsd: Math.round(rubPerUsd * 100) } });
+/** Ручной курс: фиксируем значение и перестаём его обновлять автоматически. */
+export async function setManualRate(formData: FormData) {
+  const user = await requireAdmin();
+  const key = String(formData.get('period') ?? '');
+  const raw = String(formData.get('rate') ?? '').replace(',', '.');
+  const value = Number.parseFloat(raw);
+  if (!key || !Number.isFinite(value) || value < 10 || value > 1000) return;
+
+  const period = await prisma.period.update({
+    where: { key },
+    data: {
+      rubPerUsd: Math.round(value * 100),
+      rateSource: 'MANUAL',
+      rateUpdatedAt: new Date(),
+    },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      actorId: user.id,
+      actorName: user.name,
+      entity: 'Period',
+      entityId: period.id,
+      action: 'rate:manual',
+      diffJson: JSON.stringify({ key, rubPerUsd: period.rubPerUsd }),
+    },
+  });
+
   revalidatePath('/payroll');
   revalidatePath('/');
-  return { ok: true as const };
+}
+
+/** Вернуть период на автоматический курс — обновится при следующем открытии. */
+export async function useAutoRate(formData: FormData) {
+  const user = await requireAdmin();
+  const key = String(formData.get('period') ?? '');
+  if (!key) return;
+
+  const period = await prisma.period.update({
+    where: { key },
+    data: { rateSource: 'AUTO', rateUpdatedAt: null },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      actorId: user.id,
+      actorName: user.name,
+      entity: 'Period',
+      entityId: period.id,
+      action: 'rate:auto',
+      diffJson: JSON.stringify({ key }),
+    },
+  });
+
+  revalidatePath('/payroll');
+  revalidatePath('/');
 }

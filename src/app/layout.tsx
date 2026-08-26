@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'MS TEAM — учёт команды',
+  title: 'MS DASHBOARD',
   description: 'Профит баеров, расходники, зарплата и база офферов',
 };
 

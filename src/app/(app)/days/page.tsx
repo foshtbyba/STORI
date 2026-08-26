@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { requireUser } from '@/lib/auth';
-import { scopeBuyerId } from '@/lib/auth';
+import { requireUser, scopeBuyerId } from '@/lib/auth';
+import { canSeeTeam, type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
 import { currentPeriodKey } from '@/lib/queries';
 import { periodBounds, periodLabel, fmtDay, weekdayShort } from '@/lib/period';
@@ -18,6 +18,7 @@ export default async function DaysPage({
   const key = period ?? (await currentPeriodKey());
   const { from, to } = periodBounds(key);
   const buyerId = scopeBuyerId(user);
+  const canEdit = canSeeTeam(user.role as Role);
 
   const days = await prisma.dayReport.findMany({
     where: { date: { gte: from, lt: to }, ...(buyerId ? { buyerId } : {}) },
@@ -33,13 +34,17 @@ export default async function DaysPage({
         title="Отчёты по дням"
         aside={<span className="text-[12.5px] text-mute">{periodLabel(key)}</span>}
         right={
-          <Link
-            href="/days/new"
-            className="flex items-center gap-2 rounded-full bg-sage px-4 py-2 text-[13px] font-semibold text-bg transition hover:opacity-90"
-          >
-            <IconPlus color="#141414" size={14} width={2.6} />
-            Добавить день
-          </Link>
+          canEdit ? (
+            <Link
+              href="/days/new"
+              className="flex items-center gap-2 rounded-full bg-sage px-4 py-2 text-[13px] font-semibold text-bg transition hover:opacity-90"
+            >
+              <IconPlus color="#141414" size={14} width={2.6} />
+              Добавить день
+            </Link>
+          ) : (
+            <span className="text-[12.5px] text-mute">отчёты заводит админ</span>
+          )
         }
       />
 

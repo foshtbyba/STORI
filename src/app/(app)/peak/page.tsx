@@ -67,7 +67,7 @@ export default async function PeakPage() {
                 className="n mt-3 text-[28px] font-bold tracking-[-0.03em]"
                 style={{ color: row.buyer.color }}
               >
-                {usd(row.profitCents)}
+                {usd(row.profitCents, { round: true })}
               </div>
               <div className="mt-2.5 h-1.5 rounded-full bg-sub">
                 <div
@@ -88,7 +88,7 @@ export default async function PeakPage() {
                 {i === 0
                   ? 'вершина периода'
                   : row.next
-                    ? `до ${usd(row.next.fromCents)} не хватает ${usd(row.next.needCents)} — это +${usd(row.next.gainCents)}`
+                    ? `до ${usd(row.next.fromCents, { round: true })} не хватает ${usd(row.next.needCents, { round: true })} — это +${usd(row.next.gainCents, { round: true })}`
                     : 'верхняя ставка взята'}
               </p>
             </Panel>

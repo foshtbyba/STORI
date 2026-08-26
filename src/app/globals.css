@@ -62,11 +62,19 @@ select {
   color-scheme: dark;
 }
 
+/* Базовое скругление полей. Специфичность нулевая, поэтому rounded-xl и
+   прочие утилиты Tailwind её перебивают — а поля без своего радиуса перестают
+   ловить угловатую рамку фокуса. */
+input,
+textarea {
+  border-radius: 10px;
+}
+
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 button:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--color-sage);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }

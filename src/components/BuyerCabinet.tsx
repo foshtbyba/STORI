@@ -27,7 +27,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
             {usd(data.salaryCents).replace('$', '')}
           </div>
           <div className="n mt-2.5 text-[13px] text-mute">
-            {rub(data.salaryCents, rate)} · база {usd(data.baseCents)} × {data.ratePct}%
+            {rub(data.salaryCents, rate)} · {data.ratePct}% с {usd(data.baseCents)} — это профит за вычетом расходников
           </div>
 
           <div className="flex-1" />
@@ -71,7 +71,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
               <div className="flex-1" />
               <Sub className="px-4.5 py-4 text-[13px] leading-relaxed">
                 Ставка вырастет с <span className="n">{data.ratePct}%</span> до{' '}
-                <span className="n text-sage">{data.next.ratePct}%</span> и применится ко всей базе — это{' '}
+                <span className="n text-sage">{data.next.ratePct}%</span> и посчитается со всей суммы, а не только с превышения — это{' '}
                 <span className="n text-sage">+{usd(data.next.gainCents)}</span> к выплате.
               </Sub>
             </>
@@ -80,7 +80,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
               <div className="mt-4 text-[32px] font-bold leading-tight text-sage">Верхняя ставка взята</div>
               <div className="flex-1" />
               <Sub className="px-4.5 py-4 text-[13px] leading-relaxed">
-                Выше порогов нет — дальше растёт только сама база.
+                Выше порогов нет — дальше растёт только сама сумма, с которой считается процент.
               </Sub>
             </>
           )}

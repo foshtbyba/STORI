@@ -50,6 +50,7 @@ model Buyer {
   consumables ConsumableEntry[]
   bonuses     Bonus[]
   payouts     Payout[]
+  attendance  Attendance[]
 }
 
 model Team {
@@ -167,12 +168,16 @@ model Bonus {
 /// A month. Closing one freezes its day reports and stamps the FX rate the
 /// payroll was actually computed at.
 model Period {
-  id        String    @id @default(cuid())
-  key       String    @unique
-  status    String    @default("OPEN")
-  rubPerUsd Int       @default(8000)
-  closedAt  DateTime?
-  payouts   Payout[]
+  id            String    @id @default(cuid())
+  key           String    @unique
+  status        String    @default("OPEN")
+  /// Курс в сотых: 8000 = 80,00 ₽/$.
+  rubPerUsd     Int       @default(8000)
+  /// AUTO — тянем из источника, MANUAL — задан руками и не перезаписывается.
+  rateSource    String    @default("AUTO")
+  rateUpdatedAt DateTime?
+  closedAt      DateTime?
+  payouts       Payout[]
 }
 
 model Payout {
@@ -193,6 +198,23 @@ model Payout {
   paidAt          DateTime?
 
   @@unique([periodId, buyerId])
+}
+
+/// Календарь отсутствий: опоздания, прогулы, отпуска, выходные, больничные.
+/// Одна отметка на баера в день — двух причин у одного дня не бывает.
+model Attendance {
+  id        String   @id @default(cuid())
+  date      DateTime
+  buyerId   String
+  buyer     Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  kind      String
+  /// Минуты опоздания. Заполняется только для kind = LATE.
+  minutes   Int      @default(0)
+  note      String   @default("")
+  createdAt DateTime @default(now())
+
+  @@unique([buyerId, date])
+  @@index([date])
 }
 
 model Setting {

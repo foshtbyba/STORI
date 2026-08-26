@@ -117,3 +117,38 @@ export function Empty({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
+/**
+ * Цепочка расчёта живыми цифрами. Читается слева направо и заменяет собой
+ * объяснение словами: видно и порядок действий, и что во что превращается.
+ */
+export function Formula({
+  steps,
+}: {
+  steps: { value: string; label: string; op?: string; color?: string }[];
+}) {
+  return (
+    <div className="flex flex-wrap items-stretch gap-2">
+      {steps.map((step, i) => (
+        <span key={step.label} className="flex items-stretch gap-2">
+          {step.op ? (
+            <span className="n flex items-center px-0.5 text-[18px] text-dim">{step.op}</span>
+          ) : null}
+          <span
+            className={`flex min-w-[104px] flex-col justify-center rounded-xl px-3.5 py-2 ${
+              i === steps.length - 1 ? 'bg-sage-t' : 'bg-sub'
+            }`}
+          >
+            <span
+              className="n text-[16px] font-semibold leading-none"
+              style={step.color ? { color: step.color } : undefined}
+            >
+              {step.value}
+            </span>
+            <span className="mt-1.5 text-[10.5px] leading-none text-mute">{step.label}</span>
+          </span>
+        </span>
+      ))}
+    </div>
+  );
+}

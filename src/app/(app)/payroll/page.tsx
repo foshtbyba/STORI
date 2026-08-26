@@ -1,25 +1,36 @@
-import { requireTeamView } from '@/lib/auth';
+import { requireUser, scopeBuyerId } from '@/lib/auth';
+import { canSeeTeam, type Role } from '@/lib/roles';
 import { currentPeriodKey, teamSummary } from '@/lib/queries';
 import { periodLabel } from '@/lib/period';
-import { usd, rub } from '@/lib/money';
+import { usd, rub, sum } from '@/lib/money';
 import { payrollTotals } from '@/lib/salary';
 import { closePeriod, reopenPeriod } from '@/app/actions/period';
-import { Panel, PanelHead, Sub, Avatar, Empty } from '@/components/ui';
+import { Panel, PanelHead, Sub, Avatar, Empty, Formula } from '@/components/ui';
 import { Meter } from '@/components/Charts';
 import { IconWallet, IconWarn, IconChart } from '@/components/icons';
+import Contours from '@/components/Contours';
 
 export default async function PayrollPage({
   searchParams,
 }: {
   searchParams: Promise<{ period?: string }>;
 }) {
-  const user = await requireTeamView();
+  const user = await requireUser();
+  const team = canSeeTeam(user.role as Role);
+  const scoped = scopeBuyerId(user);
   const { period } = await searchParams;
   const key = period ?? (await currentPeriodKey());
   const summary = await teamSummary(key);
   const rate = summary.period.rubPerUsd;
   const closed = summary.period.status === 'CLOSED';
-  const totals = payrollTotals(summary.buyers);
+
+  // Админ видит расчётный лист по всей команде, баер — только свою строку.
+  // Итоги считаем по видимым строкам, иначе баер прочитает командные суммы
+  // в подвале таблицы.
+  const rows = team ? summary.buyers : summary.buyers.filter((r) => r.buyer.id === scoped);
+  const totals = payrollTotals(rows);
+  const profitCents = sum(rows, (r) => r.profitCents);
+  const consumableCents = sum(rows, (r) => r.consumableCents);
 
   async function close() {
     'use server';
@@ -30,7 +41,7 @@ export default async function PayrollPage({
     await reopenPeriod(key);
   }
 
-  const gaps = summary.buyers
+  const gaps = rows
     .filter((r) => r.next)
     .map((r) => ({
       handle: r.buyer.handle,
@@ -41,25 +52,41 @@ export default async function PayrollPage({
     }))
     .sort((a, b) => b.gain - a.gain);
 
-  const ladder = summary.buyers[0]
-    ? JSON.parse(summary.buyers[0].buyer.salaryRule?.tiersJson ?? '[]')
-    : [];
+  const ladder = rows[0] ? JSON.parse(rows[0].buyer.salaryRule?.tiersJson ?? '[]') : [];
 
   return (
     <div className="flex flex-col gap-3.5">
       <div className="grid grid-cols-[1.25fr_repeat(3,1fr)] gap-3.5">
-        <Panel className="flex flex-col justify-between p-6">
-          <PanelHead icon={<IconWallet color="#b4c68c" />} tint="bg-sage-t" title="Фонд зарплаты" />
-          <div className="text-[58px] font-bold leading-none tracking-[-0.035em]">
+        <Panel className="relative z-10 flex flex-col justify-between overflow-visible p-6">
+          {/* Горизонтали продолжаются на карточки справа — ряд читается одной картой. */}
+          <Contours className="inset-y-0 left-[42%] -right-[200%]" />
+          <PanelHead
+            icon={<IconWallet color="#b4c68c" />}
+            tint="bg-sage-t"
+            title={team ? 'Фонд зарплаты' : 'К выплате'}
+          />
+          <div className="relative text-[58px] font-bold leading-none tracking-[-0.035em]">
             <span className="text-[32px] text-mute">$</span>
             {usd(totals.total).replace('$', '')}
           </div>
-          <div className="n text-[12.5px] text-mute">{rub(totals.total, rate)}</div>
+          <div className="n relative text-[12.5px] text-mute">{rub(totals.total, rate)}</div>
         </Panel>
         {[
-          { label: 'Средняя ставка', value: `${totals.avgRate.toFixed(1).replace('.', ',')}%`, note: `от базы ${usd(totals.base)}`, color: 'text-text' },
+          {
+            label: team ? 'Средняя ставка' : 'Твоя ставка',
+            value: `${totals.avgRate.toFixed(1).replace('.', ',')}%`,
+            note: `считаем с ${usd(totals.base)} — профит минус расходники`,
+            color: 'text-text',
+          },
           { label: 'Разовые бонусы', value: usd(totals.bonus), note: 'начислены вручную', color: 'text-sage' },
-          { label: 'Остаётся команде', value: usd(summary.totals.teamNetCents), note: 'профит − расходники − ЗП', color: 'text-text' },
+          team
+            ? { label: 'Остаётся команде', value: usd(summary.totals.teamNetCents), note: 'профит − расходники − ЗП', color: 'text-text' }
+            : {
+                label: 'Расходники',
+                value: usd(consumableCents),
+                note: 'списаны на тебя админом',
+                color: 'text-rust',
+              },
         ].map((s) => (
           <Panel key={s.label} className="flex flex-col justify-between p-6">
             <span className="lab">{s.label}</span>
@@ -74,11 +101,7 @@ export default async function PayrollPage({
           icon={<IconChart color="#b4c68c" />}
           tint="bg-sage-t"
           title="Расчётный лист"
-          aside={
-            <span className="text-[12.5px] text-mute">
-              {periodLabel(key)} · база = профит − расходники, ставка по достигнутому порогу
-            </span>
-          }
+          aside={<span className="text-[12.5px] text-mute">{periodLabel(key)}</span>}
           right={
             user.role === 'ADMIN' ? (
               <form action={closed ? reopen : close}>
@@ -99,11 +122,28 @@ export default async function PayrollPage({
           }
         />
 
-        <div className="mt-4 grid grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] pb-2.5">
+        <div className="mt-5">
+          <Formula
+            steps={[
+              { value: usd(profitCents), label: 'профит за период', color: '#b4c68c' },
+              { value: usd(consumableCents), label: 'расходники', op: '−', color: '#ce6e58' },
+              { value: usd(totals.base), label: 'с этого считаем процент', op: '=' },
+              { value: `${totals.avgRate.toFixed(1).replace('.', ',')}%`, label: 'ставка по порогу', op: '×' },
+              { value: usd(totals.total), label: 'к выплате с бонусами', op: '=', color: '#b4c68c' },
+            ]}
+          />
+          <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
+            {team
+              ? 'Ставка у каждого своя — она определяется порогом, который он взял, и применяется ко всей сумме, а не только к превышению. В строке выше показана средняя по команде.'
+              : 'Ставка определяется порогом, который ты взял, и применяется ко всей сумме, а не только к превышению над порогом.'}
+          </p>
+        </div>
+
+        <div className="mt-5 grid grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] pb-2.5">
           <span className="lab">Баер</span>
           <span className="lab text-right">Профит</span>
           <span className="lab text-right">Расходники</span>
-          <span className="lab text-right">База</span>
+          <span className="lab text-right">Считаем с</span>
           <span className="lab text-right">Ставка</span>
           <span className="lab text-right">ЗП, $</span>
           <span className="lab text-right">ЗП, ₽</span>
@@ -111,7 +151,7 @@ export default async function PayrollPage({
           <span className="lab text-right">К выплате</span>
         </div>
 
-        {summary.buyers.map((row) => (
+        {rows.map((row) => (
           <div
             key={row.buyer.id}
             className="grid grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] items-center border-t border-line py-3"
@@ -153,10 +193,12 @@ export default async function PayrollPage({
           </div>
         ))}
 
-        <Sub className="mt-2.5 grid grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] items-center px-4 py-3.5">
+        {/* У баера строка одна — подвал «Итого» дублировал бы её. */}
+        {team ? (
+          <Sub className="mt-2.5 grid grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] items-center px-4 py-3.5">
           <span className="lab text-text">Итого</span>
-          <span className="n text-right text-[13.5px]">{usd(summary.totals.profitCents)}</span>
-          <span className="n text-right text-[13.5px] text-rust">−{usd(summary.totals.consumableCents)}</span>
+          <span className="n text-right text-[13.5px]">{usd(profitCents)}</span>
+          <span className="n text-right text-[13.5px] text-rust">−{usd(consumableCents)}</span>
           <span className="n text-right text-[13.5px]">{usd(totals.base)}</span>
           <span className="n text-right text-[12.5px] text-mute">
             {totals.avgRate.toFixed(1).replace('.', ',')}%
@@ -166,6 +208,7 @@ export default async function PayrollPage({
           <span className="n text-right text-[13.5px] text-sage">+{usd(totals.bonus)}</span>
           <span className="n text-right text-[18px] font-semibold text-sage">{usd(totals.total)}</span>
         </Sub>
+        ) : null}
       </Panel>
 
       <div className="grid grid-cols-[1.25fr_1fr] gap-3.5">
@@ -174,7 +217,11 @@ export default async function PayrollPage({
             icon={<IconChart color="#b4c68c" />}
             tint="bg-sage-t"
             title="Лесенка ставок"
-            right={<span className="text-[12.5px] text-mute">настраивается на каждого баера</span>}
+            right={
+              <span className="text-[12.5px] text-mute">
+                {team ? 'настраивается на каждого баера' : 'твоя лесенка'}
+              </span>
+            }
           />
           <div className="mt-5 grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.max(1, ladder.length)}, minmax(0,1fr))` }}>
             {ladder.map((tier: { fromCents: number; ratePct: number }) => (
@@ -205,7 +252,7 @@ export default async function PayrollPage({
         <Panel className="p-6">
           <PanelHead icon={<IconWarn color="#ce6e58" />} tint="bg-rust-t" title="Мёртвые зоны" />
           <p className="mt-3 text-[12.5px] leading-relaxed text-mute">
-            Ставка умножает всю базу, поэтому у порога пара сотен профита меняет выплату на тысячи.
+            Процент считается со всей суммы, а не только с превышения порога. Поэтому у самой отметки пара сотен профита меняет выплату на тысячи.
           </p>
           {gaps.length === 0 ? (
             <Empty>Все пороги взяты.</Empty>

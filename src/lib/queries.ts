@@ -3,11 +3,24 @@ import { prisma } from './db';
 import { periodBounds, periodKey, daysOfPeriod, dayKey } from './period';
 import { profitOf, sum } from './money';
 import { computePayout, parseTiers, DEFAULT_TIERS } from './salary';
+import { fetchRate, rateIsStale } from './rate';
 
 export async function getPeriod(key: string) {
   const existing = await prisma.period.findUnique({ where: { key } });
-  if (existing) return existing;
-  return prisma.period.create({ data: { key } });
+  const period = existing ?? (await prisma.period.create({ data: { key } }));
+
+  // Закрытый период держит курс, при котором считалась выплата, — трогать его
+  // нельзя. Ручной курс тоже не перезаписываем: его выставили осознанно.
+  if (period.status === 'CLOSED' || period.rateSource === 'MANUAL') return period;
+  if (!rateIsStale(period.rateUpdatedAt)) return period;
+
+  const fetched = await fetchRate();
+  if (!fetched) return period;
+
+  return prisma.period.update({
+    where: { id: period.id },
+    data: { rubPerUsd: fetched.hundredths, rateUpdatedAt: new Date() },
+  });
 }
 
 export async function currentPeriodKey() {

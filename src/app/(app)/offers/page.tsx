@@ -4,6 +4,7 @@ import { canSeeTeam, type Role } from '@/lib/roles';
 import { parseGeos, OFFER_STATUS } from '@/lib/format';
 import { saveOffer, deleteOffer } from '@/app/actions/catalog';
 import { Panel, Empty } from '@/components/ui';
+import Select from '@/components/Select';
 import { IconDown, IconPlus } from '@/components/icons';
 
 export default async function OffersPage({
@@ -67,11 +68,16 @@ export default async function OffersPage({
           <input name="previewUrl" placeholder="Ссылка на превью" className="rounded-[18px] bg-sub px-4 py-3 text-[14px] outline-none" />
           <textarea name="notes" rows={2} placeholder="Уточнения, по одному в строке" className="col-span-2 resize-y rounded-[18px] bg-sub px-4 py-3 text-[14px] outline-none" />
           <div className="flex items-end gap-3">
-            <select name="status" className="flex-1 rounded-[18px] bg-sub px-4 py-3 text-[14px] outline-none">
-              {Object.entries(OFFER_STATUS).map(([code, meta]) => (
-                <option key={code} value={code} className="bg-panel">{meta.label}</option>
-              ))}
-            </select>
+            <div className="flex-1">
+              <Select
+                name="status"
+                defaultValue="ACTIVE"
+                options={Object.entries(OFFER_STATUS).map(([code, meta]) => ({
+                  value: code,
+                  label: meta.label,
+                }))}
+              />
+            </div>
             <button type="submit" className="rounded-full bg-sage px-5 py-3 text-[13px] font-semibold text-bg">
               Сохранить
             </button>

@@ -1,9 +1,7 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { verifyPassword } from '@/lib/auth';
-import { createSession } from '@/lib/session';
-import { currentUser } from '@/lib/session';
-import { Panel } from '@/components/ui';
+import { createSession, currentUser } from '@/lib/session';
 import { IconPeak } from '@/components/icons';
 import type { Role } from '@/lib/roles';
 
@@ -21,8 +19,8 @@ export default async function LoginPage({
     const password = String(formData.get('password') ?? '');
 
     const user = await prisma.user.findUnique({ where: { email } });
-    // Same message either way: a login form should not confirm which
-    // addresses exist.
+    // Одинаковый ответ в обоих случаях: форма входа не должна подсказывать,
+    // какие адреса заведены.
     if (!user || !user.active || !(await verifyPassword(password, user.passwordHash))) {
       redirect('/login?error=1');
     }
@@ -30,56 +28,66 @@ export default async function LoginPage({
     redirect('/');
   }
 
+  const field =
+    'mt-2 h-11 w-full rounded-xl border border-line bg-sub px-3.5 text-[14.5px] outline-none transition focus:border-sage';
+
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <Panel as="div" className="w-full max-w-[420px] p-8">
-        <div className="flex items-center gap-3">
-          <span className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-sage-t">
+    <main className="flex min-h-screen items-center justify-center p-5">
+      <div className="w-full max-w-[360px]">
+        <div className="mb-7 flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-sage-t">
             <IconPeak color="#b4c68c" size={22} />
           </span>
-          <div>
-            <div className="text-[19px] font-bold tracking-[-0.02em]">MS TEAM</div>
-            <div className="text-[12.5px] text-mute">учёт команды</div>
-          </div>
+          <span className="text-[20px] font-bold tracking-[-0.02em]">MS TEAM</span>
         </div>
 
-        <form action={signIn} className="mt-8 flex flex-col gap-3">
-          <label className="rounded-[18px] bg-sub px-4 py-3">
-            <span className="text-[11.5px] text-mute">Почта</span>
+        <form action={signIn} className="rounded-[22px] border border-line bg-panel p-6">
+          <h1 className="text-[17px] font-semibold">Вход</h1>
+          <p className="mt-1.5 text-[12.5px] leading-relaxed text-mute">
+            Доступ выдаёт администратор команды — он же присылает почту и пароль.
+          </p>
+
+          <label className="mt-5 block">
+            <span className="text-[12px] text-soft">Почта</span>
             <input
               name="email"
               type="email"
               required
               autoComplete="username"
-              className="mt-1.5 w-full bg-transparent text-[15px] outline-none"
-              placeholder="admin@ms.team"
+              autoFocus
+              className={field}
             />
           </label>
-          <label className="rounded-[18px] bg-sub px-4 py-3">
-            <span className="text-[11.5px] text-mute">Пароль</span>
+
+          <label className="mt-3.5 block">
+            <span className="text-[12px] text-soft">Пароль</span>
             <input
               name="password"
               type="password"
               required
               autoComplete="current-password"
-              className="mt-1.5 w-full bg-transparent text-[15px] outline-none"
+              className={field}
             />
           </label>
 
           {error ? (
-            <p className="rounded-[14px] bg-rust-t px-4 py-3 text-[12.5px] text-rust">
-              Неверная почта или пароль.
+            <p className="mt-4 rounded-xl bg-rust-t px-3.5 py-2.5 text-[12.5px] text-rust">
+              Не подошли почта или пароль. Проверь раскладку и регистр.
             </p>
           ) : null}
 
           <button
             type="submit"
-            className="mt-2 rounded-full bg-sage py-3 text-[13.5px] font-semibold text-bg transition hover:opacity-90"
+            className="mt-5 h-11 w-full rounded-xl bg-sage text-[13.5px] font-semibold text-bg transition hover:opacity-90"
           >
             Войти
           </button>
         </form>
-      </Panel>
+
+        <p className="mt-4 text-center text-[11.5px] text-dim">
+          Забыл пароль — попроси админа выдать новый.
+        </p>
+      </div>
     </main>
   );
 }

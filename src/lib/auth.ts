@@ -19,9 +19,10 @@ export async function requireUser() {
   return user;
 }
 
+/** Командные экраны. Баера отправляем на его кабинет — это корень. */
 export async function requireTeamView() {
   const user = await requireUser();
-  if (!canSeeTeam(user.role as Role)) redirect('/me');
+  if (!canSeeTeam(user.role as Role)) redirect('/');
   return user;
 }
 

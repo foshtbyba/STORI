@@ -2,9 +2,10 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { grossUp, usd } from '@/lib/money';
+import { grossUp, usd, DEFAULT_COMMISSION_BPS } from '@/lib/money';
 import { saveDay } from '@/app/actions/days';
 import { Panel, PanelHead, Sub } from './ui';
+import Select from './Select';
 import { IconRoute } from './icons';
 
 type Option = { id: string; label: string; extra?: string };
@@ -14,20 +15,18 @@ export default function DayForm({
   buyers,
   offers,
   methods,
-  lockedBuyerId,
 }: {
   today: string;
   buyers: Option[];
   offers: Option[];
   methods: (Option & { bps: number })[];
-  lockedBuyerId?: string | null;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   const [date, setDate] = useState(today);
-  const [buyerId, setBuyerId] = useState(lockedBuyerId ?? buyers[0]?.id ?? '');
+  const [buyerId, setBuyerId] = useState(buyers[0]?.id ?? '');
   const [offerId, setOfferId] = useState('');
   const [source, setSource] = useState('Facebook');
   const [revenue, setRevenue] = useState('');
@@ -35,7 +34,7 @@ export default function DayForm({
   const [methodId, setMethodId] = useState(methods[0]?.id ?? '');
   const [grossOverride, setGrossOverride] = useState('');
 
-  const bps = methods.find((m) => m.id === methodId)?.bps ?? 450;
+  const bps = methods.find((m) => m.id === methodId)?.bps ?? DEFAULT_COMMISSION_BPS;
   const toCents = (v: string) => {
     const n = Number.parseFloat(v.replace(/\s/g, '').replace(',', '.'));
     return Number.isFinite(n) ? Math.round(n * 100) : 0;
@@ -85,18 +84,13 @@ export default function DayForm({
               <span className="text-[11.5px] text-mute">Дата</span>
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={`n ${input}`} />
             </Sub>
-            <Sub className="px-4 py-3.5">
-              <span className="text-[11.5px] text-mute">Баер</span>
-              <select
+            <Sub className="px-4 pb-3.5 pt-3">
+              <Select
+                label="Баер"
                 value={buyerId}
-                onChange={(e) => setBuyerId(e.target.value)}
-                disabled={Boolean(lockedBuyerId)}
-                className={`${input} disabled:text-mute`}
-              >
-                {buyers.map((b) => (
-                  <option key={b.id} value={b.id} className="bg-panel">{b.label}</option>
-                ))}
-              </select>
+                onChange={setBuyerId}
+                options={buyers.map((b) => ({ value: b.id, label: b.label }))}
+              />
             </Sub>
             <Sub className="px-4 py-3.5">
               <span className="text-[11.5px] text-mute">Источник</span>
@@ -104,24 +98,27 @@ export default function DayForm({
             </Sub>
           </div>
           <div className="mt-3 grid grid-cols-[1.7fr_1fr] gap-3">
-            <Sub className="px-4 py-3.5">
-              <span className="text-[11.5px] text-mute">Оффер</span>
-              <select value={offerId} onChange={(e) => setOfferId(e.target.value)} className={input}>
-                <option value="" className="bg-panel">— не указан —</option>
-                {offers.map((o) => (
-                  <option key={o.id} value={o.id} className="bg-panel">{o.label}</option>
-                ))}
-              </select>
+            <Sub className="px-4 pb-3.5 pt-3">
+              <Select
+                label="Оффер"
+                value={offerId}
+                onChange={setOfferId}
+                placeholder="Без оффера"
+                options={[{ value: '', label: 'Без оффера' }, ...offers.map((o) => ({ value: o.id, label: o.label }))]}
+              />
             </Sub>
-            <Sub className="px-4 py-3.5">
-              <span className="text-[11.5px] text-mute">Платёжка</span>
-              <select value={methodId} onChange={(e) => setMethodId(e.target.value)} className={input}>
-                {methods.map((m) => (
-                  <option key={m.id} value={m.id} className="bg-panel">
-                    {m.label} · {(m.bps / 100).toFixed(2)}%
-                  </option>
-                ))}
-              </select>
+            <Sub className="px-4 pb-3.5 pt-3">
+              <Select
+                label="Платёжка"
+                value={methodId}
+                onChange={setMethodId}
+                placeholder={methods.length ? 'Выбрать' : 'Не заведены'}
+                options={methods.map((m) => ({
+                  value: m.id,
+                  label: m.label,
+                  hint: `${(m.bps / 100).toFixed(2)}%`,
+                }))}
+              />
             </Sub>
           </div>
         </Panel>

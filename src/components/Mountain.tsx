@@ -98,7 +98,7 @@ export default function Mountain({
       return {
         y: centre.y - level * HMAX,
         x1: level <= 1 ? terrain.rightEdge(Math.min(level, 0.99)) + 16 : centre.x,
-        label: usd(tier.fromCents),
+        label: usd(tier.fromCents, { round: true }),
         rate: `ставка ${tier.ratePct}%`,
         color: tier.ratePct >= 50 ? '#b4c68c' : '#a8a8a8',
         visible: level <= 1,
@@ -209,7 +209,7 @@ export default function Mountain({
             }}
           >
             {p.me ? 'ты · ' : ''}
-            {usd(p.profitCents)}
+            {usd(p.profitCents, { round: true })}
           </div>
         </div>
       ))}
@@ -247,7 +247,7 @@ function Banner({
       <span className="text-[13.5px] font-semibold" style={{ color: onTop ? '#b4c68c' : '#e4e4e4' }}>
         {onTop
           ? 'Ты на вершине. Не падай, чемпион )'
-          : `Твой путь: пройдено ${usd(viewer.profitCents)}, до вершины ещё ${usd(left)}`}
+          : `Твой путь: пройдено ${usd(viewer.profitCents, { round: true })}, до вершины ещё ${usd(left, { round: true })}`}
       </span>
     </div>
   );

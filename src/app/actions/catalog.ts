@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
-import { requireTeamView, requireUser, scopeBuyerId } from '@/lib/auth';
+import { requireTeamView } from '@/lib/auth';
 import { moneyInputToCents } from '@/lib/format';
 
 const list = (raw: FormDataEntryValue | null) =>
@@ -46,17 +46,23 @@ export async function deleteOffer(formData: FormData) {
 const ConsumableInput = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   typeId: z.string().min(1),
-  buyerId: z.string().optional().nullable(),
+  buyerId: z.string().min(1),
   qty: z.number().int().min(1).max(9999),
   totalCents: z.number().int().min(0),
   note: z.string().max(300).optional(),
 });
 
+/**
+ * Расходники заводит команда, а не сам баер: списание уменьшает его базу для
+ * зарплаты, поэтому право записи здесь — конфликт интересов. Баер их видит,
+ * но не добавляет и не удаляет.
+ *
+ * Списание всегда именное: каждый расходник закрепляется за конкретным баером
+ * и вычитается из его профита. Общекомандных списаний нет.
+ */
 export async function addConsumable(formData: FormData) {
-  const user = await requireUser();
-  const scoped = scopeBuyerId(user);
-  const buyerRaw = String(formData.get('buyerId') ?? '');
-  const buyerId = scoped ?? (buyerRaw || null);
+  const user = await requireTeamView();
+  const buyerId = String(formData.get('buyerId') ?? '');
 
   const parsed = ConsumableInput.safeParse({
     date: String(formData.get('date') ?? ''),
@@ -72,7 +78,7 @@ export async function addConsumable(formData: FormData) {
     data: {
       date: new Date(`${parsed.data.date}T00:00:00.000Z`),
       typeId: parsed.data.typeId,
-      buyerId: parsed.data.buyerId ?? null,
+      buyerId: parsed.data.buyerId,
       qty: parsed.data.qty,
       totalCents: parsed.data.totalCents,
       note: parsed.data.note ?? '',
@@ -95,12 +101,10 @@ export async function addConsumable(formData: FormData) {
 }
 
 export async function deleteConsumable(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireTeamView();
   const id = String(formData.get('id') ?? '');
-  const scoped = scopeBuyerId(user);
   const entry = await prisma.consumableEntry.findUnique({ where: { id } });
   if (!entry) return;
-  if (scoped && entry.buyerId !== scoped) return;
   await prisma.consumableEntry.delete({ where: { id } });
   revalidatePath('/consumables');
   revalidatePath('/');

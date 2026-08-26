@@ -3,10 +3,11 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
-import { requireUser, scopeBuyerId } from '@/lib/auth';
-import { grossUp } from '@/lib/money';
+import { requireUser } from '@/lib/auth';
+import { grossUp, DEFAULT_COMMISSION_BPS } from '@/lib/money';
 import { periodKey } from '@/lib/period';
 import { canSeeTeam, type Role } from '@/lib/roles';
+import { GRID_CONSUMABLE_NOTE } from '@/lib/consumables';
 
 const DayInput = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -28,11 +29,16 @@ async function assertPeriodOpen(date: Date): Promise<string | null> {
   return period?.status === 'CLOSED' ? 'Период закрыт — правки заблокированы.' : null;
 }
 
-/** Buyers may only ever write rows for themselves. */
-async function assertCanWriteFor(buyerId: string) {
+/**
+ * Отчёты по дням заводит только админ или тимлид. Баер их видит у себя, но
+ * не пишет: цифры дня — основа для зарплаты, и правка своей же строки была бы
+ * конфликтом интересов.
+ */
+async function assertCanWrite() {
   const user = await requireUser();
-  const scoped = scopeBuyerId(user);
-  if (scoped && scoped !== buyerId) return { user, error: 'Нет доступа к этому баеру.' };
+  if (!canSeeTeam(user.role as Role)) {
+    return { user, error: 'Отчёты заводит админ.' };
+  }
   return { user, error: null as string | null };
 }
 
@@ -41,7 +47,7 @@ export async function saveDay(input: unknown): Promise<ActionResult> {
   if (!parsed.success) return { ok: false, error: 'Проверь поля формы.' };
   const data = parsed.data;
 
-  const { user, error } = await assertCanWriteFor(data.buyerId);
+  const { user, error } = await assertCanWrite();
   if (error) return { ok: false, error };
 
   const date = new Date(`${data.date}T00:00:00.000Z`);
@@ -51,7 +57,7 @@ export async function saveDay(input: unknown): Promise<ActionResult> {
   const method = data.paymentMethodId
     ? await prisma.paymentMethod.findUnique({ where: { id: data.paymentMethodId } })
     : null;
-  const commissionBps = method?.commissionBps ?? 450;
+  const commissionBps = method?.commissionBps ?? DEFAULT_COMMISSION_BPS;
   const spendGrossCents = data.spendGrossCents ?? grossUp(data.spendNetCents, commissionBps);
 
   const row = {
@@ -94,6 +100,114 @@ export async function saveDay(input: unknown): Promise<ActionResult> {
   return { ok: true };
 }
 
+const GridRow = z.object({
+  buyerId: z.string().min(1),
+  revenueCents: z.number().int().min(0),
+  spendNetCents: z.number().int().min(0),
+  commissionBps: z.number().int().min(0).max(10_000),
+  consumableCents: z.number().int().min(0),
+});
+
+/**
+ * Отчёт за день таблицей: строка на баера, комиссия считается от чистого
+ * расхода, расходники той же кнопкой уезжают именной строкой на свой экран.
+ */
+export async function saveDayGrid(
+  date: string,
+  typeId: string,
+  rows: unknown,
+): Promise<ActionResult & { saved?: number }> {
+  const { user, error } = await assertCanWrite();
+  if (error) return { ok: false, error };
+
+  const parsed = z.array(GridRow).safeParse(rows);
+  if (!parsed.success) return { ok: false, error: 'Проверь цифры в таблице.' };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ok: false, error: 'Некорректная дата.' };
+
+  const when = new Date(`${date}T00:00:00.000Z`);
+  const closed = await assertPeriodOpen(when);
+  if (closed) return { ok: false, error: closed };
+
+  const wantsConsumables = parsed.data.some((r) => r.consumableCents > 0);
+  if (wantsConsumables && !typeId) {
+    return { ok: false, error: 'Выбери тип расходника.' };
+  }
+
+  const buyers = await prisma.buyer.findMany({ where: { archived: false } });
+  const byId = new Map(buyers.map((b) => [b.id, b]));
+  let saved = 0;
+
+  for (const row of parsed.data) {
+    const buyer = byId.get(row.buyerId);
+    if (!buyer) continue;
+
+    const filled = row.revenueCents > 0 || row.spendNetCents > 0;
+    const existing = await prisma.dayReport.findFirst({
+      where: { buyerId: buyer.id, date: when, source: buyer.source, offerId: null },
+      select: { id: true },
+    });
+
+    if (filled) {
+      const data = {
+        date: when,
+        buyerId: buyer.id,
+        offerId: null,
+        source: buyer.source,
+        revenueCents: row.revenueCents,
+        spendNetCents: row.spendNetCents,
+        commissionBps: row.commissionBps,
+        spendGrossCents: grossUp(row.spendNetCents, row.commissionBps),
+        note: '',
+      };
+      const day = existing
+        ? await prisma.dayReport.update({ where: { id: existing.id }, data })
+        : await prisma.dayReport.create({ data });
+      await prisma.auditLog.create({
+        data: {
+          actorId: user.id,
+          actorName: user.name,
+          entity: 'DayReport',
+          entityId: day.id,
+          action: 'grid',
+          diffJson: JSON.stringify(data),
+        },
+      });
+      saved += 1;
+    } else if (existing) {
+      // Строку очистили руками — убираем и запись, иначе она останется висеть.
+      await prisma.dayReport.delete({ where: { id: existing.id } });
+    }
+
+    if (!typeId) continue;
+    const entry = await prisma.consumableEntry.findFirst({
+      where: { buyerId: buyer.id, date: when, typeId, note: GRID_CONSUMABLE_NOTE },
+      select: { id: true },
+    });
+    if (row.consumableCents > 0) {
+      const data = {
+        date: when,
+        buyerId: buyer.id,
+        typeId,
+        qty: 1,
+        totalCents: row.consumableCents,
+        note: GRID_CONSUMABLE_NOTE,
+      };
+      if (entry) await prisma.consumableEntry.update({ where: { id: entry.id }, data });
+      else await prisma.consumableEntry.create({ data });
+    } else if (entry) {
+      await prisma.consumableEntry.delete({ where: { id: entry.id } });
+    }
+  }
+
+  revalidatePath('/days');
+  revalidatePath('/days/new');
+  revalidatePath('/consumables');
+  revalidatePath('/payroll');
+  revalidatePath('/');
+  revalidatePath('/peak');
+  return { ok: true, saved };
+}
+
 const ImportRow = z.object({
   handle: z.string().min(1),
   revenueCents: z.number().int(),
@@ -107,7 +221,7 @@ export async function importDays(
 ): Promise<ActionResult & { imported?: number; skipped?: string[] }> {
   const user = await requireUser();
   if (!canSeeTeam(user.role as Role)) {
-    return { ok: false, error: 'Импорт за команду доступен админу и тимлиду.' };
+    return { ok: false, error: 'Импорт отчётов доступен админу.' };
   }
 
   const parsed = z.array(ImportRow).safeParse(rows);
