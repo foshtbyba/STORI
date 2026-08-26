@@ -15,10 +15,13 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
-echo "==> Проверяю docker"
+echo "==> Проверяю зависимости"
+if ! command -v openssl >/dev/null 2>&1 || ! command -v curl >/dev/null 2>&1; then
+  apt-get update -qq && apt-get install -y -qq openssl curl
+fi
 if ! command -v docker >/dev/null 2>&1; then
   apt-get update -qq
-  apt-get install -y -qq docker.io docker-compose-v2 openssl
+  apt-get install -y -qq docker.io docker-compose-v2
   systemctl enable --now docker
 fi
 if ! docker compose version >/dev/null 2>&1; then
