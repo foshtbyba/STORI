@@ -9,195 +9,199 @@
 <helmet>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
   <style>
-    body { margin: 0; background: #141416; font-family: 'Manrope', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; color: #D4D4D4; }
-    a { color: #A4B183; text-decoration: none; } a:hover { color: #C3624C; }
+    body { margin: 0; background: #131316; font-family: 'Manrope', 'Helvetica Neue', sans-serif; -webkit-font-smoothing: antialiased; color: #E2E2E4; }
+    a { color: #B4C68C; text-decoration: none; } a:hover { color: #D4705A; }
     .n { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
-    .p { background: #1E1E21; border: 1px solid #2C2C31; border-radius: 26px; }
-    .b { width: 42px; height: 42px; border-radius: 50%; background: #292930; display: flex; align-items: center; justify-content: center; flex: 0 0 42px; }
-    .ib { width: 32px; height: 32px; border-radius: 50%; background: #26262A; display: flex; align-items: center; justify-content: center; flex: 0 0 32px; }
+    .p { background: #1E1E22; border: 1px solid #33333C; border-radius: 26px; }
+    .b { width: 42px; height: 42px; border-radius: 50%; background: #2B2B33; display: flex; align-items: center; justify-content: center; flex: 0 0 42px; }
+    .ib { width: 32px; height: 32px; border-radius: 50%; background: #2A2A31; display: flex; align-items: center; justify-content: center; flex: 0 0 32px; }
     .h { font-size: 17px; font-weight: 600; letter-spacing: -0.015em; }
-    .s { font-size: 12.5px; color: #5B5B5D; }
-    .lab { font-size: 10.5px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; color: #5B5B5D; }
+    .s { font-size: 12.5px; color: #8E8E97; }
+    .lab { font-size: 10.5px; font-weight: 600; letter-spacing: 0.13em; text-transform: uppercase; color: #74747E; }
     .pill { border-radius: 999px; }
-    .sub { background: #26262A; border-radius: 18px; }
+    .sub { background: #26262C; border-radius: 18px; }
   </style>
 </helmet>
 
-<div style="width: 1440px; min-height: 1040px; background: #141416; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
-    <div class="p" style="display: flex; align-items: center; justify-content: space-between; height: 78px; padding: 0 14px 0 16px;">
-      <div style="display: flex; align-items: center; gap: 16px;">
-        <div class="b" style="background: #2E3327;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.7" stroke-linejoin="round"><path d="M2.5 20h19L14 5l-3.4 6.5L8.4 8z"/></svg>
-        </div>
-        <span style="font-size: 19px; font-weight: 700; letter-spacing: -0.02em;">Команда STORI</span>
-        <span style="width: 1px; height: 22px; background: #33333A;"></span>
-        <span class="n" style="font-size: 16px; color: #8A8A8D;">01–26.08.26</span>
+<div style="width: 1440px; min-height: 1040px; background: #131316; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+
+  <div class="p" style="display: flex; align-items: center; justify-content: space-between; height: 78px; padding: 0 14px 0 16px;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div class="b" style="background: #2F3A26;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B4C68C" stroke-width="1.7" stroke-linejoin="round"><path d="M2.5 20h19L14 5l-3.4 6.5L8.4 8z"/></svg>
       </div>
-      <div style="display: flex; align-items: center; gap: 22px;">
-        <div style="display: flex; align-items: center; gap: 9px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.7"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
-          <span style="font-size: 14px; color: #A9A9AC;">5 баеров</span>
-        </div>
-        <span style="width: 1px; height: 20px; background: #2C2C31;"></span>
-        <div style="display: flex; align-items: center; gap: 9px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.7" stroke-linejoin="round"><path d="M3 19h18L14.5 6l-3 5.5L9.5 9z"/></svg>
-          <span class="n" style="font-size: 14px; color: #A4B183;">$34 700</span>
-        </div>
-        <div class="pill" style="display: flex; align-items: center; gap: 12px; background: #26262A; padding: 7px 12px 7px 14px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"/><path d="M17 11.5a3 3 0 100-6"/></svg>
-          <div style="display: flex;">
-            <sc-for list="{{ crew }}" as="c" hint-placeholder-count="5">
-              <div class="n" style="width: 32px; height: 32px; border-radius: 50%; background: {{ c.bg }}; border: 2px solid #1E1E21; margin-left: -9px; display: flex; align-items: center; justify-content: center; font-size: 10.5px; color: {{ c.fg }};">{{ c.t }}</div>
-            </sc-for>
-          </div>
+      <span style="font-size: 19px; font-weight: 700; letter-spacing: -0.02em;">Команда STORI</span>
+      <span style="width: 1px; height: 22px; background: #3A3A44;"></span>
+      <span class="n" style="font-size: 16px; color: #A6A6AE;">01–26.08.26</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 22px;">
+      <div style="display: flex; align-items: center; gap: 9px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6FB0A6" stroke-width="1.7"><path d="M12 21s7-6.3 7-11a7 7 0 10-14 0c0 4.7 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+        <span style="font-size: 14px; color: #C2C2C7;">5 баеров</span>
+      </div>
+      <span style="width: 1px; height: 20px; background: #33333C;"></span>
+      <div style="display: flex; align-items: center; gap: 9px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B4C68C" stroke-width="1.7" stroke-linejoin="round"><path d="M3 19h18L14.5 6l-3 5.5L9.5 9z"/></svg>
+        <span class="n" style="font-size: 14px; color: #B4C68C;">$34 700</span>
+      </div>
+      <div class="pill" style="display: flex; align-items: center; gap: 12px; background: #26262C; padding: 7px 12px 7px 14px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8E8E97" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3 2.7-5 6-5s6 2 6 5"/><path d="M17 11.5a3 3 0 100-6"/></svg>
+        <div style="display: flex;">
+          <sc-for list="{{ crew }}" as="c" hint-placeholder-count="5">
+            <div class="n" style="width: 32px; height: 32px; border-radius: 50%; background: {{ c.bg }}; border: 2px solid #1E1E22; margin-left: -9px; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 600; color: {{ c.fg }};">{{ c.t }}</div>
+          </sc-for>
         </div>
       </div>
     </div>
+  </div>
 
-  <div style="display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 14px; height: 876px;">
+  <div style="display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 14px; height: 916px;">
 
     <!-- METRICS -->
     <div class="p" style="padding: 20px 22px; display: flex; flex-direction: column;">
       <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
         <div style="display: flex; align-items: center; gap: 13px;">
-          <div class="b">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v8.5h8.5"/></svg>
+          <div class="b" style="background: #2F3A26;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#B4C68C" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v8.5h8.5"/></svg>
           </div>
           <span class="h">Метрики</span>
         </div>
         <div style="display: flex; align-items: center; gap: 12px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8E8E97" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg>
           <span class="n" style="font-size: 14px;">01–26.08</span>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg>
-          <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="#5B5B5D"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></div>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8E8E97" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg>
+          <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="#8E8E97"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></div>
         </div>
       </div>
 
-      <!-- chart 1 -->
-      <div style="padding-bottom: 22px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+      <div style="padding-bottom: 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.8"><path d="M4 20V9M10 20V4M16 20v-7M22 20h-20"/></svg>
+            <span style="width: 26px; height: 26px; border-radius: 9px; background: #26301F; display: flex; align-items: center; justify-content: center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B4C68C" stroke-width="2"><path d="M4 20V9M10 20V4M16 20v-7M22 20h-20"/></svg>
+            </span>
             <span style="font-size: 14.5px; font-weight: 600;">Профит по дням</span>
           </div>
-          <span class="n" style="font-size: 13px; color: #8A8A8D;">всего $34 700</span>
+          <span class="n" style="font-size: 13px; color: #A6A6AE;">$34 700</span>
         </div>
         <div style="display: flex; gap: 10px;">
-          <div style="width: 26px; display: flex; flex-direction: column; justify-content: space-between; height: 126px;">
-            <span class="n" style="font-size: 10px; color: #4E4E55;">3k</span>
-            <span class="n" style="font-size: 10px; color: #4E4E55;">1,5k</span>
-            <span class="n" style="font-size: 10px; color: #4E4E55;">0</span>
+          <div style="width: 26px; display: flex; flex-direction: column; justify-content: space-between; height: 116px;">
+            <span class="n" style="font-size: 10px; color: #6E6E7A;">3k</span>
+            <span class="n" style="font-size: 10px; color: #6E6E7A;">1,5k</span>
+            <span class="n" style="font-size: 10px; color: #6E6E7A;">0</span>
           </div>
           <div style="flex-grow: 1;">
-            <div style="display: flex; align-items: flex-end; gap: 2.5px; height: 126px;">
+            <div style="display: flex; align-items: flex-end; gap: 2.5px; height: 116px;">
               <sc-for list="{{ bars }}" as="b" hint-placeholder-count="26">
-                <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 126px;">
+                <div style="flex-grow: 1; display: flex; align-items: flex-end; height: 116px;">
                   <div style="width: 100%; height: {{ b.h }}px; background: {{ b.c }}; border-radius: 3px;"></div>
                 </div>
               </sc-for>
             </div>
-            <div style="height: 1px; background: #33333A; margin-top: 3px;"></div>
-            <div style="display: flex; align-items: flex-start; gap: 2.5px; height: 20px;">
+            <div style="height: 1px; background: #3A3A44; margin-top: 3px;"></div>
+            <div style="display: flex; align-items: flex-start; gap: 2.5px; height: 18px;">
               <sc-for list="{{ bars }}" as="b" hint-placeholder-count="26">
-                <div style="flex-grow: 1;"><div style="width: 100%; height: {{ b.nh }}px; background: #C3624C; border-radius: 3px;"></div></div>
+                <div style="flex-grow: 1;"><div style="width: 100%; height: {{ b.nh }}px; background: #D4705A; border-radius: 3px;"></div></div>
               </sc-for>
             </div>
             <div style="display: flex; justify-content: space-between; margin-top: 4px;">
-              <span class="n" style="font-size: 10px; color: #4E4E55;">01.08</span>
-              <span class="n" style="font-size: 10px; color: #4E4E55;">09.08</span>
-              <span class="n" style="font-size: 10px; color: #4E4E55;">17.08</span>
-              <span class="n" style="font-size: 10px; color: #4E4E55;">26.08</span>
+              <span class="n" style="font-size: 10px; color: #6E6E7A;">01.08</span>
+              <span class="n" style="font-size: 10px; color: #6E6E7A;">09.08</span>
+              <span class="n" style="font-size: 10px; color: #6E6E7A;">17.08</span>
+              <span class="n" style="font-size: 10px; color: #6E6E7A;">26.08</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div style="height: 1px; background: #2C2C31;"></div>
+      <div style="height: 1px; background: #33333C;"></div>
 
-      <!-- chart 2 -->
-      <div style="padding: 22px 0;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+      <div style="padding: 20px 0;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.8"><circle cx="6" cy="15" r="1.8"/><circle cx="12" cy="8" r="1.8"/><circle cx="18" cy="13" r="1.8"/><path d="M2 20h20"/></svg>
+            <span style="width: 26px; height: 26px; border-radius: 9px; background: #1F2E2C; display: flex; align-items: center; justify-content: center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6FB0A6" stroke-width="2"><circle cx="6" cy="15" r="1.8"/><circle cx="12" cy="8" r="1.8"/><circle cx="18" cy="13" r="1.8"/><path d="M2 20h20"/></svg>
+            </span>
             <span style="font-size: 14.5px; font-weight: 600;">ROI по дням</span>
           </div>
-          <span class="n" style="font-size: 13px; color: #8A8A8D;">сред. 37,2%</span>
+          <span class="n" style="font-size: 13px; color: #A6A6AE;">сред. 37,2%</span>
         </div>
         <div style="display: flex; gap: 10px;">
-          <div style="width: 26px; display: flex; flex-direction: column; justify-content: space-between; height: 126px;">
-            <span class="n" style="font-size: 10px; color: #4E4E55;">70</span>
-            <span class="n" style="font-size: 10px; color: #4E4E55;">25</span>
-            <span class="n" style="font-size: 10px; color: #4E4E55;">−20</span>
+          <div style="width: 26px; display: flex; flex-direction: column; justify-content: space-between; height: 116px;">
+            <span class="n" style="font-size: 10px; color: #6E6E7A;">70</span>
+            <span class="n" style="font-size: 10px; color: #6E6E7A;">25</span>
+            <span class="n" style="font-size: 10px; color: #6E6E7A;">−20</span>
           </div>
           <div style="flex-grow: 1;">
-            <div style="position: relative; height: 126px;">
-              <div style="position: absolute; left: 0; right: 0; top: {{ avgTop }}%; height: 1px; background: #4E4E55;"></div>
-              <div class="n" style="position: absolute; right: 0; top: 2px; font-size: 10.5px; color: #A4B183;">макс 66%</div>
-              <div class="n" style="position: absolute; right: 0; bottom: 2px; font-size: 10.5px; color: #C3624C;">мин −12%</div>
+            <div style="position: relative; height: 116px;">
+              <div style="position: absolute; left: 0; right: 0; top: {{ avgTop }}%; height: 1px; background: #6FB0A6; opacity: 0.5;"></div>
+              <div class="n" style="position: absolute; right: 0; top: 1px; font-size: 10.5px; color: #B4C68C;">макс 66%</div>
+              <div class="n" style="position: absolute; right: 0; bottom: 1px; font-size: 10.5px; color: #D4705A;">мин −12%</div>
               <sc-for list="{{ dots }}" as="d" hint-placeholder-count="26">
                 <div style="position: absolute; left: {{ d.x }}%; top: {{ d.y }}%; width: 7px; height: 7px; border-radius: 50%; background: {{ d.c }}; transform: translate(-50%, -50%);"></div>
               </sc-for>
             </div>
-            <div style="height: 1px; background: #33333A;"></div>
+            <div style="height: 1px; background: #3A3A44;"></div>
             <div style="display: flex; justify-content: space-between; margin-top: 6px;">
-              <span class="n" style="font-size: 10px; color: #4E4E55;">01.08</span>
-              <span class="n" style="font-size: 10px; color: #4E4E55;">09.08</span>
-              <span class="n" style="font-size: 10px; color: #4E4E55;">17.08</span>
-              <span class="n" style="font-size: 10px; color: #4E4E55;">26.08</span>
+              <span class="n" style="font-size: 10px; color: #6E6E7A;">01.08</span>
+              <span class="n" style="font-size: 10px; color: #6E6E7A;">09.08</span>
+              <span class="n" style="font-size: 10px; color: #6E6E7A;">17.08</span>
+              <span class="n" style="font-size: 10px; color: #6E6E7A;">26.08</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div style="height: 1px; background: #2C2C31;"></div>
+      <div style="height: 1px; background: #33333C;"></div>
 
-      <!-- chart 3 -->
-      <div style="padding: 22px 0;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+      <div style="padding: 20px 0;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.8"><rect x="3" y="8" width="5" height="12" rx="2.5"/><rect x="10" y="4" width="5" height="16" rx="2.5"/><rect x="17" y="11" width="5" height="9" rx="2.5"/></svg>
+            <span style="width: 26px; height: 26px; border-radius: 9px; background: #33211C; display: flex; align-items: center; justify-content: center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DFA45E" stroke-width="2"><rect x="3" y="8" width="5" height="12" rx="2.5"/><rect x="10" y="4" width="5" height="16" rx="2.5"/><rect x="17" y="11" width="5" height="9" rx="2.5"/></svg>
+            </span>
             <span style="font-size: 14.5px; font-weight: 600;">Спенд и профит</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 13px;">
-            <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 3px; background: #6E4237;"></span><span class="s" style="font-size: 11px;">спенд</span></div>
-            <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 3px; background: #A4B183;"></span><span class="s" style="font-size: 11px;">профит</span></div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 3px; background: #A9704A;"></span><span class="s" style="font-size: 11px;">спенд</span></div>
+            <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 3px; background: #B4C68C;"></span><span class="s" style="font-size: 11px;">профит</span></div>
           </div>
         </div>
-        <div style="display: flex; align-items: flex-end; justify-content: space-between; height: 132px; padding: 0 6px;">
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; height: 100px; padding: 0 6px;">
           <sc-for list="{{ weeks }}" as="w" hint-placeholder-count="4">
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
-              <div style="display: flex; align-items: flex-end; gap: 7px; height: 132px;">
-                <div style="width: 22px; height: {{ w.sh }}px; background: #6E4237; border-radius: 11px;"></div>
-                <div style="width: 22px; height: {{ w.ph }}px; background: #A4B183; border-radius: 11px;"></div>
-              </div>
+            <div style="display: flex; align-items: flex-end; gap: 7px; height: 100px;">
+              <div style="width: 21px; height: {{ w.sh }}px; background: #A9704A; border-radius: 11px;"></div>
+              <div style="width: 21px; height: {{ w.ph }}px; background: #B4C68C; border-radius: 11px;"></div>
             </div>
           </sc-for>
         </div>
-        <div style="display: flex; justify-content: space-between; padding: 10px 20px 0 20px;">
+        <div style="display: flex; justify-content: space-between; padding: 9px 18px 0 18px;">
           <sc-for list="{{ weeks }}" as="w" hint-placeholder-count="4">
-            <span class="n" style="font-size: 10.5px; color: #4E4E55;">{{ w.label }}</span>
+            <span class="n" style="font-size: 10.5px; color: #6E6E7A;">{{ w.label }}</span>
           </sc-for>
         </div>
       </div>
 
-      <div style="height: 1px; background: #2C2C31;"></div>
+      <div style="height: 1px; background: #33333C;"></div>
 
-      <!-- chart 4 -->
-      <div style="padding-top: 22px; flex-grow: 1;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+      <div style="padding-top: 20px; flex-grow: 1;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C3624C" stroke-width="1.8" stroke-linejoin="round"><path d="M21 8l-9-4.5L3 8l9 4.5z"/><path d="M3 8v8l9 4.5L21 16V8"/></svg>
+            <span style="width: 26px; height: 26px; border-radius: 9px; background: #2A2740; display: flex; align-items: center; justify-content: center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8CC4" stroke-width="2" stroke-linejoin="round"><path d="M21 8l-9-4.5L3 8l9 4.5z"/><path d="M3 8v8l9 4.5L21 16V8"/></svg>
+            </span>
             <span style="font-size: 14.5px; font-weight: 600;">Расходники</span>
           </div>
-          <span class="n" style="font-size: 13px; color: #C3624C;">$3 100</span>
+          <span class="n" style="font-size: 13px; color: #D4705A;">$3 100</span>
         </div>
         <sc-for list="{{ consum }}" as="c" hint-placeholder-count="5">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 11px;">
-            <span style="font-size: 12.5px; color: #A9A9AC; width: 118px; flex: 0 0 118px;">{{ c.name }}</span>
-            <div style="flex-grow: 1; height: 8px; background: #26262A; border-radius: 4px; overflow: hidden;">
-              <div style="width: {{ c.pct }}%; height: 8px; background: #6E4237; border-radius: 4px;"></div>
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+            <span style="width: 8px; height: 8px; border-radius: 3px; background: {{ c.c }}; flex: 0 0 8px;"></span>
+            <span style="font-size: 12.5px; color: #C2C2C7; width: 108px; flex: 0 0 108px;">{{ c.name }}</span>
+            <div style="flex-grow: 1; height: 8px; background: #26262C; border-radius: 4px;">
+              <div style="width: {{ c.pct }}%; height: 8px; background: {{ c.c }}; border-radius: 4px;"></div>
             </div>
-            <span class="n" style="font-size: 12px; color: #8A8A8D; width: 46px; text-align: right;">{{ c.sum }}</span>
+            <span class="n" style="font-size: 12px; color: #A6A6AE; width: 46px; text-align: right;">{{ c.sum }}</span>
           </div>
         </sc-for>
       </div>
@@ -206,75 +210,91 @@
     <!-- RIGHT -->
     <div style="display: flex; flex-direction: column; gap: 14px; min-width: 0;">
 
-      <div class="p" style="padding: 20px 22px 8px 22px; flex-grow: 1; display: flex; flex-direction: column;">
+      <div class="p" style="padding: 20px 22px 6px 22px; flex-grow: 1; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <div style="display: flex; align-items: center; gap: 13px;">
-            <div class="b">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.7"><circle cx="6" cy="7" r="2.4"/><circle cx="18" cy="17" r="2.4"/><path d="M8.4 8.2C13 11 11 13 15.8 15.6"/></svg>
+            <div class="b" style="background: #1F2E2C;">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#6FB0A6" stroke-width="1.7"><circle cx="6" cy="7" r="2.4"/><circle cx="18" cy="17" r="2.4"/><path d="M8.4 8.2C13 11 11 13 15.8 15.6"/></svg>
             </div>
             <span class="h">Вершина</span>
-            <span style="width: 1px; height: 20px; background: #33333A;"></span>
-            <span style="font-size: 15px; color: #A4B183;">Август 2026</span>
+            <span style="width: 1px; height: 20px; background: #3A3A44;"></span>
+            <span style="font-size: 15px; color: #B4C68C;">Август 2026</span>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
-            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.7"><path d="M4 8l8-4 8 4-8 4z"/><path d="M4 13l8 4 8-4"/></svg></div>
-            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.7"><path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg></div>
-            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.7"><path d="M9 4L3 6.5v14L9 18l6 2.5 6-2.5v-14L15 6.5z"/><path d="M9 4v14M15 6.5v14"/></svg></div>
-            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="#5B5B5D"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></div>
+            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8E8E97" stroke-width="1.7"><path d="M4 8l8-4 8 4-8 4z"/><path d="M4 13l8 4 8-4"/></svg></div>
+            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8E8E97" stroke-width="1.7"><path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg></div>
+            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8E8E97" stroke-width="1.7"><path d="M9 4L3 6.5v14L9 18l6 2.5 6-2.5v-14L15 6.5z"/><path d="M9 4v14M15 6.5v14"/></svg></div>
+            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="#8E8E97"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></div>
           </div>
         </div>
 
-        <div style="position: relative; margin-top: 6px;">
-          <svg viewBox="0 70 1370 706" style="display: block; width: 100%; height: auto;">
-            <sc-for list="{{ ticks }}" as="k" hint-placeholder-count="120">
+        <div style="position: relative; margin-top: 2px;">
+          <svg viewBox="0 60 1400 790" style="display: block; width: 100%; height: auto;">
+            <defs>
+              <radialGradient id="glow" cx="0.5" cy="0.62" r="0.55">
+                <stop offset="0%" stop-color="#2A3A38" stop-opacity="0.55"/>
+                <stop offset="100%" stop-color="#2A3A38" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <ellipse cx="660" cy="636" rx="500" ry="176" fill="url(#glow)"/>
+
+            <sc-for list="{{ ticks }}" as="k" hint-placeholder-count="180">
               <line x1="{{ k.x1 }}" y1="{{ k.y1 }}" x2="{{ k.x2 }}" y2="{{ k.y2 }}" stroke="{{ k.c }}" stroke-width="{{ k.w }}"/>
             </sc-for>
-            <ellipse cx="640" cy="585" rx="520" ry="145.6" fill="none" stroke="#5F7357" stroke-width="1.4"/>
-            <text x="640" y="418" text-anchor="middle" fill="#77777F" stroke="#1E1E21" stroke-width="7" paint-order="stroke" font-family="Manrope, sans-serif" font-size="28" font-weight="700" letter-spacing="2">С</text>
-            <text x="1206" y="594" text-anchor="middle" fill="#77777F" stroke="#1E1E21" stroke-width="7" paint-order="stroke" font-family="Manrope, sans-serif" font-size="28" font-weight="700" letter-spacing="2">В</text>
-            <text x="640" y="770" text-anchor="middle" fill="#77777F" stroke="#1E1E21" stroke-width="7" paint-order="stroke" font-family="Manrope, sans-serif" font-size="28" font-weight="700" letter-spacing="2">Ю</text>
-            <text x="74" y="594" text-anchor="middle" fill="#77777F" stroke="#1E1E21" stroke-width="7" paint-order="stroke" font-family="Manrope, sans-serif" font-size="28" font-weight="700" letter-spacing="2">З</text>
+            <ellipse cx="660" cy="636" rx="448" ry="134.4" fill="none" stroke="#6FB0A6" stroke-width="1.5" opacity="0.7"/>
+            <ellipse cx="660" cy="636" rx="428" ry="128.4" fill="none" stroke="#33333C" stroke-width="1"/>
 
-            <path d="{{ body }}" fill="#1E1E21"/>
-            <path d="{{ snow }}" fill="#25262A"/>
-            <sc-for list="{{ ridges }}" as="r" hint-placeholder-count="14">
-              <path d="{{ r }}" fill="none" stroke="#3B3B43" stroke-width="0.9"/>
-            </sc-for>
-            <sc-for list="{{ contours }}" as="c" hint-placeholder-count="46">
-              <path d="{{ c.d }}" fill="none" stroke="{{ c.s }}" stroke-width="{{ c.w }}"/>
-            </sc-for>
-            <path d="{{ route }}" fill="none" stroke="#D4D4D4" stroke-width="2" stroke-dasharray="7 7" opacity="0.5" stroke-linecap="round"/>
+            <g opacity="0.5">
+              <text transform="translate(660 480) scale(1 0.44)" text-anchor="middle" fill="#8E8E97" font-family="Manrope, sans-serif" font-size="58" font-weight="700" letter-spacing="6">С</text>
+              <text transform="translate(1146 658) scale(1 0.44)" text-anchor="middle" fill="#8E8E97" font-family="Manrope, sans-serif" font-size="58" font-weight="700" letter-spacing="6">В</text>
+              <text transform="translate(660 822) scale(1 0.44)" text-anchor="middle" fill="#8E8E97" font-family="Manrope, sans-serif" font-size="58" font-weight="700" letter-spacing="6">Ю</text>
+              <text transform="translate(174 658) scale(1 0.44)" text-anchor="middle" fill="#8E8E97" font-family="Manrope, sans-serif" font-size="58" font-weight="700" letter-spacing="6">З</text>
+            </g>
 
-            <line x1="1268" y1="235" x2="1268" y2="585" stroke="#2C2C31" stroke-width="1"/>
+            <path d="{{ fillBase }}" fill="#22222A"/>
+            <path d="{{ fillMid }}" fill="#26272F"/>
+            <path d="{{ fillSnow }}" fill="#2C3138"/>
+
+            <sc-for list="{{ contours }}" as="c" hint-placeholder-count="120">
+              <path d="{{ c.d }}" fill="none" stroke="{{ c.s }}" stroke-width="{{ c.w }}" stroke-linejoin="round"/>
+            </sc-for>
+
+            <path d="{{ route }}" fill="none" stroke="#E8E8EA" stroke-width="2.2" stroke-dasharray="8 8" opacity="0.55" stroke-linecap="round"/>
+            <sc-for list="{{ waypoints }}" as="w" hint-placeholder-count="5">
+              <circle cx="{{ w.x }}" cy="{{ w.y }}" r="3" fill="#E8E8EA" opacity="0.7"/>
+            </sc-for>
+
+            <line x1="1300" y1="{{ axTop }}" x2="1300" y2="636" stroke="#33333C" stroke-width="1"/>
             <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="3">
               <g>
-                <line x1="{{ t.x1 }}" y1="{{ t.y }}" x2="1258" y2="{{ t.y }}" stroke="{{ t.c }}" stroke-width="1" stroke-dasharray="4 7" opacity="0.75"/>
-                <line x1="1262" y1="{{ t.y }}" x2="1274" y2="{{ t.y }}" stroke="{{ t.c }}" stroke-width="1.6"/>
+                <line x1="{{ t.x1 }}" y1="{{ t.y }}" x2="1290" y2="{{ t.y }}" stroke="{{ t.c }}" stroke-width="1.2" stroke-dasharray="4 7" opacity="0.8"/>
+                <line x1="1294" y1="{{ t.y }}" x2="1306" y2="{{ t.y }}" stroke="{{ t.c }}" stroke-width="1.8"/>
               </g>
             </sc-for>
-            <text x="1286" y="240" fill="#A4B183" font-family="JetBrains Mono, monospace" font-size="13">$10 000</text>
-            <text x="1286" y="257" fill="#5B5B5D" font-family="Manrope, sans-serif" font-size="11.5" font-weight="600">ставка 50%</text>
-            <text x="1286" y="382" fill="#D4D4D4" font-family="JetBrains Mono, monospace" font-size="13">$5 000</text>
-            <text x="1286" y="399" fill="#5B5B5D" font-family="Manrope, sans-serif" font-size="11.5" font-weight="600">ставка 40%</text>
-            <text x="1286" y="501" fill="#D4D4D4" font-family="JetBrains Mono, monospace" font-size="13">$800</text>
-            <text x="1286" y="518" fill="#5B5B5D" font-family="Manrope, sans-serif" font-size="11.5" font-weight="600">ставка 30%</text>
+            <text x="1316" y="{{ ly50 }}" fill="#B4C68C" font-family="JetBrains Mono, monospace" font-size="13">$10 000</text>
+            <text x="1316" y="{{ ly50b }}" fill="#74747E" font-family="Manrope, sans-serif" font-size="11.5" font-weight="600">ставка 50%</text>
+            <text x="1316" y="{{ ly40 }}" fill="#6FB0A6" font-family="JetBrains Mono, monospace" font-size="13">$5 000</text>
+            <text x="1316" y="{{ ly40b }}" fill="#74747E" font-family="Manrope, sans-serif" font-size="11.5" font-weight="600">ставка 40%</text>
+            <text x="1316" y="{{ ly30 }}" fill="#DFA45E" font-family="JetBrains Mono, monospace" font-size="13">$800</text>
+            <text x="1316" y="{{ ly30b }}" fill="#74747E" font-family="Manrope, sans-serif" font-size="11.5" font-weight="600">ставка 30%</text>
 
             <sc-for list="{{ pins }}" as="p" hint-placeholder-count="5">
               <g>
-                <line x1="{{ p.sx }}" y1="{{ p.sy }}" x2="{{ p.sx }}" y2="{{ p.py }}" stroke="{{ p.stem }}" stroke-width="1.6"/>
-                <ellipse cx="{{ p.sx }}" cy="{{ p.sy }}" rx="4.5" ry="2" fill="{{ p.c }}"/>
+                <ellipse cx="{{ p.sx }}" cy="{{ p.sy }}" rx="11" ry="4" fill="#131316" opacity="0.6"/>
+                <line x1="{{ p.sx }}" y1="{{ p.sy }}" x2="{{ p.sx }}" y2="{{ p.py }}" stroke="{{ p.c }}" stroke-width="1.8"/>
+                <circle cx="{{ p.sx }}" cy="{{ p.sy }}" r="3.4" fill="{{ p.c }}"/>
               </g>
             </sc-for>
           </svg>
 
           <sc-for list="{{ pins }}" as="p" hint-placeholder-count="5">
-            <div style="position: absolute; left: {{ p.left }}%; top: {{ p.top }}%; transform: translate(-50%, -50%); width: 40px; height: 40px; border-radius: 50%; background: {{ p.headBg }}; border: 2px solid {{ p.c }}; display: flex; align-items: center; justify-content: center;">
-              <span class="n" style="font-size: 12px; font-weight: 600; color: {{ p.headFg }};">{{ p.ini }}</span>
+            <div style="position: absolute; left: {{ p.left }}%; top: {{ p.top }}%; transform: translate(-50%, -50%); width: 42px; height: 42px; border-radius: 50%; background: {{ p.headBg }}; border: 2px solid {{ p.c }}; box-shadow: 0 0 0 4px #1E1E22; display: flex; align-items: center; justify-content: center;">
+              <span class="n" style="font-size: 12px; font-weight: 700; color: {{ p.headFg }};">{{ p.ini }}</span>
             </div>
           </sc-for>
           <sc-for list="{{ pins }}" as="p" hint-placeholder-count="5">
-            <div class="pill" style="position: absolute; left: {{ p.left }}%; top: {{ p.top }}%; transform: translate(-50%, calc(-50% - 34px)); background: #26262A; border: 1px solid #33333A; padding: 4px 11px; white-space: nowrap;">
-              <span class="n" style="font-size: 12px; color: {{ p.c }};">{{ p.amount }}</span>
+            <div class="pill" style="position: absolute; left: {{ p.left }}%; top: {{ p.top }}%; transform: translate(-50%, calc(-50% - 36px)); background: #26262C; border: 1px solid {{ p.chipBd }}; padding: 4px 11px; white-space: nowrap;">
+              <span class="n" style="font-size: 12px; font-weight: 600; color: {{ p.c }};">{{ p.amount }}</span>
             </div>
           </sc-for>
         </div>
@@ -282,23 +302,22 @@
 
       <!-- LOG -->
       <div class="p" style="padding: 20px 22px 22px 22px; flex: 0 0 auto;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
           <div style="display: flex; align-items: center; gap: 13px;">
-            <div class="b">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#A4B183" stroke-width="1.7"><rect x="3" y="4" width="18" height="7" rx="3"/><rect x="3" y="13" width="18" height="7" rx="3"/></svg>
+            <div class="b" style="background: #2A2740;">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8E8CC4" stroke-width="1.7"><rect x="3" y="4" width="18" height="7" rx="3"/><rect x="3" y="13" width="18" height="7" rx="3"/></svg>
             </div>
             <span class="h">Журнал</span>
-            <span style="width: 1px; height: 20px; background: #33333A;"></span>
-            <span style="font-size: 15px; color: #A4B183;">Сегодня</span>
+            <span style="width: 1px; height: 20px; background: #3A3A44;"></span>
+            <span style="font-size: 15px; color: #8E8CC4;">Сегодня</span>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
-            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5B5B5D" stroke-width="1.8"><path d="M12 20V7M7 12l5-5 5 5M4 4h16"/></svg></div>
-            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="#5B5B5D"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></div>
+            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8E8E97" stroke-width="1.8"><path d="M12 20V7M7 12l5-5 5 5M4 4h16"/></svg></div>
+            <div class="ib"><svg width="15" height="15" viewBox="0 0 24 24" fill="#8E8E97"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg></div>
           </div>
         </div>
-
         <sc-for list="{{ log }}" as="l" hint-placeholder-count="2">
-          <div style="display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 18px; align-items: center; margin-bottom: 12px;">
+          <div style="display: grid; grid-template-columns: 232px minmax(0, 1fr); gap: 18px; align-items: center; margin-bottom: 11px;">
             <div style="display: flex; align-items: center; gap: 14px;">
               <div style="width: 30px; height: 30px; border-radius: 50%; background: {{ l.mbg }}; border: 1.5px solid {{ l.mc }}; display: flex; align-items: center; justify-content: center; flex: 0 0 30px;">
                 <span style="width: 8px; height: 8px; border-radius: 50%; background: {{ l.mc }};"></span>
@@ -308,11 +327,11 @@
                 <div class="n s" style="font-size: 11.5px; margin-top: 4px;">{{ l.time }}</div>
               </div>
             </div>
-            <div class="sub" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 15px 20px;">
+            <div class="sub" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 14px 20px;">
               <sc-for list="{{ l.fields }}" as="fd" hint-placeholder-count="4">
                 <div>
                   <div class="s" style="font-size: 11.5px;">{{ fd.k }}</div>
-                  <div class="n" style="font-size: 13.5px; margin-top: 6px; color: {{ fd.c }};">{{ fd.v }}</div>
+                  <div class="n" style="font-size: 13.5px; font-weight: 600; margin-top: 6px; color: {{ fd.c }};">{{ fd.v }}</div>
                 </div>
               </sc-for>
             </div>
@@ -327,150 +346,286 @@
 <script data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
 class Component extends DCLogic {
   renderVals() {
-    var CX = 640, CY = 585, RMAX = 400, SQ = 0.28, H = 350, TOP = 12600, RING = 520;
+    var CX = 660, CY = 636, RX = 366, SQ = 0.30, HMAX = 400, TOP = 12600;
+    var GN = 124;
     var f = function (n) { return Math.round(n).toLocaleString('ru-RU'); };
-    var rad = function (t) { return RMAX * Math.pow(1 - t, 1.15); };
-    var lift = function (t) { return H * t; };
-    var wob = function (a, t) {
-      return 1 + 0.085 * Math.sin(3 * a + 0.42 + t * 0.30) + 0.048 * Math.sin(5 * a - 1.15 + t * 0.20)
-        + 0.026 * Math.sin(8 * a + 2.05) + 0.015 * Math.sin(13 * a - 0.35 + t * 0.4);
+
+    // ---- deterministic noise -------------------------------------------
+    var hash = function (i, j) {
+      var t = Math.sin(i * 127.1 + j * 311.7) * 43758.5453;
+      return t - Math.floor(t);
     };
-    var pt = function (a, t) {
-      var r = rad(t) * wob(a, t);
-      return [CX + r * Math.cos(a), CY - lift(t) + r * SQ * Math.sin(a)];
+    var vnoise = function (x, y, fr) {
+      var fx = x * fr, fy = y * fr;
+      var i = Math.floor(fx), j = Math.floor(fy);
+      var u = fx - i, v = fy - j;
+      u = u * u * (3 - 2 * u); v = v * v * (3 - 2 * v);
+      return hash(i, j) * (1 - u) * (1 - v) + hash(i + 1, j) * u * (1 - v)
+        + hash(i, j + 1) * (1 - u) * v + hash(i + 1, j + 1) * u * v;
     };
-    var ringPath = function (t) {
-      var s = [], N = 96;
-      for (var i = 0; i <= N; i++) {
-        var p = pt(i / N * Math.PI * 2, t);
-        s.push((i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1));
+    var ridged = function (x, y, fr) { return 1 - Math.abs(2 * vnoise(x, y, fr) - 1); };
+
+    var height = function (x, y) {
+      // domain warp — breaks every circle in the contour stack
+      var wx = x + 0.30 * (vnoise(x + 3.1, y + 1.7, 1.5) - 0.5)
+                 + 0.14 * (vnoise(x + 9.3, y + 4.1, 3.4) - 0.5);
+      var wy = y + 0.30 * (vnoise(x + 6.7, y + 8.9, 1.5) - 0.5)
+                 + 0.14 * (vnoise(x + 2.5, y + 7.3, 3.4) - 0.5);
+      var r = Math.sqrt(wx * wx + wy * wy);
+      if (r >= 1.02) return 0;
+      var cone = 1 - r / 1.02;
+      var dome = Math.exp(-(wx * wx + wy * wy) / (2 * 0.44 * 0.44));
+      // ridged multifractal — spurs and gullies radiating from the summit
+      var rn = 0.50 * ridged(wx + 1.3, wy + 2.9, 1.9)
+             + 0.28 * ridged(wx + 5.5, wy + 0.4, 3.9)
+             + 0.14 * ridged(wx + 8.1, wy + 6.2, 7.8)
+             + 0.06 * ridged(wx + 12.4, wy + 3.6, 15.5);
+      var body = 0.52 * Math.pow(cone, 0.95) + 0.72 * dome * Math.pow(cone, 0.45);
+      var h = body * (0.68 + 0.46 * rn);
+      // satellite shoulders
+      var sat = [[-0.42, 0.28, 0.21, 0.26], [0.40, -0.30, 0.19, 0.23], [0.18, 0.46, 0.17, 0.18]];
+      for (var k = 0; k < sat.length; k++) {
+        var dx = x - sat[k][0], dy = y - sat[k][1], sg = sat[k][2];
+        h += sat[k][3] * Math.exp(-(dx * dx + dy * dy) / (2 * sg * sg)) * Math.pow(cone, 0.7);
       }
-      return s.join(' ') + ' Z';
+      return h;
     };
 
+    var grid = [], maxH = 0;
+    for (var j = 0; j < GN; j++) {
+      for (var i = 0; i < GN; i++) {
+        var hv = height(i / (GN - 1) * 2 - 1, j / (GN - 1) * 2 - 1);
+        grid.push(hv);
+        if (hv > maxH) maxH = hv;
+      }
+    }
+    for (var k2 = 0; k2 < grid.length; k2++) grid[k2] /= maxH;
+
+    // ---- marching squares + segment linking ----------------------------
+    var kk = function (p) { return p[0].toFixed(3) + '_' + p[1].toFixed(3); };
+    var contourLines = function (level) {
+      var segs = [];
+      var ip = function (xa, ya, va, xb, yb, vb) {
+        var t = (level - va) / (vb - va);
+        return [xa + (xb - xa) * t, ya + (yb - ya) * t];
+      };
+      for (var jj = 0; jj < GN - 1; jj++) {
+        for (var ii = 0; ii < GN - 1; ii++) {
+          var v0 = grid[jj * GN + ii], v1 = grid[jj * GN + ii + 1],
+            v2 = grid[(jj + 1) * GN + ii + 1], v3 = grid[(jj + 1) * GN + ii];
+          var c = (v0 > level ? 1 : 0) | (v1 > level ? 2 : 0) | (v2 > level ? 4 : 0) | (v3 > level ? 8 : 0);
+          if (c === 0 || c === 15) continue;
+          var T = null, R = null, B = null, L = null;
+          if ((v0 > level) !== (v1 > level)) T = ip(ii, jj, v0, ii + 1, jj, v1);
+          if ((v1 > level) !== (v2 > level)) R = ip(ii + 1, jj, v1, ii + 1, jj + 1, v2);
+          if ((v3 > level) !== (v2 > level)) B = ip(ii, jj + 1, v3, ii + 1, jj + 1, v2);
+          if ((v0 > level) !== (v3 > level)) L = ip(ii, jj, v0, ii, jj + 1, v3);
+          if (c === 1 || c === 14) segs.push([L, T]);
+          else if (c === 2 || c === 13) segs.push([T, R]);
+          else if (c === 3 || c === 12) segs.push([L, R]);
+          else if (c === 4 || c === 11) segs.push([R, B]);
+          else if (c === 6 || c === 9) segs.push([T, B]);
+          else if (c === 7 || c === 8) segs.push([L, B]);
+          else if (c === 5) { segs.push([L, T]); segs.push([R, B]); }
+          else if (c === 10) { segs.push([T, R]); segs.push([L, B]); }
+        }
+      }
+      var map = {};
+      for (var s = 0; s < segs.length; s++) {
+        var ka = kk(segs[s][0]), kb = kk(segs[s][1]);
+        if (!map[ka]) map[ka] = []; map[ka].push(s);
+        if (!map[kb]) map[kb] = []; map[kb].push(s);
+      }
+      var used = [], lines = [];
+      for (var s2 = 0; s2 < segs.length; s2++) {
+        if (used[s2]) continue;
+        used[s2] = 1;
+        var line = [segs[s2][0], segs[s2][1]], guard = 0;
+        while (guard++ < 9000) {
+          var ek = kk(line[line.length - 1]), cd = map[ek] || [], nx = -1;
+          for (var q = 0; q < cd.length; q++) if (!used[cd[q]]) { nx = cd[q]; break; }
+          if (nx < 0) break;
+          used[nx] = 1;
+          line.push(kk(segs[nx][0]) === ek ? segs[nx][1] : segs[nx][0]);
+        }
+        guard = 0;
+        while (guard++ < 9000) {
+          var sk = kk(line[0]), cd2 = map[sk] || [], pv = -1;
+          for (var q2 = 0; q2 < cd2.length; q2++) if (!used[cd2[q2]]) { pv = cd2[q2]; break; }
+          if (pv < 0) break;
+          used[pv] = 1;
+          line.unshift(kk(segs[pv][0]) === sk ? segs[pv][1] : segs[pv][0]);
+        }
+        if (line.length > 7) lines.push(line);
+      }
+      return lines;
+    };
+
+    var smooth = function (line) {
+      for (var p = 0; p < 2; p++) {
+        var out = line.slice();
+        for (var i = 1; i < line.length - 1; i++) {
+          out[i] = [(line[i - 1][0] + line[i][0] * 2 + line[i + 1][0]) / 4,
+                    (line[i - 1][1] + line[i][1] * 2 + line[i + 1][1]) / 4];
+        }
+        line = out;
+      }
+      return line;
+    };
+    var xy2 = function (u, v, level) { return [CX + u * RX, CY + v * RX * SQ - level * HMAX]; };
+    var proj = function (p, level) {
+      return xy2(p[0] / (GN - 1) * 2 - 1, p[1] / (GN - 1) * 2 - 1, level);
+    };
+    var toPath = function (line, level, close) {
+      var step = line.length > 170 ? 2 : 1, d = '';
+      for (var i = 0; i < line.length; i += step) {
+        var q = proj(line[i], level);
+        d += (i === 0 ? 'M' : 'L') + q[0].toFixed(1) + ' ' + q[1].toFixed(1);
+      }
+      return d + (close ? ' Z' : '');
+    };
+    var longest = function (lines) {
+      var best = lines[0];
+      for (var i = 1; i < lines.length; i++) if (lines[i].length > best.length) best = lines[i];
+      return best;
+    };
+
+    // ---- contour stack --------------------------------------------------
+    var LV = 36, contours = [];
+    for (var li = 0; li < LV; li++) {
+      var lev = 0.018 + Math.pow(li / (LV - 1), 1.12) * 0.955;
+      var ls = contourLines(lev);
+      var idx = li % 5 === 0;
+      for (var m = 0; m < ls.length; m++) {
+        contours.push({
+          d: toPath(smooth(ls[m]), lev, false),
+          s: idx ? '#A2A2B2' : '#575765',
+          w: idx ? '1.4' : '0.9'
+        });
+      }
+    }
+
+    var baseL = 0.018, midL = 0.40, snowL = 10000 / TOP;
+    var fillBase = toPath(smooth(longest(contourLines(baseL))), baseL, true);
+    var fillMid = toPath(smooth(longest(contourLines(midL))), midL, true);
+    var fillSnow = toPath(smooth(longest(contourLines(snowL))), snowL, true);
+
+    // ---- analytic surface point (outermost crossing along a ray) --------
+    var surfacePoint = function (angDeg, level) {
+      var a = angDeg * Math.PI / 180, lo = 0, hi = 1.05;
+      for (var it = 0; it < 30; it++) {
+        var mid = (lo + hi) / 2;
+        if (height(mid * Math.cos(a), mid * Math.sin(a)) / maxH > level) lo = mid; else hi = mid;
+      }
+      var r = (lo + hi) / 2;
+      return xy2(r * Math.cos(a), r * Math.sin(a), level);
+    };
+    var summit = (function () {
+      var bi = 0, bv = -1;
+      for (var i = 0; i < grid.length; i++) if (grid[i] > bv) { bv = grid[i]; bi = i; }
+      return proj([bi % GN, Math.floor(bi / GN)], 1);
+    })();
+
+    var people = [
+      { name: 'NOMAD', ini: 'NM', v: 12600, ang: 0, stem: 96, c: '#B4C68C', lead: true },
+      { name: 'SKO', ini: 'SK', v: 9000, ang: 141, stem: 78, c: '#6FB0A6' },
+      { name: 'LUNA', ini: 'LN', v: 7900, ang: 44, stem: 74, c: '#8E8CC4' },
+      { name: 'VIPER', ini: 'VP', v: 4200, ang: 165, stem: 84, c: '#DFA45E' },
+      { name: 'ARTEM', ini: 'AR', v: 1000, ang: 26, stem: 70, c: '#D4705A' }
+    ];
+    var pins = people.map(function (p) {
+      var s = p.lead ? summit : surfacePoint(p.ang, p.v / TOP);
+      var py = s[1] - p.stem;
+      return {
+        sx: s[0].toFixed(1), sy: s[1].toFixed(1), py: (py + 18).toFixed(1),
+        left: (s[0] / 1400 * 100).toFixed(2), top: ((py - 60) / 790 * 100).toFixed(2),
+        ini: p.ini, amount: '$' + f(p.v), c: p.c,
+        headBg: p.lead ? p.c : '#22222A', headFg: p.lead ? '#1E1E22' : p.c,
+        chipBd: p.c
+      };
+    });
+
+    // ---- route + waypoints ---------------------------------------------
+    var rd = '', wps = [];
+    for (var m2 = 0; m2 <= 56; m2++) {
+      var t2 = 0.035 + (m2 / 56) * 0.925;
+      var pnt = surfacePoint(30 + (m2 / 56) * 132, t2);
+      rd += (m2 === 0 ? 'M' : 'L') + pnt[0].toFixed(1) + ' ' + pnt[1].toFixed(1);
+      if (m2 % 14 === 0) wps.push({ x: pnt[0].toFixed(1), y: pnt[1].toFixed(1) });
+    }
+
+    // ---- compass ruler ---------------------------------------------------
     var ticks = [];
-    for (var k = 0; k < 120; k++) {
-      var a = k * 3 * Math.PI / 180, major = k % 5 === 0, card = k % 30 === 0;
-      var ri = card ? 468 : (major ? 484 : 496);
+    for (var tk = 0; tk < 180; tk++) {
+      var a2 = tk * 2 * Math.PI / 180, mj = tk % 5 === 0, cd3 = tk % 45 === 0;
+      var ri = cd3 ? 408 : (mj ? 426 : 436);
       ticks.push({
-        x1: (CX + ri * Math.cos(a)).toFixed(1), y1: (CY + ri * SQ * Math.sin(a)).toFixed(1),
-        x2: (CX + RING * Math.cos(a)).toFixed(1), y2: (CY + RING * SQ * Math.sin(a)).toFixed(1),
-        c: card ? '#A4B183' : (major ? '#7A7A85' : '#4A4A52'), w: card ? '2' : '1'
+        x1: (CX + ri * Math.cos(a2)).toFixed(1), y1: (CY + ri * SQ * Math.sin(a2)).toFixed(1),
+        x2: (CX + 448 * Math.cos(a2)).toFixed(1), y2: (CY + 448 * SQ * Math.sin(a2)).toFixed(1),
+        c: cd3 ? '#B4C68C' : (mj ? '#7A7A88' : '#42424C'), w: cd3 ? '2' : '1'
       });
     }
 
-    var N = 46, contours = [];
-    for (var i = 0; i < N; i++) {
-      var t = i / (N - 1);
-      contours.push({ d: ringPath(t), s: i % 6 === 0 ? '#585862' : '#3C3C44', w: i % 6 === 0 ? '1.2' : '0.85' });
-    }
-
-    var ridges = [];
-    for (var g = 0; g < 14; g++) {
-      var ang = g / 14 * Math.PI * 2 + 0.11, sPts = [];
-      for (var q = 0; q <= 30; q++) {
-        var p = pt(ang, 1 - q / 30);
-        sPts.push((q === 0 ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1));
+    // ---- tiers ------------------------------------------------------------
+    var tierDefs = [{ v: 800, c: '#DFA45E' }, { v: 5000, c: '#6FB0A6' }, { v: 10000, c: '#B4C68C' }];
+    var tiers = tierDefs.map(function (d) {
+      var lev = d.v / TOP, mx = 0;
+      for (var ag = 0; ag < 360; ag += 3) {
+        var xx = surfacePoint(ag, lev)[0];
+        if (xx > mx) mx = xx;
       }
-      ridges.push(sPts.join(' '));
-    }
-
-    var rp = [];
-    for (var m = 0; m <= 60; m++) {
-      var p2 = pt((38 + (m / 60) * 118) * Math.PI / 180, 0.02 + (m / 60) * 0.98);
-      rp.push((m === 0 ? 'M' : 'L') + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1));
-    }
-
-    var tiers = [800, 5000, 10000].map(function (v) {
-      var t = v / TOP, y = CY - lift(t);
-      return { x1: (CX + rad(t) * 1.02).toFixed(1), y: y.toFixed(1), c: v >= 10000 ? '#A4B183' : '#5B5B5D' };
+      return { x1: (mx + 16).toFixed(1), y: (CY - lev * HMAX).toFixed(1), c: d.c };
     });
+    var ty = function (v) { return CY - (v / TOP) * HMAX; };
 
-    var people = [
-      { name: 'NOMAD', ini: 'NM', v: 12600, ang: 0, stem: 104, lead: true, c: '#A4B183' },
-      { name: 'SKO', ini: 'SK', v: 9000, ang: 128, stem: 76, lead: false, c: '#A4B183' },
-      { name: 'LUNA', ini: 'LN', v: 7900, ang: 52, stem: 70, lead: false, c: '#A4B183' },
-      { name: 'VIPER', ini: 'VP', v: 4200, ang: 158, stem: 84, lead: false, c: '#8A8A8D' },
-      { name: 'ARTEM', ini: 'AR', v: 1000, ang: 32, stem: 66, lead: false, c: '#C3624C' }
-    ];
-    var pins = people.map(function (p) {
-      var t = p.v / TOP;
-      var s = p.v === TOP ? [CX, CY - H] : pt(p.ang * Math.PI / 180, t);
-      var py = s[1] - p.stem;
-      return {
-        sx: s[0].toFixed(1), sy: s[1].toFixed(1), py: (py + 16).toFixed(1),
-        left: (s[0] / 1370 * 100).toFixed(2), top: ((py - 70) / 706 * 100).toFixed(2),
-        ini: p.ini, amount: '$' + f(p.v), c: p.c, stem: p.c,
-        headBg: p.lead ? '#A4B183' : '#26262A',
-        headFg: p.lead ? '#1E1E21' : p.c
-      };
-    });
-
+    // ---- side data ---------------------------------------------------------
     var daily = [980, 1240, 1510, -320, 760, 1180, 1640, 1420, 890, -180, 1320, 1750, 2560, 1580, 1120, 640, -420, 980, 1460, 2520, 2900, 1720, 1340, 1580, 2600, 1930];
     var bars = daily.map(function (v) {
       return {
-        h: v > 0 ? Math.max(3, Math.round(v / 2900 * 124)) : 0,
-        nh: v < 0 ? Math.max(3, Math.round(-v / 420 * 18)) : 0,
-        c: '#A4B183'
+        h: v > 0 ? Math.max(3, Math.round(v / 2900 * 114)) : 0,
+        nh: v < 0 ? Math.max(3, Math.round(-v / 420 * 16)) : 0,
+        c: v >= 2400 ? '#C8DA9E' : '#B4C68C'
       };
     });
-
     var roi = [31, 38, 44, -9, 24, 35, 47, 41, 28, -5, 38, 49, 62, 45, 33, 20, -12, 30, 42, 58, 66, 49, 39, 45, 60, 55];
     var dots = roi.map(function (v, i) {
       return {
-        x: (i / 25 * 100).toFixed(2),
-        y: ((70 - v) / 90 * 100).toFixed(2),
-        c: v < 0 ? '#C3624C' : (v >= 45 ? '#A4B183' : '#77836A')
+        x: (i / 25 * 100).toFixed(2), y: ((70 - v) / 90 * 100).toFixed(2),
+        c: v < 0 ? '#D4705A' : (v >= 45 ? '#B4C68C' : '#6FB0A6')
       };
     });
-
-    var wdef = [
-      { label: '01–07', s: 24400, p: 7000 },
-      { label: '08–14', s: 25100, p: 8500 },
-      { label: '15–21', s: 23600, p: 9400 },
-      { label: '22–26', s: 20200, p: 9800 }
-    ];
+    var wdef = [['01–07', 24400, 7000], ['08–14', 25100, 8500], ['15–21', 23600, 9400], ['22–26', 20200, 9800]];
     var weeks = wdef.map(function (w) {
-      return { label: w.label, sh: Math.round(w.s / 25100 * 130), ph: Math.round(w.p / 25100 * 130) };
+      return { label: w[0], sh: Math.round(w[1] / 25100 * 98), ph: Math.round(w[2] / 25100 * 98) };
     });
-
-    var craw = [['Аккаунты FB', 1400], ['Прокси', 560], ['Карты', 480], ['Крео', 400], ['Антидетект', 260]];
-    var consum = craw.map(function (c) { return { name: c[0], pct: Math.round(c[1] / 1400 * 100), sum: '$' + f(c[1]) }; });
-
+    var craw = [['Аккаунты FB', 1400, '#8E8CC4'], ['Прокси', 560, '#6FB0A6'], ['Карты', 480, '#DFA45E'],
+                ['Крео', 400, '#B4C68C'], ['Антидетект', 260, '#D4705A']];
+    var consum = craw.map(function (c) {
+      return { name: c[0], pct: Math.round(c[1] / 1400 * 100), sum: '$' + f(c[1]), c: c[2] };
+    });
     var log = [
-      {
-        title: 'Отчёт за день принят', time: '26.08.26, 21:40', mc: '#A4B183', mbg: '#242A20',
-        fields: [
-          { k: 'Баер', v: 'SKO', c: '#D4D4D4' },
-          { k: 'Оффер', v: 'VitaJoint Forte', c: '#D4D4D4' },
-          { k: 'Профит', v: '+$880', c: '#A4B183' },
-          { k: 'Статус', v: 'Принят', c: '#A4B183' }
-        ]
-      },
-      {
-        title: 'Пополнение кабинета', time: '26.08.26, 09:15', mc: '#C3624C', mbg: '#2A211E',
-        fields: [
-          { k: 'Платёжка', v: 'Wise', c: '#D4D4D4' },
-          { k: 'Сумма', v: '$750', c: '#D4D4D4' },
-          { k: 'Комиссия', v: '4,50%', c: '#C3624C' },
-          { k: 'Списано', v: '$780', c: '#C3624C' }
-        ]
-      }
+      { title: 'Отчёт за день принят', time: '26.08.26, 21:40', mc: '#B4C68C', mbg: '#26301F',
+        fields: [{ k: 'Баер', v: 'SKO', c: '#6FB0A6' }, { k: 'Оффер', v: 'VitaJoint Forte', c: '#E2E2E4' },
+                 { k: 'Профит', v: '+$880', c: '#B4C68C' }, { k: 'Статус', v: 'Принят', c: '#B4C68C' }] },
+      { title: 'Пополнение кабинета', time: '26.08.26, 09:15', mc: '#DFA45E', mbg: '#33211C',
+        fields: [{ k: 'Платёжка', v: 'Wise', c: '#E2E2E4' }, { k: 'Сумма', v: '$750', c: '#E2E2E4' },
+                 { k: 'Комиссия', v: '4,50%', c: '#DFA45E' }, { k: 'Списано', v: '$780', c: '#D4705A' }] }
     ];
-
     var crew = [
-      { t: 'NM', bg: '#3A4132', fg: '#A4B183' },
-      { t: 'SK', bg: '#33333A', fg: '#D4D4D4' },
-      { t: 'LN', bg: '#33333A', fg: '#D4D4D4' },
-      { t: 'VP', bg: '#33333A', fg: '#D4D4D4' },
-      { t: 'AR', bg: '#3A2B26', fg: '#C3624C' }
+      { t: 'NM', bg: '#3E4A31', fg: '#B4C68C' }, { t: 'SK', bg: '#1F2E2C', fg: '#6FB0A6' },
+      { t: 'LN', bg: '#2A2740', fg: '#8E8CC4' }, { t: 'VP', bg: '#33291C', fg: '#DFA45E' },
+      { t: 'AR', bg: '#452A22', fg: '#D4705A' }
     ];
 
     return {
-      ticks: ticks, body: ringPath(0), snow: ringPath(10000 / TOP),
-      contours: contours, ridges: ridges, route: rp.join(' '), tiers: tiers, pins: pins,
-      bars: bars, dots: dots, avgTop: ((70 - 37) / 90 * 100).toFixed(2), weeks: weeks,
-      consum: consum, log: log, crew: crew
+      contours: contours, fillBase: fillBase, fillMid: fillMid, fillSnow: fillSnow,
+      pins: pins, route: rd, waypoints: wps, ticks: ticks, tiers: tiers,
+      axTop: (CY - HMAX).toFixed(1),
+      ly50: (ty(10000) + 4).toFixed(1), ly50b: (ty(10000) + 21).toFixed(1),
+      ly40: (ty(5000) + 4).toFixed(1), ly40b: (ty(5000) + 21).toFixed(1),
+      ly30: (ty(800) + 4).toFixed(1), ly30b: (ty(800) + 21).toFixed(1),
+      bars: bars, dots: dots, avgTop: ((70 - 37) / 90 * 100).toFixed(2),
+      weeks: weeks, consum: consum, log: log, crew: crew
     };
   }
 }
