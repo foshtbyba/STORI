@@ -96,17 +96,25 @@ Postgres: команда работает одновременно, а SQLite э
 от 2 ГБ памяти, 20 ГБ диска, Ubuntu 22.04 или 24.04.
 
 ```bash
-# на сервере
-apt update && apt install -y docker.io docker-compose-v2 git
-git clone <репозиторий> && cd stori
-cp .env.production.example .env
-nano .env                     # DOMAIN, POSTGRES_PASSWORD, AUTH_SECRET
-
-npm run use:postgres          # переключает провайдера в схеме
-docker compose up -d --build
+# на сервере, от root
+apt update && apt install -y git curl
+git clone -b claude/profit-tracking-dashboard-ulxq52 <репозиторий> ms-team
+cd ms-team
+bash scripts/bootstrap.sh
 ```
 
-Миграции накатываются при старте контейнера, первый сборка занимает 3–5 минут.
+`bootstrap.sh` ставит Docker, генерирует секреты в `.env`, определяет домен
+(из внешнего IP через `sslip.io`, либо передай свой аргументом), переключает
+Prisma на Postgres и поднимает контейнеры. Повторный запуск безопасен: `.env`
+не перезаписывается, секреты не перегенерируются.
+
+Первая сборка занимает 3–5 минут. Миграции накатываются при старте контейнера.
+
+Дальше — первый администратор:
+
+```bash
+docker compose exec app npx tsx scripts/create-user.ts admin@ms.team "Админ" ADMIN
+```
 
 #### Пока нет домена
 
