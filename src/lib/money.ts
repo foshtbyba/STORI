@@ -2,9 +2,10 @@
  * Money is stored as integer USD cents everywhere. Nothing in the app holds a
  * float amount, so totals never drift.
  *
- * Отчётные экраны показывают суммы как есть, без округления: цифра в таблице
- * обязана сходиться с цифрой в расчёте зарплаты до цента. Округление живёт
- * ровно в одном месте — на «Вершине», где важен порядок, а не точность.
+ * Показываем целые доллары: центы в отчётности не считаем. Хранение при этом
+ * остаётся в центах — арифметика идёт по целым и никуда не уплывает, округляем
+ * только на выводе. Крупное округление живёт ровно в одном месте — на
+ * «Вершине», где важен порядок, а не сумма.
  */
 
 /**
@@ -34,15 +35,12 @@ function money(value: number, symbol: string, sign?: boolean) {
   return value < 0 ? '−' + body : body;
 }
 
-/** Целые суммы печатаем без хвоста, дробные — с двумя знаками. */
 function fmt(value: number) {
-  return Number.isInteger(value)
-    ? value.toLocaleString('ru-RU')
-    : value.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return value.toLocaleString('ru-RU');
 }
 
 export function usd(cents: number, opts: { sign?: boolean; round?: boolean } = {}) {
-  const value = opts.round ? roundForPeak(cents) : cents / 100;
+  const value = opts.round ? roundForPeak(cents) : Math.round(cents / 100);
   return money(value, '$', opts.sign);
 }
 
