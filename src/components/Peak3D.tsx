@@ -80,6 +80,10 @@ export default function Peak3D({
   // получает лишние полторы тысячи пикселей по горизонтали.
   const [width, setWidth] = useState(VIEW.w);
   const from = useRef<{ x: number; y: number; a: number; p: number } | null>(null);
+  /** Скорость последнего движения — из неё живёт инерция после отпускания. */
+  const speed = useRef({ a: 0, p: 0 });
+  const last = useRef({ x: 0, y: 0, t: 0 });
+  const spin = useRef(0);
 
   const { centre, radius: RX, height: HMAX, squash: SQ0 } = terrain;
 
@@ -113,6 +117,8 @@ export default function Peak3D({
   }, [azimuth, centreAt.x, centreAt.y, RX, H, SQ]);
 
   // Размер холста — под ширину панели, с учётом плотности экрана.
+  useEffect(() => () => cancelAnimationFrame(spin.current), []);
+
   useEffect(() => {
     const el = box.current;
     if (!el) return;
@@ -226,14 +232,19 @@ export default function Peak3D({
 
       const tier = tierBand.get(i);
       if (tier) {
-        ctx.strokeStyle = tier.passed ? '#b4c68c' : '#6f6f70';
-        ctx.lineWidth = tier.passed ? 3 : 2;
+        // Взятый порог светится и заметно толще; будущий виден, но не тянет
+        // на себя взгляд.
+        ctx.strokeStyle = tier.passed ? '#c9e08f' : '#565658';
+        ctx.lineWidth = tier.passed ? 4 : 1.6;
+        ctx.shadowColor = tier.passed ? 'rgba(180, 198, 140, 0.75)' : 'transparent';
+        ctx.shadowBlur = tier.passed ? 10 : 0;
       } else {
         ctx.strokeStyle = band.index ? '#b4b4b4' : '#6b6b6b';
         ctx.lineWidth = band.index ? 1.25 : 0.8;
       }
       ctx.lineJoin = 'round';
       ctx.stroke();
+      ctx.shadowBlur = 0;
     }
 
     // --- маршрут: пройденное сплошной серой нитью, остаток белым пунктиром.
@@ -306,7 +317,7 @@ export default function Peak3D({
     for (const r of rules) {
       const y = centreAt.y - r.level * H;
       ctx.setLineDash([3, 8]);
-      ctx.strokeStyle = r.passed ? '#b4c68c' : r.color;
+      ctx.strokeStyle = r.passed ? '#c9e08f' : '#5a5a5c';
       ctx.globalAlpha = 0.7;
       ctx.lineWidth = 1.1;
       ctx.beginPath();
@@ -321,10 +332,10 @@ export default function Peak3D({
       ctx.moveTo(1294, y);
       ctx.lineTo(1306, y);
       ctx.stroke();
-      ctx.fillStyle = r.passed ? '#b4c68c' : r.color;
+      ctx.fillStyle = r.passed ? '#c9e08f' : '#6d6d6f';
       ctx.font = '13px "JetBrains Mono", monospace';
       ctx.fillText(r.label, 1316, y + 4);
-      ctx.fillStyle = '#767676';
+      ctx.fillStyle = r.passed ? '#8d9b6d' : '#5a5a5c';
       ctx.font = '600 11.5px Manrope, "Helvetica Neue", sans-serif';
       ctx.fillText(r.rate, 1316, y + 21);
     }
@@ -332,19 +343,53 @@ export default function Peak3D({
 
   function down(e: React.PointerEvent) {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    cancelAnimationFrame(spin.current);
+    speed.current = { a: 0, p: 0 };
     from.current = { x: e.clientX, y: e.clientY, a: azimuth, p: pitch };
+    last.current = { x: e.clientX, y: e.clientY, t: performance.now() };
     setDragging(true);
   }
+
   function move(e: React.PointerEvent) {
     const start = from.current;
     if (!start) return;
+    const now = performance.now();
+    const dt = Math.max(8, now - last.current.t);
+    // Скорость в градусах за кадр (16 мс) — в таких же единицах её потом и гасим.
+    speed.current = {
+      a: ((e.clientX - last.current.x) * 0.32 * 16) / dt,
+      p: (-(e.clientY - last.current.y) * 0.16 * 16) / dt,
+    };
+    last.current = { x: e.clientX, y: e.clientY, t: now };
     setAzimuth(start.a + (e.clientX - start.x) * 0.32);
     setPitch(Math.max(-30, Math.min(30, start.p - (e.clientY - start.y) * 0.16)));
   }
+
+  /**
+   * Инерция после отпускания: сцена доезжает по остаточной скорости и гаснет
+   * за несколько десятых секунды. Без этого разворот обрывается резко, будто
+   * гору держали за край.
+   */
+  function coast() {
+    const step = () => {
+      const v = speed.current;
+      if (Math.abs(v.a) < 0.02 && Math.abs(v.p) < 0.02) {
+        speed.current = { a: 0, p: 0 };
+        return;
+      }
+      setAzimuth((prev) => prev + v.a);
+      setPitch((prev) => Math.max(-30, Math.min(30, prev + v.p)));
+      speed.current = { a: v.a * 0.93, p: v.p * 0.93 };
+      spin.current = requestAnimationFrame(step);
+    };
+    spin.current = requestAnimationFrame(step);
+  }
+
   function up(e: React.PointerEvent) {
     (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     from.current = null;
     setDragging(false);
+    coast();
   }
 
   const scale = width / VIEW.w;
@@ -363,6 +408,8 @@ export default function Peak3D({
       onPointerUp={up}
       onPointerCancel={up}
       onDoubleClick={() => {
+        cancelAnimationFrame(spin.current);
+        speed.current = { a: 0, p: 0 };
         setAzimuth(0);
         setPitch(0);
       }}

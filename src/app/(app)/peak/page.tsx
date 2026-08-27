@@ -84,9 +84,9 @@ export default async function PeakPage() {
     const out: number[] = [];
     for (let i = 0; i <= steps; i++) {
       const f = i / steps;
-      // Виляние гасим у обоих концов: иначе на старте тропа сама себя
-      // догоняет и сворачивается в клубок у флажка.
-      const taper = Math.sin(Math.PI * f) ** 0.7;
+      // Виляние к концам приглушаем, но не в ноль: совсем прямые хвосты
+      // выглядят мёртво, а полное виляние сворачивает тропу в клубок у флажка.
+      const taper = 0.38 + 0.62 * Math.sin(Math.PI * f) ** 0.7;
       const swing =
         (Math.sin(f * Math.PI * 2.6) * wobble +
           Math.sin(f * Math.PI * 6.3 + 1.2) * wobble * 0.42 +
@@ -103,10 +103,16 @@ export default async function PeakPage() {
   const myPin = pins.find((p) => p.me) ?? null;
   const myLevel = myPin ? Math.min(0.985, Math.max(0.09, myPin.level)) : null;
   const myAngle = myPin ? BEARINGS[pins.indexOf(myPin) % BEARINGS.length] : 0;
+  // Хвост маршрута доводим ровно до вершины: последние шаги идут по лучам с
+  // разной высотой склона, и без явной точки пика отрезок уходил в воздух
+  // мимо макушки.
+  const toSummit = myPin && !myPin.onTop ? trail(myLevel!, 0.965, myAngle, myAngle + 58, 20, 72) : [];
+  if (toSummit.length) toSummit.push(terrain.raw.summit[0], terrain.raw.summit[1], 0.975);
+
   const route: Route3D | null = myPin
     ? {
         covered: trail(0.09, myPin.onTop ? 0.985 : myLevel!, 52, myPin.onTop ? 178 : myAngle, 22, 64),
-        remaining: myPin.onTop ? [] : trail(myLevel!, 0.975, myAngle, myAngle + 58, 20, 44),
+        remaining: toSummit,
       }
     : null;
 
