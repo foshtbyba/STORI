@@ -45,8 +45,11 @@ export const PARTNERS: Partner[] = [
   },
   { key: 'everad.com', label: 'everad.com', idLabel: 'Campaign ID (campaign_id)' },
   { key: 'rocketprofit.com', label: 'rocketprofit.com', idLabel: 'Campaign ID (campaign_id)' },
-  { key: 'custom', label: 'Другая (вручную)', idLabel: 'ID оффера' },
 ];
+// «Другая (вручную)» в этом списке нет намеренно. В конструкторе такой режим
+// есть, но там у партнёрки руками задают endpoint, ref и api_key — а они в
+// строку оффера не уезжают. Выбрать её здесь значило бы скопировать оффер,
+// который в билдере всё равно придётся донастраивать вручную.
 
 export function partnerOf(key: string): Partner | null {
   return PARTNERS.find((p) => p.key === key) ?? null;

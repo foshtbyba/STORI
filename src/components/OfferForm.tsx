@@ -188,7 +188,7 @@ export default function OfferForm({
               options={PARTNERS.map((p) => ({ value: p.key, label: p.label }))}
             />
             <p className="mt-1.5 text-[11px] leading-relaxed text-dim">
-              Список — партнёрки, заведённые в конструкторе. Нет нужной — «Другая (вручную)».
+              Список — партнёрки, заведённые в конструкторе.
             </p>
           </div>
           <Field
