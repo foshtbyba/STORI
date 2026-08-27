@@ -226,7 +226,7 @@ export default function Mountain({
                     border: `1.5px dashed ${c.id === viewerId ? c.color : '#4a4a4a'}`,
                   }}
                 >
-                  {c.initials}
+                  <span className="ink-mid">{c.initials}</span>
                 </span>
                 <span className="truncate text-[11.5px] text-dim">{c.handle}</span>
               </span>
@@ -263,7 +263,7 @@ export default function Mountain({
               boxShadow: '0 0 0 4px #1c1c1d',
             }}
           >
-            {p.initials}
+            <span className="ink-mid">{p.initials}</span>
           </div>
           <div
             className="n pointer-events-none absolute bottom-full left-1/2 mb-2.5 -translate-x-1/2 whitespace-nowrap rounded-full px-2.5 py-1 text-[11.5px] font-semibold opacity-0 transition-opacity duration-150 group-hover:opacity-100"

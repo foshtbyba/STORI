@@ -105,7 +105,7 @@ export function Avatar({
         border: filled ? 'none' : `1.5px solid ${color}`,
       }}
     >
-      {initials}
+      <span className="ink-mid">{initials}</span>
     </span>
   );
 }

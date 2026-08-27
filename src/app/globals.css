@@ -42,6 +42,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* У JetBrains Mono прописные сидят выше середины строчного бокса: при
+   выравнивании по центру инициалы в кружках всегда уезжали вверх. Сдвиг
+   вымерен по пикселям отрисовки — 0.04em возвращает чернила ровно в центр. */
+.ink-mid {
+  transform: translateY(0.04em);
+}
+
 .n {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
