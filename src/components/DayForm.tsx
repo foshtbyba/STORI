@@ -14,12 +14,10 @@ type Option = { id: string; label: string; extra?: string };
 export default function DayForm({
   today,
   buyers,
-  offers,
   methods,
 }: {
   today: string;
   buyers: Option[];
-  offers: Option[];
   methods: (Option & { bps: number })[];
 }) {
   const router = useRouter();
@@ -28,7 +26,6 @@ export default function DayForm({
 
   const [date, setDate] = useState(today);
   const [buyerId, setBuyerId] = useState(buyers[0]?.id ?? '');
-  const [offerId, setOfferId] = useState('');
   const [source, setSource] = useState('Facebook');
   const [revenue, setRevenue] = useState('');
   const [spend, setSpend] = useState('');
@@ -60,7 +57,6 @@ export default function DayForm({
       const result = await saveDay({
         date,
         buyerId,
-        offerId: offerId || null,
         source,
         revenueCents: calc.revenueCents,
         spendNetCents: calc.spendNetCents,
@@ -100,16 +96,7 @@ export default function DayForm({
               <input value={source} onChange={(e) => setSource(e.target.value)} className={input} />
             </Sub>
           </div>
-          <div className="mt-3 grid grid-cols-[1.7fr_1fr] gap-3">
-            <Sub className="px-4 pb-3.5 pt-3">
-              <Select
-                label="Оффер"
-                value={offerId}
-                onChange={setOfferId}
-                placeholder="Без оффера"
-                options={[{ value: '', label: 'Без оффера' }, ...offers.map((o) => ({ value: o.id, label: o.label }))]}
-              />
-            </Sub>
+          <div className="mt-3">
             <Sub className="px-4 pb-3.5 pt-3">
               <Select
                 label="Платёжка"

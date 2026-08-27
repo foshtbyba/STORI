@@ -22,12 +22,11 @@ export default async function NewDayPage({
   const day = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : today;
   const when = new Date(`${day}T00:00:00.000Z`);
 
-  const [buyers, offers, methods, types, saved, entries, period, owed] = await Promise.all([
+  const [buyers, methods, types, saved, entries, period, owed] = await Promise.all([
     prisma.buyer.findMany({ where: { archived: false }, orderBy: { handle: 'asc' } }),
-    prisma.offer.findMany({ where: { status: { in: ['ACTIVE', 'TEST'] } }, orderBy: { name: 'asc' } }),
     prisma.paymentMethod.findMany({ where: { archived: false }, orderBy: { name: 'asc' } }),
     prisma.consumableType.findMany({ orderBy: { name: 'asc' } }),
-    prisma.dayReport.findMany({ where: { date: when, offerId: null } }),
+    prisma.dayReport.findMany({ where: { date: when } }),
     prisma.consumableEntry.findMany({ where: { date: when, note: GRID_CONSUMABLE_NOTE } }),
     prisma.period.findUnique({ where: { key: periodKey(when) } }),
     // Всё, что до этой даты включительно и ещё не закинуто, плюс уже закрытое
@@ -89,7 +88,6 @@ export default async function NewDayPage({
       <DayForm
         today={day}
         buyers={buyers.map((b) => ({ id: b.id, label: b.handle }))}
-        offers={offers.map((o) => ({ id: o.id, label: o.name }))}
         methods={methods.map((m) => ({ id: m.id, label: m.name, bps: m.commissionBps }))}
       />
 
