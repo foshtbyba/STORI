@@ -1,5 +1,6 @@
 import { getTerrain, DEFAULT_TERRAIN, type TerrainConfig } from '@/lib/terrain';
 import { usd } from '@/lib/money';
+import Compass, { type RingStyle } from './Compass';
 import type { Tier } from '@/lib/salary';
 
 export type Climber = {
@@ -35,11 +36,13 @@ export default function Mountain({
   tiers,
   viewerId,
   config = DEFAULT_TERRAIN,
+  ringStyle = 1,
 }: {
   climbers: Climber[];
   tiers: Tier[];
   viewerId?: string | null;
   config?: TerrainConfig;
+  ringStyle?: RingStyle;
 }) {
   const terrain = getTerrain(config);
   const { centre, squash, height: HMAX } = config;
@@ -82,6 +85,7 @@ export default function Mountain({
   // неровность по высоте — получается серпантин, а не подъём по линейке.
   const ray = (from: number, to: number, fromAng: number, toAng: number, wobble: number, steps: number) => {
     let d = '';
+    let start = { x: 0, y: 0 };
     const marks: { x: number; y: number }[] = [];
     for (let i = 0; i <= steps; i++) {
       const f = i / steps;
@@ -95,9 +99,10 @@ export default function Mountain({
         Math.max(0.02, Math.min(0.99, from + f * (to - from) + lift)),
       );
       d += `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`;
+      if (i === 0) start = { x, y };
       if (i % Math.round(steps / 3) === 0) marks.push({ x, y });
     }
-    return { d, marks };
+    return { d, marks, start };
   };
 
   const covered = viewer
@@ -108,52 +113,6 @@ export default function Mountain({
       ? ray(viewerLevel!, 0.975, viewer.angle, viewer.angle + 58, 20, 44).d +
         `L${terrain.summit[0].toFixed(1)} ${terrain.summit[1].toFixed(1)}`
       : '';
-
-  /**
-   * Компас собран как на карте: у подошвы горы идёт тонкое кольцо, а снаружи по
-   * его периметру — полоса насечек. В полосе оставлены разрывы, и в них сидят
-   * стороны света.
-   */
-  const CARDINAL_DEGS = [208, 332, 28, 152];
-
-  /** Кратчайшее угловое расстояние до ближайшей буквы, в градусах. */
-  const gapTo = (deg: number) =>
-    Math.min(...CARDINAL_DEGS.map((c) => Math.abs(((((deg - c) % 360) + 540) % 360) - 180)));
-
-  /**
-   * Внешняя нормаль к эллипсу. Радиус тут не годится: у сплющенного круга
-   * насечка по радиусу выходит длинной сбоку и коротышкой сверху.
-   */
-  const normal = (a: number): [number, number] => {
-    const nx = Math.cos(a);
-    const ny = Math.sin(a) / squash;
-    const len = Math.hypot(nx, ny) || 1;
-    return [nx / len, ny / len];
-  };
-  const onRing = (a: number): [number, number] => [
-    centre.x + BASE * Math.cos(a),
-    centre.y + BASE * squash * Math.sin(a),
-  ];
-
-  const ticks = Array.from({ length: 180 }, (_, i) => i * 2)
-    .filter((deg) => gapTo(deg) > 13)
-    .map((deg) => {
-      const a = (deg * Math.PI) / 180;
-      const major = Math.round(deg) % 10 === 0;
-      const [nx, ny] = normal(a);
-      const [px, py] = onRing(a);
-      const from = 7;
-      const to = from + (major ? 26 : 13);
-      return {
-        deg,
-        x1: px + nx * from,
-        y1: py + ny * from,
-        x2: px + nx * to,
-        y2: py + ny * to,
-        c: major ? '#c0c0c0' : '#787878',
-        w: major ? 2.6 : 1.7,
-      };
-    });
 
   const rules = tiers
     .filter((t, i, all) => all.findIndex((o) => o.ratePct === t.ratePct) === i)
@@ -170,22 +129,6 @@ export default function Mountain({
     })
     .filter((r) => r.visible);
 
-  /**
-   * Стороны света — обычные прямые буквы в разрывах насечек, как на карте.
-   * Никаких поворотов и сплющиваний: любой наклон на этом ракурсе кладёт букву
-   * набок, а читаться она должна с первого взгляда.
-   */
-  const cardinals = CARDINAL_DEGS.map((deg, i) => {
-    const a = (deg * Math.PI) / 180;
-    const [nx, ny] = normal(a);
-    const [px, py] = onRing(a);
-    return {
-      t: ['W', 'N', 'E', 'S'][i],
-      x: px + nx * 26,
-      y: py + ny * 26,
-    };
-  });
-
   return (
     <div className="relative mt-0.5">
       <svg viewBox={`${VIEW.x} ${VIEW.y} ${VIEW.w} ${VIEW.h}`} className="block h-auto w-full">
@@ -197,21 +140,7 @@ export default function Mountain({
         </defs>
         <ellipse cx={centre.x} cy={centre.y} rx={520} ry={204} fill="url(#peak-glow)" />
 
-        {ticks.map((t, i) => (
-          <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke={t.c} strokeWidth={t.w} />
-        ))}
-        {/* Кольцо у подошвы; полоса насечек идёт снаружи от него. */}
-        <ellipse cx={centre.x} cy={centre.y} rx={BASE} ry={BASE * squash} fill="none"
-          stroke="#5e9a93" strokeWidth={1.7} opacity={0.95} />
-
-        {cardinals.map((c) => (
-          <text key={c.t} transform={`translate(${c.x} ${c.y}) skewX(-10)`}
-            textAnchor="middle" dominantBaseline="middle"
-            fill="#e4e4e4" stroke="#1c1c1d" strokeWidth={9} paintOrder="stroke"
-            fontFamily="var(--font-sans), sans-serif" fontSize={42} fontWeight={700} opacity={0.9}>
-            {c.t}
-          </text>
-        ))}
+        <Compass style={ringStyle} centre={centre} squash={squash} radius={BASE} />
 
         {terrain.bands.map((b, i) => (
           <path
@@ -238,6 +167,15 @@ export default function Mountain({
         {covered?.marks.map((m, i) => (
           <circle key={i} cx={m.x} cy={m.y} r={3.2} fill="#8a8a8a" opacity={0.9} />
         ))}
+
+        {/* Флажок в точке старта: отсюда человек начал подъём. */}
+        {covered ? (
+          <g transform={`translate(${covered.start.x.toFixed(1)} ${covered.start.y.toFixed(1)})`}>
+            <line x1={0} y1={0} x2={0} y2={-34} stroke="#e4e4e4" strokeWidth={2.2} strokeLinecap="round" />
+            <path d="M0 -34 L22 -27 L0 -20 Z" fill="#e4e4e4" />
+            <circle cx={0} cy={0} r={3.6} fill="#e4e4e4" />
+          </g>
+        ) : null}
 
         <line x1={1300} y1={centre.y - HMAX} x2={1300} y2={centre.y} stroke="#2e2e2f" strokeWidth={1} />
         {rules.map((r) => (

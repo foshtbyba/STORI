@@ -3,6 +3,7 @@ import { currentPeriodKey, teamSummary, defaultTiers } from '@/lib/queries';
 import { periodLabel } from '@/lib/period';
 import { usd } from '@/lib/money';
 import { parseTiers } from '@/lib/salary';
+import { DEFAULT_TERRAIN, weekSeed } from '@/lib/terrain';
 import Mountain, { type Climber } from '@/components/Mountain';
 import Tilt from '@/components/Tilt';
 import { Panel, PanelHead, Sub, Avatar, Empty } from '@/components/ui';
@@ -176,7 +177,12 @@ export default async function PeakPage() {
           }
         />
         <Tilt>
-          <Mountain climbers={climbers} tiers={tiers} viewerId={viewerId} />
+          <Mountain
+            climbers={climbers}
+            tiers={tiers}
+            viewerId={viewerId}
+            config={{ ...DEFAULT_TERRAIN, seed: weekSeed() }}
+          />
         </Tilt>
       </Panel>
     </div>

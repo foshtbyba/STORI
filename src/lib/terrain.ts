@@ -12,6 +12,11 @@
  */
 
 export type TerrainConfig = {
+  /**
+   * Зерно шума. Меняешь — получаешь другую гору той же породы: те же пропорции
+   * и та же плотность гребней, но иной рисунок склонов.
+   */
+  seed: number;
   /** Grid resolution. Higher = finer contours and a slower build. */
   grid: number;
   /**
@@ -42,6 +47,7 @@ export type TerrainConfig = {
 };
 
 export const DEFAULT_TERRAIN: TerrainConfig = {
+  seed: 0,
   grid: 184,
   extent: 1.22,
   levels: 46,
@@ -84,9 +90,12 @@ export type Terrain = {
   rightEdge: (level: number) => number;
 };
 
-function makeNoise() {
+function makeNoise(seed: number) {
+  // Зерно уводит решётку шума в сторону: рисунок другой, статистика та же.
+  const sx = 1 + ((seed * 0.6180339887) % 1) * 3.7;
+  const sy = 1 + ((seed * 0.7548776662) % 1) * 3.7;
   const hash = (i: number, j: number) => {
-    const t = Math.sin(i * 127.1 + j * 311.7) * 43758.5453;
+    const t = Math.sin((i + sx) * 127.1 + (j + sy) * 311.7 + seed * 57.13) * 43758.5453;
     return t - Math.floor(t);
   };
   const value = (x: number, y: number, freq: number) => {
@@ -110,7 +119,7 @@ function makeNoise() {
 }
 
 export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
-  const { value: noise, ridged } = makeNoise();
+  const { value: noise, ridged } = makeNoise(config.seed ?? 0);
   const { grid: GN, squash: SQ, radius: RX, height: HMAX, centre } = config;
   const EXT = config.extent ?? 1.22;
 
@@ -304,15 +313,36 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
   };
 }
 
+// Кэш ограничен: зерно меняется каждую неделю, и без предела карта росла бы
+// вместе с аптаймом процесса.
+const CACHE_LIMIT = 4;
 const cache = new Map<string, Terrain>();
 
 /** Build once per config; the shape never depends on the data drawn on it. */
 export function getTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
   const k = JSON.stringify(config);
-  let terrain = cache.get(k);
-  if (!terrain) {
-    terrain = buildTerrain(config);
-    cache.set(k, terrain);
+  const hit = cache.get(k);
+  if (hit) {
+    // Освежаем позицию, чтобы вытеснялась самая давняя запись.
+    cache.delete(k);
+    cache.set(k, hit);
+    return hit;
   }
+  const terrain = buildTerrain(config);
+  cache.set(k, terrain);
+  if (cache.size > CACHE_LIMIT) cache.delete(cache.keys().next().value as string);
   return terrain;
+}
+
+/**
+ * Номер недели по ISO. Гора живёт неделю: в понедельник рисунок склонов
+ * меняется, пропорции и пороги остаются прежними.
+ */
+export function weekSeed(date = new Date()) {
+  const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  // Четверг той же недели однозначно задаёт год по ISO.
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const week = Math.ceil(((d.getTime() - yearStart.getTime()) / 86_400_000 + 1) / 7);
+  return d.getUTCFullYear() * 100 + week;
 }
