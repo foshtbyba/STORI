@@ -34,14 +34,27 @@ export default function Mountain({
 }) {
   const terrain = getTerrain(config);
   const { centre, squash, height: HMAX } = config;
-  const top = climbers.reduce((a, b) => (b.profitCents > a.profitCents ? b : a), climbers[0]);
-  const peakCents = Math.max(top?.profitCents ?? 1, 1);
+  // Вершина — не «лучший из присутствующих», а верхний порог лесенки. Иначе
+  // человек с сотней долларов стоял бы на пике только потому, что он один, и
+  // пороги ставок уезжали бы за пределы горы.
+  const summitCents = Math.max(1, tiers[tiers.length - 1]?.fromCents ?? 1_000_000);
+
+  // Взявших верхний порог может быть несколько; на сам пик ставим лучшего,
+  // остальные держатся чуть ниже на своих азимутах, иначе метки слипаются.
+  const leader = climbers.reduce((a, b) => (b.profitCents > a.profitCents ? b : a), climbers[0]);
 
   const pins = climbers.map((c) => {
-    const level = Math.max(0.02, Math.min(1, c.profitCents / peakCents));
-    const isTop = c.id === top?.id;
-    const [sx, sy] = isTop ? terrain.summit : terrain.surfacePoint(c.angle, level);
-    const py = sy - c.stem;
+    const level = Math.max(0.02, Math.min(1, c.profitCents / summitCents));
+    // На пик встаёт только тот, кто действительно взял верхний порог.
+    const isTop = c.profitCents >= summitCents;
+    const atSummit = isTop && c.id === leader?.id;
+    const [sx, sy] = atSummit
+      ? terrain.summit
+      : terrain.surfacePoint(c.angle, Math.min(level, 0.92));
+    // Чем выше метка, тем короче ножка: у вершины длинная выносила подпись
+    // прямо на чужую метку.
+    const stem = atSummit ? c.stem : c.stem * (0.38 + 0.62 * (1 - level));
+    const py = sy - stem;
     const me = c.id === viewerId;
     return {
       ...c, sx, sy, py, me, isTop,
@@ -52,7 +65,9 @@ export default function Mountain({
 
   const viewer = pins.find((p) => p.me) ?? null;
   const viewerOnTop = viewer?.isTop ?? false;
-  const viewerLevel = viewer ? Math.min(0.985, Math.max(0.09, viewer.profitCents / peakCents)) : null;
+  const viewerLevel = viewer
+    ? Math.min(0.985, Math.max(0.09, viewer.profitCents / summitCents))
+    : null;
 
   const ray = (from: number, to: number, fromAng: number, toAng: number, wobble: number, steps: number) => {
     let d = '';
@@ -94,7 +109,7 @@ export default function Mountain({
   const rules = tiers
     .filter((t, i, all) => all.findIndex((o) => o.ratePct === t.ratePct) === i)
     .map((tier) => {
-      const level = tier.fromCents / peakCents;
+      const level = tier.fromCents / summitCents;
       return {
         y: centre.y - level * HMAX,
         x1: level <= 1 ? terrain.rightEdge(Math.min(level, 0.99)) + 16 : centre.x,
@@ -214,41 +229,6 @@ export default function Mountain({
         </div>
       ))}
 
-      {viewer ? <Banner onTop={viewerOnTop} viewer={viewer} peakCents={peakCents} /> : null}
-    </div>
-  );
-}
-
-function Banner({
-  onTop,
-  viewer,
-  peakCents,
-}: {
-  onTop: boolean;
-  viewer: { profitCents: number };
-  peakCents: number;
-}) {
-  const left = peakCents - viewer.profitCents;
-  return (
-    <div
-      className="absolute left-3.5 top-2.5 flex items-center gap-3 rounded-full py-2.5 pl-3 pr-4.5"
-      style={{
-        background: onTop ? '#252e1e' : '#232324',
-        border: `1px solid ${onTop ? '#b4c68c' : '#e4e4e4'}`,
-      }}
-    >
-      <span className="flex h-[26px] w-[26px] items-center justify-center rounded-full"
-        style={{ background: onTop ? '#b4c68c' : '#e4e4e4' }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1c1c1d" strokeWidth={2.4}
-          strokeLinejoin="round" aria-hidden>
-          <path d={onTop ? 'M6 12l4 4 8-8' : 'M6 20V5l11 3.5L6 12'} />
-        </svg>
-      </span>
-      <span className="text-[13.5px] font-semibold" style={{ color: onTop ? '#b4c68c' : '#e4e4e4' }}>
-        {onTop
-          ? 'Ты на вершине. Не падай, чемпион )'
-          : `Твой путь: пройдено ${usd(viewer.profitCents, { round: true })}, до вершины ещё ${usd(left, { round: true })}`}
-      </span>
     </div>
   );
 }
