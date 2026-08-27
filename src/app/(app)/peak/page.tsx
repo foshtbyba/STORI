@@ -94,7 +94,7 @@ export default async function PeakPage() {
     toAng: number,
     wobble: number,
     steps: number,
-    opts: { switchback?: boolean; toUV?: [number, number] } = {},
+    opts: { switchback?: boolean; toUV?: [number, number, number] } = {},
   ) {
     const out: number[] = [];
     for (let i = 0; i <= steps; i++) {
@@ -121,15 +121,18 @@ export default async function PeakPage() {
       // просили: иначе на пологом направлении линия уходит в воздух.
       let [u, v, level] = terrain.surfaceUV(fromAng + prog * (toAng - fromAng) + swing, want);
 
-      // Хвост сходится к нужной точке у самого конца: раньше начнёшь —
-      // получится длинная прямая через склон вместо тропы.
-      if (opts.toUV && f > 0.9) {
-        const w = (f - 0.9) / 0.1;
+      // Хвост сходится к нужной точке у самого конца — и по координатам, и по
+      // высоте. Тянуть только координаты бесполезно: точка встаёт над пиком
+      // горизонтально, но остаётся на высоте своего луча, то есть на уступе.
+      let z = level;
+      if (opts.toUV && f > 0.86) {
+        const w = (f - 0.86) / 0.14;
         const k = w * w * (3 - 2 * w);
         u += (opts.toUV[0] - u) * k;
         v += (opts.toUV[1] - v) * k;
+        z += (opts.toUV[2] - z) * k;
       }
-      out.push(u, v, level);
+      out.push(u, v, z);
     }
     return out;
   }
@@ -137,6 +140,12 @@ export default async function PeakPage() {
   const myPin = pins.find((p) => p.me) ?? null;
   const myLevel = myPin ? Math.min(0.985, Math.max(0.09, myPin.level)) : null;
   const myAngle = myPin ? BEARINGS[pins.indexOf(myPin) % BEARINGS.length] : 0;
+  // Азимут самой вершины: к ней и ведём хвост, иначе тропа лезет по гребню,
+  // который до пика не дотягивается, и упирается в уступ.
+  const summitAngle =
+    (Math.atan2(terrain.raw.summit[1], terrain.raw.summit[0]) * 180) / Math.PI;
+  // Идём к вершине по короткой дуге, а не через полкруга.
+  const sweep = ((summitAngle - myAngle + 540) % 360) - 180;
   const route: Route3D | null = myPin
     ? {
         covered: trail(
@@ -146,12 +155,12 @@ export default async function PeakPage() {
           myPin.onTop ? 178 : myAngle,
           22,
           80,
-          { switchback: true, toUV: [myPin.u, myPin.v] },
+          { switchback: true, toUV: [myPin.u, myPin.v, myPin.level] },
         ),
         remaining: myPin.onTop
           ? []
-          : trail(myLevel!, 0.975, myAngle, myAngle + 58, 20, 80, {
-              toUV: terrain.raw.summit,
+          : trail(myLevel!, 0.975, myAngle, myAngle + sweep, 16, 90, {
+              toUV: [terrain.raw.summit[0], terrain.raw.summit[1], 0.975],
             }),
       }
     : null;
