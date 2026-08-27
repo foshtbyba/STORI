@@ -1,48 +1,46 @@
 /**
- * Плоские горизонтали фоном. Не проекция горы, а ровные линии в 2D: они просто
- * бегут поперёк ряда и уходят на соседние блоки, связывая их в одну картинку.
- * Каждая пятая — толще, как на бумажной карте.
+ * Плоские горизонтали фоном. Не проекция горы, а ровные линии в 2D: они идут
+ * поперёк всего ряда от края до края и связывают соседние блоки в одну
+ * картинку. Каждая пятая толще — как на бумажной карте.
  */
 
-const W = 1000;
-const H = 300;
-const LINES = 30;
-const STEP = 14;
+const W = 1200;
+const H = 320;
+const LINES = 26;
+const STEP = H / (LINES - 1);
 
-/** Детерминированный шум по индексу: одинаковый рисунок при каждом рендере. */
-function jitter(i: number, k: number) {
-  const t = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453;
-  return t - Math.floor(t);
+/** Форма гребня. Одна на все линии — поэтому они не пересекаются. */
+function ridge(t: number) {
+  return (
+    Math.sin(t * 3.1 - 0.6) * 0.55 +
+    Math.sin(t * 1.4 + 1.9) * 0.32 +
+    Math.sin(t * 6.7 + 0.3) * 0.13
+  );
 }
 
 function line(i: number) {
-  const base = H / 2 + (i - (LINES - 1) / 2) * STEP;
-  // Ближе к середине полосы амплитуда больше — линии расходятся, как вокруг
-  // гребня, но остаются плоскими.
+  const base = i * STEP;
+  // Чем дальше от середины полосы, тем спокойнее линия: в центре гребень,
+  // к краям рельеф сходит на нет.
   const centre = 1 - Math.abs(i - (LINES - 1) / 2) / ((LINES - 1) / 2);
-  const amp = 6 + centre * 26;
-  const phase = jitter(i, 1) * Math.PI * 2;
-  const drift = (jitter(i, 2) - 0.5) * 6;
+  const amp = STEP * (0.5 + centre * 2.6);
 
   const points: string[] = [];
-  for (let x = 0; x <= W; x += 20) {
+  for (let x = 0; x <= W; x += 12) {
     const t = x / W;
-    const y =
-      base +
-      drift +
-      amp * Math.sin(t * 5.2 + phase) * 0.6 +
-      amp * Math.sin(t * 2.1 + phase * 1.7) * 0.4 +
-      amp * 0.18 * Math.sin(t * 11.3 + phase * 0.4);
-    points.push(`${x},${y.toFixed(1)}`);
+    // Края притягиваем к базовой линии, чтобы полоса уходила в край ровно,
+    // а не обрывалась на середине волны.
+    const ease = Math.sin(Math.PI * Math.min(1, Math.max(0, t))) ** 0.6;
+    points.push(`${x},${(base + ridge(t) * amp * ease).toFixed(1)}`);
   }
-  return `M${points.join(' L')}`;
+  return { d: `M${points.join(' L')}`, index: i % 5 === 0 };
 }
 
-const PATHS = Array.from({ length: LINES }, (_, i) => ({ d: line(i), index: i % 5 === 0 }));
+const PATHS = Array.from({ length: LINES }, (_, i) => line(i));
 
 export default function Contours({
   className = '',
-  opacity = 0.9,
+  opacity = 1,
   color = '#b4c68c',
 }: {
   className?: string;
@@ -57,10 +55,13 @@ export default function Contours({
     >
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-full w-full">
         <defs>
+          {/* Линии доходят до самого края: гасим только последние проценты,
+              чтобы срез не читался прямой вертикалью. */}
           <linearGradient id="contour-fade" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stopColor={color} stopOpacity="0.02" />
-            <stop offset="0.3" stopColor={color} stopOpacity="0.17" />
-            <stop offset="0.75" stopColor={color} stopOpacity="0.09" />
+            <stop offset="0" stopColor={color} stopOpacity="0" />
+            <stop offset="0.06" stopColor={color} stopOpacity="0.13" />
+            <stop offset="0.5" stopColor={color} stopOpacity="0.15" />
+            <stop offset="0.94" stopColor={color} stopOpacity="0.13" />
             <stop offset="1" stopColor={color} stopOpacity="0" />
           </linearGradient>
         </defs>
@@ -70,7 +71,7 @@ export default function Contours({
             d={p.d}
             fill="none"
             stroke="url(#contour-fade)"
-            strokeWidth={p.index ? 1.9 : 1}
+            strokeWidth={p.index ? 1.7 : 0.9}
             strokeLinecap="round"
             vectorEffect="non-scaling-stroke"
           />

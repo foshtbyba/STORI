@@ -4,6 +4,7 @@ import { periodKey } from '@/lib/period';
 import { DEFAULT_COMMISSION_BPS } from '@/lib/money';
 import { GRID_CONSUMABLE_NOTE } from '@/lib/consumables';
 import DayGrid, { type GridSeed } from '@/components/DayGrid';
+import TopUps, { type TopUpRow } from '@/components/TopUps';
 import DayForm from '@/components/DayForm';
 import QuickImport from '@/components/QuickImport';
 
@@ -21,7 +22,7 @@ export default async function NewDayPage({
   const day = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : today;
   const when = new Date(`${day}T00:00:00.000Z`);
 
-  const [buyers, offers, methods, types, saved, entries, period] = await Promise.all([
+  const [buyers, offers, methods, types, saved, entries, period, owed] = await Promise.all([
     prisma.buyer.findMany({ where: { archived: false }, orderBy: { handle: 'asc' } }),
     prisma.offer.findMany({ where: { status: { in: ['ACTIVE', 'TEST'] } }, orderBy: { name: 'asc' } }),
     prisma.paymentMethod.findMany({ where: { archived: false }, orderBy: { name: 'asc' } }),
@@ -29,6 +30,12 @@ export default async function NewDayPage({
     prisma.dayReport.findMany({ where: { date: when, offerId: null } }),
     prisma.consumableEntry.findMany({ where: { date: when, note: GRID_CONSUMABLE_NOTE } }),
     prisma.period.findUnique({ where: { key: periodKey(when) } }),
+    // Всё, что до этой даты включительно и ещё не закинуто, плюс уже закрытое
+    // за этот день — из этого складывается «сколько нужно закинуть».
+    prisma.dayReport.findMany({
+      where: { date: { lte: when } },
+      select: { buyerId: true, date: true, spendGrossCents: true, toppedUpAt: true },
+    }),
   ]);
 
   const defaultBps = DEFAULT_COMMISSION_BPS;
@@ -48,6 +55,23 @@ export default async function NewDayPage({
     };
   });
 
+  const dayMs = when.getTime();
+  const topUps: TopUpRow[] = buyers
+    .map((b) => {
+      const mine = owed.filter((d) => d.buyerId === b.id);
+      const add = (rows: typeof mine) => rows.reduce((a, d) => a + d.spendGrossCents, 0);
+      return {
+        buyerId: b.id,
+        handle: b.handle,
+        initials: b.initials,
+        color: b.color,
+        todayCents: add(mine.filter((d) => !d.toppedUpAt && d.date.getTime() === dayMs)),
+        debtCents: add(mine.filter((d) => !d.toppedUpAt && d.date.getTime() < dayMs)),
+        settledCents: add(mine.filter((d) => d.toppedUpAt)),
+      };
+    })
+    .filter((r) => r.todayCents + r.debtCents + r.settledCents > 0);
+
   return (
     <div className="flex flex-col gap-3.5">
       <DayGrid
@@ -59,6 +83,8 @@ export default async function NewDayPage({
         defaultPct={(defaultBps / 100).toString()}
         locked={period?.status === 'CLOSED'}
       />
+
+      {topUps.length > 0 ? <TopUps date={day} rows={topUps} /> : null}
 
       <DayForm
         today={day}

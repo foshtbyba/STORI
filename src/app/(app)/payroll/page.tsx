@@ -3,7 +3,7 @@ import { canSeeTeam, type Role } from '@/lib/roles';
 import { currentPeriodKey, teamSummary } from '@/lib/queries';
 import { periodLabel } from '@/lib/period';
 import { usd, rub, sum } from '@/lib/money';
-import { payrollTotals } from '@/lib/salary';
+import { payrollTotals, okladCents, DEFAULT_FIXED_RUB } from '@/lib/salary';
 import { closePeriod, reopenPeriod } from '@/app/actions/period';
 import { Panel, PanelHead, Sub, Avatar, Empty, Formula } from '@/components/ui';
 import { Meter } from '@/components/Charts';
@@ -41,35 +41,47 @@ export default async function PayrollPage({
     await reopenPeriod(key);
   }
 
+  // Выигрыш считаем от того, что человек получает сейчас, — на окладе это не
+  // разница двух процентов, а разница между окладом и первым порогом.
   const gaps = rows
     .filter((r) => r.next)
     .map((r) => ({
       handle: r.buyer.handle,
       need: r.next!.needCents,
-      gain: r.next!.gainCents,
+      gain: Math.max(
+        0,
+        Math.round((r.next!.fromCents * r.next!.ratePct) / 100) - r.salaryCents,
+      ),
       to: r.next!.fromCents,
       progress: Math.max(0, Math.min(100, (r.baseCents / r.next!.fromCents) * 100)),
     }))
     .sort((a, b) => b.gain - a.gain);
 
-  const ladder = rows[0] ? JSON.parse(rows[0].buyer.salaryRule?.tiersJson ?? '[]') : [];
+  const ladder: { fromCents: number; ratePct: number }[] = rows[0]
+    ? JSON.parse(rows[0].buyer.salaryRule?.tiersJson ?? '[]')
+    : [];
+  // Минимальный порог — первая ступенька лесенки; ниже неё процента нет.
+  const minTier = ladder[0]?.fromCents ?? 0;
+  const okladRub = rows[0]?.buyer.salaryRule?.fixedRub ?? DEFAULT_FIXED_RUB;
+  const okladUsdCents = okladCents(okladRub, rate);
 
   return (
     <div className="flex flex-col gap-3.5">
-      <div className="grid grid-cols-[1.25fr_repeat(3,1fr)] gap-3.5">
-        <Panel className="relative z-10 flex flex-col justify-between overflow-visible p-6">
-          {/* Горизонтали продолжаются на карточки справа — ряд читается одной картой. */}
-          <Contours className="inset-y-0 left-[42%] -right-[200%]" />
+      {/* Горизонтали идут поверх всего ряда от края до края — четыре карточки
+          читаются одной картой. */}
+      <div className="relative grid grid-cols-[1.25fr_repeat(3,1fr)] gap-3.5">
+        <Contours className="inset-0 z-20" />
+        <Panel className="flex flex-col justify-between p-6">
           <PanelHead
             icon={<IconWallet color="#b4c68c" />}
             tint="bg-sage-t"
             title={team ? 'Фонд зарплаты' : 'К выплате'}
           />
-          <div className="relative text-[58px] font-bold leading-none tracking-[-0.035em]">
+          <div className="text-[58px] font-bold leading-none tracking-[-0.035em]">
             <span className="text-[32px] text-mute">$</span>
             {usd(totals.total).replace('$', '')}
           </div>
-          <div className="n relative text-[12.5px] text-mute">{rub(totals.total, rate)}</div>
+          <div className="n text-[12.5px] text-mute">{rub(totals.total, rate)}</div>
         </Panel>
         {[
           {
@@ -134,8 +146,12 @@ export default async function PayrollPage({
           />
           <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
             {team
-              ? 'Ставка у каждого своя — она определяется порогом, который он взял, и применяется ко всей сумме, а не только к превышению. В строке выше показана средняя по команде.'
-              : 'Ставка определяется порогом, который ты взял, и применяется ко всей сумме, а не только к превышению над порогом.'}
+              ? 'Ставка у каждого своя — она определяется порогом, который он взял, и применяется ко всей сумме, а не только к превышению. В строке выше показана средняя по команде. '
+              : 'Ставка определяется порогом, который ты взял, и применяется ко всей сумме, а не только к превышению над порогом. '}
+            Ниже минимального порога {usd(minTier)} процента нет — платим оклад{' '}
+            <span className="n text-soft">{okladRub.toLocaleString('ru-RU')} ₽</span>. Он же
+            остаётся, если период закрыт в минус: оклад — нижняя граница выплаты, а не добавка
+            сверху.
           </p>
         </div>
 
@@ -161,7 +177,9 @@ export default async function PayrollPage({
               <span>
                 <span className="block text-[14.5px] font-semibold">{row.buyer.handle}</span>
                 <span className="block text-[11.5px] text-mute">
-                  {row.ratePct ? `порог взят · ${row.ratePct}%` : 'порог не взят'}
+                  {row.onOklad
+                    ? `на окладе · ${rub(row.fixedCents, rate)}`
+                    : `порог взят · ${row.ratePct}%`}
                 </span>
               </span>
             </span>
@@ -172,16 +190,16 @@ export default async function PayrollPage({
               <span
                 className="n inline-block rounded-full px-2.5 py-1 text-[12px]"
                 style={{
-                  background: row.ratePct ? '#252e1e' : '#2c1f1a',
-                  color: row.ratePct ? '#b4c68c' : '#ce6e58',
+                  background: row.onOklad ? '#2c1f1a' : '#252e1e',
+                  color: row.onOklad ? '#ce6e58' : '#b4c68c',
                 }}
               >
-                {row.ratePct ? `${row.ratePct}%` : '—'}
+                {row.onOklad ? 'оклад' : `${row.ratePct}%`}
               </span>
             </span>
             <span
               className="n text-right text-[18px] font-semibold"
-              style={{ color: row.ratePct ? '#b4c68c' : '#ce6e58' }}
+              style={{ color: row.onOklad ? '#ce6e58' : '#b4c68c' }}
             >
               {usd(row.salaryCents)}
             </span>
@@ -223,7 +241,25 @@ export default async function PayrollPage({
               </span>
             }
           />
-          <div className="mt-5 grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.max(1, ladder.length)}, minmax(0,1fr))` }}>
+          <div
+            className="mt-5 grid gap-3"
+            style={{ gridTemplateColumns: `repeat(${Math.max(1, ladder.length) + 1}, minmax(0,1fr))` }}
+          >
+            <div>
+              <div className="n mb-2 text-[12px] text-mute">до {usd(minTier)}</div>
+              <div
+                className="flex items-start justify-center rounded-[16px] pt-3.5"
+                style={{ height: 69, background: '#2c1f1a' }}
+              >
+                <span className="n text-[15px] font-bold text-rust">оклад</span>
+              </div>
+              <Sub className="mt-2.5 px-3 py-2.5">
+                <div className="n text-[14px] font-semibold">{usd(okladUsdCents)}</div>
+                <div className="n mt-1 text-[11px] text-mute">
+                  {okladRub.toLocaleString('ru-RU')} ₽
+                </div>
+              </Sub>
+            </div>
             {ladder.map((tier: { fromCents: number; ratePct: number }) => (
               <div key={tier.fromCents}>
                 <div className="n mb-2 text-[12px] text-mute">от {usd(tier.fromCents)}</div>

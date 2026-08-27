@@ -26,6 +26,18 @@ export function parseTiers(json: string | null | undefined): Tier[] {
   }
 }
 
+/** Оклад за период по умолчанию, в рублях. */
+export const DEFAULT_FIXED_RUB = 10_000;
+
+/**
+ * Оклад задан в рублях, а вся арифметика идёт в долларовых центах. Курс
+ * хранится в сотых (8400 = 84,00 ₽/$), отсюда множитель.
+ */
+export function okladCents(fixedRub: number, rubPerUsd: number) {
+  if (!rubPerUsd) return 0;
+  return Math.round((fixedRub * 10_000) / rubPerUsd);
+}
+
 export function rateFor(baseCents: number, tiers: Tier[]): number {
   let rate = 0;
   for (const tier of tiers) if (baseCents >= tier.fromCents) rate = tier.ratePct;
@@ -52,20 +64,34 @@ export type PayoutInput = {
   consumableCents: number;
   consumablesAffectSalary: boolean;
   tiers: Tier[];
-  fixedCents?: number;
+  fixedRub?: number;
+  /** Курс в сотых: нужен, чтобы перевести рублёвый оклад в доллары. */
+  rubPerUsd: number;
   bonusCents?: number;
 };
 
+/**
+ * Оклад — нижняя граница, а не добавка. Не взял минимальный порог или ушёл в
+ * минус — получаешь оклад и ничего сверх него. Взял порог — процент считается
+ * со всей суммы и оклад в нём растворяется.
+ */
 export function computePayout(input: PayoutInput) {
   const baseCents = input.consumablesAffectSalary
     ? input.profitCents - input.consumableCents
     : input.profitCents;
   const ratePct = baseCents > 0 ? rateFor(baseCents, input.tiers) : 0;
-  const salaryCents = Math.max(0, Math.round((baseCents * ratePct) / 100)) + (input.fixedCents ?? 0);
+  const tierCents = Math.max(0, Math.round((baseCents * ratePct) / 100));
+  const fixedCents = okladCents(input.fixedRub ?? DEFAULT_FIXED_RUB, input.rubPerUsd);
+  const onOklad = tierCents <= fixedCents;
+  const salaryCents = onOklad ? fixedCents : tierCents;
   const bonusCents = input.bonusCents ?? 0;
   return {
     baseCents,
     ratePct,
+    tierCents,
+    fixedCents,
+    /** Выплату вытянул оклад, а не процент. */
+    onOklad,
     salaryCents,
     bonusCents,
     totalCents: salaryCents + bonusCents,

@@ -66,8 +66,11 @@ model SalaryRule {
   id         String  @id @default(cuid())
   name       String
   tiersJson  String
-  /// Fixed monthly salary paid on top of the percentage, in USD cents.
-  fixedCents Int     @default(0)
+  /// Оклад за период, в рублях. Платится всегда — даже если баер не взял
+  /// минимальный порог или закрыл месяц в минус. Как только процент по порогу
+  /// перерастает оклад, платим процент: оклад работает нижней границей, а не
+  /// добавкой сверху.
+  fixedRub   Int     @default(10000)
   buyers     Buyer[]
 }
 
@@ -119,6 +122,10 @@ model DayReport {
   /// spendNet grossed up by the commission. Stored, not derived, so a later
   /// rate change cannot rewrite a closed period.
   spendGrossCents Int
+
+  /// Когда деньги за этот день реально закинули на рекламный кабинет. Пока
+  /// null — сумма висит долгом и приплюсовывается к закиду следующего дня.
+  toppedUpAt DateTime?
 
   note      String   @default("")
   createdAt DateTime @default(now())
@@ -208,6 +215,9 @@ model Attendance {
   buyerId   String
   buyer     Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
   kind      String
+  /// PENDING — заявка баера ждёт админа, APPROVED — отметка действует,
+  /// REJECTED — админ отказал. Всё, что ставит админ, сразу APPROVED.
+  status    String   @default("APPROVED")
   /// Минуты опоздания. Заполняется только для kind = LATE.
   minutes   Int      @default(0)
   note      String   @default("")

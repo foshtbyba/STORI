@@ -74,7 +74,8 @@ export async function teamSummary(key: string) {
       consumableCents,
       consumablesAffectSalary: buyer.consumablesAffectSalary,
       tiers: parseTiers(buyer.salaryRule?.tiersJson),
-      fixedCents: buyer.salaryRule?.fixedCents ?? 0,
+      fixedRub: buyer.salaryRule?.fixedRub,
+      rubPerUsd: period.rubPerUsd,
       bonusCents,
     });
 
@@ -156,7 +157,8 @@ export async function buyerSummary(buyerId: string, key: string) {
     consumableCents,
     consumablesAffectSalary: buyer.consumablesAffectSalary,
     tiers: parseTiers(buyer.salaryRule?.tiersJson),
-    fixedCents: buyer.salaryRule?.fixedCents ?? 0,
+    fixedRub: buyer.salaryRule?.fixedRub,
+    rubPerUsd: period.rubPerUsd,
     bonusCents: sum(bonuses, (b) => b.amountCents),
   });
 

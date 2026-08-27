@@ -47,11 +47,11 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col gap-3.5">
-      <div className="grid grid-cols-[1.55fr_1fr] gap-3.5">
-        <Panel className="relative z-10 overflow-visible p-6">
-          {/* Горизонтали уходят вправо, на соседнюю панель — ряд читается одной картой. */}
-          <Contours className="inset-y-0 left-[38%] -right-[62%]" />
-          <div className="relative">
+      {/* Горизонтали идут поверх всего ряда от края до края — обе панели
+          читаются одной картой. */}
+      <div className="relative grid grid-cols-[1.55fr_1fr] gap-3.5">
+        <Contours className="inset-0 z-20" />
+        <Panel className="p-6">
           <PanelHead
             icon={<IconChart color="#b4c68c" />}
             tint="bg-sage-t"
@@ -81,7 +81,6 @@ export default async function HomePage() {
                 <div className={`n mt-2 text-[19px] font-semibold ${s.color}`}>{s.value}</div>
               </Sub>
             ))}
-          </div>
           </div>
         </Panel>
 
