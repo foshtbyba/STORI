@@ -8,7 +8,6 @@ import { closePeriod, reopenPeriod } from '@/app/actions/period';
 import { Panel, PanelHead, Sub, Avatar, Empty, Formula } from '@/components/ui';
 import { Meter } from '@/components/Charts';
 import { IconWallet, IconWarn, IconChart } from '@/components/icons';
-import Contours from '@/components/Contours';
 
 export default async function PayrollPage({
   searchParams,
@@ -68,10 +67,7 @@ export default async function PayrollPage({
 
   return (
     <div className="flex flex-col gap-3.5">
-      {/* Горизонтали идут поверх всего ряда от края до края — четыре карточки
-          читаются одной картой. */}
-      <div className="relative grid grid-cols-[1.25fr_repeat(3,1fr)] gap-3.5">
-        <Contours className="inset-0 z-20" />
+      <div className="grid grid-cols-[1.25fr_repeat(3,1fr)] gap-3.5">
         <Panel className="flex flex-col justify-between p-6">
           <PanelHead
             icon={<IconWallet color="#b4c68c" />}

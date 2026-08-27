@@ -2,11 +2,14 @@
  * Плоские горизонтали фоном. Не проекция горы, а ровные линии в 2D: они идут
  * поперёк всего ряда от края до края и связывают соседние блоки в одну
  * картинку. Каждая пятая толще — как на бумажной карте.
+ *
+ * Держим их почти на грани видимости и нейтрально-серыми: это фон, поверх
+ * которого читают цифры, а не самостоятельный рисунок.
  */
 
 const W = 1200;
-const H = 320;
-const LINES = 26;
+const H = 760;
+const LINES = 54;
 const STEP = H / (LINES - 1);
 
 /** Форма гребня. Одна на все линии — поэтому они не пересекаются. */
@@ -41,7 +44,7 @@ const PATHS = Array.from({ length: LINES }, (_, i) => line(i));
 export default function Contours({
   className = '',
   opacity = 1,
-  color = '#b4c68c',
+  color = '#c9c9cd',
 }: {
   className?: string;
   opacity?: number;
@@ -58,11 +61,10 @@ export default function Contours({
           {/* Линии доходят до самого края: гасим только последние проценты,
               чтобы срез не читался прямой вертикалью. */}
           <linearGradient id="contour-fade" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stopColor={color} stopOpacity="0" />
-            <stop offset="0.06" stopColor={color} stopOpacity="0.13" />
-            <stop offset="0.5" stopColor={color} stopOpacity="0.15" />
-            <stop offset="0.94" stopColor={color} stopOpacity="0.13" />
-            <stop offset="1" stopColor={color} stopOpacity="0" />
+            <stop offset="0" stopColor={color} stopOpacity="0.12" />
+            <stop offset="0.35" stopColor={color} stopOpacity="0.32" />
+            <stop offset="0.8" stopColor={color} stopOpacity="0.22" />
+            <stop offset="1" stopColor={color} stopOpacity="0.1" />
           </linearGradient>
         </defs>
         {PATHS.map((p, i) => (
@@ -71,7 +73,7 @@ export default function Contours({
             d={p.d}
             fill="none"
             stroke="url(#contour-fade)"
-            strokeWidth={p.index ? 1.7 : 0.9}
+            strokeWidth={p.index ? 1.4 : 0.8}
             strokeLinecap="round"
             vectorEffect="non-scaling-stroke"
           />

@@ -4,6 +4,7 @@ import { canSeeTeam, type Role } from '@/lib/roles';
 import { currentPeriodKey, teamSummary } from '@/lib/queries';
 import { periodLabel } from '@/lib/period';
 import { usd } from '@/lib/money';
+import Contours from '@/components/Contours';
 import TopBar from '@/components/TopBar';
 import Nav from '@/components/Nav';
 import {
@@ -37,7 +38,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-[1440px] flex-col gap-3.5 p-4">
+    <div className="relative mx-auto flex min-h-screen max-w-[1440px] flex-col gap-3.5 p-4">
+      {/*
+        Горизонтали живут на всём экране, а не внутри блока: панели чуть
+        прозрачны, и рисунок проходит под ними насквозь. Слой держим на нулевом
+        уровне, а содержимое поднимаем над ним: отрицательный z-index уводит
+        фон под заливку body, и его попросту не видно.
+      */}
+      <Contours className="fixed inset-0 z-0" />
+      <div className="relative z-10 flex flex-1 flex-col gap-3.5">
       <TopBar
         title={team ? 'MS TEAM' : (user.buyer?.handle ?? user.name)}
         date={periodLabel(key)}
@@ -46,6 +55,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         role={role}
       />
       {children}
+      </div>
     </div>
   );
 }

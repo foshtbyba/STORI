@@ -351,3 +351,78 @@ export async function undoTopUp(buyerId: string, date: string): Promise<ActionRe
   revalidatePath('/days/new');
   return { ok: true };
 }
+
+const DayEdit = z.object({
+  id: z.string().min(1),
+  revenueCents: z.number().int().min(0),
+  spendNetCents: z.number().int().min(0),
+  commissionBps: z.number().int().min(0).max(10_000),
+  note: z.string().max(500),
+});
+
+/** Правка уже записанного дня. Закрытый период не трогаем. */
+export async function updateDay(input: unknown): Promise<ActionResult> {
+  const { user, error } = await assertCanWrite();
+  if (error) return { ok: false, error };
+
+  const parsed = DayEdit.safeParse(input);
+  if (!parsed.success) return { ok: false, error: 'Проверь цифры.' };
+
+  const day = await prisma.dayReport.findUnique({ where: { id: parsed.data.id } });
+  if (!day) return { ok: false, error: 'Такого дня уже нет.' };
+  const closed = await assertPeriodOpen(day.date);
+  if (closed) return { ok: false, error: closed };
+
+  const data = {
+    revenueCents: parsed.data.revenueCents,
+    spendNetCents: parsed.data.spendNetCents,
+    commissionBps: parsed.data.commissionBps,
+    spendGrossCents: grossUp(parsed.data.spendNetCents, parsed.data.commissionBps),
+    note: parsed.data.note,
+  };
+  await prisma.dayReport.update({ where: { id: day.id }, data });
+  await prisma.auditLog.create({
+    data: {
+      actorId: user.id,
+      actorName: user.name,
+      entity: 'DayReport',
+      entityId: day.id,
+      action: 'edit',
+      diffJson: JSON.stringify(data),
+    },
+  });
+
+  revalidatePath('/days');
+  revalidatePath('/');
+  revalidatePath('/peak');
+  revalidatePath('/payroll');
+  return { ok: true };
+}
+
+export async function deleteDay(id: string): Promise<ActionResult> {
+  const { user, error } = await assertCanWrite();
+  if (error) return { ok: false, error };
+
+  const day = await prisma.dayReport.findUnique({ where: { id } });
+  if (!day) return { ok: true };
+  const closed = await assertPeriodOpen(day.date);
+  if (closed) return { ok: false, error: closed };
+
+  await prisma.dayReport.delete({ where: { id } });
+  await prisma.auditLog.create({
+    data: {
+      actorId: user.id,
+      actorName: user.name,
+      entity: 'DayReport',
+      entityId: id,
+      action: 'delete',
+      diffJson: JSON.stringify({ date: day.date, buyerId: day.buyerId }),
+    },
+  });
+
+  revalidatePath('/days');
+  revalidatePath('/');
+  revalidatePath('/peak');
+  revalidatePath('/payroll');
+  return { ok: true };
+}

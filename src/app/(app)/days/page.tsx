@@ -4,8 +4,8 @@ import { canSeeTeam, type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
 import { currentPeriodKey } from '@/lib/queries';
 import { periodBounds, periodLabel, fmtDay, weekdayShort } from '@/lib/period';
-import { usd, profitOf } from '@/lib/money';
-import { Panel, PanelHead, Avatar, Empty } from '@/components/ui';
+import { Panel, PanelHead, Empty } from '@/components/ui';
+import DayRow, { type DayRowData } from '@/components/DayRow';
 import { IconCalendar, IconPlus } from '@/components/icons';
 
 export default async function DaysPage({
@@ -48,7 +48,7 @@ export default async function DaysPage({
         }
       />
 
-      <div className="mt-4 grid grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)] pb-2.5">
+      <div className="mt-4 grid grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)_auto] pb-2.5">
         <span className="lab">День</span>
         <span className="lab">Баер</span>
         <span className="lab">Оффер</span>
@@ -56,42 +56,28 @@ export default async function DaysPage({
         <span className="lab text-right">Спенд</span>
         <span className="lab text-right">С комиссией</span>
         <span className="lab text-right">Профит</span>
+        <span className="lab pl-3 text-right">{canEdit ? 'Правка' : ''}</span>
       </div>
 
       {days.length === 0 ? (
         <Empty>За {periodLabel(key)} отчётов нет.</Empty>
       ) : (
-        days.map((d) => (
-          <div
-            key={d.id}
-            className="grid grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)] items-center border-t border-line py-3"
-          >
-            <span className="flex items-baseline gap-2">
-              <span className="n text-[15px] font-semibold">{fmtDay(d.date)}</span>
-              <span className="text-[11px] text-mute">{weekdayShort(d.date)}</span>
-            </span>
-            <span className="flex items-center gap-2.5">
-              <Avatar initials={d.buyer.initials} color={d.buyer.color} size={28} />
-              <span className="text-[13px]">{d.buyer.handle}</span>
-            </span>
-            <span className="truncate text-[13px] text-soft">
-              {d.offer?.name ?? '—'}
-              <span className="ml-2 text-[11px] text-mute">{d.source}</span>
-            </span>
-            <span className="n text-right text-[13.5px] text-soft">{usd(d.revenueCents)}</span>
-            <span className="n text-right text-[13.5px] text-mute">{usd(d.spendNetCents)}</span>
-            <span className="n text-right text-[13.5px] text-mute">
-              {usd(d.spendGrossCents)}
-              <span className="ml-1.5 text-[11px] text-dim">{(d.commissionBps / 100).toFixed(2)}%</span>
-            </span>
-            <span
-              className="n text-right text-[17px] font-semibold"
-              style={{ color: profitOf(d) >= 0 ? '#b4c68c' : '#ce6e58' }}
-            >
-              {usd(profitOf(d), { sign: true })}
-            </span>
-          </div>
-        ))
+        days.map((d) => {
+          const row: DayRowData = {
+            id: d.id,
+            day: fmtDay(d.date),
+            weekday: weekdayShort(d.date),
+            buyer: { initials: d.buyer.initials, color: d.buyer.color, handle: d.buyer.handle },
+            offer: d.offer?.name ?? '—',
+            source: d.source,
+            revenueCents: d.revenueCents,
+            spendNetCents: d.spendNetCents,
+            spendGrossCents: d.spendGrossCents,
+            commissionBps: d.commissionBps,
+            note: d.note,
+          };
+          return <DayRow key={d.id} row={row} canEdit={canEdit} />;
+        })
       )}
     </Panel>
   );

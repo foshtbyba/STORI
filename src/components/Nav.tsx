@@ -9,7 +9,7 @@ export type NavItem = { href: string; label: string; icon: ReactNode };
 export default function Nav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   return (
-    <nav className="flex shrink-0 items-center gap-1 rounded-full bg-sub p-1">
+    <nav className="no-scrollbar flex min-w-0 items-center gap-1 overflow-x-auto rounded-full bg-sub p-1">
       {items.map((item) => {
         const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
         return (

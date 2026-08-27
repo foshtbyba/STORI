@@ -6,7 +6,6 @@ import { periodLabel } from '@/lib/period';
 import { Panel, PanelHead, Sub, Avatar, Empty } from '@/components/ui';
 import { ProfitBars, Meter } from '@/components/Charts';
 import { IconChart, IconWallet, IconBox, IconWarn, IconUsers } from '@/components/icons';
-import Contours from '@/components/Contours';
 import BuyerCabinet from '@/components/BuyerCabinet';
 
 export default async function HomePage() {
@@ -47,10 +46,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col gap-3.5">
-      {/* Горизонтали идут поверх всего ряда от края до края — обе панели
-          читаются одной картой. */}
-      <div className="relative grid grid-cols-[1.55fr_1fr] gap-3.5">
-        <Contours className="inset-0 z-20" />
+      <div className="grid grid-cols-[1.55fr_1fr] gap-3.5">
         <Panel className="p-6">
           <PanelHead
             icon={<IconChart color="#b4c68c" />}

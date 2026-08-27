@@ -10,7 +10,12 @@ export function Panel({
   as?: 'section' | 'div' | 'form' | 'article';
 }) {
   return (
-    <Tag className={`rounded-[26px] border border-line bg-panel ${className}`}>{children}</Tag>
+    <Tag
+      className={`rounded-[26px] border border-line ${className}`}
+      style={{ background: 'var(--color-panel-glass)' }}
+    >
+      {children}
+    </Tag>
   );
 }
 

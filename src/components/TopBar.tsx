@@ -32,14 +32,16 @@ export default function TopBar({
           <IconPeak color="#b4c68c" size={22} />
         </Link>
         <span className="shrink-0 text-[19px] font-bold tracking-[-0.02em]">{title}</span>
-        <span className="h-[22px] w-px shrink-0 bg-line2" />
-        <span className="n shrink-0 text-[15px] text-mid">{date}</span>
+        <span className="hidden h-[22px] w-px shrink-0 bg-line2 md:block" />
+        <span className="n hidden shrink-0 text-[15px] text-mid md:block">{date}</span>
         {nav}
-        {role ? <span className="lab ml-auto shrink-0 whitespace-nowrap pl-4">{role}</span> : null}
+        {role ? (
+          <span className="lab ml-auto hidden shrink-0 whitespace-nowrap pl-4 lg:block">{role}</span>
+        ) : null}
       </div>
 
       <div className="flex shrink-0 items-center gap-4">
-        <span className="flex items-center gap-3 rounded-full bg-sub py-1.5 pl-3.5 pr-3">
+        <span className="hidden items-center gap-3 rounded-full bg-sub py-1.5 pl-3.5 pr-3 xl:flex">
           <span className="flex">
             {crew.map((c) => (
               <span key={c.id} className="-ml-2.5 rounded-full border-2 border-panel first:ml-0" title={c.handle}>

@@ -6,6 +6,9 @@
 
   --color-bg: #141414;
   --color-panel: #1c1c1d;
+  /* Панели чуть прозрачны, чтобы фоновые горизонтали шли сквозь весь экран,
+     а не обрывались на границе блока. */
+  --color-panel-glass: rgb(28 28 29 / 0.72);
   --color-sub: #232324;
   --color-raise: #292929;
   --color-line: #2e2e2f;
@@ -45,6 +48,13 @@ body {
 /* У JetBrains Mono прописные сидят выше середины строчного бокса: при
    выравнивании по центру инициалы в кружках всегда уезжали вверх. Сдвиг
    вымерен по пикселям отрисовки — 0.04em возвращает чернила ровно в центр. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .ink-mid {
   transform: translateY(0.04em);
 }

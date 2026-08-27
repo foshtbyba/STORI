@@ -79,9 +79,28 @@ export const DEFAULT_TERRAIN: TerrainConfig = {
  * перестаёт просвечивать насквозь.
  */
 export type Band = { d: string; level: number; index: boolean };
+
+/**
+ * Тот же рельеф, но в координатах самой площадки, а не экрана: петли лежат
+ * парами u,v в диапазоне примерно [-1, 1]. Проекцию делает уже клиент — так
+ * гору можно разворачивать вокруг вертикальной оси, а не наклонять картинку.
+ */
+export type RawBand = { level: number; index: boolean; loops: number[][] };
+export type RawTerrain = {
+  bands: RawBand[];
+  /** Вершина в тех же координатах: u, v. */
+  summit: [number, number];
+  radius: number;
+  height: number;
+  squash: number;
+  centre: { x: number; y: number };
+};
 export type Terrain = {
   config: TerrainConfig;
   bands: Band[];
+  raw: RawTerrain;
+  /** Точка поверхности в координатах площадки — для проекции на клиенте. */
+  surfaceUV: (angleDeg: number, level: number) => [number, number];
   /** Where the summit lands on screen. */
   summit: [number, number];
   /** Screen position of the outermost surface point on a ray, at a height. */
@@ -287,6 +306,45 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
     });
   }
 
+  /** Точки петли в координатах площадки — для клиентской проекции. */
+  function rawLoop(line: Pt[]): number[] {
+    const step = line.length > 170 ? 2 : 1;
+    const out: number[] = [];
+    for (let i = 0; i < line.length; i += step) {
+      out.push(
+        Number(((((line[i][0] / (GN - 1)) * 2 - 1) * EXT)).toFixed(4)),
+        Number(((((line[i][1] / (GN - 1)) * 2 - 1) * EXT)).toFixed(4)),
+      );
+    }
+    return out;
+  }
+
+  const rawBands: RawBand[] = [];
+  for (let i = 0; i < config.levels; i++) {
+    const level = 0.016 + Math.pow(i / (config.levels - 1), 1.08) * 0.958;
+    const loops = trace(level);
+    if (loops.length === 0) continue;
+    rawBands.push({
+      level: Number(level.toFixed(4)),
+      index: i % config.indexEvery === 0,
+      loops: loops.map((line) => rawLoop(smooth(line))),
+    });
+  }
+
+  /** Точка поверхности в координатах площадки: u, v на заданной высоте. */
+  const surfaceUV = (angleDeg: number, level: number): [number, number] => {
+    const a = (angleDeg * Math.PI) / 180;
+    let lo = 0;
+    let hi = 1.05;
+    for (let i = 0; i < 30; i++) {
+      const mid = (lo + hi) / 2;
+      if (height(mid * Math.cos(a), mid * Math.sin(a)) / maxH > level) lo = mid;
+      else hi = mid;
+    }
+    const r = (lo + hi) / 2;
+    return [r * Math.cos(a), r * Math.sin(a)];
+  };
+
   const surfacePoint = (angleDeg: number, level: number): [number, number] => {
     const a = (angleDeg * Math.PI) / 180;
     let lo = 0;
@@ -303,10 +361,25 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
   let peakIndex = 0;
   for (let i = 1; i < cells.length; i++) if (cells[i] > cells[peakIndex]) peakIndex = i;
 
+  const summitCell: [number, number] = [peakIndex % GN, Math.floor(peakIndex / GN)];
+  const summitUV: [number, number] = [
+    ((summitCell[0] / (GN - 1)) * 2 - 1) * EXT,
+    ((summitCell[1] / (GN - 1)) * 2 - 1) * EXT,
+  ];
+
   return {
     config,
     bands,
-    summit: projectCell([peakIndex % GN, Math.floor(peakIndex / GN)], 1),
+    raw: {
+      bands: rawBands,
+      summit: summitUV,
+      radius: RX,
+      height: HMAX,
+      squash: SQ,
+      centre,
+    } as RawTerrain,
+    surfaceUV,
+    summit: projectCell(summitCell, 1),
     surfacePoint,
     rightEdge: (level) => {
       let max = 0;

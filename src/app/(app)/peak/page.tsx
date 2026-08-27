@@ -3,9 +3,9 @@ import { currentPeriodKey, teamSummary, defaultTiers } from '@/lib/queries';
 import { periodLabel } from '@/lib/period';
 import { usd } from '@/lib/money';
 import { parseTiers } from '@/lib/salary';
-import { DEFAULT_TERRAIN, weekSeed } from '@/lib/terrain';
-import Mountain, { type Climber, type Grounded } from '@/components/Mountain';
-import Tilt from '@/components/Tilt';
+import { DEFAULT_TERRAIN, weekSeed, getTerrain } from '@/lib/terrain';
+import Peak3D, { type Pin3D, type Rule3D, type Route3D } from '@/components/Peak3D';
+import type { Grounded } from '@/components/Mountain';
 import { Panel, PanelHead, Sub, Avatar, Empty } from '@/components/ui';
 import { IconRoute, IconPeak } from '@/components/icons';
 
@@ -37,26 +37,84 @@ export default async function PeakPage() {
     return <Empty>За {periodLabel(key)} отчётов ещё нет — гора пустая.</Empty>;
   }
 
-  const climbers: Climber[] = ranked.map((row, i) => ({
-    id: row.buyer.id,
-    initials: row.buyer.initials,
-    handle: row.buyer.handle,
-    profitCents: row.profitCents,
-    color: row.buyer.color,
-    angle: BEARINGS[i % BEARINGS.length],
-    stem: STEMS[i % STEMS.length],
-  }));
-
+  // Рельеф считаем здесь, а на клиент отдаём его в координатах площадки: там
+  // он и проецируется, поэтому гору можно обойти вокруг.
+  const terrain = getTerrain({ ...DEFAULT_TERRAIN, seed: weekSeed() });
   const viewerId = user.buyer?.id ?? null;
   // Вершина привязана к верхнему порогу лесенки, а не к лидеру: на пик встаёт
   // тот, кто его взял, а не тот, кто просто оказался первым среди своих.
   const summitCents = tiers[tiers.length - 1]?.fromCents ?? 1_000_000;
+  const leader = ranked[0];
+
+  const pins: Pin3D[] = ranked.map((row, i) => {
+    const level = Math.max(0.02, Math.min(1, row.profitCents / summitCents));
+    const onTop = row.profitCents >= summitCents;
+    const atSummit = onTop && row.buyer.id === leader.buyer.id;
+    const angle = BEARINGS[i % BEARINGS.length];
+    const [u, v] = atSummit
+      ? terrain.raw.summit
+      : terrain.surfaceUV(angle, Math.min(level, 0.92));
+    const stem = STEMS[i % STEMS.length];
+    return {
+      id: row.buyer.id,
+      initials: row.buyer.initials,
+      handle: row.buyer.handle,
+      color: row.buyer.color,
+      profitCents: row.profitCents,
+      u,
+      v,
+      level: atSummit ? 0.975 : Math.min(level, 0.92),
+      stem: atSummit ? stem * 0.6 : stem * (0.38 + 0.62 * (1 - level)),
+      me: row.buyer.id === viewerId,
+      onTop,
+    };
+  });
+
   const leadCents = Math.max(ranked[0]?.profitCents ?? 1, 1);
   const viewer = summary.buyers.find((r) => r.buyer.id === viewerId) ?? null;
   const climbing = Boolean(viewer && viewer.profitCents > 0);
   const viewerPlace = climbing ? ranked.findIndex((r) => r.buyer.id === viewerId) + 1 : 0;
   const onTop = Boolean(viewer) && viewer!.profitCents >= summitCents;
   const toPeak = viewer ? Math.max(0, summitCents - viewer.profitCents) : 0;
+
+  const RING = terrain.config.radius + 26;
+
+  /** Тропа по склону: серпантин из троек u, v, level. */
+  function trail(fromLevel: number, toLevel: number, fromAng: number, toAng: number, wobble: number, steps: number) {
+    const out: number[] = [];
+    for (let i = 0; i <= steps; i++) {
+      const f = i / steps;
+      const swing =
+        Math.sin(f * Math.PI * 2.6) * wobble +
+        Math.sin(f * Math.PI * 6.3 + 1.2) * wobble * 0.42 +
+        Math.sin(f * Math.PI * 11.7 + 0.4) * wobble * 0.16;
+      const lift = Math.sin(f * Math.PI * 4.1 + 0.7) * 0.012;
+      const level = Math.max(0.02, Math.min(0.99, fromLevel + f * (toLevel - fromLevel) + lift));
+      const [u, v] = terrain.surfaceUV(fromAng + f * (toAng - fromAng) + swing, level);
+      out.push(u, v, level);
+    }
+    return out;
+  }
+
+  const myPin = pins.find((p) => p.me) ?? null;
+  const myLevel = myPin ? Math.min(0.985, Math.max(0.09, myPin.level)) : null;
+  const myAngle = myPin ? BEARINGS[pins.indexOf(myPin) % BEARINGS.length] : 0;
+  const route: Route3D | null = myPin
+    ? {
+        covered: trail(0.09, myPin.onTop ? 0.985 : myLevel!, 52, myPin.onTop ? 178 : myAngle, 22, 64),
+        remaining: myPin.onTop ? [] : trail(myLevel!, 0.975, myAngle, myAngle + 58, 20, 44),
+      }
+    : null;
+
+  const ruleMarks: Rule3D[] = tiers
+    .filter((t, i, all) => all.findIndex((o) => o.ratePct === t.ratePct) === i)
+    .map((tier) => ({
+      level: tier.fromCents / summitCents,
+      label: usd(tier.fromCents, { round: true }),
+      rate: `ставка ${tier.ratePct}%`,
+      color: tier.ratePct >= 50 ? '#b4c68c' : '#a8a8a8',
+    }))
+    .filter((r) => r.level <= 1);
 
   return (
     <div className="grid items-start gap-3.5 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,2fr)]">
@@ -201,15 +259,25 @@ export default async function PeakPage() {
             </span>
           }
         />
-        <Tilt>
-          <Mountain
-            climbers={climbers}
-            grounded={grounded}
-            tiers={tiers}
-            viewerId={viewerId}
-            config={{ ...DEFAULT_TERRAIN, seed: weekSeed() }}
-          />
-        </Tilt>
+        <Peak3D
+          terrain={terrain.raw}
+          pins={pins}
+          route={route}
+          rules={ruleMarks}
+          ringRadius={RING}
+        />
+        {grounded.length > 0 ? (
+          <div className="-mt-2 mb-4 flex flex-wrap items-center gap-2">
+            <span className="lab mr-1">У подножия</span>
+            {grounded.map((g) => (
+              <span key={g.id} className="flex items-center gap-2 rounded-full bg-sub py-1 pl-1 pr-3">
+                <Avatar initials={g.initials} color={g.color} size={22} />
+                <span className="text-[11.5px] text-dim">{g.handle}</span>
+              </span>
+            ))}
+            <span className="text-[11px] text-dim">— ещё не вышли на маршрут</span>
+          </div>
+        ) : null}
       </Panel>
     </div>
   );
