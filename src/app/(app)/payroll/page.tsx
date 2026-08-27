@@ -64,6 +64,13 @@ export default async function PayrollPage({
   const minTier = ladder[0]?.fromCents ?? 0;
   const okladRub = rows[0]?.buyer.salaryRule?.fixedRub ?? DEFAULT_FIXED_RUB;
   const okladUsdCents = okladCents(okladRub, rate);
+  /**
+   * Процент показываем только там, где он реально сработал. Если выплату
+   * вытянул оклад, никакой ставки нет: оклад к базе отношения не имеет, и
+   * деление одного на другое давало числа вроде 102,9%.
+   */
+  const rateLabel =
+    totals.avgRate === null ? 'оклад' : `${totals.avgRate.toFixed(1).replace('.', ',')}%`;
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -83,9 +90,12 @@ export default async function PayrollPage({
         {[
           {
             label: team ? 'Средняя ставка' : 'Твоя ставка',
-            value: `${totals.avgRate.toFixed(1).replace('.', ',')}%`,
-            note: `считаем с ${usd(totals.base)} — профит минус расходники`,
-            color: 'text-text',
+            value: rateLabel,
+            note:
+              totals.avgRate === null
+                ? `порог ${usd(minTier)} не взят — платим ${okladRub.toLocaleString('ru-RU')} ₽`
+                : `считаем с ${usd(totals.base)} — профит минус расходники`,
+            color: totals.avgRate === null ? 'text-rust' : 'text-text',
           },
           { label: 'Разовые бонусы', value: usd(totals.bonus), note: 'начислены вручную', color: 'text-sage' },
           team
@@ -137,7 +147,9 @@ export default async function PayrollPage({
               { value: usd(profitCents), label: 'профит за период', color: '#b4c68c' },
               { value: usd(consumableCents), label: 'расходники', op: '−', color: '#ce6e58' },
               { value: usd(totals.base), label: 'с этого считаем процент', op: '=' },
-              { value: `${totals.avgRate.toFixed(1).replace('.', ',')}%`, label: 'ставка по порогу', op: '×' },
+              totals.avgRate === null
+                ? { value: 'оклад', label: 'порог не взят', op: '→', color: '#ce6e58' }
+                : { value: rateLabel, label: 'ставка по порогу', op: '×' },
               { value: usd(totals.total), label: 'к выплате с бонусами', op: '=', color: '#b4c68c' },
             ]}
           />
@@ -215,9 +227,7 @@ export default async function PayrollPage({
           <span className="n text-right text-[13.5px]">{usd(profitCents)}</span>
           <span className="n text-right text-[13.5px] text-rust">−{usd(consumableCents)}</span>
           <span className="n text-right text-[13.5px]">{usd(totals.base)}</span>
-          <span className="n text-right text-[12.5px] text-mute">
-            {totals.avgRate.toFixed(1).replace('.', ',')}%
-          </span>
+          <span className="n text-right text-[12.5px] text-mute">{rateLabel}</span>
           <span className="n text-right text-[18px] font-semibold">{usd(totals.salary)}</span>
           <span className="n text-right text-[13px] text-mute">{rub(totals.salary, rate)}</span>
           <span className="n text-right text-[13.5px] text-sage">+{usd(totals.bonus)}</span>

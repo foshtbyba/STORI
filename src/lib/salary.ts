@@ -99,9 +99,41 @@ export function computePayout(input: PayoutInput) {
   };
 }
 
-export function payrollTotals(rows: { salaryCents: number; bonusCents: number; baseCents: number }[]) {
+/**
+ * Итоги по расчётному листу.
+ *
+ * Средняя ставка считается только по тем, кому реально платят процентом. Тем,
+ * кого вытянул оклад, процента нет вовсе: делить оклад на их базу — значит
+ * получать бессмысленные числа вроде 102,9%, потому что оклад к базе никакого
+ * отношения не имеет.
+ */
+export function payrollTotals(
+  rows: {
+    salaryCents: number;
+    bonusCents: number;
+    baseCents: number;
+    tierCents: number;
+    fixedCents: number;
+    onOklad: boolean;
+  }[],
+) {
   const salary = sum(rows, (r) => r.salaryCents);
   const bonus = sum(rows, (r) => r.bonusCents);
   const base = sum(rows, (r) => r.baseCents);
-  return { salary, bonus, base, total: salary + bonus, avgRate: base ? (salary / base) * 100 : 0 };
+
+  const onPercent = rows.filter((r) => !r.onOklad);
+  const percentBase = sum(onPercent, (r) => r.baseCents);
+  const percentPay = sum(onPercent, (r) => r.tierCents);
+
+  return {
+    salary,
+    bonus,
+    base,
+    total: salary + bonus,
+    /** null — процент не сработал ни у кого, платим оклады. */
+    avgRate: percentBase > 0 ? (percentPay / percentBase) * 100 : null,
+    /** Сколько людей на окладе и сколько это стоит. */
+    okladCount: rows.length - onPercent.length,
+    okladCents: sum(rows.filter((r) => r.onOklad), (r) => r.fixedCents),
+  };
 }
