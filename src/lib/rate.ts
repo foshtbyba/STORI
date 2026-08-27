@@ -27,7 +27,20 @@ const SOURCES: { name: string; url: string; pick: (data: unknown) => number | nu
   },
 ];
 
-export type FetchedRate = { hundredths: number; source: string };
+export type FetchedRate = {
+  /** Рабочий курс — по нему считаем и конвертируем всё в приложении. */
+  hundredths: number;
+  /** Рыночный курс без вычета, как его отдал источник. */
+  marketHundredths: number;
+  source: string;
+};
+
+/**
+ * Запас на перевод. Курс на бирже и курс, по которому деньги реально доходят
+ * до баера, — разные вещи: комиссию за перевод кто-то платит. Поэтому от
+ * рыночного отнимаем два рубля и живём по нему: 86 на рынке — считаем по 84.
+ */
+export const TRANSFER_MARGIN_HUNDREDTHS = 200;
 
 /**
  * Если наружу не пускают, каждый рендер страницы упирался бы в два таймаута
@@ -52,7 +65,12 @@ export async function fetchRate(): Promise<FetchedRate | null> {
       // а не событие на рынке.
       if (!value || value < 10 || value > 1000) continue;
       nextAttemptAt = 0;
-      return { hundredths: Math.round(value * 100), source: source.name };
+      const marketHundredths = Math.round(value * 100);
+      return {
+        hundredths: Math.max(100, marketHundredths - TRANSFER_MARGIN_HUNDREDTHS),
+        marketHundredths,
+        source: source.name,
+      };
     } catch {
       // Источник не ответил — пробуем следующий.
     }

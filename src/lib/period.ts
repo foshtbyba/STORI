@@ -41,3 +41,45 @@ export function daysOfPeriod(key: string) {
   for (let d = new Date(from); d < to; d.setUTCDate(d.getUTCDate() + 1)) out.push(new Date(d));
   return out;
 }
+
+/** Понедельник недели, в которую попала дата. Всё в UTC, как и остальные даты. */
+export function weekStart(date: Date) {
+  const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return d;
+}
+
+/** Неделя кодируется датой своего понедельника: YYYY-MM-DD. */
+export function weekKey(date: Date) {
+  return dayKey(weekStart(date));
+}
+
+export function weekBounds(key: string) {
+  const [y, m, d] = key.split('-').map(Number);
+  const from = weekStart(new Date(Date.UTC(y, m - 1, d)));
+  const to = new Date(from);
+  to.setUTCDate(to.getUTCDate() + 7);
+  return { from, to };
+}
+
+export function shiftWeek(key: string, weeks: number) {
+  const { from } = weekBounds(key);
+  from.setUTCDate(from.getUTCDate() + weeks * 7);
+  return dayKey(from);
+}
+
+const MONTH_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+  'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+
+/** «18 — 24 августа» или «29 сентября — 5 октября», если неделя на стыке. */
+export function weekLabel(key: string) {
+  const { from, to } = weekBounds(key);
+  const last = new Date(to);
+  last.setUTCDate(last.getUTCDate() - 1);
+  const a = from.getUTCDate();
+  const b = last.getUTCDate();
+  if (from.getUTCMonth() === last.getUTCMonth()) {
+    return `${a} — ${b} ${MONTH_GEN[last.getUTCMonth()]}`;
+  }
+  return `${a} ${MONTH_GEN[from.getUTCMonth()]} — ${b} ${MONTH_GEN[last.getUTCMonth()]}`;
+}

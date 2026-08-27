@@ -68,7 +68,9 @@ export default function Contours({
     <span
       aria-hidden
       className={`contour-drift pointer-events-none absolute overflow-hidden ${className}`}
-      style={{ opacity }}
+      // Запас по краям — вместо прежнего scale в анимации: полотно чуть больше
+      // экрана, поэтому сдвиг не обнажает край.
+      style={{ opacity, top: '-4%', left: '-4%', width: '108%', height: '108%' }}
     >
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-full w-full">
         <defs>

@@ -44,18 +44,31 @@ export function rateFor(baseCents: number, tiers: Tier[]): number {
   return rate;
 }
 
-/** The next threshold a buyer has not reached yet, and what reaching it pays. */
-export function nextTier(baseCents: number, tiers: Tier[]) {
+/**
+ * Ближайший невзятый порог и что он даёт.
+ *
+ * Считаем не по проценту, а по выплате целиком: оклад — это пол, а не
+ * добавка. Пока процент оклад не перебил, платится оклад, и взятый порог его
+ * не дополняет, а заменяет. Поэтому разницу берём между выплатами, а не
+ * между процентными частями — иначе выходит, что к окладу что-то прибавится.
+ */
+export function nextTier(baseCents: number, tiers: Tier[], fixedCents = 0) {
   const upcoming = tiers.find((t) => t.fromCents > baseCents);
   if (!upcoming) return null;
-  const current = rateFor(baseCents, tiers);
-  const salaryNow = Math.round((baseCents * current) / 100);
-  const salaryThen = Math.round((upcoming.fromCents * upcoming.ratePct) / 100);
+  const current = baseCents > 0 ? rateFor(baseCents, tiers) : 0;
+  const tierNow = Math.max(0, Math.round((baseCents * current) / 100));
+  const tierThen = Math.round((upcoming.fromCents * upcoming.ratePct) / 100);
+  const payoutNowCents = Math.max(tierNow, fixedCents);
+  const payoutThenCents = Math.max(tierThen, fixedCents);
   return {
     fromCents: upcoming.fromCents,
     ratePct: upcoming.ratePct,
     needCents: upcoming.fromCents - baseCents,
-    gainCents: salaryThen - salaryNow,
+    payoutNowCents,
+    payoutThenCents,
+    gainCents: payoutThenCents - payoutNowCents,
+    /** Сейчас тянет оклад — значит порог выплату заменит, а не увеличит. */
+    fromOklad: tierNow <= fixedCents,
   };
 }
 
@@ -95,7 +108,7 @@ export function computePayout(input: PayoutInput) {
     salaryCents,
     bonusCents,
     totalCents: salaryCents + bonusCents,
-    next: nextTier(baseCents, input.tiers),
+    next: nextTier(baseCents, input.tiers, fixedCents),
   };
 }
 

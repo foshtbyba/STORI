@@ -135,7 +135,6 @@ export async function buyerSummary(buyerId: string, key: string) {
     prisma.buyer.findUnique({ where: { id: buyerId }, include: { user: true, salaryRule: true } }),
     prisma.dayReport.findMany({
       where: { buyerId, date: { gte: from, lt: to } },
-      include: { offer: true },
       orderBy: { date: 'asc' },
     }),
     prisma.consumableEntry.findMany({

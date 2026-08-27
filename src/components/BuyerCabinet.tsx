@@ -1,8 +1,7 @@
 import { usd, rub, profitOf } from '@/lib/money';
-import { fmtDay, weekdayShort, periodLabel } from '@/lib/period';
+import { fmtDay, weekdayShort, periodLabel, daysOfPeriod } from '@/lib/period';
 import { Panel, PanelHead, Sub, Empty } from './ui';
-import { Meter } from './Charts';
-import { IconWallet, IconPeak, IconCalendar, IconBox, IconTag } from './icons';
+import { IconWallet, IconPeak, IconCalendar, IconBox } from './icons';
 import type { buyerSummary } from '@/lib/queries';
 
 type Data = NonNullable<Awaited<ReturnType<typeof buyerSummary>>>;
@@ -10,6 +9,10 @@ type Data = NonNullable<Awaited<ReturnType<typeof buyerSummary>>>;
 export default function BuyerCabinet({ data }: { data: Data }) {
   const rate = data.period.rubPerUsd;
   const peakCents = data.tiers[data.tiers.length - 1]?.fromCents ?? data.baseCents;
+  // Дни считаем от календаря, а не от числа отчётов: пустой день — это тоже
+  // день месяца, просто не в плюсе.
+  const monthDays = daysOfPeriod(data.period.key).length;
+  const greenDays = data.days.filter((d) => profitOf(d) > 0).length;
   const scale = Math.max(peakCents, data.baseCents, 1);
 
   return (
@@ -71,8 +74,21 @@ export default function BuyerCabinet({ data }: { data: Data }) {
               <div className="flex-1" />
               <Sub className="px-4.5 py-4 text-[13px] leading-relaxed">
                 Ставка вырастет с <span className="n">{data.ratePct}%</span> до{' '}
-                <span className="n text-sage">{data.next.ratePct}%</span> и посчитается со всей суммы, а не только с превышения — это{' '}
-                <span className="n text-sage">+{usd(data.next.gainCents)}</span> к выплате.
+                <span className="n text-sage">{data.next.ratePct}%</span> и посчитается со всей
+                суммы, а не только с превышения.{' '}
+                {data.next.fromOklad ? (
+                  <>
+                    Оклад тогда не платится — выплата станет{' '}
+                    <span className="n text-sage">{usd(data.next.payoutThenCents)}</span> вместо
+                    оклада в <span className="n">{usd(data.next.payoutNowCents)}</span>.
+                  </>
+                ) : (
+                  <>
+                    Выплата станет{' '}
+                    <span className="n text-sage">{usd(data.next.payoutThenCents)}</span> — это{' '}
+                    <span className="n text-sage">+{usd(data.next.gainCents)}</span>.
+                  </>
+                )}
               </Sub>
             </>
           ) : (
@@ -93,7 +109,12 @@ export default function BuyerCabinet({ data }: { data: Data }) {
           { label: 'Спенд с комиссией', value: usd(data.spendGrossCents), color: 'text-text', note: `комиссия ${usd(data.commissionCents)}` },
           { label: 'Профит', value: usd(data.profitCents), color: 'text-sage', note: `ROI ${data.roi.toFixed(1).replace('.', ',')}%` },
           { label: 'Расходники', value: `−${usd(data.consumableCents)}`, color: 'text-rust', note: data.buyer.consumablesAffectSalary ? 'списаны на меня' : 'на команде' },
-          { label: 'Дней', value: String(data.days.length), color: 'text-text', note: 'с отчётом' },
+          {
+            label: 'Дней в плюсе',
+            value: `${greenDays}`,
+            color: greenDays > 0 ? 'text-sage' : 'text-text',
+            note: `из ${monthDays} в месяце`,
+          },
         ].map((k) => (
           <Panel key={k.label} className="flex flex-col justify-between p-5">
             <span className="lab">{k.label}</span>
@@ -120,7 +141,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
           />
           <div className="mt-4 grid grid-cols-[0.85fr_1.7fr_repeat(4,1fr)] pb-2.5">
             <span className="lab">День</span>
-            <span className="lab">Оффер</span>
+            <span className="lab">Источник</span>
             <span className="lab text-right">Доход</span>
             <span className="lab text-right">Спенд</span>
             <span className="lab text-right">Профит</span>
@@ -141,7 +162,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
                     <span className="n text-[16px] font-semibold">{fmtDay(d.date)}</span>
                     <span className="text-[11px] text-mute">{weekdayShort(d.date)}</span>
                   </span>
-                  <span className="truncate text-[13px] text-soft">{d.offer?.name ?? '—'}</span>
+                  <span className="truncate text-[13px] text-soft">{d.source ?? '—'}</span>
                   <span className="n text-right text-[13.5px] text-soft">{usd(d.revenueCents)}</span>
                   <span className="n text-right text-[13.5px] text-mute">{usd(d.spendGrossCents)}</span>
                   <span
@@ -188,42 +209,6 @@ export default function BuyerCabinet({ data }: { data: Data }) {
                 </div>
               ))
             )}
-          </Panel>
-
-          <Panel className="p-5">
-            <div className="mb-3 flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-sage-t">
-                <IconTag color="#b4c68c" size={17} />
-              </span>
-              <span className="text-[15.5px] font-semibold">Мои офферы</span>
-            </div>
-            {(() => {
-              const byOffer = new Map<string, { name: string; cents: number }>();
-              for (const d of data.days) {
-                const name = d.offer?.name ?? 'Без оффера';
-                const row = byOffer.get(name) ?? { name, cents: 0 };
-                row.cents += profitOf(d);
-                byOffer.set(name, row);
-              }
-              const rows = [...byOffer.values()].sort((a, b) => b.cents - a.cents);
-              const max = Math.max(1, ...rows.map((r) => Math.abs(r.cents)));
-              return rows.length === 0 ? (
-                <Empty>Нет данных.</Empty>
-              ) : (
-                rows.map((r) => (
-                  <div key={r.name} className="flex items-center gap-3 border-t border-line py-2.5">
-                    <span className="w-[120px] shrink-0 truncate text-[13px]">{r.name}</span>
-                    <Meter value={Math.abs(r.cents)} max={max} color={r.cents >= 0 ? '#b4c68c' : '#ce6e58'} />
-                    <span
-                      className="n w-16 text-right text-[13px]"
-                      style={{ color: r.cents >= 0 ? '#b4c68c' : '#ce6e58' }}
-                    >
-                      {usd(r.cents, { sign: true })}
-                    </span>
-                  </div>
-                ))
-              );
-            })()}
           </Panel>
         </div>
       </div>

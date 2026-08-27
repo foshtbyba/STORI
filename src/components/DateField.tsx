@@ -32,12 +32,23 @@ export default function DateField({
   defaultValue,
   onChange,
   disabled = false,
+  label,
+  align = 'left',
+  variant = 'field',
+  range = 'day',
 }: {
   name?: string;
   value?: string;
   defaultValue?: string;
   onChange?: (value: string) => void;
   disabled?: boolean;
+  /** Своя подпись на кнопке вместо даты — например, диапазон недели. */
+  label?: string;
+  align?: 'left' | 'right';
+  /** `week` — подсвечивать всю неделю выбранного дня, а не один день. */
+  range?: 'day' | 'week';
+  /** `inline` — компактная кнопка для шапки панели, без рамки поля. */
+  variant?: 'field' | 'inline';
 }) {
   const controlled = value !== undefined;
   const [inner, setInner] = useState(defaultValue ?? iso(new Date()));
@@ -84,6 +95,12 @@ export default function DateField({
     setMonth(new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + by, 1)));
 
   const today = iso(new Date());
+  const mondayOf = (d: Date) => {
+    const m = new Date(d);
+    m.setUTCDate(m.getUTCDate() - ((m.getUTCDay() + 6) % 7));
+    return iso(m);
+  };
+  const currentWeek = mondayOf(shown);
 
   return (
     <div ref={root} className="relative">
@@ -95,17 +112,25 @@ export default function DateField({
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => !disabled && setOpen((v) => !v)}
-        className={`n flex h-11 w-full items-center justify-between gap-2 rounded-xl border px-3.5 text-left text-[14px] transition ${
-          disabled
-            ? 'cursor-default border-line bg-sub text-mute'
-            : open
-              ? 'border-sage bg-sub'
-              : 'border-line bg-sub hover:border-line2'
-        }`}
+        className={
+          variant === 'inline'
+            ? `n flex items-center gap-2 rounded-full border px-3 py-1.5 text-[12.5px] transition ${
+                open ? 'border-sage text-soft' : 'border-line text-mute hover:border-line2 hover:text-soft'
+              }`
+            : `n flex h-11 w-full items-center justify-between gap-2 rounded-xl border px-3.5 text-left text-[14px] transition ${
+                disabled
+                  ? 'cursor-default border-line bg-sub text-mute'
+                  : open
+                    ? 'border-sage bg-sub'
+                    : 'border-line bg-sub hover:border-line2'
+              }`
+        }
       >
         <span>
-          {String(shown.getUTCDate()).padStart(2, '0')}.
-          {String(shown.getUTCMonth() + 1).padStart(2, '0')}.{shown.getUTCFullYear()}
+          {label ??
+            `${String(shown.getUTCDate()).padStart(2, '0')}.${String(
+              shown.getUTCMonth() + 1,
+            ).padStart(2, '0')}.${shown.getUTCFullYear()}`}
         </span>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           strokeWidth={2} className="shrink-0 text-mute" aria-hidden>
@@ -117,7 +142,9 @@ export default function DateField({
       {open ? (
         <div
           role="dialog"
-          className="absolute left-0 top-full z-30 mt-1.5 w-[268px] rounded-xl border border-line2 bg-raise p-3 shadow-lg shadow-black/40"
+          className={`absolute top-full z-30 mt-1.5 w-[268px] rounded-xl border border-line2 bg-raise p-3 shadow-lg shadow-black/40 ${
+            align === 'right' ? 'right-0' : 'left-0'
+          }`}
         >
           <div className="mb-2.5 flex items-center justify-between">
             <button type="button" onClick={() => shift(-1)}
@@ -143,7 +170,8 @@ export default function DateField({
             {cells.map((day, i) => {
               if (!day) return <span key={`x${i}`} />;
               const key = iso(day);
-              const active = key === current;
+              const active =
+                range === 'week' ? mondayOf(day) === currentWeek : key === current;
               return (
                 <button
                   key={key}
@@ -151,7 +179,9 @@ export default function DateField({
                   onClick={() => pick(day)}
                   className={`n flex h-8 items-center justify-center rounded-lg text-[12.5px] transition ${
                     active
-                      ? 'bg-sage font-semibold text-bg'
+                      ? range === 'week'
+                        ? 'bg-sage-t font-semibold text-sage'
+                        : 'bg-sage font-semibold text-bg'
                       : key === today
                         ? 'text-sage hover:bg-sub'
                         : 'text-soft hover:bg-sub'

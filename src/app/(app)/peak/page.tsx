@@ -239,9 +239,10 @@ export default async function PeakPage() {
             ) : viewer.next ? (
               <p className="mt-3 border-t border-line pt-3 text-[11.5px] leading-relaxed text-mute">
                 До ставки {viewer.next.ratePct}% не хватает{' '}
-                <span className="n text-soft">{usd(viewer.next.needCents, { round: true })}</span> — это
-                плюс <span className="n text-sage">{usd(viewer.next.gainCents, { round: true })}</span> к
-                выплате.
+                <span className="n text-soft">{usd(viewer.next.needCents, { round: true })}</span> —
+                тогда выплата{' '}
+                <span className="n text-sage">{usd(viewer.next.payoutThenCents, { round: true })}</span>
+                {viewer.next.fromOklad ? ' вместо оклада' : ` вместо ${usd(viewer.next.payoutNowCents, { round: true })}`}.
               </p>
             ) : (
               <p className="mt-3 border-t border-line pt-3 text-[11.5px] leading-relaxed text-mute">

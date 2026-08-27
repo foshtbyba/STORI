@@ -2,27 +2,37 @@ import Link from 'next/link';
 import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
-import { currentPeriodKey } from '@/lib/queries';
-import { periodBounds, periodLabel, fmtDay, weekdayShort } from '@/lib/period';
+import { weekBounds, weekKey, weekLabel, fmtDay, weekdayShort } from '@/lib/period';
 import { Panel, PanelHead, Empty } from '@/components/ui';
 import DayRow, { type DayRowData } from '@/components/DayRow';
+import WeekNav from '@/components/WeekNav';
 import { IconCalendar, IconPlus } from '@/components/icons';
 
+/**
+ * Отчёты по дням.
+ *
+ * На виду всегда одна неделя — та, что идёт прямо сейчас. Прошлые недели и
+ * месяцы никуда не деваются, но живут в архиве: открываются календарём в
+ * шапке или стрелками. Так на странице ровно семь строк дел, а не история
+ * с начала месяца.
+ */
 export default async function DaysPage({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: string }>;
+  searchParams: Promise<{ week?: string }>;
 }) {
   const user = await requireUser();
-  const { period } = await searchParams;
-  const key = period ?? (await currentPeriodKey());
-  const { from, to } = periodBounds(key);
+  const { week } = await searchParams;
+  const today = weekKey(new Date());
+  const key = week ? weekKey(new Date(`${week}T00:00:00.000Z`)) : today;
+  const isCurrent = key === today;
+  const { from, to } = weekBounds(key);
   const buyerId = scopeBuyerId(user);
   const canEdit = canSeeTeam(user.role as Role);
 
   const days = await prisma.dayReport.findMany({
     where: { date: { gte: from, lt: to }, ...(buyerId ? { buyerId } : {}) },
-    include: { offer: true, buyer: true, paymentMethod: true },
+    include: { buyer: true, paymentMethod: true },
     orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
   });
 
@@ -32,19 +42,26 @@ export default async function DaysPage({
         icon={<IconCalendar color="#b4c68c" />}
         tint="bg-sage-t"
         title="Отчёты по дням"
-        aside={<span className="text-[12.5px] text-mute">{periodLabel(key)}</span>}
+        aside={
+          <span className="text-[12.5px] text-mute">
+            {isCurrent ? 'текущая неделя' : 'архив'}
+          </span>
+        }
         right={
-          canEdit ? (
-            <Link
-              href="/days/new"
-              className="flex items-center gap-2 rounded-full bg-sage px-4 py-2 text-[13px] font-semibold text-bg transition hover:opacity-90"
-            >
-              <IconPlus color="#141414" size={14} width={2.6} />
-              Добавить день
-            </Link>
-          ) : (
-            <span className="text-[12.5px] text-mute">отчёты заводит админ</span>
-          )
+          <div className="flex items-center gap-3">
+            <WeekNav week={key} label={weekLabel(key)} isCurrent={isCurrent} />
+            {canEdit ? (
+              <Link
+                href="/days/new"
+                className="flex items-center gap-2 rounded-full bg-sage px-4 py-2 text-[13px] font-semibold text-bg transition hover:opacity-90"
+              >
+                <IconPlus color="#141414" size={14} width={2.6} />
+                Добавить день
+              </Link>
+            ) : (
+              <span className="text-[12.5px] text-mute">отчёты заводит админ</span>
+            )}
+          </div>
         }
       />
 
@@ -60,7 +77,11 @@ export default async function DaysPage({
       </div>
 
       {days.length === 0 ? (
-        <Empty>За {periodLabel(key)} отчётов нет.</Empty>
+        <Empty>
+          {isCurrent
+            ? 'За текущую неделю отчётов пока нет.'
+            : `За ${weekLabel(key)} отчётов нет.`}
+        </Empty>
       ) : (
         days.map((d) => {
           const row: DayRowData = {

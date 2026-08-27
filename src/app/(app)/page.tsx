@@ -59,7 +59,10 @@ export default async function HomePage() {
             {usd(summary.totals.profitCents).replace('$', '')}
           </div>
           <div className="n mt-2.5 text-[12.5px] text-mute">
-            {rub(summary.totals.profitCents, rate)} · курс {(rate / 100).toFixed(0)} ₽/$
+            {rub(summary.totals.profitCents, rate)} ·{' '}
+            <span title="Рыночный курс минус 2 ₽ — закладываем комиссию за перевод">
+              курс {(rate / 100).toFixed(0)} ₽/$
+            </span>
           </div>
           <div className="mt-6 grid grid-cols-4 gap-3">
             {[

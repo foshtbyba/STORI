@@ -98,10 +98,14 @@ export default function Peak3D({
   const SQ = Math.sin(rad);
   const H = HMAX * (Math.cos(rad) / Math.cos((basePitch * Math.PI) / 180));
   /**
-   * Поднимая взгляд, круг раскрывается и уходит за нижний край кадра. Центр
-   * сцены при этом смещаем вверх ровно на то, на сколько подрос эллипс.
+   * Поднимая взгляд, круг раскрывается и уходит за нижний край кадра — сцену
+   * приходится подтягивать вверх. Но подтяжка едет против руки: тянешь вниз,
+   * а гора уезжает вверх. Поэтому смещаем, во-первых, только когда кольцо и
+   * правда полезло за край, во-вторых — не быстрее, чем ближняя сторона горы
+   * опускается. Тогда на всём рабочем наклоне гора идёт за рукой.
    */
-  const cy = centre.y - (SQ - SQ0) * ringRadius * 0.9;
+  const overflow = Math.max(0, centre.y + (ringRadius + 45) * SQ - (VIEW.y + VIEW.h - 8));
+  const cy = centre.y - Math.min(overflow, Math.max(0, SQ - SQ0) * ringRadius * 0.62);
   const centreAt = { x: centre.x, y: cy };
 
   /** Глубина точки площадки: >0 — ближняя к камере половина, <0 — дальняя. */
@@ -381,6 +385,14 @@ export default function Peak3D({
     }
   }, [terrain, pins, route, rules, project, azimuth, width, centreAt.x, centreAt.y, RX, H, SQ, ringRadius]);
 
+  /**
+   * Сколько градусов даёт пиксель курсора. Считаем от экранного радиуса
+   * площадки: протащил на радиус — повернул на четверть оборота. Так гора
+   * едет ровно за рукой и на широкой панели, и на узкой, а не «примерно».
+   */
+  const degPerPx = 90 / Math.max(60, RX * (width / VIEW.w));
+  const TILT = 0.7;
+
   function down(e: React.PointerEvent) {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     cancelAnimationFrame(spin.current);
@@ -397,12 +409,16 @@ export default function Peak3D({
     const dt = Math.max(8, now - last.current.t);
     // Скорость в градусах за кадр (16 мс) — в таких же единицах её потом и гасим.
     speed.current = {
-      a: ((e.clientX - last.current.x) * 0.32 * 16) / dt,
-      p: (-(e.clientY - last.current.y) * 0.16 * 16) / dt,
+      a: (-(e.clientX - last.current.x) * degPerPx * 16) / dt,
+      p: ((e.clientY - last.current.y) * degPerPx * TILT * 16) / dt,
     };
     last.current = { x: e.clientX, y: e.clientY, t: now };
-    setAzimuth(start.a + (e.clientX - start.x) * 0.32);
-    setPitch(Math.max(-30, Math.min(30, start.p - (e.clientY - start.y) * 0.16)));
+    // Знак минуса — чтобы ближняя к нам сторона горы ехала туда же, куда
+    // рука. С плюсом гора уезжает навстречу курсору и это сбивает.
+    setAzimuth(start.a - (e.clientX - start.x) * degPerPx);
+    setPitch(
+      Math.max(-30, Math.min(30, start.p + (e.clientY - start.y) * degPerPx * TILT)),
+    );
   }
 
   /**
