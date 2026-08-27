@@ -232,12 +232,13 @@ export default function Peak3D({
 
       const tier = tierBand.get(i);
       if (tier) {
-        // Взятый порог светится и заметно толще; будущий виден, но не тянет
-        // на себя взгляд.
-        ctx.strokeStyle = tier.passed ? '#c9e08f' : '#565658';
-        ctx.lineWidth = tier.passed ? 4 : 1.6;
-        ctx.shadowColor = tier.passed ? 'rgba(180, 198, 140, 0.75)' : 'transparent';
-        ctx.shadowBlur = tier.passed ? 10 : 0;
+        // Кольца порогов опоясывают гору на всех высотах. Взятое светится
+        // зелёным, будущее читается серебром — тише, но это всё равно кольцо,
+        // а не случайная горизонталь.
+        ctx.strokeStyle = tier.passed ? '#c9e08f' : '#778a5b';
+        ctx.lineWidth = tier.passed ? 4 : 3;
+        ctx.shadowColor = tier.passed ? 'rgba(180, 198, 140, 0.8)' : 'transparent';
+        ctx.shadowBlur = tier.passed ? 12 : 0;
       } else {
         ctx.strokeStyle = band.index ? '#b4b4b4' : '#6b6b6b';
         ctx.lineWidth = band.index ? 1.25 : 0.8;
@@ -317,7 +318,7 @@ export default function Peak3D({
     for (const r of rules) {
       const y = centreAt.y - r.level * H;
       ctx.setLineDash([3, 8]);
-      ctx.strokeStyle = r.passed ? '#c9e08f' : '#5a5a5c';
+      ctx.strokeStyle = r.passed ? '#c9e08f' : '#778a5b';
       ctx.globalAlpha = 0.7;
       ctx.lineWidth = 1.1;
       ctx.beginPath();
@@ -332,10 +333,10 @@ export default function Peak3D({
       ctx.moveTo(1294, y);
       ctx.lineTo(1306, y);
       ctx.stroke();
-      ctx.fillStyle = r.passed ? '#c9e08f' : '#6d6d6f';
+      ctx.fillStyle = r.passed ? '#c9e08f' : '#8f9d76';
       ctx.font = '13px "JetBrains Mono", monospace';
       ctx.fillText(r.label, 1316, y + 4);
-      ctx.fillStyle = r.passed ? '#8d9b6d' : '#5a5a5c';
+      ctx.fillStyle = r.passed ? '#8d9b6d' : '#6f6f73';
       ctx.font = '600 11.5px Manrope, "Helvetica Neue", sans-serif';
       ctx.fillText(r.rate, 1316, y + 21);
     }

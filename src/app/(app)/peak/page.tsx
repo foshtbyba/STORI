@@ -51,8 +51,8 @@ export default async function PeakPage() {
     const onTop = row.profitCents >= summitCents;
     const atSummit = onTop && row.buyer.id === leader.buyer.id;
     const angle = BEARINGS[i % BEARINGS.length];
-    const [u, v] = atSummit
-      ? terrain.raw.summit
+    const [u, v, at] = atSummit
+      ? [terrain.raw.summit[0], terrain.raw.summit[1], 0.975]
       : terrain.surfaceUV(angle, Math.min(level, 0.92));
     const stem = STEMS[i % STEMS.length];
     return {
@@ -63,7 +63,7 @@ export default async function PeakPage() {
       profitCents: row.profitCents,
       u,
       v,
-      level: atSummit ? 0.975 : Math.min(level, 0.92),
+      level: at,
       stem: atSummit ? stem * 0.6 : stem * (0.38 + 0.62 * (1 - level)),
       me: row.buyer.id === viewerId,
       onTop,
@@ -79,22 +79,56 @@ export default async function PeakPage() {
 
   const RING = terrain.config.radius + 26;
 
-  /** Тропа по склону: серпантин из троек u, v, level. */
-  function trail(fromLevel: number, toLevel: number, fromAng: number, toAng: number, wobble: number, steps: number) {
+  /**
+   * Тропа по склону: серпантин из троек u, v, level.
+   *
+   * `switchback` включает разворот в начале: тропа уходит вверх, возвращается
+   * почти к точке старта и только потом идёт наверх — как настоящая петля на
+   * подъёме. `toUV` притягивает хвост к заданной точке, чтобы маршрут не
+   * заканчивался отрезком по воздуху мимо макушки.
+   */
+  function trail(
+    fromLevel: number,
+    toLevel: number,
+    fromAng: number,
+    toAng: number,
+    wobble: number,
+    steps: number,
+    opts: { switchback?: boolean; toUV?: [number, number] } = {},
+  ) {
     const out: number[] = [];
     for (let i = 0; i <= steps; i++) {
       const f = i / steps;
+
+      // Возврат к старту: один раз, в первой трети подъёма.
+      const loop = opts.switchback ? 0.26 * Math.sin(Math.PI * Math.min(1, f / 0.36)) : 0;
+      const prog = Math.max(0, f - loop);
+
       // Виляние к концам приглушаем, но не в ноль: совсем прямые хвосты
-      // выглядят мёртво, а полное виляние сворачивает тропу в клубок у флажка.
+      // выглядят мёртво. В начале, наоборот, добавляем размах.
       const taper = 0.38 + 0.62 * Math.sin(Math.PI * f) ** 0.7;
+      const early = 1 + 1.6 * Math.exp(-((f / 0.3) ** 2));
       const swing =
         (Math.sin(f * Math.PI * 2.6) * wobble +
           Math.sin(f * Math.PI * 6.3 + 1.2) * wobble * 0.42 +
           Math.sin(f * Math.PI * 11.7 + 0.4) * wobble * 0.16) *
-        taper;
+        taper *
+        early;
       const lift = Math.sin(f * Math.PI * 4.1 + 0.7) * 0.012 * taper;
-      const level = Math.max(0.02, Math.min(0.99, fromLevel + f * (toLevel - fromLevel) + lift));
-      const [u, v] = terrain.surfaceUV(fromAng + f * (toAng - fromAng) + swing, level);
+
+      const want = Math.max(0.02, Math.min(0.99, fromLevel + prog * (toLevel - fromLevel) + lift));
+      // Берём высоту, на которой точка реально легла на склон, а не ту, что
+      // просили: иначе на пологом направлении линия уходит в воздух.
+      let [u, v, level] = terrain.surfaceUV(fromAng + prog * (toAng - fromAng) + swing, want);
+
+      // Хвост сходится к нужной точке у самого конца: раньше начнёшь —
+      // получится длинная прямая через склон вместо тропы.
+      if (opts.toUV && f > 0.9) {
+        const w = (f - 0.9) / 0.1;
+        const k = w * w * (3 - 2 * w);
+        u += (opts.toUV[0] - u) * k;
+        v += (opts.toUV[1] - v) * k;
+      }
       out.push(u, v, level);
     }
     return out;
@@ -103,16 +137,22 @@ export default async function PeakPage() {
   const myPin = pins.find((p) => p.me) ?? null;
   const myLevel = myPin ? Math.min(0.985, Math.max(0.09, myPin.level)) : null;
   const myAngle = myPin ? BEARINGS[pins.indexOf(myPin) % BEARINGS.length] : 0;
-  // Хвост маршрута доводим ровно до вершины: последние шаги идут по лучам с
-  // разной высотой склона, и без явной точки пика отрезок уходил в воздух
-  // мимо макушки.
-  const toSummit = myPin && !myPin.onTop ? trail(myLevel!, 0.965, myAngle, myAngle + 58, 20, 72) : [];
-  if (toSummit.length) toSummit.push(terrain.raw.summit[0], terrain.raw.summit[1], 0.975);
-
   const route: Route3D | null = myPin
     ? {
-        covered: trail(0.09, myPin.onTop ? 0.985 : myLevel!, 52, myPin.onTop ? 178 : myAngle, 22, 64),
-        remaining: toSummit,
+        covered: trail(
+          0.09,
+          myPin.onTop ? 0.985 : myLevel!,
+          52,
+          myPin.onTop ? 178 : myAngle,
+          22,
+          80,
+          { switchback: true, toUV: [myPin.u, myPin.v] },
+        ),
+        remaining: myPin.onTop
+          ? []
+          : trail(myLevel!, 0.975, myAngle, myAngle + 58, 20, 80, {
+              toUV: terrain.raw.summit,
+            }),
       }
     : null;
 

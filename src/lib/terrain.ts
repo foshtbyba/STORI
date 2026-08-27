@@ -99,8 +99,8 @@ export type Terrain = {
   config: TerrainConfig;
   bands: Band[];
   raw: RawTerrain;
-  /** Точка поверхности в координатах площадки — для проекции на клиенте. */
-  surfaceUV: (angleDeg: number, level: number) => [number, number];
+  /** Точка поверхности площадки и достигнутая высота — для проекции на клиенте. */
+  surfaceUV: (angleDeg: number, level: number) => [number, number, number];
   /** Where the summit lands on screen. */
   summit: [number, number];
   /** Screen position of the outermost surface point on a ray, at a height. */
@@ -332,14 +332,15 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
   }
 
   /**
-   * Точка поверхности в координатах площадки: u, v на заданной высоте.
+   * Точка поверхности в координатах площадки: u, v и высота, на которой она
+   * реально оказалась.
    *
-   * Высоту сначала прижимаем к тому, что на этом луче вообще достижимо. Без
-   * этого дихотомия на слишком высокой отметке схлопывалась в ноль, точка
-   * уезжала на центральную ось, и тропа отрывалась от склона, повисая в
-   * воздухе вертикальной ниткой.
+   * Высоту прижимаем к тому, что на этом луче вообще достижимо, и возвращаем
+   * прижатую. Раньше возвращались только u и v, а рисовали точку на исходной
+   * высоте — на пологих направлениях склон до неё не доставал, и линия
+   * повисала в воздухе.
    */
-  const surfaceUV = (angleDeg: number, level: number): [number, number] => {
+  const surfaceUV = (angleDeg: number, level: number): [number, number, number] => {
     const a = (angleDeg * Math.PI) / 180;
     const cos = Math.cos(a);
     const sin = Math.sin(a);
@@ -360,7 +361,7 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
       else hi = mid;
     }
     const r = (lo + hi) / 2;
-    return [r * cos, r * sin];
+    return [r * cos, r * sin, target];
   };
 
   const surfacePoint = (angleDeg: number, level: number): [number, number] => {
