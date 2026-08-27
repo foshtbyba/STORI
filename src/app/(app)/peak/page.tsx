@@ -44,9 +44,23 @@ export default async function PeakPage() {
   // он и проецируется, поэтому гору можно обойти вокруг.
   const terrain = getTerrain({ ...DEFAULT_TERRAIN, seed: weekSeed() });
   const viewerId = user.buyer?.id ?? null;
-  // Вершина привязана к верхнему порогу лесенки, а не к лидеру: на пик встаёт
-  // тот, кто его взял, а не тот, кто просто оказался первым среди своих.
-  const summitCents = tiers[tiers.length - 1]?.fromCents ?? 1_000_000;
+  /**
+   * Вершина — ближайшая невзятая веха, а не всегда верх лесенки.
+   *
+   * Пока команда не дошла до верхнего порога, гора масштабируется под лидера:
+   * пиком становится первый порог, который никто ещё не взял. Иначе в начале
+   * месяца при $115 профита все стоят на одном проценте высоты у самой
+   * подошвы — гора выглядит мёртвой, хотя цифры свежие. Отметки ставок при
+   * этом остаются на своих настоящих суммах, просто те, что выше вершины,
+   * пока не рисуем: дойдут до них — гора подрастёт сама.
+   *
+   * Взять свою же вершину так нельзя: порог выбирается строго выше лидера,
+   * поэтому «ты на вершине» по-прежнему означает взятый верх лесенки.
+   */
+  const topCents = tiers[tiers.length - 1]?.fromCents ?? 1_000_000;
+  const bestCents = ranked.reduce((max, r) => Math.max(max, r.profitCents), 0);
+  const summitCents = tiers.find((t) => t.fromCents > bestCents)?.fromCents ?? topCents;
+  const scaled = summitCents < topCents;
   const leader = ranked[0];
 
   const pins: Pin3D[] = ranked.map((row, i) => {
@@ -284,6 +298,7 @@ export default async function PeakPage() {
             aside={
               <span className="text-[12.5px] text-mute">
                 вершина — {usd(summitCents, { round: true })}
+                {scaled ? ` из ${usd(topCents, { round: true })}` : ''}
               </span>
             }
           />
