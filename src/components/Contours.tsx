@@ -12,12 +12,24 @@ const H = 760;
 const LINES = 54;
 const STEP = H / (LINES - 1);
 
-/** Форма гребня. Одна на все линии — поэтому они не пересекаются. */
+/** Детерминированный шум по индексу: рисунок одинаков при каждом рендере. */
+function jitter(i: number, k: number) {
+  const t = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453;
+  return t - Math.floor(t);
+}
+
+/**
+ * Форма гребня. Одна на все линии — поэтому они не пересекаются между собой,
+ * сколько бы гармоник в неё ни намешать.
+ */
 function ridge(t: number) {
   return (
-    Math.sin(t * 3.1 - 0.6) * 0.55 +
-    Math.sin(t * 1.4 + 1.9) * 0.32 +
-    Math.sin(t * 6.7 + 0.3) * 0.13
+    Math.sin(t * 3.1 - 0.6) * 0.5 +
+    Math.sin(t * 1.4 + 1.9) * 0.3 +
+    Math.sin(t * 6.7 + 0.3) * 0.16 +
+    Math.sin(t * 11.3 + 2.4) * 0.09 +
+    Math.sin(t * 19.7 + 1.1) * 0.05 +
+    Math.sin(t * 2.3 - 2.7) * 0.22
   );
 }
 
@@ -26,7 +38,9 @@ function line(i: number) {
   // Чем дальше от середины полосы, тем спокойнее линия: в центре гребень,
   // к краям рельеф сходит на нет.
   const centre = 1 - Math.abs(i - (LINES - 1) / 2) / ((LINES - 1) / 2);
-  const amp = STEP * (0.5 + centre * 2.6);
+  // Немного разного роста у каждой линии — рисунок перестаёт быть слоёным.
+  const amp = STEP * (0.5 + centre * 2.6) * (0.72 + jitter(i, 3) * 0.7);
+  const skew = (jitter(i, 4) - 0.5) * 1.6;
 
   const points: string[] = [];
   for (let x = 0; x <= W; x += 12) {
@@ -34,7 +48,7 @@ function line(i: number) {
     // Края притягиваем к базовой линии, чтобы полоса уходила в край ровно,
     // а не обрывалась на середине волны.
     const ease = Math.sin(Math.PI * Math.min(1, Math.max(0, t))) ** 0.6;
-    points.push(`${x},${(base + ridge(t) * amp * ease).toFixed(1)}`);
+    points.push(`${x},${(base + ridge(t + skew) * amp * ease).toFixed(1)}`);
   }
   return { d: `M${points.join(' L')}`, index: i % 5 === 0 };
 }
@@ -53,7 +67,7 @@ export default function Contours({
   return (
     <span
       aria-hidden
-      className={`pointer-events-none absolute overflow-hidden ${className}`}
+      className={`contour-drift pointer-events-none absolute overflow-hidden ${className}`}
       style={{ opacity }}
     >
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-full w-full">

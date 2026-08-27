@@ -84,11 +84,15 @@ export default async function PeakPage() {
     const out: number[] = [];
     for (let i = 0; i <= steps; i++) {
       const f = i / steps;
+      // Виляние гасим у обоих концов: иначе на старте тропа сама себя
+      // догоняет и сворачивается в клубок у флажка.
+      const taper = Math.sin(Math.PI * f) ** 0.7;
       const swing =
-        Math.sin(f * Math.PI * 2.6) * wobble +
-        Math.sin(f * Math.PI * 6.3 + 1.2) * wobble * 0.42 +
-        Math.sin(f * Math.PI * 11.7 + 0.4) * wobble * 0.16;
-      const lift = Math.sin(f * Math.PI * 4.1 + 0.7) * 0.012;
+        (Math.sin(f * Math.PI * 2.6) * wobble +
+          Math.sin(f * Math.PI * 6.3 + 1.2) * wobble * 0.42 +
+          Math.sin(f * Math.PI * 11.7 + 0.4) * wobble * 0.16) *
+        taper;
+      const lift = Math.sin(f * Math.PI * 4.1 + 0.7) * 0.012 * taper;
       const level = Math.max(0.02, Math.min(0.99, fromLevel + f * (toLevel - fromLevel) + lift));
       const [u, v] = terrain.surfaceUV(fromAng + f * (toAng - fromAng) + swing, level);
       out.push(u, v, level);
@@ -112,7 +116,9 @@ export default async function PeakPage() {
       level: tier.fromCents / summitCents,
       label: usd(tier.fromCents, { round: true }),
       rate: `ставка ${tier.ratePct}%`,
-      color: tier.ratePct >= 50 ? '#b4c68c' : '#a8a8a8',
+      color: '#8a8a8a',
+      // Порог, который смотрящий уже взял, светится зелёным и на склоне.
+      passed: Boolean(viewer && viewer.profitCents >= tier.fromCents),
     }))
     .filter((r) => r.level <= 1);
 

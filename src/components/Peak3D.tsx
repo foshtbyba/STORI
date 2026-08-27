@@ -26,7 +26,14 @@ export type Route3D = {
   remaining: number[];
 };
 
-export type Rule3D = { level: number; label: string; rate: string; color: string };
+export type Rule3D = {
+  level: number;
+  label: string;
+  rate: string;
+  color: string;
+  /** Порог уже взят смотрящим — подсвечиваем его и на склоне. */
+  passed: boolean;
+};
 
 const VIEW = { w: 1400, h: 778, y: 148 };
 const CARDINALS = [
@@ -65,14 +72,33 @@ export default function Peak3D({
   const canvas = useRef<HTMLCanvasElement>(null);
   const box = useRef<HTMLDivElement>(null);
   const [azimuth, setAzimuth] = useState(0);
+  /** Наклон камеры в градусах от горизонта. Базовый вычисляем из сплющивания. */
+  const [pitch, setPitch] = useState(0);
   const [dragging, setDragging] = useState(false);
   // Ширину берём у родителя. Если задавать её самому холсту, наблюдатель
   // измеряет уже раздутый контейнер и тот никогда не сжимается — страница
   // получает лишние полторы тысячи пикселей по горизонтали.
   const [width, setWidth] = useState(VIEW.w);
-  const from = useRef<{ x: number; a: number } | null>(null);
+  const from = useRef<{ x: number; y: number; a: number; p: number } | null>(null);
 
-  const { centre, radius: RX, height: HMAX, squash: SQ } = terrain;
+  const { centre, radius: RX, height: HMAX, squash: SQ0 } = terrain;
+
+  /**
+   * Наклон камеры. Площадка сплющивается как синус угла над горизонтом, а
+   * высота горы — как косинус: поднимаешь взгляд — круг раскрывается, гора
+   * приседает. Держим в пределах ±30° от исходного ракурса.
+   */
+  const basePitch = (Math.asin(Math.min(1, SQ0)) * 180) / Math.PI;
+  const angle = Math.max(6, Math.min(70, basePitch + pitch));
+  const rad = (angle * Math.PI) / 180;
+  const SQ = Math.sin(rad);
+  const H = HMAX * (Math.cos(rad) / Math.cos((basePitch * Math.PI) / 180));
+  /**
+   * Поднимая взгляд, круг раскрывается и уходит за нижний край кадра. Центр
+   * сцены при этом смещаем вверх ровно на то, на сколько подрос эллипс.
+   */
+  const cy = centre.y - (SQ - SQ0) * ringRadius * 0.9;
+  const centreAt = { x: centre.x, y: cy };
 
   /** Проекция точки площадки на экран при текущем повороте. */
   const project = useMemo(() => {
@@ -82,9 +108,9 @@ export default function Peak3D({
     return (u: number, v: number, level: number): [number, number] => {
       const ru = u * cos - v * sin;
       const rv = u * sin + v * cos;
-      return [centre.x + ru * RX, centre.y + rv * RX * SQ - level * HMAX];
+      return [centreAt.x + ru * RX, centreAt.y + rv * RX * SQ - level * H];
     };
-  }, [azimuth, centre.x, centre.y, RX, HMAX, SQ]);
+  }, [azimuth, centreAt.x, centreAt.y, RX, H, SQ]);
 
   // Размер холста — под ширину панели, с учётом плотности экрана.
   useEffect(() => {
@@ -113,8 +139,8 @@ export default function Peak3D({
       ctx.beginPath();
       for (let d = 0; d <= 360; d += 2) {
         const a = (d * Math.PI) / 180;
-        const x = centre.x + r * Math.cos(a);
-        const y = centre.y + r * SQ * Math.sin(a);
+        const x = centreAt.x + r * Math.cos(a);
+        const y = centreAt.y + r * SQ * Math.sin(a);
         if (d === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
@@ -127,7 +153,7 @@ export default function Peak3D({
 
     const P = (deg: number, r: number): [number, number] => {
       const a = (deg * Math.PI) / 180;
-      return [centre.x + r * Math.cos(a), centre.y + r * SQ * Math.sin(a)];
+      return [centreAt.x + r * Math.cos(a), centreAt.y + r * SQ * Math.sin(a)];
     };
 
     ctx.strokeStyle = '#b4b4b4';
@@ -166,8 +192,24 @@ export default function Peak3D({
       ctx.restore();
     }
 
+    // Отметки порогов на самом склоне: для каждого порога берём ближайшую
+    // горизонталь и красим её. Взятые — зелёным, будущие — приглушённо.
+    const tierBand = new Map<number, Rule3D>();
+    for (const r of rules) {
+      let best = 0;
+      let bestGap = Infinity;
+      terrain.bands.forEach((b, i) => {
+        const gap = Math.abs(b.level - r.level);
+        if (gap < bestGap) {
+          bestGap = gap;
+          best = i;
+        }
+      });
+      tierBand.set(best, r);
+    }
+
     // --- рельеф: ступени снизу вверх, непрозрачные, поверх дальних ближние.
-    for (const band of terrain.bands) {
+    for (const [i, band] of terrain.bands.entries()) {
       ctx.beginPath();
       for (const loop of band.loops) {
         for (let i = 0; i < loop.length; i += 2) {
@@ -181,8 +223,15 @@ export default function Peak3D({
       const c = Math.round(30 + 28 * t);
       ctx.fillStyle = `rgb(${c} ${c} ${c + 2})`;
       ctx.fill('evenodd');
-      ctx.strokeStyle = band.index ? '#b4b4b4' : '#6b6b6b';
-      ctx.lineWidth = band.index ? 1.25 : 0.8;
+
+      const tier = tierBand.get(i);
+      if (tier) {
+        ctx.strokeStyle = tier.passed ? '#b4c68c' : '#6f6f70';
+        ctx.lineWidth = tier.passed ? 3 : 2;
+      } else {
+        ctx.strokeStyle = band.index ? '#b4b4b4' : '#6b6b6b';
+        ctx.lineWidth = band.index ? 1.25 : 0.8;
+      }
       ctx.lineJoin = 'round';
       ctx.stroke();
     }
@@ -251,18 +300,18 @@ export default function Peak3D({
     ctx.strokeStyle = '#2e2e2f';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(1300, centre.y - HMAX);
-    ctx.lineTo(1300, centre.y);
+    ctx.moveTo(1300, centreAt.y - H);
+    ctx.lineTo(1300, centreAt.y);
     ctx.stroke();
     for (const r of rules) {
-      const y = centre.y - r.level * HMAX;
+      const y = centreAt.y - r.level * H;
       ctx.setLineDash([3, 8]);
-      ctx.strokeStyle = r.color;
+      ctx.strokeStyle = r.passed ? '#b4c68c' : r.color;
       ctx.globalAlpha = 0.7;
       ctx.lineWidth = 1.1;
       ctx.beginPath();
       // Начинаем правее подошвы: гора вращается, и линейка не должна её резать.
-      ctx.moveTo(centre.x + RX * 1.06, y);
+      ctx.moveTo(centreAt.x + RX * 1.06, y);
       ctx.lineTo(1290, y);
       ctx.stroke();
       ctx.globalAlpha = 1;
@@ -272,24 +321,25 @@ export default function Peak3D({
       ctx.moveTo(1294, y);
       ctx.lineTo(1306, y);
       ctx.stroke();
-      ctx.fillStyle = r.color;
+      ctx.fillStyle = r.passed ? '#b4c68c' : r.color;
       ctx.font = '13px "JetBrains Mono", monospace';
       ctx.fillText(r.label, 1316, y + 4);
       ctx.fillStyle = '#767676';
       ctx.font = '600 11.5px Manrope, "Helvetica Neue", sans-serif';
       ctx.fillText(r.rate, 1316, y + 21);
     }
-  }, [terrain, pins, route, rules, project, azimuth, width, centre, RX, HMAX, SQ, ringRadius]);
+  }, [terrain, pins, route, rules, project, azimuth, width, centreAt.x, centreAt.y, RX, H, SQ, ringRadius]);
 
   function down(e: React.PointerEvent) {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    from.current = { x: e.clientX, a: azimuth };
+    from.current = { x: e.clientX, y: e.clientY, a: azimuth, p: pitch };
     setDragging(true);
   }
   function move(e: React.PointerEvent) {
     const start = from.current;
     if (!start) return;
     setAzimuth(start.a + (e.clientX - start.x) * 0.32);
+    setPitch(Math.max(-30, Math.min(30, start.p - (e.clientY - start.y) * 0.16)));
   }
   function up(e: React.PointerEvent) {
     (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
@@ -312,7 +362,10 @@ export default function Peak3D({
       onPointerMove={move}
       onPointerUp={up}
       onPointerCancel={up}
-      onDoubleClick={() => setAzimuth(0)}
+      onDoubleClick={() => {
+        setAzimuth(0);
+        setPitch(0);
+      }}
     >
       <canvas ref={canvas} className="absolute inset-0 block h-full w-full" />
 
@@ -355,7 +408,7 @@ export default function Peak3D({
 
       <span
         className="pointer-events-none absolute bottom-2 right-3 text-[11px] text-dim transition"
-        style={{ opacity: azimuth === 0 ? 1 : 0 }}
+        style={{ opacity: azimuth === 0 && pitch === 0 ? 1 : 0 }}
       >
         потяни, чтобы обойти гору
       </span>

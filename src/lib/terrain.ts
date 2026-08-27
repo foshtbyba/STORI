@@ -331,18 +331,36 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
     });
   }
 
-  /** Точка поверхности в координатах площадки: u, v на заданной высоте. */
+  /**
+   * Точка поверхности в координатах площадки: u, v на заданной высоте.
+   *
+   * Высоту сначала прижимаем к тому, что на этом луче вообще достижимо. Без
+   * этого дихотомия на слишком высокой отметке схлопывалась в ноль, точка
+   * уезжала на центральную ось, и тропа отрывалась от склона, повисая в
+   * воздухе вертикальной ниткой.
+   */
   const surfaceUV = (angleDeg: number, level: number): [number, number] => {
     const a = (angleDeg * Math.PI) / 180;
+    const cos = Math.cos(a);
+    const sin = Math.sin(a);
+
+    let peak = 0;
+    for (let i = 0; i <= 64; i++) {
+      const r = (i / 64) * 1.02;
+      const h = height(r * cos, r * sin) / maxH;
+      if (h > peak) peak = h;
+    }
+    const target = Math.min(level, peak * 0.995);
+
     let lo = 0;
     let hi = 1.05;
     for (let i = 0; i < 30; i++) {
       const mid = (lo + hi) / 2;
-      if (height(mid * Math.cos(a), mid * Math.sin(a)) / maxH > level) lo = mid;
+      if (height(mid * cos, mid * sin) / maxH > target) lo = mid;
       else hi = mid;
     }
     const r = (lo + hi) / 2;
-    return [r * Math.cos(a), r * Math.sin(a)];
+    return [r * cos, r * sin];
   };
 
   const surfacePoint = (angleDeg: number, level: number): [number, number] => {

@@ -8,7 +8,7 @@
   --color-panel: #1c1c1d;
   /* Панели чуть прозрачны, чтобы фоновые горизонтали шли сквозь весь экран,
      а не обрывались на границе блока. */
-  --color-panel-glass: rgb(28 28 29 / 0.72);
+  --color-panel-glass: rgb(28 28 29 / 0.88);
   --color-sub: #232324;
   --color-raise: #292929;
   --color-line: #2e2e2f;
@@ -48,6 +48,31 @@ body {
 /* У JetBrains Mono прописные сидят выше середины строчного бокса: при
    выравнивании по центру инициалы в кружках всегда уезжали вверх. Сдвиг
    вымерен по пикселям отрисовки — 0.04em возвращает чернила ровно в центр. */
+@keyframes contour-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1.06);
+  }
+  50% {
+    transform: translate3d(-1.4%, -0.9%, 0) scale(1.09);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.06);
+  }
+}
+
+/* Фон еле дышит: 70 секунд на цикл, сдвиг в полтора процента. Заметить можно,
+   только если смотреть специально, — и ровно этого мы и хотим. */
+.contour-drift {
+  animation: contour-drift 70s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contour-drift {
+    animation: none;
+  }
+}
+
 .no-scrollbar {
   scrollbar-width: none;
 }
