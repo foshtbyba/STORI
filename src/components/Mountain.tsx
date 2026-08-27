@@ -219,7 +219,7 @@ export default function Mountain({
             {camp.map((c) => (
               <span key={c.id} className="flex items-center gap-2">
                 <span
-                  className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full text-[9.5px] font-bold"
+                  className="n flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full text-[9.5px] font-bold leading-none"
                   style={{
                     background: '#232324',
                     color: '#8a8a8a',

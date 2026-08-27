@@ -95,7 +95,7 @@ export function Avatar({
 }) {
   return (
     <span
-      className="n flex shrink-0 items-center justify-center rounded-full font-semibold"
+      className="n flex shrink-0 items-center justify-center rounded-full font-semibold leading-none"
       style={{
         width: size,
         height: size,

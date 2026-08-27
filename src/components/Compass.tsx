@@ -11,8 +11,10 @@ const CARDINALS = [
   { t: 'N', deg: 315 },
 ];
 
-/** Высота буквы и насечки в единицах плоскости: они одного роста. */
+/** Высота буквы в единицах плоскости. */
 const MARK = 40;
+/** Насечка чуть ниже буквы, чтобы гребёнка не спорила с ней за внимание. */
+const TICK = 26;
 
 export default function Compass({
   centre,
@@ -42,7 +44,7 @@ export default function Compass({
     for (let k = 1; k <= PER_QUARTER; k++) {
       const deg = from + step * k;
       const [x1, y1] = P(deg, radius + 7);
-      const [x2, y2] = P(deg, radius + 7 + MARK);
+      const [x2, y2] = P(deg, radius + 7 + TICK);
       ticks.push({ key: `t${q}-${k}`, x1, y1, x2, y2 });
     }
   }
@@ -80,7 +82,7 @@ export default function Compass({
           x2={t.x2}
           y2={t.y2}
           stroke="#b4b4b4"
-          strokeWidth={3}
+          strokeWidth={2.4}
           strokeLinecap="round"
         />
       ))}
