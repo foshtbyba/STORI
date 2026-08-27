@@ -64,6 +64,8 @@ ENV
 fi
 
 echo "==> Переключаю Prisma на postgresql"
+# Провайдер переключает и сборка образа — здесь дублируем на случай, если
+# кто-то запустит миграции с хоста, минуя контейнер.
 sed -i -E 's/provider = "sqlite"/provider = "postgresql"/' prisma/schema.prisma
 
 echo "==> Собираю и поднимаю контейнеры"

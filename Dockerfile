@@ -6,6 +6,11 @@ COPY package.json package-lock.json ./
 COPY prisma ./prisma
 RUN npm ci
 COPY . .
+# В репозитории схема лежит с провайдером sqlite — так удобнее разрабатывать
+# локально. Образ всегда собирается под Postgres, иначе обычная распаковка
+# свежего архива поверх рабочей папки роняет прод: схема откатывается на
+# sqlite, а DATABASE_URL остаётся постгресовым.
+RUN node scripts/switch-db.mjs postgresql
 # Prisma needs a URL string to generate the client; nothing connects to it here.
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 RUN npx prisma generate && npx next build
