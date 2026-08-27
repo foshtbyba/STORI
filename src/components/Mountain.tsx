@@ -238,33 +238,42 @@ export default function Mountain({
         </div>
       ) : null}
 
+      {/*
+        Чужие метки приглушены и мельче, своя — в полную силу. При наведении
+        метка подрастает, становится непрозрачной и показывает сумму: пока на
+        неё не смотрят, цифра не занимает место. Наведённая поднимается над
+        соседями, иначе в кучке у вершины она уходила бы под них.
+      */}
       {pins.map((p) => (
-        <div key={p.id}>
+        <div
+          key={p.id}
+          className={`group absolute -translate-x-1/2 -translate-y-1/2 transition-[transform,opacity] duration-150 hover:z-20 ${
+            p.me ? 'z-10 opacity-100' : 'opacity-55 hover:opacity-100'
+          }`}
+          style={{ left: `${p.left}%`, top: `${p.top}%` }}
+        >
           <div
-            className="n absolute flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-[11.5px] font-bold"
+            className={`n flex items-center justify-center rounded-full font-bold leading-none transition-transform duration-150 group-hover:scale-125 ${
+              p.me ? 'h-10 w-10 text-[11.5px]' : 'h-[30px] w-[30px] text-[9.5px]'
+            }`}
             style={{
-              left: `${p.left}%`, top: `${p.top}%`,
               background: p.me ? p.color : '#1f1f20',
               color: p.me ? '#1c1c1d' : p.color,
               border: `2px solid ${p.color}`,
               boxShadow: '0 0 0 4px #1c1c1d',
             }}
-            title={p.handle}
           >
             {p.initials}
           </div>
           <div
-            className="n absolute whitespace-nowrap rounded-full px-2.5 py-1 text-[11.5px] font-semibold"
+            className="n pointer-events-none absolute bottom-full left-1/2 mb-2.5 -translate-x-1/2 whitespace-nowrap rounded-full px-2.5 py-1 text-[11.5px] font-semibold opacity-0 transition-opacity duration-150 group-hover:opacity-100"
             style={{
-              left: `${p.left}%`, top: `${p.top}%`,
-              transform: 'translate(-50%, calc(-50% - 35px))',
               background: '#232324',
-              border: `1px solid ${p.me ? p.color : '#2e2e2f'}`,
-              color: p.me ? p.color : '#a8a8a8',
+              border: `1px solid ${p.me ? p.color : '#3a3a3b'}`,
+              color: p.me ? p.color : '#d0d0d0',
             }}
           >
-            {p.me ? 'ты · ' : ''}
-            {usd(p.profitCents, { round: true })}
+            {p.handle} · {usd(p.profitCents, { round: true })}
           </div>
         </div>
       ))}

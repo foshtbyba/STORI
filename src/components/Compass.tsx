@@ -12,7 +12,7 @@ const CARDINALS = [
 ];
 
 /** Высота буквы и насечки в единицах плоскости: они одного роста. */
-const MARK = 26;
+const MARK = 40;
 
 export default function Compass({
   centre,
@@ -79,8 +79,8 @@ export default function Compass({
           y1={t.y1}
           x2={t.x2}
           y2={t.y2}
-          stroke="#9a9a9a"
-          strokeWidth={1.8}
+          stroke="#b4b4b4"
+          strokeWidth={3}
           strokeLinecap="round"
         />
       ))}

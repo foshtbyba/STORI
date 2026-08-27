@@ -54,11 +54,11 @@ export const DEFAULT_TERRAIN: TerrainConfig = {
   indexEvery: 5,
   squash: 0.38,
   radius: 352,
-  height: 392,
+  height: 404,
   centre: { x: 660, y: 700 },
   octaves: [0.78, 0.56, 0.38, 0.23, 0.13],
   warp: 0.62,
-  domeSigma: 0.33,
+  domeSigma: 0.27,
   shoulders: [
     [-0.5, 0.2, 0.2, 0.34],
     [0.46, -0.24, 0.18, 0.3],
@@ -139,9 +139,12 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
       rn += weight * ridged(wx + 1.3 + i * 4, wy + 2.9 + i * 3, freqs[i] ?? 60);
     });
 
-    const body = 0.5 * Math.pow(cone, 1.18) + 0.44 * dome * Math.pow(cone, 0.4);
+    const body = 0.42 * Math.pow(cone, 1.35) + 0.62 * dome * Math.pow(cone, 0.3);
     // Гребни весят больше гладкой основы — иначе выходит купол, а не рельеф.
-    let h = body * (0.34 + 1.15 * rn);
+    // Но у самой макушки их приглушаем: иначе пик расползается на несколько
+    // бугров и метке некуда встать.
+    const crest = Math.pow(dome, 1.6);
+    let h = body * (0.34 + 1.15 * rn * (1 - 0.72 * crest));
     for (const [sx, sy, sigma, amp] of config.shoulders) {
       const dx = x - sx;
       const dy = y - sy;
