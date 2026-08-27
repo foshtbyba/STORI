@@ -147,6 +147,19 @@
   }
   .subtoggle:hover{color:var(--soft)}
 
+  /* ── Приём оффера из дешборда ──────────────────────────────────────
+     Оффер уже заведён в дешборде: партнёрка, ID, гео, ссылка. Здесь его
+     принимают одной строкой, чтобы не перенабирать то же самое руками. */
+  .intake{display:flex;gap:8px;margin-top:14px}
+  .intake input{flex:1;min-width:0}
+  .intake button{
+    flex:0 0 auto;padding:0 20px;border:0;border-radius:var(--r-sm);
+    background:var(--acc);color:var(--acc-ink);font-size:13px;font-weight:700;cursor:pointer;
+    transition:background .15s;
+  }
+  .intake button:hover{background:var(--acc-dark)}
+  .intake.done input{border-color:var(--acc)}
+
   /* ── Подписи и поля ────────────────────────────────────────────────── */
   /* Подпись поля — как в формах дешборда: обычный регистр, приглушённый цвет.
      Капслок там носят только заголовки колонок в таблицах, а тут подписи
@@ -498,6 +511,11 @@
   <div class="panel left">
     <div class="grp">
       <h3>Партнёрка</h3>
+      <div class="intake">
+        <input id="offerPaste" placeholder="Вставь сюда оффер из дешборда">
+        <button id="offerApply" type="button">Вставить</button>
+      </div>
+      <div class="hint" id="offerPasteHint">На карточке оффера в дешборде — кнопка «Копировать для билдера». Вставь строку сюда: партнёрка, ID, гео и остальное встанут сами.</div>
       <label>Партнёрка (API приёма заказов)</label>
       <select id="partner"></select>
       <div class="hint" id="partnerHint"></div>
@@ -2528,6 +2546,66 @@ function showTopToast(msg,isErr){
     try{ build(); }catch(e){}
   }
   sel.addEventListener("change",applyPartner);applyPartner();
+
+  /* ── Оффер из дешборда ───────────────────────────────────────────────
+     Дешборд кладёт в буфер одну строку JSON с меткой msteam-offer. Здесь её
+     разбирают и раскладывают по полям. Пустые ключи не трогаем: то, что уже
+     набрано руками, вставка не затирает.
+
+     Партнёрку ставим последней и дёргаем change — от неё зависит, какие поля
+     вообще показаны, а «Страна» подхватывается из кода гео, который к тому
+     моменту уже проставлен. */
+  (function(){
+    var box=document.getElementById("offerPaste"), btn=document.getElementById("offerApply");
+    if(!box||!btn) return;
+    var PLAIN={ offerId:"product_id", geo:"langCode", landingUrl:"landingUrl", streamCode:"streamCode",
+                name:"brand", price:"price", image:"image", backfix:"backfix" };
+
+    function apply(raw){
+      var data;
+      try{ data=JSON.parse(String(raw||"").trim()); }catch(e){ data=null; }
+      if(!data || typeof data!=="object" || !data["msteam-offer"]){
+        showTopToast("Это не строка оффера из дешборда — скопируй её кнопкой на карточке оффера", true);
+        return false;
+      }
+      var filled=[];
+      Object.keys(PLAIN).forEach(function(k){
+        var el=document.getElementById(PLAIN[k]);
+        if(el && data[k]!=null && String(data[k]).trim()!==""){ el.value=String(data[k]).trim(); filled.push(k); }
+      });
+      if(data.uiLang){
+        var ui=document.getElementById("uiLang");
+        if(ui && Array.prototype.some.call(ui.options,function(o){return o.value===data.uiLang;})){
+          ui.value=data.uiLang; filled.push("uiLang");
+        }
+      }
+      if(data.partner){
+        if(Array.prototype.some.call(sel.options,function(o){return o.value===data.partner;})){
+          sel.value=data.partner; filled.push("partner");
+          sel.dispatchEvent(new Event("change"));
+        } else {
+          showTopToast("Партнёрка «"+data.partner+"» этому конструктору незнакома — выбери вручную", true);
+        }
+      }
+      try{ build(); }catch(e){}
+      box.value=""; box.parentNode.classList.add("done");
+      setTimeout(function(){ box.parentNode.classList.remove("done"); }, 1600);
+      showTopToast((data.name?"Оффер «"+data.name+"» вставлен":"Оффер вставлен")+" · полей: "+filled.length);
+      return true;
+    }
+
+    btn.addEventListener("click",async function(){
+      if(box.value.trim()){ apply(box.value); return; }
+      try{ var txt=await navigator.clipboard.readText(); if(txt&&txt.trim()){ apply(txt); return; } }catch(e){}
+      showTopToast("Пусто: вставь строку оффера в поле", true);
+    });
+    // Ctrl+V прямо в поле — вставка срабатывает сама, без нажатия кнопки.
+    box.addEventListener("paste",function(e){
+      var txt=(e.clipboardData||window.clipboardData).getData("text");
+      if(txt&&txt.indexOf("msteam-offer")>-1){ e.preventDefault(); apply(txt); }
+    });
+    box.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); btn.click(); } });
+  })();
   wirePagePick("pick-page","page","＋ фото");
   // папка сундука: выбор + drag-and-drop
   var hfi=document.getElementById("handlerFile");
