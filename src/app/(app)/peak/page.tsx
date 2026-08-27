@@ -98,7 +98,11 @@ export default async function PeakPage() {
     toAng: number,
     wobble: number,
     steps: number,
-    opts: { switchback?: boolean; toUV?: [number, number, number] } = {},
+    opts: {
+      switchback?: boolean;
+      fromUV?: [number, number, number];
+      toUV?: [number, number, number];
+    } = {},
   ) {
     const out: number[] = [];
     for (let i = 0; i <= steps; i++) {
@@ -136,13 +140,28 @@ export default async function PeakPage() {
         v += (opts.toUV[1] - v) * k;
         z += (opts.toUV[2] - z) * k;
       }
+      // То же самое с головой тропы. Виляние на старте не гаснет в ноль, и
+      // пунктир начинался в стороне от метки — получалось, что человек стоит
+      // рядом со своим маршрутом, а не на нём.
+      if (opts.fromUV && f < 0.14) {
+        const w = 1 - f / 0.14;
+        const k = w * w * (3 - 2 * w);
+        u += (opts.fromUV[0] - u) * k;
+        v += (opts.fromUV[1] - v) * k;
+        z += (opts.fromUV[2] - z) * k;
+      }
       out.push(u, v, z);
     }
     return out;
   }
 
   const myPin = pins.find((p) => p.me) ?? null;
-  const myLevel = myPin ? Math.min(0.985, Math.max(0.09, myPin.level)) : null;
+  // Тропа кончается ровно там, где стоит метка, а не на условной отметке:
+  // иначе у того, кто только начал, путь обрывался выше его собственного пина.
+  const myLevel = myPin ? Math.min(0.985, myPin.level) : null;
+  // Подъём всегда идёт снизу вверх — старт берём ниже метки, даже если она
+  // сама почти у подножия.
+  const footLevel = myPin ? Math.min(0.09, Math.max(0.02, myPin.level * 0.55)) : 0.09;
   const myAngle = myPin ? BEARINGS[pins.indexOf(myPin) % BEARINGS.length] : 0;
   // Азимут самой вершины: к ней и ведём хвост, иначе тропа лезет по гребню,
   // который до пика не дотягивается, и упирается в уступ.
@@ -153,7 +172,7 @@ export default async function PeakPage() {
   const route: Route3D | null = myPin
     ? {
         covered: trail(
-          0.09,
+          footLevel,
           myPin.onTop ? 0.985 : myLevel!,
           52,
           myPin.onTop ? 178 : myAngle,
@@ -163,7 +182,8 @@ export default async function PeakPage() {
         ),
         remaining: myPin.onTop
           ? []
-          : trail(myLevel!, 0.975, myAngle, myAngle + sweep, 16, 90, {
+          : trail(myPin.level, 0.975, myAngle, myAngle + sweep, 16, 90, {
+              fromUV: [myPin.u, myPin.v, myPin.level],
               toUV: [terrain.raw.summit[0], terrain.raw.summit[1], 0.975],
             }),
       }
