@@ -14,6 +14,10 @@ const iso = (d: Date) =>
     d.getUTCDate(),
   ).padStart(2, '0')}`;
 
+/** Ширина листа календаря и отступ, который держим от краёв экрана. */
+const W = 268;
+const GAP = 14;
+
 const parse = (v: string) => {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
   return m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])) : new Date();
@@ -85,7 +89,14 @@ export default function DateField({
       // На совсем низком экране не помещается ни вниз, ни вверх — тогда просто
       // прижимаем к краю, чтобы календарь не уехал за пределы видимого.
       const top = Math.max(8, Math.min(wanted, window.innerHeight - h - 8));
-      const left = Math.max(8, Math.min(window.innerWidth - 276, align === 'right' ? t.right - 268 : t.left));
+      // Ширину берём у документа, а не у окна: innerWidth считает и полосу
+      // прокрутки, из-за неё календарь у правого края вставал под неё впритык.
+      const vw = document.documentElement.clientWidth;
+      // У правого края разворачиваем от правого угла поля, а не от левого:
+      // иначе календарь упирается в кромку экрана.
+      const toRight = align === 'right' || t.left + W + GAP > vw;
+      const wantedLeft = toRight ? t.right - W : t.left;
+      const left = Math.max(GAP, Math.min(wantedLeft, vw - W - GAP));
       setAt({ left, top });
     };
     place();
