@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 const WEEKDAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
 const MONTHS = [
@@ -56,15 +57,51 @@ export default function DateField({
   const [open, setOpen] = useState(false);
   const [month, setMonth] = useState(() => parse(current));
   const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const sheet = useRef<HTMLDivElement>(null);
+  /**
+   * Календарь рисуем поверх страницы, а не внутри блока.
+   *
+   * Абсолютный блок внутри потока не меняет высоту родителя, но всё равно
+   * попадает в область прокрутки документа: открыл календарь у нижнего поля —
+   * и страница выросла, появилась лишняя прокрутка. С fixed этого не
+   * происходит: координаты считаем от кнопки и разворачиваем вверх, если
+   * снизу не помещается.
+   */
+  const [at, setAt] = useState<{ left: number; top: number } | null>(null);
 
   useEffect(() => {
     if (open) setMonth(parse(current));
   }, [open, current]);
 
+  useLayoutEffect(() => {
+    if (!open) return;
+    const place = () => {
+      const t = trigger.current?.getBoundingClientRect();
+      if (!t) return;
+      const h = sheet.current?.offsetHeight ?? 320;
+      const below = window.innerHeight - t.bottom;
+      const wanted = below < h + 12 && t.top > h + 12 ? t.top - h - 6 : t.bottom + 6;
+      // На совсем низком экране не помещается ни вниз, ни вверх — тогда просто
+      // прижимаем к краю, чтобы календарь не уехал за пределы видимого.
+      const top = Math.max(8, Math.min(wanted, window.innerHeight - h - 8));
+      const left = Math.max(8, Math.min(window.innerWidth - 276, align === 'right' ? t.right - 268 : t.left));
+      setAt({ left, top });
+    };
+    place();
+    window.addEventListener('scroll', place, true);
+    window.addEventListener('resize', place);
+    return () => {
+      window.removeEventListener('scroll', place, true);
+      window.removeEventListener('resize', place);
+    };
+  }, [open, align, month]);
+
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
-      if (!root.current?.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (!root.current?.contains(t) && !sheet.current?.contains(t)) setOpen(false);
     };
     document.addEventListener('mousedown', onDown);
     return () => document.removeEventListener('mousedown', onDown);
@@ -107,6 +144,7 @@ export default function DateField({
       {name ? <input type="hidden" name={name} value={current} /> : null}
 
       <button
+        ref={trigger}
         type="button"
         disabled={disabled}
         aria-haspopup="dialog"
@@ -139,12 +177,13 @@ export default function DateField({
         </svg>
       </button>
 
-      {open ? (
+      {open && typeof document !== 'undefined'
+        ? createPortal(
         <div
+          ref={sheet}
           role="dialog"
-          className={`absolute top-full z-30 mt-1.5 w-[268px] rounded-xl border border-line2 bg-raise p-3 shadow-lg shadow-black/40 ${
-            align === 'right' ? 'right-0' : 'left-0'
-          }`}
+          style={{ left: at?.left ?? -9999, top: at?.top ?? -9999 }}
+          className="fixed z-50 w-[268px] rounded-xl border border-line2 bg-raise p-3 shadow-lg shadow-black/40"
         >
           <div className="mb-2.5 flex items-center justify-between">
             <button type="button" onClick={() => shift(-1)}
@@ -200,8 +239,10 @@ export default function DateField({
           >
             Сегодня
           </button>
-        </div>
-      ) : null}
+        </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { currentPeriodKey, teamSummary, dailySeries, buyerSummary } from '@/lib/queries';
+import { currentPeriodKey, teamSummary, dailySeries, buyerSummary, allTimeProfit } from '@/lib/queries';
 import { usd, rub, sum, profitOf } from '@/lib/money';
 import { periodLabel } from '@/lib/period';
 import { Panel, PanelHead, Sub, Avatar, Empty } from '@/components/ui';
@@ -20,6 +20,8 @@ export default async function HomePage() {
   }
 
   const summary = await teamSummary(key);
+  const allTime = await allTimeProfit();
+  const allTimeTotal = [...allTime.values()].reduce((a, b) => a + b, 0);
   const series = dailySeries(key, summary.days);
   const rate = summary.period.rubPerUsd;
   const best = series.reduce((a, b) => (b.profitCents > a.profitCents ? b : a), series[0]);
@@ -131,18 +133,21 @@ export default async function HomePage() {
             title="Баеры"
             aside={<span className="text-[12.5px] text-mute">{summary.buyers.length} человек</span>}
           />
-          <div className="mt-4 grid grid-cols-[1.7fr_repeat(4,1fr)_1.1fr] pb-2.5">
+          <div className="mt-4 grid grid-cols-[1.6fr_repeat(5,1fr)_1.05fr] pb-2.5">
             <span className="lab">Баер</span>
             <span className="lab text-right">Доход</span>
             <span className="lab text-right">Спенд</span>
             <span className="lab text-right">С комиссией</span>
             <span className="lab text-right">Профит</span>
+            <span className="lab pl-5 text-right" title="Чистый профит по всем отчётам, за все периоды">
+              За всё время
+            </span>
             <span className="lab text-right">ROI · доля</span>
           </div>
           {summary.buyers.map((row) => (
             <div
               key={row.buyer.id}
-              className="grid grid-cols-[1.7fr_repeat(4,1fr)_1.1fr] items-center border-t border-line py-3"
+              className="grid grid-cols-[1.6fr_repeat(5,1fr)_1.05fr] items-center border-t border-line py-3"
             >
               <span className="flex items-center gap-3">
                 <Avatar initials={row.buyer.initials} color={row.buyer.color} />
@@ -162,6 +167,13 @@ export default async function HomePage() {
               >
                 {usd(row.profitCents)}
               </span>
+              {/* Итог за всё время: месяц показывает форму, эта цифра — вклад. */}
+              <span
+                className="n pl-5 text-right text-[14px] font-semibold"
+                style={{ color: (allTime.get(row.buyer.id) ?? 0) >= 0 ? '#c4c4c4' : '#ce6e58' }}
+              >
+                {usd(allTime.get(row.buyer.id) ?? 0, { sign: true })}
+              </span>
               <span className="flex items-center justify-end gap-3">
                 <span className="n text-[12.5px]" style={{ color: row.roi >= 25 ? '#b4c68c' : '#ce6e58' }}>
                   {row.roi.toFixed(1).replace('.', ',')}%
@@ -179,13 +191,19 @@ export default async function HomePage() {
             </div>
           ))}
           <div className="flex-1" />
-          <Sub className="mt-2.5 grid grid-cols-[1.7fr_repeat(4,1fr)_1.1fr] items-center px-4 py-3.5">
+          <Sub className="mt-2.5 grid grid-cols-[1.6fr_repeat(5,1fr)_1.05fr] items-center px-4 py-3.5">
             <span className="lab text-text">Итого</span>
             <span className="n text-right text-[13.5px]">{usd(summary.totals.revenueCents)}</span>
             <span className="n text-right text-[13.5px]">{usd(summary.totals.spendNetCents)}</span>
             <span className="n text-right text-[13.5px]">{usd(summary.totals.spendGrossCents)}</span>
             <span className="n text-right text-[18px] font-semibold text-sage">
               {usd(summary.totals.profitCents)}
+            </span>
+            <span
+              className="n pl-5 text-right text-[14px] font-semibold"
+              style={{ color: allTimeTotal >= 0 ? '#c4c4c4' : '#ce6e58' }}
+            >
+              {usd(allTimeTotal, { sign: true })}
             </span>
             <span className="n text-right text-[12.5px] text-sage">
               {summary.totals.roi.toFixed(1).replace('.', ',')}%

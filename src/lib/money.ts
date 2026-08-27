@@ -76,8 +76,28 @@ export function wholeDollars(cents: number) {
   return Math.round(cents / 100) * 100;
 }
 
-/** Gross a net ad spend up by the commission charged on the top-up. */
+/**
+ * От потраченного на рекламу — к тому, что ушло с кошелька.
+ *
+ * Комиссия платёжки сидит ВНУТРИ перевода, а не приплюсовывается сверху.
+ * Овнер отправляет $3 000, платёжка забирает свои 4,5% из этой же суммы, и на
+ * кабинет ложится $2 865. Значит обратно идём делением на оставшуюся долю, а
+ * не умножением на надбавку: $2 865 / 0,955 = $3 000, комиссия ровно $135 —
+ * те самые 4,5% от перевода.
+ *
+ * Умножение давало $2 993: процент считался от куска, а не от целого, и с
+ * каждого закида терялось по несколько долларов. Ошибка маленькая, но
+ * системная — и всегда в одну сторону.
+ */
 export function grossUp(spendNetCents: number, commissionBps: number) {
+  const rest = 1 - commissionBps / 10_000;
+  // Ставка в 100% и выше смысла не имеет: возвращаем расход как есть.
+  if (rest <= 0) return wholeDollars(spendNetCents);
+  return wholeDollars(spendNetCents / rest);
+}
+
+/** Прежняя формула — нужна только чтобы найти строки, посчитанные по ней. */
+export function grossUpLegacy(spendNetCents: number, commissionBps: number) {
   return wholeDollars(spendNetCents * (1 + commissionBps / 10_000));
 }
 

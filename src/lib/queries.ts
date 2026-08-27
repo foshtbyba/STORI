@@ -144,6 +144,11 @@ export async function buyerSummary(buyerId: string, key: string) {
     }),
     prisma.bonus.findMany({ where: { buyerId, periodKey: key } }),
   ]);
+  // Итог за всё время — по всем отчётам баера, без границ периода.
+  const lifetime = await prisma.dayReport.aggregate({
+    where: { buyerId },
+    _sum: { revenueCents: true, spendGrossCents: true },
+  });
   if (!buyer) return null;
 
   const revenueCents = sum(days, (d) => d.revenueCents);
@@ -166,6 +171,8 @@ export async function buyerSummary(buyerId: string, key: string) {
     buyer,
     days,
     consumables,
+    allTimeCents:
+      (lifetime._sum.revenueCents ?? 0) - (lifetime._sum.spendGrossCents ?? 0),
     revenueCents,
     spendNetCents,
     spendGrossCents,
@@ -212,4 +219,21 @@ export async function firstToCross(key: string, thresholdCents: number) {
   const winner = reached[0];
   const buyer = buyers.find((b) => b.id === winner.buyerId);
   return buyer ? { buyer, date: winner.date } : null;
+}
+
+/**
+ * Чистый профит каждого баера за всё время — по всем отчётам, без границ
+ * периода. Нужен на главной: месяц показывает форму, а эта цифра — сколько
+ * человек принёс команде вообще.
+ */
+export async function allTimeProfit() {
+  const rows = await prisma.dayReport.groupBy({
+    by: ['buyerId'],
+    _sum: { revenueCents: true, spendGrossCents: true },
+  });
+  const byBuyer = new Map<string, number>();
+  for (const r of rows) {
+    byBuyer.set(r.buyerId, (r._sum.revenueCents ?? 0) - (r._sum.spendGrossCents ?? 0));
+  }
+  return byBuyer;
 }
