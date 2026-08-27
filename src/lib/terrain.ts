@@ -138,7 +138,14 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
       const dy = y - sy;
       h += amp * Math.exp(-(dx * dx + dy * dy) / (2 * sigma * sigma)) * Math.pow(cone, 0.7);
     }
-    return h;
+
+    // Жёсткая граница подошвы по НЕискажённому радиусу. Без неё доменный варп
+    // вытягивает край массива далеко за radius, и подошва наползает на кольцо
+    // компаса: у горы должен быть свой круг, у компаса свой.
+    const rr = Math.hypot(x, y);
+    if (rr >= 1) return 0;
+    const edge = Math.min(1, (1 - rr) / 0.16);
+    return h * edge * edge;
   };
 
   const cells = new Float64Array(GN * GN);

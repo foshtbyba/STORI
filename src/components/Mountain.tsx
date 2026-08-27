@@ -13,7 +13,9 @@ export type Climber = {
   stem: number;
 };
 
-const RING = 428;
+/** Кольцо у самой подошвы и полоса с насечками снаружи от него. */
+const BASE = 378;
+const RING = BASE + 46;
 const VIEW = { x: 0, y: 148, w: 1400, h: 778 };
 
 /** Ступени рельефа снизу вверх: чем выше, тем светлее. Только сплошные цвета. */
@@ -108,29 +110,47 @@ export default function Mountain({
       : '';
 
   /**
-   * Кольцо компаса: насечки смотрят внутрь, к горе, а у каждой стороны света
-   * оставлен разрыв — буква садится в него, а не поверх гребёнки.
+   * Компас собран как на карте: у подошвы горы идёт тонкое кольцо, а снаружи по
+   * его периметру — полоса насечек. В полосе оставлены разрывы, и в них сидят
+   * стороны света.
    */
   const CARDINAL_DEGS = [208, 332, 28, 152];
+
   /** Кратчайшее угловое расстояние до ближайшей буквы, в градусах. */
   const gapTo = (deg: number) =>
-    Math.min(
-      ...CARDINAL_DEGS.map((c) => Math.abs((((deg - c) % 360) + 540) % 360 - 180)),
-    );
+    Math.min(...CARDINAL_DEGS.map((c) => Math.abs(((((deg - c) % 360) + 540) % 360) - 180)));
 
-  const ticks = Array.from({ length: 144 }, (_, i) => i * 2.5)
-    .filter((deg) => gapTo(deg) > 14)
+  /**
+   * Внешняя нормаль к эллипсу. Радиус тут не годится: у сплющенного круга
+   * насечка по радиусу выходит длинной сбоку и коротышкой сверху.
+   */
+  const normal = (a: number): [number, number] => {
+    const nx = Math.cos(a);
+    const ny = Math.sin(a) / squash;
+    const len = Math.hypot(nx, ny) || 1;
+    return [nx / len, ny / len];
+  };
+  const onRing = (a: number): [number, number] => [
+    centre.x + BASE * Math.cos(a),
+    centre.y + BASE * squash * Math.sin(a),
+  ];
+
+  const ticks = Array.from({ length: 180 }, (_, i) => i * 2)
+    .filter((deg) => gapTo(deg) > 13)
     .map((deg) => {
       const a = (deg * Math.PI) / 180;
       const major = Math.round(deg) % 10 === 0;
-      const inner = RING - (major ? 30 : 15);
+      const [nx, ny] = normal(a);
+      const [px, py] = onRing(a);
+      const from = 7;
+      const to = from + (major ? 26 : 13);
       return {
         deg,
-        x1: centre.x + RING * Math.cos(a),
-        y1: centre.y + RING * squash * Math.sin(a),
-        x2: centre.x + inner * Math.cos(a),
-        y2: centre.y + inner * squash * Math.sin(a),
-        c: major ? '#b0b0b0' : '#6d6d6d',
+        x1: px + nx * from,
+        y1: py + ny * from,
+        x2: px + nx * to,
+        y2: py + ny * to,
+        c: major ? '#c0c0c0' : '#787878',
         w: major ? 2.6 : 1.7,
       };
     });
@@ -151,26 +171,18 @@ export default function Mountain({
     .filter((r) => r.visible);
 
   /**
-   * Буквы сидят на самой полосе компаса. Наклон берём от касательной к эллипсу,
-   * но приглушаем: полный угол в плоскости пола кладёт букву почти набок, и
-   * читать её невозможно.
+   * Стороны света — обычные прямые буквы в разрывах насечек, как на карте.
+   * Никаких поворотов и сплющиваний: любой наклон на этом ракурсе кладёт букву
+   * набок, а читаться она должна с первого взгляда.
    */
-  const cardinals = [
-    { t: 'W', deg: 208 },
-    { t: 'N', deg: 332 },
-    { t: 'E', deg: 28 },
-    { t: 'S', deg: 152 },
-  ].map(({ t, deg }) => {
+  const cardinals = CARDINAL_DEGS.map((deg, i) => {
     const a = (deg * Math.PI) / 180;
-    let tilt = (Math.atan2(squash * Math.cos(a), -Math.sin(a)) * 180) / Math.PI;
-    while (tilt > 90) tilt -= 180;
-    while (tilt < -90) tilt += 180;
-    const r = RING - 16;
+    const [nx, ny] = normal(a);
+    const [px, py] = onRing(a);
     return {
-      t,
-      x: centre.x + r * Math.cos(a),
-      y: centre.y + r * squash * Math.sin(a),
-      r: tilt * 0.45,
+      t: ['W', 'N', 'E', 'S'][i],
+      x: px + nx * 26,
+      y: py + ny * 26,
     };
   });
 
@@ -188,14 +200,15 @@ export default function Mountain({
         {ticks.map((t, i) => (
           <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke={t.c} strokeWidth={t.w} />
         ))}
-        <ellipse cx={centre.x} cy={centre.y} rx={RING} ry={RING * squash} fill="none"
-          stroke="#5e9a93" strokeWidth={1.6} opacity={0.9} />
+        {/* Кольцо у подошвы; полоса насечек идёт снаружи от него. */}
+        <ellipse cx={centre.x} cy={centre.y} rx={BASE} ry={BASE * squash} fill="none"
+          stroke="#5e9a93" strokeWidth={1.7} opacity={0.95} />
 
         {cardinals.map((c) => (
-          <text key={c.t} transform={`translate(${c.x} ${c.y}) rotate(${c.r.toFixed(1)}) scale(1 0.46)`}
+          <text key={c.t} transform={`translate(${c.x} ${c.y}) skewX(-10)`}
             textAnchor="middle" dominantBaseline="middle"
-            fill="#e4e4e4" stroke="#1c1c1d" strokeWidth={13} paintOrder="stroke"
-            fontFamily="var(--font-sans), sans-serif" fontSize={72} fontWeight={700} opacity={0.85}>
+            fill="#e4e4e4" stroke="#1c1c1d" strokeWidth={9} paintOrder="stroke"
+            fontFamily="var(--font-sans), sans-serif" fontSize={42} fontWeight={700} opacity={0.9}>
             {c.t}
           </text>
         ))}
