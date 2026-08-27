@@ -13,7 +13,7 @@ export type Climber = {
   stem: number;
 };
 
-const RING = 486;
+const RING = 428;
 const VIEW = { x: 0, y: 148, w: 1400, h: 778 };
 
 /** Ступени рельефа снизу вверх: чем выше, тем светлее. Только сплошные цвета. */
@@ -107,20 +107,33 @@ export default function Mountain({
         `L${terrain.summit[0].toFixed(1)} ${terrain.summit[1].toFixed(1)}`
       : '';
 
-  // Насечки реже и толще, чем были: густая мелкая гребёнка на тёмном фоне
-  // сливалась в серую кайму.
-  const ticks = Array.from({ length: 96 }, (_, i) => {
-    const a = (i * 3.75 * Math.PI) / 180;
-    const big = i % 12 === 0;
-    const major = i % 4 === 0;
-    const out = RING + (big ? 34 : major ? 24 : 15);
-    return {
-      x1: centre.x + RING * Math.cos(a), y1: centre.y + RING * squash * Math.sin(a),
-      x2: centre.x + out * Math.cos(a), y2: centre.y + out * squash * Math.sin(a),
-      c: big ? '#b6b6b6' : major ? '#7d7d7d' : '#565656',
-      w: big ? 3.2 : major ? 2.4 : 1.8,
-    };
-  });
+  /**
+   * Кольцо компаса: насечки смотрят внутрь, к горе, а у каждой стороны света
+   * оставлен разрыв — буква садится в него, а не поверх гребёнки.
+   */
+  const CARDINAL_DEGS = [208, 332, 28, 152];
+  /** Кратчайшее угловое расстояние до ближайшей буквы, в градусах. */
+  const gapTo = (deg: number) =>
+    Math.min(
+      ...CARDINAL_DEGS.map((c) => Math.abs((((deg - c) % 360) + 540) % 360 - 180)),
+    );
+
+  const ticks = Array.from({ length: 144 }, (_, i) => i * 2.5)
+    .filter((deg) => gapTo(deg) > 14)
+    .map((deg) => {
+      const a = (deg * Math.PI) / 180;
+      const major = Math.round(deg) % 10 === 0;
+      const inner = RING - (major ? 30 : 15);
+      return {
+        deg,
+        x1: centre.x + RING * Math.cos(a),
+        y1: centre.y + RING * squash * Math.sin(a),
+        x2: centre.x + inner * Math.cos(a),
+        y2: centre.y + inner * squash * Math.sin(a),
+        c: major ? '#b0b0b0' : '#6d6d6d',
+        w: major ? 2.6 : 1.7,
+      };
+    });
 
   const rules = tiers
     .filter((t, i, all) => all.findIndex((o) => o.ratePct === t.ratePct) === i)
@@ -152,7 +165,7 @@ export default function Mountain({
     let tilt = (Math.atan2(squash * Math.cos(a), -Math.sin(a)) * 180) / Math.PI;
     while (tilt > 90) tilt -= 180;
     while (tilt < -90) tilt += 180;
-    const r = RING + 8;
+    const r = RING - 16;
     return {
       t,
       x: centre.x + r * Math.cos(a),
@@ -176,7 +189,7 @@ export default function Mountain({
           <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke={t.c} strokeWidth={t.w} />
         ))}
         <ellipse cx={centre.x} cy={centre.y} rx={RING} ry={RING * squash} fill="none"
-          stroke="#5e9a93" strokeWidth={1.4} opacity={0.85} />
+          stroke="#5e9a93" strokeWidth={1.6} opacity={0.9} />
 
         {cardinals.map((c) => (
           <text key={c.t} transform={`translate(${c.x} ${c.y}) rotate(${c.r.toFixed(1)}) scale(1 0.46)`}

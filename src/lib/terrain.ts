@@ -42,7 +42,7 @@ export type TerrainConfig = {
 };
 
 export const DEFAULT_TERRAIN: TerrainConfig = {
-  grid: 168,
+  grid: 184,
   extent: 1.22,
   levels: 46,
   indexEvery: 5,
@@ -50,16 +50,20 @@ export const DEFAULT_TERRAIN: TerrainConfig = {
   radius: 352,
   height: 392,
   centre: { x: 660, y: 700 },
-  octaves: [0.62, 0.4, 0.24, 0.14, 0.07],
-  warp: 0.44,
-  domeSigma: 0.4,
+  octaves: [0.78, 0.56, 0.38, 0.23, 0.13],
+  warp: 0.62,
+  domeSigma: 0.33,
   shoulders: [
-    [-0.46, 0.24, 0.22, 0.3],
-    [0.42, -0.28, 0.2, 0.26],
-    [0.16, 0.48, 0.18, 0.22],
-    [-0.24, -0.46, 0.16, 0.19],
-    [0.5, 0.3, 0.15, 0.16],
-    [-0.08, 0.2, 0.13, 0.12],
+    [-0.5, 0.2, 0.2, 0.34],
+    [0.46, -0.24, 0.18, 0.3],
+    [0.14, 0.5, 0.17, 0.26],
+    [-0.28, -0.48, 0.15, 0.23],
+    [0.54, 0.28, 0.14, 0.19],
+    [-0.12, 0.26, 0.12, 0.15],
+    [0.26, -0.52, 0.13, 0.17],
+    [-0.56, -0.14, 0.12, 0.14],
+    [0.3, 0.16, 0.1, 0.12],
+    [-0.2, 0.44, 0.11, 0.13],
   ],
 };
 
@@ -126,8 +130,9 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
       rn += weight * ridged(wx + 1.3 + i * 4, wy + 2.9 + i * 3, freqs[i] ?? 60);
     });
 
-    const body = 0.56 * Math.pow(cone, 1.05) + 0.6 * dome * Math.pow(cone, 0.45);
-    let h = body * (0.52 + 0.8 * rn);
+    const body = 0.5 * Math.pow(cone, 1.18) + 0.44 * dome * Math.pow(cone, 0.4);
+    // Гребни весят больше гладкой основы — иначе выходит купол, а не рельеф.
+    let h = body * (0.34 + 1.15 * rn);
     for (const [sx, sy, sigma, amp] of config.shoulders) {
       const dx = x - sx;
       const dy = y - sy;
