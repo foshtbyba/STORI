@@ -3,23 +3,26 @@ import { prisma } from '@/lib/db';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { parseGeos, OFFER_STATUS } from '@/lib/format';
 import { saveOffer, deleteOffer } from '@/app/actions/catalog';
+import { builderPayload, builderGaps, partnerOf } from '@/lib/builder';
 import { Panel, Empty } from '@/components/ui';
-import Select from '@/components/Select';
+import OfferForm, { type OfferDraft } from '@/components/OfferForm';
+import CopyOffer from '@/components/CopyOffer';
 import { IconDown, IconPlus } from '@/components/icons';
 
 export default async function OffersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; new?: string }>;
+  searchParams: Promise<{ status?: string; new?: string; edit?: string }>;
 }) {
   const user = await requireUser();
   const team = canSeeTeam(user.role as Role);
-  const { status, new: creating } = await searchParams;
+  const { status, new: creating, edit } = await searchParams;
 
   const offers = await prisma.offer.findMany({
     where: status && OFFER_STATUS[status] ? { status } : {},
     orderBy: [{ status: 'asc' }, { name: 'asc' }],
   });
+  const editing = edit ? await prisma.offer.findUnique({ where: { id: edit } }) : null;
   const counts = await prisma.offer.groupBy({ by: ['status'], _count: true });
   const total = counts.reduce((a, c) => a + c._count, 0);
 
@@ -58,31 +61,15 @@ export default async function OffersPage({
         ) : null}
       </Panel>
 
-      {creating && team ? (
-        <form action={saveOffer} className="grid grid-cols-3 gap-3 rounded-[26px] border border-line bg-panel p-6">
-          <input name="name" required placeholder="Название" className="rounded-[18px] bg-sub px-4 py-3 text-[14px] outline-none" />
-          <input name="vertical" placeholder="Вертикаль · тема" className="rounded-[18px] bg-sub px-4 py-3 text-[14px] outline-none" />
-          <input name="network" placeholder="Партнёрка" className="rounded-[18px] bg-sub px-4 py-3 text-[14px] outline-none" />
-          <input name="geos" placeholder="Гео через запятую: IT, ES, PT" className="rounded-[18px] bg-sub px-4 py-3 text-[14px] outline-none" />
-          <input name="bans" placeholder="Исключения через запятую" className="rounded-[18px] bg-sub px-4 py-3 text-[14px] outline-none" />
-          <input name="previewUrl" placeholder="Ссылка на превью" className="rounded-[18px] bg-sub px-4 py-3 text-[14px] outline-none" />
-          <textarea name="notes" rows={2} placeholder="Уточнения, по одному в строке" className="col-span-2 resize-y rounded-[18px] bg-sub px-4 py-3 text-[14px] outline-none" />
-          <div className="flex items-end gap-3">
-            <div className="flex-1">
-              <Select
-                name="status"
-                defaultValue="ACTIVE"
-                options={Object.entries(OFFER_STATUS).map(([code, meta]) => ({
-                  value: code,
-                  label: meta.label,
-                }))}
-              />
-            </div>
-            <button type="submit" className="rounded-full bg-sage px-5 py-3 text-[13px] font-semibold text-bg">
-              Сохранить
-            </button>
-          </div>
-        </form>
+      {(creating || edit) && team ? (
+        <OfferForm
+          action={saveOffer}
+          statuses={Object.entries(OFFER_STATUS).map(([code, meta]) => ({
+            value: code,
+            label: meta.label,
+          }))}
+          draft={draftFor(editing)}
+        />
       ) : null}
 
       {offers.length === 0 ? (
@@ -154,9 +141,48 @@ export default async function OffersPage({
                       <span className="text-[12.5px] leading-relaxed text-soft">{note}</span>
                     </div>
                   ))}
+                  {/* Данные для конструктора: одной кнопкой в буфер, оттуда — в билдер. */}
+                  {team ? (
+                    <div className="mt-3 flex items-start gap-2 border-t border-line pt-3.5">
+                      <CopyOffer
+                        payload={builderPayload({
+                          name: offer.name,
+                          partnerKey: offer.partnerKey,
+                          offerId: offer.offerId,
+                          langCode: offer.langCode,
+                          landingUrl: offer.landingUrl,
+                          streamCode: offer.streamCode,
+                          price: offer.price,
+                          imagePath: offer.imagePath,
+                          backfix: offer.backfix,
+                          uiLang: offer.uiLang,
+                        })}
+                        gaps={builderGaps({
+                          name: offer.name,
+                          partnerKey: offer.partnerKey,
+                          offerId: offer.offerId,
+                          langCode: offer.langCode,
+                          landingUrl: offer.landingUrl,
+                          streamCode: offer.streamCode,
+                          price: offer.price,
+                          imagePath: offer.imagePath,
+                          backfix: offer.backfix,
+                          uiLang: offer.uiLang,
+                        })}
+                      />
+                      <a
+                        href={`/offers?edit=${offer.id}`}
+                        className="shrink-0 rounded-full border border-line px-4 py-2 text-[12.5px] text-mute transition hover:border-line2 hover:text-soft"
+                      >
+                        Править
+                      </a>
+                    </div>
+                  ) : null}
+
                   <div className="mt-3 flex items-center justify-between">
                     <span className="text-[11.5px] text-mute">
-                      обновлено {offer.updatedAt.toISOString().slice(8, 10)}.{offer.updatedAt.toISOString().slice(5, 7)}
+                      {partnerOf(offer.partnerKey)?.label ?? 'партнёрка не выбрана'} · обновлено{' '}
+                      {offer.updatedAt.toISOString().slice(8, 10)}.{offer.updatedAt.toISOString().slice(5, 7)}
                     </span>
                     {team ? (
                       <form action={deleteOffer}>
@@ -175,4 +201,31 @@ export default async function OffersPage({
       )}
     </div>
   );
+}
+
+type OfferRow = Awaited<ReturnType<typeof prisma.offer.findMany>>[number];
+
+/** Строка из базы → черновик формы: списки разворачиваем обратно в строку. */
+function draftFor(o: OfferRow | null): OfferDraft {
+  return {
+    id: o?.id,
+    name: o?.name ?? '',
+    vertical: o?.vertical ?? '',
+    network: o?.network ?? '',
+    status: o?.status ?? 'ACTIVE',
+    geos: parseGeos(o?.geosJson ?? '[]').join(', '),
+    bans: parseGeos(o?.bansJson ?? '[]').join(', '),
+    notes: parseGeos(o?.notesJson ?? '[]').join('\n'),
+    previewUrl: o?.previewUrl ?? '',
+    payout: o?.payout ?? '',
+    partnerKey: o?.partnerKey ?? '',
+    offerId: o?.offerId ?? '',
+    landingUrl: o?.landingUrl ?? '',
+    streamCode: o?.streamCode ?? '',
+    langCode: o?.langCode ?? '',
+    price: o?.price ?? '',
+    imagePath: o?.imagePath ?? '',
+    backfix: o?.backfix ?? '',
+    uiLang: o?.uiLang ?? '',
+  };
 }

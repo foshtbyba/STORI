@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireTeamView } from '@/lib/auth';
@@ -27,6 +28,17 @@ export async function saveOffer(formData: FormData) {
     bansJson: list(formData.get('bans')),
     notesJson: list(formData.get('notes')),
     previewUrl: String(formData.get('previewUrl') ?? '').trim() || null,
+    // Данные для конструктора лендов — по ним собирается строка, которую
+    // кладут в буфер и вставляют в билдер.
+    partnerKey: String(formData.get('partnerKey') ?? '').trim(),
+    offerId: String(formData.get('offerId') ?? '').trim(),
+    landingUrl: String(formData.get('landingUrl') ?? '').trim(),
+    streamCode: String(formData.get('streamCode') ?? '').trim(),
+    langCode: String(formData.get('langCode') ?? '').trim(),
+    price: String(formData.get('price') ?? '').trim(),
+    imagePath: String(formData.get('imagePath') ?? '').trim(),
+    backfix: String(formData.get('backfix') ?? '').trim(),
+    uiLang: String(formData.get('uiLang') ?? '').trim(),
   };
   if (!data.name) return;
 
@@ -34,6 +46,8 @@ export async function saveOffer(formData: FormData) {
   else await prisma.offer.create({ data });
 
   revalidatePath('/offers');
+  // Форма — отдельный экран поверх списка: сохранили и вернулись к карточкам.
+  redirect('/offers');
 }
 
 export async function deleteOffer(formData: FormData) {

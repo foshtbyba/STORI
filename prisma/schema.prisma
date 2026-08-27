@@ -96,6 +96,28 @@ model Offer {
   bansJson   String      @default("[]")
   notesJson  String      @default("[]")
   previewUrl String?
+
+  /// Поля для конструктора лендов: их он и просит при сборке. Держим рядом с
+  /// оффером, чтобы не искать по кабинетам партнёрок каждый раз.
+  /// Ключ партнёрки в конструкторе: m1.top, shakes.pro, hamsters.run…
+  partnerKey String      @default("")
+  /// ID оффера в кабинете партнёрки: product_id, offerId, OFFER_KEY, campaign_id.
+  offerId    String      @default("")
+  /// URL оригинального лендинга — обязателен для shakes.
+  landingUrl String      @default("")
+  /// Код потока, только для статистики shakes.
+  streamCode String      @default("")
+  /// Код гео для конструктора: be, fr, cz…
+  langCode   String      @default("")
+  /// Цена на служебных страницах: «39 €».
+  price      String      @default("")
+  /// Путь к картинке внутри ленда: images/product.png.
+  imagePath  String      @default("")
+  /// Куда уводить по кнопке «Назад».
+  backfix    String      @default("")
+  /// Язык служебных страниц call/error/chest.
+  uiLang     String      @default("")
+
   updatedAt  DateTime    @updatedAt
   createdAt  DateTime    @default(now())
   days       DayReport[]
