@@ -4,7 +4,7 @@ import { periodLabel } from '@/lib/period';
 import { usd } from '@/lib/money';
 import { parseTiers } from '@/lib/salary';
 import { DEFAULT_TERRAIN, weekSeed } from '@/lib/terrain';
-import Mountain, { type Climber } from '@/components/Mountain';
+import Mountain, { type Climber, type Grounded } from '@/components/Mountain';
 import Tilt from '@/components/Tilt';
 import { Panel, PanelHead, Sub, Avatar, Empty } from '@/components/ui';
 import { IconRoute, IconPeak } from '@/components/icons';
@@ -22,8 +22,19 @@ export default async function PeakPage() {
     : await defaultTiers();
 
   const ranked = summary.buyers.filter((b) => b.profitCents > 0);
-  if (ranked.length === 0) {
-    return <Empty>За {periodLabel(key)} ещё нет ни одного плюсового баера — гора пустая.</Empty>;
+  // Ноль и минус на гору не выходят. В общем виде — без сумм: видно, что человек
+  // не пошёл наверх, но не видно, насколько он в яме.
+  const grounded: Grounded[] = summary.buyers
+    .filter((b) => b.profitCents <= 0)
+    .map((b) => ({
+      id: b.buyer.id,
+      initials: b.buyer.initials,
+      handle: b.buyer.handle,
+      color: b.buyer.color,
+    }));
+
+  if (ranked.length === 0 && grounded.length === 0) {
+    return <Empty>За {periodLabel(key)} отчётов ещё нет — гора пустая.</Empty>;
   }
 
   const climbers: Climber[] = ranked.map((row, i) => ({
@@ -40,9 +51,10 @@ export default async function PeakPage() {
   // Вершина привязана к верхнему порогу лесенки, а не к лидеру: на пик встаёт
   // тот, кто его взял, а не тот, кто просто оказался первым среди своих.
   const summitCents = tiers[tiers.length - 1]?.fromCents ?? 1_000_000;
-  const leadCents = Math.max(ranked[0].profitCents, 1);
-  const viewer = ranked.find((r) => r.buyer.id === viewerId) ?? null;
-  const viewerPlace = viewer ? ranked.findIndex((r) => r.buyer.id === viewerId) + 1 : 0;
+  const leadCents = Math.max(ranked[0]?.profitCents ?? 1, 1);
+  const viewer = summary.buyers.find((r) => r.buyer.id === viewerId) ?? null;
+  const climbing = Boolean(viewer && viewer.profitCents > 0);
+  const viewerPlace = climbing ? ranked.findIndex((r) => r.buyer.id === viewerId) + 1 : 0;
   const onTop = Boolean(viewer) && viewer!.profitCents >= summitCents;
   const toPeak = viewer ? Math.max(0, summitCents - viewer.profitCents) : 0;
 
@@ -64,15 +76,22 @@ export default async function PeakPage() {
             </span>
             <p
               className="mt-4 text-[19px] font-bold leading-snug tracking-[-0.015em]"
-              style={{ color: onTop ? '#b4c68c' : '#e4e4e4' }}
+              style={{ color: onTop ? '#b4c68c' : climbing ? '#e4e4e4' : '#ce6e58' }}
             >
-              {onTop ? 'Ты на вершине. Не падай, чемпион )' : 'Твой путь наверх'}
+              {onTop
+                ? 'Ты на вершине. Не падай, чемпион )'
+                : climbing
+                  ? 'Твой путь наверх'
+                  : 'Ты ещё у подножия'}
             </p>
             <div className="mt-4 grid grid-cols-2 gap-2.5">
               <Sub className="px-4 py-3">
-                <div className="lab">Пройдено</div>
-                <div className="n mt-1.5 text-[20px] font-semibold">
-                  {usd(viewer.profitCents, { round: true })}
+                <div className="lab">{climbing ? 'Пройдено' : 'Профит за период'}</div>
+                <div
+                  className="n mt-1.5 text-[20px] font-semibold"
+                  style={{ color: climbing ? undefined : '#ce6e58' }}
+                >
+                  {usd(viewer.profitCents, { sign: true })}
                 </div>
               </Sub>
               <Sub className="px-4 py-3">
@@ -90,10 +109,15 @@ export default async function PeakPage() {
             <div className="mt-3 flex items-baseline justify-between">
               <span className="lab">Место в команде</span>
               <span className="n text-[13.5px]">
-                {viewerPlace} из {ranked.length}
+                {climbing ? `${viewerPlace} из ${ranked.length}` : 'вне зачёта'}
               </span>
             </div>
-            {viewer.next ? (
+            {!climbing ? (
+              <p className="mt-3 border-t border-line pt-3 text-[11.5px] leading-relaxed text-mute">
+                На склон выходят с первого плюса. В команде видно только то, что ты ещё внизу, —
+                ни суммы, ни минуса там нет, это видишь один ты.
+              </p>
+            ) : viewer.next ? (
               <p className="mt-3 border-t border-line pt-3 text-[11.5px] leading-relaxed text-mute">
                 До ставки {viewer.next.ratePct}% не хватает{' '}
                 <span className="n text-soft">{usd(viewer.next.needCents, { round: true })}</span> — это
@@ -160,6 +184,27 @@ export default async function PeakPage() {
                 </div>
               );
             })}
+
+            {grounded.length > 0 ? (
+              <div className="mt-2 border-t border-line pt-3">
+                <div className="lab mb-2.5">У подножия</div>
+                <div className="flex flex-wrap gap-2">
+                  {grounded.map((g) => (
+                    <span
+                      key={g.id}
+                      className="flex items-center gap-2 rounded-full bg-sub py-1 pl-1 pr-3"
+                      title="ещё не вышел на маршрут"
+                    >
+                      <Avatar initials={g.initials} color={g.color} size={22} />
+                      <span className="text-[12px] text-mute">{g.handle}</span>
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-2.5 text-[11px] leading-relaxed text-dim">
+                  Ещё не вышли на маршрут. Насколько — знает только сам баер.
+                </p>
+              </div>
+            ) : null}
           </div>
         </Panel>
       </div>
@@ -179,6 +224,7 @@ export default async function PeakPage() {
         <Tilt>
           <Mountain
             climbers={climbers}
+            grounded={grounded}
             tiers={tiers}
             viewerId={viewerId}
             config={{ ...DEFAULT_TERRAIN, seed: weekSeed() }}

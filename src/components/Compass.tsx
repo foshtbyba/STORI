@@ -60,47 +60,46 @@ export default function Compass({
     Math.min(...CARDINALS.map((c) => Math.abs(((((deg - c.deg) % 360) + 540) % 360) - 180)));
 
   /**
-   * Ближний край кольца к камере, дальний — от неё. Проекция у нас
-   * изометрическая и сама этого не даёт, поэтому длину и толщину насечки
-   * ведём по глубине руками: внизу длиннее и жирнее, вверху короче и тоньше.
+   * Экранная нормаль к эллипсу. Насечки строим по ней и одной длины: на
+   * плоскости они бы сокращались к дальнему краю, а тут нужна ровная гребёнка.
    */
-  const depth = (deg: number) => 1 + 0.55 * Math.sin((deg * Math.PI) / 180);
+  const normal = (deg: number): [number, number] => {
+    const a = (deg * Math.PI) / 180;
+    const nx = Math.cos(a);
+    const ny = Math.sin(a) / squash;
+    const len = Math.hypot(nx, ny) || 1;
+    return [nx / len, ny / len];
+  };
 
   const ticks = evenAngles(120, squash)
     .filter((d) => gapTo(d) > 11)
     .map((deg, i) => {
       const major = i % 5 === 0;
-      const k = depth(deg);
-      const [x1, y1] = P(deg, radius + 6);
-      const [x2, y2] = P(deg, radius + 6 + (major ? 34 : 18) * k);
+      const [nx, ny] = normal(deg);
+      const [px, py] = P(deg, radius);
+      const from = 5;
+      const to = from + (major ? 26 : 14);
       return {
         key: `t${i}`,
-        x1,
-        y1,
-        x2,
-        y2,
+        x1: px + nx * from,
+        y1: py + ny * from,
+        x2: px + nx * to,
+        y2: py + ny * to,
         c: major ? '#c4c4c4' : '#7d7d7d',
-        w: (major ? 2.3 : 1.5) * (0.75 + 0.35 * k),
+        w: major ? 2.3 : 1.5,
       };
     });
 
   /**
-   * Буква лежит на кольце в его плоскости и развёрнута макушкой к горе. На
-   * дальней половине она из-за этого читается перевёрнутой — так и ведёт себя
-   * надпись, нарисованная на земле; ровно это и просили.
+   * Буква стоит прямо и начинается от самой бирюзовой линии, уходя наружу:
+   * поэтому смещаем её по нормали на половину собственной высоты.
    */
+  const SIZE = 34;
   const letters = CARDINALS.map(({ t, deg }) => {
-    const a = (deg * Math.PI) / 180;
-    const [x, y] = P(deg, radius);
-    const m = [
-      Math.sin(a),
-      -squash * Math.cos(a),
-      Math.cos(a),
-      squash * Math.sin(a),
-    ]
-      .map((v) => v.toFixed(4))
-      .join(' ');
-    return { t, x, y, m };
+    const [nx, ny] = normal(deg);
+    const [px, py] = P(deg, radius);
+    const out = SIZE * 0.5 + 6;
+    return { t, x: px + nx * out, y: py + ny * out };
   });
 
   return (
@@ -130,7 +129,8 @@ export default function Compass({
       {letters.map((l) => (
         <text
           key={l.t}
-          transform={`translate(${l.x} ${l.y}) matrix(${l.m} 0 0)`}
+          x={l.x}
+          y={l.y}
           textAnchor="middle"
           dominantBaseline="middle"
           fill="#dcdcdc"
@@ -138,8 +138,9 @@ export default function Compass({
           strokeWidth={8}
           paintOrder="stroke"
           fontFamily="var(--font-sans), sans-serif"
-          fontSize={52}
+          fontSize={SIZE}
           fontWeight={700}
+          letterSpacing="0.04em"
         >
           {l.t}
         </text>
