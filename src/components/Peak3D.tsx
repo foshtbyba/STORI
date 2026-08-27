@@ -17,6 +17,12 @@ export type Pin3D = {
   /** Высота ножки метки над поверхностью, в единицах экрана. */
   stem: number;
   me: boolean;
+  /**
+   * Метку показываем в полную силу. Своя — всегда; чужие приглушены, чтобы
+   * баер сразу находил себя. У админа своей метки нет, приглушать не от чего:
+   * тогда в полную силу горят все.
+   */
+  strong: boolean;
   onTop: boolean;
 };
 
@@ -478,17 +484,17 @@ export default function Peak3D({
           <div
             key={p.id}
             className={`group absolute -translate-x-1/2 -translate-y-1/2 transition-opacity duration-150 hover:z-20 ${
-              p.me ? 'z-10 opacity-100' : 'opacity-55 hover:opacity-100'
+              p.strong ? 'z-10 opacity-100' : 'opacity-55 hover:opacity-100'
             }`}
             style={{ left: at.left, top: at.top }}
           >
             <div
               className={`n flex items-center justify-center rounded-full font-bold leading-none transition-transform duration-150 group-hover:scale-125 ${
-                p.me ? 'h-10 w-10 text-[11.5px]' : 'h-[30px] w-[30px] text-[9.5px]'
+                p.strong ? 'h-10 w-10 text-[11.5px]' : 'h-[30px] w-[30px] text-[9.5px]'
               }`}
               style={{
-                background: p.me ? p.color : '#1f1f20',
-                color: p.me ? '#1c1c1d' : p.color,
+                background: p.strong ? p.color : '#1f1f20',
+                color: p.strong ? '#1c1c1d' : p.color,
                 border: `2px solid ${p.color}`,
                 boxShadow: '0 0 0 4px #1c1c1d',
               }}
@@ -499,11 +505,11 @@ export default function Peak3D({
               className="n pointer-events-none absolute bottom-full left-1/2 mb-2.5 -translate-x-1/2 whitespace-nowrap rounded-full px-2.5 py-1 text-[11.5px] font-semibold opacity-0 transition-opacity duration-150 group-hover:opacity-100"
               style={{
                 background: '#232324',
-                border: `1px solid ${p.me ? p.color : '#3a3a3b'}`,
-                color: p.me ? p.color : '#d0d0d0',
+                border: `1px solid ${p.strong ? p.color : '#3a3a3b'}`,
+                color: p.strong ? p.color : '#d0d0d0',
               }}
             >
-              {p.handle} · {usd(p.profitCents, { round: true })}
+              {p.handle} · {usd(p.profitCents)}
             </div>
           </div>
         );

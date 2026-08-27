@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireTeamView } from '@/lib/auth';
 import { moneyInputToCents } from '@/lib/format';
+import { wholeDollars } from '@/lib/money';
 
 const Input = z.object({
   buyerId: z.string().min(1),
@@ -28,8 +29,9 @@ export async function addBonus(formData: FormData) {
   const period = await prisma.period.findUnique({ where: { key: periodKey } });
   if (!period || period.status === 'CLOSED') return;
 
-  const amountCents =
-    currency === 'RUB' ? Math.round((typed * 100) / period.rubPerUsd) : typed;
+  const amountCents = wholeDollars(
+    currency === 'RUB' ? (typed * 100) / period.rubPerUsd : typed,
+  );
 
   const parsed = Input.safeParse({
     buyerId: String(formData.get('buyerId') ?? ''),

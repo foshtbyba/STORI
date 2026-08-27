@@ -1,4 +1,5 @@
 import { requireUser } from '@/lib/auth';
+import { canSeeTeam, type Role } from '@/lib/roles';
 import { currentPeriodKey, teamSummary, defaultTiers } from '@/lib/queries';
 import { periodLabel } from '@/lib/period';
 import { usd } from '@/lib/money';
@@ -21,6 +22,7 @@ export default async function PeakPage() {
     ? parseTiers(summary.buyers[0].buyer.salaryRule?.tiersJson)
     : await defaultTiers();
 
+  const team = canSeeTeam(user.role as Role);
   const ranked = summary.buyers.filter((b) => b.profitCents > 0);
   // Ноль и минус на гору не выходят. В общем виде — без сумм: видно, что человек
   // не пошёл наверх, но не видно, насколько он в яме.
@@ -31,6 +33,7 @@ export default async function PeakPage() {
       initials: b.buyer.initials,
       handle: b.buyer.handle,
       color: b.buyer.color,
+      profitCents: team ? b.profitCents : null,
     }));
 
   if (ranked.length === 0 && grounded.length === 0) {
@@ -66,6 +69,7 @@ export default async function PeakPage() {
       level: at,
       stem: atSummit ? stem * 0.6 : stem * (0.38 + 0.62 * (1 - level)),
       me: row.buyer.id === viewerId,
+      strong: viewerId === null || row.buyer.id === viewerId,
       onTop,
     };
   });
@@ -220,8 +224,8 @@ export default async function PeakPage() {
                   style={{ color: onTop ? '#b4c68c' : '#ce6e58' }}
                 >
                   {onTop
-                    ? usd(viewer.profitCents - summitCents, { round: true })
-                    : usd(toPeak, { round: true })}
+                    ? usd(viewer.profitCents - summitCents)
+                    : usd(toPeak)}
                 </div>
               </Sub>
             </div>
@@ -239,10 +243,10 @@ export default async function PeakPage() {
             ) : viewer.next ? (
               <p className="mt-3 border-t border-line pt-3 text-[11.5px] leading-relaxed text-mute">
                 До ставки {viewer.next.ratePct}% не хватает{' '}
-                <span className="n text-soft">{usd(viewer.next.needCents, { round: true })}</span> —
+                <span className="n text-soft">{usd(viewer.next.needCents)}</span> —
                 тогда выплата{' '}
-                <span className="n text-sage">{usd(viewer.next.payoutThenCents, { round: true })}</span>
-                {viewer.next.fromOklad ? ' вместо оклада' : ` вместо ${usd(viewer.next.payoutNowCents, { round: true })}`}.
+                <span className="n text-sage">{usd(viewer.next.payoutThenCents)}</span>
+                {viewer.next.fromOklad ? ' вместо оклада' : ` вместо ${usd(viewer.next.payoutNowCents)}`}.
               </p>
             ) : (
               <p className="mt-3 border-t border-line pt-3 text-[11.5px] leading-relaxed text-mute">
@@ -281,7 +285,7 @@ export default async function PeakPage() {
                       className="n shrink-0 text-[15px] font-semibold"
                       style={{ color: row.buyer.color }}
                     >
-                      {usd(row.profitCents, { round: true })}
+                      {usd(row.profitCents)}
                     </span>
                   </div>
                   <div className="mt-2 flex items-center gap-3 pl-8">
@@ -335,6 +339,14 @@ export default async function PeakPage() {
               <span key={g.id} className="flex items-center gap-2 rounded-full bg-sub py-1 pl-1 pr-3">
                 <Avatar initials={g.initials} color={g.color} size={22} />
                 <span className="text-[11.5px] text-dim">{g.handle}</span>
+                {g.profitCents != null ? (
+                  <span
+                    className="n text-[11.5px]"
+                    style={{ color: g.profitCents < 0 ? '#ce6e58' : '#8a8a8a' }}
+                  >
+                    {usd(g.profitCents, { sign: true })}
+                  </span>
+                ) : null}
               </span>
             ))}
             <span className="text-[11px] text-dim">— ещё не вышли на маршрут</span>

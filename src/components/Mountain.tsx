@@ -4,7 +4,14 @@ import Compass from './Compass';
 import type { Tier } from '@/lib/salary';
 
 /** Тот, кто ещё не вышел на склон: ноль или минус. Сумму не показываем. */
-export type Grounded = { id: string; initials: string; handle: string; color: string };
+export type Grounded = {
+  id: string;
+  initials: string;
+  handle: string;
+  color: string;
+  /** Сумма видна только тому, кто и так видит всю команду. */
+  profitCents?: number | null;
+};
 
 export type Climber = {
   id: string;

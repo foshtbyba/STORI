@@ -63,9 +63,22 @@ export function pct(part: number, whole: number, digits = 1) {
  */
 export const DEFAULT_COMMISSION_BPS = 450;
 
+/**
+ * Округление до целого доллара — на уровне самих денег, а не показа.
+ *
+ * Иначе выходит расхождение: две строки по $121,43 показываются как $121 и
+ * $121, а их сумма — как $243. Никто не ошибся, просто складывали центы, а
+ * показывали доллары. Раз центы мы не считаем, их не должно быть и в
+ * производных суммах: комиссия, оклад, процент и бонус ложатся на целый
+ * доллар сразу, и тогда столбик всегда сходится.
+ */
+export function wholeDollars(cents: number) {
+  return Math.round(cents / 100) * 100;
+}
+
 /** Gross a net ad spend up by the commission charged on the top-up. */
 export function grossUp(spendNetCents: number, commissionBps: number) {
-  return Math.round(spendNetCents * (1 + commissionBps / 10_000));
+  return wholeDollars(spendNetCents * (1 + commissionBps / 10_000));
 }
 
 export function profitOf(d: { revenueCents: number; spendGrossCents: number }) {

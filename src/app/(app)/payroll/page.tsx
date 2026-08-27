@@ -252,40 +252,6 @@ export default async function PayrollPage({
         ) : null}
       </Panel>
 
-      {team ? (
-        <BonusPanel
-          periodKey={key}
-          rate={rate}
-          closed={closed}
-          threshold={BONUS_THRESHOLD}
-          buyers={summary.buyers.map((r) => ({ id: r.buyer.id, handle: r.buyer.handle }))}
-          firstHit={
-            firstHit
-              ? {
-                  handle: firstHit.buyer.handle,
-                  day: fmtDay(firstHit.date),
-                  awarded: bonusRows.some(
-                    (b) => b.buyerId === firstHit.buyer.id && b.note.startsWith('первые'),
-                  ),
-                }
-              : null
-          }
-          bonuses={bonusRows.map(
-            (b): BonusRow => ({
-              id: b.id,
-              buyer: {
-                initials: b.buyer.initials,
-                color: b.buyer.color,
-                handle: b.buyer.handle,
-              },
-              amountCents: b.amountCents,
-              note: b.note,
-              day: fmtDay(b.createdAt),
-            }),
-          )}
-        />
-      ) : null}
-
       <div className="grid grid-cols-[1.25fr_1fr] gap-3.5">
         <Panel className="p-6">
           <PanelHead
@@ -365,6 +331,40 @@ export default async function PayrollPage({
           )}
         </Panel>
       </div>
+
+      {team ? (
+        <BonusPanel
+          periodKey={key}
+          rate={rate}
+          closed={closed}
+          threshold={BONUS_THRESHOLD}
+          buyers={summary.buyers.map((r) => ({ id: r.buyer.id, handle: r.buyer.handle }))}
+          firstHit={
+            firstHit
+              ? {
+                  handle: firstHit.buyer.handle,
+                  day: fmtDay(firstHit.date),
+                  awarded: bonusRows.some(
+                    (b) => b.buyerId === firstHit.buyer.id && b.note.startsWith('первые'),
+                  ),
+                }
+              : null
+          }
+          bonuses={bonusRows.map(
+            (b): BonusRow => ({
+              id: b.id,
+              buyer: {
+                initials: b.buyer.initials,
+                color: b.buyer.color,
+                handle: b.buyer.handle,
+              },
+              amountCents: b.amountCents,
+              note: b.note,
+              day: fmtDay(b.createdAt),
+            }),
+          )}
+        />
+      ) : null}
     </div>
   );
 }

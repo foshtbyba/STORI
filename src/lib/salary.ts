@@ -1,4 +1,4 @@
-import { sum } from './money';
+import { sum, wholeDollars } from './money';
 
 export type Tier = { fromCents: number; ratePct: number };
 
@@ -35,7 +35,7 @@ export const DEFAULT_FIXED_RUB = 10_000;
  */
 export function okladCents(fixedRub: number, rubPerUsd: number) {
   if (!rubPerUsd) return 0;
-  return Math.round((fixedRub * 10_000) / rubPerUsd);
+  return wholeDollars((fixedRub * 10_000) / rubPerUsd);
 }
 
 export function rateFor(baseCents: number, tiers: Tier[]): number {
@@ -56,8 +56,8 @@ export function nextTier(baseCents: number, tiers: Tier[], fixedCents = 0) {
   const upcoming = tiers.find((t) => t.fromCents > baseCents);
   if (!upcoming) return null;
   const current = baseCents > 0 ? rateFor(baseCents, tiers) : 0;
-  const tierNow = Math.max(0, Math.round((baseCents * current) / 100));
-  const tierThen = Math.round((upcoming.fromCents * upcoming.ratePct) / 100);
+  const tierNow = Math.max(0, wholeDollars((baseCents * current) / 100));
+  const tierThen = wholeDollars((upcoming.fromCents * upcoming.ratePct) / 100);
   const payoutNowCents = Math.max(tierNow, fixedCents);
   const payoutThenCents = Math.max(tierThen, fixedCents);
   return {
@@ -93,7 +93,7 @@ export function computePayout(input: PayoutInput) {
     ? input.profitCents - input.consumableCents
     : input.profitCents;
   const ratePct = baseCents > 0 ? rateFor(baseCents, input.tiers) : 0;
-  const tierCents = Math.max(0, Math.round((baseCents * ratePct) / 100));
+  const tierCents = Math.max(0, wholeDollars((baseCents * ratePct) / 100));
   const fixedCents = okladCents(input.fixedRub ?? DEFAULT_FIXED_RUB, input.rubPerUsd);
   const onOklad = tierCents <= fixedCents;
   const salaryCents = onOklad ? fixedCents : tierCents;
