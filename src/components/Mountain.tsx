@@ -1,6 +1,6 @@
 import { getTerrain, DEFAULT_TERRAIN, type TerrainConfig } from '@/lib/terrain';
 import { usd } from '@/lib/money';
-import Compass, { type RingStyle } from './Compass';
+import Compass from './Compass';
 import type { Tier } from '@/lib/salary';
 
 export type Climber = {
@@ -36,13 +36,11 @@ export default function Mountain({
   tiers,
   viewerId,
   config = DEFAULT_TERRAIN,
-  ringStyle = 1,
 }: {
   climbers: Climber[];
   tiers: Tier[];
   viewerId?: string | null;
   config?: TerrainConfig;
-  ringStyle?: RingStyle;
 }) {
   const terrain = getTerrain(config);
   const { centre, squash, height: HMAX } = config;
@@ -140,7 +138,7 @@ export default function Mountain({
         </defs>
         <ellipse cx={centre.x} cy={centre.y} rx={520} ry={204} fill="url(#peak-glow)" />
 
-        <Compass style={ringStyle} centre={centre} squash={squash} radius={BASE} />
+        <Compass centre={centre} squash={squash} radius={BASE} />
 
         {terrain.bands.map((b, i) => (
           <path
