@@ -37,18 +37,18 @@ export default async function DaysPage({
   });
 
   return (
-    <Panel className="flex flex-col p-6">
+    <Panel className="flex flex-col p-4 sm:p-6">
       <PanelHead
         icon={<IconCalendar color="#b4c68c" />}
         tint="bg-sage-t"
         title="Отчёты по дням"
         aside={
-          <span className="text-[12.5px] text-mute">
+          <span className="hidden text-[12.5px] text-mute sm:inline">
             {isCurrent ? 'текущая неделя' : 'архив'}
           </span>
         }
         right={
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
             <WeekNav week={key} label={weekLabel(key)} isCurrent={isCurrent} />
             {canEdit ? (
               <Link
@@ -56,7 +56,8 @@ export default async function DaysPage({
                 className="flex items-center gap-2 rounded-full bg-sage px-4 py-2 text-[13px] font-semibold text-bg transition hover:opacity-90"
               >
                 <IconPlus color="#141414" size={14} width={2.6} />
-                Добавить день
+                <span className="sm:hidden">День</span>
+                <span className="hidden sm:inline">Добавить день</span>
               </Link>
             ) : (
               <span className="text-[12.5px] text-mute">отчёты заводит админ</span>
@@ -65,15 +66,15 @@ export default async function DaysPage({
         }
       />
 
-      <div className="mt-4 grid grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)_auto] pb-2.5">
+      <div className="mt-4 grid grid-cols-[0.8fr_1.1fr_1fr_auto] pb-2.5 md:grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)_auto]">
         <span className="lab">День</span>
         <span className="lab">Баер</span>
-        <span className="lab">Источник</span>
-        <span className="lab text-right">Доход</span>
-        <span className="lab text-right">Спенд</span>
-        <span className="lab text-right">С комиссией</span>
+        <span className="lab hidden md:block">Источник</span>
+        <span className="lab hidden text-right md:block">Доход</span>
+        <span className="lab hidden text-right md:block">Спенд</span>
+        <span className="lab hidden text-right md:block">С комиссией</span>
         <span className="lab text-right">Профит</span>
-        <span className="lab pl-3 text-right">{canEdit ? 'Правка' : ''}</span>
+        <span className="lab pl-2 text-right md:pl-3">{canEdit ? 'Правка' : ''}</span>
       </div>
 
       {days.length === 0 ? (

@@ -58,7 +58,7 @@ export default function QuickImport({
   }
 
   return (
-    <Panel className="p-6">
+    <Panel className="p-4 sm:p-6">
       <PanelHead
         icon={<IconList color="#b4c68c" />}
         tint="bg-sage-t"
@@ -85,8 +85,8 @@ export default function QuickImport({
       />
 
       {rows.length > 0 ? (
-        <>
-          <div className="mt-4 grid grid-cols-[1fr_repeat(4,1fr)] pb-2">
+        <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-visible sm:px-0">
+          <div className="mt-4 grid min-w-[520px] grid-cols-[1fr_repeat(4,1fr)] pb-2">
             <span className="lab">Баер</span>
             <span className="lab text-right">Доход</span>
             <span className="lab text-right">Спенд</span>
@@ -97,7 +97,7 @@ export default function QuickImport({
             const unknown = !r.error && !known.has(r.handle);
             const bps = impliedBps(r);
             return (
-              <div key={i} className="grid grid-cols-[1fr_repeat(4,1fr)] items-center border-t border-line py-2.5">
+              <div key={i} className="grid min-w-[520px] grid-cols-[1fr_repeat(4,1fr)] items-center border-t border-line py-2.5">
                 <span className="text-[13.5px] font-semibold">
                   {r.handle || '—'}
                   {r.error ? <span className="ml-2 text-[11px] text-rust">{r.error}</span> : null}
@@ -127,7 +127,7 @@ export default function QuickImport({
               подсвечены, проверь перед импортом.
             </Sub>
           ) : null}
-        </>
+        </div>
       ) : null}
 
       {message ? (

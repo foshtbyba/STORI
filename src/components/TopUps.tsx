@@ -47,7 +47,7 @@ export default function TopUps({ date, rows }: { date: string; rows: TopUpRow[] 
   }
 
   return (
-    <Panel className="p-6">
+    <Panel className="p-4 sm:p-6">
       <PanelHead
         icon={<IconWallet color="#d2a06a" />}
         tint="bg-amber-t"
@@ -70,7 +70,9 @@ export default function TopUps({ date, rows }: { date: string; rows: TopUpRow[] 
         </p>
       ) : null}
 
-      <div className="mt-4 grid grid-cols-[1.4fr_1fr_1fr_1fr_190px] gap-3 pb-2.5">
+      {/* Шире телефона — прокручиваем таблицу, а не страницу. */}
+      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-visible sm:px-0">
+      <div className="mt-4 grid min-w-[600px] grid-cols-[1.4fr_1fr_1fr_1fr_190px] gap-3 pb-2.5">
         <span className="lab">Баер</span>
         <span className="lab text-right">За день</span>
         <span className="lab text-right">Долг</span>
@@ -86,7 +88,7 @@ export default function TopUps({ date, rows }: { date: string; rows: TopUpRow[] 
           return (
             <div
               key={r.buyerId}
-              className="grid grid-cols-[1.4fr_1fr_1fr_1fr_190px] items-center gap-3 border-t border-line py-2.5"
+              className="grid min-w-[600px] grid-cols-[1.4fr_1fr_1fr_1fr_190px] items-center gap-3 border-t border-line py-2.5"
             >
               <span className="flex items-center gap-2.5">
                 <Avatar initials={r.initials} color={r.color} size={28} />
@@ -134,6 +136,7 @@ export default function TopUps({ date, rows }: { date: string; rows: TopUpRow[] 
           );
         })
       )}
+      </div>
 
       <p className="mt-4 text-[11.5px] leading-relaxed text-mute">
         Нажал «закинул» — долг закрыт, и завтрашний отчёт покажет только новую сумму. Оставил как

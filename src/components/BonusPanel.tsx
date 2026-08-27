@@ -62,7 +62,7 @@ export default function BonusPanel({
   }
 
   return (
-    <Panel className="p-6">
+    <Panel className="p-4 sm:p-6">
       <PanelHead
         icon={<IconWallet color="#b4c68c" />}
         tint="bg-sage-t"
@@ -103,7 +103,7 @@ export default function BonusPanel({
       {closed ? (
         <p className="mt-4 text-[12px] text-mute">Период закрыт — начисления заблокированы.</p>
       ) : (
-        <form action={addBonus} className="mt-4 grid grid-cols-[1.1fr_1fr_0.8fr_1.6fr_auto] items-end gap-3">
+        <form action={addBonus} className="mt-4 grid grid-cols-2 items-end gap-2.5 sm:gap-3 lg:grid-cols-[1.1fr_1fr_0.8fr_1.6fr_auto]">
           <input type="hidden" name="periodKey" value={periodKey} />
           <Select
             name="buyerId"
@@ -156,7 +156,7 @@ export default function BonusPanel({
           bonuses.map((b) => (
             <div
               key={b.id}
-              className="grid grid-cols-[1.2fr_1fr_1fr_2fr_auto] items-center gap-3 border-t border-line py-2.5"
+              className="grid grid-cols-[1.2fr_1fr_1fr_auto] items-center gap-2.5 border-t border-line py-2.5 md:grid-cols-[1.2fr_1fr_1fr_2fr_auto] md:gap-3"
             >
               <span className="flex items-center gap-2.5">
                 <Avatar initials={b.buyer.initials} color={b.buyer.color} size={26} />
@@ -164,7 +164,7 @@ export default function BonusPanel({
               </span>
               <span className="n text-[14px] font-semibold text-sage">+{usd(b.amountCents)}</span>
               <span className="n text-[12.5px] text-mute">{rub(b.amountCents, rate)}</span>
-              <span className="truncate text-[12.5px] text-mute">{b.note || '—'}</span>
+              <span className="hidden truncate text-[12.5px] text-mute md:block">{b.note || '—'}</span>
               {closed ? (
                 <span />
               ) : (

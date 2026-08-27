@@ -17,8 +17,8 @@ export default function BuyerCabinet({ data }: { data: Data }) {
 
   return (
     <div className="flex flex-col gap-3.5">
-      <div className="grid grid-cols-[1.4fr_1fr] gap-3.5">
-        <Panel className="flex flex-col p-6">
+      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.4fr_1fr] lg:gap-3.5">
+        <Panel className="flex flex-col p-4 sm:p-6">
           <PanelHead
             icon={<IconWallet color="#b4c68c" />}
             tint="bg-sage-t"
@@ -60,7 +60,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
           </div>
         </Panel>
 
-        <Panel className="flex flex-col p-6">
+        <Panel className="flex flex-col p-4 sm:p-6">
           <PanelHead icon={<IconPeak color="#b4c68c" />} tint="bg-sage-t" title="До следующей ставки" />
           {data.next ? (
             <>
@@ -103,7 +103,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
         </Panel>
       </div>
 
-      <div className="grid grid-cols-6 gap-3.5">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-6 lg:gap-3.5">
         {[
           { label: 'Доход', value: usd(data.revenueCents), color: 'text-text', note: periodLabel(data.period.key) },
           { label: 'Спенд с комиссией', value: usd(data.spendGrossCents), color: 'text-text', note: `комиссия ${usd(data.commissionCents)}` },
@@ -122,7 +122,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
             note: `из ${monthDays} в месяце`,
           },
         ].map((k) => (
-          <Panel key={k.label} className="flex flex-col justify-between p-5">
+          <Panel key={k.label} className="flex flex-col justify-between p-4 sm:p-5">
             <span className="lab">{k.label}</span>
             <span className={`n text-[28px] font-semibold tracking-[-0.03em] ${k.color}`}>{k.value}</span>
             <span className="text-[11.5px] text-mute">{k.note}</span>
@@ -130,8 +130,8 @@ export default function BuyerCabinet({ data }: { data: Data }) {
         ))}
       </div>
 
-      <div className="grid grid-cols-[1.9fr_1fr] gap-3.5">
-        <Panel className="flex flex-col p-6">
+      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.9fr_1fr] lg:gap-3.5">
+        <Panel className="flex flex-col p-4 sm:p-6">
           <PanelHead
             icon={<IconCalendar color="#b4c68c" />}
             tint="bg-sage-t"
@@ -190,7 +190,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
         </Panel>
 
         <div className="flex flex-col gap-3.5">
-          <Panel className="flex-1 p-5">
+          <Panel className="flex-1 p-4 sm:p-5">
             <div className="mb-3.5 flex items-center justify-between">
               <span className="flex items-center gap-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-rust-t">

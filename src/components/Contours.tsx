@@ -67,12 +67,21 @@ export default function Contours({
   return (
     <span
       aria-hidden
-      className={`contour-drift pointer-events-none absolute overflow-hidden ${className}`}
-      // Запас по краям — вместо прежнего scale в анимации: полотно чуть больше
-      // экрана, поэтому сдвиг не обнажает край.
-      style={{ opacity, top: '-4%', left: '-4%', width: '108%', height: '108%' }}
+      className={`pointer-events-none absolute overflow-hidden ${className}`}
+      style={{ opacity }}
     >
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-full w-full">
+      {/*
+        Слой ровно по экрану, а внутри него — чуть увеличенный рисунок. Раньше
+        запас делался размером самого слоя (108% и отрицательные отступы), но на
+        телефоне фиксированный блок меряется от ширины документа: стоило
+        странице чуть вылезти вбок, как слой становился ещё шире и разгонял
+        прокрутку дальше. Теперь наружу ничего не торчит — лишнее обрезается.
+      */}
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="none"
+        className="contour-drift h-full w-full scale-[1.08]"
+      >
         <defs>
           {/* Линии доходят до самого края: гасим только последние проценты,
               чтобы срез не читался прямой вертикалью. */}

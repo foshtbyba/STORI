@@ -219,7 +219,7 @@ export default async function PeakPage() {
     <div className="grid items-start gap-3.5 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,2fr)]">
       <div className="flex flex-col gap-3.5">
         {viewer ? (
-          <Panel className="p-6" >
+          <Panel className="p-4 sm:p-6" >
             <span
               className="flex h-[42px] w-[42px] items-center justify-center rounded-full"
               style={{ background: onTop ? '#252e1e' : '#232324' }}
@@ -290,7 +290,7 @@ export default async function PeakPage() {
           </Panel>
         ) : null}
 
-        <Panel className="p-6">
+        <Panel className="p-4 sm:p-6">
           <PanelHead
             icon={<IconPeak color="#6fa9a0" size={18} />}
             tint="bg-teal-t"
@@ -348,7 +348,7 @@ export default async function PeakPage() {
         </Panel>
       </div>
 
-      <Panel className="px-6 pb-2 pt-5">
+      <Panel className="px-4 pb-2 pt-4 sm:px-6 sm:pt-5">
         <PanelHead
           icon={<IconRoute color="#6fa9a0" />}
           tint="bg-teal-t"

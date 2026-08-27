@@ -26,12 +26,12 @@ export default function TopBar({
   }
 
   return (
-    <Panel as="div" className="flex h-[78px] items-center justify-between gap-6 pl-4 pr-3.5">
-      <div className="flex min-w-0 flex-1 items-center gap-4 overflow-hidden">
-        <Link href="/" className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-sage-t">
-          <IconPeak color="#b4c68c" size={22} />
+    <Panel as="div" className="flex h-[62px] items-center justify-between gap-3 pl-3 pr-2.5 sm:h-[78px] sm:gap-6 sm:pl-4 sm:pr-3.5">
+      <div className="flex min-w-0 flex-1 items-center gap-2.5 overflow-hidden sm:gap-4">
+        <Link href="/" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sage-t sm:h-[42px] sm:w-[42px]">
+          <IconPeak color="#b4c68c" size={19} />
         </Link>
-        <span className="shrink-0 text-[19px] font-bold tracking-[-0.02em]">{title}</span>
+        <span className="shrink-0 text-[15px] font-bold tracking-[-0.02em] sm:text-[19px]">{title}</span>
         <span className="hidden h-[22px] w-px shrink-0 bg-line2 md:block" />
         <span className="n hidden shrink-0 text-[15px] text-mid md:block">{date}</span>
         {nav}
@@ -40,7 +40,7 @@ export default function TopBar({
         ) : null}
       </div>
 
-      <div className="flex shrink-0 items-center gap-4">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-4">
         <span className="hidden items-center gap-3 rounded-full bg-sub py-1.5 pl-3.5 pr-3 xl:flex">
           <span className="flex">
             {crew.map((c) => (

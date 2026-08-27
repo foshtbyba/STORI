@@ -90,7 +90,7 @@ export default async function PayrollPage({
 
   return (
     <div className="flex flex-col gap-3.5">
-      <div className="grid grid-cols-[1.25fr_repeat(3,1fr)] gap-3.5">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-[1.25fr_repeat(3,1fr)] lg:gap-3.5">
         <Panel className="flex flex-col justify-between p-6">
           <PanelHead
             icon={<IconWallet color="#b4c68c" />}
@@ -131,7 +131,7 @@ export default async function PayrollPage({
         ))}
       </div>
 
-      <Panel className="flex flex-col p-6">
+      <Panel className="flex flex-col p-4 sm:p-6">
         <PanelHead
           icon={<IconChart color="#b4c68c" />}
           tint="bg-sage-t"
@@ -180,22 +180,22 @@ export default async function PayrollPage({
           </p>
         </div>
 
-        <div className="mt-5 grid grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] pb-2.5">
+        <div className="mt-5 grid grid-cols-[1.4fr_0.7fr_1fr] lg:grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] pb-2.5">
           <span className="lab">Баер</span>
-          <span className="lab text-right">Профит</span>
-          <span className="lab text-right">Расходники</span>
-          <span className="lab text-right">Считаем с</span>
+          <span className="lab hidden text-right lg:block">Профит</span>
+          <span className="lab hidden text-right lg:block">Расходники</span>
+          <span className="lab hidden text-right lg:block">Считаем с</span>
           <span className="lab text-right">Ставка</span>
-          <span className="lab text-right">ЗП, $</span>
-          <span className="lab text-right">ЗП, ₽</span>
-          <span className="lab text-right">Бонус</span>
+          <span className="lab hidden text-right lg:block">ЗП, $</span>
+          <span className="lab hidden text-right lg:block">ЗП, ₽</span>
+          <span className="lab hidden text-right lg:block">Бонус</span>
           <span className="lab text-right">К выплате</span>
         </div>
 
         {rows.map((row) => (
           <div
             key={row.buyer.id}
-            className="grid grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] items-center border-t border-line py-3"
+            className="grid grid-cols-[1.4fr_0.7fr_1fr] lg:grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] items-center border-t border-line py-3"
           >
             <span className="flex items-center gap-3">
               <Avatar initials={row.buyer.initials} color={row.buyer.color} />
@@ -208,9 +208,9 @@ export default async function PayrollPage({
                 </span>
               </span>
             </span>
-            <span className="n text-right text-[13.5px] text-soft">{usd(row.profitCents)}</span>
-            <span className="n text-right text-[13.5px] text-rust">−{usd(row.consumableCents)}</span>
-            <span className="n text-right text-[13.5px]">{usd(row.baseCents)}</span>
+            <span className="n hidden text-right text-[13.5px] text-soft lg:block">{usd(row.profitCents)}</span>
+            <span className="n hidden text-right text-[13.5px] text-rust lg:block">−{usd(row.consumableCents)}</span>
+            <span className="n hidden text-right text-[13.5px] lg:block">{usd(row.baseCents)}</span>
             <span className="text-right">
               <span
                 className="n inline-block rounded-full px-2.5 py-1 text-[12px]"
@@ -223,13 +223,13 @@ export default async function PayrollPage({
               </span>
             </span>
             <span
-              className="n text-right text-[18px] font-semibold"
+              className="n hidden text-right text-[18px] font-semibold lg:block"
               style={{ color: row.onOklad ? '#ce6e58' : '#b4c68c' }}
             >
               {usd(row.salaryCents)}
             </span>
-            <span className="n text-right text-[13px] text-mute">{rub(row.salaryCents, rate)}</span>
-            <span className="n text-right text-[13.5px]" style={{ color: row.bonusCents ? '#b4c68c' : '#8a8a8a' }}>
+            <span className="n hidden text-right text-[13px] text-mute lg:block">{rub(row.salaryCents, rate)}</span>
+            <span className="n hidden text-right text-[13.5px] lg:block" style={{ color: row.bonusCents ? '#b4c68c' : '#8a8a8a' }}>
               {row.bonusCents ? `+${usd(row.bonusCents)}` : '—'}
             </span>
             <span className="n text-right text-[18px] font-semibold">{usd(row.totalCents)}</span>
@@ -238,22 +238,22 @@ export default async function PayrollPage({
 
         {/* У баера строка одна — подвал «Итого» дублировал бы её. */}
         {team ? (
-          <Sub className="mt-2.5 grid grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] items-center px-4 py-3.5">
+          <Sub className="mt-2.5 grid grid-cols-[1.4fr_0.7fr_1fr] lg:grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] items-center px-4 py-3.5">
           <span className="lab text-text">Итого</span>
-          <span className="n text-right text-[13.5px]">{usd(profitCents)}</span>
-          <span className="n text-right text-[13.5px] text-rust">−{usd(consumableCents)}</span>
-          <span className="n text-right text-[13.5px]">{usd(totals.base)}</span>
+          <span className="n hidden text-right text-[13.5px] lg:block">{usd(profitCents)}</span>
+          <span className="n hidden text-right text-[13.5px] text-rust lg:block">−{usd(consumableCents)}</span>
+          <span className="n hidden text-right text-[13.5px] lg:block">{usd(totals.base)}</span>
           <span className="n text-right text-[12.5px] text-mute">{rateLabel}</span>
-          <span className="n text-right text-[18px] font-semibold">{usd(totals.salary)}</span>
-          <span className="n text-right text-[13px] text-mute">{rub(totals.salary, rate)}</span>
-          <span className="n text-right text-[13.5px] text-sage">+{usd(totals.bonus)}</span>
+          <span className="n hidden text-right text-[18px] font-semibold lg:block">{usd(totals.salary)}</span>
+          <span className="n hidden text-right text-[13px] text-mute lg:block">{rub(totals.salary, rate)}</span>
+          <span className="n hidden text-right text-[13.5px] text-sage lg:block">+{usd(totals.bonus)}</span>
           <span className="n text-right text-[18px] font-semibold text-sage">{usd(totals.total)}</span>
         </Sub>
         ) : null}
       </Panel>
 
-      <div className="grid grid-cols-[1.25fr_1fr] gap-3.5">
-        <Panel className="p-6">
+      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.25fr_1fr] lg:gap-3.5">
+        <Panel className="p-4 sm:p-6">
           <PanelHead
             icon={<IconChart color="#b4c68c" />}
             tint="bg-sage-t"
@@ -308,7 +308,7 @@ export default async function PayrollPage({
           </div>
         </Panel>
 
-        <Panel className="p-6">
+        <Panel className="p-4 sm:p-6">
           <PanelHead icon={<IconWarn color="#ce6e58" />} tint="bg-rust-t" title="Мёртвые зоны" />
           <p className="mt-3 text-[12.5px] leading-relaxed text-mute">
             Процент считается со всей суммы, а не только с превышения порога. Поэтому у самой отметки пара сотен профита меняет выплату на тысячи.

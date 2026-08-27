@@ -64,7 +64,7 @@ export default async function ConsumablesPage({
   return (
     <div className="flex flex-col gap-3.5">
       {canEdit ? (
-      <form action={addConsumable} className="grid grid-cols-[repeat(5,1fr)_auto] items-end gap-3 rounded-[26px] border border-line bg-panel p-5">
+      <form action={addConsumable} className="grid grid-cols-2 items-end gap-2.5 rounded-[26px] border border-line bg-panel p-4 sm:grid-cols-3 sm:gap-3 sm:p-5 lg:grid-cols-[repeat(5,1fr)_auto]">
         <DateField name="date" defaultValue={today} />
         <Select
           name="typeId"
@@ -80,14 +80,14 @@ export default async function ConsumablesPage({
         />
         <input name="qty" type="number" min={1} defaultValue={1} className={`n ${field}`} placeholder="шт" />
         <input name="total" inputMode="decimal" className={`n ${field}`} placeholder="сумма, $" required />
-        <button type="submit" className="h-11 rounded-full bg-sage px-6 text-[13px] font-semibold text-bg">
+        <button type="submit" className="col-span-2 h-11 rounded-full bg-sage px-6 text-[13px] font-semibold text-bg sm:col-span-1">
           Списать
         </button>
       </form>
       ) : null}
 
-      <div className="grid grid-cols-[1.7fr_1fr] gap-3.5">
-        <Panel className="p-6">
+      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.7fr_1fr] lg:gap-3.5">
+        <Panel className="p-4 sm:p-6">
           <PanelHead
             icon={<IconBox color="#ce6e58" />}
             tint="bg-rust-t"
@@ -99,18 +99,18 @@ export default async function ConsumablesPage({
               </span>
             }
           />
-          <div className="mt-4 grid grid-cols-[0.6fr_1.2fr_1.2fr_1.6fr_0.7fr] pb-2.5">
+          <div className="mt-4 grid grid-cols-[0.7fr_1.2fr_1fr_0.8fr] md:grid-cols-[0.6fr_1.2fr_1.2fr_1.6fr_0.7fr] pb-2.5">
             <span className="lab">Дата</span>
             <span className="lab">Тип</span>
             <span className="lab">На кого</span>
-            <span className="lab">Комментарий</span>
+            <span className="lab hidden md:block">Комментарий</span>
             <span className="lab text-right">Сумма</span>
           </div>
           {entries.length === 0 ? (
             <Empty>За {periodLabel(key)} списаний нет.</Empty>
           ) : (
             entries.map((e) => (
-              <div key={e.id} className="grid grid-cols-[0.6fr_1.2fr_1.2fr_1.6fr_0.7fr] items-center border-t border-line py-2.5">
+              <div key={e.id} className="grid grid-cols-[0.7fr_1.2fr_1fr_0.8fr] md:grid-cols-[0.6fr_1.2fr_1.2fr_1.6fr_0.7fr] items-center border-t border-line py-2.5">
                 <span className="n text-[13px]">{fmtDay(e.date)}</span>
                 <span className="flex items-center gap-2 text-[13px]">
                   <span className="h-2 w-2 rounded-sm" style={{ background: e.type.color }} />
@@ -126,7 +126,7 @@ export default async function ConsumablesPage({
                     <span className="text-mute">—</span>
                   )}
                 </span>
-                <span className="truncate text-[12.5px] text-mute">
+                <span className="hidden truncate text-[12.5px] text-mute md:block">
                   {e.qty > 1 ? `${e.qty} шт · ` : ''}
                   {e.note || '—'}
                 </span>
@@ -145,7 +145,7 @@ export default async function ConsumablesPage({
         </Panel>
 
         <div className="flex flex-col gap-3.5">
-          <Panel className="p-6">
+          <Panel className="p-4 sm:p-6">
             <PanelHead icon={<IconBox color="#ce6e58" />} tint="bg-rust-t" title="По типам" />
             <div className="mt-4">
               {grouped.length === 0 ? (
@@ -163,7 +163,7 @@ export default async function ConsumablesPage({
           </Panel>
 
           {canEdit ? (
-          <Panel className="p-6">
+          <Panel className="p-4 sm:p-6">
             <PanelHead
               icon={<IconBox color="#ce6e58" />}
               tint="bg-rust-t"

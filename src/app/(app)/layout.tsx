@@ -38,7 +38,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="relative mx-auto flex min-h-screen max-w-[1440px] flex-col gap-3.5 p-4">
+    <div className="relative mx-auto flex min-h-screen max-w-[1440px] flex-col gap-2.5 p-2.5 sm:gap-3.5 sm:p-4">
       {/*
         Горизонтали живут на всём экране, а не внутри блока: панели чуть
         прозрачны, и рисунок проходит под ними насквозь. Слой держим на нулевом
@@ -46,7 +46,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         фон под заливку body, и его попросту не видно.
       */}
       <Contours className="fixed inset-0 z-0" />
-      <div className="relative z-10 flex flex-1 flex-col gap-3.5">
+      <div className="relative z-10 flex flex-1 flex-col gap-2.5 sm:gap-3.5">
       <TopBar
         title={team ? 'MS TEAM' : (user.buyer?.handle ?? user.name)}
         date={periodLabel(key)}

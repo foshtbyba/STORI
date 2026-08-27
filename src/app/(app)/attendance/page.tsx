@@ -57,8 +57,8 @@ export default async function AttendancePage({
     <div className="flex flex-col gap-3.5">
       <form
         action={markAttendance}
-        className={`grid items-end gap-3 rounded-[26px] border border-line bg-panel p-5 ${
-          team ? 'grid-cols-[repeat(4,1fr)_1.4fr_auto]' : 'grid-cols-[1fr_1fr_1.6fr_auto]'
+        className={`grid grid-cols-1 items-end gap-2.5 rounded-[26px] border border-line bg-panel p-4 sm:grid-cols-2 sm:gap-3 sm:p-5 ${
+          team ? 'lg:grid-cols-[repeat(4,1fr)_1.4fr_auto]' : 'lg:grid-cols-[1fr_1fr_1.6fr_auto]'
         }`}
       >
         <DateField name="date" defaultValue={today} />
@@ -93,7 +93,7 @@ export default async function AttendancePage({
       </form>
 
       {team && pending.length > 0 ? (
-        <Panel className="p-6">
+        <Panel className="p-4 sm:p-6">
           <PanelHead
             icon={<IconCalendar color="#d2a06a" />}
             tint="bg-amber-t"
@@ -107,7 +107,7 @@ export default async function AttendancePage({
               return (
                 <div
                   key={mark.id}
-                  className="grid grid-cols-[0.6fr_1fr_1fr_2fr_auto] items-center gap-3 border-t border-line py-2.5"
+                  className="grid grid-cols-[0.6fr_1fr_1fr_auto] items-center gap-2.5 border-t border-line py-2.5 md:grid-cols-[0.6fr_1fr_1fr_2fr_auto] md:gap-3"
                 >
                   <span className="n text-[13px]">
                     {String(mark.date.getUTCDate()).padStart(2, '0')}.
@@ -120,7 +120,7 @@ export default async function AttendancePage({
                   >
                     {meta.label}
                   </span>
-                  <span className="truncate text-[12.5px] text-mute">{mark.note || '—'}</span>
+                  <span className="hidden truncate text-[12.5px] text-mute md:block">{mark.note || '—'}</span>
                   <span className="flex items-center gap-2">
                     <form action={approveAttendance}>
                       <input type="hidden" name="id" value={mark.id} />
@@ -148,7 +148,7 @@ export default async function AttendancePage({
         </Panel>
       ) : null}
 
-      <Panel className="p-6">
+      <Panel className="p-4 sm:p-6">
         <PanelHead
           icon={<IconCalendar color="#d2a06a" />}
           tint="bg-amber-t"
@@ -293,7 +293,7 @@ export default async function AttendancePage({
         )}
       </Panel>
 
-      <Panel className="p-6">
+      <Panel className="p-4 sm:p-6">
         <PanelHead
           icon={<IconCalendar color="#d2a06a" />}
           tint="bg-amber-t"
@@ -313,7 +313,7 @@ export default async function AttendancePage({
               return (
                 <div
                   key={mark.id}
-                  className="grid grid-cols-[0.6fr_1fr_1fr_1.1fr_2fr_auto] items-center gap-3 border-t border-line py-2.5"
+                  className="grid grid-cols-[0.6fr_1fr_1fr_1.1fr_auto] items-center gap-2.5 border-t border-line py-2.5 md:grid-cols-[0.6fr_1fr_1fr_1.1fr_2fr_auto] md:gap-3"
                 >
                   <span className="n text-[13px]">
                     {String(mark.date.getUTCDate()).padStart(2, '0')}.
@@ -330,7 +330,7 @@ export default async function AttendancePage({
                   <span className="text-[12px]" style={{ color: state.color }}>
                     {mark.status === 'APPROVED' && !isSelf(mark.kind) ? '—' : state.label}
                   </span>
-                  <span className="truncate text-[12.5px] text-mute">{mark.note || '—'}</span>
+                  <span className="hidden truncate text-[12.5px] text-mute md:block">{mark.note || '—'}</span>
                   {team || isSelf(mark.kind) ? (
                     <form action={clearAttendance}>
                       <input type="hidden" name="id" value={mark.id} />

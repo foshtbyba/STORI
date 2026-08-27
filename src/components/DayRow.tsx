@@ -19,7 +19,12 @@ export type DayRowData = {
   note: string;
 };
 
-const GRID = 'grid grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)_auto] items-center';
+/**
+ * На телефоне в строку влезает только главное: день, баер, профит и правка.
+ * Источник и разложение спенда прячем — они есть на широком экране и в правке.
+ */
+const GRID =
+  'grid grid-cols-[0.8fr_1.1fr_1fr_auto] items-center md:grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)_auto]';
 
 /**
  * Строка отчёта за день. Админ правит её на месте: раскрывается три поля,
@@ -84,10 +89,10 @@ export default function DayRow({ row, canEdit }: { row: DayRowData; canEdit: boo
           <Avatar initials={row.buyer.initials} color={row.buyer.color} size={28} />
           <span className="text-[13px]">{row.buyer.handle}</span>
         </span>
-        <span className="truncate text-[13px] text-soft">{row.source}</span>
-        <span className="n text-right text-[13.5px] text-soft">{usd(row.revenueCents)}</span>
-        <span className="n text-right text-[13.5px] text-mute">{usd(row.spendNetCents)}</span>
-        <span className="n text-right text-[13.5px] text-mute">
+        <span className="hidden truncate text-[13px] text-soft md:block">{row.source}</span>
+        <span className="n hidden text-right text-[13.5px] text-soft md:block">{usd(row.revenueCents)}</span>
+        <span className="n hidden text-right text-[13.5px] text-mute md:block">{usd(row.spendNetCents)}</span>
+        <span className="n hidden text-right text-[13.5px] text-mute md:block">
           {usd(row.spendGrossCents)}
           <span className="ml-1.5 text-[11px] text-dim">{(row.commissionBps / 100).toFixed(2)}%</span>
         </span>
@@ -97,7 +102,7 @@ export default function DayRow({ row, canEdit }: { row: DayRowData; canEdit: boo
         >
           {usd(row.revenueCents - row.spendGrossCents, { sign: true })}
         </span>
-        <span className="pl-3">
+        <span className="pl-2 md:pl-3">
           {canEdit ? (
             <button
               type="button"
@@ -112,7 +117,7 @@ export default function DayRow({ row, canEdit }: { row: DayRowData; canEdit: boo
 
       {open ? (
         <div className="mb-3 rounded-[18px] bg-sub p-4">
-          <div className="grid grid-cols-[1fr_1fr_0.6fr_1.6fr_auto] items-end gap-3">
+          <div className="grid grid-cols-2 items-end gap-3 md:grid-cols-[1fr_1fr_0.6fr_1.6fr_auto]">
             <label className="block">
               <span className="lab mb-1.5 block">Доход</span>
               <input value={revenue} onChange={(e) => setRevenue(e.target.value)} inputMode="decimal" className={field} />

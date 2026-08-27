@@ -48,8 +48,8 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col gap-3.5">
-      <div className="grid grid-cols-[1.55fr_1fr] gap-3.5">
-        <Panel className="p-6">
+      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.55fr_1fr] lg:gap-3.5">
+        <Panel className="p-4 sm:p-6">
           <PanelHead
             icon={<IconChart color="#b4c68c" />}
             tint="bg-sage-t"
@@ -66,7 +66,7 @@ export default async function HomePage() {
               курс {(rate / 100).toFixed(0)} ₽/$
             </span>
           </div>
-          <div className="mt-6 grid grid-cols-4 gap-3">
+          <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
             {[
               { label: 'Оборот', value: usd(summary.totals.revenueCents), color: 'text-text' },
               { label: 'Расход с комиссией', value: usd(summary.totals.spendGrossCents), color: 'text-text' },
@@ -85,7 +85,7 @@ export default async function HomePage() {
           </div>
         </Panel>
 
-        <Panel className="flex flex-col p-6">
+        <Panel className="flex flex-col p-4 sm:p-6">
           <PanelHead icon={<IconWallet color="#b4c68c" />} tint="bg-sage-t" title="Остаётся команде" />
           <div className="mt-4 text-[46px] font-bold leading-none tracking-[-0.03em]">
             <span className="text-[26px] text-mute">$</span>
@@ -105,7 +105,7 @@ export default async function HomePage() {
         </Panel>
       </div>
 
-      <Panel className="p-6">
+      <Panel className="p-4 sm:p-6">
         <PanelHead
           icon={<IconChart color="#b4c68c" />}
           tint="bg-sage-t"
@@ -125,29 +125,29 @@ export default async function HomePage() {
         </div>
       </Panel>
 
-      <div className="grid grid-cols-[1.85fr_1fr] gap-3.5">
-        <Panel className="flex flex-col p-6">
+      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.85fr_1fr] lg:gap-3.5">
+        <Panel className="flex flex-col p-4 sm:p-6">
           <PanelHead
             icon={<IconUsers color="#b4c68c" />}
             tint="bg-sage-t"
             title="Баеры"
             aside={<span className="text-[12.5px] text-mute">{summary.buyers.length} человек</span>}
           />
-          <div className="mt-4 grid grid-cols-[1.6fr_repeat(5,1fr)_1.05fr] pb-2.5">
+          <div className="mt-4 grid grid-cols-[1.3fr_1fr_1fr] md:grid-cols-[1.6fr_repeat(5,1fr)_1.05fr] pb-2.5">
             <span className="lab">Баер</span>
-            <span className="lab text-right">Доход</span>
-            <span className="lab text-right">Спенд</span>
-            <span className="lab text-right">С комиссией</span>
+            <span className="lab hidden text-right md:block">Доход</span>
+            <span className="lab hidden text-right md:block">Спенд</span>
+            <span className="lab hidden text-right md:block">С комиссией</span>
             <span className="lab text-right">Профит</span>
             <span className="lab pl-5 text-right" title="Чистый профит по всем отчётам, за все периоды">
               За всё время
             </span>
-            <span className="lab text-right">ROI · доля</span>
+            <span className="lab hidden text-right md:block">ROI · доля</span>
           </div>
           {summary.buyers.map((row) => (
             <div
               key={row.buyer.id}
-              className="grid grid-cols-[1.6fr_repeat(5,1fr)_1.05fr] items-center border-t border-line py-3"
+              className="grid grid-cols-[1.3fr_1fr_1fr] md:grid-cols-[1.6fr_repeat(5,1fr)_1.05fr] items-center border-t border-line py-3"
             >
               <span className="flex items-center gap-3">
                 <Avatar initials={row.buyer.initials} color={row.buyer.color} />
@@ -158,9 +158,9 @@ export default async function HomePage() {
                   </span>
                 </span>
               </span>
-              <span className="n text-right text-[13.5px] text-soft">{usd(row.revenueCents)}</span>
-              <span className="n text-right text-[13.5px] text-mute">{usd(row.spendNetCents)}</span>
-              <span className="n text-right text-[13.5px] text-mute">{usd(row.spendGrossCents)}</span>
+              <span className="n hidden text-right text-[13.5px] text-soft md:block">{usd(row.revenueCents)}</span>
+              <span className="n hidden text-right text-[13.5px] text-mute md:block">{usd(row.spendNetCents)}</span>
+              <span className="n hidden text-right text-[13.5px] text-mute md:block">{usd(row.spendGrossCents)}</span>
               <span
                 className="n text-right text-[18px] font-semibold"
                 style={{ color: row.profitCents >= 0 ? '#b4c68c' : '#ce6e58' }}
@@ -174,7 +174,7 @@ export default async function HomePage() {
               >
                 {usd(allTime.get(row.buyer.id) ?? 0, { sign: true })}
               </span>
-              <span className="flex items-center justify-end gap-3">
+              <span className="hidden items-center justify-end gap-3 md:flex">
                 <span className="n text-[12.5px]" style={{ color: row.roi >= 25 ? '#b4c68c' : '#ce6e58' }}>
                   {row.roi.toFixed(1).replace('.', ',')}%
                 </span>
@@ -191,11 +191,11 @@ export default async function HomePage() {
             </div>
           ))}
           <div className="flex-1" />
-          <Sub className="mt-2.5 grid grid-cols-[1.6fr_repeat(5,1fr)_1.05fr] items-center px-4 py-3.5">
+          <Sub className="mt-2.5 grid grid-cols-[1.3fr_1fr_1fr] md:grid-cols-[1.6fr_repeat(5,1fr)_1.05fr] items-center px-4 py-3.5">
             <span className="lab text-text">Итого</span>
-            <span className="n text-right text-[13.5px]">{usd(summary.totals.revenueCents)}</span>
-            <span className="n text-right text-[13.5px]">{usd(summary.totals.spendNetCents)}</span>
-            <span className="n text-right text-[13.5px]">{usd(summary.totals.spendGrossCents)}</span>
+            <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.revenueCents)}</span>
+            <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.spendNetCents)}</span>
+            <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.spendGrossCents)}</span>
             <span className="n text-right text-[18px] font-semibold text-sage">
               {usd(summary.totals.profitCents)}
             </span>
@@ -205,14 +205,14 @@ export default async function HomePage() {
             >
               {usd(allTimeTotal, { sign: true })}
             </span>
-            <span className="n text-right text-[12.5px] text-sage">
+            <span className="n hidden text-right text-[12.5px] text-sage md:block">
               {summary.totals.roi.toFixed(1).replace('.', ',')}%
             </span>
           </Sub>
         </Panel>
 
         <div className="flex flex-col gap-3.5">
-          <Panel className="flex-1 p-5">
+          <Panel className="flex-1 p-4 sm:p-5">
             <div className="mb-4 flex items-center justify-between">
               <span className="flex items-center gap-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-rust-t">
@@ -238,7 +238,7 @@ export default async function HomePage() {
             )}
           </Panel>
 
-          <Panel className="flex-1 p-5">
+          <Panel className="flex-1 p-4 sm:p-5">
             <div className="mb-3.5 flex items-center gap-3">
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-rust-t">
                 <IconWarn color="#ce6e58" size={17} />

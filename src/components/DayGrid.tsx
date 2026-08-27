@@ -119,17 +119,20 @@ export default function DayGrid({
   }
 
   const cell = 'n h-10 w-full rounded-lg border border-line bg-sub px-3 text-right text-[13.5px] outline-none transition focus:border-sage';
-  const cols = 'grid grid-cols-[1.4fr_1fr_1fr_0.75fr_1fr_1fr_1fr] items-center gap-2.5';
+  // Таблица ввода плотная: на телефоне не ужимаем колонки до нечитаемого, а
+  // даём прокрутить её вбок внутри панели — страница при этом не разъезжается.
+  const cols =
+    'grid min-w-[680px] grid-cols-[1.4fr_1fr_1fr_0.75fr_1fr_1fr_1fr] items-center gap-2.5';
 
   return (
-    <Panel className="flex flex-col p-6">
+    <Panel className="flex flex-col p-4 sm:p-6">
       <PanelHead
         icon={<IconCalendar color="#b4c68c" />}
         tint="bg-sage-t"
         title="Отчёт за день"
         aside={<span className="text-[12.5px] text-mute">вся команда одной таблицей</span>}
         right={
-          <span className="w-[168px]">
+          <span className="w-[132px] sm:w-[168px]">
             <DateField value={date} onChange={(next) => router.push(`/days/new?date=${next}`)} />
           </span>
         }
@@ -142,6 +145,8 @@ export default function DayGrid({
         </span>
       </div>
 
+      {/* Таблица шире телефона — прокручиваем её саму, а не всю страницу. */}
+      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-visible sm:px-0">
       <div className={`${cols} mt-5 pb-2.5`}>
         <span className="lab">Баер</span>
         <span className="lab text-right">Доход</span>
@@ -220,6 +225,7 @@ export default function DayGrid({
         >
           {usd(totals.profit, { sign: true })}
         </span>
+      </div>
       </div>
 
       <div className="mt-4 flex items-center gap-3.5">

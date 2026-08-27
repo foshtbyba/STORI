@@ -43,13 +43,13 @@ export function PanelHead({
   right?: ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-[13px]">
+    <div className="flex flex-wrap items-center justify-between gap-y-2.5">
+      <div className="flex min-w-0 items-center gap-2.5 sm:gap-[13px]">
         <Badge tint={tint}>{icon}</Badge>
         <h2 className="text-[17px] font-semibold tracking-[-0.015em]">{title}</h2>
         {aside ? (
           <>
-            <span className="h-5 w-px bg-line2" />
+            <span className="hidden h-5 w-px bg-line2 sm:block" />
             {aside}
           </>
         ) : null}

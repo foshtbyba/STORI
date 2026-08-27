@@ -72,11 +72,11 @@ export default function DayForm({
     'mt-2 w-full bg-transparent text-[15px] outline-none placeholder:text-dim';
 
   return (
-    <div className="grid grid-cols-[1.32fr_1fr] items-start gap-3.5">
+    <div className="grid grid-cols-1 items-start gap-2.5 lg:grid-cols-[1.32fr_1fr] lg:gap-3.5">
       <div className="flex flex-col gap-3.5">
-        <Panel className="p-6">
+        <Panel className="p-4 sm:p-6">
           <PanelHead icon={<IconRoute color="#b4c68c" />} tint="bg-sage-t" title="Связка" />
-          <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <Sub className="px-4 py-3.5">
               <span className="text-[11.5px] text-mute">Дата</span>
               <div className="mt-2">
@@ -113,7 +113,7 @@ export default function DayForm({
           </div>
         </Panel>
 
-        <Panel className="p-6">
+        <Panel className="p-4 sm:p-6">
           <PanelHead icon={<IconRoute color="#b4c68c" />} tint="bg-sage-t" title="Деньги за день" />
           <div className="mt-5 grid grid-cols-2 gap-3">
             <Sub className="border border-sage-t px-5 py-4">
@@ -132,7 +132,7 @@ export default function DayForm({
             </Sub>
           </div>
           <div className="lab mt-5 mb-3">Пополнение кабинета</div>
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
             <Sub className="px-4 py-3.5">
               <span className="text-[11px] text-mute">Комиссия платёжки</span>
               <div className="n mt-2 text-[15px] font-semibold">{(bps / 100).toFixed(2)}%</div>
@@ -154,7 +154,7 @@ export default function DayForm({
         </Panel>
       </div>
 
-      <Panel className="p-6">
+      <Panel className="p-4 sm:p-6">
         <PanelHead icon={<IconRoute color="#b4c68c" />} tint="bg-sage-t" title="Расчёт дня" />
         <div className="mt-4">
           {[

@@ -110,7 +110,7 @@ export default function OfferForm({
         }
       />
 
-      <div className="mt-5 grid grid-cols-3 gap-3">
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Field label="Название" name="name" value={v.name} onChange={set('name')} placeholder="Имя оффера" />
         <Field label="Вертикаль" name="vertical" value={v.vertical} onChange={set('vertical')} placeholder="Тема, ниша" />
         <div>
@@ -155,7 +155,7 @@ export default function OfferForm({
           </span>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <label className="mb-1.5 block text-[11.5px] text-mute">Партнёрка в конструкторе</label>
             <Select
