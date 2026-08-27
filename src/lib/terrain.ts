@@ -42,29 +42,36 @@ export type TerrainConfig = {
 };
 
 export const DEFAULT_TERRAIN: TerrainConfig = {
-  grid: 152,
+  grid: 168,
   extent: 1.22,
-  levels: 52,
+  levels: 46,
   indexEvery: 5,
-  squash: 0.36,
-  radius: 330,
-  height: 400,
-  centre: { x: 660, y: 636 },
-  octaves: [0.5, 0.28, 0.15, 0.08, 0.04],
-  warp: 0.3,
-  domeSigma: 0.44,
+  squash: 0.38,
+  radius: 352,
+  height: 392,
+  centre: { x: 660, y: 700 },
+  octaves: [0.62, 0.4, 0.24, 0.14, 0.07],
+  warp: 0.44,
+  domeSigma: 0.4,
   shoulders: [
-    [-0.42, 0.28, 0.21, 0.26],
-    [0.4, -0.3, 0.19, 0.23],
-    [0.18, 0.46, 0.17, 0.18],
+    [-0.46, 0.24, 0.22, 0.3],
+    [0.42, -0.28, 0.2, 0.26],
+    [0.16, 0.48, 0.18, 0.22],
+    [-0.24, -0.46, 0.16, 0.19],
+    [0.5, 0.3, 0.15, 0.16],
+    [-0.08, 0.2, 0.13, 0.12],
   ],
 };
 
-export type Contour = { d: string; index: boolean };
+/**
+ * Одна ступень рельефа: замкнутые петли этого уровня одним путём. Заливаем их
+ * снизу вверх непрозрачным цветом — тогда дальний склон закрыт ближним и гора
+ * перестаёт просвечивать насквозь.
+ */
+export type Band = { d: string; level: number; index: boolean };
 export type Terrain = {
   config: TerrainConfig;
-  contours: Contour[];
-  fills: { base: string; mid: string; snow: string };
+  bands: Band[];
   /** Where the summit lands on screen. */
   summit: [number, number];
   /** Screen position of the outermost surface point on a ray, at a height. */
@@ -119,8 +126,8 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
       rn += weight * ridged(wx + 1.3 + i * 4, wy + 2.9 + i * 3, freqs[i] ?? 60);
     });
 
-    const body = 0.52 * Math.pow(cone, 0.95) + 0.72 * dome * Math.pow(cone, 0.45);
-    let h = body * (0.68 + 0.46 * rn);
+    const body = 0.56 * Math.pow(cone, 1.05) + 0.6 * dome * Math.pow(cone, 0.45);
+    let h = body * (0.52 + 0.8 * rn);
     for (const [sx, sy, sigma, amp] of config.shoulders) {
       const dx = x - sx;
       const dy = y - sy;
@@ -244,16 +251,17 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
     return close ? `${d} Z` : d;
   }
 
-  const longest = (lines: Pt[][]) => lines.reduce((a, b) => (b.length > a.length ? b : a), lines[0] ?? []);
-
-  const contours: Contour[] = [];
+  const bands: Band[] = [];
   for (let i = 0; i < config.levels; i++) {
     const level = 0.016 + Math.pow(i / (config.levels - 1), 1.08) * 0.958;
-    const index = i % config.indexEvery === 0;
-    for (const line of trace(level)) contours.push({ d: path(smooth(line), level, false), index });
+    const loops = trace(level);
+    if (loops.length === 0) continue;
+    bands.push({
+      level,
+      index: i % config.indexEvery === 0,
+      d: loops.map((line) => path(smooth(line), level, true)).join(' '),
+    });
   }
-
-  const fillAt = (level: number) => path(smooth(longest(trace(level))), level, true);
 
   const surfacePoint = (angleDeg: number, level: number): [number, number] => {
     const a = (angleDeg * Math.PI) / 180;
@@ -273,8 +281,7 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
 
   return {
     config,
-    contours,
-    fills: { base: fillAt(0.016), mid: fillAt(0.4), snow: fillAt(0.794) },
+    bands,
     summit: projectCell([peakIndex % GN, Math.floor(peakIndex / GN)], 1),
     surfacePoint,
     rightEdge: (level) => {

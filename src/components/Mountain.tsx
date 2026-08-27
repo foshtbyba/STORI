@@ -13,8 +13,15 @@ export type Climber = {
   stem: number;
 };
 
-const RING = 472;
-const VIEW = { x: 0, y: 60, w: 1400, h: 790 };
+const RING = 486;
+const VIEW = { x: 0, y: 148, w: 1400, h: 778 };
+
+/** Ступени рельефа снизу вверх: чем выше, тем светлее. Только сплошные цвета. */
+function bandFill(level: number) {
+  const t = Math.max(0, Math.min(1, level));
+  const mix = (a: number, b: number) => Math.round(a + (b - a) * Math.pow(t, 0.85));
+  return `rgb(${mix(30, 58)} ${mix(30, 58)} ${mix(31, 60)})`;
+}
 
 /**
  * Altitude is profit. Everything else on this drawing — the tier rules, the
@@ -69,14 +76,21 @@ export default function Mountain({
     ? Math.min(0.985, Math.max(0.09, viewer.profitCents / summitCents))
     : null;
 
+  // Тропа не идёт по прямой: к дуге добавлены две гармоники и лёгкая
+  // неровность по высоте — получается серпантин, а не подъём по линейке.
   const ray = (from: number, to: number, fromAng: number, toAng: number, wobble: number, steps: number) => {
     let d = '';
     const marks: { x: number; y: number }[] = [];
     for (let i = 0; i <= steps; i++) {
       const f = i / steps;
+      const swing =
+        Math.sin(f * Math.PI * 2.6) * wobble +
+        Math.sin(f * Math.PI * 6.3 + 1.2) * wobble * 0.42 +
+        Math.sin(f * Math.PI * 11.7 + 0.4) * wobble * 0.16;
+      const lift = Math.sin(f * Math.PI * 4.1 + 0.7) * 0.012;
       const [x, y] = terrain.surfacePoint(
-        fromAng + f * (toAng - fromAng) + Math.sin(f * Math.PI * 2.6) * wobble,
-        from + f * (to - from),
+        fromAng + f * (toAng - fromAng) + swing,
+        Math.max(0.02, Math.min(0.99, from + f * (to - from) + lift)),
       );
       d += `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`;
       if (i % Math.round(steps / 3) === 0) marks.push({ x, y });
@@ -85,24 +99,26 @@ export default function Mountain({
   };
 
   const covered = viewer
-    ? ray(0.09, viewerOnTop ? 0.985 : viewerLevel!, 52, viewerOnTop ? 178 : viewer.angle, 14, 48)
+    ? ray(0.09, viewerOnTop ? 0.985 : viewerLevel!, 52, viewerOnTop ? 178 : viewer.angle, 22, 64)
     : null;
   const remaining =
     viewer && !viewerOnTop
-      ? ray(viewerLevel!, 0.975, viewer.angle, viewer.angle + 46, 12, 32).d +
+      ? ray(viewerLevel!, 0.975, viewer.angle, viewer.angle + 58, 20, 44).d +
         `L${terrain.summit[0].toFixed(1)} ${terrain.summit[1].toFixed(1)}`
       : '';
 
-  const ticks = Array.from({ length: 240 }, (_, i) => {
-    const a = (i * 1.5 * Math.PI) / 180;
-    const big = i % 20 === 0;
+  // Насечки реже и толще, чем были: густая мелкая гребёнка на тёмном фоне
+  // сливалась в серую кайму.
+  const ticks = Array.from({ length: 96 }, (_, i) => {
+    const a = (i * 3.75 * Math.PI) / 180;
+    const big = i % 12 === 0;
     const major = i % 4 === 0;
-    const inner = big ? 434 : major ? 446 : 456;
+    const out = RING + (big ? 34 : major ? 24 : 15);
     return {
-      x1: centre.x + inner * Math.cos(a), y1: centre.y + inner * squash * Math.sin(a),
-      x2: centre.x + RING * Math.cos(a), y2: centre.y + RING * squash * Math.sin(a),
-      c: big ? '#9c9c9c' : major ? '#6e6e6e' : '#454545',
-      w: big ? 1.5 : 1,
+      x1: centre.x + RING * Math.cos(a), y1: centre.y + RING * squash * Math.sin(a),
+      x2: centre.x + out * Math.cos(a), y2: centre.y + out * squash * Math.sin(a),
+      c: big ? '#b6b6b6' : major ? '#7d7d7d' : '#565656',
+      w: big ? 3.2 : major ? 2.4 : 1.8,
     };
   });
 
@@ -121,21 +137,27 @@ export default function Mountain({
     })
     .filter((r) => r.visible);
 
-  // Стороны света лежат в плоскости пола: сначала точка на кольце, потом тот же
-  // изометрический сплющ, что и у самой площадки. Никаких поворотов — от них
-  // буквы и висели криво, каждая под своим углом.
+  /**
+   * Буквы сидят на самой полосе компаса. Наклон берём от касательной к эллипсу,
+   * но приглушаем: полный угол в плоскости пола кладёт букву почти набок, и
+   * читать её невозможно.
+   */
   const cardinals = [
-    { t: 'W', deg: 225 },
-    { t: 'N', deg: 315 },
-    { t: 'E', deg: 45 },
-    { t: 'S', deg: 135 },
+    { t: 'W', deg: 208 },
+    { t: 'N', deg: 332 },
+    { t: 'E', deg: 28 },
+    { t: 'S', deg: 152 },
   ].map(({ t, deg }) => {
     const a = (deg * Math.PI) / 180;
-    const out = RING + 46;
+    let tilt = (Math.atan2(squash * Math.cos(a), -Math.sin(a)) * 180) / Math.PI;
+    while (tilt > 90) tilt -= 180;
+    while (tilt < -90) tilt += 180;
+    const r = RING + 8;
     return {
       t,
-      x: centre.x + out * Math.cos(a),
-      y: centre.y + out * squash * Math.sin(a),
+      x: centre.x + r * Math.cos(a),
+      y: centre.y + r * squash * Math.sin(a),
+      r: tilt * 0.45,
     };
   });
 
@@ -157,32 +179,38 @@ export default function Mountain({
           stroke="#5e9a93" strokeWidth={1.4} opacity={0.85} />
 
         {cardinals.map((c) => (
-          <text key={c.t} transform={`translate(${c.x} ${c.y}) scale(1 ${squash})`}
+          <text key={c.t} transform={`translate(${c.x} ${c.y}) rotate(${c.r.toFixed(1)}) scale(1 0.46)`}
             textAnchor="middle" dominantBaseline="middle"
-            fill="#e4e4e4" stroke="#1c1c1d" strokeWidth={14} paintOrder="stroke"
-            fontFamily="var(--font-sans), sans-serif" fontSize={76} fontWeight={700} opacity={0.8}>
+            fill="#e4e4e4" stroke="#1c1c1d" strokeWidth={13} paintOrder="stroke"
+            fontFamily="var(--font-sans), sans-serif" fontSize={72} fontWeight={700} opacity={0.85}>
             {c.t}
           </text>
         ))}
 
-        <path d={terrain.fills.base} fill="#1f1f20" />
-        <path d={terrain.fills.mid} fill="#232324" />
-        <path d={terrain.fills.snow} fill="#292929" />
-        {terrain.contours.map((c, i) => (
-          <path key={i} d={c.d} fill="none" strokeLinejoin="round"
-            stroke={c.index ? '#a6a6a6' : '#5c5c5c'} strokeWidth={c.index ? 1.15 : 0.75} />
+        {terrain.bands.map((b, i) => (
+          <path
+            key={i}
+            d={b.d}
+            fillRule="evenodd"
+            fill={bandFill(b.level)}
+            stroke={b.index ? '#b4b4b4' : '#6b6b6b'}
+            strokeWidth={b.index ? 1.25 : 0.8}
+            strokeLinejoin="round"
+          />
         ))}
 
+        {/* Пройденное — сплошной серой нитью, оставшееся до вершины — белым
+            пунктиром: видно, где ты уже был и сколько ещё идти. */}
         {covered ? (
-          <path d={covered.d} fill="none" stroke="#e4e4e4" strokeWidth={2.6} strokeDasharray="9 7"
-            strokeLinecap="round" opacity={0.92} />
+          <path d={covered.d} fill="none" stroke="#7a7a7a" strokeWidth={2.4}
+            strokeLinecap="round" strokeLinejoin="round" opacity={0.95} />
         ) : null}
         {remaining ? (
-          <path d={remaining} fill="none" stroke="#8a8a8a" strokeWidth={2} strokeDasharray="3 8"
-            strokeLinecap="round" opacity={0.7} />
+          <path d={remaining} fill="none" stroke="#f0f0f0" strokeWidth={2.8} strokeDasharray="10 8"
+            strokeLinecap="round" strokeLinejoin="round" opacity={0.95} />
         ) : null}
         {covered?.marks.map((m, i) => (
-          <circle key={i} cx={m.x} cy={m.y} r={3.4} fill="#e4e4e4" opacity={0.85} />
+          <circle key={i} cx={m.x} cy={m.y} r={3.2} fill="#8a8a8a" opacity={0.9} />
         ))}
 
         <line x1={1300} y1={centre.y - HMAX} x2={1300} y2={centre.y} stroke="#2e2e2f" strokeWidth={1} />
