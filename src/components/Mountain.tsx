@@ -121,8 +121,9 @@ export default function Mountain({
     })
     .filter((r) => r.visible);
 
-  // Стороны света считаем от того же кольца, а не вбиваем координатами: иначе
-  // при любой правке центра или радиуса буквы повисают мимо круга.
+  // Стороны света лежат в плоскости пола: сначала точка на кольце, потом тот же
+  // изометрический сплющ, что и у самой площадки. Никаких поворотов — от них
+  // буквы и висели криво, каждая под своим углом.
   const cardinals = [
     { t: 'W', deg: 225 },
     { t: 'N', deg: 315 },
@@ -130,17 +131,11 @@ export default function Mountain({
     { t: 'S', deg: 135 },
   ].map(({ t, deg }) => {
     const a = (deg * Math.PI) / 180;
-    const out = RING + 44;
-    // Наклон — по касательной к эллипсу, приглушённый: полный угол кладёт
-    // букву набок, а нулевой выглядит наклейкой поверх перспективы.
-    let tilt = (Math.atan2(squash * Math.cos(a), -Math.sin(a)) * 180) / Math.PI;
-    while (tilt > 90) tilt -= 180;
-    while (tilt < -90) tilt += 180;
+    const out = RING + 46;
     return {
       t,
       x: centre.x + out * Math.cos(a),
       y: centre.y + out * squash * Math.sin(a),
-      r: tilt * 0.6,
     };
   });
 
@@ -162,9 +157,10 @@ export default function Mountain({
           stroke="#5e9a93" strokeWidth={1.4} opacity={0.85} />
 
         {cardinals.map((c) => (
-          <text key={c.t} transform={`translate(${c.x} ${c.y}) rotate(${c.r}) scale(1 0.62)`}
-            textAnchor="middle" fill="#e4e4e4" stroke="#1c1c1d" strokeWidth={7} paintOrder="stroke"
-            fontFamily="var(--font-sans), sans-serif" fontSize={46} fontWeight={700} opacity={0.82}>
+          <text key={c.t} transform={`translate(${c.x} ${c.y}) scale(1 ${squash})`}
+            textAnchor="middle" dominantBaseline="middle"
+            fill="#e4e4e4" stroke="#1c1c1d" strokeWidth={14} paintOrder="stroke"
+            fontFamily="var(--font-sans), sans-serif" fontSize={76} fontWeight={700} opacity={0.8}>
             {c.t}
           </text>
         ))}
