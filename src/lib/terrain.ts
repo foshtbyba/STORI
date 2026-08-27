@@ -335,33 +335,48 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
    * Точка поверхности в координатах площадки: u, v и высота, на которой она
    * реально оказалась.
    *
-   * Высоту прижимаем к тому, что на этом луче вообще достижимо, и возвращаем
-   * прижатую. Раньше возвращались только u и v, а рисовали точку на исходной
-   * высоте — на пологих направлениях склон до неё не доставал, и линия
-   * повисала в воздухе.
+   * Ищем САМОЕ ДАЛЬНЕЕ пересечение луча с этой высотой, а не любое. Рельеф
+   * рваный, на одном луче высота пересекается несколько раз — на внешнем
+   * склоне и на внутренних уступах. Дихотомия сходилась то к одному, то к
+   * другому, соседние азимуты давали радиусы с разных сторон ложбины, и
+   * отрезок между ними шёл по воздуху. Скан наружу такой неоднозначности не
+   * оставляет: внешняя поверхность всегда одна.
    */
   const surfaceUV = (angleDeg: number, level: number): [number, number, number] => {
     const a = (angleDeg * Math.PI) / 180;
     const cos = Math.cos(a);
     const sin = Math.sin(a);
 
+    const STEPS = 220;
+    const REACH = 1.02;
     let peak = 0;
-    for (let i = 0; i <= 64; i++) {
-      const r = (i / 64) * 1.02;
-      const h = height(r * cos, r * sin) / maxH;
-      if (h > peak) peak = h;
+    const h: number[] = new Array(STEPS + 1);
+    for (let i = 0; i <= STEPS; i++) {
+      const r = (i / STEPS) * REACH;
+      h[i] = height(r * cos, r * sin) / maxH;
+      if (h[i] > peak) peak = h[i];
     }
     const target = Math.min(level, peak * 0.995);
 
-    let lo = 0;
-    let hi = 1.05;
-    for (let i = 0; i < 30; i++) {
+    // Идём с внешнего края внутрь до первой точки, которая дотягивает до
+    // отметки: это и есть внешняя поверхность на этой высоте.
+    let idx = 0;
+    for (let i = STEPS; i >= 0; i--) {
+      if (h[i] >= target) {
+        idx = i;
+        break;
+      }
+    }
+
+    // Уточняем между найденной точкой и следующей наружу.
+    let lo = (idx / STEPS) * REACH;
+    let hi = (Math.min(STEPS, idx + 1) / STEPS) * REACH;
+    for (let i = 0; i < 18; i++) {
       const mid = (lo + hi) / 2;
-      if (height(mid * cos, mid * sin) / maxH > target) lo = mid;
+      if (height(mid * cos, mid * sin) / maxH >= target) lo = mid;
       else hi = mid;
     }
-    const r = (lo + hi) / 2;
-    return [r * cos, r * sin, target];
+    return [lo * cos, lo * sin, target];
   };
 
   const surfacePoint = (angleDeg: number, level: number): [number, number] => {

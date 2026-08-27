@@ -104,6 +104,14 @@ export default function Peak3D({
   const cy = centre.y - (SQ - SQ0) * ringRadius * 0.9;
   const centreAt = { x: centre.x, y: cy };
 
+  /** Глубина точки площадки: >0 — ближняя к камере половина, <0 — дальняя. */
+  const depthOf = useMemo(() => {
+    const a = (azimuth * Math.PI) / 180;
+    const cos = Math.cos(a);
+    const sin = Math.sin(a);
+    return (u: number, v: number) => u * sin + v * cos;
+  }, [azimuth]);
+
   /** Проекция точки площадки на экран при текущем повороте. */
   const project = useMemo(() => {
     const a = (azimuth * Math.PI) / 180;
@@ -214,6 +222,91 @@ export default function Peak3D({
       tierBand.set(best, r);
     }
 
+    // --- маршрут и ножки меток.
+    //
+    // Холст не знает про глубину, поэтому рисуем в два захода: то, что ушло за
+    // гору, идёт ДО рельефа и честно скрывается за ним, а ближняя половина —
+    // после. Без этого тропа с обратной стороны продолжала висеть поверх
+    // склона, будто в воздухе.
+    const strokeHalf = (
+      pts: number[],
+      near: boolean,
+      style: string,
+      width: number,
+      dash: number[],
+    ) => {
+      if (pts.length < 6) return;
+      ctx.setLineDash(dash);
+      ctx.strokeStyle = style;
+      ctx.lineWidth = width;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      let drawing = false;
+      for (let i = 0; i < pts.length; i += 3) {
+        const side = depthOf(pts[i], pts[i + 1]) >= 0;
+        if (side !== near) {
+          drawing = false;
+          continue;
+        }
+        const [x, y] = project(pts[i], pts[i + 1], pts[i + 2]);
+        if (drawing) ctx.lineTo(x, y);
+        else {
+          ctx.moveTo(x, y);
+          drawing = true;
+        }
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    };
+
+    const drawRoute = (near: boolean) => {
+      if (!route) return;
+      strokeHalf(route.covered, near, '#7a7a7a', 2.4, []);
+      strokeHalf(route.remaining, near, '#f0f0f0', 2.8, [10, 8]);
+    };
+
+    const drawStems = (near: boolean) => {
+      for (const p of pins) {
+        if (depthOf(p.u, p.v) >= 0 !== near) continue;
+        const [sx, sy] = project(p.u, p.v, p.level);
+        ctx.strokeStyle = p.color;
+        ctx.lineWidth = 1.7;
+        ctx.beginPath();
+        ctx.moveTo(sx, sy);
+        ctx.lineTo(sx, sy - p.stem + 17);
+        ctx.stroke();
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(sx, sy, 3.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+
+    const drawFlag = () => {
+      if (!route || route.covered.length < 3) return;
+      const [fx, fy] = project(route.covered[0], route.covered[1], route.covered[2]);
+      ctx.strokeStyle = '#e4e4e4';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.moveTo(fx, fy);
+      ctx.lineTo(fx, fy - 34);
+      ctx.stroke();
+      ctx.fillStyle = '#e4e4e4';
+      ctx.beginPath();
+      ctx.moveTo(fx, fy - 34);
+      ctx.lineTo(fx + 22, fy - 27);
+      ctx.lineTo(fx, fy - 20);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(fx, fy, 3.6, 0, Math.PI * 2);
+      ctx.fill();
+    };
+
+    drawRoute(false);
+    drawStems(false);
+
     // --- рельеф: ступени снизу вверх, непрозрачные, поверх дальних ближние.
     for (const [i, band] of terrain.bands.entries()) {
       ctx.beginPath();
@@ -248,63 +341,9 @@ export default function Peak3D({
       ctx.shadowBlur = 0;
     }
 
-    // --- маршрут: пройденное сплошной серой нитью, остаток белым пунктиром.
-    const stroke = (pts: number[], style: string, width: number, dash: number[]) => {
-      if (pts.length < 6) return;
-      ctx.beginPath();
-      for (let i = 0; i < pts.length; i += 3) {
-        const [x, y] = project(pts[i], pts[i + 1], pts[i + 2]);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.setLineDash(dash);
-      ctx.strokeStyle = style;
-      ctx.lineWidth = width;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.stroke();
-      ctx.setLineDash([]);
-    };
-    if (route) {
-      stroke(route.covered, '#7a7a7a', 2.4, []);
-      stroke(route.remaining, '#f0f0f0', 2.8, [10, 8]);
-
-      // Флажок в точке старта.
-      if (route.covered.length >= 3) {
-        const [fx, fy] = project(route.covered[0], route.covered[1], route.covered[2]);
-        ctx.strokeStyle = '#e4e4e4';
-        ctx.lineWidth = 2.2;
-        ctx.beginPath();
-        ctx.moveTo(fx, fy);
-        ctx.lineTo(fx, fy - 34);
-        ctx.stroke();
-        ctx.fillStyle = '#e4e4e4';
-        ctx.beginPath();
-        ctx.moveTo(fx, fy - 34);
-        ctx.lineTo(fx + 22, fy - 27);
-        ctx.lineTo(fx, fy - 20);
-        ctx.closePath();
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(fx, fy, 3.6, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    // --- ножки меток: от поверхности вверх к кружку.
-    for (const p of pins) {
-      const [sx, sy] = project(p.u, p.v, p.level);
-      ctx.strokeStyle = p.color;
-      ctx.lineWidth = 1.7;
-      ctx.beginPath();
-      ctx.moveTo(sx, sy);
-      ctx.lineTo(sx, sy - p.stem + 17);
-      ctx.stroke();
-      ctx.fillStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(sx, sy, 3.2, 0, Math.PI * 2);
-      ctx.fill();
-    }
+    drawRoute(true);
+    drawStems(true);
+    drawFlag();
 
     // --- пороги ставок: горизонтальные линейки справа, они не вращаются.
     ctx.font = '13px "JetBrains Mono", monospace';
