@@ -2,12 +2,14 @@ import { requireUser } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { parseGeos, OFFER_STATUS } from '@/lib/format';
-import { saveOffer, deleteOffer } from '@/app/actions/catalog';
-import { builderPayload, builderGaps, partnerOf } from '@/lib/builder';
+import { saveOffer, deleteOffer, uploadOfferFiles, deleteOfferFile } from '@/app/actions/catalog';
+import { builderPayload, builderGaps, partnerOf, DEFAULT_BACKFIX } from '@/lib/builder';
 import { Panel, Empty } from '@/components/ui';
 import OfferForm, { type OfferDraft } from '@/components/OfferForm';
 import CopyOffer from '@/components/CopyOffer';
-import { IconDown, IconPlus } from '@/components/icons';
+import OfferFiles from '@/components/OfferFiles';
+import DeleteOffer from '@/components/DeleteOffer';
+import { IconPlus } from '@/components/icons';
 
 export default async function OffersPage({
   searchParams,
@@ -21,8 +23,14 @@ export default async function OffersPage({
   const offers = await prisma.offer.findMany({
     where: status && OFFER_STATUS[status] ? { status } : {},
     orderBy: [{ status: 'asc' }, { name: 'asc' }],
+    include: {
+      geos: { orderBy: { sort: 'asc' } },
+      files: { select: { id: true, name: true, size: true, mime: true, kind: true }, orderBy: { createdAt: 'asc' } },
+    },
   });
-  const editing = edit ? await prisma.offer.findUnique({ where: { id: edit } }) : null;
+  const editing = edit
+    ? await prisma.offer.findUnique({ where: { id: edit }, include: { geos: { orderBy: { sort: 'asc' } } } })
+    : null;
   const counts = await prisma.offer.groupBy({ by: ['status'], _count: true });
   const total = counts.reduce((a, c) => a + c._count, 0);
 
@@ -78,12 +86,16 @@ export default async function OffersPage({
         <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 xl:grid-cols-3 lg:gap-3.5">
           {offers.map((offer) => {
             const meta = OFFER_STATUS[offer.status] ?? OFFER_STATUS.TEST;
+            const previewFile = offer.files.find((f) => f.kind === 'PREVIEW') ?? null;
+            const reviews = offer.files.filter((f) => f.kind === 'REVIEW');
+            // Загруженный файл важнее ссылки: ссылок на превью обычно нет вовсе.
+            const previewSrc = previewFile ? `/api/offer-file/${previewFile.id}` : offer.previewUrl;
             return (
               <Panel key={offer.id} className="flex flex-col gap-4 p-3.5">
-                <div className="relative flex h-[168px] items-center justify-center rounded-[18px] bg-sub">
-                  {offer.previewUrl ? (
+                <div className="relative flex h-[168px] items-center justify-center overflow-hidden rounded-[18px] bg-sub">
+                  {previewSrc ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={offer.previewUrl} alt="" className="h-full w-full rounded-[18px] object-cover" />
+                    <img src={previewSrc} alt="" className="h-full w-full object-cover" />
                   ) : (
                     <span className="text-[11.5px] text-mute">превью не загружено</span>
                   )}
@@ -94,16 +106,6 @@ export default async function OffersPage({
                     <span className="h-1.5 w-1.5 rounded-full" style={{ background: meta.color }} />
                     {meta.label}
                   </span>
-                  {offer.previewUrl ? (
-                    <a
-                      href={offer.previewUrl}
-                      download
-                      className="absolute bottom-3 right-3 flex items-center gap-2 rounded-full border border-line2 bg-panel px-3.5 py-2 text-[12px] font-semibold"
-                    >
-                      <IconDown size={13} width={2.1} />
-                      Скачать
-                    </a>
-                  ) : null}
                 </div>
 
                 <div className="px-1.5">
@@ -124,7 +126,7 @@ export default async function OffersPage({
                 </div>
 
                 <div className="rounded-[18px] bg-sub px-4 py-3.5">
-                  <div className="lab mb-2.5 text-rust">Исключения</div>
+                  <div className="lab mb-2.5 text-rust">Регионы-исключения</div>
                   <div className="flex flex-wrap gap-1.5">
                     {parseGeos(offer.bansJson).map((ban) => (
                       <span key={ban} className="rounded-full bg-rust-t px-3 py-1 text-[12px] text-rust">{ban}</span>
@@ -141,57 +143,54 @@ export default async function OffersPage({
                       <span className="text-[12.5px] leading-relaxed text-soft">{note}</span>
                     </div>
                   ))}
-                  {/* Данные для конструктора: одной кнопкой в буфер, оттуда — в билдер. */}
+                  {/* Данные для конструктора: гео на выбор — под каждое своё. */}
                   {team ? (
-                    <div className="mt-3 flex items-start gap-2 border-t border-line pt-3.5">
-                      <CopyOffer
-                        payload={builderPayload({
-                          name: offer.name,
-                          partnerKey: offer.partnerKey,
-                          offerId: offer.offerId,
-                          langCode: offer.langCode,
-                          landingUrl: offer.landingUrl,
-                          streamCode: offer.streamCode,
-                          price: offer.price,
-                          imagePath: offer.imagePath,
-                          backfix: offer.backfix,
-                          uiLang: offer.uiLang,
-                        })}
-                        gaps={builderGaps({
-                          name: offer.name,
-                          partnerKey: offer.partnerKey,
-                          offerId: offer.offerId,
-                          langCode: offer.langCode,
-                          landingUrl: offer.landingUrl,
-                          streamCode: offer.streamCode,
-                          price: offer.price,
-                          imagePath: offer.imagePath,
-                          backfix: offer.backfix,
-                          uiLang: offer.uiLang,
-                        })}
+                    <>
+                      <div className="mt-3 flex items-start gap-2 border-t border-line pt-3.5">
+                        <CopyOffer
+                          geos={offer.geos.map((g) => {
+                            const one = {
+                              name: offer.name,
+                              partnerKey: offer.partnerKey,
+                              backfix: offer.backfix,
+                              langCode: g.langCode,
+                              uiLang: g.uiLang,
+                              partnerOfferId: g.partnerOfferId,
+                              landingUrl: g.landingUrl,
+                              streamCode: g.streamCode,
+                              price: g.price,
+                            };
+                            return {
+                              langCode: g.langCode,
+                              payload: builderPayload(one),
+                              gaps: builderGaps(one),
+                            };
+                          })}
+                        />
+                        <a
+                          href={`/offers?edit=${offer.id}`}
+                          className="shrink-0 rounded-full border border-line px-4 py-2 text-[12.5px] text-mute transition hover:border-line2 hover:text-soft"
+                        >
+                          Править
+                        </a>
+                      </div>
+
+                      <OfferFiles
+                        offerId={offer.id}
+                        preview={previewFile}
+                        reviews={reviews}
+                        upload={uploadOfferFiles}
+                        remove={deleteOfferFile}
                       />
-                      <a
-                        href={`/offers?edit=${offer.id}`}
-                        className="shrink-0 rounded-full border border-line px-4 py-2 text-[12.5px] text-mute transition hover:border-line2 hover:text-soft"
-                      >
-                        Править
-                      </a>
-                    </div>
+                    </>
                   ) : null}
 
-                  <div className="mt-3 flex items-center justify-between">
+                  <div className="mt-3 flex items-center justify-between gap-3">
                     <span className="text-[11.5px] text-mute">
                       {partnerOf(offer.partnerKey)?.label ?? 'партнёрка не выбрана'} · обновлено{' '}
                       {offer.updatedAt.toISOString().slice(8, 10)}.{offer.updatedAt.toISOString().slice(5, 7)}
                     </span>
-                    {team ? (
-                      <form action={deleteOffer}>
-                        <input type="hidden" name="id" value={offer.id} />
-                        <button type="submit" className="text-[11.5px] text-mute transition hover:text-rust">
-                          удалить
-                        </button>
-                      </form>
-                    ) : null}
+                    {team ? <DeleteOffer id={offer.id} name={offer.name} action={deleteOffer} /> : null}
                   </div>
                 </div>
               </Panel>
@@ -203,7 +202,9 @@ export default async function OffersPage({
   );
 }
 
-type OfferRow = Awaited<ReturnType<typeof prisma.offer.findMany>>[number];
+type OfferRow = NonNullable<
+  Awaited<ReturnType<typeof prisma.offer.findUnique>>
+> & { geos: { langCode: string; uiLang: string; partnerOfferId: string; landingUrl: string; streamCode: string; price: string }[] };
 
 /** Строка из базы → черновик формы: списки разворачиваем обратно в строку. */
 function draftFor(o: OfferRow | null): OfferDraft {
@@ -219,13 +220,14 @@ function draftFor(o: OfferRow | null): OfferDraft {
     previewUrl: o?.previewUrl ?? '',
     payout: o?.payout ?? '',
     partnerKey: o?.partnerKey ?? '',
-    offerId: o?.offerId ?? '',
-    landingUrl: o?.landingUrl ?? '',
-    streamCode: o?.streamCode ?? '',
-    langCode: o?.langCode ?? '',
-    price: o?.price ?? '',
-    imagePath: o?.imagePath ?? '',
-    backfix: o?.backfix ?? '',
-    uiLang: o?.uiLang ?? '',
+    backfix: o?.backfix ?? DEFAULT_BACKFIX,
+    rows: (o?.geos ?? []).map((g) => ({
+      langCode: g.langCode,
+      uiLang: g.uiLang,
+      partnerOfferId: g.partnerOfferId,
+      landingUrl: g.landingUrl,
+      streamCode: g.streamCode,
+      price: g.price,
+    })),
   };
 }

@@ -97,30 +97,62 @@ model Offer {
   notesJson  String      @default("[]")
   previewUrl String?
 
-  /// Поля для конструктора лендов: их он и просит при сборке. Держим рядом с
-  /// оффером, чтобы не искать по кабинетам партнёрок каждый раз.
   /// Ключ партнёрки в конструкторе: m1.top, shakes.pro, hamsters.run…
+  /// Партнёрка у оффера одна, а вот гео — сколько угодно, и данные под каждое
+  /// свои: см. OfferGeo.
   partnerKey String      @default("")
-  /// ID оффера в кабинете партнёрки: product_id, offerId, OFFER_KEY, campaign_id.
-  offerId    String      @default("")
-  /// URL оригинального лендинга — обязателен для shakes.
-  landingUrl String      @default("")
-  /// Код потока, только для статистики shakes.
-  streamCode String      @default("")
-  /// Код гео для конструктора: be, fr, cz…
-  langCode   String      @default("")
-  /// Цена на служебных страницах: «39 €».
-  price      String      @default("")
-  /// Путь к картинке внутри ленда: images/product.png.
-  imagePath  String      @default("")
-  /// Куда уводить по кнопке «Назад».
-  backfix    String      @default("")
-  /// Язык служебных страниц call/error/chest.
-  uiLang     String      @default("")
+  /// Куда уводить по кнопке «Назад». Ссылка у команды одна на все офферы,
+  /// поэтому подставляется сразу и меняется редко.
+  backfix    String      @default("https://nutrivition.top/VXsVxCX?sun={sub_id_30}")
+
+  geos       OfferGeo[]
+  files      OfferFile[]
 
   updatedAt  DateTime    @updatedAt
   createdAt  DateTime    @default(now())
   days       DayReport[]
+}
+
+/// Один оффер — много гео, и в конструктор под каждое уходят свои данные:
+/// свой ID в кабинете партнёрки, свой лендинг, своя цена. Поэтому не поля
+/// оффера, а отдельные строки.
+model OfferGeo {
+  id             String @id @default(cuid())
+  offerId        String
+  offer          Offer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  /// Код гео для конструктора: cz, be, fr.
+  langCode       String
+  /// Язык служебных страниц. Пусто — берём код гео: почти всегда совпадают.
+  uiLang         String @default("")
+  /// ID оффера в кабинете партнёрки: product_id, offerId, OFFER_KEY, campaign_id.
+  partnerOfferId String @default("")
+  /// URL оригинального лендинга — обязателен для shakes.
+  landingUrl     String @default("")
+  /// Код потока, только для статистики shakes.
+  streamCode     String @default("")
+  /// Цена на служебных страницах: «39 €».
+  price          String @default("")
+  sort           Int    @default(0)
+
+  @@index([offerId])
+}
+
+/// Превью и фото отзывов лежат прямо в базе: отдельного хранилища у нас нет,
+/// а картинки маленькие. Диск контейнера для этого не годится — он пропадает
+/// при пересборке.
+model OfferFile {
+  id        String   @id @default(cuid())
+  offerId   String
+  offer     Offer    @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  /// PREVIEW — превью оффера, REVIEW — фото под отзывы.
+  kind      String   @default("PREVIEW")
+  name      String
+  mime      String
+  size      Int
+  data      Bytes
+  createdAt DateTime @default(now())
+
+  @@index([offerId, kind])
 }
 
 /// One row per buyer per offer per day.

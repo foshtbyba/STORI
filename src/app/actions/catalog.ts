@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireTeamView } from '@/lib/auth';
 import { moneyInputToCents } from '@/lib/format';
+import { DEFAULT_BACKFIX } from '@/lib/builder';
 
 const list = (raw: FormDataEntryValue | null) =>
   JSON.stringify(
@@ -14,6 +15,36 @@ const list = (raw: FormDataEntryValue | null) =>
       .map((s) => s.trim())
       .filter(Boolean),
   );
+
+/**
+ * Гео приезжают одной строкой JSON из формы: их число заранее не известно, а
+ * плодить поля вида geo0_price в FormData — верный способ однажды сбиться.
+ */
+const GeoRow = z.object({
+  langCode: z.string().trim().min(1).max(12),
+  uiLang: z.string().trim().max(12).default(''),
+  partnerOfferId: z.string().trim().max(120).default(''),
+  landingUrl: z.string().trim().max(500).default(''),
+  streamCode: z.string().trim().max(120).default(''),
+  price: z.string().trim().max(60).default(''),
+});
+
+function parseGeoRows(raw: FormDataEntryValue | null) {
+  try {
+    const parsed = z.array(GeoRow).safeParse(JSON.parse(String(raw ?? '[]')));
+    if (!parsed.success) return [];
+    // Одно гео — одна строка: дубли только путают при копировании в билдер.
+    const seen = new Set<string>();
+    return parsed.data.filter((g) => {
+      const key = g.langCode.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  } catch {
+    return [];
+  }
+}
 
 export async function saveOffer(formData: FormData) {
   await requireTeamView();
@@ -28,22 +59,26 @@ export async function saveOffer(formData: FormData) {
     bansJson: list(formData.get('bans')),
     notesJson: list(formData.get('notes')),
     previewUrl: String(formData.get('previewUrl') ?? '').trim() || null,
-    // Данные для конструктора лендов — по ним собирается строка, которую
-    // кладут в буфер и вставляют в билдер.
     partnerKey: String(formData.get('partnerKey') ?? '').trim(),
-    offerId: String(formData.get('offerId') ?? '').trim(),
-    landingUrl: String(formData.get('landingUrl') ?? '').trim(),
-    streamCode: String(formData.get('streamCode') ?? '').trim(),
-    langCode: String(formData.get('langCode') ?? '').trim(),
-    price: String(formData.get('price') ?? '').trim(),
-    imagePath: String(formData.get('imagePath') ?? '').trim(),
-    backfix: String(formData.get('backfix') ?? '').trim(),
-    uiLang: String(formData.get('uiLang') ?? '').trim(),
+    backfix: String(formData.get('backfix') ?? '').trim() || DEFAULT_BACKFIX,
   };
   if (!data.name) return;
 
-  if (id) await prisma.offer.update({ where: { id }, data });
-  else await prisma.offer.create({ data });
+  const rows = parseGeoRows(formData.get('geoRows'));
+  const geos = rows.map((g, i) => ({ ...g, sort: i }));
+
+  const offer = id
+    ? await prisma.offer.update({ where: { id }, data })
+    : await prisma.offer.create({ data });
+
+  // Строки гео переписываем целиком: их немного, а разбирать, что именно
+  // поменялось, дороже, чем записать заново.
+  await prisma.offerGeo.deleteMany({ where: { offerId: offer.id } });
+  if (geos.length) {
+    await prisma.offerGeo.createMany({
+      data: geos.map((g) => ({ ...g, offerId: offer.id })),
+    });
+  }
 
   revalidatePath('/offers');
   // Форма — отдельный экран поверх списка: сохранили и вернулись к карточкам.
@@ -54,6 +89,45 @@ export async function deleteOffer(formData: FormData) {
   await requireTeamView();
   const id = String(formData.get('id') ?? '');
   if (id) await prisma.offer.delete({ where: { id } });
+  revalidatePath('/offers');
+}
+
+/** 12 МБ — потолок и у Next для экшена, и здесь: превью столько не весит. */
+const MAX_FILE = 12 * 1024 * 1024;
+const ALLOWED = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'application/pdf'];
+
+/**
+ * Превью и фото отзывов кладём в базу. Ссылок на них нет, а диск контейнера
+ * не переживает пересборку — значит, хранить больше негде.
+ */
+export async function uploadOfferFiles(formData: FormData) {
+  await requireTeamView();
+  const offerId = String(formData.get('offerId') ?? '');
+  const kind = String(formData.get('kind') ?? 'PREVIEW') === 'REVIEW' ? 'REVIEW' : 'PREVIEW';
+  if (!offerId) return;
+
+  const files = formData.getAll('files').filter((f): f is File => f instanceof File && f.size > 0);
+  for (const file of files) {
+    if (file.size > MAX_FILE) continue;
+    if (!ALLOWED.includes(file.type)) continue;
+    const bytes = Buffer.from(await file.arrayBuffer());
+    // Превью одно: новое заменяет старое, чтобы карточка не двоилась.
+    if (kind === 'PREVIEW') {
+      await prisma.offerFile.deleteMany({ where: { offerId, kind: 'PREVIEW' } });
+    }
+    await prisma.offerFile.create({
+      data: { offerId, kind, name: file.name.slice(0, 200), mime: file.type, size: file.size, data: bytes },
+    });
+    if (kind === 'PREVIEW') break;
+  }
+
+  revalidatePath('/offers');
+}
+
+export async function deleteOfferFile(formData: FormData) {
+  await requireTeamView();
+  const id = String(formData.get('fileId') ?? '');
+  if (id) await prisma.offerFile.delete({ where: { id } }).catch(() => {});
   revalidatePath('/offers');
 }
 
