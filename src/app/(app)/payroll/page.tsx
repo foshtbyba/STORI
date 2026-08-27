@@ -3,7 +3,7 @@ import { canSeeTeam, type Role } from '@/lib/roles';
 import { currentPeriodKey, teamSummary } from '@/lib/queries';
 import { periodLabel } from '@/lib/period';
 import { usd, rub, sum } from '@/lib/money';
-import { payrollTotals, okladCents, DEFAULT_FIXED_RUB } from '@/lib/salary';
+import { payrollTotals, parseTiers, okladCents, DEFAULT_FIXED_RUB } from '@/lib/salary';
 import { closePeriod, reopenPeriod } from '@/app/actions/period';
 import { Panel, PanelHead, Sub, Avatar, Empty, Formula } from '@/components/ui';
 import { Meter } from '@/components/Charts';
@@ -57,9 +57,10 @@ export default async function PayrollPage({
     }))
     .sort((a, b) => b.gain - a.gain);
 
-  const ladder: { fromCents: number; ratePct: number }[] = rows[0]
-    ? JSON.parse(rows[0].buyer.salaryRule?.tiersJson ?? '[]')
-    : [];
+  // Тот же разбор, что и в расчёте: если правило баеру не привязано, считаем и
+  // рисуем по лесенке по умолчанию — иначе экран показывал бы пустоту там, где
+  // зарплата уже посчитана.
+  const ladder = rows[0] ? parseTiers(rows[0].buyer.salaryRule?.tiersJson) : [];
   // Минимальный порог — первая ступенька лесенки; ниже неё процента нет.
   const minTier = ladder[0]?.fromCents ?? 0;
   const okladRub = rows[0]?.buyer.salaryRule?.fixedRub ?? DEFAULT_FIXED_RUB;
@@ -260,7 +261,7 @@ export default async function PayrollPage({
                 </div>
               </Sub>
             </div>
-            {ladder.map((tier: { fromCents: number; ratePct: number }) => (
+            {ladder.map((tier) => (
               <div key={tier.fromCents}>
                 <div className="n mb-2 text-[12px] text-mute">от {usd(tier.fromCents)}</div>
                 <div

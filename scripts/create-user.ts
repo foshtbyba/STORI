@@ -40,13 +40,29 @@ async function main() {
   });
 
   if (role === 'BUYER' || handle) {
-    const rule = await prisma.salaryRule.findFirst();
+    // Без лесенки баер получал бы пустой экран зарплаты, поэтому заводим её
+    // тут же, если в базе ещё ничего нет.
+    const rule =
+      (await prisma.salaryRule.findFirst()) ??
+      (await prisma.salaryRule.create({
+        data: {
+          name: 'Базовая лесенка',
+          tiersJson: JSON.stringify([
+            { fromCents: 80_000, ratePct: 30 },
+            { fromCents: 160_000, ratePct: 30 },
+            { fromCents: 240_000, ratePct: 30 },
+            { fromCents: 500_000, ratePct: 40 },
+            { fromCents: 1_000_000, ratePct: 50 },
+          ]),
+        },
+      }));
+
     await prisma.buyer.create({
       data: {
         userId: user.id,
         handle: (handle ?? name).toUpperCase(),
         initials: (handle ?? name).slice(0, 2).toUpperCase(),
-        salaryRuleId: rule?.id,
+        salaryRuleId: rule.id,
       },
     });
   }
