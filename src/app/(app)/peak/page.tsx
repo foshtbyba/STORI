@@ -185,26 +185,6 @@ export default async function PeakPage() {
               );
             })}
 
-            {grounded.length > 0 ? (
-              <div className="mt-2 border-t border-line pt-3">
-                <div className="lab mb-2.5">У подножия</div>
-                <div className="flex flex-wrap gap-2">
-                  {grounded.map((g) => (
-                    <span
-                      key={g.id}
-                      className="flex items-center gap-2 rounded-full bg-sub py-1 pl-1 pr-3"
-                      title="ещё не вышел на маршрут"
-                    >
-                      <Avatar initials={g.initials} color={g.color} size={22} />
-                      <span className="text-[12px] text-mute">{g.handle}</span>
-                    </span>
-                  ))}
-                </div>
-                <p className="mt-2.5 text-[11px] leading-relaxed text-dim">
-                  Ещё не вышли на маршрут. Насколько — знает только сам баер.
-                </p>
-              </div>
-            ) : null}
           </div>
         </Panel>
       </div>

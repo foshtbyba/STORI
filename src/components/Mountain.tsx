@@ -118,25 +118,11 @@ export default function Mountain({
       : '';
 
   /**
-   * Те, кто в нуле или в минусе, стоят у подножия — на ближней к камере дуге,
-   * снаружи кольца. Ни суммы, ни порядка: со стороны видно только то, что
-   * человек ещё не пошёл наверх, а насколько всё плохо — его дело.
+   * Те, кто в нуле или в минусе, собраны в одном месте слева от горы. Ни суммы,
+   * ни порядка: со стороны видно только то, что человек ещё не пошёл наверх, а
+   * насколько всё плохо — его дело.
    */
-  const camp = grounded.map((g, i) => {
-    // Держимся ближней дуги и не лезем на буквы сторон света: они сидят на
-    // 22° и 158°, поэтому лагерю оставлен сектор между ними.
-    const spread = 68;
-    const deg = grounded.length === 1 ? 90 : 90 - spread / 2 + (spread * i) / (grounded.length - 1);
-    const a = (deg * Math.PI) / 180;
-    const r = BASE + 112;
-    const x = centre.x + r * Math.cos(a);
-    const y = centre.y + r * squash * Math.sin(a);
-    return {
-      ...g,
-      left: (x / VIEW.w) * 100,
-      top: ((y - VIEW.y) / VIEW.h) * 100,
-    };
-  });
+  const camp = grounded;
 
   const rules = tiers
     .filter((t, i, all) => all.findIndex((o) => o.ratePct === t.ratePct) === i)
@@ -226,26 +212,31 @@ export default function Mountain({
         ))}
       </svg>
 
-      {camp.map((c) => (
-        <div
-          key={c.id}
-          className="absolute -translate-x-1/2 -translate-y-1/2"
-          style={{ left: `${c.left}%`, top: `${c.top}%` }}
-        >
-          <span
-            className="flex h-[30px] w-[30px] items-center justify-center rounded-full text-[10.5px] font-bold"
-            style={{
-              background: '#232324',
-              color: '#8a8a8a',
-              border: `1.5px dashed ${c.id === viewerId ? c.color : '#4a4a4a'}`,
-            }}
-            title={`${c.handle} — ещё не вышел на маршрут`}
-          >
-            {c.initials}
-          </span>
-          <span className="mt-1 block text-center text-[10px] text-dim">{c.handle}</span>
+      {camp.length > 0 ? (
+        <div className="absolute bottom-[9%] left-[1.5%] w-[128px]">
+          <div className="lab mb-2.5">У подножия</div>
+          <div className="flex flex-col gap-1.5">
+            {camp.map((c) => (
+              <span key={c.id} className="flex items-center gap-2">
+                <span
+                  className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full text-[9.5px] font-bold"
+                  style={{
+                    background: '#232324',
+                    color: '#8a8a8a',
+                    border: `1.5px dashed ${c.id === viewerId ? c.color : '#4a4a4a'}`,
+                  }}
+                >
+                  {c.initials}
+                </span>
+                <span className="truncate text-[11.5px] text-dim">{c.handle}</span>
+              </span>
+            ))}
+          </div>
+          <p className="mt-2.5 text-[10.5px] leading-relaxed text-dim">
+            Ещё не вышли на маршрут
+          </p>
         </div>
-      ))}
+      ) : null}
 
       {pins.map((p) => (
         <div key={p.id}>

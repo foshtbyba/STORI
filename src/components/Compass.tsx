@@ -3,43 +3,16 @@
  * точка берётся по азимуту, вертикаль сплющивается тем же коэффициентом.
  */
 
+/** Буквы делят круг ровно на четыре части — по ним и режется гребёнка. */
 const CARDINALS = [
-  { t: 'W', deg: 202 },
-  { t: 'N', deg: 338 },
-  { t: 'E', deg: 22 },
-  { t: 'S', deg: 158 },
+  { t: 'E', deg: 45 },
+  { t: 'S', deg: 135 },
+  { t: 'W', deg: 225 },
+  { t: 'N', deg: 315 },
 ];
 
-/**
- * Азимуты, равномерные по длине дуги, а не по углу. У сплющенного круга равный
- * шаг угла сгущает точки у левого и правого краёв — там гребёнка слипается.
- */
-function evenAngles(count: number, squash: number) {
-  const N = 3000;
-  const cum = [0];
-  for (let i = 1; i <= N; i++) {
-    const a0 = ((i - 1) / N) * 2 * Math.PI;
-    const a1 = (i / N) * 2 * Math.PI;
-    cum.push(
-      cum[i - 1] +
-        Math.hypot(Math.cos(a1) - Math.cos(a0), squash * (Math.sin(a1) - Math.sin(a0))),
-    );
-  }
-  const total = cum[N];
-  const out: number[] = [];
-  for (let k = 0; k < count; k++) {
-    const target = (k / count) * total;
-    let lo = 0;
-    let hi = N;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1;
-      if (cum[mid] < target) lo = mid + 1;
-      else hi = mid;
-    }
-    out.push((lo / N) * 360);
-  }
-  return out;
-}
+/** Высота буквы и насечки в единицах плоскости: они одного роста. */
+const MARK = 26;
 
 export default function Compass({
   centre,
@@ -56,50 +29,35 @@ export default function Compass({
     return [centre.x + r * Math.cos(a), centre.y + r * squash * Math.sin(a)];
   };
 
-  const gapTo = (deg: number) =>
-    Math.min(...CARDINALS.map((c) => Math.abs(((((deg - c.deg) % 360) + 540) % 360) - 180)));
+  /**
+   * Насечки лежат в плоскости кольца: идут по радиусу этой плоскости и ростом
+   * ровно с букву. В каждой четверти их поровну — буквы делят круг на четыре
+   * равные части, и гребёнка повторяет это деление.
+   */
+  const PER_QUARTER = 11;
+  const ticks: { key: string; x1: number; y1: number; x2: number; y2: number }[] = [];
+  for (let q = 0; q < 4; q++) {
+    const from = CARDINALS[q].deg;
+    const step = 90 / (PER_QUARTER + 1);
+    for (let k = 1; k <= PER_QUARTER; k++) {
+      const deg = from + step * k;
+      const [x1, y1] = P(deg, radius + 7);
+      const [x2, y2] = P(deg, radius + 7 + MARK);
+      ticks.push({ key: `t${q}-${k}`, x1, y1, x2, y2 });
+    }
+  }
 
   /**
-   * Экранная нормаль к эллипсу. Насечки строим по ней и одной длины: на
-   * плоскости они бы сокращались к дальнему краю, а тут нужна ровная гребёнка.
+   * Буква лежит в той же плоскости и стоит снаружи кольца, макушкой к горе.
+   * Матрица — поворот в плоскости, помноженный на её сплющивание.
    */
-  const normal = (deg: number): [number, number] => {
-    const a = (deg * Math.PI) / 180;
-    const nx = Math.cos(a);
-    const ny = Math.sin(a) / squash;
-    const len = Math.hypot(nx, ny) || 1;
-    return [nx / len, ny / len];
-  };
-
-  const ticks = evenAngles(120, squash)
-    .filter((d) => gapTo(d) > 11)
-    .map((deg, i) => {
-      const major = i % 5 === 0;
-      const [nx, ny] = normal(deg);
-      const [px, py] = P(deg, radius);
-      const from = 5;
-      const to = from + (major ? 26 : 14);
-      return {
-        key: `t${i}`,
-        x1: px + nx * from,
-        y1: py + ny * from,
-        x2: px + nx * to,
-        y2: py + ny * to,
-        c: major ? '#c4c4c4' : '#7d7d7d',
-        w: major ? 2.3 : 1.5,
-      };
-    });
-
-  /**
-   * Буква стоит прямо и начинается от самой бирюзовой линии, уходя наружу:
-   * поэтому смещаем её по нормали на половину собственной высоты.
-   */
-  const SIZE = 34;
   const letters = CARDINALS.map(({ t, deg }) => {
-    const [nx, ny] = normal(deg);
-    const [px, py] = P(deg, radius);
-    const out = SIZE * 0.5 + 6;
-    return { t, x: px + nx * out, y: py + ny * out };
+    const a = (deg * Math.PI) / 180;
+    const [x, y] = P(deg, radius + 7 + MARK / 2);
+    const m = [Math.sin(a), -squash * Math.cos(a), Math.cos(a), squash * Math.sin(a)]
+      .map((v) => v.toFixed(4))
+      .join(' ');
+    return { t, x, y, m };
   });
 
   return (
@@ -111,7 +69,7 @@ export default function Compass({
         ry={radius * squash}
         fill="none"
         stroke="#5e9a93"
-        strokeWidth={1.7}
+        strokeWidth={2.6}
         opacity={0.95}
       />
       {ticks.map((t) => (
@@ -121,26 +79,24 @@ export default function Compass({
           y1={t.y1}
           x2={t.x2}
           y2={t.y2}
-          stroke={t.c}
-          strokeWidth={t.w}
+          stroke="#9a9a9a"
+          strokeWidth={1.8}
           strokeLinecap="round"
         />
       ))}
       {letters.map((l) => (
         <text
           key={l.t}
-          x={l.x}
-          y={l.y}
+          transform={`translate(${l.x} ${l.y}) matrix(${l.m} 0 0)`}
           textAnchor="middle"
           dominantBaseline="middle"
           fill="#dcdcdc"
           stroke="#1c1c1d"
-          strokeWidth={8}
+          strokeWidth={7}
           paintOrder="stroke"
           fontFamily="var(--font-sans), sans-serif"
-          fontSize={SIZE}
+          fontSize={MARK}
           fontWeight={700}
-          letterSpacing="0.04em"
         >
           {l.t}
         </text>
