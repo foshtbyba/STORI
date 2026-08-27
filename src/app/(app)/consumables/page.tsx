@@ -7,6 +7,7 @@ import { usd, sum } from '@/lib/money';
 import { addConsumable, deleteConsumable } from '@/app/actions/catalog';
 import { Panel, PanelHead, Avatar, Empty } from '@/components/ui';
 import Select from '@/components/Select';
+import DateField from '@/components/DateField';
 import { Meter } from '@/components/Charts';
 import { IconBox } from '@/components/icons';
 
@@ -64,7 +65,7 @@ export default async function ConsumablesPage({
     <div className="flex flex-col gap-3.5">
       {canEdit ? (
       <form action={addConsumable} className="grid grid-cols-[repeat(5,1fr)_auto] items-end gap-3 rounded-[26px] border border-line bg-panel p-5">
-        <input type="date" name="date" defaultValue={today} className={`n ${field}`} />
+        <DateField name="date" defaultValue={today} />
         <Select
           name="typeId"
           defaultValue={types[0]?.id ?? ''}
@@ -83,12 +84,7 @@ export default async function ConsumablesPage({
           Списать
         </button>
       </form>
-      ) : (
-        <div className="rounded-[26px] border border-line bg-panel px-6 py-4 text-[12.5px] text-mute">
-          Расходники списывает админ и всегда именно на баера — они вычитаются из твоего
-          профита до расчёта процента, поэтому здесь только просмотр.
-        </div>
-      )}
+      ) : null}
 
       <div className="grid grid-cols-[1.7fr_1fr] gap-3.5">
         <Panel className="p-6">

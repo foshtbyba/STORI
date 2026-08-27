@@ -6,6 +6,7 @@ import { grossUp, usd } from '@/lib/money';
 import { saveDayGrid } from '@/app/actions/days';
 import { Panel, PanelHead, Avatar } from './ui';
 import Select from './Select';
+import DateField from './DateField';
 import { IconCalendar } from './icons';
 
 export type GridBuyer = { id: string; handle: string; initials: string; color: string };
@@ -128,14 +129,8 @@ export default function DayGrid({
         title="Отчёт за день"
         aside={<span className="text-[12.5px] text-mute">вся команда одной таблицей</span>}
         right={
-          <span className="flex items-center gap-2 rounded-full bg-sub py-1.5 pl-3.5 pr-2">
-            <span className="text-[11.5px] text-mute">дата</span>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => router.push(`/days/new?date=${e.target.value}`)}
-              className="n bg-transparent text-[13.5px] outline-none"
-            />
+          <span className="w-[168px]">
+            <DateField value={date} onChange={(next) => router.push(`/days/new?date=${next}`)} />
           </span>
         }
       />

@@ -11,7 +11,6 @@ export type DayRowData = {
   day: string;
   weekday: string;
   buyer: { initials: string; color: string; handle: string };
-  offer: string;
   source: string;
   revenueCents: number;
   spendNetCents: number;
@@ -85,10 +84,7 @@ export default function DayRow({ row, canEdit }: { row: DayRowData; canEdit: boo
           <Avatar initials={row.buyer.initials} color={row.buyer.color} size={28} />
           <span className="text-[13px]">{row.buyer.handle}</span>
         </span>
-        <span className="truncate text-[13px] text-soft">
-          {row.offer}
-          <span className="ml-2 text-[11px] text-mute">{row.source}</span>
-        </span>
+        <span className="truncate text-[13px] text-soft">{row.source}</span>
         <span className="n text-right text-[13.5px] text-soft">{usd(row.revenueCents)}</span>
         <span className="n text-right text-[13.5px] text-mute">{usd(row.spendNetCents)}</span>
         <span className="n text-right text-[13.5px] text-mute">

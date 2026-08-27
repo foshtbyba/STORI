@@ -1,11 +1,13 @@
 import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { currentPeriodKey, teamSummary } from '@/lib/queries';
-import { periodLabel } from '@/lib/period';
+import { currentPeriodKey, teamSummary, firstToCross } from '@/lib/queries';
+import { periodLabel, fmtDay } from '@/lib/period';
+import { prisma } from '@/lib/db';
 import { usd, rub, sum } from '@/lib/money';
 import { payrollTotals, parseTiers, okladCents, DEFAULT_FIXED_RUB } from '@/lib/salary';
 import { closePeriod, reopenPeriod } from '@/app/actions/period';
 import { Panel, PanelHead, Sub, Avatar, Empty, Formula } from '@/components/ui';
+import BonusPanel, { type BonusRow } from '@/components/BonusPanel';
 import { Meter } from '@/components/Charts';
 import { IconWallet, IconWarn, IconChart } from '@/components/icons';
 
@@ -69,6 +71,20 @@ export default async function PayrollPage({
    * вытянул оклад, никакой ставки нет: оклад к базе отношения не имеет, и
    * деление одного на другое давало числа вроде 102,9%.
    */
+  // Разовый бонус «за первые $5 000» вешаем на того, кто дошёл до отметки
+  // раньше всех, а не на того, у кого больше всего к концу месяца.
+  const BONUS_THRESHOLD = 500_000;
+  const [firstHit, bonusRows] = team
+    ? await Promise.all([
+        firstToCross(key, BONUS_THRESHOLD),
+        prisma.bonus.findMany({
+          where: { periodKey: key },
+          include: { buyer: true },
+          orderBy: { createdAt: 'desc' },
+        }),
+      ])
+    : [null, []];
+
   const rateLabel =
     totals.avgRate === null ? 'оклад' : `${totals.avgRate.toFixed(1).replace('.', ',')}%`;
 
@@ -235,6 +251,40 @@ export default async function PayrollPage({
         </Sub>
         ) : null}
       </Panel>
+
+      {team ? (
+        <BonusPanel
+          periodKey={key}
+          rate={rate}
+          closed={closed}
+          threshold={BONUS_THRESHOLD}
+          buyers={summary.buyers.map((r) => ({ id: r.buyer.id, handle: r.buyer.handle }))}
+          firstHit={
+            firstHit
+              ? {
+                  handle: firstHit.buyer.handle,
+                  day: fmtDay(firstHit.date),
+                  awarded: bonusRows.some(
+                    (b) => b.buyerId === firstHit.buyer.id && b.note.startsWith('первые'),
+                  ),
+                }
+              : null
+          }
+          bonuses={bonusRows.map(
+            (b): BonusRow => ({
+              id: b.id,
+              buyer: {
+                initials: b.buyer.initials,
+                color: b.buyer.color,
+                handle: b.buyer.handle,
+              },
+              amountCents: b.amountCents,
+              note: b.note,
+              day: fmtDay(b.createdAt),
+            }),
+          )}
+        />
+      ) : null}
 
       <div className="grid grid-cols-[1.25fr_1fr] gap-3.5">
         <Panel className="p-6">

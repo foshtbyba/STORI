@@ -13,6 +13,7 @@ import {
 } from '@/app/actions/attendance';
 import { Panel, PanelHead, Sub, Avatar, Empty } from '@/components/ui';
 import Select from '@/components/Select';
+import DateField from '@/components/DateField';
 import { IconCalendar } from '@/components/icons';
 
 export default async function AttendancePage({
@@ -60,7 +61,7 @@ export default async function AttendancePage({
           team ? 'grid-cols-[repeat(4,1fr)_1.4fr_auto]' : 'grid-cols-[1fr_1fr_1.6fr_auto]'
         }`}
       >
-        <input type="date" name="date" defaultValue={today} required className={`n ${field}`} />
+        <DateField name="date" defaultValue={today} />
         {team ? (
           <Select
             name="buyerId"

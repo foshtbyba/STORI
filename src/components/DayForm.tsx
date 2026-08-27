@@ -6,6 +6,7 @@ import { grossUp, usd, DEFAULT_COMMISSION_BPS } from '@/lib/money';
 import { saveDay } from '@/app/actions/days';
 import { Panel, PanelHead, Sub } from './ui';
 import Select from './Select';
+import DateField from './DateField';
 import { IconRoute } from './icons';
 
 type Option = { id: string; label: string; extra?: string };
@@ -82,7 +83,9 @@ export default function DayForm({
           <div className="mt-5 grid grid-cols-3 gap-3">
             <Sub className="px-4 py-3.5">
               <span className="text-[11.5px] text-mute">Дата</span>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={`n ${input}`} />
+              <div className="mt-2">
+                <DateField value={date} onChange={setDate} />
+              </div>
             </Sub>
             <Sub className="px-4 pb-3.5 pt-3">
               <Select

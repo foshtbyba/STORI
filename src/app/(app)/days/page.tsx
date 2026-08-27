@@ -51,7 +51,7 @@ export default async function DaysPage({
       <div className="mt-4 grid grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)_auto] pb-2.5">
         <span className="lab">День</span>
         <span className="lab">Баер</span>
-        <span className="lab">Оффер</span>
+        <span className="lab">Источник</span>
         <span className="lab text-right">Доход</span>
         <span className="lab text-right">Спенд</span>
         <span className="lab text-right">С комиссией</span>
@@ -68,7 +68,6 @@ export default async function DaysPage({
             day: fmtDay(d.date),
             weekday: weekdayShort(d.date),
             buyer: { initials: d.buyer.initials, color: d.buyer.color, handle: d.buyer.handle },
-            offer: d.offer?.name ?? '—',
             source: d.source,
             revenueCents: d.revenueCents,
             spendNetCents: d.spendNetCents,

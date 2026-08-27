@@ -183,3 +183,34 @@ export async function defaultTiers() {
   const rule = await prisma.salaryRule.findFirst();
   return parseTiers(rule?.tiersJson) ?? DEFAULT_TIERS;
 }
+
+/**
+ * Кто первым в периоде перешагнул отметку по накопленному профиту и когда.
+ * Нужно для разового бонуса «за первые $5 000»: правило про того, кто дошёл
+ * раньше всех, а не про того, у кого больше всего на конец месяца.
+ */
+export async function firstToCross(key: string, thresholdCents: number) {
+  const { from, to } = periodBounds(key);
+  const [days, buyers] = await Promise.all([
+    prisma.dayReport.findMany({
+      where: { date: { gte: from, lt: to } },
+      orderBy: { date: 'asc' },
+    }),
+    prisma.buyer.findMany({ where: { archived: false } }),
+  ]);
+
+  const running = new Map<string, number>();
+  const reached: { buyerId: string; date: Date }[] = [];
+  for (const day of days) {
+    if (reached.some((r) => r.buyerId === day.buyerId)) continue;
+    const total = (running.get(day.buyerId) ?? 0) + profitOf(day);
+    running.set(day.buyerId, total);
+    if (total >= thresholdCents) reached.push({ buyerId: day.buyerId, date: day.date });
+  }
+  if (reached.length === 0) return null;
+
+  // Дни отсортированы по дате, значит первый в списке и есть первый по времени.
+  const winner = reached[0];
+  const buyer = buyers.find((b) => b.id === winner.buyerId);
+  return buyer ? { buyer, date: winner.date } : null;
+}

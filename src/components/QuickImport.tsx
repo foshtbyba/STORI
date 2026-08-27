@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { parseImport, impliedBps } from '@/lib/import';
 import { usd } from '@/lib/money';
 import { importDays } from '@/app/actions/days';
+import DateField from './DateField';
 import { Panel, PanelHead, Sub } from './ui';
 import { IconList } from './icons';
 
@@ -64,13 +65,9 @@ export default function QuickImport({
         title="Быстрый ввод"
         aside={<span className="text-[12.5px] text-mute">твой формат</span>}
         right={
-          <label className="flex items-center gap-2.5 rounded-full bg-sub px-3.5 py-2">
-            <span className="text-[11.5px] text-mute">дата</span>
-            <input
-              type="date" value={date} onChange={(e) => setDate(e.target.value)}
-              className="n bg-transparent text-[13px] outline-none"
-            />
-          </label>
+          <span className="w-[168px]">
+            <DateField value={date} onChange={setDate} />
+          </span>
         }
       />
       <p className="mt-3.5 text-[12.5px] leading-relaxed text-mute">
