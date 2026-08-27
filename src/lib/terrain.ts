@@ -14,6 +14,13 @@
 export type TerrainConfig = {
   /** Grid resolution. Higher = finer contours and a slower build. */
   grid: number;
+  /**
+   * Полуширина области, по которой считается высота, в тех же единицах, что и
+   * radius. Должна быть заметно больше единицы: доменный варп сдвигает точки, и
+   * у самой границы массив ещё может быть ненулевым — тогда горизонтали
+   * обрезаются прямой линией по краю сетки.
+   */
+  extent: number;
   /** How many contour lines to trace between the foot and the summit. */
   levels: number;
   /** Every n-th contour is drawn heavier, as on a survey map. */
@@ -35,7 +42,8 @@ export type TerrainConfig = {
 };
 
 export const DEFAULT_TERRAIN: TerrainConfig = {
-  grid: 124,
+  grid: 152,
+  extent: 1.22,
   levels: 52,
   indexEvery: 5,
   squash: 0.36,
@@ -93,6 +101,7 @@ function makeNoise() {
 export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
   const { value: noise, ridged } = makeNoise();
   const { grid: GN, squash: SQ, radius: RX, height: HMAX, centre } = config;
+  const EXT = config.extent ?? 1.22;
 
   const height = (x: number, y: number) => {
     const wx =
@@ -124,7 +133,7 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
   let maxH = 0;
   for (let j = 0; j < GN; j++) {
     for (let i = 0; i < GN; i++) {
-      const h = height((i / (GN - 1)) * 2 - 1, (j / (GN - 1)) * 2 - 1);
+      const h = height(((i / (GN - 1)) * 2 - 1) * EXT, ((j / (GN - 1)) * 2 - 1) * EXT);
       cells[j * GN + i] = h;
       if (h > maxH) maxH = h;
     }
@@ -136,7 +145,7 @@ export function buildTerrain(config: TerrainConfig = DEFAULT_TERRAIN): Terrain {
     centre.y + v * RX * SQ - level * HMAX,
   ];
   const projectCell = (p: [number, number], level: number) =>
-    project((p[0] / (GN - 1)) * 2 - 1, (p[1] / (GN - 1)) * 2 - 1, level);
+    project(((p[0] / (GN - 1)) * 2 - 1) * EXT, ((p[1] / (GN - 1)) * 2 - 1) * EXT, level);
 
   type Pt = [number, number];
   const key = (p: Pt) => `${p[0].toFixed(3)}_${p[1].toFixed(3)}`;

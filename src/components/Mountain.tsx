@@ -121,12 +121,28 @@ export default function Mountain({
     })
     .filter((r) => r.visible);
 
+  // Стороны света считаем от того же кольца, а не вбиваем координатами: иначе
+  // при любой правке центра или радиуса буквы повисают мимо круга.
   const cardinals = [
-    { t: 'W', x: 306, y: 509, r: -18 },
-    { t: 'N', x: 1014, y: 509, r: 18 },
-    { t: 'S', x: 306, y: 763, r: 18 },
-    { t: 'E', x: 1014, y: 763, r: -18 },
-  ];
+    { t: 'W', deg: 225 },
+    { t: 'N', deg: 315 },
+    { t: 'E', deg: 45 },
+    { t: 'S', deg: 135 },
+  ].map(({ t, deg }) => {
+    const a = (deg * Math.PI) / 180;
+    const out = RING + 44;
+    // Наклон — по касательной к эллипсу, приглушённый: полный угол кладёт
+    // букву набок, а нулевой выглядит наклейкой поверх перспективы.
+    let tilt = (Math.atan2(squash * Math.cos(a), -Math.sin(a)) * 180) / Math.PI;
+    while (tilt > 90) tilt -= 180;
+    while (tilt < -90) tilt += 180;
+    return {
+      t,
+      x: centre.x + out * Math.cos(a),
+      y: centre.y + out * squash * Math.sin(a),
+      r: tilt * 0.6,
+    };
+  });
 
   return (
     <div className="relative mt-0.5">

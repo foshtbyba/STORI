@@ -101,7 +101,7 @@ export default async function PeakPage() {
               </p>
             ) : (
               <p className="mt-3 border-t border-line pt-3 text-[11.5px] leading-relaxed text-mute">
-                Верхняя ставка взята — выше по лесенке идти некуда.
+                Верхняя ставка взята — не упади!
               </p>
             )}
           </Panel>
