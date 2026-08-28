@@ -168,14 +168,14 @@
     display:block;margin:16px 0 7px;
     font-size:11.5px;font-weight:500;letter-spacing:-.005em;text-transform:none;color:var(--mut);
   }
-  input[type=text],input:not([type]),select,textarea{
+  input[type=text],input[type=password],input[type=tel],input[type=email],input[type=number],input:not([type]),select,textarea{
     width:100%;background:var(--field);border:1px solid var(--line);color:var(--fg);
     border-radius:var(--r-sm);padding:11px 13px;font-size:14px;
     transition:border-color .15s,box-shadow .15s,background .15s;outline:none;
   }
-  input:hover,select:hover,textarea:hover{border-color:var(--line2)}
+  input:hover,select:hover,textarea:hover{border-color:var(--line2);background:var(--raise)}
   input:focus,select:focus,textarea:focus{
-    border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft);
+    border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft);background:var(--field);
   }
   input::placeholder,textarea::placeholder{color:var(--faint)}
   input.locked,input[readonly]{
@@ -712,12 +712,6 @@
           <option value="бальзам">Бальзам</option>
           <option value="драже">Драже</option>
         </select>
-        <label style="margin-top:10px">Текущая форма (что заменить, опц.)</label>
-        <input id="trFormOld" placeholder="капсулы (иначе определит сам)">
-        <label style="margin-top:10px">Текущее имя оффера (что заменить, опц.)</label>
-        <input id="trNameOld" placeholder="Flexosamine Pro (иначе определит сам)">
-        <label style="margin-top:10px">Исходный язык (опц.)</label>
-        <input id="trSrcLang" placeholder="напр. Греческий (иначе определит сам по тексту)">
         <label style="margin-top:10px">Состав / особенности приёма и доп. пожелания</label>
         <textarea id="trExtra" style="min-height:80px" placeholder="состав и как принимать (загугли); тон, имя эксперта, название портала, возраст ЦА…"></textarea>
         <div class="subtoggle" data-target="trPromptWrap" style="margin-top:8px"><span class="chev">▸</span> Промт (расширенно, можно править)</div>
@@ -2934,11 +2928,8 @@ function enhanceSelect(sel){
       try{ var was=doubleCalc(cfg.price).full; if(was) lines.push("СТАРАЯ ЦЕНА (зачёркнутая): "+was); }catch(e){}
     }
     function v(id){ var e=document.getElementById(id); return e?(e.value||"").trim():""; }
-    if(v("trNameOld")) lines.push("ТЕКУЩЕЕ ИМЯ ОФФЕРА (что заменить): "+v("trNameOld"));
-    if(v("trForm"))    lines.push("ФОРМА ПРОДУКТА: "+v("trForm"));
-    if(v("trFormOld")) lines.push("ТЕКУЩАЯ ФОРМА (что заменить): "+v("trFormOld"));
-    if(v("trSrcLang")) lines.push("ИСХОДНЫЙ ЯЗЫК: "+v("trSrcLang"));
-    if(v("trExtra"))   lines.push("ДОП. ПОЖЕЛАНИЯ: "+v("trExtra"));
+    if(v("trForm"))  lines.push("ФОРМА ПРОДУКТА: "+v("trForm"));
+    if(v("trExtra")) lines.push("ДОП. ПОЖЕЛАНИЯ: "+v("trExtra"));
     return lines.join("\n");
   }
   // источник и приёмник index (папка или вставленный HTML)
