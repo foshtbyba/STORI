@@ -6,6 +6,7 @@ import Select from './Select';
 import { PanelHead, Sub } from './ui';
 import { IconTag, IconPlus } from './icons';
 import { PARTNERS, partnerOf, DEFAULT_BACKFIX, uiLangFor } from '@/lib/builder';
+import { VERTICALS } from '@/lib/verticals';
 
 export type GeoDraft = {
   langCode: string;
@@ -100,6 +101,11 @@ export default function OfferForm({
   const [rows, setRows] = useState<GeoDraft[]>(draft.rows.length ? draft.rows : [emptyGeo()]);
   const set = (k: keyof OfferDraft) => (val: string) => setV((p) => ({ ...p, [k]: val }));
   const partner = partnerOf(v.partnerKey);
+  // Вертикаль выбирают из списка. Если у старого оффера записано что-то своё,
+  // добавляем это значение в список — иначе правка молча его сотрёт.
+  const verticalOptions = (
+    v.vertical && !VERTICALS.includes(v.vertical) ? [v.vertical, ...VERTICALS] : VERTICALS
+  ).map((name) => ({ value: name, label: name }));
 
   const setRow = (i: number, k: keyof GeoDraft, val: string) =>
     setRows((p) => p.map((r, j) => (j === i ? { ...r, [k]: val } : r)));
@@ -136,7 +142,16 @@ export default function OfferForm({
 
       <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Field label="Название" name="name" value={v.name} onChange={set('name')} placeholder="Имя оффера" />
-        <Field label="Вертикаль" name="vertical" value={v.vertical} onChange={set('vertical')} placeholder="Тема, ниша" />
+        <div>
+          <label className="mb-1.5 block text-[11.5px] text-mute">Вертикаль</label>
+          <Select
+            name="vertical"
+            value={v.vertical}
+            onChange={set('vertical')}
+            placeholder="Тема, ниша"
+            options={verticalOptions}
+          />
+        </div>
         <div>
           <label className="mb-1.5 block text-[11.5px] text-mute">Статус</label>
           <Select name="status" value={v.status} onChange={set('status')} options={statuses} />
