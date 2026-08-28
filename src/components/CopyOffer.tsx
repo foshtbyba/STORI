@@ -65,7 +65,9 @@ export default function CopyOffer({ geos }: { geos: GeoPayload[] }) {
         type="button"
         onClick={() => (geos.length === 1 ? copy(geos[0]) : setOpen((o) => !o))}
         className={`flex w-full items-center justify-center gap-2 rounded-full px-4 py-2 text-[12.5px] font-semibold transition ${
-          done ? 'bg-sage text-bg' : 'border border-line text-mute hover:border-sage hover:text-sage'
+          done
+            ? 'bg-sage text-bg'
+            : 'border border-line2 bg-sub text-soft hover:border-sage hover:text-sage'
         }`}
       >
         {label}

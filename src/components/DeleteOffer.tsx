@@ -28,7 +28,7 @@ export default function DeleteOffer({
       <button
         type="button"
         onClick={() => setArmed(true)}
-        className="text-[11.5px] text-mute transition hover:text-rust"
+        className="rounded-full border border-line2 bg-sub px-3.5 py-1.5 text-[11.5px] text-mute transition hover:border-rust hover:text-rust"
       >
         удалить
       </button>

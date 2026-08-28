@@ -46,7 +46,7 @@ export default function OfferFiles({
           <form ref={previewForm} action={upload} className="contents">
             <input type="hidden" name="offerId" value={offerId} />
             <input type="hidden" name="kind" value="PREVIEW" />
-            <label className="flex-1 cursor-pointer rounded-full border border-line px-4 py-2 text-center text-[12px] text-mute transition hover:border-line2 hover:text-soft">
+            <label className="flex-1 cursor-pointer rounded-full border border-line2 bg-sub px-4 py-2 text-center text-[12px] text-soft transition hover:border-sage hover:text-sage">
               {preview ? 'Заменить превью' : 'Загрузить превью'}
               <input
                 type="file"
@@ -62,14 +62,14 @@ export default function OfferFiles({
           <>
             <a
               href={`/api/offer-file/${preview.id}?dl=1`}
-              className={`${canEdit ? 'shrink-0' : 'flex-1 text-center'} rounded-full border border-line px-3.5 py-2 text-[12px] text-mute transition hover:border-sage hover:text-sage`}
+              className={`${canEdit ? 'shrink-0' : 'flex-1 text-center'} rounded-full border border-line2 bg-sub px-3.5 py-2 text-[12px] text-soft transition hover:border-sage hover:text-sage`}
             >
               {canEdit ? 'Скачать' : 'Скачать превью'}
             </a>
             {canEdit && remove ? (
               <form action={remove}>
                 <input type="hidden" name="fileId" value={preview.id} />
-                <button type="submit" className="px-1 text-[12px] text-dim transition hover:text-rust">
+                <button type="submit" className="px-1 text-[13px] text-mute transition hover:text-rust">
                   ✕
                 </button>
               </form>
@@ -82,7 +82,7 @@ export default function OfferFiles({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="mt-2 flex w-full items-center justify-between rounded-lg px-1 py-1.5 text-[11.5px] text-dim transition hover:text-mute"
+        className="mt-2 flex w-full items-center justify-between rounded-lg px-1 py-1.5 text-[11.5px] text-mute transition hover:text-soft"
       >
         <span>Фото для отзывов{reviews.length ? ` · ${reviews.length}` : ''}</span>
         <span className={`transition-transform ${open ? 'rotate-90' : ''}`}>›</span>
@@ -130,7 +130,7 @@ export default function OfferFiles({
             <form ref={reviewForm} action={upload}>
               <input type="hidden" name="offerId" value={offerId} />
               <input type="hidden" name="kind" value="REVIEW" />
-              <label className="block cursor-pointer rounded-full border border-dashed border-line px-4 py-2 text-center text-[11.5px] text-dim transition hover:border-line2 hover:text-mute">
+              <label className="block cursor-pointer rounded-full border border-dashed border-line2 px-4 py-2 text-center text-[11.5px] text-mute transition hover:border-sage hover:text-sage">
                 Добавить фото
                 <input
                   type="file"

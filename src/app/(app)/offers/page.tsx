@@ -183,7 +183,7 @@ export default async function OffersPage({
                         />
                         <a
                           href={`/offers?edit=${offer.id}`}
-                          className="shrink-0 rounded-full border border-line px-4 py-2 text-[12.5px] text-mute transition hover:border-line2 hover:text-soft"
+                          className="shrink-0 rounded-full border border-line2 bg-sub px-4 py-2 text-[12.5px] text-soft transition hover:border-sage hover:text-sage"
                         >
                           Править
                         </a>
