@@ -1,9 +1,7 @@
 import { requireUser } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { currentPeriodKey, teamSummary } from '@/lib/queries';
-import { periodLabel } from '@/lib/period';
-import { usd } from '@/lib/money';
+import { weekLabel, weekKey } from '@/lib/period';
 import Contours from '@/components/Contours';
 import TopBar from '@/components/TopBar';
 import Nav from '@/components/Nav';
@@ -15,17 +13,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const user = await requireUser();
   const role = user.role as Role;
   const team = canSeeTeam(role);
-  const key = await currentPeriodKey();
 
   const crew = await prisma.buyer.findMany({
     where: { archived: false, ...(team ? {} : { id: user.buyer?.id ?? '__none__' }) },
     orderBy: { handle: 'asc' },
     take: 8,
   });
-
-  const summary = team ? await teamSummary(key) : null;
-  const own = !team && user.buyer ? await teamSummary(key) : null;
-  const mine = own?.buyers.find((b) => b.buyer.id === user.buyer?.id);
 
   const items = [
     { href: '/', label: team ? 'Сводка' : 'Мой кабинет', icon: <IconChart size={15} /> },
@@ -49,7 +42,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <div className="relative z-10 flex flex-1 flex-col gap-2.5 sm:gap-3.5">
       <TopBar
         title={team ? 'MS TEAM' : (user.buyer?.handle ?? user.name)}
-        date={periodLabel(key)}
+        // В шапке неделя: вся статистика считается за неё.
+        date={weekLabel(weekKey(new Date()))}
         crew={crew.map((b) => ({ id: b.id, initials: b.initials, color: b.color, handle: b.handle }))}
         nav={<Nav items={items} />}
         role={role}

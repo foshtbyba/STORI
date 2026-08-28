@@ -83,3 +83,10 @@ export function weekLabel(key: string) {
   }
   return `${a} ${MONTH_GEN[from.getUTCMonth()]} — ${b} ${MONTH_GEN[last.getUTCMonth()]}`;
 }
+
+/** Дни отрезка — по ним строится дневной график недели. */
+export function daysOfRange({ from, to }: { from: Date; to: Date }) {
+  const out: Date[] = [];
+  for (const d = new Date(from); d < to; d.setUTCDate(d.getUTCDate() + 1)) out.push(new Date(d));
+  return out;
+}

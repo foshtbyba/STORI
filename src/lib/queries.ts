@@ -1,6 +1,6 @@
 import 'server-only';
 import { prisma } from './db';
-import { periodBounds, periodKey, daysOfPeriod, dayKey } from './period';
+import { periodBounds, periodKey, daysOfPeriod, dayKey, weekKey, weekBounds } from './period';
 import { profitOf, sum } from './money';
 import { computePayout, parseTiers, DEFAULT_TIERS } from './salary';
 import { fetchRate, rateIsStale } from './rate';
@@ -38,11 +38,33 @@ export async function currentPeriodKey() {
   return periodKey(new Date());
 }
 
+/**
+ * Текущая неделя — то, за что считается вся статистика.
+ *
+ * Расчётный период остаётся месяцем: оклад месячный, пороги ставки месячные,
+ * курс и закрытие тоже месячные. А вот сводка, гора и расходники смотрят на
+ * неделю: прошлая неделя в новую не тянется, но и никуда не девается —
+ * открывается календарём в архиве.
+ */
+export async function currentWeek(): Promise<Range & { key: string }> {
+  const key = weekKey(new Date());
+  return { key, ...weekBounds(key) };
+}
+
 export type BuyerRow = Awaited<ReturnType<typeof teamSummary>>['buyers'][number];
 
-/** Everything the admin screens need for one period, in one pass. */
-export async function teamSummary(key: string) {
-  const { from, to } = periodBounds(key);
+/** Отрезок, за который считаем. По умолчанию — весь месяц периода. */
+export type Range = { from: Date; to: Date };
+
+/**
+ * Всё, что нужно командным экранам, за один проход.
+ *
+ * `key` — расчётный период (месяц): по нему берутся курс и разовые бонусы, по
+ * нему же закрывается выплата. `range` сужает счёт до нужного отрезка —
+ * сводка и гора смотрят на текущую неделю, а зарплата на весь месяц.
+ */
+export async function teamSummary(key: string, range?: Range) {
+  const { from, to } = range ?? periodBounds(key);
   const [period, buyers, days, consumables, bonuses] = await Promise.all([
     getPeriod(key),
     prisma.buyer.findMany({
@@ -88,17 +110,24 @@ export async function teamSummary(key: string) {
       profitCents,
       consumableCents,
       roi: spendGrossCents ? (profitCents / spendGrossCents) * 100 : 0,
+      /**
+       * Чистыми — то, что осталось после расходников. Именно эта сумма идёт в
+       * зарплатную базу, по ней же считается высота на горе: иначе человек
+       * видит на склоне одну цифру, а в расчёте другую.
+       */
+      netCents: buyer.consumablesAffectSalary ? profitCents - consumableCents : profitCents,
       ...payout,
     };
   });
 
-  const ranked = [...rows].sort((a, b) => b.profitCents - a.profitCents);
+  const ranked = [...rows].sort((a, b) => b.netCents - a.netCents);
   const totals = {
     revenueCents: sum(rows, (r) => r.revenueCents),
     spendNetCents: sum(rows, (r) => r.spendNetCents),
     spendGrossCents: sum(rows, (r) => r.spendGrossCents),
     profitCents: sum(rows, (r) => r.profitCents),
     consumableCents: sum(consumables, (c) => c.totalCents),
+    netCents: sum(rows, (r) => r.netCents),
     salaryCents: sum(rows, (r) => r.salaryCents),
     bonusCents: sum(rows, (r) => r.bonusCents),
     payoutCents: sum(rows, (r) => r.totalCents),
@@ -128,8 +157,8 @@ export function dailySeries(key: string, days: { date: Date; revenueCents: numbe
   return daysOfPeriod(key).map((date) => ({ date, profitCents: byDay.get(dayKey(date)) ?? 0 }));
 }
 
-export async function buyerSummary(buyerId: string, key: string) {
-  const { from, to } = periodBounds(key);
+export async function buyerSummary(buyerId: string, key: string, range?: Range) {
+  const { from, to } = range ?? periodBounds(key);
   const [period, buyer, days, consumables, bonuses] = await Promise.all([
     getPeriod(key),
     prisma.buyer.findUnique({ where: { id: buyerId }, include: { user: true, salaryRule: true } }),
@@ -173,6 +202,10 @@ export async function buyerSummary(buyerId: string, key: string) {
     consumables,
     allTimeCents:
       (lifetime._sum.revenueCents ?? 0) - (lifetime._sum.spendGrossCents ?? 0),
+    /** Чистыми за отрезок — профит за вычетом своих расходников. */
+    netCents: buyer.consumablesAffectSalary
+      ? profitCents - consumableCents
+      : profitCents,
     revenueCents,
     spendNetCents,
     spendGrossCents,

@@ -11,6 +11,8 @@ export type Grounded = {
   color: string;
   /** Сумма видна только тому, кто и так видит всю команду. */
   profitCents?: number | null;
+  /** Итог по всем отчётам — общий минус, а не только за эту неделю. */
+  allTimeCents?: number | null;
 };
 
 export type Climber = {

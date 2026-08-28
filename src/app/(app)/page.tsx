@@ -1,8 +1,8 @@
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { currentPeriodKey, teamSummary, dailySeries, buyerSummary, allTimeProfit } from '@/lib/queries';
+import { currentPeriodKey, currentWeek, teamSummary, buyerSummary, allTimeProfit } from '@/lib/queries';
 import { usd, rub, sum, profitOf } from '@/lib/money';
-import { periodLabel } from '@/lib/period';
+import { weekLabel, daysOfRange, dayKey } from '@/lib/period';
 import { Panel, PanelHead, Sub, Avatar, Empty } from '@/components/ui';
 import { ProfitBars, Meter } from '@/components/Charts';
 import { IconChart, IconWallet, IconBox, IconWarn, IconUsers } from '@/components/icons';
@@ -11,18 +11,24 @@ import BuyerCabinet from '@/components/BuyerCabinet';
 export default async function HomePage() {
   const user = await requireUser();
   const key = await currentPeriodKey();
+  // Статистика недельная: прошлая неделя в новую не тянется.
+  const week = await currentWeek();
+  const label = weekLabel(week.key);
 
   if (!canSeeTeam(user.role as Role)) {
     if (!user.buyer) return <Empty>У аккаунта нет профиля баера — попроси админа его создать.</Empty>;
-    const data = await buyerSummary(user.buyer.id, key);
-    if (!data) return <Empty>Нет данных за {periodLabel(key)}.</Empty>;
-    return <BuyerCabinet data={data} />;
+    const data = await buyerSummary(user.buyer.id, key, week);
+    if (!data) return <Empty>Нет данных за {label}.</Empty>;
+    return <BuyerCabinet data={data} label={label} />;
   }
 
-  const summary = await teamSummary(key);
+  const summary = await teamSummary(key, week);
   const allTime = await allTimeProfit();
   const allTimeTotal = [...allTime.values()].reduce((a, b) => a + b, 0);
-  const series = dailySeries(key, summary.days);
+  const series = daysOfRange(week).map((date) => {
+    const byDay = summary.days.filter((d) => dayKey(d.date) === dayKey(date));
+    return { date, profitCents: sum(byDay, (d) => profitOf(d)) };
+  });
   const rate = summary.period.rubPerUsd;
   const best = series.reduce((a, b) => (b.profitCents > a.profitCents ? b : a), series[0]);
   const positiveDays = series.filter((d) => d.profitCents > 0).length;
@@ -54,28 +60,27 @@ export default async function HomePage() {
             icon={<IconChart color="#b4c68c" />}
             tint="bg-sage-t"
             title="Чистый профит"
-            aside={<span className="text-[15px] text-sage">{periodLabel(key)}</span>}
+            aside={<span className="text-[15px] text-sage">{label}</span>}
           />
+          {/* Чистый — уже за вычетом расходников: они списываются с профита,
+              и показывать их отдельной строкой значит вводить в заблуждение. */}
           <div className="mt-4 text-[76px] font-bold leading-none tracking-[-0.035em]">
             <span className="text-[42px] text-mute">$</span>
-            {usd(summary.totals.profitCents).replace('$', '')}
+            {usd(summary.totals.netCents).replace('$', '')}
           </div>
           <div className="n mt-2.5 text-[12.5px] text-mute">
-            {rub(summary.totals.profitCents, rate)} ·{' '}
+            {rub(summary.totals.netCents, rate)} ·{' '}
             <span title="Рыночный курс минус 2 ₽ — закладываем комиссию за перевод">
               курс {(rate / 100).toFixed(0)} ₽/$
             </span>
           </div>
-          <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
+          <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">
             {[
               { label: 'Оборот', value: usd(summary.totals.revenueCents), color: 'text-text' },
               { label: 'Расход с комиссией', value: usd(summary.totals.spendGrossCents), color: 'text-text' },
+              { label: 'Профит с рекламы', value: usd(summary.totals.profitCents), color: 'text-text' },
+              { label: 'Расходники', value: `−${usd(summary.totals.consumableCents)}`, color: 'text-rust' },
               { label: 'ROI', value: `${summary.totals.roi.toFixed(1).replace('.', ',')}%`, color: 'text-sage' },
-              {
-                label: 'Дней в плюс',
-                value: `${positiveDays} из ${series.length}`,
-                color: 'text-text',
-              },
             ].map((s) => (
               <Sub key={s.label} className="px-4 py-3.5">
                 <div className="text-[11.5px] text-mute">{s.label}</div>
@@ -110,7 +115,11 @@ export default async function HomePage() {
           icon={<IconChart color="#b4c68c" />}
           tint="bg-sage-t"
           title="Профит по дням"
-          aside={<span className="text-[12.5px] text-mute">после комиссии, до расходников и ЗП</span>}
+          aside={
+            <span className="text-[12.5px] text-mute">
+              {label} · в плюсе {positiveDays} из {series.length}
+            </span>
+          }
           right={
             <span className="rounded-full bg-sub px-3.5 py-1.5">
               <span className="n text-[12.5px] text-soft">

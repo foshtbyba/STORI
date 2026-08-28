@@ -1,8 +1,8 @@
 import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
-import { currentPeriodKey } from '@/lib/queries';
-import { periodBounds, periodLabel, fmtDay } from '@/lib/period';
+import { currentWeek } from '@/lib/queries';
+import { weekBounds, weekKey, weekLabel, fmtDay } from '@/lib/period';
 import { usd, sum } from '@/lib/money';
 import { addConsumable, deleteConsumable } from '@/app/actions/catalog';
 import { Panel, PanelHead, Avatar, Empty } from '@/components/ui';
@@ -14,12 +14,15 @@ import { IconBox } from '@/components/icons';
 export default async function ConsumablesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: string }>;
+  searchParams: Promise<{ week?: string }>;
 }) {
   const user = await requireUser();
-  const { period } = await searchParams;
-  const key = period ?? (await currentPeriodKey());
-  const { from, to } = periodBounds(key);
+  const { week } = await searchParams;
+  // Списания недельные, как и вся статистика. Прошлые недели не пропадают —
+  // открываются тем же ключом в адресе.
+  const key = week ? weekKey(new Date(`${week}T00:00:00.000Z`)) : (await currentWeek()).key;
+  const { from, to } = weekBounds(key);
+  const label = weekLabel(key);
   const scoped = scopeBuyerId(user);
   const canEdit = canSeeTeam(user.role as Role);
 
@@ -92,7 +95,7 @@ export default async function ConsumablesPage({
             icon={<IconBox color="#ce6e58" />}
             tint="bg-rust-t"
             title="Списания"
-            aside={<span className="text-[12.5px] text-mute">{periodLabel(key)}</span>}
+            aside={<span className="text-[12.5px] text-mute">{label}</span>}
             right={
               <span className="n text-[17px] font-semibold text-rust">
                 {usd(sum(entries, (e) => e.totalCents))}
@@ -107,7 +110,7 @@ export default async function ConsumablesPage({
             <span className="lab text-right">Сумма</span>
           </div>
           {entries.length === 0 ? (
-            <Empty>За {periodLabel(key)} списаний нет.</Empty>
+            <Empty>За {label} списаний нет.</Empty>
           ) : (
             entries.map((e) => (
               <div key={e.id} className="grid grid-cols-[0.7fr_1.2fr_1fr_0.8fr] md:grid-cols-[0.6fr_1.2fr_1.2fr_1.6fr_0.7fr] items-center border-t border-line py-2.5">

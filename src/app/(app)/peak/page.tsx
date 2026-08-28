@@ -1,7 +1,7 @@
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { currentPeriodKey, teamSummary, defaultTiers } from '@/lib/queries';
-import { periodLabel } from '@/lib/period';
+import { currentPeriodKey, currentWeek, teamSummary, defaultTiers, allTimeProfit } from '@/lib/queries';
+import { weekLabel } from '@/lib/period';
 import { usd } from '@/lib/money';
 import { parseTiers } from '@/lib/salary';
 import { DEFAULT_TERRAIN, weekSeed, getTerrain } from '@/lib/terrain';
@@ -17,27 +17,33 @@ const STEMS = [96, 78, 74, 84, 70, 80, 72, 88, 76, 82];
 export default async function PeakPage() {
   const user = await requireUser();
   const key = await currentPeriodKey();
-  const summary = await teamSummary(key);
+  // Гора недельная: в понедельник склон обнуляется и все стартуют заново.
+  const week = await currentWeek();
+  const label = weekLabel(week.key);
+  const summary = await teamSummary(key, week);
+  // Неделя показывает форму, а общий минус — сколько человек должен вообще.
+  const allTime = await allTimeProfit();
   const tiers = summary.buyers[0]
     ? parseTiers(summary.buyers[0].buyer.salaryRule?.tiersJson)
     : await defaultTiers();
 
   const team = canSeeTeam(user.role as Role);
-  const ranked = summary.buyers.filter((b) => b.profitCents > 0);
+  const ranked = summary.buyers.filter((b) => b.netCents > 0);
   // Ноль и минус на гору не выходят. В общем виде — без сумм: видно, что человек
   // не пошёл наверх, но не видно, насколько он в яме.
   const grounded: Grounded[] = summary.buyers
-    .filter((b) => b.profitCents <= 0)
+    .filter((b) => b.netCents <= 0)
     .map((b) => ({
       id: b.buyer.id,
       initials: b.buyer.initials,
       handle: b.buyer.handle,
       color: b.buyer.color,
-      profitCents: team ? b.profitCents : null,
+      profitCents: team ? b.netCents : null,
+      allTimeCents: team ? (allTime.get(b.buyer.id) ?? 0) : null,
     }));
 
   if (ranked.length === 0 && grounded.length === 0) {
-    return <Empty>За {periodLabel(key)} отчётов ещё нет — гора пустая.</Empty>;
+    return <Empty>За {label} отчётов ещё нет — гора пустая.</Empty>;
   }
 
   // Рельеф считаем здесь, а на клиент отдаём его в координатах площадки: там
@@ -58,14 +64,14 @@ export default async function PeakPage() {
    * поэтому «ты на вершине» по-прежнему означает взятый верх лесенки.
    */
   const topCents = tiers[tiers.length - 1]?.fromCents ?? 1_000_000;
-  const bestCents = ranked.reduce((max, r) => Math.max(max, r.profitCents), 0);
+  const bestCents = ranked.reduce((max, r) => Math.max(max, r.netCents), 0);
   const summitCents = tiers.find((t) => t.fromCents > bestCents)?.fromCents ?? topCents;
   const scaled = summitCents < topCents;
   const leader = ranked[0];
 
   const pins: Pin3D[] = ranked.map((row, i) => {
-    const level = Math.max(0.02, Math.min(1, row.profitCents / summitCents));
-    const onTop = row.profitCents >= summitCents;
+    const level = Math.max(0.02, Math.min(1, row.netCents / summitCents));
+    const onTop = row.netCents >= summitCents;
     const atSummit = onTop && row.buyer.id === leader.buyer.id;
     const angle = BEARINGS[i % BEARINGS.length];
     const [u, v, at] = atSummit
@@ -77,7 +83,7 @@ export default async function PeakPage() {
       initials: row.buyer.initials,
       handle: row.buyer.handle,
       color: row.buyer.color,
-      profitCents: row.profitCents,
+      profitCents: row.netCents,
       u,
       v,
       level: at,
@@ -88,12 +94,12 @@ export default async function PeakPage() {
     };
   });
 
-  const leadCents = Math.max(ranked[0]?.profitCents ?? 1, 1);
+  const leadCents = Math.max(ranked[0]?.netCents ?? 1, 1);
   const viewer = summary.buyers.find((r) => r.buyer.id === viewerId) ?? null;
-  const climbing = Boolean(viewer && viewer.profitCents > 0);
+  const climbing = Boolean(viewer && viewer.netCents > 0);
   const viewerPlace = climbing ? ranked.findIndex((r) => r.buyer.id === viewerId) + 1 : 0;
-  const onTop = Boolean(viewer) && viewer!.profitCents >= summitCents;
-  const toPeak = viewer ? Math.max(0, summitCents - viewer.profitCents) : 0;
+  const onTop = Boolean(viewer) && viewer!.netCents >= summitCents;
+  const toPeak = viewer ? Math.max(0, summitCents - viewer.netCents) : 0;
 
   const RING = terrain.config.radius + 26;
 
@@ -211,7 +217,7 @@ export default async function PeakPage() {
       rate: `ставка ${tier.ratePct}%`,
       color: '#8a8a8a',
       // Порог, который смотрящий уже взял, светится зелёным и на склоне.
-      passed: Boolean(viewer && viewer.profitCents >= tier.fromCents),
+      passed: Boolean(viewer && viewer.netCents >= tier.fromCents),
     }))
     .filter((r) => r.level <= 1);
 
@@ -248,7 +254,7 @@ export default async function PeakPage() {
                   className="n mt-1.5 text-[20px] font-semibold"
                   style={{ color: climbing ? undefined : '#ce6e58' }}
                 >
-                  {usd(viewer.profitCents, { sign: true })}
+                  {usd(viewer.netCents, { sign: true })}
                 </div>
               </Sub>
               <Sub className="px-4 py-3">
@@ -258,7 +264,7 @@ export default async function PeakPage() {
                   style={{ color: onTop ? '#b4c68c' : '#ce6e58' }}
                 >
                   {onTop
-                    ? usd(viewer.profitCents - summitCents)
+                    ? usd(viewer.netCents - summitCents)
                     : usd(toPeak)}
                 </div>
               </Sub>
@@ -320,7 +326,7 @@ export default async function PeakPage() {
                       className="n shrink-0 text-[15px] font-semibold"
                       style={{ color: row.buyer.color }}
                     >
-                      {usd(row.profitCents)}
+                      {usd(row.netCents)}
                     </span>
                   </div>
                   <div className="mt-2 flex items-center gap-3 pl-8">
@@ -328,7 +334,7 @@ export default async function PeakPage() {
                       <span
                         className="block h-1.5 rounded-full"
                         style={{
-                          width: `${Math.max(3, (row.profitCents / leadCents) * 100)}%`,
+                          width: `${Math.max(3, (row.netCents / leadCents) * 100)}%`,
                           background: row.buyer.color,
                         }}
                       />
@@ -353,10 +359,10 @@ export default async function PeakPage() {
           icon={<IconRoute color="#6fa9a0" />}
           tint="bg-teal-t"
           title="Вершина"
-          aside={<span className="text-[15px] text-sage">{periodLabel(key)}</span>}
+          aside={<span className="text-[15px] text-sage">{label}</span>}
           right={
             <span className="text-[12.5px] text-mute">
-              высота склона = чистый профит · пунктир справа — пороги ставки
+              высота склона = профит за вычетом расходников · пунктир справа — пороги ставки
             </span>
           }
         />
@@ -378,8 +384,14 @@ export default async function PeakPage() {
                   <span
                     className="n text-[11.5px]"
                     style={{ color: g.profitCents < 0 ? '#ce6e58' : '#8a8a8a' }}
+                    title="За эту неделю"
                   >
                     {usd(g.profitCents, { sign: true })}
+                  </span>
+                ) : null}
+                {g.allTimeCents != null && g.allTimeCents !== g.profitCents ? (
+                  <span className="n text-[11px] text-dim" title="За всё время">
+                    всего {usd(g.allTimeCents, { sign: true })}
                   </span>
                 ) : null}
               </span>

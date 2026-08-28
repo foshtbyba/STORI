@@ -1,17 +1,17 @@
 import { usd, rub, profitOf } from '@/lib/money';
-import { fmtDay, weekdayShort, periodLabel, daysOfPeriod } from '@/lib/period';
+import { fmtDay, weekdayShort } from '@/lib/period';
 import { Panel, PanelHead, Sub, Empty } from './ui';
 import { IconWallet, IconPeak, IconCalendar, IconBox } from './icons';
 import type { buyerSummary } from '@/lib/queries';
 
 type Data = NonNullable<Awaited<ReturnType<typeof buyerSummary>>>;
 
-export default function BuyerCabinet({ data }: { data: Data }) {
+export default function BuyerCabinet({ data, label }: { data: Data; label: string }) {
   const rate = data.period.rubPerUsd;
   const peakCents = data.tiers[data.tiers.length - 1]?.fromCents ?? data.baseCents;
   // Дни считаем от календаря, а не от числа отчётов: пустой день — это тоже
   // день месяца, просто не в плюсе.
-  const monthDays = daysOfPeriod(data.period.key).length;
+  const weekDays = 7;
   const greenDays = data.days.filter((d) => profitOf(d) > 0).length;
   const scale = Math.max(peakCents, data.baseCents, 1);
 
@@ -22,7 +22,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
           <PanelHead
             icon={<IconWallet color="#b4c68c" />}
             tint="bg-sage-t"
-            title={`Зарплата за ${periodLabel(data.period.key)}`}
+            title="Зарплата"
             aside={<span className="text-[15px] text-sage">ставка {data.ratePct}%</span>}
           />
           <div className="mt-4 text-[72px] font-bold leading-none tracking-[-0.035em]">
@@ -105,7 +105,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
 
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-6 lg:gap-3.5">
         {[
-          { label: 'Доход', value: usd(data.revenueCents), color: 'text-text', note: periodLabel(data.period.key) },
+          { label: 'Доход', value: usd(data.revenueCents), color: 'text-text', note: label },
           { label: 'Спенд с комиссией', value: usd(data.spendGrossCents), color: 'text-text', note: `комиссия ${usd(data.commissionCents)}` },
           { label: 'Профит', value: usd(data.profitCents), color: 'text-sage', note: `ROI ${data.roi.toFixed(1).replace('.', ',')}%` },
           { label: 'Расходники', value: `−${usd(data.consumableCents)}`, color: 'text-rust', note: data.buyer.consumablesAffectSalary ? 'списаны на меня' : 'на команде' },
@@ -119,7 +119,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
             label: 'Дней в плюсе',
             value: `${greenDays}`,
             color: greenDays > 0 ? 'text-sage' : 'text-text',
-            note: `из ${monthDays} в месяце`,
+            note: `из ${weekDays} за неделю`,
           },
         ].map((k) => (
           <Panel key={k.label} className="flex flex-col justify-between p-4 sm:p-5">
@@ -136,7 +136,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
             icon={<IconCalendar color="#b4c68c" />}
             tint="bg-sage-t"
             title="Мои дни"
-            aside={<span className="n text-[12.5px] text-mute">{periodLabel(data.period.key)}</span>}
+            aside={<span className="text-[12.5px] text-mute">{label}</span>}
             right={
               <span className="rounded-full bg-sage-t px-4 py-1.5">
                 <span className="n text-[15px] font-semibold text-sage">
@@ -154,7 +154,7 @@ export default function BuyerCabinet({ data }: { data: Data }) {
             <span className="lab text-right">ROI</span>
           </div>
           {data.days.length === 0 ? (
-            <Empty>Пока ни одного отчёта за период.</Empty>
+            <Empty>За {label} отчётов ещё нет.</Empty>
           ) : (
             data.days.map((d) => {
               const profit = profitOf(d);
