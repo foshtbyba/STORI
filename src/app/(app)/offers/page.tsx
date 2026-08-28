@@ -110,9 +110,17 @@ export default async function OffersPage({
 
                 <div className="px-1.5">
                   <div className="text-[21px] font-bold tracking-[-0.02em]">{offer.name}</div>
+                  {/* Партнёрку видит только команда: баеру знать, у кого стоит
+                      оффер, незачем — он льёт, а не договаривается. */}
                   <div className="mt-1.5 text-[12.5px] text-mute">
-                    {[offer.vertical, offer.network].filter(Boolean).join(' · ') || '—'}
+                    {[offer.vertical, team ? offer.network : ''].filter(Boolean).join(' · ') || '—'}
                   </div>
+                  {offer.payout ? (
+                    <span className="mt-2.5 inline-flex items-center gap-2 rounded-full bg-sage-t px-3 py-1.5">
+                      <span className="lab text-sage">за продажу</span>
+                      <span className="n text-[13.5px] font-semibold text-sage">{offer.payout}</span>
+                    </span>
+                  ) : null}
                 </div>
 
                 <div className="rounded-[18px] bg-sub px-4 py-3.5">
@@ -187,7 +195,9 @@ export default async function OffersPage({
 
                   <div className="mt-3 flex items-center justify-between gap-3">
                     <span className="text-[11.5px] text-mute">
-                      {partnerOf(offer.partnerKey)?.label ?? 'партнёрка не выбрана'} · обновлено{' '}
+                      {team
+                        ? `${partnerOf(offer.partnerKey)?.label ?? 'партнёрка не выбрана'} · обновлено `
+                        : 'обновлено '}
                       {offer.updatedAt.toISOString().slice(8, 10)}.{offer.updatedAt.toISOString().slice(5, 7)}
                     </span>
                     {team ? <DeleteOffer id={offer.id} name={offer.name} action={deleteOffer} /> : null}

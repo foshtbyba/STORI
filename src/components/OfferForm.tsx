@@ -153,7 +153,14 @@ export default function OfferForm({
           onChange={set('bans')}
           placeholder="Регионы, куда лить нельзя"
         />
-        <Field label="Выплата" name="payout" value={v.payout} onChange={set('payout')} placeholder="как договорились" />
+        <Field
+          label="Выплата за продажу"
+          name="payout"
+          value={v.payout}
+          onChange={set('payout')}
+          placeholder="$28 · 900 Kč"
+          hint="Видна всем на карточке оффера."
+        />
         <Field
           wide
           label="Ссылка на превью (если есть)"
