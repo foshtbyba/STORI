@@ -695,12 +695,17 @@
           <option value="claude-sonnet-5">Sonnet 5 — дешевле/быстрее</option>
           <option value="claude-haiku-4-5">Haiku 4.5 — самый дешёвый</option>
         </select>
-        <label style="margin-top:10px">Доп. переменные (форма продукта, состав, пожелания)</label>
-        <textarea id="trVars" style="min-height:90px" placeholder="ФОРМА ПРОДУКТА: гель
-ТЕКУЩАЯ ФОРМА: капсулы
-ИСХОДНЫЙ ЯЗЫК: (опц., иначе определит сам)
-ДОП. ПОЖЕЛАНИЯ: состав и особенности приёма — загугли; тон, имя эксперта, портал и т.п."></textarea>
-        <div class="hint" style="margin-top:2px">Автоматом из полей выше подставятся: <b>ОФФЕР</b> (бренд), <b>ЯЗЫК</b>, <b>ГЕО</b>, <b>ЦЕНА</b>, <b>СТАРАЯ ЦЕНА</b>. Здесь допиши остальное.</div>
+        <div class="hint" style="margin-top:6px">Автоматом из полей выше подставятся: <b>ОФФЕР</b> (бренд), <b>ЯЗЫК</b>, <b>ГЕО</b>, <b>ЦЕНА</b>, <b>СТАРАЯ ЦЕНА</b>. Поля ниже — по желанию.</div>
+        <label style="margin-top:10px">Форма продукта</label>
+        <input id="trForm" placeholder="гель / капсулы / крем / спрей / саше / таблетки…">
+        <label style="margin-top:10px">Текущая форма (что заменить, опц.)</label>
+        <input id="trFormOld" placeholder="капсулы (иначе определит сам)">
+        <label style="margin-top:10px">Текущее имя оффера (что заменить, опц.)</label>
+        <input id="trNameOld" placeholder="Flexosamine Pro (иначе определит сам)">
+        <label style="margin-top:10px">Исходный язык (опц.)</label>
+        <input id="trSrcLang" placeholder="напр. Греческий (иначе определит сам по тексту)">
+        <label style="margin-top:10px">Состав / особенности приёма и доп. пожелания</label>
+        <textarea id="trExtra" style="min-height:80px" placeholder="состав и как принимать (загугли); тон, имя эксперта, название портала, возраст ЦА…"></textarea>
         <div class="subtoggle" data-target="trPromptWrap" style="margin-top:8px"><span class="chev">▸</span> Промт (расширенно, можно править)</div>
         <div id="trPromptWrap" style="display:none"><textarea id="trPrompt" style="min-height:200px">Ты — инструмент подготовки рекламных лендингов. Тебе дают БЛОК ПЕРЕМЕННЫХ и полный HTML ленда.
 Верни РОВНО ОДИН готовый HTML-файл, выполнив все шаги ниже. В ответе — только код, без пояснений.
@@ -2897,7 +2902,7 @@ function enhanceSelect(sel){
 /* ================= ПЕРЕВОД ЛЕНДА ЧЕРЕЗ CLAUDE ================= */
 (function(){
   var keyEl=document.getElementById("trKey"), modelEl=document.getElementById("trModel"),
-      varsEl=document.getElementById("trVars"), promptEl=document.getElementById("trPrompt"),
+      promptEl=document.getElementById("trPrompt"),
       runBtn=document.getElementById("trRun"), st=document.getElementById("trStatus");
   if(!runBtn) return;
   try{ enhanceSelect(modelEl); }catch(e){}
@@ -2913,7 +2918,12 @@ function enhanceSelect(sel){
       lines.push("ЦЕНА (на ленде): "+cfg.price);
       try{ var was=doubleCalc(cfg.price).full; if(was) lines.push("СТАРАЯ ЦЕНА (зачёркнутая): "+was); }catch(e){}
     }
-    var manual=(varsEl.value||"").trim(); if(manual) lines.push(manual);
+    function v(id){ var e=document.getElementById(id); return e?(e.value||"").trim():""; }
+    if(v("trNameOld")) lines.push("ТЕКУЩЕЕ ИМЯ ОФФЕРА (что заменить): "+v("trNameOld"));
+    if(v("trForm"))    lines.push("ФОРМА ПРОДУКТА: "+v("trForm"));
+    if(v("trFormOld")) lines.push("ТЕКУЩАЯ ФОРМА (что заменить): "+v("trFormOld"));
+    if(v("trSrcLang")) lines.push("ИСХОДНЫЙ ЯЗЫК: "+v("trSrcLang"));
+    if(v("trExtra"))   lines.push("ДОП. ПОЖЕЛАНИЯ: "+v("trExtra"));
     return lines.join("\n");
   }
   // источник и приёмник index (папка или вставленный HTML)
