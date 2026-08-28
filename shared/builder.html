@@ -2595,9 +2595,19 @@ function showTopToast(msg,isErr){
     }
 
     btn.addEventListener("click",async function(){
+      // 1) сразу читаем буфер обмена и вставляем — один клик
+      try{
+        if(navigator.clipboard && navigator.clipboard.readText){
+          var txt=await navigator.clipboard.readText();
+          if(txt && txt.trim()){ apply(txt); return; }
+        }
+      }catch(e){}
+      // 2) если в поле уже что-то набрано/вставлено — применяем его
       if(box.value.trim()){ apply(box.value); return; }
-      try{ var txt=await navigator.clipboard.readText(); if(txt&&txt.trim()){ apply(txt); return; } }catch(e){}
-      showTopToast("Пусто: вставь строку оффера в поле", true);
+      // 3) браузер не дал прочитать буфер (частый случай при открытии файла локально, file://) —
+      //    ставим фокус в поле: Ctrl+V вставит строку и применит её сам (обработчик paste ниже)
+      box.focus();
+      showTopToast("Нажми Ctrl+V — оффер вставится и применится сам", true);
     });
     // Ctrl+V прямо в поле — вставка срабатывает сама, без нажатия кнопки.
     box.addEventListener("paste",function(e){
