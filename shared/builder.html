@@ -697,7 +697,21 @@
         </select>
         <div class="hint" style="margin-top:6px">Автоматом из полей выше подставятся: <b>ОФФЕР</b> (бренд), <b>ЯЗЫК</b>, <b>ГЕО</b>, <b>ЦЕНА</b>, <b>СТАРАЯ ЦЕНА</b>. Поля ниже — по желанию.</div>
         <label style="margin-top:10px">Форма продукта</label>
-        <input id="trForm" placeholder="гель / капсулы / крем / спрей / саше / таблетки…">
+        <select id="trForm">
+          <option value="">— не менять —</option>
+          <option value="капсулы">Капсулы</option>
+          <option value="таблетки">Таблетки</option>
+          <option value="гель">Гель</option>
+          <option value="крем">Крем</option>
+          <option value="мазь">Мазь</option>
+          <option value="спрей">Спрей</option>
+          <option value="капли">Капли</option>
+          <option value="саше">Саше</option>
+          <option value="порошок">Порошок</option>
+          <option value="сироп">Сироп</option>
+          <option value="бальзам">Бальзам</option>
+          <option value="драже">Драже</option>
+        </select>
         <label style="margin-top:10px">Текущая форма (что заменить, опц.)</label>
         <input id="trFormOld" placeholder="капсулы (иначе определит сам)">
         <label style="margin-top:10px">Текущее имя оффера (что заменить, опц.)</label>
@@ -2906,6 +2920,7 @@ function enhanceSelect(sel){
       runBtn=document.getElementById("trRun"), st=document.getElementById("trStatus");
   if(!runBtn) return;
   try{ enhanceSelect(modelEl); }catch(e){}
+  try{ enhanceSelect(document.getElementById("trForm")); }catch(e){}
   function status(msg,cls){ st.className="status"+(cls?(" "+cls):""); st.textContent=msg; }
   // блок переменных: авто из полей билдера + ручной ввод
   function varsBlock(){
