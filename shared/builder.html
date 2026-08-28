@@ -294,6 +294,7 @@
   }
   .imgtile:hover{border-color:var(--line2)}
   .imgtile.rep{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc-soft)}
+  .imgtile.drag{border-color:var(--acc);border-style:dashed;background:var(--acc-soft)}
   .imgtile.sel{outline:2px solid var(--acc);outline-offset:3px;animation:selpulse .5s ease}
   @keyframes selpulse{0%{outline-color:transparent}100%{outline-color:var(--acc)}}
   .imgtile .thumb{
@@ -645,8 +646,8 @@
     <div class="grp">
       <h3>Источник</h3>
       <div class="seg">
-        <button id="modeHtml" class="active">Вставить HTML</button>
-        <button id="modeFolder">Загрузить папку</button>
+        <button id="modeFolder" class="active">Загрузить папку</button>
+        <button id="modeHtml">Вставить HTML</button>
       </div>
 
       <div id="paneHtml">
@@ -664,7 +665,7 @@
         </label>
         <div class="filelist" id="filelist" style="display:none"></div>
         <div id="imgwrap" style="display:none">
-          <label style="margin-top:14px">Картинки оффера/дизайна — наведи (превью), «Заменить» = загрузить свою (имя сохраняется). Аватары комментариев спрятаны отдельно.</label>
+          <label style="margin-top:14px">Картинки оффера/дизайна — «Заменить» или <b>перетащи фото прямо на плитку</b> (имя файла сохраняется). Аватары комментариев спрятаны отдельно.</label>
           <div class="imggrid" id="imggrid"></div>
         </div>
         <div id="cleanwrap" style="display:none">
@@ -2239,12 +2240,17 @@ function imgTile(x, container){
   var inp=tile.querySelector("input"),btnR=tile.querySelector(".rep-b"),btnN=tile.querySelector(".ren-b"),im=tile.querySelector("img");
   btnR.addEventListener("click",function(){inp.click();});
   btnN.addEventListener("click",function(){ var nn=window.prompt("Новое имя файла (ссылки в коде обновятся автоматически):", baseName(x.path)); if(nn){ renameAsset(x, nn); } });
-  inp.addEventListener("change",async function(){
-    var f=inp.files[0];if(!f)return;
+  async function applyReplace(f){
+    if(!f || !/^image\//i.test(f.type||"")) return;
     x.bytes=new Uint8Array(await f.arrayBuffer());x.kind="bin";x.replaced=true;delete x.str;
     im.src=URL.createObjectURL(new Blob([x.bytes],{type:f.type||mimeOf(x.path)}));
     tile.classList.add("rep");
-  });
+  }
+  inp.addEventListener("change",function(){ if(inp.files&&inp.files[0]) applyReplace(inp.files[0]); });
+  // перетаскивание фото прямо на плитку — заменить эту картинку без выбора файла
+  ["dragenter","dragover"].forEach(function(ev){ tile.addEventListener(ev,function(e){ e.preventDefault();e.stopPropagation();tile.classList.add("drag"); }); });
+  ["dragleave","dragend"].forEach(function(ev){ tile.addEventListener(ev,function(e){ e.preventDefault();e.stopPropagation();tile.classList.remove("drag"); }); });
+  tile.addEventListener("drop",function(e){ e.preventDefault();e.stopPropagation();tile.classList.remove("drag"); var dt=e.dataTransfer, f=dt&&dt.files&&dt.files[0]; if(f) applyReplace(f); });
   container.appendChild(tile);
 }
 function refreshFolder(){ renderFileList(); renderImages(); renderCleanup(); }
@@ -2296,7 +2302,7 @@ function renderCleanup(){
 }
 
 /* ================= UI / СБОРКА ================= */
-var MODE="html";
+var MODE="folder";
 var PAGE_IMG={page:null};
 function wirePagePick(id,slot,label){
   var box=document.getElementById(id),inp=box.querySelector("input"),tt=box.querySelector(".t"),xx=box.querySelector(".x");
@@ -2732,7 +2738,10 @@ function enhanceSelect(sel){
     var PLAIN={ offerId:"product_id", geo:"langCode", landingUrl:"landingUrl", streamCode:"streamCode",
                 name:"brand", price:"price", image:"image", backfix:"backfix" };
 
+    var applying=false;   // защита от двойного добавления (paste + клик/Enter одновременно)
     function apply(raw){
+      if(applying) return false; applying=true;
+      setTimeout(function(){ applying=false; }, 500);
       var data;
       try{ data=JSON.parse(String(raw||"").trim()); }catch(e){ data=null; }
       if(!data || typeof data!=="object" || !data["msteam-offer"]){
@@ -2770,19 +2779,24 @@ function enhanceSelect(sel){
     }
 
     btn.addEventListener("click",async function(){
-      // 1) сразу читаем буфер обмена и вставляем — один клик
+      if(btn.dataset.busy==="1") return;                 // один клик — один оффер
+      btn.dataset.busy="1"; btn.disabled=true; var oldTxt=btn.textContent; btn.textContent="⏳";
       try{
-        if(navigator.clipboard && navigator.clipboard.readText){
-          var txt=await navigator.clipboard.readText();
-          if(txt && txt.trim()){ apply(txt); return; }
-        }
-      }catch(e){}
-      // 2) если в поле уже что-то набрано/вставлено — применяем его
-      if(box.value.trim()){ apply(box.value); return; }
-      // 3) браузер не дал прочитать буфер (частый случай при открытии файла локально, file://) —
-      //    ставим фокус в поле: Ctrl+V вставит строку и применит её сам (обработчик paste ниже)
-      box.focus();
-      showTopToast("Нажми Ctrl+V — оффер вставится и применится сам", true);
+        // 1) сразу читаем буфер обмена и вставляем — один клик
+        try{
+          if(navigator.clipboard && navigator.clipboard.readText){
+            var txt=await navigator.clipboard.readText();
+            if(txt && txt.trim()){ apply(txt); return; }
+          }
+        }catch(e){}
+        // 2) если в поле уже что-то набрано/вставлено — применяем его
+        if(box.value.trim()){ apply(box.value); return; }
+        // 3) браузер не дал прочитать буфер (локальный файл) — фокус в поле: Ctrl+V вставит и применит сам
+        box.focus();
+        showTopToast("Нажми Ctrl+V — оффер вставится и применится сам", true);
+      } finally {
+        btn.dataset.busy=""; btn.disabled=false; btn.textContent=oldTxt;
+      }
     });
     // Ctrl+V / правая кнопка → Вставить прямо в поле — применяем СРАЗУ, без кнопки.
     // Применяем на ЛЮБОЙ вставке (apply сам проверит формат и подскажет, если строка не та) —
@@ -2869,12 +2883,13 @@ function enhanceSelect(sel){
   }
   document.getElementById("modeHtml").addEventListener("click",function(){setMode("html");});
   document.getElementById("modeFolder").addEventListener("click",function(){setMode("folder");});
+  setMode("folder");   // папка — основной режим, показываем первым
 
   document.getElementById("folder").addEventListener("change",function(e){
     loadFolder(Array.prototype.map.call(e.target.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};}));
   });
-  // drag-and-drop папки в зону загрузки
-  var drop=document.querySelector(".drop");
+  // drag-and-drop папки в зону загрузки (именно дропзона папки, а не первый .drop на странице — им был lemon.php)
+  var drop=document.querySelector('label.drop[for="folder"]');
   ["dragenter","dragover"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();drop.classList.add("drag");});});
   ["dragleave","dragend"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();drop.classList.remove("drag");});});
   drop.addEventListener("drop",async function(e){
