@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth';
 import { grossUp, DEFAULT_COMMISSION_BPS } from '@/lib/money';
-import { periodKey } from '@/lib/period';
+import { periodKeyOf } from '@/lib/period';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { GRID_CONSUMABLE_NOTE } from '@/lib/consumables';
 
@@ -25,7 +25,7 @@ const DayInput = z.object({
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
 async function assertPeriodOpen(date: Date): Promise<string | null> {
-  const period = await prisma.period.findUnique({ where: { key: periodKey(date) } });
+  const period = await prisma.period.findUnique({ where: { key: periodKeyOf(date) } });
   return period?.status === 'CLOSED' ? 'Период закрыт — правки заблокированы.' : null;
 }
 

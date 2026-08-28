@@ -1,6 +1,6 @@
 import { requireTeamView } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { periodKey } from '@/lib/period';
+import { periodKeyOf } from '@/lib/period';
 import { DEFAULT_COMMISSION_BPS } from '@/lib/money';
 import { GRID_CONSUMABLE_NOTE } from '@/lib/consumables';
 import DayGrid, { type GridSeed } from '@/components/DayGrid';
@@ -28,7 +28,7 @@ export default async function NewDayPage({
     prisma.consumableType.findMany({ orderBy: { name: 'asc' } }),
     prisma.dayReport.findMany({ where: { date: when } }),
     prisma.consumableEntry.findMany({ where: { date: when, note: GRID_CONSUMABLE_NOTE } }),
-    prisma.period.findUnique({ where: { key: periodKey(when) } }),
+    prisma.period.findUnique({ where: { key: periodKeyOf(when) } }),
     // Всё, что до этой даты включительно и ещё не закинуто, плюс уже закрытое
     // за этот день — из этого складывается «сколько нужно закинуть».
     prisma.dayReport.findMany({

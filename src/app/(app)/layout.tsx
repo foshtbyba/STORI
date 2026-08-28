@@ -1,7 +1,7 @@
 import { requireUser } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { weekLabel, weekKey } from '@/lib/period';
+import { periodTitle, periodKeyOf } from '@/lib/period';
 import Contours from '@/components/Contours';
 import TopBar from '@/components/TopBar';
 import Nav from '@/components/Nav';
@@ -43,7 +43,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <TopBar
         title={team ? 'MS TEAM' : (user.buyer?.handle ?? user.name)}
         // В шапке неделя: вся статистика считается за неё.
-        date={weekLabel(weekKey(new Date()))}
+        date={periodTitle(periodKeyOf(new Date()))}
         crew={crew.map((b) => ({ id: b.id, initials: b.initials, color: b.color, handle: b.handle }))}
         nav={<Nav items={items} />}
         role={role}

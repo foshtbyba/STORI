@@ -10,7 +10,7 @@ export default function BuyerCabinet({ data, label }: { data: Data; label: strin
   const rate = data.period.rubPerUsd;
   const peakCents = data.tiers[data.tiers.length - 1]?.fromCents ?? data.baseCents;
   // Дни считаем от календаря, а не от числа отчётов: пустой день — это тоже
-  // день месяца, просто не в плюсе.
+  // день недели, просто не в плюсе.
   const weekDays = 7;
   const greenDays = data.days.filter((d) => profitOf(d) > 0).length;
   const scale = Math.max(peakCents, data.baseCents, 1);

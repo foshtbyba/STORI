@@ -26,7 +26,7 @@ export function parseTiers(json: string | null | undefined): Tier[] {
   }
 }
 
-/** Оклад за период по умолчанию, в рублях. */
+/** Оклад за неделю по умолчанию, в рублях. Расчётный период — неделя. */
 export const DEFAULT_FIXED_RUB = 10_000;
 
 /**

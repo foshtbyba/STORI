@@ -1,7 +1,7 @@
 import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { currentPeriodKey, teamSummary, firstToCross } from '@/lib/queries';
-import { periodLabel, fmtDay } from '@/lib/period';
+import { periodTitle, fmtDay } from '@/lib/period';
 import { prisma } from '@/lib/db';
 import { usd, rub, sum } from '@/lib/money';
 import { payrollTotals, parseTiers, okladCents, DEFAULT_FIXED_RUB } from '@/lib/salary';
@@ -72,7 +72,7 @@ export default async function PayrollPage({
    * деление одного на другое давало числа вроде 102,9%.
    */
   // Разовый бонус «за первые $5 000» вешаем на того, кто дошёл до отметки
-  // раньше всех, а не на того, у кого больше всего к концу месяца.
+  // раньше всех, а не на того, у кого больше всего к концу недели.
   const BONUS_THRESHOLD = 500_000;
   const [firstHit, bonusRows] = team
     ? await Promise.all([
@@ -136,7 +136,7 @@ export default async function PayrollPage({
           icon={<IconChart color="#b4c68c" />}
           tint="bg-sage-t"
           title="Расчётный лист"
-          aside={<span className="text-[12.5px] text-mute">{periodLabel(key)}</span>}
+          aside={<span className="text-[12.5px] text-mute">{periodTitle(key)}</span>}
           right={
             user.role === 'ADMIN' ? (
               <form action={closed ? reopen : close}>

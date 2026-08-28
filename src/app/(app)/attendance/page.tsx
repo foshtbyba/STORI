@@ -1,8 +1,8 @@
 import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { currentPeriodKey } from '@/lib/queries';
+
 import {
-  periodBounds, periodLabel, daysOfPeriod, dayKey, shiftPeriod, fmtDay, weekdayShort,
+  periodBounds, periodLabel, periodKey, daysOfPeriod, dayKey, shiftPeriod, fmtDay, weekdayShort,
 } from '@/lib/period';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import {
@@ -23,7 +23,8 @@ export default async function AttendancePage({
 }) {
   const user = await requireUser();
   const { period } = await searchParams;
-  const key = period ?? (await currentPeriodKey());
+  // Календарь месячный: неделя сеткой не рисуется, да и отпуска смотрят помесячно.
+  const key = period ?? periodKey(new Date());
   const { from, to } = periodBounds(key);
   const scoped = scopeBuyerId(user);
   const team = canSeeTeam(user.role as Role);

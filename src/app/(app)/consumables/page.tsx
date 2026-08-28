@@ -1,8 +1,8 @@
 import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
-import { currentWeek } from '@/lib/queries';
-import { weekBounds, weekKey, weekLabel, fmtDay } from '@/lib/period';
+import { currentPeriodKey } from '@/lib/queries';
+import { periodRange, periodTitle, weekKey, fmtDay } from '@/lib/period';
 import { usd, sum } from '@/lib/money';
 import { addConsumable, deleteConsumable } from '@/app/actions/catalog';
 import { Panel, PanelHead, Avatar, Empty } from '@/components/ui';
@@ -20,9 +20,9 @@ export default async function ConsumablesPage({
   const { week } = await searchParams;
   // Списания недельные, как и вся статистика. Прошлые недели не пропадают —
   // открываются тем же ключом в адресе.
-  const key = week ? weekKey(new Date(`${week}T00:00:00.000Z`)) : (await currentWeek()).key;
-  const { from, to } = weekBounds(key);
-  const label = weekLabel(key);
+  const key = week ? weekKey(new Date(`${week}T00:00:00.000Z`)) : await currentPeriodKey();
+  const { from, to } = periodRange(key);
+  const label = periodTitle(key);
   const scoped = scopeBuyerId(user);
   const canEdit = canSeeTeam(user.role as Role);
 

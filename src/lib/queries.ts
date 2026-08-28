@@ -1,12 +1,12 @@
 import 'server-only';
 import { prisma } from './db';
-import { periodBounds, periodKey, daysOfPeriod, dayKey, weekKey, weekBounds } from './period';
+import { periodRange, periodKeyOf, dayKey, daysOfRange, weekKey, weekBounds } from './period';
 import { profitOf, sum } from './money';
 import { computePayout, parseTiers, DEFAULT_TIERS } from './salary';
 import { fetchRate, rateIsStale } from './rate';
 
 export async function getPeriod(key: string) {
-  // Первый заход в новый месяц приходит сразу с нескольких серверных
+  // Первый заход в новую неделю приходит сразу с нескольких серверных
   // компонентов одной страницы. Пара «найти и создать» на этом гонится:
   // все промахиваются мимо пустой таблицы и лезут вставлять, побеждает один,
   // остальные падают на уникальном ключе. Поэтому вставка атомарная, а гонку
@@ -35,20 +35,7 @@ export async function getPeriod(key: string) {
 }
 
 export async function currentPeriodKey() {
-  return periodKey(new Date());
-}
-
-/**
- * Текущая неделя — то, за что считается вся статистика.
- *
- * Расчётный период остаётся месяцем: оклад месячный, пороги ставки месячные,
- * курс и закрытие тоже месячные. А вот сводка, гора и расходники смотрят на
- * неделю: прошлая неделя в новую не тянется, но и никуда не девается —
- * открывается календарём в архиве.
- */
-export async function currentWeek(): Promise<Range & { key: string }> {
-  const key = weekKey(new Date());
-  return { key, ...weekBounds(key) };
+  return periodKeyOf(new Date());
 }
 
 export type BuyerRow = Awaited<ReturnType<typeof teamSummary>>['buyers'][number];
@@ -64,7 +51,7 @@ export type Range = { from: Date; to: Date };
  * сводка и гора смотрят на текущую неделю, а зарплата на весь месяц.
  */
 export async function teamSummary(key: string, range?: Range) {
-  const { from, to } = range ?? periodBounds(key);
+  const { from, to } = range ?? periodRange(key);
   const [period, buyers, days, consumables, bonuses] = await Promise.all([
     getPeriod(key),
     prisma.buyer.findMany({
@@ -154,11 +141,11 @@ export function dailySeries(key: string, days: { date: Date; revenueCents: numbe
     const k = dayKey(d.date);
     byDay.set(k, (byDay.get(k) ?? 0) + profitOf(d));
   }
-  return daysOfPeriod(key).map((date) => ({ date, profitCents: byDay.get(dayKey(date)) ?? 0 }));
+  return daysOfRange(periodRange(key)).map((date) => ({ date, profitCents: byDay.get(dayKey(date)) ?? 0 }));
 }
 
 export async function buyerSummary(buyerId: string, key: string, range?: Range) {
-  const { from, to } = range ?? periodBounds(key);
+  const { from, to } = range ?? periodRange(key);
   const [period, buyer, days, consumables, bonuses] = await Promise.all([
     getPeriod(key),
     prisma.buyer.findUnique({ where: { id: buyerId }, include: { user: true, salaryRule: true } }),
@@ -229,7 +216,7 @@ export async function defaultTiers() {
  * раньше всех, а не про того, у кого больше всего на конец месяца.
  */
 export async function firstToCross(key: string, thresholdCents: number) {
-  const { from, to } = periodBounds(key);
+  const { from, to } = periodRange(key);
   const [days, buyers] = await Promise.all([
     prisma.dayReport.findMany({
       where: { date: { gte: from, lt: to } },

@@ -1,4 +1,26 @@
-/** Periods are calendar months keyed as YYYY-MM. */
+/**
+ * Расчётный период — НЕДЕЛЯ, с понедельника по воскресенье, и ключом ей
+ * служит дата понедельника: 2026-08-24. За неделю считается всё — статистика,
+ * оклад, пороги ставки, курс и закрытие.
+ *
+ * Месячные помощники ниже остались для календаря посещаемости: там нужна
+ * именно сетка месяца, неделя её не заменяет.
+ */
+export function periodKeyOf(date: Date) {
+  return weekKey(date);
+}
+
+/** Границы расчётного периода. */
+export function periodRange(key: string) {
+  return weekBounds(key);
+}
+
+/** Подпись расчётного периода: «24 — 30 августа». */
+export function periodTitle(key: string) {
+  return weekLabel(key);
+}
+
+/** Календарные месяцы: YYYY-MM. Нужны только календарю посещаемости. */
 export function periodKey(date: Date) {
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
 }

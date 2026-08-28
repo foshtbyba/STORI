@@ -1,7 +1,7 @@
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { currentPeriodKey, currentWeek, teamSummary, defaultTiers, allTimeProfit } from '@/lib/queries';
-import { weekLabel } from '@/lib/period';
+import { currentPeriodKey, teamSummary, defaultTiers, allTimeProfit } from '@/lib/queries';
+import { periodRange, periodTitle } from '@/lib/period';
 import { usd } from '@/lib/money';
 import { parseTiers } from '@/lib/salary';
 import { DEFAULT_TERRAIN, weekSeed, getTerrain } from '@/lib/terrain';
@@ -16,10 +16,10 @@ const STEMS = [96, 78, 74, 84, 70, 80, 72, 88, 76, 82];
 
 export default async function PeakPage() {
   const user = await requireUser();
-  const key = await currentPeriodKey();
   // Гора недельная: в понедельник склон обнуляется и все стартуют заново.
-  const week = await currentWeek();
-  const label = weekLabel(week.key);
+  const key = await currentPeriodKey();
+  const week = periodRange(key);
+  const label = periodTitle(key);
   const summary = await teamSummary(key, week);
   // Неделя показывает форму, а общий минус — сколько человек должен вообще.
   const allTime = await allTimeProfit();

@@ -1,8 +1,8 @@
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { currentPeriodKey, currentWeek, teamSummary, buyerSummary, allTimeProfit } from '@/lib/queries';
+import { currentPeriodKey, teamSummary, buyerSummary, allTimeProfit } from '@/lib/queries';
 import { usd, rub, sum, profitOf } from '@/lib/money';
-import { weekLabel, daysOfRange, dayKey } from '@/lib/period';
+import { periodRange, periodTitle, daysOfRange, dayKey } from '@/lib/period';
 import { Panel, PanelHead, Sub, Avatar, Empty } from '@/components/ui';
 import { ProfitBars, Meter } from '@/components/Charts';
 import { IconChart, IconWallet, IconBox, IconWarn, IconUsers } from '@/components/icons';
@@ -10,10 +10,10 @@ import BuyerCabinet from '@/components/BuyerCabinet';
 
 export default async function HomePage() {
   const user = await requireUser();
+  // Расчётный период — неделя: и статистика, и зарплата считаются за неё.
   const key = await currentPeriodKey();
-  // Статистика недельная: прошлая неделя в новую не тянется.
-  const week = await currentWeek();
-  const label = weekLabel(week.key);
+  const week = periodRange(key);
+  const label = periodTitle(key);
 
   if (!canSeeTeam(user.role as Role)) {
     if (!user.buyer) return <Empty>У аккаунта нет профиля баера — попроси админа его создать.</Empty>;
