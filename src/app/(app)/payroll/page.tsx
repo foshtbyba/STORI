@@ -264,8 +264,45 @@ export default async function PayrollPage({
               </span>
             }
           />
+          {/*
+            На телефоне столбики шириной в полсотни пикселей превращаются в
+            кашу: подписи переносятся, а карточки под разными по высоте
+            столбиками разъезжаются по вертикали. Там лесенка идёт списком —
+            порог, ставка, выплата в строку.
+          */}
+          <div className="mt-4 flex flex-col gap-2 sm:hidden">
+            <div className="grid grid-cols-[1fr_auto_auto] items-center gap-3 rounded-[16px] px-4 py-3" style={{ background: '#2c1f1a' }}>
+              <span className="n text-[12px] text-mute">до {usd(minTier)}</span>
+              <span className="n text-[13px] font-bold text-rust">оклад</span>
+              <span className="n w-[92px] text-right text-[14px] font-semibold">
+                {usd(okladUsdCents)}
+                <span className="n mt-0.5 block text-[10.5px] font-normal text-mute">
+                  {okladRub.toLocaleString('ru-RU')} ₽
+                </span>
+              </span>
+            </div>
+            {ladder.map((tier) => (
+              <div
+                key={tier.fromCents}
+                className="grid grid-cols-[1fr_auto_auto] items-center gap-3 rounded-[16px] px-4 py-3"
+                style={{
+                  background: tier.ratePct >= 50 ? '#3a452e' : tier.ratePct >= 40 ? '#31382a' : '#282c24',
+                }}
+              >
+                <span className="n text-[12px] text-mute">от {usd(tier.fromCents)}</span>
+                <span className="n text-[15px] font-bold text-sage">{tier.ratePct}%</span>
+                <span className="n w-[92px] text-right text-[14px] font-semibold">
+                  {usd(Math.round((tier.fromCents * tier.ratePct) / 100))}
+                  <span className="n mt-0.5 block text-[10.5px] font-normal text-mute">
+                    {rub(Math.round((tier.fromCents * tier.ratePct) / 100), rate)}
+                  </span>
+                </span>
+              </div>
+            ))}
+          </div>
+
           <div
-            className="mt-5 grid gap-3"
+            className="mt-5 hidden gap-3 sm:grid"
             style={{ gridTemplateColumns: `repeat(${Math.max(1, ladder.length) + 1}, minmax(0,1fr))` }}
           >
             <div>

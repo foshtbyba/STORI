@@ -26,8 +26,8 @@ export default function TopBar({
   }
 
   return (
-    <Panel as="div" className="flex h-[62px] items-center justify-between gap-3 pl-3 pr-2.5 sm:h-[78px] sm:gap-6 sm:pl-4 sm:pr-3.5">
-      <div className="flex min-w-0 flex-1 items-center gap-2.5 overflow-hidden sm:gap-4">
+    <Panel as="div" className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 p-2.5 sm:h-[78px] sm:flex-nowrap sm:gap-6 sm:p-0 sm:pl-4 sm:pr-3.5">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2.5 gap-y-2 sm:flex-nowrap sm:overflow-hidden sm:gap-4">
         <Link href="/" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sage-t sm:h-[42px] sm:w-[42px]">
           <IconPeak color="#b4c68c" size={19} />
         </Link>
@@ -40,7 +40,7 @@ export default function TopBar({
         ) : null}
       </div>
 
-      <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+      <div className="flex shrink-0 items-center gap-2 self-start pt-0.5 sm:gap-4 sm:self-auto sm:pt-0">
         <span className="hidden items-center gap-3 rounded-full bg-sub py-1.5 pl-3.5 pr-3 xl:flex">
           <span className="flex">
             {crew.map((c) => (

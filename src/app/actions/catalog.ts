@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireTeamView } from '@/lib/auth';
 import { moneyInputToCents } from '@/lib/format';
-import { DEFAULT_BACKFIX } from '@/lib/builder';
+import { DEFAULT_BACKFIX, partnerOf } from '@/lib/builder';
 
 const list = (raw: FormDataEntryValue | null) =>
   JSON.stringify(
@@ -52,7 +52,12 @@ export async function saveOffer(formData: FormData) {
   const data = {
     name: String(formData.get('name') ?? '').trim(),
     vertical: String(formData.get('vertical') ?? '').trim(),
-    network: String(formData.get('network') ?? '').trim(),
+    // Название партнёрки больше не вводят руками — оно и есть выбранная в
+    // списке. Если партнёрка не выбрана, оставляем прежнюю подпись: у старых
+    // офферов там может быть имя, которого в списке конструктора нет.
+    network:
+      partnerOf(String(formData.get('partnerKey') ?? '').trim())?.label ??
+      String(formData.get('network') ?? '').trim(),
     status: String(formData.get('status') ?? 'ACTIVE'),
     payout: String(formData.get('payout') ?? '').trim(),
     geosJson: list(formData.get('geos')),

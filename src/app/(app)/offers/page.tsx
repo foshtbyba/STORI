@@ -37,7 +37,7 @@ export default async function OffersPage({
   return (
     <div className="flex flex-col gap-3.5">
       <Panel className="flex flex-wrap items-center gap-3 px-4 py-3 sm:h-[68px] sm:flex-nowrap sm:gap-6 sm:px-5 sm:py-0">
-        <div className="no-scrollbar -mx-1 flex min-w-0 flex-1 items-center gap-2 overflow-x-auto px-1 sm:gap-2.5">
+        <div className="no-scrollbar flex basis-full items-center gap-2 overflow-x-auto sm:min-w-0 sm:basis-auto sm:flex-1 sm:gap-2.5">
           <a
             href="/offers"
             className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[13px] ${!status ? 'bg-raise font-semibold' : 'bg-sub text-mute'}`}
@@ -57,11 +57,11 @@ export default async function OffersPage({
             );
           })}
         </div>
-        <div className="flex-1" />
+        <div className="hidden flex-1 sm:block" />
         {team ? (
           <a
             href="/offers?new=1"
-            className="flex shrink-0 items-center gap-2 rounded-full bg-sage px-4 py-2.5 text-[13px] font-semibold text-bg"
+            className="flex w-full shrink-0 items-center justify-center gap-2 rounded-full bg-sage px-4 py-2.5 text-[13px] font-semibold text-bg sm:w-auto"
           >
             <IconPlus color="#141414" size={13} width={2.8} />
             Оффер

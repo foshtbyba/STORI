@@ -111,6 +111,8 @@ export default function OfferForm({
     >
       {draft.id ? <input type="hidden" name="id" value={draft.id} /> : null}
       <input type="hidden" name="geoRows" value={payload} />
+      {/* Прежнее название партнёрки: пригодится, если её нет в списке. */}
+      <input type="hidden" name="network" value={v.network} />
       <PanelHead
         icon={<IconTag color="#b4c68c" />}
         tint="bg-sage-t"
@@ -133,7 +135,16 @@ export default function OfferForm({
           <label className="mb-1.5 block text-[11.5px] text-mute">Статус</label>
           <Select name="status" value={v.status} onChange={set('status')} options={statuses} />
         </div>
-        <Field label="Партнёрка · название" name="network" value={v.network} onChange={set('network')} placeholder="Как её называем" />
+        <div>
+          <label className="mb-1.5 block text-[11.5px] text-mute">Партнёрка</label>
+          <Select
+            name="partnerKey"
+            value={v.partnerKey}
+            onChange={set('partnerKey')}
+            placeholder="Не выбрана"
+            options={PARTNERS.map((p) => ({ value: p.key, label: p.label }))}
+          />
+        </div>
         <Field label="Гео через запятую" name="geos" value={v.geos} onChange={set('geos')} placeholder="IT, ES, PT" />
         <Field
           label="Регионы-исключения"
@@ -179,16 +190,16 @@ export default function OfferForm({
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-[11.5px] text-mute">Партнёрка в конструкторе</label>
-            <Select
-              name="partnerKey"
-              value={v.partnerKey}
-              onChange={set('partnerKey')}
-              placeholder="Не выбрана"
-              options={PARTNERS.map((p) => ({ value: p.key, label: p.label }))}
-            />
+            <label className="mb-1.5 block text-[11.5px] text-mute">Партнёрка</label>
+            <div className="flex h-11 items-center rounded-xl border border-line bg-sub px-3.5 text-[14px]">
+              {partner ? (
+                <span>{partner.label}</span>
+              ) : (
+                <span className="text-dim">выбери партнёрку выше</span>
+              )}
+            </div>
             <p className="mt-1.5 text-[11px] leading-relaxed text-dim">
-              Список — партнёрки, заведённые в конструкторе.
+              От неё зависит, что нужно заполнить по каждому гео.
             </p>
           </div>
           <Field
