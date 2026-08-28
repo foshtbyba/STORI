@@ -2617,10 +2617,13 @@ function showTopToast(msg,isErr){
       box.focus();
       showTopToast("Нажми Ctrl+V — оффер вставится и применится сам", true);
     });
-    // Ctrl+V прямо в поле — вставка срабатывает сама, без нажатия кнопки.
+    // Ctrl+V / правая кнопка → Вставить прямо в поле — применяем СРАЗУ, без кнопки.
+    // Применяем на ЛЮБОЙ вставке (apply сам проверит формат и подскажет, если строка не та) —
+    // это надёжно работает даже когда браузер запрещает чтение буфера по кнопке (локальный файл).
     box.addEventListener("paste",function(e){
-      var txt=(e.clipboardData||window.clipboardData).getData("text");
-      if(txt&&txt.indexOf("msteam-offer")>-1){ e.preventDefault(); apply(txt); }
+      var cd=e.clipboardData||window.clipboardData;
+      var txt=cd?cd.getData("text"):"";
+      if(txt&&txt.trim()){ e.preventDefault(); box.value=txt.trim(); apply(txt); }
     });
     box.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); btn.click(); } });
   })();
