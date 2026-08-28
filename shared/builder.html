@@ -683,6 +683,113 @@
       <div class="hint" style="margin-top:2px">По умолчанию выключено: готовый ленд чистый, без служебных <code>&lt;!-- … --&gt;</code> конструктора. Включи, если хочешь видеть пометки, что и куда вставлено.</div>
     </div>
 
+    <div id="trWrap" class="grp" style="margin-top:14px">
+      <div class="gtoggle" data-target="trBody"><span class="chev">▸</span> 🌐 Перевод ленда через Claude</div>
+      <div id="trBody" style="display:none">
+        <label>API-ключ Anthropic</label>
+        <input id="trKey" type="password" placeholder="sk-ant-...">
+        <div class="hint" style="margin-top:2px">Ключ хранится только в этой вкладке (в память сессии), никуда не отправляется кроме api.anthropic.com.</div>
+        <label style="margin-top:10px">Модель</label>
+        <select id="trModel">
+          <option value="claude-opus-5">Opus 5 — лучшее качество</option>
+          <option value="claude-sonnet-5">Sonnet 5 — дешевле/быстрее</option>
+          <option value="claude-haiku-4-5">Haiku 4.5 — самый дешёвый</option>
+        </select>
+        <label style="margin-top:10px">Доп. переменные (форма продукта, состав, пожелания)</label>
+        <textarea id="trVars" style="min-height:90px" placeholder="ФОРМА ПРОДУКТА: гель
+ТЕКУЩАЯ ФОРМА: капсулы
+ИСХОДНЫЙ ЯЗЫК: (опц., иначе определит сам)
+ДОП. ПОЖЕЛАНИЯ: состав и особенности приёма — загугли; тон, имя эксперта, портал и т.п."></textarea>
+        <div class="hint" style="margin-top:2px">Автоматом из полей выше подставятся: <b>ОФФЕР</b> (бренд), <b>ЯЗЫК</b>, <b>ГЕО</b>, <b>ЦЕНА</b>, <b>СТАРАЯ ЦЕНА</b>. Здесь допиши остальное.</div>
+        <div class="subtoggle" data-target="trPromptWrap" style="margin-top:8px"><span class="chev">▸</span> Промт (расширенно, можно править)</div>
+        <div id="trPromptWrap" style="display:none"><textarea id="trPrompt" style="min-height:200px">Ты — инструмент подготовки рекламных лендингов. Тебе дают БЛОК ПЕРЕМЕННЫХ и полный HTML ленда.
+Верни РОВНО ОДИН готовый HTML-файл, выполнив все шаги ниже. В ответе — только код, без пояснений.
+
+### 0. Форматирование кода (ГЛАВНОЕ ПРАВИЛО)
+- Меняй ТОЛЬКО текстовое содержимое и указанные атрибуты. Саму разметку не трогай:
+  сохрани один-в-один отступы, переносы строк, вложенность и выравнивание оригинала.
+- НЕ переформатируй, НЕ «сплющивай» теги в одну строку, НЕ переставляй атрибуты,
+  НЕ добавляй и НЕ убирай пустые строки, НЕ меняй стиль кавычек. Диф должен быть
+  минимальным — как будто правил только слова внутри тегов.
+- Если удаляешь блок (скрипт/пиксель/мусор) — убери и лишние пустые строки/отступ от него,
+  не оставляй за собой комментариев-заглушек. Всё остальное форматирование не трогай.
+
+### 1. Перевод
+- Переведи ВЕСЬ видимый текст на язык из «ЯЗЫК»: заголовки, абзацы, подписи к фото, отзывы,
+  таблицы, кнопки, плейсхолдеры, <title>. Перевод — естественный, «нативный»,
+  как писал бы носитель; не дословный, адаптируй идиомы и медицинские формулировки.
+- alt-атрибуты картинок НЕ переводи — оставляй как в исходном ленде.
+- HTML-теги, классы, структуру, ссылки и порядок блоков НЕ меняй — переводится только текст.
+- Проставь lang у <html> под язык. Для арабского/иврита/урду/фарси добавь dir="rtl".
+
+### 2. Локализация под ГЕО
+- Имя врача/эксперта → типичное имя для страны «ГЕО».
+- Города и регионы в тексте → реальные города «ГЕО».
+- Национальность/«жители страны», названия учреждений → как принято в «ГЕО».
+- Имена авторов отзывов → характерные местные имена и фамилии.
+- Название портала/сайта в шапке и подвале → уместное локальное (в том же стиле).
+- Валюта и формат чисел — по локали «ГЕО».
+- Медицинские факты, проценты, цифры исследований оставь без изменений.
+
+### 3. Имя оффера
+- Замени название продукта на значение «ОФФЕР» ВЕЗДЕ: в тексте, заголовках, <title>,
+  отзывах, форме. Если задано «ТЕКУЩЕЕ ИМЯ ОФФЕРА» — заменяй именно его; иначе определи
+  текущее название сам и замени все его вхождения.
+- Имена файлов картинок (src) и alt-атрибуты НЕ трогай — оставляй как в исходном ленде.
+
+### 3.5. Форма продукта (капсулы → гель и т.п.)
+- Если задана «ФОРМА ПРОДУКТА» и она отличается от той, что в исходном ленде — замени
+  упоминания старой формы на новую ПО ВСЕМУ тексту. Если задана «ТЕКУЩАЯ ФОРМА» — заменяй
+  именно её; иначе определи текущую форму сам (капсулы/таблетки/флакон/крем/…).
+- Меняй не только само слово, но и всё, что с ним связано, чтобы текст остался логичным:
+  единицы и тару, глаголы применения (принимать→наносить), счётные слова и дозировки.
+- Не выдумывай новых обещаний и цифр — меняешь только форму подачи, факты/проценты оставь.
+- Если «ФОРМА ПРОДУКТА» не задана — ничего не меняй, оставь форму как в оригинале.
+
+### 4. Цена
+- Поставь «ЦЕНА» как основную цену оффера во всех местах, где она показывается.
+- Если задана «СТАРАЯ ЦЕНА» — используй её как зачёркнутую старую; если не задана, но в макете
+  есть зачёркнутая цена — поставь правдоподобную бо́льшую круглую сумму в той же валюте.
+- Валюту бери из «ЦЕНА» и держи одинаковой по всему ленду.
+
+### 5. Очистка (техническая обвязка)
+СНАЧАЛА определи тип страницы. Если есть механика открывающегося сундука/рулетки
+(#pushChest, классы chest…, saleBox, монеты/coin, bounce.js, spin/scratch/wheel,
+«крутить/открыть/приз») — это СУНДУК, работай по 5-Б. Иначе — обычный ленд, 5-А.
+НИКОГДА не удаляй и не меняй визуал: <style>, <link rel="stylesheet">, favicon, class, id,
+inline-style, вёрстку. Чистка касается ТОЛЬКО скриптов/пикселей/мусора, не оформления.
+5-А. Обычный ленд — удали полностью: все внешние скрипты, все инлайновые скрипты (отправка,
+ленивая загрузка, скролл), блок Meta Pixel/Facebook целиком, атрибуты on* со всех тегов,
+макросы трекера {fbpx}/{subid}/{sub_id_30} и любые {…}, скрытый служебный мусор прелендов.
+5-Б. Сундук — чистим ВЫБОРОЧНО: ОСТАВЬ bounce.js и любые скрипты открытия/анимации сундука,
+обработчики клика по #pushChest, логику монет/рулетки/приза, jQuery если от него зависит
+анимация. Удали только явный шлак: отправку/трекер, пиксель/аналитику, скрытые трекер-inputs,
+макросы {…}. Даты dtime_nums(…) → статичная дата. Сомневаешься — ОСТАВЬ.
+Для обеих: инлайновые даты <script>dtime_nums(…)</script> → статичной датой формата страницы.
+Удаляй аккуратно, без комментариев-заглушек.
+
+### 6. Форма заказа → контракт конструктора
+- Тег формы: добавь data-order-form. Убери action, method, onsubmit. id формы ОСТАВЬ как есть.
+- Поле имени: input type="text" name="name". Поле телефона: input type="tel" name="phone".
+- Кнопка: button type="submit" или input type="submit".
+- Удали скрытые поля product_id, ref, langCode, api_key, webmaster_* — их подставит конструктор.
+- Если форм несколько — оставь только форму заказа.
+
+### 7. Двойная верификация (ОБЯЗАТЕЛЬНО)
+Проход 1 — найди ВСЕ фрагменты на исходном языке (кроме <style>/@font-face/CSS-переменных)
+и переведи их. Проход 2 — проверь, что ни один src/href файла не изменился; если при замене
+имени оффера случайно изменился src — откати src к оригиналу.
+
+### 8. Результат
+- Один валидный HTML, без единого <script> (кроме сундука). Ноль исходного языка в видимом тексте.
+- Все src/href файлов как в оригинале. DOCTYPE→html→head→body, UTF-8.
+- Сохрани всю вёрстку/стили/картинки. НИЧЕГО не добавляй от себя (ни пикселей, ни скриптов формы).
+- Верни только код итогового файла.</textarea></div>
+        <button class="btn" id="trRun" type="button" style="margin-top:10px">🌐 Перевести ленд</button>
+        <div class="status" id="trStatus"></div>
+      </div>
+    </div>
+
     <button class="btn" id="build">⚙️ Собрать</button>
     <div id="buildBar" class="buildbar"><i></i></div>
     <div class="status" id="status"></div>
@@ -2783,6 +2890,93 @@ function enhanceSelect(sel){
   document.getElementById("btnChest").addEventListener("click",downloadChestZip);
   document.querySelectorAll(".tab").forEach(function(el){el.addEventListener("click",function(){showTab(el.dataset.t);});});
   document.querySelectorAll(".dl button[data-f]").forEach(function(b){b.addEventListener("click",function(){if(!FILES.index)build();var f=b.dataset.f;dl(f+".html",FILES[f]);});});
+})();
+</script>
+
+<script>
+/* ================= ПЕРЕВОД ЛЕНДА ЧЕРЕЗ CLAUDE ================= */
+(function(){
+  var keyEl=document.getElementById("trKey"), modelEl=document.getElementById("trModel"),
+      varsEl=document.getElementById("trVars"), promptEl=document.getElementById("trPrompt"),
+      runBtn=document.getElementById("trRun"), st=document.getElementById("trStatus");
+  if(!runBtn) return;
+  try{ enhanceSelect(modelEl); }catch(e){}
+  function status(msg,cls){ st.className="status"+(cls?(" "+cls):""); st.textContent=msg; }
+  // блок переменных: авто из полей билдера + ручной ввод
+  function varsBlock(){
+    var cfg=readCfg(), lines=[];
+    var ul=document.getElementById("uiLang"), o=ul.options[ul.selectedIndex], langName=o?o.textContent:cfg.langCode;
+    if(cfg.brand && cfg.brand!=="Product") lines.push("ОФФЕР (новое имя продукта): "+cfg.brand);
+    if(langName) lines.push("ЯЗЫК (на какой перевести): "+langName);
+    if(cfg.langCode) lines.push("ГЕО (страна/код): "+cfg.langCode);
+    if(cfg.price && cfg.price!=="—" && /\d/.test(cfg.price)){
+      lines.push("ЦЕНА (на ленде): "+cfg.price);
+      try{ var was=doubleCalc(cfg.price).full; if(was) lines.push("СТАРАЯ ЦЕНА (зачёркнутая): "+was); }catch(e){}
+    }
+    var manual=(varsEl.value||"").trim(); if(manual) lines.push(manual);
+    return lines.join("\n");
+  }
+  // источник и приёмник index (папка или вставленный HTML)
+  function indexSrc(){
+    if(MODE==="folder" && FOLDER && FOLDER.indexPath){ var f=FOLDER.files.filter(function(x){return x.path===FOLDER.indexPath;})[0]; return f?f.str:""; }
+    return document.getElementById("html").value||"";
+  }
+  function putIndex(str){
+    if(MODE==="folder" && FOLDER && FOLDER.indexPath){ FOLDER.files.forEach(function(x){ if(x.path===FOLDER.indexPath) x.str=str; }); }
+    else document.getElementById("html").value=str;
+  }
+  function stripFence(s){ s=String(s||"").trim(); var m=s.match(/^```[a-zA-Z]*\s*\n([\s\S]*?)\n```$/); if(m) return m[1].trim(); return s.replace(/^```[a-zA-Z]*\s*/,"").replace(/\s*```$/,"").trim(); }
+
+  runBtn.addEventListener("click",async function(){
+    if(runBtn.dataset.busy==="1") return;
+    var key=(keyEl.value||"").trim();
+    if(!key){ status("Вставь API-ключ Anthropic (sk-ant-…)","warn"); return; }
+    var html=indexSrc();
+    if(!html || !html.trim()){ status("Нет ленда: загрузи папку или вставь HTML во вкладке «Вставить HTML»","warn"); return; }
+    var model=modelEl.value, system=(promptEl.value||"").trim();
+    var user=varsBlock()+"\n\nHTML:\n"+html;
+    runBtn.dataset.busy="1"; runBtn.disabled=true; var old=runBtn.textContent; runBtn.textContent="⏳ Перевожу…";
+    status("Отправляю в Claude ("+model+")… это может занять минуту","");
+    try{
+      var res=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{
+          "content-type":"application/json",
+          "x-api-key":key,
+          "anthropic-version":"2023-06-01",
+          "anthropic-dangerous-direct-browser-access":"true"
+        },
+        body:JSON.stringify({ model:model, max_tokens:64000, stream:true, system:system, messages:[{role:"user",content:user}] })
+      });
+      if(!res.ok){ var t=""; try{t=await res.text();}catch(e){} status("Ошибка API "+res.status+": "+t.slice(0,240),"warn"); return; }
+      // читаем SSE-поток, копим текст ответа
+      var reader=res.body.getReader(), dec=new TextDecoder(), buf="", out="";
+      while(true){
+        var r=await reader.read(); if(r.done) break;
+        buf+=dec.decode(r.value,{stream:true});
+        var parts=buf.split("\n"); buf=parts.pop();
+        for(var i=0;i<parts.length;i++){
+          var line=parts[i]; if(line.indexOf("data:")!==0) continue;
+          var d=line.slice(5).trim(); if(!d||d==="[DONE]") continue;
+          try{
+            var ev=JSON.parse(d);
+            if(ev.type==="content_block_delta" && ev.delta && ev.delta.type==="text_delta"){ out+=ev.delta.text; status("Перевожу… получено "+out.length+" симв.",""); }
+            else if(ev.type==="error"){ status("Ошибка Claude: "+((ev.error&&ev.error.message)||"unknown"),"warn"); return; }
+          }catch(e){}
+        }
+      }
+      out=stripFence(out);
+      if(!out || out.length<100 || !/<html|<!doctype/i.test(out)){ status("Claude вернул подозрительно короткий/непохожий на HTML ответ — проверь ключ/лимиты","warn"); return; }
+      putIndex(out);
+      try{ build(); }catch(e){}
+      showTab(MODE==="folder"?"preview":"preview");
+      status("Готово ✓ Ленд переведён и вставлен обратно — можно собирать","ok");
+    }catch(err){
+      status("Сбой запроса: "+(err&&err.message||err)+". Если это CORS/сеть — открой билдер по ссылке (http), а не как файл, либо проверь ключ.","warn");
+    }finally{
+      runBtn.dataset.busy=""; runBtn.disabled=false; runBtn.textContent=old;
+    }
+  });
 })();
 </script>
 </body>
