@@ -2573,11 +2573,19 @@ function showTopToast(msg,isErr){
         var el=document.getElementById(PLAIN[k]);
         if(el && data[k]!=null && String(data[k]).trim()!==""){ el.value=String(data[k]).trim(); filled.push(k); }
       });
-      if(data.uiLang){
+      // Язык служебных страниц. Если пришёл код, которого у нас в списке нет
+      // (в поле легко вписать код гео вместо кода языка), пробуем перевести
+      // его в язык — молча оставлять английский хуже.
+      var GEO2UI={cz:"cs",at:"de",ch:"de",be:"fr",gr:"el",dk:"da",se:"sv",ee:"et",si:"sl",
+                  ua:"uk",pk:"ur",ae:"ar",sa:"ar",ma:"ar",eg:"ar",il:"he",ph:"tl",
+                  gb:"en",uk:"en",us:"en",au:"en",ie:"en",ca:"en",
+                  mx:"es",cl:"es",co:"es",pe:"es",ar:"es",br:"pt",rs:"sr",by:"ru",kz:"ru"};
+      var want=String(data.uiLang||data.geo||"").trim().toLowerCase().split(/[-_]/)[0];
+      if(want){
         var ui=document.getElementById("uiLang");
-        if(ui && Array.prototype.some.call(ui.options,function(o){return o.value===data.uiLang;})){
-          ui.value=data.uiLang; filled.push("uiLang");
-        }
+        var has=function(v){ return ui && Array.prototype.some.call(ui.options,function(o){return o.value===v;}); };
+        var code=has(want)?want:(has(GEO2UI[want])?GEO2UI[want]:"");
+        if(code){ ui.value=code; filled.push("uiLang"); }
       }
       if(data.partner){
         if(Array.prototype.some.call(sel.options,function(o){return o.value===data.partner;})){

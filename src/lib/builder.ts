@@ -89,9 +89,11 @@ export function builderPayload(o: BuilderOffer): string {
   put('streamCode', o.streamCode);
   put('price', o.price);
   put('backfix', o.backfix);
-  // Язык служебных страниц почти всегда следует из гео — если своего нет,
-  // выводим его и не заставляем заполнять одно и то же дважды.
-  put('uiLang', o.uiLang || uiLangFor(o.langCode));
+  // Язык служебных страниц. Введённый руками тоже прогоняем через таблицу:
+  // в поле легко вписать код гео вместо кода языка («cz» вместо «cs»), а
+  // конструктор такой код просто не найдёт у себя в списке и оставит
+  // английский. Не распознали введённое — выводим язык из гео.
+  put('uiLang', uiLangFor(o.uiLang) || uiLangFor(o.langCode));
   // Картинку в ленде конструктор подбирает сам из папки — не навязываем.
   return JSON.stringify({ [BUILDER_TAG]: BUILDER_VERSION, ...body });
 }
