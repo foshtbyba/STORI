@@ -24,24 +24,41 @@ export function ProfitBars({
         <span className="n text-[10.5px] text-faint">0</span>
       </div>
       <div className="min-w-0 flex-1">
+        {/*
+          Столбец целиком — одна наводимая колонка: попасть курсором в тонкую
+          полоску убытка сложно, а знать сумму хочется по любому дню.
+        */}
         <div className="flex items-end gap-1.5" style={{ height }}>
           {data.map((d, i) => (
-            <div key={i} className="flex flex-1 items-end" style={{ height }} title={usd(d.profitCents, { sign: true })}>
+            <div key={i} className="group relative flex flex-1 items-end" style={{ height }}>
               <div
-                className="w-full rounded-[5px] bg-sage"
+                className="w-full rounded-[5px] bg-sage transition-opacity group-hover:opacity-80"
                 style={{ height: d.profitCents > 0 ? Math.max(3, (d.profitCents / peak) * height) : 0 }}
               />
+              <span
+                className="n pointer-events-none absolute bottom-full left-1/2 z-20 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-full border border-line2 bg-raise px-2.5 py-1 text-[11.5px] font-semibold opacity-0 shadow-lg shadow-black/40 transition-opacity group-hover:opacity-100"
+                style={{ color: d.profitCents >= 0 ? '#b4c68c' : '#ce6e58' }}
+              >
+                {String(d.date.getUTCDate()).padStart(2, '0')}.
+                {String(d.date.getUTCMonth() + 1).padStart(2, '0')} · {usd(d.profitCents, { sign: true })}
+              </span>
             </div>
           ))}
         </div>
         <div className="mt-1 h-px bg-line2" />
         <div className="flex items-start gap-1.5" style={{ height: lossHeight }}>
           {data.map((d, i) => (
-            <div key={i} className="flex-1">
+            <div key={i} className="group relative flex-1">
               <div
-                className="w-full rounded-[5px] bg-rust"
+                className="w-full rounded-[5px] bg-rust transition-opacity group-hover:opacity-80"
                 style={{ height: d.profitCents < 0 ? Math.max(3, (-d.profitCents / worst) * lossHeight) : 0 }}
               />
+              <span
+                className="n pointer-events-none absolute left-1/2 top-full z-20 mt-1.5 -translate-x-1/2 whitespace-nowrap rounded-full border border-line2 bg-raise px-2.5 py-1 text-[11.5px] font-semibold text-rust opacity-0 shadow-lg shadow-black/40 transition-opacity group-hover:opacity-100"
+              >
+                {String(d.date.getUTCDate()).padStart(2, '0')}.
+                {String(d.date.getUTCMonth() + 1).padStart(2, '0')} · {usd(d.profitCents, { sign: true })}
+              </span>
             </div>
           ))}
         </div>

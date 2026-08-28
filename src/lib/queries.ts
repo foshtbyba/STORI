@@ -1,6 +1,6 @@
 import 'server-only';
 import { prisma } from './db';
-import { periodRange, periodKeyOf, dayKey, daysOfRange, weekKey, weekBounds } from './period';
+import { periodRange, periodKeyOf, dayKey, daysOfRange, weekKey, weekBounds, rangeOf, titleOf, weeksOfRange } from './period';
 import { profitOf, sum } from './money';
 import { computePayout, parseTiers, DEFAULT_TIERS } from './salary';
 import { fetchRate, rateIsStale } from './rate';
@@ -134,16 +134,6 @@ export async function teamSummary(key: string, range?: Range) {
   };
 }
 
-/** Profit per calendar day, zero-filled so the chart never has gaps. */
-export function dailySeries(key: string, days: { date: Date; revenueCents: number; spendGrossCents: number }[]) {
-  const byDay = new Map<string, number>();
-  for (const d of days) {
-    const k = dayKey(d.date);
-    byDay.set(k, (byDay.get(k) ?? 0) + profitOf(d));
-  }
-  return daysOfRange(periodRange(key)).map((date) => ({ date, profitCents: byDay.get(dayKey(date)) ?? 0 }));
-}
-
 export async function buyerSummary(buyerId: string, key: string, range?: Range) {
   const { from, to } = range ?? periodRange(key);
   const [period, buyer, days, consumables, bonuses] = await Promise.all([
@@ -160,11 +150,16 @@ export async function buyerSummary(buyerId: string, key: string, range?: Range) 
     }),
     prisma.bonus.findMany({ where: { buyerId, periodKey: key } }),
   ]);
-  // Итог за всё время — по всем отчётам баера, без границ периода.
-  const lifetime = await prisma.dayReport.aggregate({
-    where: { buyerId },
-    _sum: { revenueCents: true, spendGrossCents: true },
-  });
+  // Итог за всё время — по всем отчётам баера, без границ периода. Расходники
+  // вычитаем и здесь: у админа в таблице стоит та же цифра, и расходиться они
+  // не должны.
+  const [lifetime, lifetimeSpent] = await Promise.all([
+    prisma.dayReport.aggregate({
+      where: { buyerId },
+      _sum: { revenueCents: true, spendGrossCents: true },
+    }),
+    prisma.consumableEntry.aggregate({ where: { buyerId }, _sum: { totalCents: true } }),
+  ]);
   if (!buyer) return null;
 
   const revenueCents = sum(days, (d) => d.revenueCents);
@@ -188,7 +183,9 @@ export async function buyerSummary(buyerId: string, key: string, range?: Range) 
     days,
     consumables,
     allTimeCents:
-      (lifetime._sum.revenueCents ?? 0) - (lifetime._sum.spendGrossCents ?? 0),
+      (lifetime._sum.revenueCents ?? 0) -
+      (lifetime._sum.spendGrossCents ?? 0) -
+      (buyer.consumablesAffectSalary ? (lifetimeSpent._sum.totalCents ?? 0) : 0),
     /** Чистыми за отрезок — профит за вычетом своих расходников. */
     netCents: buyer.consumablesAffectSalary
       ? profitCents - consumableCents
@@ -247,13 +244,83 @@ export async function firstToCross(key: string, thresholdCents: number) {
  * человек принёс команде вообще.
  */
 export async function allTimeProfit() {
-  const rows = await prisma.dayReport.groupBy({
-    by: ['buyerId'],
-    _sum: { revenueCents: true, spendGrossCents: true },
-  });
+  // Расходники вычитаем и здесь: иначе «за всё время» считается по одному
+  // правилу, а недельный профит по другому, и цифры рядом не сходятся.
+  const [days, spent, buyers] = await Promise.all([
+    prisma.dayReport.groupBy({
+      by: ['buyerId'],
+      _sum: { revenueCents: true, spendGrossCents: true },
+    }),
+    prisma.consumableEntry.groupBy({ by: ['buyerId'], _sum: { totalCents: true } }),
+    prisma.buyer.findMany({ select: { id: true, consumablesAffectSalary: true } }),
+  ]);
+
+  const charged = new Map(buyers.map((b) => [b.id, b.consumablesAffectSalary]));
   const byBuyer = new Map<string, number>();
-  for (const r of rows) {
+  for (const r of days) {
     byBuyer.set(r.buyerId, (r._sum.revenueCents ?? 0) - (r._sum.spendGrossCents ?? 0));
   }
+  for (const c of spent) {
+    if (!c.buyerId || !charged.get(c.buyerId)) continue;
+    byBuyer.set(c.buyerId, (byBuyer.get(c.buyerId) ?? 0) - (c._sum.totalCents ?? 0));
+  }
   return byBuyer;
+}
+
+/**
+ * Архив закрытых расчётных листов: когда период закрыли и сколько по нему
+ * ушло людям. Закрытый лист уже не пересчитывается — но посмотреть, кто
+ * сколько получил в марте, нужно регулярно.
+ *
+ * `buyerId` сужает архив до одного человека: баер видит только свои выплаты.
+ */
+export async function closedSheets(buyerId?: string, limit = 12) {
+  const periods = await prisma.period.findMany({
+    where: { status: 'CLOSED' },
+    orderBy: { key: 'desc' },
+    take: limit,
+  });
+  if (periods.length === 0) return [];
+
+  const sheets = await Promise.all(
+    periods.map(async (period) => {
+      // Лист считается за свой же отрезок — неделю или, у старых листов, месяц.
+      const summary = await teamSummary(period.key, rangeOf(period.key));
+      const rows = buyerId
+        ? summary.buyers.filter((r) => r.buyer.id === buyerId)
+        : summary.buyers;
+      return {
+        key: period.key,
+        title: titleOf(period.key),
+        closedAt: period.closedAt,
+        rate: period.rubPerUsd,
+        payoutCents: sum(rows, (r) => r.totalCents),
+        salaryCents: sum(rows, (r) => r.salaryCents),
+        bonusCents: sum(rows, (r) => r.bonusCents),
+        people: rows.filter((r) => r.totalCents > 0).length,
+      };
+    }),
+  );
+  return sheets;
+}
+
+/**
+ * Зарплата за отрезок шире недели — суммой недельных листов.
+ *
+ * Ставка берётся от базы за неделю, и считать её от месячной суммы нельзя:
+ * месяц уводит человека на верхний порог, которого в реальных выплатах не
+ * было. Поэтому месяц на сводке — это сложенные недели, ровно те же цифры,
+ * что человек увидит в расчётных листах.
+ */
+export async function payoutAcross(range: Range) {
+  const weeks = weeksOfRange(range);
+  const sheets = await Promise.all(
+    weeks.map((w) => teamSummary(w, weekBounds(w))),
+  );
+  return {
+    weeks: weeks.length,
+    salaryCents: sum(sheets, (s) => s.totals.salaryCents),
+    bonusCents: sum(sheets, (s) => s.totals.bonusCents),
+    payoutCents: sum(sheets, (s) => s.totals.payoutCents),
+  };
 }

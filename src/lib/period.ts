@@ -112,3 +112,46 @@ export function daysOfRange({ from, to }: { from: Date; to: Date }) {
   for (const d = new Date(from); d < to; d.setUTCDate(d.getUTCDate() + 1)) out.push(new Date(d));
   return out;
 }
+
+/**
+ * Ключ отрезка бывает двух видов: неделя (2026-08-24, дата понедельника) и
+ * месяц (2026-08). По длине их и различаем — так один переключатель умеет
+ * листать и то, и другое.
+ */
+export function isWeekKey(key: string) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(key);
+}
+
+export function rangeOf(key: string) {
+  return isWeekKey(key) ? weekBounds(key) : periodBounds(key);
+}
+
+export function titleOf(key: string) {
+  return isWeekKey(key) ? weekLabel(key) : periodLabel(key);
+}
+
+export function shiftKey(key: string, by: number) {
+  return isWeekKey(key) ? shiftWeek(key, by) : shiftPeriod(key, by);
+}
+
+/** Тот же момент времени, но другим масштабом: неделя ↔ месяц. */
+export function switchMode(key: string, mode: 'week' | 'month') {
+  const { from } = rangeOf(key);
+  return mode === 'week' ? weekKey(from) : periodKey(from);
+}
+
+/**
+ * Недели, которые попадают в отрезок, — по ключу понедельника.
+ *
+ * Нужны там, где отрезок шире расчётного периода: зарплата считается за
+ * неделю, и месячная сводка обязана складывать четыре-пять недельных листов,
+ * а не считать процент от месячной суммы. Иначе месяц показывает ставку,
+ * которой на деле ни у кого не было.
+ */
+export function weeksOfRange({ from, to }: { from: Date; to: Date }) {
+  const out: string[] = [];
+  for (const d = weekStart(from); d < to; d.setUTCDate(d.getUTCDate() + 7)) {
+    out.push(dayKey(d));
+  }
+  return out;
+}

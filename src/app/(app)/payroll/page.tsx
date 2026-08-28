@@ -1,26 +1,31 @@
 import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { currentPeriodKey, teamSummary, firstToCross } from '@/lib/queries';
-import { periodTitle, fmtDay } from '@/lib/period';
+import { currentPeriodKey, teamSummary, firstToCross, closedSheets } from '@/lib/queries';
+import { periodTitle, fmtDay, isWeekKey, shiftKey } from '@/lib/period';
+import PeriodNav from '@/components/PeriodNav';
 import { prisma } from '@/lib/db';
 import { usd, rub, sum } from '@/lib/money';
 import { payrollTotals, parseTiers, okladCents, DEFAULT_FIXED_RUB } from '@/lib/salary';
 import { closePeriod, reopenPeriod } from '@/app/actions/period';
-import { Panel, PanelHead, Sub, Avatar, Empty, Formula } from '@/components/ui';
+import { Panel, PanelHead, Sub, Avatar, Empty, Formula, Big } from '@/components/ui';
 import BonusPanel, { type BonusRow } from '@/components/BonusPanel';
 import { Meter } from '@/components/Charts';
-import { IconWallet, IconWarn, IconChart } from '@/components/icons';
+import { IconWallet, IconWarn, IconChart, IconCalendar } from '@/components/icons';
 
 export default async function PayrollPage({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: string }>;
+  searchParams: Promise<{ p?: string; period?: string }>;
 }) {
   const user = await requireUser();
   const team = canSeeTeam(user.role as Role);
   const scoped = scopeBuyerId(user);
-  const { period } = await searchParams;
-  const key = period ?? (await currentPeriodKey());
+  const { p, period } = await searchParams;
+  const now = await currentPeriodKey();
+  // Лист листается по неделям: закрытые недели никуда не деваются, их можно
+  // открыть и посмотреть, кто сколько получил.
+  const wanted = p ?? period;
+  const key = wanted && isWeekKey(wanted) ? wanted : now;
   const summary = await teamSummary(key);
   const rate = summary.period.rubPerUsd;
   const closed = summary.period.status === 'CLOSED';
@@ -85,6 +90,11 @@ export default async function PayrollPage({
       ])
     : [null, []];
 
+  // Архив закрытых листов: у баера — только его выплаты.
+  const archive = (await closedSheets(team ? undefined : (scoped ?? '__none__'))).filter(
+    (s) => s.key !== key,
+  );
+
   const rateLabel =
     totals.avgRate === null ? 'оклад' : `${totals.avgRate.toFixed(1).replace('.', ',')}%`;
 
@@ -97,10 +107,7 @@ export default async function PayrollPage({
             tint="bg-sage-t"
             title={team ? 'Фонд зарплаты' : 'К выплате'}
           />
-          <div className="text-[58px] font-bold leading-none tracking-[-0.035em]">
-            <span className="text-[32px] text-mute">$</span>
-            {usd(totals.total).replace('$', '')}
-          </div>
+          <Big cents={totals.total} size={58} />
           <div className="n text-[12.5px] text-mute">{rub(totals.total, rate)}</div>
         </Panel>
         {[
@@ -138,7 +145,19 @@ export default async function PayrollPage({
           title="Расчётный лист"
           aside={<span className="text-[12.5px] text-mute">{periodTitle(key)}</span>}
           right={
-            user.role === 'ADMIN' ? (
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <PeriodNav
+                base="/payroll"
+                label={periodTitle(key)}
+                isWeek
+                weeksOnly
+                isCurrent={key === now}
+                prev={shiftKey(key, -1)}
+                next={shiftKey(key, 1)}
+                week={key}
+                month={key}
+              />
+            {user.role === 'ADMIN' ? (
               <form action={closed ? reopen : close}>
                 <button
                   type="submit"
@@ -153,7 +172,8 @@ export default async function PayrollPage({
               <span className={`text-[12.5px] ${closed ? 'text-mute' : 'text-rust'}`}>
                 {closed ? 'период закрыт' : 'период открыт'}
               </span>
-            )
+            )}
+            </div>
           }
         />
 
@@ -209,7 +229,13 @@ export default async function PayrollPage({
               </span>
             </span>
             <span className="n hidden text-right text-[13.5px] text-soft lg:block">{usd(row.profitCents)}</span>
-            <span className="n hidden text-right text-[13.5px] text-rust lg:block">−{usd(row.consumableCents)}</span>
+            <span
+              className={`n hidden text-right text-[13.5px] lg:block ${
+                row.consumableCents ? 'text-rust' : 'text-mute'
+              }`}
+            >
+              {row.consumableCents ? `−${usd(row.consumableCents)}` : usd(0)}
+            </span>
             <span className="n hidden text-right text-[13.5px] lg:block">{usd(row.baseCents)}</span>
             <span className="text-right">
               <span
@@ -241,7 +267,13 @@ export default async function PayrollPage({
           <Sub className="mt-2.5 grid grid-cols-[1.4fr_0.7fr_1fr] lg:grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] items-center px-4 py-3.5">
           <span className="lab text-text">Итого</span>
           <span className="n hidden text-right text-[13.5px] lg:block">{usd(profitCents)}</span>
-          <span className="n hidden text-right text-[13.5px] text-rust lg:block">−{usd(consumableCents)}</span>
+          <span
+            className={`n hidden text-right text-[13.5px] lg:block ${
+              consumableCents ? 'text-rust' : 'text-mute'
+            }`}
+          >
+            {consumableCents ? `−${usd(consumableCents)}` : usd(0)}
+          </span>
           <span className="n hidden text-right text-[13.5px] lg:block">{usd(totals.base)}</span>
           <span className="n text-right text-[12.5px] text-mute">{rateLabel}</span>
           <span className="n hidden text-right text-[18px] font-semibold lg:block">{usd(totals.salary)}</span>
@@ -368,6 +400,64 @@ export default async function PayrollPage({
           )}
         </Panel>
       </div>
+
+      <Panel className="p-4 sm:p-6">
+        <PanelHead
+          icon={<IconCalendar color="#b4c68c" />}
+          tint="bg-sage-t"
+          title="Закрытые листы"
+          right={
+            <span className="text-[12.5px] text-mute">
+              {team ? 'сколько ушло команде' : 'сколько ты получил'}
+            </span>
+          }
+        />
+        {archive.length === 0 ? (
+          <Empty>Закрытых периодов пока нет.</Empty>
+        ) : (
+          <>
+            <div className="mt-4 grid grid-cols-[1.3fr_1fr] lg:grid-cols-[1.5fr_repeat(3,1fr)_1fr] pb-2.5">
+              <span className="lab">Период</span>
+              <span className="lab hidden text-right lg:block">Оклад и процент</span>
+              <span className="lab hidden text-right lg:block">Бонусы</span>
+              <span className="lab hidden text-right lg:block">В рублях</span>
+              <span className="lab text-right">К выплате</span>
+            </div>
+            {archive.map((sheet) => (
+              <a
+                key={sheet.key}
+                href={`/payroll?p=${sheet.key}`}
+                className="grid grid-cols-[1.3fr_1fr] lg:grid-cols-[1.5fr_repeat(3,1fr)_1fr] items-center border-t border-line py-3 transition hover:bg-sub"
+              >
+                <span>
+                  <span className="block text-[14px] font-semibold">{sheet.title}</span>
+                  <span className="block text-[11.5px] text-mute">
+                    {sheet.closedAt ? `закрыт ${fmtDay(sheet.closedAt)}` : 'закрыт'}
+                    {team ? ` · ${sheet.people} чел.` : ''}
+                  </span>
+                </span>
+                <span className="n hidden text-right text-[13.5px] text-soft lg:block">
+                  {usd(sheet.salaryCents)}
+                </span>
+                <span
+                  className="n hidden text-right text-[13.5px] lg:block"
+                  style={{ color: sheet.bonusCents ? '#b4c68c' : '#8a8a8a' }}
+                >
+                  {sheet.bonusCents ? `+${usd(sheet.bonusCents)}` : '—'}
+                </span>
+                <span className="n hidden text-right text-[13px] text-mute lg:block">
+                  {rub(sheet.payoutCents, sheet.rate)}
+                </span>
+                <span className="n text-right text-[17px] font-semibold">{usd(sheet.payoutCents)}</span>
+              </a>
+            ))}
+          </>
+        )}
+        <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
+          Курс у каждого листа свой — тот, что стоял в момент закрытия. Поэтому рубли в архиве
+          не пересчитываются задним числом.
+        </p>
+      </Panel>
 
       {team ? (
         <BonusPanel

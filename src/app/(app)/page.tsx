@@ -1,19 +1,32 @@
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { currentPeriodKey, teamSummary, buyerSummary, allTimeProfit } from '@/lib/queries';
+import { currentPeriodKey, teamSummary, buyerSummary, allTimeProfit, payoutAcross } from '@/lib/queries';
 import { usd, rub, sum, profitOf } from '@/lib/money';
-import { periodRange, periodTitle, daysOfRange, dayKey } from '@/lib/period';
-import { Panel, PanelHead, Sub, Avatar, Empty } from '@/components/ui';
+import {
+  periodRange, periodTitle, daysOfRange, dayKey,
+  isWeekKey, rangeOf, titleOf, shiftKey, switchMode,
+} from '@/lib/period';
+import PeriodNav from '@/components/PeriodNav';
+import { Panel, PanelHead, Sub, Avatar, Empty, Big } from '@/components/ui';
 import { ProfitBars, Meter } from '@/components/Charts';
 import { IconChart, IconWallet, IconBox, IconWarn, IconUsers } from '@/components/icons';
 import BuyerCabinet from '@/components/BuyerCabinet';
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ p?: string }>;
+}) {
   const user = await requireUser();
   // Расчётный период — неделя: и статистика, и зарплата считаются за неё.
-  const key = await currentPeriodKey();
-  const week = periodRange(key);
-  const label = periodTitle(key);
+  // Но посмотреть можно любой отрезок — хоть прошлую неделю, хоть месяц.
+  const now = await currentPeriodKey();
+  const { p } = await searchParams;
+  const view = p && (isWeekKey(p) || /^\d{4}-\d{2}$/.test(p)) ? p : now;
+  const week = rangeOf(view);
+  const label = titleOf(view);
+  // Курс и бонусы берём у недели: у месяца своего расчётного периода нет.
+  const key = isWeekKey(view) ? view : now;
 
   if (!canSeeTeam(user.role as Role)) {
     if (!user.buyer) return <Empty>У аккаунта нет профиля баера — попроси админа его создать.</Empty>;
@@ -23,11 +36,44 @@ export default async function HomePage() {
   }
 
   const summary = await teamSummary(key, week);
+  /*
+    Зарплата живёт неделями. Пока смотрим неделю, лист один и берём его как
+    есть; на месяце складываем недельные листы — процент считается от
+    недельной базы, и месячная сумма дала бы ставку, которой ни у кого не
+    было, а вместе с ней и заниженный остаток команде.
+  */
+  const payroll = isWeekKey(view)
+    ? {
+        weeks: 1,
+        salaryCents: summary.totals.salaryCents,
+        bonusCents: summary.totals.bonusCents,
+        payoutCents: summary.totals.payoutCents,
+      }
+    : await payoutAcross(week);
+  const teamNetCents =
+    summary.totals.profitCents - summary.totals.consumableCents - payroll.payoutCents;
   const allTime = await allTimeProfit();
   const allTimeTotal = [...allTime.values()].reduce((a, b) => a + b, 0);
+  /*
+    График рисуем чистыми — профит дня минус расходники, списанные этим днём.
+    Раньше столбики складывались в «профит с рекламы», а крупная цифра над
+    ними была уже за вычетом расходников: две суммы на одном экране не
+    сходились. Расходники того, у кого они не влияют на зарплату, не трогаем —
+    ровно как в строке баера.
+  */
+  const charged = new Set(
+    summary.buyers.filter((r) => r.buyer.consumablesAffectSalary).map((r) => r.buyer.id),
+  );
+  const spentByDay = new Map<string, number>();
+  for (const c of summary.consumables) {
+    if (c.buyerId && !charged.has(c.buyerId)) continue;
+    const k = dayKey(c.date);
+    spentByDay.set(k, (spentByDay.get(k) ?? 0) + c.totalCents);
+  }
   const series = daysOfRange(week).map((date) => {
-    const byDay = summary.days.filter((d) => dayKey(d.date) === dayKey(date));
-    return { date, profitCents: sum(byDay, (d) => profitOf(d)) };
+    const k = dayKey(date);
+    const byDay = summary.days.filter((d) => dayKey(d.date) === k);
+    return { date, profitCents: sum(byDay, (d) => profitOf(d)) - (spentByDay.get(k) ?? 0) };
   });
   const rate = summary.period.rubPerUsd;
   const best = series.reduce((a, b) => (b.profitCents > a.profitCents ? b : a), series[0]);
@@ -45,7 +91,7 @@ export default async function HomePage() {
   const alerts: { color: string; text: string }[] = [];
   for (const row of summary.buyers) {
     if (row.days === 0) alerts.push({ color: '#ce6e58', text: `${row.buyer.handle} — ни одного отчёта за период` });
-    else if (row.profitCents < 0) alerts.push({ color: '#ce6e58', text: `${row.buyer.handle} — период в минусе` });
+    else if (row.netCents < 0) alerts.push({ color: '#ce6e58', text: `${row.buyer.handle} — отрезок в минусе` });
   }
   const leader = summary.buyers[0];
   if (leader && leader.ratePct >= 50) {
@@ -61,13 +107,22 @@ export default async function HomePage() {
             tint="bg-sage-t"
             title="Чистый профит"
             aside={<span className="text-[15px] text-sage">{label}</span>}
+            right={
+              <PeriodNav
+                base="/"
+                label={label}
+                isWeek={isWeekKey(view)}
+                isCurrent={view === now}
+                prev={shiftKey(view, -1)}
+                next={shiftKey(view, 1)}
+                week={switchMode(view, 'week')}
+                month={switchMode(view, 'month')}
+              />
+            }
           />
           {/* Чистый — уже за вычетом расходников: они списываются с профита,
               и показывать их отдельной строкой значит вводить в заблуждение. */}
-          <div className="mt-4 text-[76px] font-bold leading-none tracking-[-0.035em]">
-            <span className="text-[42px] text-mute">$</span>
-            {usd(summary.totals.netCents).replace('$', '')}
-          </div>
+          <Big cents={summary.totals.netCents} size={76} className="mt-4" />
           <div className="n mt-2.5 text-[12.5px] text-mute">
             {rub(summary.totals.netCents, rate)} ·{' '}
             <span title="Рыночный курс минус 2 ₽ — закладываем комиссию за перевод">
@@ -79,7 +134,15 @@ export default async function HomePage() {
               { label: 'Оборот', value: usd(summary.totals.revenueCents), color: 'text-text' },
               { label: 'Расход с комиссией', value: usd(summary.totals.spendGrossCents), color: 'text-text' },
               { label: 'Профит с рекламы', value: usd(summary.totals.profitCents), color: 'text-text' },
-              { label: 'Расходники', value: `−${usd(summary.totals.consumableCents)}`, color: 'text-rust' },
+              {
+                label: 'Расходники',
+                // Ноль без минуса: «−$0» читается как ошибка, а не как «ничего
+                // не списали».
+                value: summary.totals.consumableCents
+                  ? `−${usd(summary.totals.consumableCents)}`
+                  : usd(0),
+                color: summary.totals.consumableCents ? 'text-rust' : 'text-mute',
+              },
               { label: 'ROI', value: `${summary.totals.roi.toFixed(1).replace('.', ',')}%`, color: 'text-sage' },
             ].map((s) => (
               <Sub key={s.label} className="px-4 py-3.5">
@@ -92,19 +155,42 @@ export default async function HomePage() {
 
         <Panel className="flex flex-col p-4 sm:p-6">
           <PanelHead icon={<IconWallet color="#b4c68c" />} tint="bg-sage-t" title="Остаётся команде" />
-          <div className="mt-4 text-[46px] font-bold leading-none tracking-[-0.03em]">
-            <span className="text-[26px] text-mute">$</span>
-            {usd(summary.totals.teamNetCents).replace('$', '')}
-          </div>
+          <Big cents={teamNetCents} size={46} className="mt-4" />
           <div className="flex-1" />
+          {/*
+            Первые две строки действительно вычитаются из профита. Комиссия за
+            пополнения сидит внутри рекламного расхода — она уже учтена в
+            профите, и списывать её второй раз нельзя. Раньше все три строки
+            выглядели одинаково, и сумма в шапке не сходилась с колонкой.
+          */}
           {[
-            { name: 'Расходники', cents: summary.totals.consumableCents },
-            { name: 'Зарплата баеров', cents: summary.totals.payoutCents },
-            { name: 'Комиссия за пополнения', cents: summary.totals.commissionCents },
+            { name: 'Расходники', cents: summary.totals.consumableCents, taken: true },
+            {
+              name: 'Зарплата баеров',
+              cents: payroll.payoutCents,
+              taken: true,
+              note: payroll.weeks > 1 ? `по ${payroll.weeks} недельным листам` : undefined,
+            },
+            {
+              name: 'Комиссия за пополнения',
+              cents: summary.totals.commissionCents,
+              taken: false,
+              note: 'уже внутри расхода',
+            },
           ].map((row) => (
             <div key={row.name} className="flex items-center justify-between border-t border-line py-2.5">
-              <span className="text-[13px] text-soft">{row.name}</span>
-              <span className="n text-[13.5px] text-rust">− {usd(row.cents)}</span>
+              <span className="text-[13px] text-soft">
+                {row.name}
+                {row.note ? (
+                  <span className="ml-1.5 text-[11px] text-mute">· {row.note}</span>
+                ) : null}
+              </span>
+              <span
+                className={`n text-[13.5px] ${row.taken && row.cents ? 'text-rust' : 'text-mute'}`}
+              >
+                {row.taken && row.cents ? '− ' : ''}
+                {usd(row.cents)}
+              </span>
             </div>
           ))}
         </Panel>
@@ -117,7 +203,7 @@ export default async function HomePage() {
           title="Профит по дням"
           aside={
             <span className="text-[12.5px] text-mute">
-              {label} · в плюсе {positiveDays} из {series.length}
+              в плюсе {positiveDays} из {series.length} · чистыми
             </span>
           }
           right={
@@ -142,12 +228,13 @@ export default async function HomePage() {
             title="Баеры"
             aside={<span className="text-[12.5px] text-mute">{summary.buyers.length} человек</span>}
           />
-          <div className="mt-4 grid grid-cols-[1.3fr_1fr_1fr] md:grid-cols-[1.6fr_repeat(5,1fr)_1.05fr] pb-2.5">
+          <div className="mt-4 grid grid-cols-[1.3fr_1fr_1fr] md:grid-cols-[1.5fr_repeat(6,1fr)_1fr] pb-2.5">
             <span className="lab">Баер</span>
             <span className="lab hidden text-right md:block">Доход</span>
             <span className="lab hidden text-right md:block">Спенд</span>
             <span className="lab hidden text-right md:block">С комиссией</span>
-            <span className="lab text-right">Профит</span>
+            <span className="lab hidden text-right md:block">Расходники</span>
+            <span className="lab text-right" title="За вычетом расходников">Профит</span>
             <span className="lab pl-5 text-right" title="Чистый профит по всем отчётам, за все периоды">
               За всё время
             </span>
@@ -156,7 +243,7 @@ export default async function HomePage() {
           {summary.buyers.map((row) => (
             <div
               key={row.buyer.id}
-              className="grid grid-cols-[1.3fr_1fr_1fr] md:grid-cols-[1.6fr_repeat(5,1fr)_1.05fr] items-center border-t border-line py-3"
+              className="grid grid-cols-[1.3fr_1fr_1fr] md:grid-cols-[1.5fr_repeat(6,1fr)_1fr] items-center border-t border-line py-3"
             >
               <span className="flex items-center gap-3">
                 <Avatar initials={row.buyer.initials} color={row.buyer.color} />
@@ -170,11 +257,16 @@ export default async function HomePage() {
               <span className="n hidden text-right text-[13.5px] text-soft md:block">{usd(row.revenueCents)}</span>
               <span className="n hidden text-right text-[13.5px] text-mute md:block">{usd(row.spendNetCents)}</span>
               <span className="n hidden text-right text-[13.5px] text-mute md:block">{usd(row.spendGrossCents)}</span>
+              <span className="n hidden text-right text-[13.5px] text-rust md:block">
+                {row.consumableCents ? `−${usd(row.consumableCents)}` : '—'}
+              </span>
+              {/* Профит показываем чистыми: расходники уже вычтены, и именно
+                  эта сумма идёт в зарплатную базу. */}
               <span
                 className="n text-right text-[18px] font-semibold"
-                style={{ color: row.profitCents >= 0 ? '#b4c68c' : '#ce6e58' }}
+                style={{ color: row.netCents >= 0 ? '#b4c68c' : '#ce6e58' }}
               >
-                {usd(row.profitCents)}
+                {usd(row.netCents)}
               </span>
               {/* Итог за всё время: месяц показывает форму, эта цифра — вклад. */}
               <span
@@ -191,8 +283,8 @@ export default async function HomePage() {
                   <span
                     className="block h-1.5 rounded-full"
                     style={{
-                      width: `${Math.max(0, Math.min(100, (row.profitCents / Math.max(1, summary.buyers[0].profitCents)) * 100))}%`,
-                      background: row.profitCents >= 0 ? '#b4c68c' : '#ce6e58',
+                      width: `${Math.max(0, Math.min(100, (row.netCents / Math.max(1, summary.buyers[0].netCents)) * 100))}%`,
+                      background: row.netCents >= 0 ? '#b4c68c' : '#ce6e58',
                     }}
                   />
                 </span>
@@ -200,13 +292,16 @@ export default async function HomePage() {
             </div>
           ))}
           <div className="flex-1" />
-          <Sub className="mt-2.5 grid grid-cols-[1.3fr_1fr_1fr] md:grid-cols-[1.6fr_repeat(5,1fr)_1.05fr] items-center px-4 py-3.5">
+          <Sub className="mt-2.5 grid grid-cols-[1.3fr_1fr_1fr] md:grid-cols-[1.5fr_repeat(6,1fr)_1fr] items-center px-4 py-3.5">
             <span className="lab text-text">Итого</span>
             <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.revenueCents)}</span>
             <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.spendNetCents)}</span>
             <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.spendGrossCents)}</span>
+            <span className="n hidden text-right text-[13.5px] text-rust md:block">
+              {summary.totals.consumableCents ? `−${usd(summary.totals.consumableCents)}` : '—'}
+            </span>
             <span className="n text-right text-[18px] font-semibold text-sage">
-              {usd(summary.totals.profitCents)}
+              {usd(summary.totals.netCents)}
             </span>
             <span
               className="n pl-5 text-right text-[14px] font-semibold"

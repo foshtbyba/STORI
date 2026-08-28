@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { usd } from '@/lib/money';
 
 export function Panel({
   children,
@@ -154,6 +155,38 @@ export function Formula({
           </span>
         </span>
       ))}
+    </div>
+  );
+}
+
+/**
+ * Крупная сумма: доллар мельче цифр, минус — впереди доллара.
+ *
+ * Раньше знак вырезали вместе с символом валюты и склеивали обратно, отчего
+ * убыток печатался как «$−902». Минус стоит перед деньгами, а не внутри них.
+ */
+export function Big({
+  cents,
+  size = 76,
+  className = '',
+}: {
+  cents: number;
+  /** Размер цифр; доллар рисуется примерно вдвое мельче. */
+  size?: number;
+  className?: string;
+}) {
+  const text = usd(cents);
+  const negative = text.startsWith('−');
+  const digits = text.replace('−', '').replace('$', '');
+  return (
+    <div
+      className={`font-bold leading-none tracking-[-0.035em] ${className}`}
+      style={{ fontSize: size }}
+    >
+      <span className="text-mute" style={{ fontSize: Math.round(size * 0.55) }}>
+        {negative ? '−' : ''}$
+      </span>
+      {digits}
     </div>
   );
 }
