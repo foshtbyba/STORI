@@ -2573,19 +2573,15 @@ function showTopToast(msg,isErr){
         var el=document.getElementById(PLAIN[k]);
         if(el && data[k]!=null && String(data[k]).trim()!==""){ el.value=String(data[k]).trim(); filled.push(k); }
       });
-      // Язык служебных страниц. Если пришёл код, которого у нас в списке нет
-      // (в поле легко вписать код гео вместо кода языка), пробуем перевести
-      // его в язык — молча оставлять английский хуже.
-      var GEO2UI={cz:"cs",at:"de",ch:"de",be:"fr",gr:"el",dk:"da",se:"sv",ee:"et",si:"sl",
-                  ua:"uk",pk:"ur",ae:"ar",sa:"ar",ma:"ar",eg:"ar",il:"he",ph:"tl",
-                  gb:"en",uk:"en",us:"en",au:"en",ie:"en",ca:"en",
-                  mx:"es",cl:"es",co:"es",pe:"es",ar:"es",br:"pt",rs:"sr",by:"ru",kz:"ru"};
-      var want=String(data.uiLang||data.geo||"").trim().toLowerCase().split(/[-_]/)[0];
-      if(want){
-        var ui=document.getElementById("uiLang");
-        var has=function(v){ return ui && Array.prototype.some.call(ui.options,function(o){return o.value===v;}); };
-        var code=has(want)?want:(has(GEO2UI[want])?GEO2UI[want]:"");
-        if(code){ ui.value=code; filled.push("uiLang"); }
+      // Язык служебных страниц + страна: прогоняем «Код гео» через ШТАТНЫЙ обработчик поля langCode
+      // (в нём полная таблица GEO2LANG + langFromGeo). Он сам выставит язык call/error/chest и страну.
+      var lc=document.getElementById("langCode");
+      if(lc && lc.value.trim()){ lc.dispatchEvent(new Event("input")); filled.push("uiLang"); }
+      // если дашборд ЯВНО прислал uiLang — уважаем его поверх (он есть в списке языков)
+      var ui=document.getElementById("uiLang");
+      if(data.uiLang && ui){
+        var v=String(data.uiLang).trim().toLowerCase().split(/[-_]/)[0];
+        if(Array.prototype.some.call(ui.options,function(o){return o.value===v;})) ui.value=v;
       }
       if(data.partner){
         if(Array.prototype.some.call(sel.options,function(o){return o.value===data.partner;})){
@@ -2680,7 +2676,7 @@ function showTopToast(msg,isErr){
   // авто-подстановка языка call/error/chest из кода гео (выбор вручную остаётся)
   var GEO2LANG={cr:"es",mx:"es",co:"es",cl:"es",pe:"es",ec:"es",gt:"es",pk:"ur",tn:"ar",ma:"ar",sa:"ar",ae:"ar",eg:"ar",dz:"ar",kw:"ar",qa:"ar",be:"nl",ch:"de",at:"de",br:"pt",gr:"el",cz:"cs",dk:"da",se:"sv",ee:"et",si:"sl",rs:"sr",ua:"uk",gb:"en",uk:"en",us:"en",ie:"en",il:"he"};
   function hasLang(c){return LANGS.some(function(p){return p[0]===c;});}
-  function langFromGeo(c){c=(c||"").toLowerCase().trim();return GEO2LANG[c]||(hasLang(c)?c:null);}
+  function langFromGeo(c){c=(c||"").toLowerCase().trim();var base=c.split(/[-_]/)[0];return GEO2LANG[c]||GEO2LANG[base]||(hasLang(c)?c:(hasLang(base)?base:null));}
   var langEl=document.getElementById("langCode");
   // код гео/языка -> ISO-2 страна для shakes (fr-BE -> BE, cs -> CZ, pk -> PK, cr -> CR …)
   var LANG2CC={cs:"CZ",da:"DK",sv:"SE",el:"GR",ur:"PK",he:"IL",uk:"UA",et:"EE",sl:"SI",ja:"JP",ko:"KR",zh:"CN",nb:"NO",nn:"NO",ca:"ES",fa:"IR",hi:"IN",vi:"VN"};
