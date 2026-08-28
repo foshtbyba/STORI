@@ -20,6 +20,10 @@ const list = (raw: FormDataEntryValue | null) =>
  * Гео приезжают одной строкой JSON из формы: их число заранее не известно, а
  * плодить поля вида geo0_price в FormData — верный способ однажды сбиться.
  */
+/** 12 МБ — потолок и у Next для экшена, и здесь: превью столько не весит. */
+const MAX_FILE = 12 * 1024 * 1024;
+const ALLOWED = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'application/pdf'];
+
 const GeoRow = z.object({
   langCode: z.string().trim().min(1).max(12),
   uiLang: z.string().trim().max(12).default(''),
@@ -85,6 +89,28 @@ export async function saveOffer(formData: FormData) {
     });
   }
 
+  // Превью приходит вместе с формой: ссылок на картинки у команды не бывает,
+  // их всегда приносят файлом. Новое заменяет старое — превью у оффера одно.
+  const preview = formData.get('previewFile');
+  if (
+    preview instanceof File &&
+    preview.size > 0 &&
+    preview.size <= MAX_FILE &&
+    ALLOWED.includes(preview.type)
+  ) {
+    await prisma.offerFile.deleteMany({ where: { offerId: offer.id, kind: 'PREVIEW' } });
+    await prisma.offerFile.create({
+      data: {
+        offerId: offer.id,
+        kind: 'PREVIEW',
+        name: preview.name.slice(0, 200),
+        mime: preview.type,
+        size: preview.size,
+        data: Buffer.from(await preview.arrayBuffer()),
+      },
+    });
+  }
+
   revalidatePath('/offers');
   // Форма — отдельный экран поверх списка: сохранили и вернулись к карточкам.
   redirect('/offers');
@@ -96,10 +122,6 @@ export async function deleteOffer(formData: FormData) {
   if (id) await prisma.offer.delete({ where: { id } });
   revalidatePath('/offers');
 }
-
-/** 12 МБ — потолок и у Next для экшена, и здесь: превью столько не весит. */
-const MAX_FILE = 12 * 1024 * 1024;
-const ALLOWED = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'application/pdf'];
 
 /**
  * Превью и фото отзывов кладём в базу. Ссылок на них нет, а диск контейнера

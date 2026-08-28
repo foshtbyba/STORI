@@ -29,7 +29,13 @@ export default async function OffersPage({
     },
   });
   const editing = edit
-    ? await prisma.offer.findUnique({ where: { id: edit }, include: { geos: { orderBy: { sort: 'asc' } } } })
+    ? await prisma.offer.findUnique({
+        where: { id: edit },
+        include: {
+          geos: { orderBy: { sort: 'asc' } },
+          files: { select: { id: true, name: true, kind: true } },
+        },
+      })
     : null;
   const counts = await prisma.offer.groupBy({ by: ['status'], _count: true });
   const total = counts.reduce((a, c) => a + c._count, 0);
@@ -197,7 +203,7 @@ export default async function OffersPage({
                     remove={team ? deleteOfferFile : undefined}
                   />
 
-                  <div className="mt-3 flex items-center justify-between gap-3">
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
                     <span className="text-[11.5px] text-mute">
                       {team
                         ? `${partnerOf(offer.partnerKey)?.label ?? 'партнёрка не выбрана'} · обновлено `
@@ -218,7 +224,10 @@ export default async function OffersPage({
 
 type OfferRow = NonNullable<
   Awaited<ReturnType<typeof prisma.offer.findUnique>>
-> & { geos: { langCode: string; uiLang: string; partnerOfferId: string; landingUrl: string; streamCode: string; price: string }[] };
+> & {
+  geos: { langCode: string; uiLang: string; partnerOfferId: string; landingUrl: string; streamCode: string; price: string }[];
+  files?: { id: string; name: string; kind: string }[];
+};
 
 /** Строка из базы → черновик формы: списки разворачиваем обратно в строку. */
 function draftFor(o: OfferRow | null): OfferDraft {
@@ -232,6 +241,8 @@ function draftFor(o: OfferRow | null): OfferDraft {
     bans: parseGeos(o?.bansJson ?? '[]').join(', '),
     notes: parseGeos(o?.notesJson ?? '[]').join('\n'),
     previewUrl: o?.previewUrl ?? '',
+    previewId: o?.files?.find((f) => f.kind === 'PREVIEW')?.id ?? null,
+    previewName: o?.files?.find((f) => f.kind === 'PREVIEW')?.name ?? '',
     payout: o?.payout ?? '',
     partnerKey: o?.partnerKey ?? '',
     backfix: o?.backfix ?? DEFAULT_BACKFIX,

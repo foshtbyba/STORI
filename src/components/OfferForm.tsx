@@ -26,6 +26,9 @@ export type OfferDraft = {
   bans: string;
   notes: string;
   previewUrl: string;
+  /** Уже загруженное превью — показываем, что заменяем. */
+  previewId: string | null;
+  previewName: string;
   payout: string;
   partnerKey: string;
   backfix: string;
@@ -93,6 +96,7 @@ export default function OfferForm({
   statuses: { value: string; label: string }[];
 }) {
   const [v, setV] = useState(draft);
+  const [picked, setPicked] = useState('');
   const [rows, setRows] = useState<GeoDraft[]>(draft.rows.length ? draft.rows : [emptyGeo()]);
   const set = (k: keyof OfferDraft) => (val: string) => setV((p) => ({ ...p, [k]: val }));
   const partner = partnerOf(v.partnerKey);
@@ -113,6 +117,8 @@ export default function OfferForm({
       <input type="hidden" name="geoRows" value={payload} />
       {/* Прежнее название партнёрки: пригодится, если её нет в списке. */}
       <input type="hidden" name="network" value={v.network} />
+      {/* Ссылка на превью осталась только у старых офферов — не теряем её. */}
+      <input type="hidden" name="previewUrl" value={v.previewUrl} />
       <PanelHead
         icon={<IconTag color="#b4c68c" />}
         tint="bg-sage-t"
@@ -161,14 +167,35 @@ export default function OfferForm({
           placeholder="$28 · 900 Kč"
           hint="Видна всем на карточке оффера."
         />
-        <Field
-          wide
-          label="Ссылка на превью (если есть)"
-          name="previewUrl"
-          value={v.previewUrl}
-          onChange={set('previewUrl')}
-          placeholder="https://… — можно оставить пустым, превью грузится файлом"
-        />
+        {/* Превью только файлом: ссылок на эти картинки у команды не бывает. */}
+        <div>
+          <label className="mb-1.5 block text-[11.5px] text-mute">Превью оффера</label>
+          <div className="flex items-center gap-3">
+            {draft.previewId ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={`/api/offer-file/${draft.previewId}`}
+                alt=""
+                className="h-11 w-11 shrink-0 rounded-xl border border-line object-cover"
+              />
+            ) : null}
+            <label className="flex min-w-0 flex-1 cursor-pointer items-center justify-center rounded-xl border border-dashed border-line2 px-3.5 py-2.5 text-center text-[13px] text-mute transition hover:border-sage hover:text-sage">
+              <span className="truncate">
+                {picked || (draft.previewId ? `Заменить · ${draft.previewName}` : 'Выбрать файл')}
+              </span>
+              <input
+                type="file"
+                name="previewFile"
+                accept="image/*,application/pdf"
+                className="hidden"
+                onChange={(e) => setPicked(e.target.files?.[0]?.name ?? '')}
+              />
+            </label>
+          </div>
+          <p className="mt-1.5 text-[11px] leading-relaxed text-dim">
+            Картинка или PDF, до 12 МБ. Скачать её сможет и баер.
+          </p>
+        </div>
       </div>
 
       <div className="mt-3">
