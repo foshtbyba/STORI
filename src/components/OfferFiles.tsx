@@ -12,56 +12,68 @@ const kb = (n: number) => (n < 1024 * 1024 ? `${Math.round(n / 1024)} КБ` : `$
  * Ссылок на эти картинки нет — их приносят файлами, поэтому и грузим файлами,
  * а обратно отдаём скачиванием. Отзывы держим свёрнутыми: нужны редко, но
  * когда нужны — выгружаются все разом.
+ *
+ * Скачивать может кто угодно: баеру эти материалы нужны в работе не меньше.
+ * Загрузка и удаление — только у команды.
  */
 export default function OfferFiles({
   offerId,
   preview,
   reviews,
+  canEdit,
   upload,
   remove,
 }: {
   offerId: string;
   preview: OfferFileRow | null;
   reviews: OfferFileRow[];
-  upload: (formData: FormData) => void;
-  remove: (formData: FormData) => void;
+  canEdit: boolean;
+  upload?: (formData: FormData) => void;
+  remove?: (formData: FormData) => void;
 }) {
   const [open, setOpen] = useState(false);
   const previewForm = useRef<HTMLFormElement>(null);
   const reviewForm = useRef<HTMLFormElement>(null);
 
+  // Баеру нечего показывать, пока файлов нет: пустой блок только шумит.
+  if (!canEdit && !preview && reviews.length === 0) return null;
+
   return (
     <div className="mt-3 border-t border-line pt-3">
       {/* ── Превью ─────────────────────────────────────────────────── */}
       <div className="flex items-center gap-2">
-        <form ref={previewForm} action={upload} className="contents">
-          <input type="hidden" name="offerId" value={offerId} />
-          <input type="hidden" name="kind" value="PREVIEW" />
-          <label className="flex-1 cursor-pointer rounded-full border border-line px-4 py-2 text-center text-[12px] text-mute transition hover:border-line2 hover:text-soft">
-            {preview ? 'Заменить превью' : 'Загрузить превью'}
-            <input
-              type="file"
-              name="files"
-              accept="image/*,application/pdf"
-              className="hidden"
-              onChange={() => previewForm.current?.requestSubmit()}
-            />
-          </label>
-        </form>
+        {canEdit && upload ? (
+          <form ref={previewForm} action={upload} className="contents">
+            <input type="hidden" name="offerId" value={offerId} />
+            <input type="hidden" name="kind" value="PREVIEW" />
+            <label className="flex-1 cursor-pointer rounded-full border border-line px-4 py-2 text-center text-[12px] text-mute transition hover:border-line2 hover:text-soft">
+              {preview ? 'Заменить превью' : 'Загрузить превью'}
+              <input
+                type="file"
+                name="files"
+                accept="image/*,application/pdf"
+                className="hidden"
+                onChange={() => previewForm.current?.requestSubmit()}
+              />
+            </label>
+          </form>
+        ) : null}
         {preview ? (
           <>
             <a
               href={`/api/offer-file/${preview.id}?dl=1`}
-              className="shrink-0 rounded-full border border-line px-3.5 py-2 text-[12px] text-mute transition hover:border-sage hover:text-sage"
+              className={`${canEdit ? 'shrink-0' : 'flex-1 text-center'} rounded-full border border-line px-3.5 py-2 text-[12px] text-mute transition hover:border-sage hover:text-sage`}
             >
-              Скачать
+              {canEdit ? 'Скачать' : 'Скачать превью'}
             </a>
-            <form action={remove}>
-              <input type="hidden" name="fileId" value={preview.id} />
-              <button type="submit" className="px-1 text-[12px] text-dim transition hover:text-rust">
-                ✕
-              </button>
-            </form>
+            {canEdit && remove ? (
+              <form action={remove}>
+                <input type="hidden" name="fileId" value={preview.id} />
+                <button type="submit" className="px-1 text-[12px] text-dim transition hover:text-rust">
+                  ✕
+                </button>
+              </form>
+            ) : null}
           </>
         ) : null}
       </div>
@@ -97,34 +109,40 @@ export default function OfferFiles({
                   >
                     {r.name}
                   </a>
-                  <form action={remove}>
-                    <input type="hidden" name="fileId" value={r.id} />
-                    <button type="submit" className="text-[10px] text-dim transition hover:text-rust">
-                      ✕
-                    </button>
-                  </form>
+                  {canEdit && remove ? (
+                    <form action={remove}>
+                      <input type="hidden" name="fileId" value={r.id} />
+                      <button type="submit" className="text-[10px] text-dim transition hover:text-rust">
+                        ✕
+                      </button>
+                    </form>
+                  ) : null}
                 </span>
               ))}
             </div>
           ) : (
-            <p className="mb-2 px-1 text-[11px] text-dim">Пока пусто — банка в руке и всё такое.</p>
+            <p className="mb-2 px-1 text-[11px] text-dim">
+              {canEdit ? 'Пока пусто — банка в руке и всё такое.' : 'Пока не загружены.'}
+            </p>
           )}
 
-          <form ref={reviewForm} action={upload}>
-            <input type="hidden" name="offerId" value={offerId} />
-            <input type="hidden" name="kind" value="REVIEW" />
-            <label className="block cursor-pointer rounded-full border border-dashed border-line px-4 py-2 text-center text-[11.5px] text-dim transition hover:border-line2 hover:text-mute">
-              Добавить фото
-              <input
-                type="file"
-                name="files"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={() => reviewForm.current?.requestSubmit()}
-              />
-            </label>
-          </form>
+          {canEdit && upload ? (
+            <form ref={reviewForm} action={upload}>
+              <input type="hidden" name="offerId" value={offerId} />
+              <input type="hidden" name="kind" value="REVIEW" />
+              <label className="block cursor-pointer rounded-full border border-dashed border-line px-4 py-2 text-center text-[11.5px] text-dim transition hover:border-line2 hover:text-mute">
+                Добавить фото
+                <input
+                  type="file"
+                  name="files"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={() => reviewForm.current?.requestSubmit()}
+                />
+              </label>
+            </form>
+          ) : null}
         </div>
       ) : null}
     </div>

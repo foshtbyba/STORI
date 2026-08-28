@@ -183,15 +183,19 @@ export default async function OffersPage({
                         </a>
                       </div>
 
-                      <OfferFiles
-                        offerId={offer.id}
-                        preview={previewFile}
-                        reviews={reviews}
-                        upload={uploadOfferFiles}
-                        remove={deleteOfferFile}
-                      />
                     </>
                   ) : null}
+
+                  {/* Материалы оффера нужны и баеру — скачать может каждый,
+                      загрузить и удалить только команда. */}
+                  <OfferFiles
+                    offerId={offer.id}
+                    preview={previewFile}
+                    reviews={reviews}
+                    canEdit={team}
+                    upload={team ? uploadOfferFiles : undefined}
+                    remove={team ? deleteOfferFile : undefined}
+                  />
 
                   <div className="mt-3 flex items-center justify-between gap-3">
                     <span className="text-[11.5px] text-mute">
