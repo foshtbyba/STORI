@@ -419,6 +419,14 @@
     padding:20px 22px;white-space:pre;overflow:auto;resize:none;
   }
   .out:hover,.out:focus{border-color:var(--line);box-shadow:none}
+  .out.edit{color:var(--fg);border-color:var(--acc);box-shadow:0 0 0 2px var(--acc-soft)}
+  .codefind{display:flex;gap:6px;align-items:center;margin-bottom:10px}
+  .codefind input{flex:1;min-width:0;background:var(--field);border:1px solid var(--line);color:var(--fg);border-radius:var(--r-sm);padding:9px 12px;font-size:13px;outline:none}
+  .codefind input:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+  .codefind .findcount{font-size:12px;color:var(--mut);min-width:44px;text-align:center}
+  .codefind button{flex:0 0 auto;width:34px;height:34px;border:1px solid var(--line);background:var(--sub);color:var(--fg);border-radius:var(--r-sm);cursor:pointer;font-size:14px}
+  .codefind button:hover{border-color:var(--acc);color:var(--acc)}
+  .editnote{font-size:12px;color:var(--mut);background:var(--acc-soft);border:1px solid var(--acc);border-radius:var(--r-sm);padding:8px 12px;margin-bottom:10px}
   iframe{
     width:100%;height:calc(100vh - 236px);min-height:340px;border:1px solid var(--line);
     border-radius:var(--r);background:#fff;display:block;
@@ -825,9 +833,17 @@ inline-style, вёрстку. Чистка касается ТОЛЬКО скр�
       <div class="tab" data-t="call">call.html</div>
       <div class="tab" data-t="error">error.html</div>
       <div class="tab" data-t="chest" id="tabChest" style="display:none">chest.html</div>
+      <div class="tab" data-t="src">✎ исходник</div>
       <div class="tab" data-t="preview">👁 превью ленд</div>
       <div class="tab" data-t="cpreview" id="tabCPrev" style="display:none">👁 превью сундук</div>
     </div>
+    <div class="codefind" id="codefind" style="display:none">
+      <input id="findInput" placeholder="🔎 найти в коде… (Enter — след., Shift+Enter — пред.)" spellcheck="false">
+      <span class="findcount" id="findCount"></span>
+      <button type="button" id="findPrev" title="Предыдущее">↑</button>
+      <button type="button" id="findNext" title="Следующее">↓</button>
+    </div>
+    <div class="editnote" id="editnote" style="display:none">✎ Правь исходник ленда — правки применяются сразу (пересборка). Ищи по коду строкой поиска сверху.</div>
     <textarea class="out" id="out" spellcheck="false" readonly></textarea>
     <iframe id="prev" style="display:none"></iframe>
   </div>
@@ -2369,10 +2385,37 @@ var currentTab="index";
 function showTab(t){
   currentTab=t;
   document.querySelectorAll(".tab").forEach(function(el){el.classList.toggle("active",el.dataset.t===t);});
-  var out=document.getElementById("out"),prev=document.getElementById("prev");
-  if(t==="preview"){out.style.display="none";prev.style.display="block";renderPreview("index");}
-  else if(t==="cpreview"){out.style.display="none";prev.style.display="block";renderPreview("chest");}
-  else{prev.style.display="none";out.style.display="block";out.value=FILES[t]||"";}
+  var out=document.getElementById("out"),prev=document.getElementById("prev"),find=document.getElementById("codefind"),note=document.getElementById("editnote");
+  var isPrev=(t==="preview"||t==="cpreview");
+  if(find) find.style.display=isPrev?"none":"flex";
+  if(t==="preview"){out.style.display="none";prev.style.display="block";if(note)note.style.display="none";renderPreview("index");}
+  else if(t==="cpreview"){out.style.display="none";prev.style.display="block";if(note)note.style.display="none";renderPreview("chest");}
+  else{
+    prev.style.display="none";out.style.display="block";
+    if(t==="src"){ out.readOnly=false; out.classList.add("edit"); if(note)note.style.display="block"; var src=getSource(); if(out.value!==src) out.value=src; }
+    else{ out.readOnly=true; out.classList.remove("edit"); if(note)note.style.display="none"; out.value=FILES[t]||""; }
+  }
+  // не трогаем выделение/скролл, если пользователь прямо сейчас редактирует код (пересборка не должна мешать)
+  if(!isPrev && document.activeElement!==out) runFind("reset");
+}
+// исходник ленда (папка -> index в папке; вставка HTML -> textarea) — редактируемый на вкладке «✎ исходник»
+function getSource(){ if(MODE==="folder" && FOLDER && FOLDER.indexPath){ var f=FOLDER.files.filter(function(x){return x.path===FOLDER.indexPath;})[0]; return f?f.str:""; } return document.getElementById("html").value||""; }
+function setSource(v){ if(MODE==="folder" && FOLDER && FOLDER.indexPath){ FOLDER.files.forEach(function(x){ if(x.path===FOLDER.indexPath) x.str=v; }); } else document.getElementById("html").value=v; }
+// поиск по коду в области #out: reset (пересчитать под новый текст), next, prev
+var _findIdx=0;
+function runFind(mode){
+  var fi=document.getElementById("findInput"); if(!fi) return;
+  var q=fi.value, out=document.getElementById("out"), cnt=document.getElementById("findCount");
+  if(!q){ if(cnt)cnt.textContent=""; return; }
+  var text=out.value, tl=text.toLowerCase(), ql=q.toLowerCase();
+  var matches=[], i=tl.indexOf(ql); while(i!==-1){ matches.push(i); i=tl.indexOf(ql,i+ql.length); }
+  if(!matches.length){ if(cnt)cnt.textContent="0/0"; return; }
+  if(mode==="reset") _findIdx=0; else _findIdx=((_findIdx||0)+(mode==="prev"?-1:1)+matches.length)%matches.length;
+  var pos=matches[_findIdx];
+  out.focus(); out.setSelectionRange(pos,pos+q.length);
+  var line=text.slice(0,pos).split("\n").length, lh=parseInt(getComputedStyle(out).lineHeight)||19;
+  out.scrollTop=Math.max(0,(line-4)*lh);
+  if(cnt) cnt.textContent=(_findIdx+1)+"/"+matches.length;
 }
 // байты -> base64 (чанками, чтобы не переполнить стек)
 function bytesToB64(b){var C=0x8000,s="";for(var i=0;i<b.length;i+=C){s+=String.fromCharCode.apply(null,b.subarray(i,i+C));}return btoa(s);}
@@ -2925,6 +2968,20 @@ function enhanceSelect(sel){
   document.getElementById("btnChest").addEventListener("click",downloadChestZip);
   document.querySelectorAll(".tab").forEach(function(el){el.addEventListener("click",function(){showTab(el.dataset.t);});});
   document.querySelectorAll(".dl button[data-f]").forEach(function(b){b.addEventListener("click",function(){if(!FILES.index)build();var f=b.dataset.f;dl(f+".html",FILES[f]);});});
+  // правка исходника на вкладке «✎ исходник» — пишем обратно и пересобираем (не дёргая showTab, чтобы не сбросить текст)
+  var _srcT; document.getElementById("out").addEventListener("input",function(){
+    if(currentTab!=="src") return;
+    setSource(document.getElementById("out").value);
+    clearTimeout(_srcT); _srcT=setTimeout(function(){ try{build();}catch(e){} },400);
+  });
+  // поиск по коду
+  var fi=document.getElementById("findInput");
+  if(fi){
+    fi.addEventListener("input",function(){ runFind("reset"); });
+    fi.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); runFind(e.shiftKey?"prev":"next"); } });
+    document.getElementById("findNext").addEventListener("click",function(){ runFind("next"); });
+    document.getElementById("findPrev").addEventListener("click",function(){ runFind("prev"); });
+  }
 })();
 </script>
 
