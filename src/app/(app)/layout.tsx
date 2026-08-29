@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { periodTitle, periodKeyOf } from '@/lib/period';
 import Contours from '@/components/Contours';
+import ScrollCalm from '@/components/ScrollCalm';
 import TopBar from '@/components/TopBar';
 import Nav from '@/components/Nav';
 import {
@@ -39,6 +40,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         фон под заливку body, и его попросту не видно.
       */}
       <Contours className="fixed inset-0 z-0" />
+      <ScrollCalm />
       <div className="relative z-10 flex flex-1 flex-col gap-2.5 sm:gap-3.5">
       <TopBar
         title={team ? 'MS TEAM' : (user.buyer?.handle ?? user.name)}

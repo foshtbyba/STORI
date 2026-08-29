@@ -97,8 +97,10 @@ export default function OfferFiles({
                   {r.mime.startsWith('image/') ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={`/api/offer-file/${r.id}`}
+                      src={`/api/offer-file/${r.id}?w=96`}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       className="h-9 w-9 rounded-md object-cover"
                     />
                   ) : null}

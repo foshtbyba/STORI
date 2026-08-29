@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import SubmitButton from './SubmitButton';
 import { usd, rub } from '@/lib/money';
 import { addBonus, deleteBonus } from '@/app/actions/bonus';
 import { Panel, PanelHead, Avatar, Empty } from './ui';
@@ -136,12 +137,13 @@ export default function BonusPanel({
             placeholder="за что"
             className={field}
           />
-          <button
-            type="submit"
+          {/* Гаснет на время отправки: иначе второй клик начисляет бонус дважды. */}
+          <SubmitButton
+            pendingLabel="Начисляю…"
             className="h-11 rounded-full bg-sage px-6 text-[13px] font-semibold text-bg transition hover:opacity-90"
           >
             Начислить
-          </button>
+          </SubmitButton>
         </form>
       )}
 

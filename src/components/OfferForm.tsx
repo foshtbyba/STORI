@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import SubmitButton from './SubmitButton';
 import Link from 'next/link';
 import Select from './Select';
 import { PanelHead, Sub } from './ui';
@@ -189,8 +190,9 @@ export default function OfferForm({
             {draft.previewId ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={`/api/offer-file/${draft.previewId}`}
+                src={`/api/offer-file/${draft.previewId}?w=96`}
                 alt=""
+                decoding="async"
                 className="h-11 w-11 shrink-0 rounded-xl border border-line object-cover"
               />
             ) : null}
@@ -355,12 +357,11 @@ export default function OfferForm({
       </Sub>
 
       <div className="mt-5 flex justify-end">
-        <button
-          type="submit"
-          className="w-full rounded-full bg-sage px-6 py-3 text-[13px] font-semibold text-bg transition hover:opacity-90 sm:w-auto sm:py-2.5"
-        >
+        {/* Пока оффер уезжает на сервер, кнопка гаснет: второй клик по ней
+            заводил второй такой же оффер. */}
+        <SubmitButton className="w-full rounded-full bg-sage px-6 py-3 text-[13px] font-semibold text-bg transition hover:opacity-90 sm:w-auto sm:py-2.5">
           Сохранить
-        </button>
+        </SubmitButton>
       </div>
     </form>
   );

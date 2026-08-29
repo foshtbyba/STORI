@@ -95,13 +95,23 @@ export default async function OffersPage({
             const previewFile = offer.files.find((f) => f.kind === 'PREVIEW') ?? null;
             const reviews = offer.files.filter((f) => f.kind === 'REVIEW');
             // Загруженный файл важнее ссылки: ссылок на превью обычно нет вовсе.
-            const previewSrc = previewFile ? `/api/offer-file/${previewFile.id}` : offer.previewUrl;
+            // Плитка высотой 168 — картинку просим под неё, а не в те четыре
+            // тысячи точек, в которых её сняли на телефон.
+            const previewSrc = previewFile
+              ? `/api/offer-file/${previewFile.id}?w=560`
+              : offer.previewUrl;
             return (
               <Panel key={offer.id} className="flex flex-col gap-4 p-3.5">
                 <div className="relative flex h-[168px] items-center justify-center overflow-hidden rounded-[18px] bg-sub">
                   {previewSrc ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={previewSrc} alt="" className="h-full w-full object-cover" />
+                    <img
+                      src={previewSrc}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover"
+                    />
                   ) : (
                     <span className="text-[11.5px] text-mute">превью не загружено</span>
                   )}

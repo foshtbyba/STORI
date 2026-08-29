@@ -16,6 +16,12 @@ export default function Nav({ items }: { items: NavItem[] }) {
           <Link
             key={item.href}
             href={item.href}
+            /*
+              Каждая страница здесь динамическая: предзагрузка не может её
+              закешировать, зато честно тянет с сервера семь отрисовок с
+              запросами в базу при каждом заходе. Отдачи ноль, счёт реальный.
+            */
+            prefetch={false}
             aria-current={active ? 'page' : undefined}
             className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[12.5px] transition ${
               active ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'

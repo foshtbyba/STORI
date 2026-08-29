@@ -70,9 +70,8 @@ body {
   перерисовки всех линий, без него слой едет на видеокарте.
 */
 .contour-drift {
-  contain: paint;
+  contain: layout paint;
   transform: translateZ(0);
-  backface-visibility: hidden;
 }
 
 @media (min-width: 768px) {
@@ -80,6 +79,17 @@ body {
     animation: contour-drift 70s ease-in-out infinite;
     will-change: transform;
   }
+}
+
+/*
+  Пока листают — фон стоит. Панели полупрозрачны, и движущийся фон под ними
+  заставляет браузер пересобирать весь экран на каждом кадре прокрутки:
+  содержимое нельзя просто сдвинуть, под ним каждый раз новая картинка. Метку
+  на `<html>` ставит ScrollCalm и снимает через 150 мс после остановки.
+*/
+html[data-scrolling] .contour-drift {
+  animation-play-state: paused;
+  will-change: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
