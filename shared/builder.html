@@ -689,7 +689,7 @@
       <div id="trBody" style="display:none">
         <label>API-ключ Anthropic</label>
         <input id="trKey" type="password" placeholder="sk-ant-...">
-        <div class="hint" style="margin-top:2px">Ключ хранится только в этой вкладке (в память сессии), никуда не отправляется кроме api.anthropic.com.</div>
+        <div class="hint" style="margin-top:2px">Ключ запоминается <b>только в этом браузере</b> (localStorage) — в файл/репозиторий не попадает, отправляется только на api.anthropic.com. Чтобы убрать — очисти поле.</div>
         <label style="margin-top:10px">Модель</label>
         <select id="trModel">
           <option value="claude-opus-5">Opus 5 — лучшее качество</option>
@@ -2930,6 +2930,9 @@ function enhanceSelect(sel){
   if(!runBtn) return;
   try{ enhanceSelect(modelEl); }catch(e){}
   try{ enhanceSelect(document.getElementById("trForm")); }catch(e){}
+  // API-ключ запоминаем ТОЛЬКО в этом браузере (localStorage) — в файл/репозиторий не попадает.
+  try{ var savedKey=localStorage.getItem("lb_anthropic_key"); if(savedKey) keyEl.value=savedKey; }catch(e){}
+  keyEl.addEventListener("input",function(){ try{ var v=keyEl.value.trim(); if(v) localStorage.setItem("lb_anthropic_key",v); else localStorage.removeItem("lb_anthropic_key"); }catch(e){} });
   function status(msg,cls){ st.className="status"+(cls?(" "+cls):""); st.textContent=msg; }
   // блок переменных: авто из полей билдера + ручной ввод
   function varsBlock(){
