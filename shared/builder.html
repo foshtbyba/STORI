@@ -2983,8 +2983,9 @@ function enhanceSelect(sel){
         body:JSON.stringify({ model:model, max_tokens:64000, stream:true, system:system, messages:[{role:"user",content:user}] })
       });
       if(!res.ok){ var t=""; try{t=await res.text();}catch(e){} status("Ошибка API "+res.status+": "+t.slice(0,240),"warn"); return; }
-      // читаем SSE-поток, копим текст ответа
-      var reader=res.body.getReader(), dec=new TextDecoder(), buf="", out="";
+      // читаем SSE-поток, копим текст ответа. Прогресс % — по длине исходного HTML
+      // (перевод сохраняет структуру → длина вывода ≈ длина входа), максимум 99% до конца.
+      var reader=res.body.getReader(), dec=new TextDecoder(), buf="", out="", expected=Math.max(1, html.length);
       while(true){
         var r=await reader.read(); if(r.done) break;
         buf+=dec.decode(r.value,{stream:true});
@@ -2994,11 +2995,12 @@ function enhanceSelect(sel){
           var d=line.slice(5).trim(); if(!d||d==="[DONE]") continue;
           try{
             var ev=JSON.parse(d);
-            if(ev.type==="content_block_delta" && ev.delta && ev.delta.type==="text_delta"){ out+=ev.delta.text; status("Перевожу… получено "+out.length+" симв.",""); }
+            if(ev.type==="content_block_delta" && ev.delta && ev.delta.type==="text_delta"){ out+=ev.delta.text; var pct=Math.min(99,Math.round(out.length/expected*100)); status("Перевожу… "+pct+"%",""); }
             else if(ev.type==="error"){ status("Ошибка Claude: "+((ev.error&&ev.error.message)||"unknown"),"warn"); return; }
           }catch(e){}
         }
       }
+      status("Перевожу… 100% — собираю","");
       out=stripFence(out);
       if(!out || out.length<100 || !/<html|<!doctype/i.test(out)){ status("Claude вернул подозрительно короткий/непохожий на HTML ответ — проверь ключ/лимиты","warn"); return; }
       putIndex(out);
