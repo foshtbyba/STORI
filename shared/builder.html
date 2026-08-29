@@ -591,6 +591,9 @@
           <input id="chestFolder" type="file" webkitdirectory directory multiple>
         </label>
         <div class="filelist" id="chestList" style="display:none"></div>
+        <button class="btn" id="trRunChest" type="button" style="margin-top:8px;display:none">🌐 Перевести сундук через Claude</button>
+        <div class="hint" id="trChestHint" style="display:none;margin-top:2px">Ключ/модель/промт берутся из блока «🌐 Перевод ленда через Claude» слева. Переведётся HTML сундука и ляжет обратно.</div>
+        <div class="status" id="trStatusChest"></div>
       </div>
     </div>
 
@@ -2528,6 +2531,10 @@ function zipName(cfg){var g=((cfg.langCode||cfg.country||"").trim()).toLowerCase
 var YWBACKFIX_JS=(document.getElementById("yw-src")||{}).textContent||"";
 function renderChestList(){
   var el=document.getElementById("chestList");
+  // кнопка перевода сундука — только когда подключена папка сундука
+  var trc=document.getElementById("trRunChest"), trh=document.getElementById("trChestHint");
+  if(trc) trc.style.display=CHEST_FOLDER?"":"none";
+  if(trh) trh.style.display=CHEST_FOLDER?"":"none";
   if(!CHEST_FOLDER){el.style.display="none";return;}
   el.style.display="block";
   el.innerHTML=CHEST_FOLDER.files.map(function(x){
@@ -2961,30 +2968,29 @@ function enhanceSelect(sel){
   }
   function stripFence(s){ s=String(s||"").trim(); var m=s.match(/^```[a-zA-Z]*\s*\n([\s\S]*?)\n```$/); if(m) return m[1].trim(); return s.replace(/^```[a-zA-Z]*\s*/,"").replace(/\s*```$/,"").trim(); }
 
-  runBtn.addEventListener("click",async function(){
-    if(runBtn.dataset.busy==="1") return;
+  // источник/приёмник HTML сундука (из подключённой папки сундука)
+  function chestSrc(){ if(CHEST_FOLDER && CHEST_FOLDER.mainPath){ var f=CHEST_FOLDER.files.filter(function(x){return x.path===CHEST_FOLDER.mainPath;})[0]; return f?f.str:""; } return ""; }
+  function putChest(str){ if(CHEST_FOLDER && CHEST_FOLDER.mainPath){ CHEST_FOLDER.files.forEach(function(x){ if(x.path===CHEST_FOLDER.mainPath) x.str=str; }); } }
+  function stat(el,msg,cls){ if(!el) return; el.className="status"+(cls?(" "+cls):""); el.textContent=msg; }
+
+  // универсальный перевод: getSrc()->HTML, putDst(HTML) кладёт обратно; статус/кнопка — свои
+  async function doTranslate(getSrc, putDst, stEl, btnEl, what){
+    if(btnEl.dataset.busy==="1") return;
     var key=(keyEl.value||"").trim();
-    if(!key){ status("Вставь API-ключ Anthropic (sk-ant-…)","warn"); return; }
-    var html=indexSrc();
-    if(!html || !html.trim()){ status("Нет ленда: загрузи папку или вставь HTML во вкладке «Вставить HTML»","warn"); return; }
+    if(!key){ stat(stEl,"Вставь API-ключ Anthropic (sk-ant-…) в блоке перевода слева","warn"); return; }
+    var html=getSrc();
+    if(!html || !html.trim()){ stat(stEl,"Нет "+what+": сначала подключи его","warn"); return; }
     var model=modelEl.value, system=(promptEl.value||"").trim();
     var user=varsBlock()+"\n\nHTML:\n"+html;
-    runBtn.dataset.busy="1"; runBtn.disabled=true; var old=runBtn.textContent; runBtn.textContent="⏳ Перевожу…";
-    status("Отправляю в Claude ("+model+")… это может занять минуту","");
+    btnEl.dataset.busy="1"; btnEl.disabled=true; var old=btnEl.textContent; btnEl.textContent="⏳ Перевожу…";
+    stat(stEl,"Отправляю в Claude ("+model+")… это может занять минуту","");
     try{
       var res=await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",
-        headers:{
-          "content-type":"application/json",
-          "x-api-key":key,
-          "anthropic-version":"2023-06-01",
-          "anthropic-dangerous-direct-browser-access":"true"
-        },
+        headers:{ "content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true" },
         body:JSON.stringify({ model:model, max_tokens:64000, stream:true, system:system, messages:[{role:"user",content:user}] })
       });
-      if(!res.ok){ var t=""; try{t=await res.text();}catch(e){} status("Ошибка API "+res.status+": "+t.slice(0,240),"warn"); return; }
-      // читаем SSE-поток, копим текст ответа. Прогресс % — по длине исходного HTML
-      // (перевод сохраняет структуру → длина вывода ≈ длина входа), максимум 99% до конца.
+      if(!res.ok){ var t=""; try{t=await res.text();}catch(e){} stat(stEl,"Ошибка API "+res.status+": "+t.slice(0,240),"warn"); return; }
       var reader=res.body.getReader(), dec=new TextDecoder(), buf="", out="", expected=Math.max(1, html.length);
       while(true){
         var r=await reader.read(); if(r.done) break;
@@ -2993,26 +2999,28 @@ function enhanceSelect(sel){
         for(var i=0;i<parts.length;i++){
           var line=parts[i]; if(line.indexOf("data:")!==0) continue;
           var d=line.slice(5).trim(); if(!d||d==="[DONE]") continue;
-          try{
-            var ev=JSON.parse(d);
-            if(ev.type==="content_block_delta" && ev.delta && ev.delta.type==="text_delta"){ out+=ev.delta.text; var pct=Math.min(99,Math.round(out.length/expected*100)); status("Перевожу… "+pct+"%",""); }
-            else if(ev.type==="error"){ status("Ошибка Claude: "+((ev.error&&ev.error.message)||"unknown"),"warn"); return; }
+          try{ var ev=JSON.parse(d);
+            if(ev.type==="content_block_delta" && ev.delta && ev.delta.type==="text_delta"){ out+=ev.delta.text; var pct=Math.min(99,Math.round(out.length/expected*100)); stat(stEl,"Перевожу… "+pct+"%",""); }
+            else if(ev.type==="error"){ stat(stEl,"Ошибка Claude: "+((ev.error&&ev.error.message)||"unknown"),"warn"); return; }
           }catch(e){}
         }
       }
-      status("Перевожу… 100% — собираю","");
+      stat(stEl,"Перевожу… 100% — собираю","");
       out=stripFence(out);
-      if(!out || out.length<100 || !/<html|<!doctype/i.test(out)){ status("Claude вернул подозрительно короткий/непохожий на HTML ответ — проверь ключ/лимиты","warn"); return; }
-      putIndex(out);
+      if(!out || out.length<100 || !/<html|<!doctype/i.test(out)){ stat(stEl,"Claude вернул подозрительно короткий/непохожий на HTML ответ — проверь ключ/лимиты","warn"); return; }
+      putDst(out);
       try{ build(); }catch(e){}
-      showTab(MODE==="folder"?"preview":"preview");
-      status("Готово ✓ Ленд переведён и вставлен обратно — можно собирать","ok");
+      stat(stEl,"Готово ✓ "+what[0].toUpperCase()+what.slice(1)+" переведён и вставлен обратно — можно собирать","ok");
     }catch(err){
-      status("Сбой запроса: "+(err&&err.message||err)+". Если это CORS/сеть — открой билдер по ссылке (http), а не как файл, либо проверь ключ.","warn");
+      stat(stEl,"Сбой запроса: "+(err&&err.message||err)+". Если CORS/сеть — открой билдер по ссылке (http), а не как файл, либо проверь ключ.","warn");
     }finally{
-      runBtn.dataset.busy=""; runBtn.disabled=false; runBtn.textContent=old;
+      btnEl.dataset.busy=""; btnEl.disabled=false; btnEl.textContent=old;
     }
-  });
+  }
+
+  runBtn.addEventListener("click",function(){ doTranslate(indexSrc, function(s){ putIndex(s); try{showTab("preview");}catch(e){} }, st, runBtn, "ленд"); });
+  var runChest=document.getElementById("trRunChest");
+  if(runChest) runChest.addEventListener("click",function(){ doTranslate(chestSrc, putChest, document.getElementById("trStatusChest"), runChest, "сундук"); });
 })();
 </script>
 </body>
