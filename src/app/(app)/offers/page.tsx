@@ -9,25 +9,44 @@ import OfferForm, { type OfferDraft } from '@/components/OfferForm';
 import CopyOffer from '@/components/CopyOffer';
 import OfferFiles from '@/components/OfferFiles';
 import DeleteOffer from '@/components/DeleteOffer';
-import { IconPlus } from '@/components/icons';
+import { IconPlus, IconSearch } from '@/components/icons';
 
 export default async function OffersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; new?: string; edit?: string }>;
+  searchParams: Promise<{ status?: string; new?: string; edit?: string; q?: string }>;
 }) {
   const user = await requireUser();
   const team = canSeeTeam(user.role as Role);
-  const { status, new: creating, edit } = await searchParams;
+  const { status, new: creating, edit, q } = await searchParams;
+  const query = (q ?? '').trim();
 
-  const offers = await prisma.offer.findMany({
-    where: status && OFFER_STATUS[status] ? { status } : {},
+  const all = await prisma.offer.findMany({
     orderBy: [{ status: 'asc' }, { name: 'asc' }],
     include: {
       geos: { orderBy: { sort: 'asc' } },
       files: { select: { id: true, name: true, size: true, mime: true, kind: true }, orderBy: { createdAt: 'asc' } },
     },
   });
+
+  /*
+    Поиск фильтруем в памяти, а не запросом. Офферов десятки, не миллионы, зато
+    регистр и раскладка гео перестают иметь значение: SQLite не умеет
+    регистронезависимое `contains`, и на базе пришлось бы городить три варианта
+    написания. Гео при этом лежат двумя способами — списком в geosJson и
+    строками в geos, — ищем в обоих, иначе оффер находился бы через раз.
+  */
+  const needle = query.toLowerCase();
+  const matches = (offer: (typeof all)[number]) =>
+    !needle ||
+    offer.name.toLowerCase().includes(needle) ||
+    (offer.vertical ?? '').toLowerCase().includes(needle) ||
+    parseGeos(offer.geosJson).some((g) => g.toLowerCase().includes(needle)) ||
+    offer.geos.some((g) => g.langCode.toLowerCase().includes(needle));
+
+  const found = all.filter(matches);
+  const offers = status && OFFER_STATUS[status] ? found.filter((o) => o.status === status) : found;
+
   const editing = edit
     ? await prisma.offer.findUnique({
         where: { id: edit },
@@ -37,15 +56,30 @@ export default async function OffersPage({
         },
       })
     : null;
-  const counts = await prisma.offer.groupBy({ by: ['status'], _count: true });
-  const total = counts.reduce((a, c) => a + c._count, 0);
+
+  // Счётчики считают найденное: иначе «Активен · 7» при двух карточках на
+  // экране выглядит поломкой.
+  const counts = Object.keys(OFFER_STATUS).map((code) => ({
+    status: code,
+    _count: found.filter((o) => o.status === code).length,
+  }));
+  const total = found.length;
+  // Ссылки на статусы не должны терять запрос, а поиск — выбранный статус.
+  const keep = (extra: Record<string, string>) => {
+    const p = new URLSearchParams();
+    if (status) p.set('status', status);
+    if (query) p.set('q', query);
+    for (const [k, v] of Object.entries(extra)) v ? p.set(k, v) : p.delete(k);
+    const s = p.toString();
+    return s ? `/offers?${s}` : '/offers';
+  };
 
   return (
     <div className="flex flex-col gap-3.5">
       <Panel className="flex flex-wrap items-center gap-3 px-4 py-3 sm:h-[68px] sm:flex-nowrap sm:gap-6 sm:px-5 sm:py-0">
         <div className="no-scrollbar flex basis-full items-center gap-2 overflow-x-auto sm:min-w-0 sm:basis-auto sm:flex-1 sm:gap-2.5">
           <a
-            href="/offers"
+            href={query ? `/offers?q=${encodeURIComponent(query)}` : '/offers'}
             className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[13px] ${!status ? 'bg-raise font-semibold' : 'bg-sub text-mute'}`}
           >
             Все · {total}
@@ -55,7 +89,7 @@ export default async function OffersPage({
             return (
               <a
                 key={code}
-                href={`/offers?status=${code}`}
+                href={keep({ status: code })}
                 className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[13px] ${status === code ? 'bg-raise font-semibold' : 'bg-sub text-mute'}`}
               >
                 {meta.label} · {count}
@@ -64,9 +98,37 @@ export default async function OffersPage({
           })}
         </div>
         <div className="hidden flex-1 sm:block" />
+
+        {/*
+          Обычная GET-форма: искать можно с клавиатуры, ссылку с запросом видно
+          в адресе и её можно переслать. Выбранный статус едет скрытым полем,
+          чтобы поиск не сбрасывал вкладку.
+        */}
+        <form action="/offers" className="flex basis-full items-center gap-2 sm:basis-auto">
+          {status ? <input type="hidden" name="status" value={status} /> : null}
+          <label className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-full border border-line2 bg-sub px-3.5 sm:w-[230px] sm:flex-none">
+            <IconSearch color="#8a8a8a" size={14} />
+            <input
+              name="q"
+              defaultValue={query}
+              placeholder="Название или гео"
+              className="min-w-0 flex-1 bg-transparent text-[12.5px] text-text outline-none placeholder:text-mute"
+            />
+          </label>
+          {query ? (
+            <a
+              href={status ? `/offers?status=${status}` : '/offers'}
+              title="Сбросить поиск"
+              className="shrink-0 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12.5px] text-mute transition hover:border-rust hover:text-rust"
+            >
+              ✕
+            </a>
+          ) : null}
+        </form>
+
         {team ? (
           <a
-            href="/offers?new=1"
+            href={keep({ new: '1' })}
             className="flex w-full shrink-0 items-center justify-center gap-2 rounded-full bg-sage px-4 py-2.5 text-[13px] font-semibold text-bg sm:w-auto"
           >
             <IconPlus color="#141414" size={13} width={2.8} />
@@ -151,22 +213,50 @@ export default async function OffersPage({
 
                 <div className="rounded-[18px] bg-sub px-4 py-3.5">
                   <div className="lab mb-2.5 text-rust">Регионы-исключения</div>
+                  {/*
+                    Короткое исключение — «таблетка», как гео. Но сюда порой
+                    вставляют целый абзац со списком городов: круглые бока
+                    вокруг восьми строк текста превращаются в кляксу. Длинное
+                    кладём строкой во всю ширину и с обычными углами.
+                  */}
                   <div className="flex flex-wrap gap-1.5">
                     {parseGeos(offer.bansJson).map((ban) => (
-                      <span key={ban} className="rounded-full bg-rust-t px-3 py-1 text-[12px] text-rust">{ban}</span>
+                      <span
+                        key={ban}
+                        className={
+                          ban.length > 28
+                            ? 'basis-full rounded-xl bg-rust-t px-3.5 py-2.5 text-[12px] leading-relaxed text-rust'
+                            : 'rounded-full bg-rust-t px-3 py-1 text-[12px] text-rust'
+                        }
+                      >
+                        {ban}
+                      </span>
                     ))}
                     {parseGeos(offer.bansJson).length === 0 ? <span className="text-[12px] text-mute">нет</span> : null}
                   </div>
                 </div>
 
+                {/*
+                  Заметки идут сразу за исключениями, вплотную. Раньше распорка
+                  стояла над ними, и на короткой карточке они улетали к самому
+                  низу: в соседних карточках одно и то же поле оказывалось на
+                  разной высоте. Тянется теперь пустота под заметками — к низу
+                  прижат только подвал с кнопками, он и должен быть на одной
+                  линии у всех карточек.
+                */}
+                {parseGeos(offer.notesJson).length ? (
+                  <div className="px-1.5">
+                    {parseGeos(offer.notesJson).map((note) => (
+                      <div key={note} className="mb-2 flex gap-2.5">
+                        <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-mute" />
+                        <span className="text-[12.5px] leading-relaxed text-soft">{note}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+
                 <div className="flex-1" />
                 <div className="px-1.5 pb-1">
-                  {parseGeos(offer.notesJson).map((note) => (
-                    <div key={note} className="mb-2 flex gap-2.5">
-                      <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-mute" />
-                      <span className="text-[12.5px] leading-relaxed text-soft">{note}</span>
-                    </div>
-                  ))}
                   {/* Данные для конструктора: гео на выбор — под каждое своё. */}
                   {team ? (
                     <>
