@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
-import { requireAdmin } from '@/lib/auth';
+import { requireAdmin, requireUser } from '@/lib/auth';
 import { checkToken, FbError } from '@/lib/fb';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
 import { checkBrocard, BrocardError } from '@/lib/brocard';
@@ -65,6 +65,53 @@ export async function addToken(_prev: ActionState, form: FormData): Promise<Acti
 
   revalidatePath('/integrations');
   return { ok: true, message: `${found.name}: кабинетов найдено ${found.accounts.length}` };
+}
+
+/**
+ * Баер привязывает СВОЙ кабинет сам, из раздела «Реклама». Никакого выбора
+ * баера тут нет — токен всегда вешается на того, кто его добавляет.
+ */
+export async function addMyToken(_prev: ActionState, form: FormData): Promise<ActionState> {
+  const user = await requireUser();
+  if (!user.buyer) return { ok: false, error: 'У аккаунта нет профиля баера' };
+
+  const token = String(form.get('token') ?? '').trim();
+  const label = String(form.get('label') ?? '').trim().slice(0, 80);
+  if (token.length < 20) {
+    return { ok: false, error: 'Токен слишком короткий — похоже, скопировался не весь' };
+  }
+
+  let found;
+  try {
+    found = await checkToken(token);
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+
+  const created = await prisma.adToken.create({
+    data: { buyerId: user.buyer.id, label: label || found.name, token },
+  });
+  for (const acc of found.accounts) {
+    await prisma.adAccount.create({
+      data: { tokenId: created.id, externalId: acc.externalId, name: acc.name, currency: acc.currency },
+    });
+  }
+
+  revalidatePath('/ads');
+  revalidatePath('/integrations');
+  return { ok: true, message: `${found.name}: кабинетов найдено ${found.accounts.length}` };
+}
+
+/** Свой токен баер может и удалить — только свой. */
+export async function deleteMyToken(form: FormData) {
+  const user = await requireUser();
+  const id = String(form.get('id') ?? '');
+  const token = id ? await prisma.adToken.findUnique({ where: { id } }) : null;
+  // Чужой токен не трогаем: удалять можно только то, что привязано к себе.
+  if (token && user.buyer && token.buyerId === user.buyer.id) {
+    await prisma.adToken.delete({ where: { id } });
+  }
+  revalidatePath('/ads');
 }
 
 export async function deleteToken(form: FormData) {

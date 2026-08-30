@@ -4,6 +4,8 @@ import { prisma } from '@/lib/db';
 import { fmtDay, weekBounds, weekKey } from '@/lib/period';
 import { usd } from '@/lib/money';
 import { Panel, PanelHead, Sub, Empty, Avatar } from '@/components/ui';
+import { MyTokenForm } from '@/components/IntegrationForms';
+import { deleteMyToken } from '@/app/actions/integrations';
 import { IconRocket, IconWallet, IconTag, IconChart } from '@/components/icons';
 
 /**
@@ -63,9 +65,9 @@ export default async function AdsOverviewPage() {
         />
         {tokens.length === 0 ? (
           <Empty>
-            {team
-              ? 'Токенов пока нет — добавь их в «Статистика → Источники».'
-              : 'Твои кабинеты ещё не подключены — попроси админа или добавь токен, когда откроем это баерам.'}
+            {user.buyer
+              ? 'Кабинеты ещё не подключены — добавь свой токен ниже.'
+              : 'Токенов пока нет — добавь их в «Статистика → Источники».'}
           </Empty>
         ) : (
           tokens.map((token) => (
@@ -83,6 +85,15 @@ export default async function AdsOverviewPage() {
                     {token.enabled ? 'включён' : 'выключен'}
                   </span>
                 </span>
+                {/* Свой токен можно снять прямо тут; чужие — только у админа в Источниках. */}
+                {user.buyer && token.buyerId === user.buyer.id ? (
+                  <form action={deleteMyToken}>
+                    <input type="hidden" name="id" value={token.id} />
+                    <button type="submit" className="px-1 text-[13px] text-dim transition hover:text-rust" title="Отвязать">
+                      ✕
+                    </button>
+                  </form>
+                ) : null}
               </div>
               <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {token.accounts.map((acc) => (
@@ -106,6 +117,23 @@ export default async function AdsOverviewPage() {
           Цифра рядом с кабинетом — расход из ФБ за текущую неделю, для справки. В зарплату идёт
           расход с Brocard.
         </p>
+
+        {/* Баер подключает свой кабинет сам, прямо здесь. Команду целиком
+            админ по-прежнему настраивает в «Статистика → Источники». */}
+        {user.buyer ? (
+          <div className="mt-5 border-t border-line pt-4">
+            <div className="text-[12.5px] font-semibold">Подключить свой кабинет</div>
+            <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
+              Токен из Facebook или мультитокен из антидетекта. Всё, что видно под ним, — твои
+              кабинеты; расход отсюда справочный.
+            </p>
+            <MyTokenForm />
+          </div>
+        ) : (
+          <div className="mt-5 border-t border-line pt-4 text-[11.5px] text-mute">
+            Кабинеты команды подключаются в «Статистика → Источники».
+          </div>
+        )}
       </Panel>
 
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 lg:gap-3.5">

@@ -3,6 +3,7 @@
 import { useActionState, useState, useTransition } from 'react';
 import {
   addToken,
+  addMyToken,
   saveTracker,
   saveBrocard,
   runSync,
@@ -113,6 +114,41 @@ export function TrackerForm({ baseUrl, hasKey }: { baseUrl: string; hasKey: bool
           className="rounded-full bg-sage px-6 py-2.5 text-[13px] font-semibold text-bg transition hover:opacity-90"
         >
           Проверить и сохранить
+        </SubmitButton>
+      </div>
+      <Answer state={state} />
+    </form>
+  );
+}
+
+/** Баер привязывает свой кабинет сам — без выбора баера. */
+export function MyTokenForm() {
+  const [state, action] = useActionState(addMyToken, null);
+  return (
+    <form action={action} className="mt-4 flex flex-col gap-2.5">
+      <label className="block">
+        <span className="mb-1.5 block text-[11.5px] text-mute">Подпись (необязательно)</span>
+        <input name="label" placeholder="BM основной" className={field} />
+      </label>
+      <label className="block">
+        <span className="mb-1.5 block text-[11.5px] text-mute">Токен или мультитокен</span>
+        <textarea
+          name="token"
+          placeholder="EAAB… или мультитокен eyJ…"
+          rows={2}
+          className={`${field} n h-auto resize-y py-2.5`}
+          required
+        />
+        <span className="mt-1 block text-[11px] text-dim">
+          Плоский токен или мультитокен из антидетекта — ключ достанется сам.
+        </span>
+      </label>
+      <div className="flex justify-end">
+        <SubmitButton
+          pendingLabel="Проверяю токен…"
+          className="rounded-full bg-sage px-6 py-2.5 text-[13px] font-semibold text-bg transition hover:opacity-90"
+        >
+          Подключить кабинет
         </SubmitButton>
       </div>
       <Answer state={state} />
