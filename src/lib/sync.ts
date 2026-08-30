@@ -25,6 +25,14 @@ import { dailySpend, listTeams, BrocardError } from './brocard';
  *  часов, поэтому «вчера и всё» мало: последние дни переписываем заново. */
 export const SYNC_DAYS = 4;
 
+/**
+ * Часовой пояс, в котором трекер и кабинеты считают «сутки». Все кабинеты
+ * команды в Москве, поэтому и доход, и расход просим в московском времени —
+ * иначе день съезжает на три часа и цифры не сходятся с тем, что баер видит у
+ * себя. Меняется переменной окружения SYNC_TZ.
+ */
+export const SYNC_TZ = process.env.SYNC_TZ || 'Europe/Moscow';
+
 type Report = {
   buyerId: string;
   date: Date;
@@ -231,7 +239,7 @@ export async function syncKeitaro(days = SYNC_DAYS): Promise<SyncResult> {
     const buyerOfGroup = new Map(linked.map((g) => [g.externalId, g.buyerId!]));
     const groupOfCampaign = new Map(campaigns.map((c) => [c.id, c.groupId]));
 
-    const rows = await dailyRevenue(tracker.baseUrl, tracker.apiKey, from, to);
+    const rows = await dailyRevenue(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
 
     /** Доход по «баер + день»: у баера обычно несколько кампаний. */
     const byBuyerDay = new Map<string, number>();
@@ -301,7 +309,7 @@ export async function syncBrocard(days = SYNC_DAYS): Promise<SyncResult> {
     const linked = await prisma.brocardTeam.findMany({ where: { buyerId: { not: null } } });
     const buyerOfTeam = new Map(linked.map((t) => [t.externalId, t.buyerId!]));
 
-    const rows = await dailySpend(config.apiKey, from, to);
+    const rows = await dailySpend(config.apiKey, from, to, SYNC_TZ);
 
     /** Расход по «баер + день»: net и gross (с комиссией Brocard) отдельно. */
     const net = new Map<string, number>();

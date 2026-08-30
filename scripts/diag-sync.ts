@@ -1,118 +1,146 @@
 /**
- * Диагностика синхронизации за один день:
- *   npx tsx scripts/diag-sync.ts 2026-08-29 [handle]
+ * Диагностика синка за день — БЕЗ ДОГАДОК:
+ *   npx tsx scripts/diag-sync.ts 2026-08-29 SGY
  *
- * Ничего не меняет. Показывает три вещи по указанной дате:
- *   1) что лежит в отчётах дня в базе (и синк это писал или рука);
- *   2) СЫРОЙ ответ Keitaro по кампаниям — все поля выручки, чтобы понять, где
- *      настоящий доход;
- *   3) СЫРЫЕ платежи Brocard — amount, комиссия, статус, команда.
- *
- * По этому выводу видно, какое поле брать за доход и за расход на вашей сборке,
- * — и я поправлю маппинг точно, без догадок. Ключи берутся из базы, никуда не
- * отправляются, только читаются.
+ * Ничего не меняет. Повторяет ровно то, что делает синхронизация (окно в 4 дня,
+ * московское время), и показывает для указанного баера:
+ *   1) что лежит в отчётах дня в базе;
+ *   2) Keitaro: какие кампании привязаны к баеру и сколько дохода по каждому
+ *      ДНЮ окна — так видно, не схлопнулись ли дни в один и то ли поле берём;
+ *   3) Brocard: сколько расхода по его командам по каждому дню окна.
  */
 import { PrismaClient } from '@prisma/client';
 
 const db = new PrismaClient();
+const TZ = process.env.SYNC_TZ || 'Europe/Moscow';
 
-function pretty(obj: unknown) {
-  return JSON.stringify(obj, null, 2);
+function windowDays(date: string, count = 4) {
+  const out: string[] = [];
+  const d = new Date(`${date}T00:00:00.000Z`);
+  for (let i = count - 1; i >= 0; i -= 1) {
+    const x = new Date(d);
+    x.setUTCDate(x.getUTCDate() - i);
+    out.push(x.toISOString().slice(0, 10));
+  }
+  return out;
 }
 
 async function main() {
   const date = process.argv[2];
   const handle = process.argv[3];
-  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    console.error('Укажи дату: npx tsx scripts/diag-sync.ts 2026-08-29 [handle]');
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !handle) {
+    console.error('npx tsx scripts/diag-sync.ts 2026-08-29 SGY');
     process.exit(1);
   }
-  const from = new Date(`${date}T00:00:00.000Z`);
-  const to = new Date(from);
-  to.setUTCDate(to.getUTCDate() + 1);
+  const days = windowDays(date);
+  const from = days[0];
+  const to = days[days.length - 1];
+  console.log(`Окно синка (МСК): ${from} … ${to}, часовой пояс ${TZ}\n`);
 
-  // ── 1. Что в базе ──────────────────────────────────────────────────────
-  const buyers = await db.buyer.findMany({ select: { id: true, handle: true } });
-  const byId = new Map(buyers.map((b) => [b.id, b.handle]));
+  const buyer = await db.buyer.findFirst({ where: { handle } });
+  if (!buyer) {
+    console.error(`Баер ${handle} не найден`);
+    process.exit(1);
+  }
+
+  // ── 1. База ────────────────────────────────────────────────────────────
   const rows = await db.dayReport.findMany({
-    where: { date: { gte: from, lt: to } },
-    orderBy: { buyerId: 'asc' },
+    where: {
+      buyerId: buyer.id,
+      date: { gte: new Date(`${from}T00:00:00Z`), lt: new Date(`${to}T00:00:00Z`) },
+    },
+    orderBy: { date: 'asc' },
   });
-  console.log(`\n=== БАЗА: отчёты дня за ${date} ===`);
+  console.log('=== БАЗА (отчёты дня баера в окне) ===');
   for (const r of rows) {
-    const h = byId.get(r.buyerId) ?? r.buyerId;
-    if (handle && h !== handle) continue;
     console.log(
-      `${h} | source=${r.source} offerId=${r.offerId ?? '—'} | ` +
-        `доход=$${(r.revenueCents / 100).toFixed(2)} расход=$${(r.spendNetCents / 100).toFixed(2)} ` +
-        `сКомиссией=$${(r.spendGrossCents / 100).toFixed(2)} (${(r.commissionBps / 100).toFixed(2)}%) | ` +
-        `синк: доход=${r.revenueSyncedCents ?? '—'} расход=${r.spendSyncedCents ?? '—'} ` +
-        `${r.syncedAt ? 'был' : 'ручная'} | note="${r.note}"`,
+      `${r.date.toISOString().slice(0, 10)} | доход=$${(r.revenueCents / 100).toFixed(0)} ` +
+        `расход=$${(r.spendNetCents / 100).toFixed(0)} | синк-доход=${r.revenueSyncedCents} синк-расход=${r.spendSyncedCents}`,
     );
   }
 
-  // ── 2. Keitaro сырой ───────────────────────────────────────────────────
+  // ── 2. Keitaro по дням ─────────────────────────────────────────────────
   const tracker = await db.tracker.findFirst();
   if (tracker) {
     const base = tracker.baseUrl.trim().replace(/\/+$/, '').replace(/\/admin_api(\/v1)?$/, '');
-    const res = await fetch(`${base}/admin_api/v1/report/build`, {
+    const H = { 'Api-Key': tracker.apiKey, 'Content-Type': 'application/json', Accept: 'application/json' };
+
+    // Кампании баера = кампании, чья группа привязана к нему.
+    const myGroups = new Set(
+      (await db.trackerGroup.findMany({ where: { buyerId: buyer.id } })).map((g) => g.externalId),
+    );
+    const campRes = await fetch(`${base}/admin_api/v1/campaigns`, { headers: H });
+    const camps = (await campRes.json()) as Record<string, unknown>[];
+    const myCamps = new Set(
+      camps
+        .filter((c) => {
+          const gid = String((c.group as { id?: unknown })?.id ?? c.group_id ?? '');
+          return myGroups.has(gid);
+        })
+        .map((c) => String(c.id)),
+    );
+    console.log(`\n=== KEITARO: групп у баера ${myGroups.size}, кампаний ${myCamps.size} ===`);
+
+    const rep = await fetch(`${base}/admin_api/v1/report/build`, {
       method: 'POST',
-      headers: { 'Api-Key': tracker.apiKey, 'Content-Type': 'application/json', Accept: 'application/json' },
+      headers: H,
       body: JSON.stringify({
-        range: { from: date, to: date, timezone: 'UTC' },
+        range: { from, to, timezone: TZ },
         grouping: ['day', 'campaign_id'],
-        // Просим ВСЕ похожие на доход метрики, чтобы увидеть, где настоящая.
-        metrics: ['conversions', 'sales', 'leads', 'sale_revenue', 'revenue', 'cost', 'profit'],
+        metrics: ['conversions', 'leads', 'sale_revenue', 'revenue'],
         filters: [],
-        limit: 50,
+        limit: 10000,
       }),
     });
-    const text = await res.text();
-    console.log(`\n=== KEITARO /report/build (${res.status}) ===`);
-    try {
-      const j = JSON.parse(text);
-      console.log('строк:', (j.rows ?? []).length);
-      console.log(pretty((j.rows ?? []).slice(0, 8)));
-    } catch {
-      console.log(text.slice(0, 500));
+    const j = (await rep.json()) as { rows?: Record<string, unknown>[] };
+    const perDay = new Map<string, number>();
+    const daysSeen = new Set<string>();
+    for (const row of j.rows ?? []) {
+      const day = String(row.day ?? row.date ?? '').slice(0, 10);
+      daysSeen.add(day);
+      if (!myCamps.has(String(row.campaign_id ?? ''))) continue;
+      // как в синке: первое ненулевое из sale_revenue/revenue
+      const val = [row.sale_revenue, row.revenue]
+        .map((v) => Number(v))
+        .find((n) => Number.isFinite(n) && n !== 0) ?? 0;
+      perDay.set(day, (perDay.get(day) ?? 0) + val);
     }
-  } else {
-    console.log('\n=== KEITARO: не настроен ===');
+    console.log('дни в ответе Keitaro:', [...daysSeen].sort().join(', '));
+    console.log('ДОХОД баера по дням (то, что запишет синк):');
+    for (const d of days) console.log(`  ${d}: $${(perDay.get(d) ?? 0).toFixed(0)}`);
   }
 
-  // ── 3. Brocard сырой ───────────────────────────────────────────────────
+  // ── 3. Brocard по дням ─────────────────────────────────────────────────
   const brocard = await db.brocardConfig.findFirst();
   if (brocard) {
-    const url = new URL('https://private.mybrocard.com/api/v2/payments');
-    url.searchParams.set('tz', 'UTC');
-    url.searchParams.set('per_page', '100');
-    url.searchParams.set('dates[begin]', date);
-    url.searchParams.set('dates[end]', date);
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${brocard.apiKey}`, Accept: 'application/json' },
-    });
-    const text = await res.text();
-    console.log(`\n=== BROCARD /payments (${res.status}) ===`);
-    try {
-      const j = JSON.parse(text);
-      const data = (j.data ?? []) as Record<string, unknown>[];
-      console.log('платежей:', data.length, '· страниц:', j.last_page);
-      for (const p of data.slice(0, 12)) {
-        const user = (p.user ?? {}) as { team?: { id?: unknown; name?: unknown } };
-        const fees = (p.fees ?? []) as { amount?: unknown; currency?: unknown }[];
-        console.log(
-          `id=${p.id} amount=${p.amount} ${p.currency} ` +
-            `fees=${fees.map((f) => `${f.amount}${f.currency}`).join('+') || '—'} ` +
-            `micro=${p.is_micro} decline=${JSON.stringify(p.decline)} ` +
-            `state=${JSON.stringify((p.state as { label?: unknown })?.label)} ` +
-            `team=${user.team?.id}/${JSON.stringify(user.team?.name)} date=${p.date}`,
-        );
+    const myTeams = new Set(
+      (await db.brocardTeam.findMany({ where: { buyerId: buyer.id } })).map((t) => t.externalId),
+    );
+    console.log(`\n=== BROCARD: команд у баера ${myTeams.size} (${[...myTeams].join(', ')}) ===`);
+    console.log('РАСХОД баера по дням:');
+    for (const d of days) {
+      const url = new URL('https://private.mybrocard.com/api/v2/payments');
+      url.searchParams.set('tz', TZ);
+      url.searchParams.set('per_page', '100');
+      url.searchParams.set('dates[begin]', d);
+      url.searchParams.set('dates[end]', d);
+      let sum = 0;
+      let count = 0;
+      for (let page = 1; page <= 20; page += 1) {
+        url.searchParams.set('page', String(page));
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${brocard.apiKey}`, Accept: 'application/json' } });
+        const j = (await res.json()) as { data?: Record<string, unknown>[]; last_page?: number };
+        for (const p of j.data ?? []) {
+          if (p.is_micro === true || p.decline) continue;
+          const team = String(((p.user as { team?: { id?: unknown } })?.team?.id) ?? '');
+          if (!myTeams.has(team)) continue;
+          sum += Number(p.amount ?? 0);
+          count += 1;
+        }
+        if (page >= Number(j.last_page ?? 1)) break;
       }
-    } catch {
-      console.log(text.slice(0, 500));
+      console.log(`  ${d}: $${sum.toFixed(2)} (${count} платежей)`);
     }
-  } else {
-    console.log('\n=== BROCARD: не настроен ===');
   }
 }
 
