@@ -1,4 +1,4 @@
-import { grossUp, wholeDollars } from './money';
+import { grossUp, ceilDollars } from './money';
 
 /**
  * Правило, по которому синхронизация решает, можно ли переписать цифру.
@@ -57,14 +57,14 @@ export function mergeDay(existing: DayState, incoming: Incoming): Merge {
     // Всё, что приходит из синка, округляем до целых долларов — тем же
     // правилом, что и ручной ввод. Иначе колонки «доход − расход = профит» не
     // сходятся после поцентного округления в usd().
-    const net = wholeDollars(incoming.spendCents);
+    const net = ceilDollars(incoming.spendCents);
     if (untouched(existing.spendNetCents, existing.spendSyncedCents)) {
       data.spendNetCents = net;
       // Комиссия: если источник знает фактическую (Brocard) — берём её, иначе
       // считаем по ставке строки, как для ручного ввода.
       data.spendGrossCents =
         incoming.spendGrossCents !== undefined
-          ? wholeDollars(incoming.spendGrossCents)
+          ? ceilDollars(incoming.spendGrossCents)
           : grossUp(net, existing.commissionBps);
       data.spendSyncedCents = net;
     } else {
@@ -73,7 +73,7 @@ export function mergeDay(existing: DayState, incoming: Incoming): Merge {
   }
 
   if (incoming.revenueCents !== undefined) {
-    const revenue = wholeDollars(incoming.revenueCents);
+    const revenue = ceilDollars(incoming.revenueCents);
     if (untouched(existing.revenueCents, existing.revenueSyncedCents)) {
       data.revenueCents = revenue;
       data.revenueSyncedCents = revenue;
