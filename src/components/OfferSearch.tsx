@@ -55,7 +55,10 @@ export default function OfferSearch({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Название или гео"
-          className="min-w-0 flex-1 bg-transparent text-[12.5px] text-text outline-none placeholder:text-mute"
+          // Внутреннюю подсветку убираем наглухо (инлайн бьёт глобальный
+          // input:focus-visible) — зелёная рамка живёт на всей плитке, а не на поле.
+          style={{ outline: 'none' }}
+          className="min-w-0 flex-1 bg-transparent text-[12.5px] text-text placeholder:text-mute"
         />
       </label>
 

@@ -3,12 +3,9 @@
 import { useEffect, useState } from 'react';
 
 /**
- * Удаление оффера в два шага. Промахнуться по «удалить» легко, а вместе с
- * оффером уходят гео и файлы — поэтому сначала спрашиваем.
- *
- * Появляется подтверждение на том же месте: красная «Удалить» плавно
- * выезжает вправо, а на старом месте кнопки оказывается «Отмена». Так
- * рефлекторный второй клик попадает в отмену, а не в удаление.
+ * Удаление оффера в два шага — промахнуться легко, а вместе с оффером уходят
+ * гео и файлы. Подтверждение появляется на том же месте справа, плавно
+ * (проявление + лёгкий зум), ничего не прыгает и никуда не убегает.
  */
 export default function DeleteOffer({
   id,
@@ -35,47 +32,43 @@ export default function DeleteOffer({
     };
   }, [armed]);
 
-  if (!armed) {
-    return (
-      <button
-        type="button"
-        onClick={() => setArmed(true)}
-        className="rounded-full border border-line2 bg-sub px-3.5 py-1.5 text-[11.5px] text-mute transition hover:border-rust hover:text-rust"
-      >
-        удалить
-      </button>
-    );
-  }
+  // Имя не показываем — оно и так на карточке; в подтверждении только кнопки.
+  void name;
 
   return (
-    <span className="inline-flex items-center gap-2">
-      <span
-        className={`hidden max-w-[150px] truncate text-[12px] text-soft transition-all duration-200 sm:inline ${
-          show ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        Удалить «{name}»?
-      </span>
-      {/* Красная «Удалить» выезжает вправо из-под «Отмены». */}
-      <form action={action}>
-        <input type="hidden" name="id" value={id} />
+    <span className="inline-flex items-center justify-end">
+      {!armed ? (
         <button
-          type="submit"
-          className={`rounded-full bg-rust px-3.5 py-1.5 text-[12px] font-semibold text-bg transition-all duration-200 ease-out hover:opacity-90 ${
-            show ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'
+          type="button"
+          onClick={() => setArmed(true)}
+          className="rounded-full border border-line2 bg-sub px-3.5 py-1.5 text-[11.5px] text-mute transition hover:border-rust hover:text-rust"
+        >
+          удалить
+        </button>
+      ) : (
+        <span
+          className={`inline-flex items-center gap-2 transition-all duration-200 ease-out ${
+            show ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
           }`}
         >
-          Удалить
-        </button>
-      </form>
-      {/* «Отмена» — ровно там, где была кнопка «удалить». */}
-      <button
-        type="button"
-        onClick={() => setArmed(false)}
-        className="rounded-full border border-line2 bg-sub px-3.5 py-1.5 text-[12px] text-mute transition hover:text-soft"
-      >
-        Отмена
-      </button>
+          <form action={action}>
+            <input type="hidden" name="id" value={id} />
+            <button
+              type="submit"
+              className="rounded-full bg-rust px-3.5 py-1.5 text-[12px] font-semibold text-bg transition hover:opacity-90"
+            >
+              Удалить
+            </button>
+          </form>
+          <button
+            type="button"
+            onClick={() => setArmed(false)}
+            className="rounded-full border border-line2 bg-sub px-3.5 py-1.5 text-[12px] text-mute transition hover:text-soft"
+          >
+            Отмена
+          </button>
+        </span>
+      )}
     </span>
   );
 }
