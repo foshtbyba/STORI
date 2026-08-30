@@ -98,9 +98,19 @@ export async function dailySpend(
 
     const data = ((raw as { data?: unknown }).data ?? []) as Record<string, unknown>[];
     for (const p of data) {
-      // Микро-проверки карты и отклонённые платежи денег не стоили.
+      // Микро-проверки карты и отклонённые платежи денег не стоили. У decline
+      // проверяем не просто «истинность»: строка «0»/«false» тоже истинна, а
+      // это валидный платёж — отбрасывать его нельзя.
       if (p.is_micro === true) continue;
-      if (p.decline) continue;
+      const decline = p.decline;
+      const declined =
+        decline !== null &&
+        decline !== undefined &&
+        decline !== '' &&
+        decline !== '0' &&
+        decline !== 'false' &&
+        decline !== false;
+      if (declined) continue;
 
       const day = String(p.date ?? '').slice(0, 10);
       if (!day) continue;
@@ -112,8 +122,13 @@ export async function dailySpend(
       const amountCents = Math.round(Number(p.amount ?? 0) * 100);
       if (!Number.isFinite(amountCents)) continue;
 
+      const currency = String(p.currency ?? 'USD');
+      // Комиссию складываем только в валюте самого платежа: fee в другой валюте
+      // как доллары суммировать нельзя. Чужую валюту не пересчитываем — курса
+      // у нас нет, и такой день честнее поправить руками.
       const fees = (p.fees ?? []) as { amount?: unknown; currency?: unknown }[];
       const feeCents = fees.reduce((sum, f) => {
+        if (f.currency && String(f.currency) !== currency) return sum;
         const c = Math.round(Number(f.amount ?? 0) * 100);
         return Number.isFinite(c) ? sum + c : sum;
       }, 0);

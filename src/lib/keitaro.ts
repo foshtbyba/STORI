@@ -124,7 +124,11 @@ export async function dailyRevenue(
   for (const row of rows) {
     const day = String(row.day ?? row.date ?? '').slice(0, 10);
     if (!day) continue;
-    const money = pickNumber(row, ['sale_revenue', 'revenue', 'profit']);
+    // Доход, а не профит: `profit` в кандидаты не берём, иначе на сборке, где
+    // выручки нет, в выручку уехал бы профит. Из двух названий выручки берём
+    // первое НЕнулевое: где-то `sale_revenue` всегда присутствует нулём-
+    // заглушкой, а настоящая сумма лежит в `revenue`.
+    const money = pickNumber(row, ['sale_revenue', 'revenue']);
     out.push({
       date: day,
       campaignId: String(row.campaign_id ?? ''),
@@ -135,13 +139,17 @@ export async function dailyRevenue(
   return out;
 }
 
-/** Первое поле из списка, в котором лежит число. Ноль — тоже значение. */
+/**
+ * Первое НЕнулевое число из списка полей. Ноль пропускаем как возможную
+ * заглушку и берём следующее имя; если везде ноль или пусто — значит дохода
+ * правда нет, возвращаем ноль.
+ */
 function pickNumber(row: Record<string, unknown>, keys: string[]) {
   for (const key of keys) {
     const v = row[key];
     if (v === null || v === undefined || v === '') continue;
     const n = Number(v);
-    if (Number.isFinite(n)) return n;
+    if (Number.isFinite(n) && n !== 0) return n;
   }
   return 0;
 }

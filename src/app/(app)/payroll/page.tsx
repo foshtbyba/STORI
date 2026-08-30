@@ -36,7 +36,12 @@ export default async function PayrollPage({
   const rows = team ? summary.buyers : summary.buyers.filter((r) => r.buyer.id === scoped);
   const totals = payrollTotals(rows);
   const profitCents = sum(rows, (r) => r.profitCents);
-  const consumableCents = sum(rows, (r) => r.consumableCents);
+  // В зарплатную базу входят только те расходники, что влияют на оклад. Если
+  // сложить сюда и «не влияющие», строка «профит − расходники = считаем с» не
+  // сойдётся: база вычитает лишь заряженные.
+  const consumableCents = sum(rows, (r) =>
+    r.buyer.consumablesAffectSalary ? r.consumableCents : 0,
+  );
 
   async function close() {
     'use server';
@@ -229,13 +234,20 @@ export default async function PayrollPage({
               </span>
             </span>
             <span className="n hidden text-right text-[13.5px] text-soft lg:block">{usd(row.profitCents)}</span>
-            <span
-              className={`n hidden text-right text-[13.5px] lg:block ${
-                row.consumableCents ? 'text-rust' : 'text-mute'
-              }`}
-            >
-              {row.consumableCents ? `−${usd(row.consumableCents)}` : usd(0)}
-            </span>
+            {/* Показываем только заряженные расходники — те, что реально ушли в
+                базу. Иначе колонка не сходится с итогом и с «считаем с». */}
+            {(() => {
+              const charged = row.buyer.consumablesAffectSalary ? row.consumableCents : 0;
+              return (
+                <span
+                  className={`n hidden text-right text-[13.5px] lg:block ${
+                    charged ? 'text-rust' : 'text-mute'
+                  }`}
+                >
+                  {charged ? `−${usd(charged)}` : usd(0)}
+                </span>
+              );
+            })()}
             <span className="n hidden text-right text-[13.5px] lg:block">{usd(row.baseCents)}</span>
             <span className="text-right">
               <span

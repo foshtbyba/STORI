@@ -108,12 +108,22 @@ export async function teamSummary(key: string, range?: Range) {
   });
 
   const ranked = [...rows].sort((a, b) => b.netCents - a.netCents);
+
+  // Считаем и показываем только по активным баерам. Профит и так берётся по
+  // ним, а вот расходники и сырой список дней приходят по всей базе: если их
+  // не отфильтровать, архивный баер попадёт в график и в расходники, но не в
+  // заголовок — и цифры перестанут сходиться. Расходники команды (без баера)
+  // оставляем: они общие.
+  const activeIds = new Set(buyers.map((b) => b.id));
+  const shownConsumables = consumables.filter((c) => !c.buyerId || activeIds.has(c.buyerId));
+  const shownDays = days.filter((d) => activeIds.has(d.buyerId));
+
   const totals = {
     revenueCents: sum(rows, (r) => r.revenueCents),
     spendNetCents: sum(rows, (r) => r.spendNetCents),
     spendGrossCents: sum(rows, (r) => r.spendGrossCents),
     profitCents: sum(rows, (r) => r.profitCents),
-    consumableCents: sum(consumables, (c) => c.totalCents),
+    consumableCents: sum(shownConsumables, (c) => c.totalCents),
     netCents: sum(rows, (r) => r.netCents),
     salaryCents: sum(rows, (r) => r.salaryCents),
     bonusCents: sum(rows, (r) => r.bonusCents),
@@ -129,8 +139,8 @@ export async function teamSummary(key: string, range?: Range) {
       roi: totals.spendGrossCents ? (totals.profitCents / totals.spendGrossCents) * 100 : 0,
       teamNetCents: totals.profitCents - totals.consumableCents - totals.payoutCents,
     },
-    consumables,
-    days,
+    consumables: shownConsumables,
+    days: shownDays,
   };
 }
 

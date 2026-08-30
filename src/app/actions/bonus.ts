@@ -9,7 +9,9 @@ import { wholeDollars } from '@/lib/money';
 
 const Input = z.object({
   buyerId: z.string().min(1),
-  periodKey: z.string().regex(/^\d{4}-\d{2}$/),
+  // Расчётный период — неделя (ключ YYYY-MM-DD). Старый месячный ключ
+  // (YYYY-MM) тоже принимаем: под ним лежат бонусы, начисленные до перехода.
+  periodKey: z.string().regex(/^\d{4}-\d{2}(-\d{2})?$/),
   amountCents: z.number().int().min(1),
   note: z.string().max(200),
 });

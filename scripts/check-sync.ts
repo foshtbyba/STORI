@@ -76,11 +76,23 @@ check(
 const gross = mergeDay(day(), { spendCents: 10_000 }).data.spendGrossCents;
 check('расход с комиссией больше чистого', gross > 10_000, true);
 
-// Явная комиссия (Brocard знает фактическую) уважается как есть, без расчёта.
+// Явная комиссия (Brocard знает фактическую) уважается, но округляется до
+// целых долларов, как и всё из синка.
 check(
   'фактическая комиссия Brocard берётся как есть',
-  mergeDay(day(), { spendCents: 10_000, spendGrossCents: 10_450 }).data.spendGrossCents,
-  10_450,
+  mergeDay(day(), { spendCents: 10_000, spendGrossCents: 10_500 }).data.spendGrossCents,
+  10_500,
+);
+
+// Поцентные суммы из синка нормализуются до целых долларов — иначе колонки
+// «доход − расход = профит» не сойдутся после округления в usd().
+const normalized = mergeDay(day(), { spendCents: 10_040, spendGrossCents: 5_060 });
+check('расход из синка округлён до долларов', normalized.data.spendNetCents, 10_000);
+check('комиссия из синка округлена до долларов', normalized.data.spendGrossCents, 5_100);
+check(
+  'доход из синка округлён до долларов',
+  mergeDay(day(), { revenueCents: 48_037 }).data.revenueCents,
+  48_000,
 );
 
 // Ноль — тоже цифра: день, в который открутили ноль, должен записаться.

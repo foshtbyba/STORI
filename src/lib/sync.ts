@@ -1,7 +1,7 @@
 import 'server-only';
 import { prisma } from './db';
 import { dayKey } from './period';
-import { grossUp } from './money';
+import { grossUp, wholeDollars } from './money';
 import { mergeDay } from './sync-rule';
 import { accountSpend, listAccounts, extractFbToken, FbError } from './fb';
 import { dailyRevenue, listCampaigns, KeitaroError } from './keitaro';
@@ -75,8 +75,9 @@ async function writeDay(row: Report, result: SyncResult) {
   if (!existing) {
     // Новой строке нужны оба числа: отчёт без дохода или без расхода в базе
     // смысла не имеет. Чего не знаем — считаем нулём, человек допишет.
-    const spend = row.spendCents ?? 0;
-    const revenue = row.revenueCents ?? 0;
+    // Округляем до целых долларов, как ручной ввод, чтобы колонки сходились.
+    const spend = wholeDollars(row.spendCents ?? 0);
+    const revenue = wholeDollars(row.revenueCents ?? 0);
     if (!spend && !revenue) return;
 
     const bps = 450;
@@ -89,9 +90,10 @@ async function writeDay(row: Report, result: SyncResult) {
         spendNetCents: spend,
         commissionBps: bps,
         // Расход с комиссией: у Brocard она фактическая, иначе считаем по ставке.
-        spendGrossCents: row.spendGrossCents ?? grossUp(spend, bps),
-        spendSyncedCents: row.spendCents ?? null,
-        revenueSyncedCents: row.revenueCents ?? null,
+        spendGrossCents:
+          row.spendGrossCents !== undefined ? wholeDollars(row.spendGrossCents) : grossUp(spend, bps),
+        spendSyncedCents: row.spendCents !== undefined ? spend : null,
+        revenueSyncedCents: row.revenueCents !== undefined ? revenue : null,
         syncedAt: new Date(),
         note: 'заполнено автоматически',
       },
