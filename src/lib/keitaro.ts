@@ -100,9 +100,10 @@ export type KeitaroDay = {
 /**
  * Доход по дням и кампаниям.
  *
- * Названия метрик в сборках Keitaro отличаются: где-то доход зовётся
- * `sale_revenue`, где-то `revenue`. Просим оба и берём то, что пришло, — иначе
- * на чужом инстансе синхронизация молча писала бы нули.
+ * Доход — это ПОДТВЕРЖДЁННЫЙ доход, поле `sale_revenue` (в UI Keitaro «Доход
+ * (подтверждённый)»). Именно его команда считает доходом. Поле `revenue` брать
+ * нельзя: оно включает неподтверждённые лиды и завышает — на реальном дне
+ * revenue давал $827 против настоящих $101 в sale_revenue.
  */
 export async function dailyRevenue(
   baseUrl: string,
@@ -114,7 +115,7 @@ export async function dailyRevenue(
   const raw = await call(baseUrl, apiKey, '/report/build', {
     range: { from, to, timezone },
     grouping: ['day', 'campaign_id'],
-    metrics: ['conversions', 'sale_revenue', 'revenue'],
+    metrics: ['conversions', 'sale_revenue'],
     filters: [],
     limit: 10000,
   });
@@ -124,15 +125,11 @@ export async function dailyRevenue(
   for (const row of rows) {
     const day = String(row.day ?? row.date ?? '').slice(0, 10);
     if (!day) continue;
-    // Доход, а не профит: `profit` в кандидаты не берём, иначе на сборке, где
-    // выручки нет, в выручку уехал бы профит. Из двух названий выручки берём
-    // первое НЕнулевое: где-то `sale_revenue` всегда присутствует нулём-
-    // заглушкой, а настоящая сумма лежит в `revenue`.
-    const money = pickNumber(row, ['sale_revenue', 'revenue']);
+    const money = Number(row.sale_revenue ?? 0);
     out.push({
       date: day,
       campaignId: String(row.campaign_id ?? ''),
-      revenueCents: Math.round(money * 100),
+      revenueCents: Number.isFinite(money) ? Math.round(money * 100) : 0,
       conversions: Math.round(pickNumber(row, ['conversions', 'sales'])),
     });
   }
