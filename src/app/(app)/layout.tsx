@@ -7,7 +7,7 @@ import ScrollCalm from '@/components/ScrollCalm';
 import TopBar from '@/components/TopBar';
 import Nav from '@/components/Nav';
 import {
-  IconCalendar, IconChart, IconBox, IconPeak, IconTag, IconWallet,
+  IconCalendar, IconChart, IconBox, IconPeak, IconTag, IconWallet, IconLink,
 } from '@/components/icons';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -30,6 +30,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     { href: '/payroll', label: 'Зарплата', icon: <IconWallet size={15} /> },
     { href: '/offers', label: 'Офферы', icon: <IconTag size={15} /> },
   ];
+  // Источники цифр настраивает только админ — под ключами доступ к кабинетам
+  // и трекеру всей команды.
+  if (role === 'ADMIN') {
+    items.push({ href: '/integrations', label: 'Источники', icon: <IconLink size={15} /> });
+  }
 
   return (
     <div className="relative mx-auto flex min-h-screen max-w-[1440px] flex-col gap-2.5 p-2.5 sm:gap-3.5 sm:p-4">

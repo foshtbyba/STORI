@@ -23,6 +23,8 @@ services:
     environment:
       DATABASE_URL: postgresql://msteam:${POSTGRES_PASSWORD}@db:5432/msteam
       AUTH_SECRET: ${AUTH_SECRET:?задай AUTH_SECRET в .env}
+      # Пустой ключ выключает ручку /api/sync — так и задумано.
+      SYNC_SECRET: ${SYNC_SECRET:-}
     expose:
       - '3000'
     healthcheck:

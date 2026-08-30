@@ -51,6 +51,8 @@ model Buyer {
   bonuses     Bonus[]
   payouts     Payout[]
   attendance  Attendance[]
+  adTokens    AdToken[]
+  adGroups    TrackerGroup[]
 }
 
 model Team {
@@ -63,15 +65,15 @@ model Team {
 /// The ladder. Tiers are stored as JSON so a rule can be reshaped without a
 /// migration: [{ "fromCents": 80000, "ratePct": 30 }, ...]
 model SalaryRule {
-  id         String  @id @default(cuid())
-  name       String
-  tiersJson  String
+  id        String  @id @default(cuid())
+  name      String
+  tiersJson String
   /// Оклад за расчётный период (неделю), в рублях. Платится всегда — даже
   /// если баер не взял минимальный порог или закрыл неделю в минус. Как только
   /// процент по порогу перерастает оклад, платим процент: оклад работает
   /// нижней границей, а не добавкой сверху.
-  fixedRub   Int     @default(10000)
-  buyers     Buyer[]
+  fixedRub  Int     @default(10000)
+  buyers    Buyer[]
 }
 
 model PaymentMethod {
@@ -85,32 +87,32 @@ model PaymentMethod {
 }
 
 model Offer {
-  id         String      @id @default(cuid())
+  id         String  @id @default(cuid())
   name       String
-  vertical   String      @default("")
-  network    String      @default("")
-  status     String      @default("ACTIVE")
+  vertical   String  @default("")
+  network    String  @default("")
+  status     String  @default("ACTIVE")
   /// Free text — payout terms are negotiated, not computed.
-  payout     String      @default("")
-  geosJson   String      @default("[]")
-  bansJson   String      @default("[]")
-  notesJson  String      @default("[]")
+  payout     String  @default("")
+  geosJson   String  @default("[]")
+  bansJson   String  @default("[]")
+  notesJson  String  @default("[]")
   previewUrl String?
 
   /// Ключ партнёрки в конструкторе: m1.top, shakes.pro, hamsters.run…
   /// Партнёрка у оффера одна, а вот гео — сколько угодно, и данные под каждое
   /// свои: см. OfferGeo.
-  partnerKey String      @default("")
+  partnerKey String @default("")
   /// Куда уводить по кнопке «Назад». Ссылка у команды одна на все офферы,
   /// поэтому подставляется сразу и меняется редко.
-  backfix    String      @default("https://nutrivition.top/VXsVxCX?sun={sub_id_30}")
+  backfix    String @default("https://nutrivition.top/VXsVxCX?sun={sub_id_30}")
 
-  geos       OfferGeo[]
-  files      OfferFile[]
+  geos  OfferGeo[]
+  files OfferFile[]
 
-  updatedAt  DateTime    @updatedAt
-  createdAt  DateTime    @default(now())
-  days       DayReport[]
+  updatedAt DateTime    @updatedAt
+  createdAt DateTime    @default(now())
+  days      DayReport[]
 }
 
 /// Один оффер — много гео, и в конструктор под каждое уходят свои данные:
@@ -181,7 +183,16 @@ model DayReport {
   /// null — сумма висит долгом и приплюсовывается к закиду следующего дня.
   toppedUpAt DateTime?
 
-  note      String   @default("")
+  note String @default("")
+
+  /// Что в последний раз записала синхронизация. Нужно, чтобы отличить «никто
+  /// не трогал» от «человек поправил руками»: если текущее значение равно
+  /// записанному, строку можно спокойно обновлять, если нет — правка ручная и
+  /// синхронизация её не переписывает.
+  spendSyncedCents   Int?
+  revenueSyncedCents Int?
+  syncedAt           DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -300,4 +311,77 @@ model AuditLog {
 
   @@index([entity, entityId])
   @@index([at])
+}
+
+/// ─── Интеграции ────────────────────────────────────────────────────────────
+
+/// Токен Facebook. Кабинеты у баеров лежат в разных Business Manager, поэтому
+/// токен привязан к баеру: всё, что видно под ним, — его расход. Токен берётся
+/// у System User в BM: он бессрочный и не завязан на чей-то личный вход.
+model AdToken {
+  id      String  @id @default(cuid())
+  buyerId String
+  buyer   Buyer   @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  /// Подпись для человека: «BM Ани», «агентка №2».
+  label   String  @default("")
+  token   String
+  enabled Boolean @default(true)
+
+  lastSyncAt DateTime?
+  lastError  String    @default("")
+
+  accounts  AdAccount[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+/// Рекламный кабинет, найденный под токеном. Отдельной привязки к баеру нет —
+/// он и так наследует владельца токена.
+model AdAccount {
+  id         String  @id @default(cuid())
+  tokenId    String
+  adToken    AdToken @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  /// act_123456789, как его зовёт Facebook.
+  externalId String
+  name       String  @default("")
+  /// Валюта кабинета. Считаем автоматически только доллары: перевод из евро
+  /// требует курса, которого у нас нет, а тихо посчитать не тот расход хуже,
+  /// чем не посчитать вовсе.
+  currency   String  @default("USD")
+  enabled    Boolean @default(true)
+
+  lastSpendAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@unique([tokenId, externalId])
+}
+
+/// Keitaro. Инстанс один на команду, поэтому строка тут ровно одна.
+model Tracker {
+  id      String  @id @default(cuid())
+  /// https://tracker.example.com — без хвоста.
+  baseUrl String
+  apiKey  String
+  enabled Boolean @default(true)
+
+  lastSyncAt DateTime?
+  lastError  String    @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Группа кампаний в Keitaro. Доход делится по группам: группа — это баер.
+/// Пока группа не привязана, её доход никуда не попадает и висит в настройках
+/// с пометкой — молча терять деньги нельзя.
+model TrackerGroup {
+  id         String  @id @default(cuid())
+  /// id группы в Keitaro.
+  externalId String  @unique
+  name       String  @default("")
+  buyerId    String?
+  buyer      Buyer?  @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
 }
