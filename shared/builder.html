@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Конструктор лендов</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236e8341'/%3E%3Crect x='7.5' y='8.5' width='17' height='2.6' rx='1.3' fill='white'/%3E%3Crect x='7.5' y='14.7' width='17' height='2.6' rx='1.3' fill='white'/%3E%3Crect x='7.5' y='20.9' width='10' height='2.6' rx='1.3' fill='white'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
@@ -2412,9 +2413,11 @@ function runFind(mode){
   if(!matches.length){ if(cnt)cnt.textContent="0/0"; return; }
   if(mode==="reset") _findIdx=0; else _findIdx=((_findIdx||0)+(mode==="prev"?-1:1)+matches.length)%matches.length;
   var pos=matches[_findIdx];
-  out.focus(); out.setSelectionRange(pos,pos+q.length);
+  out.setSelectionRange(pos,pos+q.length);
   var line=text.slice(0,pos).split("\n").length, lh=parseInt(getComputedStyle(out).lineHeight)||19;
   out.scrollTop=Math.max(0,(line-4)*lh);
+  // фокус переводим на код ТОЛЬКО при навигации (Enter/стрелки) — иначе воровали бы фокус у строки поиска при вводе
+  if(mode!=="reset"){ out.focus(); out.setSelectionRange(pos,pos+q.length); }
   if(cnt) cnt.textContent=(_findIdx+1)+"/"+matches.length;
 }
 // байты -> base64 (чанками, чтобы не переполнить стек)
