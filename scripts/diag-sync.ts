@@ -95,7 +95,14 @@ async function main() {
       console.log(`  ${myGroups.has(gid) ? '→ SGY' : '     '} ${gid} · ${n} камп. · ${name}`);
     }
 
-    const METRICS = ['conversions', 'leads', 'sales', 'approved', 'sale_revenue', 'revenue', 'profit'];
+    // Просим отчёт с набором метрик. Разные сборки Keitaro знают разные имена
+    // «подтверждённого дохода», поэтому кандидатов много: неизвестные Keitaro
+    // просто не вернёт, и это не сломает запрос. Ищем, какое поле = 101.
+    const METRICS = [
+      'conversions', 'leads', 'sales', 'revenue', 'sale_revenue', 'profit',
+      'confirmed_revenue', 'approved_revenue', 'pending_revenue', 'rejected_revenue',
+      'lead_revenue', 'income',
+    ];
     const rep = await fetch(`${base}/admin_api/v1/report/build`, {
       method: 'POST',
       headers: H,
@@ -108,22 +115,21 @@ async function main() {
       }),
     });
     const j = (await rep.json()) as { rows?: Record<string, unknown>[] };
-    // Копим сумму КАЖДОЙ метрики по дням — чтобы увидеть, какое поле = твой доход.
+    // Какие метрики Keitaro реально вернул (по первой строке).
+    const present = METRICS.filter((m) => (j.rows ?? []).some((r) => m in r));
+    console.log('метрики, которые Keitaro отдал:', present.join(', ') || '—');
     const perDay = new Map<string, Record<string, number>>();
-    const daysSeen = new Set<string>();
     for (const row of j.rows ?? []) {
       const day = String(row.day ?? row.date ?? '').slice(0, 10);
-      daysSeen.add(day);
       if (!myCamps.has(String(row.campaign_id ?? ''))) continue;
       const acc = perDay.get(day) ?? {};
-      for (const m of METRICS) acc[m] = (acc[m] ?? 0) + (Number(row[m]) || 0);
+      for (const m of present) acc[m] = (acc[m] ?? 0) + (Number(row[m]) || 0);
       perDay.set(day, acc);
     }
-    console.log('дни в ответе Keitaro:', [...daysSeen].sort().join(', '));
-    console.log('СУММЫ метрик SGY по дням (какая = твой доход?):');
+    console.log('СУММЫ метрик SGY по дням — ищи, где 101:');
     for (const d of days) {
       const a = perDay.get(d) ?? {};
-      console.log(`  ${d}: ` + METRICS.map((m) => `${m}=${(a[m] ?? 0).toFixed(0)}`).join('  '));
+      console.log(`  ${d}: ` + present.map((m) => `${m}=${(a[m] ?? 0).toFixed(0)}`).join('  '));
     }
   }
 
