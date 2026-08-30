@@ -31,16 +31,16 @@ export default function BuyerRoster({ rows }: { rows: RosterRow[] }) {
         <span className="lab">С какого дня</span>
         <span className="lab">День рождения</span>
         <span className="lab">Позиция</span>
-        <span className="lab text-right">Овнер</span>
+        <span className="lab text-right" />
       </div>
       {rows.map((r) => (
         <RosterLine key={r.id} row={r} />
       ))}
       <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
         «С какого дня» отбрасывает недели, целиком прошедшие до этой даты, из
-        расчёта — оклад за время до прихода не платится. «Овнер» уводит человека
-        в отдельный лист: в зарплате и в командном отчёте он не участвует. День
-        рождения и позиция — справочно.
+        расчёта — оклад за время до прихода не платится. День рождения и позиция —
+        справочно. Бейдж «овнер» — у тех, кто вынесен в отдельный лист и в зарплате
+        не участвует.
       </p>
     </div>
   );
@@ -54,7 +54,6 @@ function RosterLine({ row }: { row: RosterRow }) {
   const [startedAt, setStartedAt] = useState(row.startedAt);
   const [birthday, setBirthday] = useState(row.birthday);
   const [position, setPosition] = useState(row.position);
-  const [owner, setOwner] = useState(row.owner);
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -62,19 +61,13 @@ function RosterLine({ row }: { row: RosterRow }) {
   const dirty =
     startedAt !== row.startedAt ||
     birthday !== row.birthday ||
-    position !== row.position ||
-    owner !== row.owner;
+    position !== row.position;
 
-  function commit(nextOwner = owner) {
+  function commit() {
     setError(null);
     setSaved(false);
     start(async () => {
-      const res = await saveBuyerProfile(row.id, {
-        startedAt,
-        birthday,
-        position,
-        owner: nextOwner,
-      });
+      const res = await saveBuyerProfile(row.id, { startedAt, birthday, position });
       if (!res.ok) return setError(res.error);
       setSaved(true);
       router.refresh();
@@ -88,7 +81,7 @@ function RosterLine({ row }: { row: RosterRow }) {
         <span className="flex flex-col">
           <span className="text-[14px] font-semibold">
             {row.handle}
-            {owner ? <span className="ml-2 rounded-full bg-sage-t px-2 py-0.5 text-[10px] text-sage">овнер</span> : null}
+            {row.owner ? <span className="ml-2 rounded-full bg-sage-t px-2 py-0.5 text-[10px] text-sage">овнер</span> : null}
           </span>
           {saved && !dirty ? <span className="text-[11px] text-sage">сохранено</span> : null}
           {error ? <span className="text-[11px] text-rust">{error}</span> : null}
@@ -128,21 +121,7 @@ function RosterLine({ row }: { row: RosterRow }) {
         </select>
       </label>
 
-      <span className="col-span-2 flex items-center justify-end gap-2 md:col-span-1">
-        <button
-          type="button"
-          onClick={() => {
-            const next = !owner;
-            setOwner(next);
-            commit(next);
-          }}
-          disabled={pending}
-          className={`h-8 rounded-full px-3 text-[11.5px] transition disabled:opacity-40 ${
-            owner ? 'bg-sage text-bg font-semibold' : 'bg-sub text-mute hover:text-soft'
-          }`}
-        >
-          {owner ? 'овнер' : 'сделать овнером'}
-        </button>
+      <span className="col-span-2 flex items-center justify-end md:col-span-1">
         <button
           type="button"
           onClick={() => commit()}
