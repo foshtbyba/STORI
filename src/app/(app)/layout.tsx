@@ -7,7 +7,7 @@ import ScrollCalm from '@/components/ScrollCalm';
 import TopBar from '@/components/TopBar';
 import Workspace from '@/components/Workspace';
 import {
-  IconCalendar, IconChart, IconBox, IconPeak, IconTag, IconWallet, IconLink, IconRocket, IconUsers,
+  IconCalendar, IconChart, IconBox, IconPeak, IconTag, IconWallet, IconLink, IconRocket,
 } from '@/components/icons';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -36,8 +36,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Источники цифр настраивает только админ — под ключами доступ к кабинетам
   // и трекеру всей команды.
   if (role === 'ADMIN') {
-    // Лист овнеров и источники цифр — только под админом.
-    statsItems.push({ href: '/owners', label: 'Овнеры', icon: <IconUsers size={15} /> });
+    // Овнеры и расходники на команду живут прямо в сводке, отдельной вкладки нет.
     statsItems.push({ href: '/integrations', label: 'Источники', icon: <IconLink size={15} /> });
   }
 

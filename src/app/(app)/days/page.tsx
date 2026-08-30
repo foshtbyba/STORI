@@ -19,10 +19,10 @@ import { IconCalendar, IconPlus } from '@/components/icons';
 export default async function DaysPage({
   searchParams,
 }: {
-  searchParams: Promise<{ week?: string }>;
+  searchParams: Promise<{ week?: string; owners?: string }>;
 }) {
   const user = await requireUser();
-  const { week } = await searchParams;
+  const { week, owners } = await searchParams;
   const today = weekKey(new Date());
   const key = week ? weekKey(new Date(`${week}T00:00:00.000Z`)) : today;
   const isCurrent = key === today;
@@ -34,17 +34,26 @@ export default async function DaysPage({
   const weekEditable = isEditable(from);
   const isAdmin = canSeeTeam(user.role as Role);
   const canEdit = isAdmin && weekEditable;
+  // Овнеры в списке дней по умолчанию скрыты — их цифры отдельные. Кнопка их
+  // показывает (только админу).
+  const showOwners = isAdmin && owners === '1';
 
   const days = await prisma.dayReport.findMany({
-    // Овнеры в командный отчёт по дням не попадают — их цифры живут отдельным
-    // листом и видны только админу.
     where: {
       date: { gte: from, lt: to },
-      ...(buyerId ? { buyerId } : { buyer: { owner: false } }),
+      ...(buyerId ? { buyerId } : showOwners ? {} : { buyer: { owner: false } }),
     },
     include: { buyer: true, paymentMethod: true },
     orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
   });
+
+  const ownersHref = (on: boolean) => {
+    const p = new URLSearchParams();
+    if (week) p.set('week', week);
+    if (on) p.set('owners', '1');
+    const q = p.toString();
+    return q ? `/days?${q}` : '/days';
+  };
 
   return (
     <Panel className="flex flex-col p-4 sm:p-6">
@@ -61,6 +70,17 @@ export default async function DaysPage({
         }
         right={
           <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+            {isAdmin ? (
+              <Link
+                href={ownersHref(!showOwners)}
+                prefetch={false}
+                className={`rounded-full px-3.5 py-2 text-[12.5px] transition ${
+                  showOwners ? 'bg-raise font-semibold text-text' : 'bg-sub text-mute hover:text-soft'
+                }`}
+              >
+                {showOwners ? 'овнеры: видны' : 'овнеры'}
+              </Link>
+            ) : null}
             <WeekNav week={key} label={weekLabel(key)} isCurrent={isCurrent} />
             {canEdit ? (
               <Link

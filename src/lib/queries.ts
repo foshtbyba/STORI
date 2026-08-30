@@ -1,7 +1,7 @@
 import 'server-only';
 import { prisma } from './db';
-import { periodRange, periodKeyOf, dayKey, daysOfRange, weekKey, weekBounds, rangeOf, titleOf, weeksOfRange } from './period';
-import { profitOf, sum } from './money';
+import { periodRange, periodKeyOf, dayKey, daysOfRange, weekKey, weekBounds, rangeOf, titleOf, weeksOfRange, periodLabel } from './period';
+import { profitOf, sum, grossUp, ceilDollars, DEFAULT_COMMISSION_BPS } from './money';
 import { computePayout, parseTiers, DEFAULT_TIERS } from './salary';
 import { fetchRate, rateIsStale } from './rate';
 
@@ -360,6 +360,29 @@ export async function closedSheets(buyerId?: string, limit = 12) {
  * было. Поэтому месяц на сводке — это сложенные недели, ровно те же цифры,
  * что человек увидит в расчётных листах.
  */
+/**
+ * Расходники на команду по месяцам («общак» в Brocard). Расходники идут
+ * помесячно, поэтому и показываем их разбивкой по месяцам, а не по неделям.
+ * Сумму накручиваем той же комиссией за пополнение (4,5%), что и весь расход.
+ */
+export async function overheadMonths(limit = 6) {
+  const rows = await prisma.overheadDay.findMany({ orderBy: { date: 'desc' } });
+  const byMonth = new Map<string, number>();
+  for (const r of rows) {
+    const key = `${r.date.getUTCFullYear()}-${String(r.date.getUTCMonth() + 1).padStart(2, '0')}`;
+    byMonth.set(key, (byMonth.get(key) ?? 0) + r.spendCents);
+  }
+  return [...byMonth.entries()]
+    .sort((a, b) => (a[0] < b[0] ? 1 : -1))
+    .slice(0, limit)
+    .map(([month, netCents]) => ({
+      month,
+      title: periodLabel(month),
+      netCents: ceilDollars(netCents),
+      grossCents: ceilDollars(grossUp(netCents, DEFAULT_COMMISSION_BPS)),
+    }));
+}
+
 export async function payoutAcross(range: Range) {
   const weeks = weeksOfRange(range);
   const sheets = await Promise.all(

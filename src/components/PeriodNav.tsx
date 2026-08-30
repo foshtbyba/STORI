@@ -1,14 +1,13 @@
+import Link from 'next/link';
+
 /**
  * Переключатель отрезка: стрелки листают, тумблер меняет масштаб.
  *
  * Отчётность считается за неделю, но иногда нужно глянуть месяц целиком — и
  * почти всегда нужно вернуться на прошлую.
  *
- * Ссылки нарочно самые обычные, без клиентского роутера. Страница целиком
- * зависит от отрезка: меняются и цифры, и график, и таблица, — экономить тут
- * нечего, а мягкий переход на потоковом ответе иногда молча терялся и адрес
- * оставался прежним. Полная перезагрузка честнее: всегда показывает то, что
- * написано в адресе.
+ * Листаем клиентским переходом (Link): меняется только содержимое серверного
+ * компонента, страница не перезагружается с нуля при каждом пролистывании.
  */
 export default function PeriodNav({
   base,
@@ -45,25 +44,25 @@ export default function PeriodNav({
     <div className="flex flex-wrap items-center justify-end gap-2">
       {weeksOnly ? null : (
         <span className="flex items-center gap-1 rounded-full bg-sub p-1">
-          <a href={href(week)} className={tab(isWeek)}>
+          <Link href={href(week)} prefetch={false} className={tab(isWeek)}>
             Неделя
-          </a>
-          <a href={href(month)} className={tab(!isWeek)}>
+          </Link>
+          <Link href={href(month)} prefetch={false} className={tab(!isWeek)}>
             Месяц
-          </a>
+          </Link>
         </span>
       )}
 
       {/* Кнопку «Сейчас» убрали: она то появлялась, то исчезала и сдвигала весь
           ряд. Возврат к текущей неделе теперь на иконке слева от заголовка. */}
       <span className="flex items-center gap-1">
-        <a href={href(prev)} aria-label="Назад" className={arrow}>
+        <Link href={href(prev)} prefetch={false} aria-label="Назад" className={arrow}>
           ‹
-        </a>
+        </Link>
         <span className="n min-w-[128px] text-center text-[12.5px] text-soft">{label}</span>
-        <a href={href(next)} aria-label="Вперёд" className={arrow}>
+        <Link href={href(next)} prefetch={false} aria-label="Вперёд" className={arrow}>
           ›
-        </a>
+        </Link>
       </span>
     </div>
   );

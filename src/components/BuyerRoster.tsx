@@ -32,7 +32,7 @@ export default function BuyerRoster({ rows }: { rows: RosterRow[] }) {
         <span className="lab">Баер</span>
         <span className="lab">С какого дня</span>
         <span className="lab">День рождения</span>
-        <span className="lab">Позиция</span>
+        <span className="lab">Роль</span>
         <span className="lab text-right" />
       </div>
       {rows.map((r) => (
@@ -55,7 +55,10 @@ function RosterLine({ row }: { row: RosterRow }) {
   const router = useRouter();
   const [startedAt, setStartedAt] = useState(row.startedAt);
   const [birthday, setBirthday] = useState(row.birthday);
-  const [position, setPosition] = useState(row.position);
+  // Роль одной ручкой: баер / тимлид / овнер. Овнер — это флаг owner, остальные
+  // — позиция. Так овнера назначают тут же, без отдельной кнопки.
+  const initialRole = row.owner ? 'OWNER' : row.position;
+  const [role, setRole] = useState(initialRole);
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -63,13 +66,16 @@ function RosterLine({ row }: { row: RosterRow }) {
   const dirty =
     startedAt !== row.startedAt ||
     birthday !== row.birthday ||
-    position !== row.position;
+    role !== initialRole;
 
   function commit() {
     setError(null);
     setSaved(false);
+    const owner = role === 'OWNER';
+    // У овнера позиции нет — очищаем; иначе роль и есть позиция.
+    const position = owner ? '' : role;
     start(async () => {
-      const res = await saveBuyerProfile(row.id, { startedAt, birthday, position });
+      const res = await saveBuyerProfile(row.id, { startedAt, birthday, position, owner });
       if (!res.ok) return setError(res.error);
       setSaved(true);
       router.refresh();
@@ -134,15 +140,16 @@ function RosterLine({ row }: { row: RosterRow }) {
       </label>
 
       <label className="flex flex-col gap-1 md:contents">
-        <span className="lab md:hidden">Позиция</span>
+        <span className="lab md:hidden">Роль</span>
         <select
-          value={position}
-          onChange={(e) => setPosition(e.target.value)}
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
           className={`${field} w-full`}
         >
           <option value="">—</option>
           <option value="BUYER">баер</option>
           <option value="LEAD">тимлид</option>
+          <option value="OWNER">овнер</option>
         </select>
       </label>
 

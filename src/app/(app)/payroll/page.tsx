@@ -458,12 +458,6 @@ export default async function PayrollPage({
         </p>
       </Panel>
 
-      {team ? (
-        <p className="px-1 text-[12px] text-mute">
-          Ростер команды и разовые бонусы переехали в{' '}
-          <a href="/admin" className="text-sage hover:underline">настройки (ADMIN)</a>.
-        </p>
-      ) : null}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { currentPeriodKey, teamSummary, buyerSummary, allTimeProfit, payoutAcross } from '@/lib/queries';
+import { currentPeriodKey, teamSummary, buyerSummary, allTimeProfit, payoutAcross, overheadMonths } from '@/lib/queries';
 import { usd, rub, sum, profitOf } from '@/lib/money';
 import {
   periodRange, periodTitle, daysOfRange, dayKey,
@@ -9,6 +9,7 @@ import {
 import PeriodNav from '@/components/PeriodNav';
 import { Panel, PanelHead, Sub, Avatar, Empty, Big } from '@/components/ui';
 import { ProfitBars, Meter } from '@/components/Charts';
+import CollapsiblePanel from '@/components/CollapsiblePanel';
 import { IconChart, IconWallet, IconBox, IconWarn, IconUsers } from '@/components/icons';
 import BuyerCabinet from '@/components/BuyerCabinet';
 
@@ -54,6 +55,16 @@ export default async function HomePage({
     summary.totals.profitCents - summary.totals.consumableCents - payroll.payoutCents;
   const allTime = await allTimeProfit();
   const allTimeTotal = [...allTime.values()].reduce((a, b) => a + b, 0);
+
+  // Овнеры и расходники на команду — только под админом, и они НЕ входят в
+  // командную стату выше: это отдельные окна для понимания.
+  const isAdmin = user.role === 'ADMIN';
+  const [ownerRows, overhead] = isAdmin
+    ? await Promise.all([
+        teamSummary(key, week, { owners: true }).then((s) => s.buyers),
+        overheadMonths(),
+      ])
+    : [[], []];
   /*
     График рисуем чистыми — профит дня минус расходники, списанные этим днём.
     Раньше столбики складывались в «профит с рекламы», а крупная цифра над
@@ -197,30 +208,6 @@ export default async function HomePage({
         </Panel>
       </div>
 
-      <Panel className="p-4 sm:p-6">
-        <PanelHead
-          icon={<IconChart color="#b4c68c" />}
-          tint="bg-sage-t"
-          title="Профит по дням"
-          aside={
-            <span className="text-[12.5px] text-mute">
-              в плюсе {positiveDays} из {series.length} · чистыми
-            </span>
-          }
-          right={
-            <span className="rounded-full bg-sub px-3.5 py-1.5">
-              <span className="n text-[12.5px] text-soft">
-                пик {String(best.date.getUTCDate()).padStart(2, '0')}.
-                {String(best.date.getUTCMonth() + 1).padStart(2, '0')} · {usd(best.profitCents)}
-              </span>
-            </span>
-          }
-        />
-        <div className="mt-5">
-          <ProfitBars data={series} />
-        </div>
-      </Panel>
-
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.85fr_1fr] lg:gap-3.5">
         <Panel className="flex flex-col p-4 sm:p-6">
           <PanelHead
@@ -363,6 +350,104 @@ export default async function HomePage({
           </Panel>
         </div>
       </div>
+
+      {isAdmin && (ownerRows.length > 0 || overhead.length > 0) ? (
+        <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.85fr_1fr] lg:gap-3.5">
+          <Panel className="flex flex-col p-4 sm:p-6">
+            <PanelHead
+              icon={<IconUsers color="#b4c68c" />}
+              tint="bg-sage-t"
+              title="Овнеры"
+              aside={<span className="text-[12.5px] text-mute">{ownerRows.length} чел. · в командную стату не входят</span>}
+            />
+            {ownerRows.length === 0 ? (
+              <Empty>Овнеры не помечены. Отметь их в настройках (ADMIN).</Empty>
+            ) : (
+              <>
+                <div className="mt-4 grid grid-cols-[1.4fr_1fr_1fr] md:grid-cols-[1.5fr_repeat(3,1fr)_0.8fr] pb-2.5">
+                  <span className="lab">Овнер</span>
+                  <span className="lab hidden text-right md:block">Доход</span>
+                  <span className="lab hidden text-right md:block">С комиссией</span>
+                  <span className="lab text-right">Профит</span>
+                  <span className="lab hidden text-right md:block">ROI</span>
+                </div>
+                {ownerRows.map((row) => (
+                  <div
+                    key={row.buyer.id}
+                    className="grid grid-cols-[1.4fr_1fr_1fr] md:grid-cols-[1.5fr_repeat(3,1fr)_0.8fr] items-center border-t border-line py-3"
+                  >
+                    <span className="flex items-center gap-3">
+                      <Avatar initials={row.buyer.initials} color={row.buyer.color} />
+                      <span>
+                        <span className="block text-[14.5px] font-semibold">{row.buyer.handle}</span>
+                        <span className="block text-[11.5px] text-mute">{row.buyer.source} · {row.days} дн.</span>
+                      </span>
+                    </span>
+                    <span className="n hidden text-right text-[13.5px] text-soft md:block">{usd(row.revenueCents)}</span>
+                    <span className="n hidden text-right text-[13.5px] text-mute md:block">{usd(row.spendGrossCents)}</span>
+                    <span
+                      className="n text-right text-[18px] font-semibold"
+                      style={{ color: row.profitCents >= 0 ? '#b4c68c' : '#ce6e58' }}
+                    >
+                      {usd(row.profitCents)}
+                    </span>
+                    <span
+                      className="n hidden text-right text-[12.5px] md:block"
+                      style={{ color: row.roi >= 25 ? '#b4c68c' : '#ce6e58' }}
+                    >
+                      {row.roi.toFixed(1).replace('.', ',')}%
+                    </span>
+                  </div>
+                ))}
+              </>
+            )}
+          </Panel>
+
+          <Panel className="flex flex-col p-4 sm:p-5">
+            <div className="mb-3.5 flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-rust-t">
+                <IconBox color="#ce6e58" size={17} />
+              </span>
+              <span className="text-[15.5px] font-semibold">Расходники на команду</span>
+            </div>
+            <p className="mb-2 text-[11.5px] leading-relaxed text-mute">
+              Расход с «общака» в Brocard — по месяцам, с комиссией за пополнение. В профит никому не входит.
+            </p>
+            {overhead.length === 0 ? (
+              <Empty>Пока пусто. Отметь команду «Общак» в Источниках.</Empty>
+            ) : (
+              overhead.map((m) => (
+                <div key={m.month} className="flex items-center justify-between border-t border-line py-2.5">
+                  <span className="text-[13px] text-soft">{m.title}</span>
+                  <span className="n text-[15px] font-semibold text-rust">{usd(m.grossCents)}</span>
+                </div>
+              ))
+            )}
+          </Panel>
+        </div>
+      ) : null}
+
+      {/* Профит по дням — тяжёлый график, поэтому внизу и свёрнут по умолчанию. */}
+      <CollapsiblePanel
+        icon={<IconChart color="#b4c68c" />}
+        tint="bg-sage-t"
+        title="Профит по дням"
+        aside={
+          <span className="text-[12.5px] text-mute">
+            в плюсе {positiveDays} из {series.length} · чистыми
+          </span>
+        }
+        summary={
+          <span className="rounded-full bg-sub px-3.5 py-1.5">
+            <span className="n text-[12.5px] text-soft">
+              пик {String(best.date.getUTCDate()).padStart(2, '0')}.
+              {String(best.date.getUTCMonth() + 1).padStart(2, '0')} · {usd(best.profitCents)}
+            </span>
+          </span>
+        }
+      >
+        <ProfitBars data={series} />
+      </CollapsiblePanel>
     </div>
   );
 }

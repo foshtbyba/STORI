@@ -7,7 +7,23 @@ import PeriodNav from '@/components/PeriodNav';
 import { Panel, PanelHead, Empty } from '@/components/ui';
 import BuyerRoster, { type RosterRow } from '@/components/BuyerRoster';
 import BonusPanel, { type BonusRow } from '@/components/BonusPanel';
-import { IconUsers } from '@/components/icons';
+import LadderEditor, { type LadderRule } from '@/components/LadderEditor';
+import BuyerLadder, { type BuyerLadderRow } from '@/components/BuyerLadder';
+import { parseTiers } from '@/lib/salary';
+import { IconUsers, IconChart } from '@/components/icons';
+
+/** tiersJson → строки для ввода (доллары/проценты). */
+function toLadderRule(id: string, name: string, tiersJson: string, fixedRub: number): LadderRule {
+  return {
+    id,
+    name,
+    fixedRub: String(fixedRub),
+    tiers: parseTiers(tiersJson).map((t) => ({
+      fromDollars: String(t.fromCents / 100),
+      ratePct: String(t.ratePct),
+    })),
+  };
+}
 
 /**
  * Админ-настройки — отдельное окно за надписью ADMIN в шапке. Здесь редкие
@@ -65,6 +81,31 @@ export default async function AdminPage({
     blocked: !b.user.active,
   }));
 
+  // Лесенка по умолчанию — базовая, на неё завязаны все, у кого нет своей.
+  const baseRule = await prisma.salaryRule.findFirst();
+  const defaultRule = baseRule
+    ? toLadderRule(baseRule.id, baseRule.name, baseRule.tiersJson, baseRule.fixedRub)
+    : null;
+
+  // Лесенка под каждого баера. Овнеров тут нет — они в зарплате не участвуют.
+  const ladderBuyers = await prisma.buyer.findMany({
+    where: { archived: false, owner: false },
+    include: { salaryRule: true },
+    orderBy: { handle: 'asc' },
+  });
+  const buyerLadders: BuyerLadderRow[] = ladderBuyers.map((b) => {
+    const tiersJson = b.salaryRule?.tiersJson ?? '';
+    const fixedRub = b.salaryRule?.fixedRub ?? 10_000;
+    return {
+      buyerId: b.id,
+      handle: b.handle,
+      initials: b.initials,
+      color: b.color,
+      custom: !!b.salaryRuleId && b.salaryRuleId !== baseRule?.id,
+      rule: toLadderRule(b.salaryRuleId ?? b.id, b.handle, tiersJson, fixedRub),
+    };
+  });
+
   return (
     <div className="flex flex-col gap-3.5">
       <Panel className="p-4 sm:p-6">
@@ -77,6 +118,34 @@ export default async function AdminPage({
         />
         <BuyerRoster rows={rosterRows} />
       </Panel>
+
+      {defaultRule ? (
+        <Panel className="p-4 sm:p-6">
+          <PanelHead
+            icon={<IconChart color="#b4c68c" />}
+            tint="bg-sage-t"
+            title="Лесенка по умолчанию"
+            right={<span className="text-[12.5px] text-mute">для всех, у кого нет своей</span>}
+          />
+          <LadderEditor rule={defaultRule} />
+        </Panel>
+      ) : null}
+
+      {buyerLadders.length > 0 ? (
+        <Panel className="p-4 sm:p-6">
+          <PanelHead
+            icon={<IconChart color="#b4c68c" />}
+            tint="bg-sage-t"
+            title="Лесенки по баерам"
+            right={<span className="text-[12.5px] text-mute">своя лесенка у каждого — по клику</span>}
+          />
+          <div className="mt-2 flex flex-col">
+            {buyerLadders.map((b) => (
+              <BuyerLadder key={b.buyerId} row={b} />
+            ))}
+          </div>
+        </Panel>
+      ) : null}
 
       <div className="flex items-center justify-between px-1">
         <span className="lab">Разовые бонусы за</span>
