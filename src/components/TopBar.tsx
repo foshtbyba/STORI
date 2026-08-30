@@ -33,7 +33,17 @@ export default function TopBar({
         <span className="hidden h-[22px] w-px shrink-0 bg-line2 md:block" />
         <span className="n hidden shrink-0 text-[15px] text-mid md:block">{date}</span>
         {nav}
-        {role ? (
+        {role === 'ADMIN' ? (
+          // Ничего не меняем визуально — просто делаем надпись входом в
+          // настройки: ростер команды, бонусы и прочее живут там.
+          <a
+            href="/admin"
+            title="Настройки команды"
+            className="lab ml-auto hidden shrink-0 whitespace-nowrap pl-4 transition hover:text-soft lg:block"
+          >
+            {role}
+          </a>
+        ) : role ? (
           <span className="lab ml-auto hidden shrink-0 whitespace-nowrap pl-4 lg:block">{role}</span>
         ) : null}
       </div>

@@ -56,6 +56,7 @@ export async function addBonus(formData: FormData) {
   });
 
   revalidatePath('/payroll');
+  revalidatePath('/admin');
   revalidatePath('/');
 }
 
@@ -81,5 +82,6 @@ export async function deleteBonus(formData: FormData) {
   });
 
   revalidatePath('/payroll');
+  revalidatePath('/admin');
   revalidatePath('/');
 }

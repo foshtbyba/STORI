@@ -1,17 +1,15 @@
 import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { currentPeriodKey, teamSummary, firstToCross, closedSheets } from '@/lib/queries';
+import { currentPeriodKey, teamSummary, closedSheets } from '@/lib/queries';
 import { periodTitle, fmtDay, isWeekKey, shiftKey } from '@/lib/period';
 import PeriodNav from '@/components/PeriodNav';
-import { prisma } from '@/lib/db';
 import { usd, rub, sum } from '@/lib/money';
 import { payrollTotals, parseTiers, okladCents, DEFAULT_FIXED_RUB } from '@/lib/salary';
 import { closePeriod, reopenPeriod } from '@/app/actions/period';
 import { Panel, PanelHead, Sub, Avatar, Empty, Formula, Big } from '@/components/ui';
-import BonusPanel, { type BonusRow } from '@/components/BonusPanel';
-import BuyerRoster, { type RosterRow } from '@/components/BuyerRoster';
+import ConfirmSubmit from '@/components/ConfirmSubmit';
 import { Meter } from '@/components/Charts';
-import { IconWallet, IconWarn, IconChart, IconCalendar, IconUsers } from '@/components/icons';
+import { IconWallet, IconWarn, IconChart, IconCalendar } from '@/components/icons';
 
 export default async function PayrollPage({
   searchParams,
@@ -82,49 +80,10 @@ export default async function PayrollPage({
    * вытянул оклад, никакой ставки нет: оклад к базе отношения не имеет, и
    * деление одного на другое давало числа вроде 102,9%.
    */
-  // Разовый бонус «за первые $5 000» вешаем на того, кто дошёл до отметки
-  // раньше всех, а не на того, у кого больше всего к концу недели.
-  const BONUS_THRESHOLD = 500_000;
-  const [firstHit, bonusRows] = team
-    ? await Promise.all([
-        firstToCross(key, BONUS_THRESHOLD),
-        prisma.bonus.findMany({
-          where: { periodKey: key },
-          include: { buyer: true },
-          orderBy: { createdAt: 'desc' },
-        }),
-      ])
-    : [null, []];
-
   // Архив закрытых листов: у баера — только его выплаты.
   const archive = (await closedSheets(team ? undefined : (scoped ?? '__none__'))).filter(
     (s) => s.key !== key,
   );
-
-  // Ростер правит только админ. Берём полный список активных участников —
-  // включая овнеров, чтобы их профиль тоже можно было настроить и при нужде
-  // снять флаг.
-  const rosterRows: RosterRow[] = team
-    ? (
-        await prisma.buyer.findMany({
-          where: { archived: false },
-          orderBy: [{ owner: 'asc' }, { handle: 'asc' }],
-          select: {
-            id: true, handle: true, initials: true, color: true,
-            startedAt: true, birthday: true, position: true, owner: true,
-          },
-        })
-      ).map((b) => ({
-        id: b.id,
-        handle: b.handle,
-        initials: b.initials,
-        color: b.color,
-        startedAt: b.startedAt ? b.startedAt.toISOString().slice(0, 10) : '',
-        birthday: b.birthday ? b.birthday.toISOString().slice(0, 10) : '',
-        position: b.position ?? '',
-        owner: b.owner,
-      }))
-    : [];
 
   const rateLabel =
     totals.avgRate === null ? 'оклад' : `${totals.avgRate.toFixed(1).replace('.', ',')}%`;
@@ -191,14 +150,15 @@ export default async function PayrollPage({
               />
             {user.role === 'ADMIN' ? (
               <form action={closed ? reopen : close}>
-                <button
-                  type="submit"
+                <ConfirmSubmit
+                  confirmLabel={closed ? 'точно открыть?' : 'точно закрыть?'}
                   className={`rounded-full px-4 py-2 text-[12.5px] font-semibold transition hover:opacity-90 ${
                     closed ? 'bg-sub text-soft' : 'bg-sage text-bg'
                   }`}
+                  armedClassName="!bg-rust !text-bg"
                 >
                   {closed ? 'Открыть период' : 'Закрыть период'}
-                </button>
+                </ConfirmSubmit>
               </form>
             ) : (
               <span className={`text-[12.5px] ${closed ? 'text-mute' : 'text-rust'}`}>
@@ -499,49 +459,10 @@ export default async function PayrollPage({
       </Panel>
 
       {team ? (
-        <Panel className="p-4 sm:p-6">
-          <PanelHead
-            icon={<IconUsers color="#b4c68c" />}
-            tint="bg-sage-t"
-            title="Команда"
-            right={<span className="text-[12.5px] text-mute">дата выхода, профиль, овнеры</span>}
-          />
-          <BuyerRoster rows={rosterRows} />
-        </Panel>
-      ) : null}
-
-      {team ? (
-        <BonusPanel
-          periodKey={key}
-          rate={rate}
-          closed={closed}
-          threshold={BONUS_THRESHOLD}
-          buyers={summary.buyers.map((r) => ({ id: r.buyer.id, handle: r.buyer.handle }))}
-          firstHit={
-            firstHit
-              ? {
-                  handle: firstHit.buyer.handle,
-                  day: fmtDay(firstHit.date),
-                  awarded: bonusRows.some(
-                    (b) => b.buyerId === firstHit.buyer.id && b.note.startsWith('первые'),
-                  ),
-                }
-              : null
-          }
-          bonuses={bonusRows.map(
-            (b): BonusRow => ({
-              id: b.id,
-              buyer: {
-                initials: b.buyer.initials,
-                color: b.buyer.color,
-                handle: b.buyer.handle,
-              },
-              amountCents: b.amountCents,
-              note: b.note,
-              day: fmtDay(b.createdAt),
-            }),
-          )}
-        />
+        <p className="px-1 text-[12px] text-mute">
+          Ростер команды и разовые бонусы переехали в{' '}
+          <a href="/admin" className="text-sage hover:underline">настройки (ADMIN)</a>.
+        </p>
       ) : null}
     </div>
   );

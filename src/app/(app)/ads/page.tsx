@@ -64,11 +64,13 @@ export default async function AdsOverviewPage() {
           aside={<span className="text-[12.5px] text-mute">{cabinets} кабинетов</span>}
         />
         {tokens.length === 0 ? (
-          <Empty>
-            {user.buyer
-              ? 'Кабинеты ещё не подключены — добавь свой токен ниже.'
-              : 'Токенов пока нет — добавь их в «Статистика → Источники».'}
-          </Empty>
+          <div className="mt-4">
+            <Empty>
+              {user.buyer
+                ? 'Кабинеты ещё не подключены — добавь свой токен ниже.'
+                : 'Токенов пока нет — добавь их в «Статистика → Источники».'}
+            </Empty>
+          </div>
         ) : (
           tokens.map((token) => (
             <div key={token.id} className="mt-4 border-t border-line pt-4">

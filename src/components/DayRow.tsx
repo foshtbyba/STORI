@@ -67,7 +67,14 @@ export default function DayRow({ row, canEdit }: { row: DayRowData; canEdit: boo
     });
   }
 
+  const [armed, setArmed] = useState(false);
   function remove() {
+    // Удаление в два клика: первый взводит «точно?», второй удаляет.
+    if (!armed) {
+      setArmed(true);
+      setTimeout(() => setArmed(false), 3000);
+      return;
+    }
     setError(null);
     start(async () => {
       const res = await deleteDay(row.id);
@@ -151,9 +158,11 @@ export default function DayRow({ row, canEdit }: { row: DayRowData; canEdit: boo
                 type="button"
                 onClick={remove}
                 disabled={pending}
-                className="h-9 rounded-full bg-raise px-4 text-[12.5px] text-rust transition hover:opacity-90 disabled:opacity-40"
+                className={`h-9 rounded-full px-4 text-[12.5px] transition hover:opacity-90 disabled:opacity-40 ${
+                  armed ? 'bg-rust font-semibold text-bg' : 'bg-raise text-rust'
+                }`}
               >
-                Удалить
+                {armed ? 'точно?' : 'Удалить'}
               </button>
             </span>
           </div>

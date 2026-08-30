@@ -2,6 +2,8 @@ import { requireAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { fmtDay } from '@/lib/period';
 import { deleteToken, toggleToken, toggleAccount, linkGroup, linkBrocardTeam } from '@/app/actions/integrations';
+import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
+import ConfirmSubmit from '@/components/ConfirmSubmit';
 import { SYNC_DAYS } from '@/lib/sync';
 import { Panel, PanelHead, Sub, Empty, Avatar } from '@/components/ui';
 import { TokenForm, TrackerForm, BrocardForm, SyncNow } from '@/components/IntegrationForms';
@@ -39,7 +41,8 @@ export default async function IntegrationsPage() {
   ]);
 
   const unlinked = groups.filter((g) => !g.buyerId).length;
-  const unlinkedTeams = brocardTeams.filter((t) => !t.buyerId).length;
+  // Общак — не «непривязанная»: она назначена расходниками осознанно.
+  const unlinkedTeams = brocardTeams.filter((t) => !t.buyerId && !t.overhead).length;
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -119,13 +122,19 @@ export default async function IntegrationsPage() {
                   <span className="min-w-0 flex-1 truncate text-[13px]">
                     {t.name}
                     <span className="ml-2 text-[11px] text-dim">#{t.externalId}</span>
+                    {t.overhead ? (
+                      <span className="ml-2 rounded-full bg-rust-t px-2 py-0.5 text-[10px] text-rust">
+                        расходники
+                      </span>
+                    ) : null}
                   </span>
                   <select
                     name="buyerId"
-                    defaultValue={t.buyerId ?? ''}
+                    defaultValue={t.overhead ? BROCARD_OVERHEAD : (t.buyerId ?? '')}
                     className="h-9 rounded-xl border border-line2 bg-panel px-3 text-[12.5px] text-text outline-none focus:border-sage"
                   >
                     <option value="">— не привязана —</option>
+                    <option value={BROCARD_OVERHEAD}>Расходники на команду</option>
                     {buyers.map((b) => (
                       <option key={b.id} value={b.id}>
                         {b.handle}
@@ -185,9 +194,13 @@ export default async function IntegrationsPage() {
                 </form>
                 <form action={deleteToken}>
                   <input type="hidden" name="id" value={token.id} />
-                  <button type="submit" className="px-1 text-[13px] text-dim transition hover:text-rust">
+                  <ConfirmSubmit
+                    className="px-1 text-[13px] text-dim transition hover:text-rust"
+                    armedClassName="!text-rust font-semibold"
+                    title="Отвязать токен"
+                  >
                     ✕
-                  </button>
+                  </ConfirmSubmit>
                 </form>
               </div>
 

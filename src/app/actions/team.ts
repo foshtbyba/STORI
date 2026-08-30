@@ -63,10 +63,41 @@ export async function saveBuyerProfile(
 
   await prisma.buyer.update({ where: { id: buyerId }, data });
 
+  revalidatePath('/admin');
   revalidatePath('/payroll');
   revalidatePath('/owners');
   revalidatePath('/');
   revalidatePath('/peak');
   revalidatePath('/days');
+  return { ok: true };
+}
+
+/**
+ * Перекрыть/вернуть доступ баеру. Меняем только флаг входа у его аккаунта —
+ * статистика, отчёты и выплаты остаются на месте. Заблокированного тут же
+ * выкидывает: currentUser() отдаёт null на неактивном, и следующий его запрос
+ * уходит на /login.
+ */
+export async function setBuyerAccess(buyerId: string, active: boolean): Promise<ActionResult> {
+  const admin = await requireAdmin();
+  if (!buyerId) return { ok: false, error: 'Не указан баер.' };
+
+  const buyer = await prisma.buyer.findUnique({ where: { id: buyerId }, include: { user: true } });
+  if (!buyer) return { ok: false, error: 'Такого баера нет.' };
+  if (buyer.userId === admin.id) return { ok: false, error: 'Себе доступ не закрыть.' };
+
+  await prisma.user.update({ where: { id: buyer.userId }, data: { active } });
+  await prisma.auditLog.create({
+    data: {
+      actorId: admin.id,
+      actorName: admin.name,
+      entity: 'User',
+      entityId: buyer.userId,
+      action: active ? 'access:grant' : 'access:revoke',
+      diffJson: JSON.stringify({ buyerId, handle: buyer.handle }),
+    },
+  });
+
+  revalidatePath('/admin');
   return { ok: true };
 }

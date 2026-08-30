@@ -7,6 +7,7 @@ import { requireAdmin, requireUser } from '@/lib/auth';
 import { checkToken, FbError } from '@/lib/fb';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
 import { checkBrocard, BrocardError } from '@/lib/brocard';
+import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
 import { syncAll } from '@/lib/sync';
 
 /**
@@ -243,12 +244,16 @@ export async function linkBrocardTeam(form: FormData) {
   const id = String(form.get('id') ?? '');
   const buyerId = String(form.get('buyerId') ?? '');
   if (id) {
+    // «Расходники на команду» — общак: расход не идёт баеру, а копится отдельно.
+    // Обычный баер снимает флаг общака; пусто — ни того, ни другого.
+    const overhead = buyerId === BROCARD_OVERHEAD;
     await prisma.brocardTeam.update({
       where: { id },
-      data: { buyerId: buyerId || null },
+      data: { buyerId: overhead ? null : buyerId || null, overhead },
     });
   }
   revalidatePath('/integrations');
+  revalidatePath('/owners');
 }
 
 export async function runSync() {

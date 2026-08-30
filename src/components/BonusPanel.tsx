@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import SubmitButton from './SubmitButton';
+import ConfirmSubmit from './ConfirmSubmit';
 import { usd, rub } from '@/lib/money';
 import { addBonus, deleteBonus } from '@/app/actions/bonus';
 import { Panel, PanelHead, Avatar, Empty } from './ui';
@@ -172,9 +173,14 @@ export default function BonusPanel({
               ) : (
                 <form action={deleteBonus}>
                   <input type="hidden" name="id" value={b.id} />
-                  <button type="submit" className="text-[11px] text-dim transition hover:text-rust">
+                  <ConfirmSubmit
+                    className="text-[11px] text-dim transition hover:text-rust"
+                    armedClassName="!text-rust font-semibold"
+                    confirmLabel="точно?"
+                    title="Удалить бонус"
+                  >
                     ✕
-                  </button>
+                  </ConfirmSubmit>
                 </form>
               )}
             </div>

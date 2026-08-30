@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { saveBuyerProfile } from '@/app/actions/team';
+import { saveBuyerProfile, setBuyerAccess } from '@/app/actions/team';
 import { Avatar } from './ui';
 
 export type RosterRow = {
@@ -16,6 +16,8 @@ export type RosterRow = {
   /** 'BUYER' | 'LEAD' | ''. */
   position: string;
   owner: boolean;
+  /** Доступ ко входу перекрыт — аккаунт не может залогиниться. */
+  blocked: boolean;
 };
 
 /**
@@ -74,6 +76,28 @@ function RosterLine({ row }: { row: RosterRow }) {
     });
   }
 
+  // Снятие доступа — в два клика: первый взводит «точно?», второй закрывает.
+  const [armed, setArmed] = useState(false);
+  const armTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  function access(active: boolean) {
+    setError(null);
+    start(async () => {
+      const res = await setBuyerAccess(row.id, active);
+      if (!res.ok) return setError(res.error);
+      setArmed(false);
+      router.refresh();
+    });
+  }
+  function clickBlock() {
+    if (!armed) {
+      setArmed(true);
+      if (armTimer.current) clearTimeout(armTimer.current);
+      armTimer.current = setTimeout(() => setArmed(false), 3000);
+      return;
+    }
+    access(false);
+  }
+
   return (
     <div className="grid grid-cols-2 items-center gap-3 border-t border-line py-3 md:grid-cols-[1.4fr_1fr_1fr_0.9fr_auto]">
       <span className="col-span-2 flex items-center gap-3 md:col-span-1">
@@ -82,6 +106,7 @@ function RosterLine({ row }: { row: RosterRow }) {
           <span className="text-[14px] font-semibold">
             {row.handle}
             {row.owner ? <span className="ml-2 rounded-full bg-sage-t px-2 py-0.5 text-[10px] text-sage">овнер</span> : null}
+            {row.blocked ? <span className="ml-2 rounded-full bg-rust-t px-2 py-0.5 text-[10px] text-rust">доступ закрыт</span> : null}
           </span>
           {saved && !dirty ? <span className="text-[11px] text-sage">сохранено</span> : null}
           {error ? <span className="text-[11px] text-rust">{error}</span> : null}
@@ -121,7 +146,30 @@ function RosterLine({ row }: { row: RosterRow }) {
         </select>
       </label>
 
-      <span className="col-span-2 flex items-center justify-end md:col-span-1">
+      <span className="col-span-2 flex items-center justify-end gap-2 md:col-span-1">
+        {row.blocked ? (
+          <button
+            type="button"
+            onClick={() => access(true)}
+            disabled={pending}
+            className="h-8 rounded-full bg-rust-t px-3 text-[11.5px] text-rust transition hover:opacity-90 disabled:opacity-40"
+            title="Вернуть доступ ко входу"
+          >
+            доступ закрыт · вернуть
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={clickBlock}
+            disabled={pending}
+            className={`h-8 rounded-full px-3 text-[11.5px] transition disabled:opacity-40 ${
+              armed ? 'bg-rust text-bg font-semibold' : 'bg-sub text-mute hover:text-rust'
+            }`}
+            title="Перекрыть доступ ко входу (стата останется)"
+          >
+            {armed ? 'точно закрыть?' : 'закрыть доступ'}
+          </button>
+        )}
         <button
           type="button"
           onClick={() => commit()}

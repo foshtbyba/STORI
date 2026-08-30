@@ -311,13 +311,9 @@ export async function syncBrocard(days = SYNC_DAYS): Promise<SyncResult> {
     const buyerOfTeam = new Map(linked.map((t) => [t.externalId, t.buyerId!]));
 
     // Команды-«общак»: их расход — расходники на команду, а не спенд баера.
-    // Ловим по флагу overhead или по имени «Общак», чтобы работало и до того,
-    // как флаг проставят вручную.
+    // Помечаются вручную в источниках (выбор «Расходники на команду»).
     const overheadTeams = await prisma.brocardTeam.findMany({ where: { overhead: true } });
     const overheadIds = new Set(overheadTeams.map((t) => t.externalId));
-    for (const t of teams) {
-      if (t.name.trim().toLowerCase() === 'общак') overheadIds.add(t.id);
-    }
 
     const rows = await dailySpend(config.apiKey, from, to, SYNC_TZ);
 
