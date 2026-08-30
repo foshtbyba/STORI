@@ -46,13 +46,14 @@ model Buyer {
   salaryRuleId String?
   salaryRule   SalaryRule? @relation(fields: [salaryRuleId], references: [id])
 
-  days        DayReport[]
-  consumables ConsumableEntry[]
-  bonuses     Bonus[]
-  payouts     Payout[]
-  attendance  Attendance[]
-  adTokens    AdToken[]
-  adGroups    TrackerGroup[]
+  days         DayReport[]
+  consumables  ConsumableEntry[]
+  bonuses      Bonus[]
+  payouts      Payout[]
+  attendance   Attendance[]
+  adTokens     AdToken[]
+  adGroups     TrackerGroup[]
+  brocardTeams BrocardTeam[]
 }
 
 model Team {
@@ -351,7 +352,7 @@ model AdAccount {
   enabled    Boolean @default(true)
 
   lastSpendAt DateTime?
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime       @default(now())
   days        AdAccountDay[]
 
   @@unique([tokenId, externalId])
@@ -396,6 +397,35 @@ model Tracker {
 model TrackerGroup {
   id         String  @id @default(cuid())
   /// id группы в Keitaro.
+  externalId String  @unique
+  name       String  @default("")
+  buyerId    String?
+  buyer      Buyer?  @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+}
+
+/// Brocard — источник РЕАЛЬНОГО расхода: фактические списания с карт. Инстанс
+/// один на команду, поэтому строка ровно одна. Адрес API фиксированный, храним
+/// только ключ.
+model BrocardConfig {
+  id      String  @id @default(cuid())
+  apiKey  String
+  enabled Boolean @default(true)
+
+  lastSyncAt DateTime?
+  lastError  String    @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Команда в Brocard. Расход делится по командам: команда — это баер. Пока
+/// команда не привязана, её расход никуда не пишется и виден в настройках.
+model BrocardTeam {
+  id         String  @id @default(cuid())
+  /// id команды в Brocard.
   externalId String  @unique
   name       String  @default("")
   buyerId    String?

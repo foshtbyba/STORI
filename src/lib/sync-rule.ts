@@ -25,6 +25,12 @@ export type DayState = {
 export type Incoming = {
   spendCents?: number;
   revenueCents?: number;
+  /**
+   * Готовый расход с комиссией. Brocard знает фактическую комиссию за платёж,
+   * поэтому передаёт её явно, а не через ставку в bps. Если не задан — считаем
+   * по ставке строки, как раньше.
+   */
+  spendGrossCents?: number;
 };
 
 export type Merge = {
@@ -50,9 +56,10 @@ export function mergeDay(existing: DayState, incoming: Incoming): Merge {
   if (incoming.spendCents !== undefined) {
     if (untouched(existing.spendNetCents, existing.spendSyncedCents)) {
       data.spendNetCents = incoming.spendCents;
-      // Комиссия за пополнение сидит внутри перевода — пересчитываем её от
-      // нового чистого расхода той же ставкой, что стояла в строке.
-      data.spendGrossCents = grossUp(incoming.spendCents, existing.commissionBps);
+      // Комиссия: если источник знает фактическую (Brocard) — берём её, иначе
+      // считаем по ставке строки, как для ручного ввода.
+      data.spendGrossCents =
+        incoming.spendGrossCents ?? grossUp(incoming.spendCents, existing.commissionBps);
       data.spendSyncedCents = incoming.spendCents;
     } else {
       skipped = true;

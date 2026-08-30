@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db';
 import { requireAdmin } from '@/lib/auth';
 import { checkToken, FbError } from '@/lib/fb';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
+import { checkBrocard, BrocardError } from '@/lib/brocard';
 import { syncAll } from '@/lib/sync';
 
 /**
@@ -142,6 +143,60 @@ export async function linkGroup(form: FormData) {
   const buyerId = String(form.get('buyerId') ?? '');
   if (id) {
     await prisma.trackerGroup.update({
+      where: { id },
+      data: { buyerId: buyerId || null },
+    });
+  }
+  revalidatePath('/integrations');
+}
+
+const BrocardInput = z.object({
+  apiKey: z.string().trim().min(8, 'Ключ слишком короткий'),
+});
+
+export async function saveBrocard(_prev: ActionState, form: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const parsed = BrocardInput.safeParse({ apiKey: form.get('apiKey') });
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? 'Проверь поле' };
+  }
+
+  let found;
+  try {
+    found = await checkBrocard(parsed.data.apiKey);
+  } catch (e) {
+    return { ok: false, error: e instanceof BrocardError ? e.message : (e as Error).message };
+  }
+
+  const existing = await prisma.brocardConfig.findFirst();
+  if (existing) {
+    await prisma.brocardConfig.update({
+      where: { id: existing.id },
+      data: { apiKey: parsed.data.apiKey, enabled: true, lastError: '' },
+    });
+  } else {
+    await prisma.brocardConfig.create({ data: { apiKey: parsed.data.apiKey } });
+  }
+
+  // Команды заводим сразу — будет что привязывать к баерам.
+  for (const t of found.teams) {
+    await prisma.brocardTeam.upsert({
+      where: { externalId: t.id },
+      update: { name: t.name, lastSeenAt: new Date() },
+      create: { externalId: t.id, name: t.name, lastSeenAt: new Date() },
+    });
+  }
+
+  revalidatePath('/integrations');
+  return { ok: true, message: `Команд найдено: ${found.teams.length}` };
+}
+
+export async function linkBrocardTeam(form: FormData) {
+  await requireAdmin();
+  const id = String(form.get('id') ?? '');
+  const buyerId = String(form.get('buyerId') ?? '');
+  if (id) {
+    await prisma.brocardTeam.update({
       where: { id },
       data: { buyerId: buyerId || null },
     });

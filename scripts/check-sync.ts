@@ -76,6 +76,13 @@ check(
 const gross = mergeDay(day(), { spendCents: 10_000 }).data.spendGrossCents;
 check('расход с комиссией больше чистого', gross > 10_000, true);
 
+// Явная комиссия (Brocard знает фактическую) уважается как есть, без расчёта.
+check(
+  'фактическая комиссия Brocard берётся как есть',
+  mergeDay(day(), { spendCents: 10_000, spendGrossCents: 10_450 }).data.spendGrossCents,
+  10_450,
+);
+
 // Ноль — тоже цифра: день, в который открутили ноль, должен записаться.
 check('ноль записывается', mergeDay(day({ spendNetCents: 0 }), { spendCents: 0 }).data.spendNetCents, 0);
 

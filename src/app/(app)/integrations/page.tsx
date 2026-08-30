@@ -1,10 +1,10 @@
 import { requireAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { fmtDay } from '@/lib/period';
-import { deleteToken, toggleToken, toggleAccount, linkGroup } from '@/app/actions/integrations';
+import { deleteToken, toggleToken, toggleAccount, linkGroup, linkBrocardTeam } from '@/app/actions/integrations';
 import { SYNC_DAYS } from '@/lib/sync';
 import { Panel, PanelHead, Sub, Empty, Avatar } from '@/components/ui';
-import { TokenForm, TrackerForm, SyncNow } from '@/components/IntegrationForms';
+import { TokenForm, TrackerForm, BrocardForm, SyncNow } from '@/components/IntegrationForms';
 import { IconWallet, IconLink, IconChart, IconWarn } from '@/components/icons';
 
 /**
@@ -16,7 +16,7 @@ import { IconWallet, IconLink, IconChart, IconWarn } from '@/components/icons';
 export default async function IntegrationsPage() {
   await requireAdmin();
 
-  const [tokens, tracker, groups, buyers] = await Promise.all([
+  const [tokens, tracker, groups, brocard, brocardTeams, buyers] = await Promise.all([
     prisma.adToken.findMany({
       include: {
         buyer: { select: { id: true, handle: true, initials: true, color: true } },
@@ -29,6 +29,8 @@ export default async function IntegrationsPage() {
       include: { buyer: { select: { handle: true } } },
       orderBy: { name: 'asc' },
     }),
+    prisma.brocardConfig.findFirst(),
+    prisma.brocardTeam.findMany({ orderBy: { name: 'asc' } }),
     prisma.buyer.findMany({
       where: { archived: false },
       select: { id: true, handle: true },
@@ -37,6 +39,7 @@ export default async function IntegrationsPage() {
   ]);
 
   const unlinked = groups.filter((g) => !g.buyerId).length;
+  const unlinkedTeams = brocardTeams.filter((t) => !t.buyerId).length;
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -58,6 +61,88 @@ export default async function IntegrationsPage() {
           зарплату он не идёт. Синхронизация никогда не спорит с человеком: поправленную руками
           цифру в отчёте она не трогает и отмечает такую строку отдельно.
         </p>
+      </Panel>
+
+      {/* ── Brocard ───────────────────────────────────────────────────── */}
+      <Panel className="p-4 sm:p-6">
+        <PanelHead
+          icon={<IconWallet color="#b4c68c" />}
+          tint="bg-sage-t"
+          title="Brocard"
+          aside={<span className="text-[12.5px] text-mute">реальный расход</span>}
+          right={
+            brocard?.lastSyncAt ? (
+              <span className="text-[12px] text-mute">последний заход {fmtDay(brocard.lastSyncAt)}</span>
+            ) : null
+          }
+        />
+
+        {brocard?.lastError ? (
+          <Sub className="mt-3 px-3.5 py-2.5 text-[12px] leading-relaxed text-rust">
+            {brocard.lastError}
+          </Sub>
+        ) : null}
+
+        <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
+          Ключ берётся в кабинете Brocard: раздел <span className="text-soft">Автоматизация → API</span>,
+          сначала «Включить», затем «Создать». Расход отсюда — фактические списания с карт, он и идёт
+          в отчёты и зарплату. Отклонённые и центовые проверки карты в расход не считаем.
+        </p>
+        <BrocardForm hasKey={Boolean(brocard?.apiKey)} />
+
+        <div className="mt-5 border-t border-line pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-[12.5px] font-semibold">Команды Brocard</span>
+            {unlinkedTeams ? (
+              <span className="flex items-center gap-2 text-[12px] text-rust">
+                <IconWarn color="#ce6e58" size={14} />
+                без баера: {unlinkedTeams}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
+            Расход делится по командам: команда — это баер. Пока команда не привязана, её траты
+            никуда не пишутся и показываются отдельной строкой в отчёте о синхронизации.
+          </p>
+
+          {brocardTeams.length === 0 ? (
+            <Empty>Команд пока не видно — сохрани ключ выше, и они подтянутся.</Empty>
+          ) : (
+            <div className="mt-3 flex flex-col gap-2">
+              {brocardTeams.map((t) => (
+                <form
+                  key={t.id}
+                  action={linkBrocardTeam}
+                  className="flex flex-wrap items-center gap-2.5 rounded-[16px] bg-sub px-3.5 py-2.5"
+                >
+                  <input type="hidden" name="id" value={t.id} />
+                  <span className="min-w-0 flex-1 truncate text-[13px]">
+                    {t.name}
+                    <span className="ml-2 text-[11px] text-dim">#{t.externalId}</span>
+                  </span>
+                  <select
+                    name="buyerId"
+                    defaultValue={t.buyerId ?? ''}
+                    className="h-9 rounded-xl border border-line2 bg-panel px-3 text-[12.5px] text-text outline-none focus:border-sage"
+                  >
+                    <option value="">— не привязана —</option>
+                    {buyers.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.handle}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="submit"
+                    className="rounded-full border border-line2 px-3.5 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage"
+                  >
+                    Сохранить
+                  </button>
+                </form>
+              ))}
+            </div>
+          )}
+        </div>
       </Panel>
 
       {/* ── Facebook ──────────────────────────────────────────────────── */}

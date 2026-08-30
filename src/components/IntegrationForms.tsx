@@ -1,7 +1,13 @@
 'use client';
 
 import { useActionState, useState, useTransition } from 'react';
-import { addToken, saveTracker, runSync, type ActionState } from '@/app/actions/integrations';
+import {
+  addToken,
+  saveTracker,
+  saveBrocard,
+  runSync,
+  type ActionState,
+} from '@/app/actions/integrations';
 import SubmitButton from './SubmitButton';
 
 /**
@@ -104,6 +110,29 @@ export function TrackerForm({ baseUrl, hasKey }: { baseUrl: string; hasKey: bool
       <div className="flex justify-end">
         <SubmitButton
           pendingLabel="Проверяю связь…"
+          className="rounded-full bg-sage px-6 py-2.5 text-[13px] font-semibold text-bg transition hover:opacity-90"
+        >
+          Проверить и сохранить
+        </SubmitButton>
+      </div>
+      <Answer state={state} />
+    </form>
+  );
+}
+
+export function BrocardForm({ hasKey }: { hasKey: boolean }) {
+  const [state, action] = useActionState(saveBrocard, null);
+  return (
+    <form action={action} className="mt-4 flex flex-col gap-2.5">
+      <label className="block">
+        <span className="mb-1.5 block text-[11.5px] text-mute">
+          API-ключ Brocard {hasKey ? '· уже сохранён, впиши заново чтобы сменить' : ''}
+        </span>
+        <input name="apiKey" placeholder="ключ из раздела «Автоматизация» → API" className={`${field} n`} required />
+      </label>
+      <div className="flex justify-end">
+        <SubmitButton
+          pendingLabel="Проверяю ключ…"
           className="rounded-full bg-sage px-6 py-2.5 text-[13px] font-semibold text-bg transition hover:opacity-90"
         >
           Проверить и сохранить

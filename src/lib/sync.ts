@@ -5,6 +5,7 @@ import { grossUp } from './money';
 import { mergeDay } from './sync-rule';
 import { accountSpend, listAccounts, extractFbToken, FbError } from './fb';
 import { dailyRevenue, listCampaigns, KeitaroError } from './keitaro';
+import { dailySpend, listTeams, BrocardError } from './brocard';
 
 /**
  * Подтягивание цифр из Facebook и Keitaro в отчёты по дням.
@@ -29,6 +30,8 @@ type Report = {
   date: Date;
   spendCents?: number;
   revenueCents?: number;
+  /** Готовый расход с комиссией — когда источник (Brocard) знает её точно. */
+  spendGrossCents?: number;
 };
 
 export type SyncResult = {
@@ -85,7 +88,8 @@ async function writeDay(row: Report, result: SyncResult) {
         revenueCents: revenue,
         spendNetCents: spend,
         commissionBps: bps,
-        spendGrossCents: grossUp(spend, bps),
+        // Расход с комиссией: у Brocard она фактическая, иначе считаем по ставке.
+        spendGrossCents: row.spendGrossCents ?? grossUp(spend, bps),
         spendSyncedCents: row.spendCents ?? null,
         revenueSyncedCents: row.revenueCents ?? null,
         syncedAt: new Date(),
@@ -99,6 +103,7 @@ async function writeDay(row: Report, result: SyncResult) {
   const { data, skipped } = mergeDay(existing, {
     spendCents: row.spendCents,
     revenueCents: row.revenueCents,
+    spendGrossCents: row.spendGrossCents,
   });
 
   if (Object.keys(data).length === 0) {
@@ -267,14 +272,97 @@ export async function syncKeitaro(days = SYNC_DAYS): Promise<SyncResult> {
   return result;
 }
 
-/** Оба источника разом — то, что дёргает кнопка в настройках и крон. */
+/**
+ * Реальный расход из Brocard. Платёж по карте относится к команде
+ * (`user.team`), команда привязана к баеру — по ней и делим расход. Чистыми
+ * берём `amount`, а `amount + комиссия Brocard` кладём в «расход с комиссией».
+ *
+ * Расход без привязанной команды не теряется: копится в orphan и виден в
+ * настройках отдельной строкой.
+ */
+export async function syncBrocard(days = SYNC_DAYS): Promise<SyncResult> {
+  const result = emptyResult();
+  const config = await prisma.brocardConfig.findFirst({ where: { enabled: true } });
+  if (!config) return result;
+
+  const { from, to } = daysBack(days);
+  try {
+    const teams = await listTeams(config.apiKey);
+    for (const t of teams) {
+      await prisma.brocardTeam.upsert({
+        where: { externalId: t.id },
+        update: { name: t.name, lastSeenAt: new Date() },
+        create: { externalId: t.id, name: t.name, lastSeenAt: new Date() },
+      });
+    }
+
+    const linked = await prisma.brocardTeam.findMany({ where: { buyerId: { not: null } } });
+    const buyerOfTeam = new Map(linked.map((t) => [t.externalId, t.buyerId!]));
+
+    const rows = await dailySpend(config.apiKey, from, to);
+
+    /** Расход по «баер + день»: net и gross (с комиссией Brocard) отдельно. */
+    const net = new Map<string, number>();
+    const gross = new Map<string, number>();
+    let orphan = 0;
+    for (const row of rows) {
+      const buyerId = buyerOfTeam.get(row.teamId);
+      if (!buyerId) {
+        orphan += row.amountCents;
+        continue;
+      }
+      const key = `${buyerId}|${row.date}`;
+      net.set(key, (net.get(key) ?? 0) + row.amountCents);
+      gross.set(key, (gross.get(key) ?? 0) + row.amountCents + row.feeCents);
+    }
+
+    for (const [key, cents] of net) {
+      const [buyerId, iso] = key.split('|');
+      await writeDay(
+        {
+          buyerId,
+          date: atMidnight(iso),
+          spendCents: cents,
+          spendGrossCents: gross.get(key) ?? cents,
+        },
+        result,
+      );
+    }
+
+    if (orphan > 0) {
+      const unlinked = teams.filter((t) => !buyerOfTeam.has(t.id)).length;
+      result.problems.push(
+        `Brocard: ${unlinked} команд без баера — их расход $${Math.round(orphan / 100).toLocaleString('ru-RU')} не записан`,
+      );
+    }
+
+    await prisma.brocardConfig.update({
+      where: { id: config.id },
+      data: { lastSyncAt: new Date(), lastError: '' },
+    });
+  } catch (e) {
+    const why = e instanceof BrocardError ? e.message : `Сбой: ${(e as Error).message}`;
+    result.problems.push(`Brocard: ${why}`);
+    await prisma.brocardConfig.update({
+      where: { id: config.id },
+      data: { lastError: why, lastSyncAt: new Date() },
+    });
+  }
+
+  return result;
+}
+
+/** Все источники разом — то, что дёргает кнопка в настройках и крон. */
 export async function syncAll(days = SYNC_DAYS) {
-  const fb = await syncFacebook(days);
+  // Расход раньше дохода: если у дня ещё нет строки, её заводит расход с
+  // Brocard, а доход из Keitaro потом лишь дописывает revenue.
+  const brocard = await syncBrocard(days);
   const kt = await syncKeitaro(days);
+  const fb = await syncFacebook(days);
   return {
-    touched: fb.touched + kt.touched,
-    skipped: fb.skipped + kt.skipped,
+    touched: brocard.touched + kt.touched + fb.touched,
+    skipped: brocard.skipped + kt.skipped + fb.skipped,
     orphanCents: kt.orphanCents,
-    problems: [...fb.problems, ...kt.problems],
+    problems: [...brocard.problems, ...kt.problems, ...fb.problems],
   };
 }
