@@ -3,8 +3,12 @@
 import { useEffect, useState } from 'react';
 
 /**
- * Удаление оффера в два шага. Вместе с ним уходят гео и загруженные файлы, а
- * промахнуться по «удалить» на телефоне легко — поэтому сначала спрашиваем.
+ * Удаление оффера в два шага. Промахнуться по «удалить» легко, а вместе с
+ * оффером уходят гео и файлы — поэтому сначала спрашиваем.
+ *
+ * Появляется подтверждение на том же месте: красная «Удалить» плавно
+ * выезжает вправо, а на старом месте кнопки оказывается «Отмена». Так
+ * рефлекторный второй клик попадает в отмену, а не в удаление.
  */
 export default function DeleteOffer({
   id,
@@ -16,11 +20,19 @@ export default function DeleteOffer({
   action: (formData: FormData) => void;
 }) {
   const [armed, setArmed] = useState(false);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
-    if (!armed) return;
+    if (!armed) {
+      setShow(false);
+      return;
+    }
+    const r = requestAnimationFrame(() => setShow(true));
     const t = setTimeout(() => setArmed(false), 4000);
-    return () => clearTimeout(t);
+    return () => {
+      cancelAnimationFrame(r);
+      clearTimeout(t);
+    };
   }, [armed]);
 
   if (!armed) {
@@ -35,29 +47,35 @@ export default function DeleteOffer({
     );
   }
 
-  // Вопрос занимает свою строку целиком: втиснутый рядом с датой он не влезал
-  // и уползал за край карточки.
   return (
-    <span className="flex basis-full items-center justify-between gap-3 rounded-xl bg-rust-t px-3 py-2">
-      <span className="min-w-0 truncate text-[12px] text-soft">Удалить «{name}»?</span>
-      <span className="flex shrink-0 items-center gap-1.5">
-        <form action={action}>
-          <input type="hidden" name="id" value={id} />
-          <button
-            type="submit"
-            className="rounded-full bg-rust px-3.5 py-1.5 text-[12px] font-semibold text-bg transition hover:opacity-90"
-          >
-            Удалить
-          </button>
-        </form>
-        <button
-          type="button"
-          onClick={() => setArmed(false)}
-          className="rounded-full px-3 py-1.5 text-[12px] text-mute transition hover:text-soft"
-        >
-          Отмена
-        </button>
+    <span className="inline-flex items-center gap-2">
+      <span
+        className={`hidden max-w-[150px] truncate text-[12px] text-soft transition-all duration-200 sm:inline ${
+          show ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        Удалить «{name}»?
       </span>
+      {/* Красная «Удалить» выезжает вправо из-под «Отмены». */}
+      <form action={action}>
+        <input type="hidden" name="id" value={id} />
+        <button
+          type="submit"
+          className={`rounded-full bg-rust px-3.5 py-1.5 text-[12px] font-semibold text-bg transition-all duration-200 ease-out hover:opacity-90 ${
+            show ? 'translate-x-0 opacity-100' : '-translate-x-3 opacity-0'
+          }`}
+        >
+          Удалить
+        </button>
+      </form>
+      {/* «Отмена» — ровно там, где была кнопка «удалить». */}
+      <button
+        type="button"
+        onClick={() => setArmed(false)}
+        className="rounded-full border border-line2 bg-sub px-3.5 py-1.5 text-[12px] text-mute transition hover:text-soft"
+      >
+        Отмена
+      </button>
     </span>
   );
 }

@@ -1,15 +1,16 @@
 import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { currentPeriodKey, teamSummary, closedSheets } from '@/lib/queries';
-import { periodTitle, fmtDay, isWeekKey, shiftKey } from '@/lib/period';
+import { periodTitle, fmtDay, isWeekKey, shiftKey, periodLabel } from '@/lib/period';
 import PeriodNav from '@/components/PeriodNav';
 import { usd, rub, sum } from '@/lib/money';
 import { payrollTotals, parseTiers, okladCents, DEFAULT_FIXED_RUB } from '@/lib/salary';
 import { closePeriod, reopenPeriod } from '@/app/actions/period';
+import ClosedSheets, { type SheetRow } from '@/components/ClosedSheets';
 import { Panel, PanelHead, Sub, Avatar, Empty, Formula, Big } from '@/components/ui';
 import ConfirmSubmit from '@/components/ConfirmSubmit';
 import { Meter } from '@/components/Charts';
-import { IconWallet, IconWarn, IconChart, IconCalendar } from '@/components/icons';
+import { IconWallet, IconWarn, IconChart } from '@/components/icons';
 
 export default async function PayrollPage({
   searchParams,
@@ -84,6 +85,25 @@ export default async function PayrollPage({
   const archive = (await closedSheets(team ? undefined : (scoped ?? '__none__'))).filter(
     (s) => s.key !== key,
   );
+  const sheetRows: SheetRow[] = archive.map((s) => {
+    const month = isWeekKey(s.key) ? s.key.slice(0, 7) : s.key;
+    return {
+      key: s.key,
+      title: s.title,
+      closedLabel: s.closedAt ? fmtDay(s.closedAt) : null,
+      rate: s.rate,
+      payoutCents: s.payoutCents,
+      salaryCents: s.salaryCents,
+      bonusCents: s.bonusCents,
+      people: s.people,
+      month,
+      monthLabel: periodLabel(month),
+    };
+  });
+  // Месяцы для выбора — по одному на каждый встреченный, свежие сверху.
+  const sheetMonths = [...new Map(sheetRows.map((s) => [s.month, s.monthLabel])).entries()]
+    .sort((a, b) => (a[0] < b[0] ? 1 : -1))
+    .map(([value, label]) => ({ value, label }));
 
   const rateLabel =
     totals.avgRate === null ? 'оклад' : `${totals.avgRate.toFixed(1).replace('.', ',')}%`;
@@ -400,64 +420,7 @@ export default async function PayrollPage({
         </Panel>
       </div>
 
-      <Panel className="p-4 sm:p-6">
-        <PanelHead
-          icon={<IconCalendar color="#b4c68c" />}
-          tint="bg-sage-t"
-          title="Закрытые листы"
-          right={
-            <span className="text-[12.5px] text-mute">
-              {team ? 'сколько ушло команде' : 'сколько ты получил'}
-            </span>
-          }
-        />
-        {archive.length === 0 ? (
-          <Empty>Закрытых периодов пока нет.</Empty>
-        ) : (
-          <>
-            <div className="mt-4 grid grid-cols-[1.3fr_1fr] lg:grid-cols-[1.5fr_repeat(3,1fr)_1fr] pb-2.5">
-              <span className="lab">Период</span>
-              <span className="lab hidden text-right lg:block">Оклад и процент</span>
-              <span className="lab hidden text-right lg:block">Бонусы</span>
-              <span className="lab hidden text-right lg:block">В рублях</span>
-              <span className="lab text-right">К выплате</span>
-            </div>
-            {archive.map((sheet) => (
-              <a
-                key={sheet.key}
-                href={`/payroll?p=${sheet.key}`}
-                className="grid grid-cols-[1.3fr_1fr] lg:grid-cols-[1.5fr_repeat(3,1fr)_1fr] items-center border-t border-line py-3 transition hover:bg-sub"
-              >
-                <span>
-                  <span className="block text-[14px] font-semibold">{sheet.title}</span>
-                  <span className="block text-[11.5px] text-mute">
-                    {sheet.closedAt ? `закрыт ${fmtDay(sheet.closedAt)}` : 'закрыт'}
-                    {team ? ` · ${sheet.people} чел.` : ''}
-                  </span>
-                </span>
-                <span className="n hidden text-right text-[13.5px] text-soft lg:block">
-                  {usd(sheet.salaryCents)}
-                </span>
-                <span
-                  className="n hidden text-right text-[13.5px] lg:block"
-                  style={{ color: sheet.bonusCents ? '#b4c68c' : '#8a8a8a' }}
-                >
-                  {sheet.bonusCents ? `+${usd(sheet.bonusCents)}` : '—'}
-                </span>
-                <span className="n hidden text-right text-[13px] text-mute lg:block">
-                  {rub(sheet.payoutCents, sheet.rate)}
-                </span>
-                <span className="n text-right text-[17px] font-semibold">{usd(sheet.payoutCents)}</span>
-              </a>
-            ))}
-          </>
-        )}
-        <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
-          Курс у каждого листа свой — тот, что стоял в момент закрытия. Поэтому рубли в архиве
-          не пересчитываются задним числом.
-        </p>
-      </Panel>
-
+      <ClosedSheets team={team} months={sheetMonths} sheets={sheetRows} />
     </div>
   );
 }

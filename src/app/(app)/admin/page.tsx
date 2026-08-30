@@ -6,11 +6,13 @@ import { periodTitle, isWeekKey, shiftKey, fmtDay } from '@/lib/period';
 import PeriodNav from '@/components/PeriodNav';
 import { Panel, PanelHead, Empty } from '@/components/ui';
 import BuyerRoster, { type RosterRow } from '@/components/BuyerRoster';
+import AddMember from '@/components/AddMember';
 import BonusPanel, { type BonusRow } from '@/components/BonusPanel';
 import LadderEditor, { type LadderRule } from '@/components/LadderEditor';
 import BuyerLadder, { type BuyerLadderRow } from '@/components/BuyerLadder';
+import CollapsiblePanel from '@/components/CollapsiblePanel';
 import { parseTiers } from '@/lib/salary';
-import { IconUsers, IconChart } from '@/components/icons';
+import { IconUsers, IconChart, IconWallet } from '@/components/icons';
 
 /** tiersJson → строки для ввода (доллары/проценты). */
 function toLadderRule(id: string, name: string, tiersJson: string, fixedRub: number): LadderRule {
@@ -117,76 +119,82 @@ export default async function AdminPage({
           right={<span className="text-[12.5px] text-mute">дата выхода, профиль, овнеры</span>}
         />
         <BuyerRoster rows={rosterRows} />
+        <AddMember />
       </Panel>
 
-      {defaultRule ? (
-        <Panel className="p-4 sm:p-6">
-          <PanelHead
-            icon={<IconChart color="#b4c68c" />}
-            tint="bg-sage-t"
-            title="Лесенка по умолчанию"
-            right={<span className="text-[12.5px] text-mute">для всех, у кого нет своей</span>}
-          />
-          <LadderEditor rule={defaultRule} />
-        </Panel>
-      ) : null}
-
       {buyerLadders.length > 0 ? (
-        <Panel className="p-4 sm:p-6">
-          <PanelHead
-            icon={<IconChart color="#b4c68c" />}
-            tint="bg-sage-t"
-            title="Лесенки по баерам"
-            right={<span className="text-[12.5px] text-mute">своя лесенка у каждого — по клику</span>}
-          />
-          <div className="mt-2 flex flex-col">
+        <CollapsiblePanel
+          icon={<IconChart color="#b4c68c" />}
+          tint="bg-sage-t"
+          title="Лесенки по баерам"
+          summary={<span className="text-[12.5px] text-mute">своя лесенка у каждого</span>}
+        >
+          <div className="flex flex-col">
             {buyerLadders.map((b) => (
               <BuyerLadder key={b.buyerId} row={b} />
             ))}
           </div>
-        </Panel>
+        </CollapsiblePanel>
       ) : null}
 
-      <div className="flex items-center justify-between px-1">
-        <span className="lab">Разовые бонусы за</span>
-        <PeriodNav
-          base="/admin"
-          label={periodTitle(key)}
-          isWeek
-          weeksOnly
-          prev={shiftKey(key, -1)}
-          next={shiftKey(key, 1)}
-          week={key}
-          month={key}
+      {defaultRule ? (
+        <CollapsiblePanel
+          icon={<IconChart color="#b4c68c" />}
+          tint="bg-sage-t"
+          title="Лесенка по умолчанию"
+          summary={<span className="text-[12.5px] text-mute">для всех, у кого нет своей</span>}
+        >
+          <LadderEditor rule={defaultRule} />
+        </CollapsiblePanel>
+      ) : null}
+
+      <CollapsiblePanel
+        icon={<IconWallet color="#b4c68c" />}
+        tint="bg-sage-t"
+        title="Разовые бонусы"
+        aside={<span className="text-[12.5px] text-mute">{periodTitle(key)}</span>}
+      >
+        <div className="mb-3 flex justify-end">
+          <PeriodNav
+            base="/admin"
+            label={periodTitle(key)}
+            isWeek
+            weeksOnly
+            prev={shiftKey(key, -1)}
+            next={shiftKey(key, 1)}
+            week={key}
+            month={key}
+          />
+        </div>
+        <BonusPanel
+          bare
+          periodKey={key}
+          rate={rate}
+          closed={closed}
+          threshold={BONUS_THRESHOLD}
+          buyers={summary.buyers.map((r) => ({ id: r.buyer.id, handle: r.buyer.handle }))}
+          firstHit={
+            firstHit
+              ? {
+                  handle: firstHit.buyer.handle,
+                  day: fmtDay(firstHit.date),
+                  awarded: bonusRows.some(
+                    (b) => b.buyerId === firstHit.buyer.id && b.note.startsWith('первые'),
+                  ),
+                }
+              : null
+          }
+          bonuses={bonusRows.map(
+            (b): BonusRow => ({
+              id: b.id,
+              buyer: { initials: b.buyer.initials, color: b.buyer.color, handle: b.buyer.handle },
+              amountCents: b.amountCents,
+              note: b.note,
+              day: fmtDay(b.createdAt),
+            }),
+          )}
         />
-      </div>
-      <BonusPanel
-        periodKey={key}
-        rate={rate}
-        closed={closed}
-        threshold={BONUS_THRESHOLD}
-        buyers={summary.buyers.map((r) => ({ id: r.buyer.id, handle: r.buyer.handle }))}
-        firstHit={
-          firstHit
-            ? {
-                handle: firstHit.buyer.handle,
-                day: fmtDay(firstHit.date),
-                awarded: bonusRows.some(
-                  (b) => b.buyerId === firstHit.buyer.id && b.note.startsWith('первые'),
-                ),
-              }
-            : null
-        }
-        bonuses={bonusRows.map(
-          (b): BonusRow => ({
-            id: b.id,
-            buyer: { initials: b.buyer.initials, color: b.buyer.color, handle: b.buyer.handle },
-            amountCents: b.amountCents,
-            note: b.note,
-            day: fmtDay(b.createdAt),
-          }),
-        )}
-      />
+      </CollapsiblePanel>
     </div>
   );
 }

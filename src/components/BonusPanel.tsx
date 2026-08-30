@@ -34,6 +34,7 @@ export default function BonusPanel({
   firstHit,
   threshold,
   closed,
+  bare = false,
 }: {
   periodKey: string;
   rate: number;
@@ -42,6 +43,8 @@ export default function BonusPanel({
   firstHit: FirstHit;
   threshold: number;
   closed: boolean;
+  /** Без своей карточки и шапки — когда панель уже вложена в плитку. */
+  bare?: boolean;
 }) {
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
@@ -63,20 +66,8 @@ export default function BonusPanel({
     setNote(`первые ${usd(threshold)}`);
   }
 
-  return (
-    <Panel className="p-4 sm:p-6">
-      <PanelHead
-        icon={<IconWallet color="#b4c68c" />}
-        tint="bg-sage-t"
-        title="Разовые бонусы"
-        aside={<span className="text-[12.5px] text-mute">сверх процента и оклада</span>}
-        right={
-          <span className="n text-[15px] font-semibold text-sage">
-            {usd(bonuses.reduce((a, b) => a + b.amountCents, 0))}
-          </span>
-        }
-      />
-
+  const body = (
+    <>
       {firstHit ? (
         <div className="mt-4 flex items-center gap-3 rounded-[18px] bg-sub px-4 py-3">
           <span className="text-[12.5px] text-soft">
@@ -187,6 +178,25 @@ export default function BonusPanel({
           ))
         )}
       </div>
+    </>
+  );
+
+  if (bare) return body;
+
+  return (
+    <Panel className="p-4 sm:p-6">
+      <PanelHead
+        icon={<IconWallet color="#b4c68c" />}
+        tint="bg-sage-t"
+        title="Разовые бонусы"
+        aside={<span className="text-[12.5px] text-mute">сверх процента и оклада</span>}
+        right={
+          <span className="n text-[15px] font-semibold text-sage">
+            {usd(bonuses.reduce((a, b) => a + b.amountCents, 0))}
+          </span>
+        }
+      />
+      {body}
     </Panel>
   );
 }

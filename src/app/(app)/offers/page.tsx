@@ -9,7 +9,9 @@ import OfferForm, { type OfferDraft } from '@/components/OfferForm';
 import CopyOffer from '@/components/CopyOffer';
 import OfferFiles from '@/components/OfferFiles';
 import DeleteOffer from '@/components/DeleteOffer';
-import { IconPlus, IconSearch } from '@/components/icons';
+import Link from 'next/link';
+import OfferSearch from '@/components/OfferSearch';
+import Clamp from '@/components/Clamp';
 
 export default async function OffersPage({
   searchParams,
@@ -78,63 +80,41 @@ export default async function OffersPage({
     <div className="flex flex-col gap-3.5">
       <Panel className="flex flex-wrap items-center gap-3 px-4 py-3 sm:h-[68px] sm:flex-nowrap sm:gap-6 sm:px-5 sm:py-0">
         <div className="no-scrollbar flex basis-full items-center gap-2 overflow-x-auto sm:min-w-0 sm:basis-auto sm:flex-1 sm:gap-2.5">
-          <a
+          <Link
             href={query ? `/offers?q=${encodeURIComponent(query)}` : '/offers'}
+            prefetch={false}
             className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[13px] ${!status ? 'bg-raise font-semibold' : 'bg-sub text-mute'}`}
           >
             Все · {total}
-          </a>
+          </Link>
           {Object.entries(OFFER_STATUS).map(([code, meta]) => {
             const count = counts.find((c) => c.status === code)?._count ?? 0;
             return (
-              <a
+              <Link
                 key={code}
                 href={keep({ status: code })}
+                prefetch={false}
                 className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[13px] ${status === code ? 'bg-raise font-semibold' : 'bg-sub text-mute'}`}
               >
                 {meta.label} · {count}
-              </a>
+              </Link>
             );
           })}
         </div>
         <div className="hidden flex-1 sm:block" />
 
         {/*
-          Обычная GET-форма: искать можно с клавиатуры, ссылку с запросом видно
-          в адресе и её можно переслать. Выбранный статус едет скрытым полем,
-          чтобы поиск не сбрасывал вкладку.
+          Поиск GET-ом (ссылку с запросом видно в адресе), но правая кнопка
+          морфится по состоянию: пусто → «Оффер», набираешь → «Поиск», есть
+          запрос → «Сбросить».
         */}
-        <form action="/offers" className="flex basis-full items-center gap-2 sm:basis-auto">
-          {status ? <input type="hidden" name="status" value={status} /> : null}
-          <label className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-full border border-line2 bg-sub px-3.5 sm:w-[230px] sm:flex-none">
-            <IconSearch color="#8a8a8a" size={14} />
-            <input
-              name="q"
-              defaultValue={query}
-              placeholder="Название или гео"
-              className="min-w-0 flex-1 bg-transparent text-[12.5px] text-text outline-none placeholder:text-mute"
-            />
-          </label>
-          {query ? (
-            <a
-              href={status ? `/offers?status=${status}` : '/offers'}
-              title="Сбросить поиск"
-              className="shrink-0 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12.5px] text-mute transition hover:border-rust hover:text-rust"
-            >
-              ✕
-            </a>
-          ) : null}
-        </form>
-
-        {team ? (
-          <a
-            href={keep({ new: '1' })}
-            className="flex w-full shrink-0 items-center justify-center gap-2 rounded-full bg-sage px-4 py-2.5 text-[13px] font-semibold text-bg sm:w-auto"
-          >
-            <IconPlus color="#141414" size={13} width={2.8} />
-            Оффер
-          </a>
-        ) : null}
+        <OfferSearch
+          query={query ?? ''}
+          status={status}
+          canAdd={team}
+          newHref={keep({ new: '1' })}
+          resetHref={status ? `/offers?status=${status}` : '/offers'}
+        />
       </Panel>
 
       {(creating || edit) && team ? (
@@ -219,21 +199,23 @@ export default async function OffersPage({
                     вокруг восьми строк текста превращаются в кляксу. Длинное
                     кладём строкой во всю ширину и с обычными углами.
                   */}
-                  <div className="flex flex-wrap gap-1.5">
-                    {parseGeos(offer.bansJson).map((ban) => (
-                      <span
-                        key={ban}
-                        className={
-                          ban.length > 28
-                            ? 'basis-full rounded-xl bg-rust-t px-3.5 py-2.5 text-[12px] leading-relaxed text-rust'
-                            : 'rounded-full bg-rust-t px-3 py-1 text-[12px] text-rust'
-                        }
-                      >
-                        {ban}
-                      </span>
-                    ))}
-                    {parseGeos(offer.bansJson).length === 0 ? <span className="text-[12px] text-mute">нет</span> : null}
-                  </div>
+                  <Clamp collapsedPx={52}>
+                    <div className="flex flex-wrap gap-1.5">
+                      {parseGeos(offer.bansJson).map((ban) => (
+                        <span
+                          key={ban}
+                          className={
+                            ban.length > 28
+                              ? 'basis-full rounded-xl bg-rust-t px-3.5 py-2.5 text-[12px] leading-relaxed text-rust'
+                              : 'rounded-full bg-rust-t px-3 py-1 text-[12px] text-rust'
+                          }
+                        >
+                          {ban}
+                        </span>
+                      ))}
+                      {parseGeos(offer.bansJson).length === 0 ? <span className="text-[12px] text-mute">нет</span> : null}
+                    </div>
+                  </Clamp>
                 </div>
 
                 {/*
@@ -246,12 +228,14 @@ export default async function OffersPage({
                 */}
                 {parseGeos(offer.notesJson).length ? (
                   <div className="px-1.5">
-                    {parseGeos(offer.notesJson).map((note) => (
-                      <div key={note} className="mb-2 flex gap-2.5">
-                        <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-mute" />
-                        <span className="text-[12.5px] leading-relaxed text-soft">{note}</span>
-                      </div>
-                    ))}
+                    <Clamp collapsedPx={46} moreLabel="показать примечания">
+                      {parseGeos(offer.notesJson).map((note) => (
+                        <div key={note} className="mb-2 flex gap-2.5">
+                          <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-mute" />
+                          <span className="text-[12.5px] leading-relaxed text-soft">{note}</span>
+                        </div>
+                      ))}
+                    </Clamp>
                   </div>
                 ) : null}
 
