@@ -98,19 +98,8 @@ export async function dailySpend(
 
     const data = ((raw as { data?: unknown }).data ?? []) as Record<string, unknown>[];
     for (const p of data) {
-      // Микро-проверки карты и отклонённые платежи денег не стоили. У decline
-      // проверяем не просто «истинность»: строка «0»/«false» тоже истинна, а
-      // это валидный платёж — отбрасывать его нельзя.
+      // Микро — это центовая проверка карты, не трата: пропускаем целиком.
       if (p.is_micro === true) continue;
-      const decline = p.decline;
-      const declined =
-        decline !== null &&
-        decline !== undefined &&
-        decline !== '' &&
-        decline !== '0' &&
-        decline !== 'false' &&
-        decline !== false;
-      if (declined) continue;
 
       const day = String(p.date ?? '').slice(0, 10);
       if (!day) continue;
@@ -119,19 +108,35 @@ export async function dailySpend(
       const teamId = String(user.team?.id ?? '');
       if (!teamId) continue;
 
-      const amountCents = Math.round(Number(p.amount ?? 0) * 100);
-      if (!Number.isFinite(amountCents)) continue;
+      // Отклонён? У decline проверяем не «истинность»: строка «0»/«false» тоже
+      // истинна, а это валидный платёж.
+      const decline = p.decline;
+      const declined =
+        decline !== null &&
+        decline !== undefined &&
+        decline !== '' &&
+        decline !== '0' &&
+        decline !== 'false' &&
+        decline !== false;
 
       const currency = String(p.currency ?? 'USD');
-      // Комиссию складываем только в валюте самого платежа: fee в другой валюте
-      // как доллары суммировать нельзя. Чужую валюту не пересчитываем — курса
-      // у нас нет, и такой день честнее поправить руками.
+      // Комиссию Brocard берём со ВСЕХ платежей, включая отклонённые: карта
+      // всё равно списывает комиссию за попытку. Складываем только в валюте
+      // платежа — чужую валюту без курса не пересчитываем.
       const fees = (p.fees ?? []) as { amount?: unknown; currency?: unknown }[];
       const feeCents = fees.reduce((sum, f) => {
         if (f.currency && String(f.currency) !== currency) return sum;
         const c = Math.round(Number(f.amount ?? 0) * 100);
         return Number.isFinite(c) ? sum + c : sum;
       }, 0);
+
+      // Тело платежа — только у прошедших: это чистый расход на рекламу.
+      // Отклонённый рекламу не оплатил, но комиссию за него мы уже учли выше.
+      const amountCents = declined ? 0 : Math.round(Number(p.amount ?? 0) * 100);
+      if (!Number.isFinite(amountCents)) continue;
+
+      // Ни траты, ни комиссии — строку заводить незачем.
+      if (amountCents === 0 && feeCents === 0) continue;
 
       out.push({ date: day, teamId, amountCents, feeCents });
     }

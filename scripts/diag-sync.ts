@@ -81,33 +81,50 @@ async function main() {
     );
     console.log(`\n=== KEITARO: групп у баера ${myGroups.size}, кампаний ${myCamps.size} ===`);
 
+    // Все группы с числом кампаний — чтобы увидеть, та ли группа у SGY.
+    const groupCount = new Map<string, { name: string; n: number }>();
+    for (const c of camps) {
+      const g = (c.group ?? {}) as { id?: unknown; name?: unknown };
+      const gid = String(g.id ?? c.group_id ?? '');
+      const cur = groupCount.get(gid) ?? { name: String(g.name ?? '') || gid, n: 0 };
+      cur.n += 1;
+      groupCount.set(gid, cur);
+    }
+    console.log('Группы Keitaro (id · кампаний · название):');
+    for (const [gid, { name, n }] of [...groupCount.entries()].sort((a, b) => b[1].n - a[1].n).slice(0, 20)) {
+      console.log(`  ${myGroups.has(gid) ? '→ SGY' : '     '} ${gid} · ${n} камп. · ${name}`);
+    }
+
+    const METRICS = ['conversions', 'leads', 'sales', 'approved', 'sale_revenue', 'revenue', 'profit'];
     const rep = await fetch(`${base}/admin_api/v1/report/build`, {
       method: 'POST',
       headers: H,
       body: JSON.stringify({
         range: { from, to, timezone: TZ },
         grouping: ['day', 'campaign_id'],
-        metrics: ['conversions', 'leads', 'sale_revenue', 'revenue'],
+        metrics: METRICS,
         filters: [],
         limit: 10000,
       }),
     });
     const j = (await rep.json()) as { rows?: Record<string, unknown>[] };
-    const perDay = new Map<string, number>();
+    // Копим сумму КАЖДОЙ метрики по дням — чтобы увидеть, какое поле = твой доход.
+    const perDay = new Map<string, Record<string, number>>();
     const daysSeen = new Set<string>();
     for (const row of j.rows ?? []) {
       const day = String(row.day ?? row.date ?? '').slice(0, 10);
       daysSeen.add(day);
       if (!myCamps.has(String(row.campaign_id ?? ''))) continue;
-      // как в синке: первое ненулевое из sale_revenue/revenue
-      const val = [row.sale_revenue, row.revenue]
-        .map((v) => Number(v))
-        .find((n) => Number.isFinite(n) && n !== 0) ?? 0;
-      perDay.set(day, (perDay.get(day) ?? 0) + val);
+      const acc = perDay.get(day) ?? {};
+      for (const m of METRICS) acc[m] = (acc[m] ?? 0) + (Number(row[m]) || 0);
+      perDay.set(day, acc);
     }
     console.log('дни в ответе Keitaro:', [...daysSeen].sort().join(', '));
-    console.log('ДОХОД баера по дням (то, что запишет синк):');
-    for (const d of days) console.log(`  ${d}: $${(perDay.get(d) ?? 0).toFixed(0)}`);
+    console.log('СУММЫ метрик SGY по дням (какая = твой доход?):');
+    for (const d of days) {
+      const a = perDay.get(d) ?? {};
+      console.log(`  ${d}: ` + METRICS.map((m) => `${m}=${(a[m] ?? 0).toFixed(0)}`).join('  '));
+    }
   }
 
   // ── 3. Brocard по дням ─────────────────────────────────────────────────
@@ -124,22 +141,27 @@ async function main() {
       url.searchParams.set('per_page', '100');
       url.searchParams.set('dates[begin]', d);
       url.searchParams.set('dates[end]', d);
-      let sum = 0;
+      let amount = 0; // тело прошедших = чистый расход на рекламу
+      let fee = 0; // комиссия со всех, включая отклонённые
       let count = 0;
       for (let page = 1; page <= 20; page += 1) {
         url.searchParams.set('page', String(page));
         const res = await fetch(url, { headers: { Authorization: `Bearer ${brocard.apiKey}`, Accept: 'application/json' } });
         const j = (await res.json()) as { data?: Record<string, unknown>[]; last_page?: number };
         for (const p of j.data ?? []) {
-          if (p.is_micro === true || p.decline) continue;
+          if (p.is_micro === true) continue;
           const team = String(((p.user as { team?: { id?: unknown } })?.team?.id) ?? '');
           if (!myTeams.has(team)) continue;
-          sum += Number(p.amount ?? 0);
+          const fees = (p.fees ?? []) as { amount?: unknown }[];
+          fee += fees.reduce((s, f) => s + Number(f.amount ?? 0), 0);
+          if (!p.decline) amount += Number(p.amount ?? 0);
           count += 1;
         }
         if (page >= Number(j.last_page ?? 1)) break;
       }
-      console.log(`  ${d}: $${sum.toFixed(2)} (${count} платежей)`);
+      console.log(
+        `  ${d}: чистыми $${amount.toFixed(2)} + комиссия $${fee.toFixed(2)} = $${(amount + fee).toFixed(2)} (${count} платежей)`,
+      );
     }
   }
 }
