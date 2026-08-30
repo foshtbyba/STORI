@@ -1,8 +1,8 @@
-import Link from 'next/link';
 import { destroySession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import { Avatar, Panel } from './ui';
-import { IconPeak, IconLogout } from './icons';
+import { IconLogout } from './icons';
+import WorkspaceLogo from './WorkspaceLogo';
 
 export type Crew = { id: string; initials: string; color: string; handle: string };
 
@@ -28,9 +28,7 @@ export default function TopBar({
   return (
     <Panel as="div" className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 p-2.5 sm:h-[78px] sm:flex-nowrap sm:gap-6 sm:p-0 sm:pl-4 sm:pr-3.5">
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2.5 gap-y-2 sm:flex-nowrap sm:overflow-hidden sm:gap-4">
-        <Link href="/" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sage-t sm:h-[42px] sm:w-[42px]">
-          <IconPeak color="#b4c68c" size={19} />
-        </Link>
+        <WorkspaceLogo />
         <span className="shrink-0 text-[15px] font-bold tracking-[-0.02em] sm:text-[19px]">{title}</span>
         <span className="hidden h-[22px] w-px shrink-0 bg-line2 md:block" />
         <span className="n hidden shrink-0 text-[15px] text-mid md:block">{date}</span>
