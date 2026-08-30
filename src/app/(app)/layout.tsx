@@ -5,9 +5,9 @@ import { periodTitle, periodKeyOf } from '@/lib/period';
 import Contours from '@/components/Contours';
 import ScrollCalm from '@/components/ScrollCalm';
 import TopBar from '@/components/TopBar';
-import Nav from '@/components/Nav';
+import Workspace from '@/components/Workspace';
 import {
-  IconCalendar, IconChart, IconBox, IconPeak, IconTag, IconWallet, IconLink,
+  IconCalendar, IconChart, IconBox, IconPeak, IconTag, IconWallet, IconLink, IconRocket,
 } from '@/components/icons';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -21,7 +21,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     take: 8,
   });
 
-  const items = [
+  // Пространство «Статистика»: отчётность, зарплата, офферы.
+  const statsItems = [
     { href: '/', label: team ? 'Сводка' : 'Мой кабинет', icon: <IconChart size={15} /> },
     { href: '/peak', label: 'Вершина', icon: <IconPeak size={15} /> },
     { href: '/days', label: 'Дни', icon: <IconCalendar size={15} /> },
@@ -33,8 +34,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Источники цифр настраивает только админ — под ключами доступ к кабинетам
   // и трекеру всей команды.
   if (role === 'ADMIN') {
-    items.push({ href: '/integrations', label: 'Источники', icon: <IconLink size={15} /> });
+    statsItems.push({ href: '/integrations', label: 'Источники', icon: <IconLink size={15} /> });
   }
+
+  // Пространство «Реклама»: техничка — мониторинг ФБ, управление, автозалив.
+  const adsItems = [
+    { href: '/ads', label: 'Обзор', icon: <IconChart size={15} /> },
+    { href: '/ads/campaigns', label: 'Кампании', icon: <IconRocket size={15} /> },
+    { href: '/ads/upload', label: 'Автозалив', icon: <IconTag size={15} /> },
+  ];
 
   return (
     <div className="relative mx-auto flex min-h-screen max-w-[1440px] flex-col gap-2.5 p-2.5 sm:gap-3.5 sm:p-4">
@@ -52,7 +60,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         // В шапке неделя: вся статистика считается за неё.
         date={periodTitle(periodKeyOf(new Date()))}
         crew={crew.map((b) => ({ id: b.id, initials: b.initials, color: b.color, handle: b.handle }))}
-        nav={<Nav items={items} />}
+        nav={<Workspace stats={statsItems} ads={adsItems} />}
         role={role}
       />
       {children}

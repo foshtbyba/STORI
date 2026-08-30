@@ -9,9 +9,14 @@ export type NavItem = { href: string; label: string; icon: ReactNode };
 export default function Nav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   return (
-    <nav className="no-scrollbar order-3 flex basis-full items-center gap-1 overflow-x-auto rounded-full bg-sub p-1 sm:order-none sm:min-w-0 sm:basis-auto">
+    <nav className="no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto rounded-full bg-sub p-1 sm:flex-none sm:basis-auto">
       {items.map((item) => {
-        const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+        // Корни (/ и /ads) активны только на точном совпадении, иначе «/ads»
+        // подсвечивался бы на «/ads/upload». Остальное — по префиксу пути.
+        const active =
+          item.href === '/'
+            ? pathname === '/'
+            : pathname === item.href || pathname.startsWith(`${item.href}/`);
         return (
           <Link
             key={item.href}

@@ -16,6 +16,7 @@ export const IconCalendar = base('M3 5h18v16H3zM3 10h18M8 3v4M16 3v4');
 export const IconBox = base('M21 8l-9-4.5L3 8l9 4.5zM3 8v8l9 4.5L21 16V8');
 export const IconWallet = base('M3 6h18v13H3zM3 10.5h18');
 export const IconLink = base('M9.5 14.5l5-5M8.2 11.4l-2 2a3.3 3.3 0 004.7 4.7l2-2M15.8 12.6l2-2a3.3 3.3 0 00-4.7-4.7l-2 2');
+export const IconRocket = base('M5 15c-1 2.5-1 4-1 4s1.5 0 4-1M9 13l-3 3M8.5 15.5C7 14 6.5 11.5 8 8.5 10 4.5 14 3.5 20 4c.5 6-.5 10-4.5 12-3 1.5-5.5 1-7-.5zM14.5 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z');
 export const IconSearch = base('M10.5 17a6.5 6.5 0 100-13 6.5 6.5 0 000 13zM15.2 15.2L20 20');
 export const IconTag = base('M3 12.5V4h8.5L21 13.5 12.5 22 3 12.5z');
 export const IconUsers = base('M3 20c0-3.4 2.7-5.6 6-5.6s6 2.2 6 5.6M17 11.5a3 3 0 100-6');
