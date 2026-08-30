@@ -186,7 +186,7 @@ export default function DayForm({
         <button
           type="button"
           onClick={submit}
-          disabled={pending || !calc.revenueCents}
+          disabled={pending || (!calc.revenueCents && !calc.spendNetCents)}
           className="mt-4 w-full rounded-full bg-sage py-3 text-[13.5px] font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
         >
           {pending ? 'Сохраняю…' : 'Сохранить день'}

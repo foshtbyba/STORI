@@ -132,18 +132,29 @@ export default function DayGrid({
         title="Отчёт за день"
         aside={<span className="text-[12.5px] text-mute">вся команда одной таблицей</span>}
         right={
-          <span className="w-[132px] sm:w-[168px]">
-            <DateField value={date} onChange={(next) => router.push(`/days/new?date=${next}`)} />
-          </span>
+          <div className="flex flex-wrap items-center justify-end gap-2.5 sm:gap-3">
+            {/* Тип расходника — слева от календаря, одной линией. */}
+            <span className="flex items-center gap-2">
+              <span className="hidden text-[12px] text-mute sm:inline">Расходники списываем как</span>
+              <span className="w-[190px]">
+                <Select value={typeId} onChange={setTypeId} options={types.map((t) => ({ value: t.id, label: t.name }))} />
+              </span>
+            </span>
+            <span className="w-[132px] sm:w-[168px]">
+              <DateField value={date} onChange={(next) => router.push(`/days/new?date=${next}`)} />
+            </span>
+            {/* Сохранить — справа от календаря, чтобы не листать вниз. */}
+            <button
+              type="button"
+              onClick={submit}
+              disabled={pending || locked || totals.filled === 0}
+              className="h-9 shrink-0 rounded-full bg-sage px-5 text-[12.5px] font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
+            >
+              {pending ? 'Сохраняем…' : `Сохранить · ${totals.filled}`}
+            </button>
+          </div>
         }
       />
-
-      <div className="mt-4 flex items-center gap-3">
-        <span className="text-[12px] text-mute">Расходники списываем как</span>
-        <span className="w-[220px]">
-          <Select value={typeId} onChange={setTypeId} options={types.map((t) => ({ value: t.id, label: t.name }))} />
-        </span>
-      </div>
 
       {/* Таблица шире телефона — прокручиваем её саму, а не всю страницу. */}
       <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-visible sm:px-0">
@@ -228,15 +239,8 @@ export default function DayGrid({
       </div>
       </div>
 
-      <div className="mt-4 flex items-center gap-3.5">
-        <button
-          type="button"
-          onClick={submit}
-          disabled={pending || locked || totals.filled === 0}
-          className="h-11 rounded-full bg-sage px-7 text-[13.5px] font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
-        >
-          {pending ? 'Сохраняем…' : `Сохранить день · ${totals.filled}`}
-        </button>
+      {/* Кнопка «Сохранить» уехала в шапку, к календарю; здесь оставляем подсказку. */}
+      <div className="mt-4 flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
         <span className="text-[12px] text-mute">
           {locked
             ? 'Неделя закрыта для правок — только чтение.'

@@ -22,8 +22,11 @@ export default async function NewDayPage({
   const day = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : today;
   const when = new Date(`${day}T00:00:00.000Z`);
 
-  const [buyers, methods, types, saved, entries, period, owed] = await Promise.all([
+  const [buyers, owners, methods, types, saved, entries, period, owed] = await Promise.all([
     prisma.buyer.findMany({ where: { archived: false, owner: false }, orderBy: { handle: 'asc' } }),
+    // Овнеры в командную таблицу не идут, но их доход/расход надо уметь завести
+    // руками — даём их отдельной пометкой в форме одной связки.
+    prisma.buyer.findMany({ where: { archived: false, owner: true }, orderBy: { handle: 'asc' } }),
     prisma.paymentMethod.findMany({ where: { archived: false }, orderBy: { name: 'asc' } }),
     prisma.consumableType.findMany({ orderBy: { name: 'asc' } }),
     prisma.dayReport.findMany({ where: { date: when } }),
@@ -87,7 +90,10 @@ export default async function NewDayPage({
 
       <DayForm
         today={day}
-        buyers={buyers.map((b) => ({ id: b.id, label: b.handle }))}
+        buyers={[
+          ...buyers.map((b) => ({ id: b.id, label: b.handle })),
+          ...owners.map((b) => ({ id: b.id, label: `${b.handle} · овнер` })),
+        ]}
         methods={methods.map((m) => ({ id: m.id, label: m.name, bps: m.commissionBps }))}
       />
 
