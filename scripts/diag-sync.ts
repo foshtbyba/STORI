@@ -95,41 +95,42 @@ async function main() {
       console.log(`  ${myGroups.has(gid) ? '→ SGY' : '     '} ${gid} · ${n} камп. · ${name}`);
     }
 
-    // Просим отчёт с набором метрик. Разные сборки Keitaro знают разные имена
-    // «подтверждённого дохода», поэтому кандидатов много: неизвестные Keitaro
-    // просто не вернёт, и это не сломает запрос. Ищем, какое поле = 101.
-    const METRICS = [
-      'conversions', 'leads', 'sales', 'revenue', 'sale_revenue', 'profit',
-      'confirmed_revenue', 'approved_revenue', 'pending_revenue', 'rejected_revenue',
-      'lead_revenue', 'income',
+    // Каждую метрику спрашиваем ОТДЕЛЬНЫМ запросом: Keitaro бракует весь отчёт,
+    // если хоть одно имя ему незнакомо, а имя «подтверждённого дохода» у сборок
+    // разное. По отдельности кривое имя роняет только свой запрос. Ищем, где 101.
+    const CANDIDATES = [
+      'conversions', 'sales', 'leads', 'revenue', 'sale_revenue', 'profit',
+      'confirmed_revenue', 'approved_revenue', 'pending_revenue', 'lead_revenue', 'income',
     ];
-    const rep = await fetch(`${base}/admin_api/v1/report/build`, {
-      method: 'POST',
-      headers: H,
-      body: JSON.stringify({
-        range: { from, to, timezone: TZ },
-        grouping: ['day', 'campaign_id'],
-        metrics: METRICS,
-        filters: [],
-        limit: 10000,
-      }),
-    });
-    const j = (await rep.json()) as { rows?: Record<string, unknown>[] };
-    // Какие метрики Keitaro реально вернул (по первой строке).
-    const present = METRICS.filter((m) => (j.rows ?? []).some((r) => m in r));
-    console.log('метрики, которые Keitaro отдал:', present.join(', ') || '—');
-    const perDay = new Map<string, Record<string, number>>();
-    for (const row of j.rows ?? []) {
-      const day = String(row.day ?? row.date ?? '').slice(0, 10);
-      if (!myCamps.has(String(row.campaign_id ?? ''))) continue;
-      const acc = perDay.get(day) ?? {};
-      for (const m of present) acc[m] = (acc[m] ?? 0) + (Number(row[m]) || 0);
-      perDay.set(day, acc);
-    }
-    console.log('СУММЫ метрик SGY по дням — ищи, где 101:');
-    for (const d of days) {
-      const a = perDay.get(d) ?? {};
-      console.log(`  ${d}: ` + present.map((m) => `${m}=${(a[m] ?? 0).toFixed(0)}`).join('  '));
+    console.log('СУММЫ метрик SGY по дням — ищи, где на 29.08 стоит 101:');
+    for (const metric of CANDIDATES) {
+      try {
+        const r = await fetch(`${base}/admin_api/v1/report/build`, {
+          method: 'POST',
+          headers: H,
+          body: JSON.stringify({
+            range: { from, to, timezone: TZ },
+            grouping: ['day', 'campaign_id'],
+            metrics: [metric],
+            filters: [],
+            limit: 10000,
+          }),
+        });
+        if (!r.ok) {
+          console.log(`  ${metric.padEnd(18)} — Keitaro не знает (${r.status})`);
+          continue;
+        }
+        const jj = (await r.json()) as { rows?: Record<string, unknown>[] };
+        const perDay = new Map<string, number>();
+        for (const row of jj.rows ?? []) {
+          if (!myCamps.has(String(row.campaign_id ?? ''))) continue;
+          const day = String(row.day ?? row.date ?? '').slice(0, 10);
+          perDay.set(day, (perDay.get(day) ?? 0) + (Number(row[metric]) || 0));
+        }
+        console.log(`  ${metric.padEnd(18)} ` + days.map((d) => `${d.slice(5)}=${(perDay.get(d) ?? 0).toFixed(0)}`).join('  '));
+      } catch (e) {
+        console.log(`  ${metric.padEnd(18)} — сбой: ${(e as Error).message.slice(0, 40)}`);
+      }
     }
   }
 
