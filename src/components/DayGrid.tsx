@@ -239,7 +239,7 @@ export default function DayGrid({
         </button>
         <span className="text-[12px] text-mute">
           {locked
-            ? 'Период закрыт — правки заблокированы.'
+            ? 'Неделя закрыта для правок — только чтение.'
             : 'Пустые строки не сохраняются. Расходники уедут на свой экран именной строкой.'}
         </span>
         {note ? <span className="text-[12.5px] text-sage">{note}</span> : null}

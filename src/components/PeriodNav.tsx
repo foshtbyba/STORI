@@ -14,7 +14,6 @@ export default function PeriodNav({
   base,
   label,
   isWeek,
-  isCurrent,
   prev,
   next,
   week,
@@ -25,7 +24,8 @@ export default function PeriodNav({
   base: string;
   label: string;
   isWeek: boolean;
-  isCurrent: boolean;
+  /** Оставлено для совместимости с вызовами; больше не используется. */
+  isCurrent?: boolean;
   prev: string;
   next: string;
   week: string;
@@ -54,15 +54,8 @@ export default function PeriodNav({
         </span>
       )}
 
-      {isCurrent ? null : (
-        <a
-          href={base}
-          className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage"
-        >
-          Сейчас
-        </a>
-      )}
-
+      {/* Кнопку «Сейчас» убрали: она то появлялась, то исчезала и сдвигала весь
+          ряд. Возврат к текущей неделе теперь на иконке слева от заголовка. */}
       <span className="flex items-center gap-1">
         <a href={href(prev)} aria-label="Назад" className={arrow}>
           ‹

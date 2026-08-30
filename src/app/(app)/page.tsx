@@ -106,13 +106,14 @@ export default async function HomePage({
             icon={<IconChart color="#b4c68c" />}
             tint="bg-sage-t"
             title="Чистый профит"
+            iconHref={view === now ? undefined : '/'}
+            iconTitle="Вернуться к текущей неделе"
             aside={<span className="text-[15px] text-sage">{label}</span>}
             right={
               <PeriodNav
                 base="/"
                 label={label}
                 isWeek={isWeekKey(view)}
-                isCurrent={view === now}
                 prev={shiftKey(view, -1)}
                 next={shiftKey(view, 1)}
                 week={switchMode(view, 'week')}

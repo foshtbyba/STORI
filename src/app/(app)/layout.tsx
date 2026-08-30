@@ -7,7 +7,7 @@ import ScrollCalm from '@/components/ScrollCalm';
 import TopBar from '@/components/TopBar';
 import Workspace from '@/components/Workspace';
 import {
-  IconCalendar, IconChart, IconBox, IconPeak, IconTag, IconWallet, IconLink, IconRocket,
+  IconCalendar, IconChart, IconBox, IconPeak, IconTag, IconWallet, IconLink, IconRocket, IconUsers,
 } from '@/components/icons';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -15,8 +15,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const role = user.role as Role;
   const team = canSeeTeam(role);
 
+  // Овнеров в общей ленте аватаров не показываем — они видны только на своём
+  // листе у админа, а не всей команде в шапке.
   const crew = await prisma.buyer.findMany({
-    where: { archived: false, ...(team ? {} : { id: user.buyer?.id ?? '__none__' }) },
+    where: { archived: false, owner: false, ...(team ? {} : { id: user.buyer?.id ?? '__none__' }) },
     orderBy: { handle: 'asc' },
     take: 8,
   });
@@ -34,6 +36,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Источники цифр настраивает только админ — под ключами доступ к кабинетам
   // и трекеру всей команды.
   if (role === 'ADMIN') {
+    // Лист овнеров и источники цифр — только под админом.
+    statsItems.push({ href: '/owners', label: 'Овнеры', icon: <IconUsers size={15} /> });
     statsItems.push({ href: '/integrations', label: 'Источники', icon: <IconLink size={15} /> });
   }
 

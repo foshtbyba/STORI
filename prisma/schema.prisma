@@ -39,6 +39,23 @@ model Buyer {
   team     Team?   @relation(fields: [teamId], references: [id])
   archived Boolean @default(false)
 
+  /// С какого дня баер в команде. Недели, целиком прошедшие до этой даты, не
+  /// попадают в его расчёт — иначе оклад капал бы за время, когда он ещё не
+  /// работал. null — считаем, что был всегда (старые баеры).
+  startedAt DateTime?
+
+  /// Овнер — не баер: в зарплате и в командном отчёте не участвует вовсе, его
+  /// статистику видит только админ отдельным листом. Нужен, чтобы тянуть цифры
+  /// по кабинетам владельцев, не смешивая их с командой.
+  owner Boolean @default(false)
+
+  /// День рождения — только справочно, в расчётах не участвует.
+  birthday DateTime?
+
+  /// Позиция в команде: 'BUYER' (баер) или 'LEAD' (тимлид). Справочно, отдельно
+  /// от роли доступа. null — не задана.
+  position String?
+
   /// When true the buyer's own consumables are subtracted before the
   /// salary rate is applied. Configurable per buyer on purpose.
   consumablesAffectSalary Boolean @default(true)
@@ -431,6 +448,23 @@ model BrocardTeam {
   buyerId    String?
   buyer      Buyer?  @relation(fields: [buyerId], references: [id], onDelete: SetNull)
 
+  /// Команда-«общак»: её расход — не спенд баера, а расходники на всю команду.
+  /// Такой расход не привязывается к человеку и в профит никому не идёт, а
+  /// копится отдельной строкой в OverheadDay и виден только на листе овнеров.
+  overhead Boolean @default(false)
+
   lastSeenAt DateTime?
   createdAt  DateTime  @default(now())
+}
+
+/// Расходники на команду по дням — сумма с Brocard-команд, помеченных «общак».
+/// Пишется только синком, руками не правится, поэтому просто перезаписывается.
+model OverheadDay {
+  id         String   @id @default(cuid())
+  /// Полночь дня (МСК-день, приведённый к UTC), как и у DayReport.
+  date       DateTime @unique
+  /// Сумма с Brocard (тело платежа + внутренние сборы), в центах, до накрутки
+  /// комиссии за пополнение.
+  spendCents Int      @default(0)
+  updatedAt  DateTime @updatedAt
 }

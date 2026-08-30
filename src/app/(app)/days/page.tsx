@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
-import { weekBounds, weekKey, weekLabel, fmtDay, weekdayShort } from '@/lib/period';
+import { weekBounds, weekKey, weekLabel, fmtDay, weekdayShort, isEditable } from '@/lib/period';
 import { Panel, PanelHead, Empty } from '@/components/ui';
 import DayRow, { type DayRowData } from '@/components/DayRow';
 import WeekNav from '@/components/WeekNav';
@@ -28,10 +28,20 @@ export default async function DaysPage({
   const isCurrent = key === today;
   const { from, to } = weekBounds(key);
   const buyerId = scopeBuyerId(user);
-  const canEdit = canSeeTeam(user.role as Role);
+  // Правка закрывается по времени: текущую и прошлую неделю править можно,
+  // позапрошлую и глубже — только чтение. Вся неделя разом попадает под одно
+  // правило, поэтому решаем по её понедельнику.
+  const weekEditable = isEditable(from);
+  const isAdmin = canSeeTeam(user.role as Role);
+  const canEdit = isAdmin && weekEditable;
 
   const days = await prisma.dayReport.findMany({
-    where: { date: { gte: from, lt: to }, ...(buyerId ? { buyerId } : {}) },
+    // Овнеры в командный отчёт по дням не попадают — их цифры живут отдельным
+    // листом и видны только админу.
+    where: {
+      date: { gte: from, lt: to },
+      ...(buyerId ? { buyerId } : { buyer: { owner: false } }),
+    },
     include: { buyer: true, paymentMethod: true },
     orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
   });
@@ -42,6 +52,8 @@ export default async function DaysPage({
         icon={<IconCalendar color="#b4c68c" />}
         tint="bg-sage-t"
         title="Отчёты по дням"
+        iconHref={isCurrent ? undefined : '/days'}
+        iconTitle="Вернуться к текущей неделе"
         aside={
           <span className="hidden text-[12.5px] text-mute sm:inline">
             {isCurrent ? 'текущая неделя' : 'архив'}
@@ -59,6 +71,8 @@ export default async function DaysPage({
                 <span className="sm:hidden">День</span>
                 <span className="hidden sm:inline">Добавить день</span>
               </Link>
+            ) : isAdmin ? (
+              <span className="text-[12.5px] text-mute">архив — только чтение</span>
             ) : (
               <span className="text-[12.5px] text-mute">отчёты заводит админ</span>
             )}

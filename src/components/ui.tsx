@@ -36,17 +36,33 @@ export function PanelHead({
   title,
   aside,
   right,
+  iconHref,
+  iconTitle,
 }: {
   icon: ReactNode;
   tint?: string;
   title: string;
   aside?: ReactNode;
   right?: ReactNode;
+  /** Если задан — иконка становится ссылкой (напр. «вернуть текущую неделю»). */
+  iconHref?: string;
+  iconTitle?: string;
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-y-2.5">
       <div className="flex min-w-0 items-center gap-2.5 sm:gap-[13px]">
-        <Badge tint={tint}>{icon}</Badge>
+        {iconHref ? (
+          <a
+            href={iconHref}
+            title={iconTitle}
+            aria-label={iconTitle}
+            className="rounded-[14px] outline-none ring-sage/40 transition hover:ring-2"
+          >
+            <Badge tint={tint}>{icon}</Badge>
+          </a>
+        ) : (
+          <Badge tint={tint}>{icon}</Badge>
+        )}
         <h2 className="text-[17px] font-semibold tracking-[-0.015em]">{title}</h2>
         {aside ? (
           <>

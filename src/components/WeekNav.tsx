@@ -13,11 +13,11 @@ import DateField from './DateField';
 export default function WeekNav({
   week,
   label,
-  isCurrent,
 }: {
   week: string;
   label: string;
-  isCurrent: boolean;
+  /** Оставлено для совместимости с вызовами; больше не используется. */
+  isCurrent?: boolean;
 }) {
   const router = useRouter();
   const go = (key: string) => router.push(`/days?week=${key}`);
@@ -30,16 +30,8 @@ export default function WeekNav({
 
   return (
     <div className="flex items-center gap-1.5">
-      {isCurrent ? null : (
-        <button
-          type="button"
-          onClick={() => go(new Date().toISOString().slice(0, 10))}
-          className="n rounded-full border border-line px-3 py-1.5 text-[12.5px] text-mute transition hover:border-line2 hover:text-soft"
-        >
-          Текущая
-        </button>
-      )}
-
+      {/* Кнопку «Текущая» убрали ради ровного ряда — возврат к текущей неделе
+          теперь на иконке слева от заголовка. */}
       <button
         type="button"
         aria-label="Неделя назад"

@@ -155,3 +155,20 @@ export function weeksOfRange({ from, to }: { from: Date; to: Date }) {
   }
   return out;
 }
+
+/**
+ * Граница ручной правки отчётов: понедельник ПРОШЛОЙ недели. Отчёты текущей и
+ * прошлой недели править можно, всё, что раньше (позапрошлая и глубже), — уже
+ * только чтение. Синхронизация под это правило не подпадает: она пишет цифры
+ * сама, а запрет касается ручных правок человека.
+ */
+export function editWindowStart(now: Date = new Date()) {
+  const monday = weekStart(now);
+  monday.setUTCDate(monday.getUTCDate() - 7);
+  return monday;
+}
+
+/** Можно ли ещё править отчёт за эту дату руками. */
+export function isEditable(date: Date, now: Date = new Date()) {
+  return date.getTime() >= editWindowStart(now).getTime();
+}

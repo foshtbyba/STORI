@@ -23,6 +23,15 @@ export async function getPeriod(key: string) {
   // Закрытый период держит курс, при котором считалась выплата, — трогать его
   // нельзя. Ручной курс тоже не перезаписываем: его выставили осознанно.
   if (period.status === 'CLOSED' || period.rateSource === 'MANUAL') return period;
+
+  // Прошедшую неделю не трогаем: как только неделя закончилась, её курс
+  // заморожен на том значении, что стояло по ходу недели. Иначе, зайдя в старый
+  // период, мы бы подтянули сегодняшний курс и пересчитали давнюю зарплату по
+  // нему. Автоматически обновляем курс только у текущей (ещё не завершённой)
+  // недели. Месячные ключи (посещаемость) курс не считают — их пропускаем.
+  const { to } = rangeOf(key);
+  if (to.getTime() <= Date.now()) return period;
+
   if (!rateIsStale(period.rateUpdatedAt)) return period;
 
   const fetched = await fetchRate();
@@ -50,9 +59,9 @@ export type Range = { from: Date; to: Date };
  * нему же закрывается выплата. `range` сужает счёт до нужного отрезка —
  * сводка и гора смотрят на текущую неделю, а зарплата на весь месяц.
  */
-export async function teamSummary(key: string, range?: Range) {
+export async function teamSummary(key: string, range?: Range, opts?: { owners?: boolean }) {
   const { from, to } = range ?? periodRange(key);
-  const [period, buyers, days, consumables, bonuses] = await Promise.all([
+  const [period, allBuyers, days, consumables, bonuses] = await Promise.all([
     getPeriod(key),
     prisma.buyer.findMany({
       where: { archived: false },
@@ -66,6 +75,24 @@ export async function teamSummary(key: string, range?: Range) {
     }),
     prisma.bonus.findMany({ where: { periodKey: key } }),
   ]);
+
+  // Овнеры и баеры считаются раздельными листами и никогда не смешиваются:
+  // командный отчёт не видит овнеров вовсе, а лист овнеров — только их.
+  // Баер, кроме того, попадает в лист, только если к концу отрезка он уже вышел
+  // в команду: неделю, целиком прошедшую до его даты выхода, не показываем и
+  // оклад за неё не платим — до прихода человека платить было не за что. `to` —
+  // граница отрезка (следующий понедельник), поэтому вышедший в любой день
+  // недели (startedAt < to) в неё уже входит.
+  const buyers = opts?.owners
+    ? allBuyers.filter((b) => b.owner)
+    : allBuyers.filter(
+        (b) => !b.owner && (!b.startedAt || b.startedAt.getTime() < to.getTime()),
+      );
+
+  // Будущая неделя ещё не наступила — оклад за неё не начисляем. Работы не
+  // было, платить не за что; профит и так ноль. Как только неделя началась
+  // (from <= сейчас), оклад считается как обычно.
+  const upcoming = from.getTime() > Date.now();
 
   const rows = buyers.map((buyer) => {
     const mine = days.filter((d) => d.buyerId === buyer.id);
@@ -87,6 +114,11 @@ export async function teamSummary(key: string, range?: Range) {
       rubPerUsd: period.rubPerUsd,
       bonusCents,
     });
+    // Будущую неделю обнуляем по деньгам: ни оклада, ни ставки — только бонусы,
+    // если их вдруг проставили заранее. Статистику (профит, ROI) не трогаем.
+    const eff = upcoming
+      ? { ...payout, salaryCents: 0, tierCents: 0, fixedCents: 0, onOklad: false, totalCents: payout.bonusCents }
+      : payout;
 
     return {
       buyer,
@@ -103,7 +135,7 @@ export async function teamSummary(key: string, range?: Range) {
        * видит на склоне одну цифру, а в расчёте другую.
        */
       netCents: buyer.consumablesAffectSalary ? profitCents - consumableCents : profitCents,
-      ...payout,
+      ...eff,
     };
   });
 
@@ -229,12 +261,15 @@ export async function firstToCross(key: string, thresholdCents: number) {
       where: { date: { gte: from, lt: to } },
       orderBy: { date: 'asc' },
     }),
-    prisma.buyer.findMany({ where: { archived: false } }),
+    prisma.buyer.findMany({ where: { archived: false, owner: false } }),
   ]);
+  // Овнер в командном бонусе не участвует: его дни в гонку за порогом не берём.
+  const buyerIds = new Set(buyers.map((b) => b.id));
 
   const running = new Map<string, number>();
   const reached: { buyerId: string; date: Date }[] = [];
   for (const day of days) {
+    if (!buyerIds.has(day.buyerId)) continue;
     if (reached.some((r) => r.buyerId === day.buyerId)) continue;
     const total = (running.get(day.buyerId) ?? 0) + profitOf(day);
     running.set(day.buyerId, total);
@@ -262,12 +297,15 @@ export async function allTimeProfit() {
       _sum: { revenueCents: true, spendGrossCents: true },
     }),
     prisma.consumableEntry.groupBy({ by: ['buyerId'], _sum: { totalCents: true } }),
-    prisma.buyer.findMany({ select: { id: true, consumablesAffectSalary: true } }),
+    // Овнеры в командный «за всё время» не входят — иначе их профит попал бы в
+    // общий итог команды. Берём только баеров.
+    prisma.buyer.findMany({ where: { owner: false }, select: { id: true, consumablesAffectSalary: true } }),
   ]);
 
   const charged = new Map(buyers.map((b) => [b.id, b.consumablesAffectSalary]));
   const byBuyer = new Map<string, number>();
   for (const r of days) {
+    if (!charged.has(r.buyerId)) continue;
     byBuyer.set(r.buyerId, (r._sum.revenueCents ?? 0) - (r._sum.spendGrossCents ?? 0));
   }
   for (const c of spent) {

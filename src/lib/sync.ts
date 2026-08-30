@@ -310,6 +310,15 @@ export async function syncBrocard(days = SYNC_DAYS): Promise<SyncResult> {
     const linked = await prisma.brocardTeam.findMany({ where: { buyerId: { not: null } } });
     const buyerOfTeam = new Map(linked.map((t) => [t.externalId, t.buyerId!]));
 
+    // Команды-«общак»: их расход — расходники на команду, а не спенд баера.
+    // Ловим по флагу overhead или по имени «Общак», чтобы работало и до того,
+    // как флаг проставят вручную.
+    const overheadTeams = await prisma.brocardTeam.findMany({ where: { overhead: true } });
+    const overheadIds = new Set(overheadTeams.map((t) => t.externalId));
+    for (const t of teams) {
+      if (t.name.trim().toLowerCase() === 'общак') overheadIds.add(t.id);
+    }
+
     const rows = await dailySpend(config.apiKey, from, to, SYNC_TZ);
 
     /**
@@ -320,10 +329,16 @@ export async function syncBrocard(days = SYNC_DAYS): Promise<SyncResult> {
      * тут не передаём.
      */
     const total = new Map<string, number>();
+    const overheadByDay = new Map<string, number>();
     let orphan = 0;
     for (const row of rows) {
-      const buyerId = buyerOfTeam.get(row.teamId);
       const amount = row.amountCents + row.feeCents;
+      // «Общак» — расходники на команду: копим по дню, ни к кому не привязываем.
+      if (overheadIds.has(row.teamId)) {
+        overheadByDay.set(row.date, (overheadByDay.get(row.date) ?? 0) + amount);
+        continue;
+      }
+      const buyerId = buyerOfTeam.get(row.teamId);
       if (!buyerId) {
         orphan += amount;
         continue;
@@ -344,8 +359,22 @@ export async function syncBrocard(days = SYNC_DAYS): Promise<SyncResult> {
       );
     }
 
+    // Расходники на команду переписываем как есть: строку пишет только синк,
+    // руками её не трогают, спорить не с кем.
+    for (const [iso, cents] of overheadByDay) {
+      const date = atMidnight(iso);
+      await prisma.overheadDay.upsert({
+        where: { date },
+        update: { spendCents: cents },
+        create: { date, spendCents: cents },
+      });
+    }
+
     if (orphan > 0) {
-      const unlinked = teams.filter((t) => !buyerOfTeam.has(t.id)).length;
+      // Команды без баера, но не «общак» — их расход действительно потерян.
+      const unlinked = teams.filter(
+        (t) => !buyerOfTeam.has(t.id) && !overheadIds.has(t.id),
+      ).length;
       result.problems.push(
         `Brocard: ${unlinked} команд без баера — их расход $${Math.round(orphan / 100).toLocaleString('ru-RU')} не записан`,
       );

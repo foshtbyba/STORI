@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth';
 import { grossUp, DEFAULT_COMMISSION_BPS } from '@/lib/money';
-import { periodKeyOf } from '@/lib/period';
+import { periodKeyOf, isEditable } from '@/lib/period';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { GRID_CONSUMABLE_NOTE } from '@/lib/consumables';
 
@@ -25,6 +25,9 @@ const DayInput = z.object({
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
 async function assertPeriodOpen(date: Date): Promise<string | null> {
+  // Позапрошлая неделя и глубже правкам недоступна — только чтение. Текущую и
+  // прошлую править ещё можно. Синхронизация сюда не заходит: запрет — про руки.
+  if (!isEditable(date)) return 'Неделя старше прошлой — правки закрыты, только чтение.';
   const period = await prisma.period.findUnique({ where: { key: periodKeyOf(date) } });
   return period?.status === 'CLOSED' ? 'Период закрыт — правки заблокированы.' : null;
 }
@@ -133,7 +136,7 @@ export async function saveDayGrid(
     return { ok: false, error: 'Выбери тип расходника.' };
   }
 
-  const buyers = await prisma.buyer.findMany({ where: { archived: false } });
+  const buyers = await prisma.buyer.findMany({ where: { archived: false, owner: false } });
   const byId = new Map(buyers.map((b) => [b.id, b]));
   let saved = 0;
 
@@ -232,7 +235,7 @@ export async function importDays(
   const closed = await assertPeriodOpen(when);
   if (closed) return { ok: false, error: closed };
 
-  const buyers = await prisma.buyer.findMany({ where: { archived: false } });
+  const buyers = await prisma.buyer.findMany({ where: { archived: false, owner: false } });
   const byHandle = new Map(buyers.map((b) => [b.handle.toLowerCase(), b]));
 
   const skipped: string[] = [];

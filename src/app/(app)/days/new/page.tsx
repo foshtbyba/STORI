@@ -1,6 +1,6 @@
 import { requireTeamView } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { periodKeyOf } from '@/lib/period';
+import { periodKeyOf, isEditable } from '@/lib/period';
 import { DEFAULT_COMMISSION_BPS } from '@/lib/money';
 import { GRID_CONSUMABLE_NOTE } from '@/lib/consumables';
 import DayGrid, { type GridSeed } from '@/components/DayGrid';
@@ -23,7 +23,7 @@ export default async function NewDayPage({
   const when = new Date(`${day}T00:00:00.000Z`);
 
   const [buyers, methods, types, saved, entries, period, owed] = await Promise.all([
-    prisma.buyer.findMany({ where: { archived: false }, orderBy: { handle: 'asc' } }),
+    prisma.buyer.findMany({ where: { archived: false, owner: false }, orderBy: { handle: 'asc' } }),
     prisma.paymentMethod.findMany({ where: { archived: false }, orderBy: { name: 'asc' } }),
     prisma.consumableType.findMany({ orderBy: { name: 'asc' } }),
     prisma.dayReport.findMany({ where: { date: when } }),
@@ -80,7 +80,7 @@ export default async function NewDayPage({
         seed={seed}
         seedTypeId={entries[0]?.typeId ?? types[0]?.id ?? ''}
         defaultPct={(defaultBps / 100).toString()}
-        locked={period?.status === 'CLOSED'}
+        locked={period?.status === 'CLOSED' || !isEditable(when)}
       />
 
       {topUps.length > 0 ? <TopUps date={day} rows={topUps} /> : null}

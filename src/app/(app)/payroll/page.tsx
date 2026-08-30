@@ -9,8 +9,9 @@ import { payrollTotals, parseTiers, okladCents, DEFAULT_FIXED_RUB } from '@/lib/
 import { closePeriod, reopenPeriod } from '@/app/actions/period';
 import { Panel, PanelHead, Sub, Avatar, Empty, Formula, Big } from '@/components/ui';
 import BonusPanel, { type BonusRow } from '@/components/BonusPanel';
+import BuyerRoster, { type RosterRow } from '@/components/BuyerRoster';
 import { Meter } from '@/components/Charts';
-import { IconWallet, IconWarn, IconChart, IconCalendar } from '@/components/icons';
+import { IconWallet, IconWarn, IconChart, IconCalendar, IconUsers } from '@/components/icons';
 
 export default async function PayrollPage({
   searchParams,
@@ -100,6 +101,31 @@ export default async function PayrollPage({
     (s) => s.key !== key,
   );
 
+  // Ростер правит только админ. Берём полный список активных участников —
+  // включая овнеров, чтобы их профиль тоже можно было настроить и при нужде
+  // снять флаг.
+  const rosterRows: RosterRow[] = team
+    ? (
+        await prisma.buyer.findMany({
+          where: { archived: false },
+          orderBy: [{ owner: 'asc' }, { handle: 'asc' }],
+          select: {
+            id: true, handle: true, initials: true, color: true,
+            startedAt: true, birthday: true, position: true, owner: true,
+          },
+        })
+      ).map((b) => ({
+        id: b.id,
+        handle: b.handle,
+        initials: b.initials,
+        color: b.color,
+        startedAt: b.startedAt ? b.startedAt.toISOString().slice(0, 10) : '',
+        birthday: b.birthday ? b.birthday.toISOString().slice(0, 10) : '',
+        position: b.position ?? '',
+        owner: b.owner,
+      }))
+    : [];
+
   const rateLabel =
     totals.avgRate === null ? 'оклад' : `${totals.avgRate.toFixed(1).replace('.', ',')}%`;
 
@@ -148,6 +174,8 @@ export default async function PayrollPage({
           icon={<IconChart color="#b4c68c" />}
           tint="bg-sage-t"
           title="Расчётный лист"
+          iconHref={key === now ? undefined : '/payroll'}
+          iconTitle="Вернуться к текущей неделе"
           aside={<span className="text-[12.5px] text-mute">{periodTitle(key)}</span>}
           right={
             <div className="flex flex-wrap items-center justify-end gap-2">
@@ -156,7 +184,6 @@ export default async function PayrollPage({
                 label={periodTitle(key)}
                 isWeek
                 weeksOnly
-                isCurrent={key === now}
                 prev={shiftKey(key, -1)}
                 next={shiftKey(key, 1)}
                 week={key}
@@ -470,6 +497,18 @@ export default async function PayrollPage({
           не пересчитываются задним числом.
         </p>
       </Panel>
+
+      {team ? (
+        <Panel className="p-4 sm:p-6">
+          <PanelHead
+            icon={<IconUsers color="#b4c68c" />}
+            tint="bg-sage-t"
+            title="Команда"
+            right={<span className="text-[12.5px] text-mute">дата выхода, профиль, овнеры</span>}
+          />
+          <BuyerRoster rows={rosterRows} />
+        </Panel>
+      ) : null}
 
       {team ? (
         <BonusPanel
