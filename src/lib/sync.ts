@@ -312,29 +312,33 @@ export async function syncBrocard(days = SYNC_DAYS): Promise<SyncResult> {
 
     const rows = await dailySpend(config.apiKey, from, to, SYNC_TZ);
 
-    /** Расход по «баер + день»: net и gross (с комиссией Brocard) отдельно. */
-    const net = new Map<string, number>();
-    const gross = new Map<string, number>();
+    /**
+     * Расход по «баер + день» = вся сумма с Brocard (тело платежа + внутренние
+     * сборы Brocard). Это «Сумма» в кабинете Brocard — фактически потраченное,
+     * дробить её не надо. Сверху синк сам накинет комиссию за пополнение 4.5%
+     * обратным процентом (как «с комиссией» у ручного ввода) — отдельный gross
+     * тут не передаём.
+     */
+    const total = new Map<string, number>();
     let orphan = 0;
     for (const row of rows) {
       const buyerId = buyerOfTeam.get(row.teamId);
+      const amount = row.amountCents + row.feeCents;
       if (!buyerId) {
-        orphan += row.amountCents;
+        orphan += amount;
         continue;
       }
       const key = `${buyerId}|${row.date}`;
-      net.set(key, (net.get(key) ?? 0) + row.amountCents);
-      gross.set(key, (gross.get(key) ?? 0) + row.amountCents + row.feeCents);
+      total.set(key, (total.get(key) ?? 0) + amount);
     }
 
-    for (const [key, cents] of net) {
+    for (const [key, cents] of total) {
       const [buyerId, iso] = key.split('|');
       await writeDay(
         {
           buyerId,
           date: atMidnight(iso),
           spendCents: cents,
-          spendGrossCents: gross.get(key) ?? cents,
         },
         result,
       );
