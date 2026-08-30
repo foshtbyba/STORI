@@ -115,8 +115,12 @@ async function writeDay(row: Report, result: SyncResult) {
 }
 
 /**
- * Расход из Facebook. Каждый токен принадлежит баеру, поэтому всё, что видно
- * под ним, — расход этого баера; кабинеты внутри токена просто складываем.
+ * Расход из Facebook — ИНФОРМАТИВНО, в отчёты дня не пишем.
+ *
+ * Реальный расход команды приходит из Brocard (фактические списания с карт).
+ * Цифра из ФБ нужна для будущего мониторинга и управления кампаниями, поэтому
+ * складывается в свою таблицу AdAccountDay, а не в DayReport — иначе подменила
+ * бы настоящий расход, по которому считается зарплата.
  */
 export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
   const result = emptyResult();
@@ -151,27 +155,27 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
         where: { tokenId: token.id, enabled: true },
       });
 
-      /** Расход по дням, сложенный по всем кабинетам этого баера. */
-      const byDay = new Map<string, number>();
+      // Расход кладём в информативную таблицу кабинета, а не в отчёт дня.
+      // Валюту не приводим: показываем как есть, у каждого дня она своя.
       for (const acc of accounts) {
-        if (acc.currency !== 'USD') {
-          // Перевод из другой валюты требует курса, которого у нас нет. Молча
-          // посчитать не тот расход хуже, чем честно сказать и не считать.
-          result.problems.push(
-            `${token.buyer.handle}: кабинет ${acc.name || acc.externalId} в ${acc.currency} — считаем вручную`,
-          );
-          continue;
-        }
         const spend = await accountSpend(access, acc.externalId, from, to, ua);
-        for (const d of spend) byDay.set(d.date, (byDay.get(d.date) ?? 0) + d.cents);
+        for (const d of spend) {
+          await prisma.adAccountDay.upsert({
+            where: { accountId_date: { accountId: acc.id, date: atMidnight(d.date) } },
+            update: { spendCents: d.cents, currency: acc.currency },
+            create: {
+              accountId: acc.id,
+              date: atMidnight(d.date),
+              spendCents: d.cents,
+              currency: acc.currency,
+            },
+          });
+          result.touched += 1;
+        }
         await prisma.adAccount.update({
           where: { id: acc.id },
           data: { lastSpendAt: new Date() },
         });
-      }
-
-      for (const [iso, cents] of byDay) {
-        await writeDay({ buyerId: token.buyerId, date: atMidnight(iso), spendCents: cents }, result);
       }
 
       await prisma.adToken.update({

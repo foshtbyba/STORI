@@ -53,10 +53,10 @@ export default async function IntegrationsPage() {
           right={<SyncNow />}
         />
         <p className="mt-4 text-[12px] leading-relaxed text-mute">
-          Расход приезжает из рекламных кабинетов, доход — из Keitaro. Синхронизация никогда не
-          спорит с человеком: если цифру в отчёте поправили руками, она остаётся как есть, и в
-          отчёте о запуске такая строка отмечена отдельно. Facebook доуточняет расход несколько
-          часов, поэтому последние дни переписываются каждый раз, а не только вчерашний.
+          Доход приходит из Keitaro и ложится в отчёты дня. Реальный расход — с Brocard
+          (фактические списания с карт); Facebook тянется отдельно и только для справки, в
+          зарплату он не идёт. Синхронизация никогда не спорит с человеком: поправленную руками
+          цифру в отчёте она не трогает и отмечает такую строку отдельно.
         </p>
       </Panel>
 
@@ -66,7 +66,7 @@ export default async function IntegrationsPage() {
           icon={<IconWallet color="#b4c68c" />}
           tint="bg-sage-t"
           title="Рекламные кабинеты"
-          aside={<span className="text-[12.5px] text-mute">расход</span>}
+          aside={<span className="text-[12.5px] text-mute">Facebook · для справки</span>}
         />
 
         {tokens.length === 0 ? (
@@ -141,9 +141,9 @@ export default async function IntegrationsPage() {
         <div className="mt-5 border-t border-line pt-4">
           <div className="text-[12.5px] font-semibold">Добавить токен</div>
           <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
-            Токен берётся у System User в Business Manager: он бессрочный и не завязан на чей-то
-            личный вход. Нужны права <span className="n text-soft">ads_read</span>. Всё, что видно
-            под токеном, считается расходом выбранного баера.
+            Подойдёт плоский токен или мультитокен из антидетекта — из него сам достанется ключ.
+            Расход отсюда информативный: настоящий берётся с Brocard. Facebook нужен, чтобы позже
+            включить мониторинг и управление кампаниями прямо тут.
           </p>
           <TokenForm buyers={buyers} />
         </div>

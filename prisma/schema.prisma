@@ -352,8 +352,27 @@ model AdAccount {
 
   lastSpendAt DateTime?
   createdAt   DateTime  @default(now())
+  days        AdAccountDay[]
 
   @@unique([tokenId, externalId])
+}
+
+/// Дневной расход кабинета из Facebook — ИНФОРМАТИВНО.
+///
+/// Реальный расход команды приходит из Brocard: там фактические списания с
+/// карт. Цифра из ФБ нужна для будущего мониторинга и управления кампаниями, а
+/// не для зарплаты, поэтому лежит отдельно и в отчёты дня не попадает — иначе
+/// подменила бы настоящий расход.
+model AdAccountDay {
+  id         String    @id @default(cuid())
+  accountId  String
+  account    AdAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  date       DateTime
+  spendCents Int
+  currency   String    @default("USD")
+
+  @@unique([accountId, date])
+  @@index([date])
 }
 
 /// Keitaro. Инстанс один на команду, поэтому строка тут ровно одна.
