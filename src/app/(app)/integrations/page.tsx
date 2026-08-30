@@ -50,7 +50,7 @@ export default async function IntegrationsPage() {
           title="Источники цифр"
           aside={
             <span className="text-[12.5px] text-mute">
-              раз в день, последние {SYNC_DAYS} дней
+              каждые полчаса — сегодня, раз в сутки — все {SYNC_DAYS} дней
             </span>
           }
           right={<SyncNow />}
