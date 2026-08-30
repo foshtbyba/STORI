@@ -53,9 +53,18 @@ export function TokenForm({ buyers }: { buyers: { id: string; handle: string }[]
       </div>
       <label className="block">
         <span className="mb-1.5 block text-[11.5px] text-mute">
-          Токен System User из Business Manager
+          Токен или мультитокен
         </span>
-        <input name="token" placeholder="EAAG…" className={`${field} n`} required />
+        <textarea
+          name="token"
+          placeholder="EAAB… или мультитокен eyJ…"
+          rows={2}
+          className={`${field} n h-auto resize-y py-2.5`}
+          required
+        />
+        <span className="mt-1 block text-[11px] text-dim">
+          Подойдёт и плоский токен, и мультитокен из антидетекта — из него сам достанется ключ.
+        </span>
       </label>
       <div className="flex justify-end">
         <SubmitButton

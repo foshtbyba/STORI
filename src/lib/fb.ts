@@ -38,14 +38,55 @@ export class FbError extends Error {
   }
 }
 
-async function call(path: string, token: string, params: Record<string, string> = {}) {
+/**
+ * Из строки, которую вставил человек, достаём рабочий токен Graph API.
+ *
+ * Вставляют двумя способами. Либо это плоский ключ вида `EAAB…` — тогда берём
+ * как есть. Либо «мультитокен» из антидетекта: base64 от JSON с полями
+ * `cookies`, `ua`, `token`; кабинеты у команды арендованные, System User там
+ * не завести, и это единственный рабочий вход. Нам из него нужен `token`, а
+ * заодно `ua` — тем же user-agent ходим в Graph, чтобы запрос был чуть меньше
+ * похож на робота с чужого IP.
+ *
+ * base64 объекта всегда начинается с `eyJ` (это закодированное «{"»), по этому
+ * и различаем два случая.
+ */
+export function extractFbToken(raw: string): { token: string; ua?: string } {
+  const s = raw.trim();
+  if (!s) throw new FbError('Пусто — вставь токен или мультитокен');
+
+  if (s.startsWith('eyJ')) {
+    let parsed: { token?: unknown; ua?: unknown };
+    try {
+      parsed = JSON.parse(Buffer.from(s, 'base64').toString('utf8'));
+    } catch {
+      throw new FbError('Мультитокен не разобрался — похоже, скопирован не целиком');
+    }
+    if (typeof parsed.token !== 'string' || !parsed.token) {
+      throw new FbError('В мультитокене нет поля token');
+    }
+    return { token: parsed.token, ua: typeof parsed.ua === 'string' ? parsed.ua : undefined };
+  }
+
+  return { token: s };
+}
+
+async function call(
+  path: string,
+  token: string,
+  params: Record<string, string> = {},
+  ua?: string,
+) {
   const url = new URL(`${API}${path}`);
   url.searchParams.set('access_token', token);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
 
   let res: Response;
   try {
-    res = await fetch(url, { cache: 'no-store' });
+    res = await fetch(url, {
+      cache: 'no-store',
+      headers: ua ? { 'User-Agent': ua } : undefined,
+    });
   } catch (e) {
     throw new FbError(`Не достучались до Facebook: ${(e as Error).message}`);
   }
@@ -71,7 +112,7 @@ async function call(path: string, token: string, params: Record<string, string> 
  * Кабинеты, доступные под токеном. Постранично: у крупного BM их бывает
  * больше сотни, а Facebook отдаёт по 25 за раз.
  */
-export async function listAccounts(token: string) {
+export async function listAccounts(token: string, ua?: string) {
   const out: FbAccount[] = [];
   let after = '';
 
@@ -82,7 +123,7 @@ export async function listAccounts(token: string) {
       fields: 'account_id,name,currency',
       limit: '100',
       ...(after ? { after } : {}),
-    });
+    }, ua);
     const data = (body.data ?? []) as { account_id?: string; name?: string; currency?: string }[];
     for (const row of data) {
       if (!row.account_id) continue;
@@ -115,6 +156,7 @@ export async function accountSpend(
   externalId: string,
   from: string,
   to: string,
+  ua?: string,
 ) {
   const body = await call(`/${externalId}/insights`, token, {
     fields: 'spend',
@@ -122,7 +164,7 @@ export async function accountSpend(
     time_increment: '1',
     time_range: JSON.stringify({ since: from, until: to }),
     limit: '500',
-  });
+  }, ua);
 
   const rows = (body.data ?? []) as { date_start?: string; spend?: string }[];
   const out: FbSpendDay[] = [];
@@ -137,10 +179,14 @@ export async function accountSpend(
   return out;
 }
 
-/** Проверка токена: кто под ним и сколько кабинетов видно. */
-export async function checkToken(token: string) {
-  const me = await call('/me', token, { fields: 'id,name' });
-  const accounts = await listAccounts(token);
+/**
+ * Проверка вставленной строки: разбираем плоский токен или мультитокен, потом
+ * смотрим, кто под ним и сколько кабинетов видно.
+ */
+export async function checkToken(raw: string) {
+  const { token, ua } = extractFbToken(raw);
+  const me = await call('/me', token, { fields: 'id,name' }, ua);
+  const accounts = await listAccounts(token, ua);
   return {
     name: (me.name as string) || (me.id as string) || 'без имени',
     accounts,

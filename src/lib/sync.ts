@@ -3,7 +3,7 @@ import { prisma } from './db';
 import { dayKey } from './period';
 import { grossUp } from './money';
 import { mergeDay } from './sync-rule';
-import { accountSpend, listAccounts, FbError } from './fb';
+import { accountSpend, listAccounts, extractFbToken, FbError } from './fb';
 import { dailyRevenue, listCampaigns, KeitaroError } from './keitaro';
 
 /**
@@ -128,9 +128,12 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
 
   for (const token of tokens) {
     try {
+      // Разбираем то, что вставил человек: плоский ключ или мультитокен. Тем же
+      // user-agent, что зашит в мультитокене, потом и ходим в Graph.
+      const { token: access, ua } = extractFbToken(token.token);
       // Список кабинетов освежаем на каждом заходе: в BM их добавляют и
       // отключают, и узнавать об этом из тишины неоткуда.
-      const seen = await listAccounts(token.token);
+      const seen = await listAccounts(access, ua);
       for (const acc of seen) {
         await prisma.adAccount.upsert({
           where: { tokenId_externalId: { tokenId: token.id, externalId: acc.externalId } },
@@ -159,7 +162,7 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
           );
           continue;
         }
-        const spend = await accountSpend(token.token, acc.externalId, from, to);
+        const spend = await accountSpend(access, acc.externalId, from, to, ua);
         for (const d of spend) byDay.set(d.date, (byDay.get(d.date) ?? 0) + d.cents);
         await prisma.adAccount.update({
           where: { id: acc.id },
