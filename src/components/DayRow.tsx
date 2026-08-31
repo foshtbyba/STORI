@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { usd, grossUp } from '@/lib/money';
+import { AGENCY_SOURCE } from '@/lib/extra-spend';
 import { updateDay, deleteDay } from '@/app/actions/days';
 import { Avatar } from './ui';
 
@@ -96,7 +97,16 @@ export default function DayRow({ row, canEdit }: { row: DayRowData; canEdit: boo
           <Avatar initials={row.buyer.initials} color={row.buyer.color} size={28} />
           <span className="text-[13px]">{row.buyer.handle}</span>
         </span>
-        <span className="hidden truncate text-[13px] text-soft md:block">{row.source}</span>
+        {/* Агентка — ручная строка со своей комиссией. Помечаем, чтобы в списке
+            было видно: это не то, что приехало из Brocard. */}
+        <span className="hidden min-w-0 items-center gap-2 text-[13px] text-soft md:flex">
+          <span className="truncate">{row.source}</span>
+          {row.source === AGENCY_SOURCE ? (
+            <span className="shrink-0 rounded-full bg-amber-t px-2 py-0.5 text-[10px] text-amber">
+              руками
+            </span>
+          ) : null}
+        </span>
         <span className="n hidden text-right text-[13.5px] text-soft md:block">{usd(row.revenueCents)}</span>
         <span className="n hidden text-right text-[13.5px] text-mute md:block">{usd(row.spendNetCents)}</span>
         <span className="n hidden text-right text-[13.5px] text-mute md:block">

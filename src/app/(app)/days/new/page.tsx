@@ -3,7 +3,9 @@ import { prisma } from '@/lib/db';
 import { periodKeyOf, isEditable } from '@/lib/period';
 import { DEFAULT_COMMISSION_BPS } from '@/lib/money';
 import { GRID_CONSUMABLE_NOTE } from '@/lib/consumables';
+import { AGENCY_SOURCE } from '@/lib/extra-spend';
 import DayGrid, { type GridSeed } from '@/components/DayGrid';
+import ExtraSpend, { type ExtraSeed } from '@/components/ExtraSpend';
 import TopUps, { type TopUpRow } from '@/components/TopUps';
 
 // Отчёты заводит только команда: баер видит свои дни, но не редактирует их.
@@ -55,6 +57,17 @@ export default async function NewDayPage({
     };
   });
 
+  // Агентские идут отдельной строкой дня с источником «Агентка»: синхронизация
+  // ходит только по «Facebook» и эту цифру не перепишет.
+  const extraSeed: ExtraSeed[] = [...buyers, ...owners].map((b) => {
+    const row = saved.find((d) => d.buyerId === b.id && d.source === AGENCY_SOURCE);
+    return {
+      buyerId: b.id,
+      spend: row ? num(row.spendNetCents) : '',
+      note: row?.note ?? '',
+    };
+  });
+
   const dayMs = when.getTime();
   const topUps: TopUpRow[] = buyers
     .map((b) => {
@@ -88,6 +101,17 @@ export default async function NewDayPage({
         seed={seed}
         seedTypeId={entries[0]?.typeId ?? types[0]?.id ?? ''}
         defaultPct={(defaultBps / 100).toString()}
+        locked={period?.status === 'CLOSED' || !isEditable(when)}
+      />
+
+      <ExtraSpend
+        key={`extra-${day}`}
+        date={day}
+        buyers={[
+          ...buyers.map((b) => ({ id: b.id, handle: b.handle, initials: b.initials, color: b.color })),
+          ...owners.map((b) => ({ id: b.id, handle: b.handle, initials: b.initials, color: b.color, owner: true })),
+        ]}
+        seed={extraSeed}
         locked={period?.status === 'CLOSED' || !isEditable(when)}
       />
 

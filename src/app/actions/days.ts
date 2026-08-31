@@ -8,6 +8,7 @@ import { grossUp, DEFAULT_COMMISSION_BPS } from '@/lib/money';
 import { periodKeyOf, isEditable } from '@/lib/period';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { GRID_CONSUMABLE_NOTE } from '@/lib/consumables';
+import { AGENCY_SOURCE, AGENCY_COMMISSION_BPS } from '@/lib/extra-spend';
 
 const DayInput = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -207,6 +208,96 @@ export async function saveDayGrid(
   revalidatePath('/days');
   revalidatePath('/days/new');
   revalidatePath('/consumables');
+  revalidatePath('/payroll');
+  revalidatePath('/');
+  revalidatePath('/peak');
+  return { ok: true, saved };
+}
+
+const ExtraRow = z.object({
+  buyerId: z.string().min(1),
+  spendNetCents: z.number().int().min(0),
+  note: z.string().max(200).default(''),
+});
+
+/**
+ * Доп. расходы за день — агентские кабинеты.
+ *
+ * Пишутся отдельной строкой дня с источником «Агентка»: синхронизация ходит
+ * только по строкам «Facebook», поэтому ручную цифру она не перепишет, а в
+ * профит, ROI и зарплату строка попадёт сама — это обычный отчёт дня, просто
+ * без дохода. Комиссия у агентки своя, 6%, и других сверху нет.
+ *
+ * Строка на баера за день одна: сумма по всем его агентским кабинетам разом,
+ * подробности — в комментарии. Так же, как расход с Brocard: там тоже одна
+ * цифра на день, а не по карте на строку.
+ */
+export async function saveExtraSpend(
+  date: string,
+  rows: unknown,
+): Promise<ActionResult & { saved?: number }> {
+  const { user, error } = await assertCanWrite();
+  if (error) return { ok: false, error };
+
+  const parsed = z.array(ExtraRow).safeParse(rows);
+  if (!parsed.success) return { ok: false, error: 'Проверь суммы.' };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ok: false, error: 'Некорректная дата.' };
+
+  const when = new Date(`${date}T00:00:00.000Z`);
+  const closed = await assertPeriodOpen(when);
+  if (closed) return { ok: false, error: closed };
+
+  const buyers = await prisma.buyer.findMany({
+    where: { archived: false },
+    select: { id: true },
+  });
+  const known = new Set(buyers.map((b) => b.id));
+  let saved = 0;
+
+  for (const row of parsed.data) {
+    if (!known.has(row.buyerId)) continue;
+
+    const existing = await prisma.dayReport.findFirst({
+      where: { buyerId: row.buyerId, date: when, source: AGENCY_SOURCE, offerId: null },
+      select: { id: true },
+    });
+
+    if (row.spendNetCents > 0) {
+      const data = {
+        date: when,
+        buyerId: row.buyerId,
+        offerId: null,
+        source: AGENCY_SOURCE,
+        // Дохода у строки нет: он приходит из Keitaro на основную строку дня и
+        // уже посчитан. Здесь только расход, иначе доход учтётся дважды.
+        revenueCents: 0,
+        spendNetCents: row.spendNetCents,
+        commissionBps: AGENCY_COMMISSION_BPS,
+        spendGrossCents: grossUp(row.spendNetCents, AGENCY_COMMISSION_BPS),
+        note: row.note,
+      };
+      const day = existing
+        ? await prisma.dayReport.update({ where: { id: existing.id }, data })
+        : await prisma.dayReport.create({ data });
+      await prisma.auditLog.create({
+        data: {
+          actorId: user.id,
+          actorName: user.name,
+          entity: 'DayReport',
+          entityId: day.id,
+          action: 'extra',
+          diffJson: JSON.stringify(data),
+        },
+      });
+      saved += 1;
+    } else if (existing) {
+      // Сумму стёрли — убираем и строку, иначе она останется висеть в отчёте.
+      await prisma.dayReport.delete({ where: { id: existing.id } });
+    }
+  }
+
+  revalidatePath('/days');
+  revalidatePath('/days/new');
   revalidatePath('/payroll');
   revalidatePath('/');
   revalidatePath('/peak');
