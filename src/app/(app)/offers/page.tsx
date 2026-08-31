@@ -82,7 +82,6 @@ export default async function OffersPage({
         <div className="no-scrollbar flex basis-full items-center gap-2 overflow-x-auto sm:min-w-0 sm:basis-auto sm:flex-1 sm:gap-2.5">
           <Link
             href={query ? `/offers?q=${encodeURIComponent(query)}` : '/offers'}
-            prefetch={false}
             className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[13px] ${!status ? 'bg-raise font-semibold' : 'bg-sub text-mute'}`}
           >
             Все · {total}
@@ -93,7 +92,6 @@ export default async function OffersPage({
               <Link
                 key={code}
                 href={keep({ status: code })}
-                prefetch={false}
                 className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[13px] ${status === code ? 'bg-raise font-semibold' : 'bg-sub text-mute'}`}
               >
                 {meta.label} · {count}

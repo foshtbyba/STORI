@@ -149,12 +149,13 @@ export default function DayGrid({
             <span className="w-[132px] sm:w-[168px]">
               <DateField value={date} onChange={(next) => router.push(`/days/new?date=${next}`)} />
             </span>
-            {/* Сохранить — справа от календаря, чтобы не листать вниз. */}
+            {/* Сохранить — справа от календаря, чтобы не листать вниз. Высота
+                как у соседних полей, иначе кнопка выглядит криво. */}
             <button
               type="button"
               onClick={submit}
               disabled={pending || locked || totals.filled === 0}
-              className="h-9 shrink-0 rounded-full bg-sage px-5 text-[12.5px] font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
+              className="h-11 shrink-0 rounded-full bg-sage px-6 text-[13px] font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
             >
               {pending ? 'Сохраняем…' : `Сохранить · ${totals.filled}`}
             </button>

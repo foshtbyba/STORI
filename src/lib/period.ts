@@ -161,10 +161,14 @@ export function weeksOfRange({ from, to }: { from: Date; to: Date }) {
  * прошлой недели править можно, всё, что раньше (позапрошлая и глубже), — уже
  * только чтение. Синхронизация под это правило не подпадает: она пишет цифры
  * сама, а запрет касается ручных правок человека.
+ *
+ * ВРЕМЕННО: окно расширено на несколько недель назад, чтобы поправить старые
+ * отчёты. В следующем билде вернуть EDIT_WINDOW_WEEKS = 1 (текущая + прошлая).
  */
+const EDIT_WINDOW_WEEKS = 5;
 export function editWindowStart(now: Date = new Date()) {
   const monday = weekStart(now);
-  monday.setUTCDate(monday.getUTCDate() - 7);
+  monday.setUTCDate(monday.getUTCDate() - 7 * EDIT_WINDOW_WEEKS);
   return monday;
 }
 

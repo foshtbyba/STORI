@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 import { usd } from '@/lib/money';
 
 export function Panel({
@@ -52,14 +53,15 @@ export function PanelHead({
     <div className="flex flex-wrap items-center justify-between gap-y-2.5">
       <div className="flex min-w-0 items-center gap-2.5 sm:gap-[13px]">
         {iconHref ? (
-          <a
+          <Link
             href={iconHref}
+            prefetch={false}
             title={iconTitle}
             aria-label={iconTitle}
             className="rounded-[14px] outline-none ring-sage/40 transition hover:ring-2"
           >
             <Badge tint={tint}>{icon}</Badge>
-          </a>
+          </Link>
         ) : (
           <Badge tint={tint}>{icon}</Badge>
         )}

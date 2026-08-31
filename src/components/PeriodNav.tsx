@@ -44,10 +44,10 @@ export default function PeriodNav({
     <div className="flex flex-wrap items-center justify-end gap-2">
       {weeksOnly ? null : (
         <span className="flex items-center gap-1 rounded-full bg-sub p-1">
-          <Link href={href(week)} prefetch={false} className={tab(isWeek)}>
+          <Link href={href(week)} className={tab(isWeek)}>
             Неделя
           </Link>
-          <Link href={href(month)} prefetch={false} className={tab(!isWeek)}>
+          <Link href={href(month)} className={tab(!isWeek)}>
             Месяц
           </Link>
         </span>
@@ -56,11 +56,11 @@ export default function PeriodNav({
       {/* Кнопку «Сейчас» убрали: она то появлялась, то исчезала и сдвигала весь
           ряд. Возврат к текущей неделе теперь на иконке слева от заголовка. */}
       <span className="flex items-center gap-1">
-        <Link href={href(prev)} prefetch={false} aria-label="Назад" className={arrow}>
+        <Link href={href(prev)} aria-label="Назад" className={arrow}>
           ‹
         </Link>
         <span className="n min-w-[128px] text-center text-[12.5px] text-soft">{label}</span>
-        <Link href={href(next)} prefetch={false} aria-label="Вперёд" className={arrow}>
+        <Link href={href(next)} aria-label="Вперёд" className={arrow}>
           ›
         </Link>
       </span>

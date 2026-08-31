@@ -217,22 +217,21 @@ export default async function HomePage({
             title="Баеры"
             aside={<span className="text-[12.5px] text-mute">{summary.buyers.length} человек</span>}
           />
-          <div className="mt-4 grid grid-cols-[1.3fr_1fr_1fr] gap-x-3 md:grid-cols-[1.6fr_repeat(6,1fr)_1fr] pb-2.5">
-            <span className="lab">Баер</span>
-            <span className="lab hidden text-right md:block">Доход</span>
-            <span className="lab hidden text-right md:block">Спенд</span>
-            <span className="lab hidden text-right md:block">С комиссией</span>
-            <span className="lab hidden text-right md:block">Расходники</span>
-            <span className="lab text-right" title="За вычетом расходников">Профит</span>
-            <span className="lab text-right" title="Чистый профит по всем отчётам, за все периоды">
+          <div className="mt-4 grid grid-cols-[1.3fr_1fr_1fr] gap-x-3 md:grid-cols-[1.5fr_repeat(5,1fr)_1fr] pb-2.5">
+            <span className="lab whitespace-nowrap">Баер</span>
+            <span className="lab hidden whitespace-nowrap text-right md:block">Доход</span>
+            <span className="lab hidden whitespace-nowrap text-right md:block">С комиссией</span>
+            <span className="lab hidden whitespace-nowrap text-right md:block">Расходники</span>
+            <span className="lab whitespace-nowrap text-right" title="За вычетом расходников">Профит</span>
+            <span className="lab whitespace-nowrap text-right" title="Чистый профит по всем отчётам, за все периоды">
               За всё время
             </span>
-            <span className="lab hidden text-right md:block">ROI · доля</span>
+            <span className="lab hidden whitespace-nowrap text-right md:block">ROI · доля</span>
           </div>
           {summary.buyers.map((row) => (
             <div
               key={row.buyer.id}
-              className="grid grid-cols-[1.3fr_1fr_1fr] gap-x-3 md:grid-cols-[1.6fr_repeat(6,1fr)_1fr] items-center border-t border-line py-3"
+              className="grid grid-cols-[1.3fr_1fr_1fr] gap-x-3 md:grid-cols-[1.5fr_repeat(5,1fr)_1fr] items-center border-t border-line py-3"
             >
               <span className="flex items-center gap-3">
                 <Avatar initials={row.buyer.initials} color={row.buyer.color} />
@@ -244,7 +243,6 @@ export default async function HomePage({
                 </span>
               </span>
               <span className="n hidden text-right text-[13.5px] text-soft md:block">{usd(row.revenueCents)}</span>
-              <span className="n hidden text-right text-[13.5px] text-mute md:block">{usd(row.spendNetCents)}</span>
               <span className="n hidden text-right text-[13.5px] text-mute md:block">{usd(row.spendGrossCents)}</span>
               <span className="n hidden text-right text-[13.5px] text-rust md:block">
                 {row.consumableCents ? `−${usd(row.consumableCents)}` : '—'}
@@ -281,10 +279,9 @@ export default async function HomePage({
             </div>
           ))}
           <div className="flex-1" />
-          <Sub className="mt-2.5 grid grid-cols-[1.3fr_1fr_1fr] gap-x-3 md:grid-cols-[1.6fr_repeat(6,1fr)_1fr] items-center px-4 py-3.5">
+          <Sub className="mt-2.5 grid grid-cols-[1.3fr_1fr_1fr] gap-x-3 md:grid-cols-[1.5fr_repeat(5,1fr)_1fr] items-center px-4 py-3.5">
             <span className="lab text-text">Итого</span>
             <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.revenueCents)}</span>
-            <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.spendNetCents)}</span>
             <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.spendGrossCents)}</span>
             <span className="n hidden text-right text-[13.5px] text-rust md:block">
               {summary.totals.consumableCents ? `−${usd(summary.totals.consumableCents)}` : '—'}

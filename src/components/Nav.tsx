@@ -8,15 +8,17 @@ export type NavItem = { href: string; label: string; icon: ReactNode };
 
 export default function Nav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
+  // Активна ровно одна вкладка — та, чей адрес совпал точнее всех (самый
+  // длинный префикс). Иначе «/ads» (Обзор) горел бы и на «/ads/campaigns»,
+  // где своя вкладка. Точное совпадение всегда бьёт префикс.
+  const matches = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const activeHref = items
+    .filter((it) => matches(it.href))
+    .reduce((best, it) => (it.href.length > best.length ? it.href : best), '');
   return (
     <nav className="no-scrollbar flex min-w-0 flex-1 items-center gap-1 overflow-x-auto rounded-full bg-sub p-1 sm:flex-none sm:basis-auto">
       {items.map((item) => {
-        // Корни (/ и /ads) активны только на точном совпадении, иначе «/ads»
-        // подсвечивался бы на «/ads/upload». Остальное — по префиксу пути.
-        const active =
-          item.href === '/'
-            ? pathname === '/'
-            : pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const active = item.href === activeHref;
         return (
           <Link
             key={item.href}
