@@ -75,6 +75,10 @@ export default async function NewDayPage({
   return (
     <div className="flex flex-col gap-3.5">
       <DayGrid
+        // Пересобираем сетку при смене даты: её строки берутся из seed один
+        // раз, и без remount при клиентском переходе цифры остались бы от
+        // прошлого дня до перезагрузки.
+        key={day}
         date={day}
         buyers={[
           ...buyers.map((b) => ({ id: b.id, handle: b.handle, initials: b.initials, color: b.color })),
