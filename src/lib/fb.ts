@@ -51,23 +51,72 @@ export class FbError extends Error {
  * base64 объекта всегда начинается с `eyJ` (это закодированное «{"»), по этому
  * и различаем два случая.
  */
+/**
+ * Пытаемся вытащить ключ из мультитокена антидетекта. Формат у всех чуть
+ * разный: обычный или url-safe base64, поле ключа зовётся то `token`, то
+ * `access_token`, то `accessToken`; user-agent — `ua`/`userAgent`. Перебираем
+ * оба варианта base64 и известные имена полей, возвращаем первое, что похоже
+ * на настоящий ключ Graph API (EAA…). Ничего не подошло — null.
+ */
+function tryMultitoken(s: string): { token: string; ua?: string } | null {
+  const urlSafe = s.replace(/-/g, '+').replace(/_/g, '/');
+  for (const variant of new Set([s, urlSafe])) {
+    let json: string;
+    try {
+      json = Buffer.from(variant, 'base64').toString('utf8');
+    } catch {
+      continue;
+    }
+    if (!json.trim().startsWith('{')) continue;
+
+    let obj: Record<string, unknown>;
+    try {
+      obj = JSON.parse(json) as Record<string, unknown>;
+    } catch {
+      continue;
+    }
+
+    const pick = (keys: string[]) => {
+      for (const k of keys) {
+        const v = obj[k];
+        if (typeof v === 'string' && v) return v;
+      }
+      return undefined;
+    };
+    const token = pick(['token', 'access_token', 'accessToken', 'fb_token', 'fbToken']);
+    if (!token) continue;
+    return { token, ua: pick(['ua', 'userAgent', 'user_agent']) };
+  }
+  return null;
+}
+
 export function extractFbToken(raw: string): { token: string; ua?: string } {
-  const s = raw.trim();
+  // Убираем не только края, но и переносы строк и пробелы ВНУТРИ: из чата и
+  // антидетекта строка часто прилетает разбитой на несколько строк, а лишний
+  // \n посреди ключа Facebook уже не примет.
+  const s = raw.replace(/\s+/g, '');
   if (!s) throw new FbError('Пусто — вставь токен или мультитокен');
 
-  if (s.startsWith('eyJ')) {
-    let parsed: { token?: unknown; ua?: unknown };
-    try {
-      parsed = JSON.parse(Buffer.from(s, 'base64').toString('utf8'));
-    } catch {
-      throw new FbError('Мультитокен не разобрался — похоже, скопирован не целиком');
-    }
-    if (typeof parsed.token !== 'string' || !parsed.token) {
-      throw new FbError('В мультитокене нет поля token');
-    }
-    return { token: parsed.token, ua: typeof parsed.ua === 'string' ? parsed.ua : undefined };
+  // Плоский ключ Graph API начинается с EAA — берём как есть, без фокусов.
+  if (/^EAA[A-Za-z0-9]/.test(s)) return { token: s };
+
+  // Иначе пробуем разобрать как мультитокен антидетекта: base64(JSON) с полем
+  // token. Кодируют по-разному — обычный и url-safe base64, иногда с пробелом
+  // после «{», — поэтому не привязываемся к префиксу eyJ, а честно пробуем
+  // раскодировать оба варианта и достать token.
+  const multi = tryMultitoken(s);
+  if (multi) return multi;
+
+  // Строка похожа на мультитокен (base64 приличной длины), но раскодировать
+  // token не удалось — это не «просто плоский ключ», а битый мультитокен.
+  if (/^[A-Za-z0-9+/_=-]{60,}$/.test(s) && !s.startsWith('EAA')) {
+    throw new FbError(
+      'Похоже на мультитокен из антидетекта, но ключ из него не достаётся — скопирован не целиком. Возьми строку целиком (обычно очень длинная) и вставь заново.',
+    );
   }
 
+  // Не EAA и не мультитокен — но вдруг всё-таки рабочий ключ иного вида.
+  // Отдаём как есть, пусть Facebook скажет своё слово.
   return { token: s };
 }
 
@@ -99,7 +148,16 @@ async function call(
     throw new FbError(`Facebook ответил не по-json (${res.status}): ${text.slice(0, 200)}`);
   }
 
-  const err = (body as { error?: { message?: string; code?: number; error_user_msg?: string } }).error;
+  const err = (
+    body as {
+      error?: {
+        message?: string;
+        code?: number;
+        error_subcode?: number;
+        error_user_msg?: string;
+      };
+    }
+  ).error;
   if (err) {
     throw new FbError(fbErrorMessage(err, res.status));
   }
@@ -110,23 +168,28 @@ async function call(
 /**
  * Ошибки Facebook приходят голым кодом — «код 1: Invalid request» человеку
  * ничего не говорит и чинить нечего. Переводим частые коды в подсказку: что
- * именно не так с токеном и что проверить.
+ * именно не так с токеном и что проверить. Субкод показываем в скобках — по
+ * нему различаются «протух» и «отозван» внутри одного кода 190.
  */
 function fbErrorMessage(
-  err: { message?: string; code?: number; error_user_msg?: string },
+  err: { message?: string; code?: number; error_subcode?: number; error_user_msg?: string },
   status: number,
 ) {
   const code = err.code ?? status;
+  const sub = err.error_subcode ? `/${err.error_subcode}` : '';
   const why = err.error_user_msg || err.message || 'без объяснений';
-  const hint = fbHint(code, why);
-  const base = `Facebook отказал (код ${code}): ${why}`;
+  const hint = fbHint(code, err.error_subcode, why);
+  const base = `Facebook отказал (код ${code}${sub}): ${why}`;
   return hint ? `${base} — ${hint}` : base;
 }
 
-function fbHint(code: number, why: string): string | null {
+function fbHint(code: number, subcode: number | undefined, why: string): string | null {
   const w = why.toLowerCase();
-  // 190 — токен протух или отозван; самый частый случай на длинной дистанции.
+  // 190 — проблема с самим токеном; субкод уточняет, какая именно.
   if (code === 190) {
+    if (subcode === 463) return 'срок токена вышел — выпусти новый в бизнес-менеджере.';
+    if (subcode === 467) return 'токен отозван или уже недействителен — выпусти новый.';
+    if (subcode === 460) return 'токен привязан к другой сессии/паролю — перевыпусти его.';
     return 'токен недействителен или протух. Выпусти новый и вставь его целиком.';
   }
   // 1/2 «Invalid request» — Facebook вообще не разобрал строку как токен.
@@ -226,8 +289,29 @@ export async function accountSpend(
  */
 export async function checkToken(raw: string) {
   const { token, ua } = extractFbToken(raw);
-  const me = await call('/me', token, { fields: 'id,name' }, ua);
-  const accounts = await listAccounts(token, ua);
+
+  // /me падает — проблема в самом токене (не тот, протух, обрезан). Помечаем
+  // шаг, чтобы отличать это от «токен рабочий, но нет доступа к кабинетам».
+  let me: Record<string, unknown>;
+  try {
+    me = await call('/me', token, { fields: 'id,name' }, ua);
+  } catch (e) {
+    if (e instanceof FbError) {
+      throw new FbError(`${e.message} (шаг: проверка токена)`);
+    }
+    throw e;
+  }
+
+  let accounts: FbAccount[];
+  try {
+    accounts = await listAccounts(token, ua);
+  } catch (e) {
+    if (e instanceof FbError) {
+      throw new FbError(`${e.message} (шаг: список кабинетов — токен рабочий, но кабинеты не отдал)`);
+    }
+    throw e;
+  }
+
   return {
     name: (me.name as string) || (me.id as string) || 'без имени',
     accounts,
