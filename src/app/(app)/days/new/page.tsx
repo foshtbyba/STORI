@@ -31,9 +31,10 @@ export default async function NewDayPage({
     prisma.period.findUnique({ where: { key: periodKeyOf(when) } }),
     // Всё, что до этой даты включительно и ещё не закинуто, плюс уже закрытое
     // за этот день — из этого складывается «сколько нужно закинуть».
+    // Закидываем доход, который был: именно его реинвестируют в кабинеты.
     prisma.dayReport.findMany({
       where: { date: { lte: when } },
-      select: { buyerId: true, date: true, spendGrossCents: true, toppedUpAt: true },
+      select: { buyerId: true, date: true, revenueCents: true, toppedUpAt: true },
     }),
   ]);
 
@@ -58,7 +59,7 @@ export default async function NewDayPage({
   const topUps: TopUpRow[] = buyers
     .map((b) => {
       const mine = owed.filter((d) => d.buyerId === b.id);
-      const add = (rows: typeof mine) => rows.reduce((a, d) => a + d.spendGrossCents, 0);
+      const add = (rows: typeof mine) => rows.reduce((a, d) => a + d.revenueCents, 0);
       return {
         buyerId: b.id,
         handle: b.handle,

@@ -12,7 +12,7 @@ export type TopUpRow = {
   handle: string;
   initials: string;
   color: string;
-  /** Расход с комиссией за выбранный день, ещё не закинутый. */
+  /** Доход за выбранный день, ещё не закинутый на кабинет. */
   todayCents: number;
   /** Незакинутое с прошлых дней. */
   debtCents: number;
@@ -54,7 +54,7 @@ export default function TopUps({ date, rows }: { date: string; rows: TopUpRow[] 
         title="К закиду на кабинеты"
         aside={
           <span className="text-[12.5px] text-mute">
-            расход с комиссией — столько ушло с балансов
+            доход за день — его и закидываем обратно на кабинеты
           </span>
         }
         right={
@@ -81,7 +81,7 @@ export default function TopUps({ date, rows }: { date: string; rows: TopUpRow[] 
       </div>
 
       {rows.length === 0 ? (
-        <Empty>За этот день расходов нет.</Empty>
+        <Empty>За этот день дохода нет.</Empty>
       ) : (
         rows.map((r) => {
           const owed = r.todayCents + r.debtCents;
