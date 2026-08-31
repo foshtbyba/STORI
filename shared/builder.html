@@ -600,9 +600,6 @@
           <input id="chestFolder" type="file" webkitdirectory directory multiple>
         </label>
         <div class="filelist" id="chestList" style="display:none"></div>
-        <button class="btn" id="trRunChest" type="button" style="margin-top:8px;display:none">🌐 Перевести сундук через Claude</button>
-        <div class="hint" id="trChestHint" style="display:none;margin-top:2px">Ключ/модель/промт берутся из блока «🌐 Перевод ленда через Claude» слева. Переведётся HTML сундука и ляжет обратно.</div>
-        <div class="status" id="trStatusChest"></div>
       </div>
     </div>
 
@@ -813,6 +810,12 @@ inline-style, вёрстку. Чистка касается ТОЛЬКО скр�
 - Верни только код итогового файла.</textarea></div>
         <button class="btn" id="trRun" type="button" style="margin-top:10px">🌐 Перевести ленд</button>
         <div class="status" id="trStatus"></div>
+        <div class="subtoggle" data-target="trChestWrap" style="margin-top:12px"><span class="chev">▸</span> 🎁 Перевести сундук</div>
+        <div id="trChestWrap" style="display:none">
+          <div class="hint" style="margin-top:2px">Переводит HTML подключённой папки сундука тем же ключом/моделью/промтом. Сначала подключи папку сундука в блоке «Сундук».</div>
+          <button class="btn" id="trRunChest" type="button" style="margin-top:6px">🎁 Перевести сундук</button>
+          <div class="status" id="trStatusChest"></div>
+        </div>
       </div>
     </div>
 
@@ -2577,10 +2580,6 @@ function zipName(cfg){var g=((cfg.langCode||cfg.country||"").trim()).toLowerCase
 var YWBACKFIX_JS=(document.getElementById("yw-src")||{}).textContent||"";
 function renderChestList(){
   var el=document.getElementById("chestList");
-  // кнопка перевода сундука — только когда подключена папка сундука
-  var trc=document.getElementById("trRunChest"), trh=document.getElementById("trChestHint");
-  if(trc) trc.style.display=CHEST_FOLDER?"":"none";
-  if(trh) trh.style.display=CHEST_FOLDER?"":"none";
   if(!CHEST_FOLDER){el.style.display="none";return;}
   el.style.display="block";
   el.innerHTML=CHEST_FOLDER.files.map(function(x){
@@ -3027,14 +3026,16 @@ function enhanceSelect(sel){
     else document.getElementById("html").value=str;
   }
   function stripFence(s){ s=String(s||"").trim(); var m=s.match(/^```[a-zA-Z]*\s*\n([\s\S]*?)\n```$/); if(m) return m[1].trim(); return s.replace(/^```[a-zA-Z]*\s*/,"").replace(/\s*```$/,"").trim(); }
+  // надёжно вырезать HTML-документ из ответа (на случай если модель добавила текст/фенсы вокруг)
+  function extractHtml(s){ s=stripFence(s); var lo=s.search(/<!doctype html|<html[\s>]/i); if(lo>0) s=s.slice(lo); var hi=s.toLowerCase().lastIndexOf("</html>"); if(hi>-1) s=s.slice(0,hi+7); return s.trim(); }
 
   // источник/приёмник HTML сундука (из подключённой папки сундука)
   function chestSrc(){ if(CHEST_FOLDER && CHEST_FOLDER.mainPath){ var f=CHEST_FOLDER.files.filter(function(x){return x.path===CHEST_FOLDER.mainPath;})[0]; return f?f.str:""; } return ""; }
   function putChest(str){ if(CHEST_FOLDER && CHEST_FOLDER.mainPath){ CHEST_FOLDER.files.forEach(function(x){ if(x.path===CHEST_FOLDER.mainPath) x.str=str; }); } }
   function stat(el,msg,cls){ if(!el) return; el.className="status"+(cls?(" "+cls):""); el.textContent=msg; }
 
-  // универсальный перевод: getSrc()->HTML, putDst(HTML) кладёт обратно; статус/кнопка — свои
-  async function doTranslate(getSrc, putDst, stEl, btnEl, what){
+  // универсальный перевод: getSrc()->HTML, putDst(HTML) кладёт обратно; pv — вкладка превью после сборки
+  async function doTranslate(getSrc, putDst, stEl, btnEl, what, pv){
     if(btnEl.dataset.busy==="1") return;
     var key=(keyEl.value||"").trim();
     if(!key){ stat(stEl,"Вставь API-ключ Anthropic (sk-ant-…) в блоке перевода слева","warn"); return; }
@@ -3042,16 +3043,18 @@ function enhanceSelect(sel){
     if(!html || !html.trim()){ stat(stEl,"Нет "+what+": сначала подключи его","warn"); return; }
     var model=modelEl.value, system=(promptEl.value||"").trim();
     var user=varsBlock()+"\n\nHTML:\n"+html;
+    // лимит вывода: даём максимум, чтобы большой ленд + «размышление» модели не обрезались
+    var maxTok=(model==="claude-haiku-4-5")?32000:128000;
     btnEl.dataset.busy="1"; btnEl.disabled=true; var old=btnEl.textContent; btnEl.textContent="⏳ Перевожу…";
     stat(stEl,"Отправляю в Claude ("+model+")… это может занять минуту","");
     try{
       var res=await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",
         headers:{ "content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true" },
-        body:JSON.stringify({ model:model, max_tokens:64000, stream:true, system:system, messages:[{role:"user",content:user}] })
+        body:JSON.stringify({ model:model, max_tokens:maxTok, stream:true, system:system, messages:[{role:"user",content:user}] })
       });
       if(!res.ok){ var t=""; try{t=await res.text();}catch(e){} stat(stEl,"Ошибка API "+res.status+": "+t.slice(0,240),"warn"); return; }
-      var reader=res.body.getReader(), dec=new TextDecoder(), buf="", out="", expected=Math.max(1, html.length);
+      var reader=res.body.getReader(), dec=new TextDecoder(), buf="", out="", expected=Math.max(1, html.length), stopReason=null;
       while(true){
         var r=await reader.read(); if(r.done) break;
         buf+=dec.decode(r.value,{stream:true});
@@ -3061,15 +3064,19 @@ function enhanceSelect(sel){
           var d=line.slice(5).trim(); if(!d||d==="[DONE]") continue;
           try{ var ev=JSON.parse(d);
             if(ev.type==="content_block_delta" && ev.delta && ev.delta.type==="text_delta"){ out+=ev.delta.text; var pct=Math.min(99,Math.round(out.length/expected*100)); stat(stEl,"Перевожу… "+pct+"%",""); }
+            else if(ev.type==="message_delta" && ev.delta && ev.delta.stop_reason){ stopReason=ev.delta.stop_reason; }
             else if(ev.type==="error"){ stat(stEl,"Ошибка Claude: "+((ev.error&&ev.error.message)||"unknown"),"warn"); return; }
           }catch(e){}
         }
       }
+      // обрезка по лимиту токенов -> НЕ применяем битый результат
+      if(stopReason==="max_tokens"){ stat(stEl,"⚠ Ответ обрезан лимитом токенов — "+what+" слишком большой для одного запроса. Возьми модель помощнее или раздели/уменьши. Битый результат не применён.","warn"); return; }
       stat(stEl,"Перевожу… 100% — собираю","");
-      out=stripFence(out);
-      if(!out || out.length<100 || !/<html|<!doctype/i.test(out)){ stat(stEl,"Claude вернул подозрительно короткий/непохожий на HTML ответ — проверь ключ/лимиты","warn"); return; }
+      out=extractHtml(out);
+      if(!out || out.length<100 || !/<html|<!doctype/i.test(out) || !/<\/html>/i.test(out)){ stat(stEl,"Claude вернул неполный/непохожий на HTML ответ (нет закрывающего </html>) — не применяю. Проверь ключ/лимиты/модель.","warn"); return; }
       putDst(out);
       try{ build(); }catch(e){}
+      try{ if(pv) showTab(pv); }catch(e){}
       stat(stEl,"Готово ✓ "+what[0].toUpperCase()+what.slice(1)+" переведён и вставлен обратно — можно собирать","ok");
     }catch(err){
       stat(stEl,"Сбой запроса: "+(err&&err.message||err)+". Если CORS/сеть — открой билдер по ссылке (http), а не как файл, либо проверь ключ.","warn");
@@ -3078,9 +3085,9 @@ function enhanceSelect(sel){
     }
   }
 
-  runBtn.addEventListener("click",function(){ doTranslate(indexSrc, function(s){ putIndex(s); try{showTab("preview");}catch(e){} }, st, runBtn, "ленд"); });
+  runBtn.addEventListener("click",function(){ doTranslate(indexSrc, putIndex, st, runBtn, "ленд", "preview"); });
   var runChest=document.getElementById("trRunChest");
-  if(runChest) runChest.addEventListener("click",function(){ doTranslate(chestSrc, putChest, document.getElementById("trStatusChest"), runChest, "сундук"); });
+  if(runChest) runChest.addEventListener("click",function(){ doTranslate(chestSrc, putChest, document.getElementById("trStatusChest"), runChest, "сундук", "cpreview"); });
 })();
 </script>
 </body>
