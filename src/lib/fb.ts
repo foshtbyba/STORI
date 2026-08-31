@@ -101,11 +101,52 @@ async function call(
 
   const err = (body as { error?: { message?: string; code?: number; error_user_msg?: string } }).error;
   if (err) {
-    const why = err.error_user_msg || err.message || 'без объяснений';
-    throw new FbError(`Facebook отказал (код ${err.code ?? res.status}): ${why}`);
+    throw new FbError(fbErrorMessage(err, res.status));
   }
   if (!res.ok) throw new FbError(`Facebook ответил ${res.status}`);
   return body as Record<string, unknown>;
+}
+
+/**
+ * Ошибки Facebook приходят голым кодом — «код 1: Invalid request» человеку
+ * ничего не говорит и чинить нечего. Переводим частые коды в подсказку: что
+ * именно не так с токеном и что проверить.
+ */
+function fbErrorMessage(
+  err: { message?: string; code?: number; error_user_msg?: string },
+  status: number,
+) {
+  const code = err.code ?? status;
+  const why = err.error_user_msg || err.message || 'без объяснений';
+  const hint = fbHint(code, why);
+  const base = `Facebook отказал (код ${code}): ${why}`;
+  return hint ? `${base} — ${hint}` : base;
+}
+
+function fbHint(code: number, why: string): string | null {
+  const w = why.toLowerCase();
+  // 190 — токен протух или отозван; самый частый случай на длинной дистанции.
+  if (code === 190) {
+    return 'токен недействителен или протух. Выпусти новый и вставь его целиком.';
+  }
+  // 1/2 «Invalid request» — Facebook вообще не разобрал строку как токен.
+  // Обычно вставили не то: обрезанный ключ, логин-сессию, адрес кабинета.
+  if (code === 1 || code === 2 || w.includes('invalid request')) {
+    return 'похоже, это не рабочий ключ Graph API. Проверь, что строка скопирована целиком: это должен быть токен (EAA…) или мультитокен из антидетекта (eyJ…) полностью, а не логин, cookie или адрес кабинета.';
+  }
+  // 100 — плохие параметры; на нашем /me это тоже обычно битый токен.
+  if (code === 100) {
+    return 'Facebook не понял запрос — обычно так отвечает на неполный или испорченный токен.';
+  }
+  // Троттлинг: частые запросы к API.
+  if (code === 4 || code === 17 || code === 32 || code === 613) {
+    return 'Facebook временно режет частые запросы. Подожди пару минут и попробуй снова.';
+  }
+  // Нет прав на рекламные кабинеты под этим токеном.
+  if (code === 10 || code === 200 || code === 803) {
+    return 'у токена не хватает прав на рекламные кабинеты. Добавь доступ и выпусти новый.';
+  }
+  return null;
 }
 
 /**
