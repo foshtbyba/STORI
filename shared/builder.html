@@ -147,6 +147,13 @@
     font-size:12px;font-weight:600;color:var(--mut);
   }
   .subtoggle:hover{color:var(--soft)}
+  .subtoggle.trchest-toggle{border-top:none;margin:16px 0 0;padding:12px 14px;background:var(--sub);border:1px solid var(--line);border-radius:var(--r-sm);font-size:13.5px;font-weight:600;color:var(--fg);gap:9px;transition:border-color .15s,background .15s}
+  .subtoggle.trchest-toggle:hover{border-color:var(--acc);background:var(--raise);color:var(--fg)}
+  .subtoggle.trchest-toggle .ic{font-size:16px;line-height:1}
+  .subtoggle.trchest-toggle .lbl{flex:0 0 auto}
+  .subtoggle.trchest-toggle .chev{margin-left:auto;color:var(--mut)}
+  .subtoggle.trchest-toggle:hover .chev{color:var(--acc)}
+  .subtoggle.trchest-toggle.open{border-color:var(--acc);background:var(--acc-soft)}
 
   /* ── Приём оффера из дешборда ──────────────────────────────────────
      Оффер уже заведён в дешборде: партнёрка, ID, гео, ссылка. Здесь его
@@ -810,7 +817,7 @@ inline-style, вёрстку. Чистка касается ТОЛЬКО скр�
 - Верни только код итогового файла.</textarea></div>
         <button class="btn" id="trRun" type="button" style="margin-top:10px">🌐 Перевести ленд</button>
         <div class="status" id="trStatus"></div>
-        <div class="subtoggle" data-target="trChestWrap" style="margin-top:12px"><span class="chev">▸</span> 🎁 Перевести сундук</div>
+        <div class="subtoggle trchest-toggle" data-target="trChestWrap"><span class="ic">🎁</span><span class="lbl">Перевести сундук</span><span class="chev">▸</span></div>
         <div id="trChestWrap" style="display:none">
           <div class="hint" style="margin-top:2px">Переводит HTML подключённой папки сундука тем же ключом/моделью/промтом. Сначала подключи папку сундука в блоке «Сундук».</div>
           <button class="btn" id="trRunChest" type="button" style="margin-top:6px">🎁 Перевести сундук</button>
