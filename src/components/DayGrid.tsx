@@ -142,7 +142,9 @@ export default function DayGrid({
             {/* Тип расходника — слева от календаря, одной линией. */}
             <span className="flex items-center gap-2">
               <span className="hidden text-[12px] text-mute sm:inline">Расходники списываем как</span>
-              <span className="w-[190px]">
+              {/* У Select свой mt-2 под подпись — здесь подписи нет, гасим его,
+                  иначе поле съезжает вниз относительно календаря и кнопки. */}
+              <span className="w-[190px] [&_button]:!mt-0">
                 <Select value={typeId} onChange={setTypeId} options={types.map((t) => ({ value: t.id, label: t.name }))} />
               </span>
             </span>
