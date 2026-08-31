@@ -3091,8 +3091,14 @@ function enhanceSelect(sel){
       // обрезка по лимиту токенов -> НЕ применяем битый результат
       if(stopReason==="max_tokens"){ stat(stEl,"⚠ Ответ обрезан лимитом токенов — "+what+" слишком большой для одного запроса. Возьми модель помощнее или раздели/уменьши. Битый результат не применён.","warn"); return; }
       stat(stEl,"Перевожу… 100% — собираю","");
-      out=extractHtml(out);
-      if(!out || out.length<100 || !/<html|<!doctype/i.test(out) || !/<\/html>/i.test(out)){ stat(stEl,"Claude вернул неполный/непохожий на HTML ответ (нет закрывающего </html>) — не применяю. Проверь ключ/лимиты/модель.","warn"); return; }
+      var raw=out; out=extractHtml(out);
+      if(!out || out.length<100 || !/<html|<!doctype/i.test(out) || !/<\/html>/i.test(out)){
+        var diag="сырых "+raw.length+" симв, после разбора "+out.length+", stop="+(stopReason||"?");
+        if(stopReason==="refusal"){ stat(stEl,"⚠ Модель отклонила запрос (refusal) — обычно из-за мед-формулировок ленда. Попробуй другую модель или смягчи утверждения. ["+diag+"]","warn"); }
+        else if(!raw){ stat(stEl,"⚠ Пустой ответ от API ["+diag+"]. Чаще всего это file:// (CORS) — открой билдер по ссылке http/https, а не двойным кликом. Также проверь ключ/баланс.","warn"); }
+        else{ stat(stEl,"⚠ Ответ не похож на цельный HTML ["+diag+"]. Начало: "+raw.slice(0,160)+" … Проверь модель/лимиты или пришли это мне.","warn"); }
+        return;
+      }
       putDst(out);
       try{ build(); }catch(e){}
       try{ if(pv) showTab(pv); }catch(e){}
