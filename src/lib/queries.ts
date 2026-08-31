@@ -288,7 +288,7 @@ export async function firstToCross(key: string, thresholdCents: number) {
  * периода. Нужен на главной: месяц показывает форму, а эта цифра — сколько
  * человек принёс команде вообще.
  */
-export async function allTimeProfit() {
+export async function allTimeProfit(opts?: { owners?: boolean }) {
   // Расходники вычитаем и здесь: иначе «за всё время» считается по одному
   // правилу, а недельный профит по другому, и цифры рядом не сходятся.
   const [days, spent, buyers] = await Promise.all([
@@ -297,9 +297,9 @@ export async function allTimeProfit() {
       _sum: { revenueCents: true, spendGrossCents: true },
     }),
     prisma.consumableEntry.groupBy({ by: ['buyerId'], _sum: { totalCents: true } }),
-    // Овнеры в командный «за всё время» не входят — иначе их профит попал бы в
-    // общий итог команды. Берём только баеров.
-    prisma.buyer.findMany({ where: { owner: false }, select: { id: true, consumablesAffectSalary: true } }),
+    // По умолчанию только баеры (овнеры в командный итог не входят). Для листа
+    // овнеров считаем их же — отдельным вызовом.
+    prisma.buyer.findMany({ where: { owner: !!opts?.owners }, select: { id: true, consumablesAffectSalary: true } }),
   ]);
 
   const charged = new Map(buyers.map((b) => [b.id, b.consumablesAffectSalary]));

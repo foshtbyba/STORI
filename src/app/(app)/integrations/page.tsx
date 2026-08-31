@@ -6,6 +6,7 @@ import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
 import ConfirmSubmit from '@/components/ConfirmSubmit';
 import { SYNC_DAYS } from '@/lib/sync';
 import { Panel, PanelHead, Sub, Empty, Avatar } from '@/components/ui';
+import CollapsiblePanel from '@/components/CollapsiblePanel';
 import { TokenForm, TrackerForm, BrocardForm, SyncNow } from '@/components/IntegrationForms';
 import { IconWallet, IconLink, IconChart, IconWarn } from '@/components/icons';
 
@@ -67,18 +68,14 @@ export default async function IntegrationsPage() {
       </Panel>
 
       {/* ── Brocard ───────────────────────────────────────────────────── */}
-      <Panel className="p-4 sm:p-6">
-        <PanelHead
-          icon={<IconWallet color="#b4c68c" />}
-          tint="bg-sage-t"
-          title="Brocard"
-          aside={<span className="text-[12.5px] text-mute">реальный расход</span>}
-          right={
-            brocard?.lastSyncAt ? (
-              <span className="text-[12px] text-mute">последний заход {fmtDay(brocard.lastSyncAt)}</span>
-            ) : null
-          }
-        />
+      <CollapsiblePanel
+        className="order-1"
+        icon={<IconWallet color="#b4c68c" />}
+        tint="bg-sage-t"
+        title="Brocard"
+        aside={<span className="text-[12.5px] text-mute">реальный расход</span>}
+        summary={brocard?.lastSyncAt ? <span className="text-[12px] text-mute">последний заход {fmtDay(brocard.lastSyncAt)}</span> : undefined}
+      >
 
         {brocard?.lastError ? (
           <Sub className="mt-3 px-3.5 py-2.5 text-[12px] leading-relaxed text-rust">
@@ -152,7 +149,7 @@ export default async function IntegrationsPage() {
             </div>
           )}
         </div>
-      </Panel>
+      </CollapsiblePanel>
 
       {/* ── Facebook ──────────────────────────────────────────────────── */}
       <Panel className="p-4 sm:p-6">
@@ -248,20 +245,14 @@ export default async function IntegrationsPage() {
       </Panel>
 
       {/* ── Keitaro ───────────────────────────────────────────────────── */}
-      <Panel className="p-4 sm:p-6">
-        <PanelHead
-          icon={<IconChart color="#b4c68c" />}
-          tint="bg-sage-t"
-          title="Keitaro"
-          aside={<span className="text-[12.5px] text-mute">доход</span>}
-          right={
-            tracker?.lastSyncAt ? (
-              <span className="text-[12px] text-mute">
-                последний заход {fmtDay(tracker.lastSyncAt)}
-              </span>
-            ) : null
-          }
-        />
+      <CollapsiblePanel
+        className="order-1"
+        icon={<IconChart color="#b4c68c" />}
+        tint="bg-sage-t"
+        title="Keitaro"
+        aside={<span className="text-[12.5px] text-mute">доход</span>}
+        summary={tracker?.lastSyncAt ? <span className="text-[12px] text-mute">последний заход {fmtDay(tracker.lastSyncAt)}</span> : undefined}
+      >
 
         {tracker?.lastError ? (
           <Sub className="mt-3 px-3.5 py-2.5 text-[12px] leading-relaxed text-rust">
@@ -325,7 +316,7 @@ export default async function IntegrationsPage() {
             </div>
           )}
         </div>
-      </Panel>
+      </CollapsiblePanel>
     </div>
   );
 }

@@ -59,12 +59,13 @@ export default async function HomePage({
   // Овнеры и расходники на команду — только под админом, и они НЕ входят в
   // командную стату выше: это отдельные окна для понимания.
   const isAdmin = user.role === 'ADMIN';
-  const [ownerRows, overhead] = isAdmin
+  const [ownerRows, overhead, ownerAllTime] = isAdmin
     ? await Promise.all([
         teamSummary(key, week, { owners: true }).then((s) => s.buyers),
         overheadMonths(),
+        allTimeProfit({ owners: true }),
       ])
-    : [[], []];
+    : [[], [], new Map<string, number>()];
   /*
     График рисуем чистыми — профит дня минус расходники, списанные этим днём.
     Раньше столбики складывались в «профит с рекламы», а крупная цифра над
@@ -216,14 +217,14 @@ export default async function HomePage({
             title="Баеры"
             aside={<span className="text-[12.5px] text-mute">{summary.buyers.length} человек</span>}
           />
-          <div className="mt-4 grid grid-cols-[1.3fr_1fr_1fr] md:grid-cols-[1.5fr_repeat(6,1fr)_1fr] pb-2.5">
+          <div className="mt-4 grid grid-cols-[1.3fr_1fr_1fr] gap-x-3 md:grid-cols-[1.6fr_repeat(6,1fr)_1fr] pb-2.5">
             <span className="lab">Баер</span>
             <span className="lab hidden text-right md:block">Доход</span>
             <span className="lab hidden text-right md:block">Спенд</span>
             <span className="lab hidden text-right md:block">С комиссией</span>
             <span className="lab hidden text-right md:block">Расходники</span>
             <span className="lab text-right" title="За вычетом расходников">Профит</span>
-            <span className="lab pl-5 text-right" title="Чистый профит по всем отчётам, за все периоды">
+            <span className="lab text-right" title="Чистый профит по всем отчётам, за все периоды">
               За всё время
             </span>
             <span className="lab hidden text-right md:block">ROI · доля</span>
@@ -231,7 +232,7 @@ export default async function HomePage({
           {summary.buyers.map((row) => (
             <div
               key={row.buyer.id}
-              className="grid grid-cols-[1.3fr_1fr_1fr] md:grid-cols-[1.5fr_repeat(6,1fr)_1fr] items-center border-t border-line py-3"
+              className="grid grid-cols-[1.3fr_1fr_1fr] gap-x-3 md:grid-cols-[1.6fr_repeat(6,1fr)_1fr] items-center border-t border-line py-3"
             >
               <span className="flex items-center gap-3">
                 <Avatar initials={row.buyer.initials} color={row.buyer.color} />
@@ -258,7 +259,7 @@ export default async function HomePage({
               </span>
               {/* Итог за всё время: месяц показывает форму, эта цифра — вклад. */}
               <span
-                className="n pl-5 text-right text-[14px] font-semibold"
+                className="n text-right text-[14px] font-semibold"
                 style={{ color: (allTime.get(row.buyer.id) ?? 0) >= 0 ? '#c4c4c4' : '#ce6e58' }}
               >
                 {usd(allTime.get(row.buyer.id) ?? 0, { sign: true })}
@@ -280,7 +281,7 @@ export default async function HomePage({
             </div>
           ))}
           <div className="flex-1" />
-          <Sub className="mt-2.5 grid grid-cols-[1.3fr_1fr_1fr] md:grid-cols-[1.5fr_repeat(6,1fr)_1fr] items-center px-4 py-3.5">
+          <Sub className="mt-2.5 grid grid-cols-[1.3fr_1fr_1fr] gap-x-3 md:grid-cols-[1.6fr_repeat(6,1fr)_1fr] items-center px-4 py-3.5">
             <span className="lab text-text">Итого</span>
             <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.revenueCents)}</span>
             <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.spendNetCents)}</span>
@@ -292,7 +293,7 @@ export default async function HomePage({
               {usd(summary.totals.netCents)}
             </span>
             <span
-              className="n pl-5 text-right text-[14px] font-semibold"
+              className="n text-right text-[14px] font-semibold"
               style={{ color: allTimeTotal >= 0 ? '#c4c4c4' : '#ce6e58' }}
             >
               {usd(allTimeTotal, { sign: true })}
@@ -364,17 +365,18 @@ export default async function HomePage({
               <Empty>Овнеры не помечены. Отметь их в настройках (ADMIN).</Empty>
             ) : (
               <>
-                <div className="mt-4 grid grid-cols-[1.4fr_1fr_1fr] md:grid-cols-[1.5fr_repeat(3,1fr)_0.8fr] pb-2.5">
+                <div className="mt-4 grid grid-cols-[1.4fr_1fr_1fr] gap-x-3 md:grid-cols-[1.6fr_repeat(4,1fr)_0.8fr] pb-2.5">
                   <span className="lab">Овнер</span>
                   <span className="lab hidden text-right md:block">Доход</span>
                   <span className="lab hidden text-right md:block">С комиссией</span>
                   <span className="lab text-right">Профит</span>
+                  <span className="lab hidden text-right md:block">За всё время</span>
                   <span className="lab hidden text-right md:block">ROI</span>
                 </div>
                 {ownerRows.map((row) => (
                   <div
                     key={row.buyer.id}
-                    className="grid grid-cols-[1.4fr_1fr_1fr] md:grid-cols-[1.5fr_repeat(3,1fr)_0.8fr] items-center border-t border-line py-3"
+                    className="grid grid-cols-[1.4fr_1fr_1fr] gap-x-3 md:grid-cols-[1.6fr_repeat(4,1fr)_0.8fr] items-center border-t border-line py-3"
                   >
                     <span className="flex items-center gap-3">
                       <Avatar initials={row.buyer.initials} color={row.buyer.color} />
@@ -390,6 +392,12 @@ export default async function HomePage({
                       style={{ color: row.profitCents >= 0 ? '#b4c68c' : '#ce6e58' }}
                     >
                       {usd(row.profitCents)}
+                    </span>
+                    <span
+                      className="n hidden text-right text-[14px] font-semibold md:block"
+                      style={{ color: (ownerAllTime.get(row.buyer.id) ?? 0) >= 0 ? '#c4c4c4' : '#ce6e58' }}
+                    >
+                      {usd(ownerAllTime.get(row.buyer.id) ?? 0, { sign: true })}
                     </span>
                     <span
                       className="n hidden text-right text-[12.5px] md:block"

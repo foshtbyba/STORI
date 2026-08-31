@@ -16,6 +16,7 @@ export default function CollapsiblePanel({
   aside,
   summary,
   defaultOpen = false,
+  className = '',
   children,
 }: {
   icon: ReactNode;
@@ -25,11 +26,12 @@ export default function CollapsiblePanel({
   /** Короткая сводка в свёрнутом виде (справа). */
   summary?: ReactNode;
   defaultOpen?: boolean;
+  className?: string;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <Panel className="p-4 sm:p-6">
+    <Panel className={`p-4 sm:p-6 ${className}`}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

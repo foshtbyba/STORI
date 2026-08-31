@@ -31,7 +31,7 @@ export default async function AttendancePage({
 
   const [buyers, marks] = await Promise.all([
     prisma.buyer.findMany({
-      where: { archived: false, ...(scoped ? { id: scoped } : {}) },
+      where: { archived: false, owner: false, ...(scoped ? { id: scoped } : {}) },
       orderBy: { handle: 'asc' },
     }),
     prisma.attendance.findMany({
