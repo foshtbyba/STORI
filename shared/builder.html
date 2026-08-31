@@ -712,6 +712,13 @@
           <option value="claude-sonnet-5">Sonnet 5 — дешевле/быстрее</option>
           <option value="claude-haiku-4-5">Haiku 4.5 — самый дешёвый</option>
         </select>
+        <label style="margin-top:10px">Скорость / качество</label>
+        <select id="trEffort">
+          <option value="low">⚡ Быстро — минимум «размышления» (для перевода обычно хватает)</option>
+          <option value="medium" selected>⚖️ Баланс</option>
+          <option value="high">💎 Качество — больше «размышления», медленнее</option>
+        </select>
+        <div class="hint" style="margin-top:2px">Перевод — задача механическая, поэтому «Быстро/Баланс» обычно достаточно и заметно шустрее. «Качество» — если нужна очень аккуратная локализация. (Для Haiku не применяется.)</div>
         <div class="hint" style="margin-top:6px">Автоматом из полей выше подставятся: <b>ОФФЕР</b> (бренд), <b>ЯЗЫК</b>, <b>ГЕО</b>, <b>ЦЕНА</b>, <b>СТАРАЯ ЦЕНА</b>. Поля ниже — по желанию.</div>
         <label style="margin-top:10px">Форма продукта</label>
         <select id="trForm">
@@ -3002,6 +3009,7 @@ function enhanceSelect(sel){
       runBtn=document.getElementById("trRun"), st=document.getElementById("trStatus");
   if(!runBtn) return;
   try{ enhanceSelect(modelEl); }catch(e){}
+  try{ enhanceSelect(document.getElementById("trEffort")); }catch(e){}
   try{ enhanceSelect(document.getElementById("trForm")); }catch(e){}
   // API-ключ запоминаем ТОЛЬКО в этом браузере (localStorage) — в файл/репозиторий не попадает.
   try{ var savedKey=localStorage.getItem("lb_anthropic_key"); if(savedKey) keyEl.value=savedKey; }catch(e){}
@@ -3052,13 +3060,17 @@ function enhanceSelect(sel){
     var user=varsBlock()+"\n\nHTML:\n"+html;
     // лимит вывода: даём максимум, чтобы большой ленд + «размышление» модели не обрезались
     var maxTok=(model==="claude-haiku-4-5")?32000:128000;
+    // эффорт (глубина «размышления») — главный рычаг скорости; у haiku не поддерживается
+    var effEl=document.getElementById("trEffort"), effort=effEl?effEl.value:"medium";
+    var reqBody={ model:model, max_tokens:maxTok, stream:true, system:system, messages:[{role:"user",content:user}] };
+    if(model!=="claude-haiku-4-5") reqBody.output_config={ effort:effort };
     btnEl.dataset.busy="1"; btnEl.disabled=true; var old=btnEl.textContent; btnEl.textContent="⏳ Перевожу…";
-    stat(stEl,"Отправляю в Claude ("+model+")… это может занять минуту","");
+    stat(stEl,"Отправляю в Claude ("+model+", "+effort+")…","");
     try{
       var res=await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",
         headers:{ "content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true" },
-        body:JSON.stringify({ model:model, max_tokens:maxTok, stream:true, system:system, messages:[{role:"user",content:user}] })
+        body:JSON.stringify(reqBody)
       });
       if(!res.ok){ var t=""; try{t=await res.text();}catch(e){} stat(stEl,"Ошибка API "+res.status+": "+t.slice(0,240),"warn"); return; }
       var reader=res.body.getReader(), dec=new TextDecoder(), buf="", out="", expected=Math.max(1, html.length), stopReason=null;
