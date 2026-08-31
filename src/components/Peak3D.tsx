@@ -24,6 +24,8 @@ export type Pin3D = {
    */
   strong: boolean;
   onTop: boolean;
+  /** Прячем сумму (овнеры): видно, что человек на горе, но не сколько принёс. */
+  hideProfit?: boolean;
 };
 
 export type Route3D = {
@@ -509,7 +511,7 @@ export default function Peak3D({
                 color: p.strong ? p.color : '#d0d0d0',
               }}
             >
-              {p.handle} · {usd(p.profitCents)}
+              {p.hideProfit ? p.handle : `${p.handle} · ${usd(p.profitCents)}`}
             </div>
           </div>
         );

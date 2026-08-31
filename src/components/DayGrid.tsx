@@ -9,7 +9,7 @@ import Select from './Select';
 import DateField from './DateField';
 import { IconCalendar } from './icons';
 
-export type GridBuyer = { id: string; handle: string; initials: string; color: string };
+export type GridBuyer = { id: string; handle: string; initials: string; color: string; owner?: boolean };
 export type GridSeed = {
   buyerId: string;
   revenue: string;
@@ -56,6 +56,9 @@ export default function DayGrid({
   const [typeId, setTypeId] = useState(seedTypeId || types[0]?.id || '');
 
   const byId = new Map(seed.map((s) => [s.buyerId, s]));
+  // Овнеры в таблице есть (их доход/расход тоже заводят руками), но в командный
+  // «Итого» не идут — они считаются отдельным листом.
+  const ownerSet = new Set(buyers.filter((b) => b.owner).map((b) => b.id));
   const [rows, setRows] = useState<GridSeed[]>(() =>
     buyers.map((b) => byId.get(b.id) ?? { buyerId: b.id, revenue: '', spend: '', pct: defaultPct, consumable: '' }),
   );
@@ -87,13 +90,16 @@ export default function DayGrid({
   );
 
   const totals = calc.reduce(
-    (acc, r) => ({
-      revenue: acc.revenue + r.revenueCents,
-      gross: acc.gross + r.spendGrossCents,
-      consumable: acc.consumable + r.consumableCents,
-      profit: acc.profit + r.profitCents,
-      filled: acc.filled + (r.touched ? 1 : 0),
-    }),
+    (acc, r) =>
+      ownerSet.has(r.buyerId)
+        ? { ...acc, filled: acc.filled + (r.touched ? 1 : 0) }
+        : {
+            revenue: acc.revenue + r.revenueCents,
+            gross: acc.gross + r.spendGrossCents,
+            consumable: acc.consumable + r.consumableCents,
+            profit: acc.profit + r.profitCents,
+            filled: acc.filled + (r.touched ? 1 : 0),
+          },
     { revenue: 0, gross: 0, consumable: 0, profit: 0, filled: 0 },
   );
 
@@ -175,6 +181,9 @@ export default function DayGrid({
             <span className="flex items-center gap-2.5">
               <Avatar initials={buyer.initials} color={buyer.color} size={28} />
               <span className="text-[13.5px] font-semibold">{buyer.handle}</span>
+              {buyer.owner ? (
+                <span className="rounded-full bg-sage-t px-2 py-0.5 text-[10px] text-sage">овнер</span>
+              ) : null}
             </span>
             <input
               value={r.revenue}

@@ -21,6 +21,9 @@ export default async function PeakPage() {
   const week = periodRange(key);
   const label = periodTitle(key);
   const summary = await teamSummary(key, week);
+  // Овнеров тоже рисуем на горе — но без суммы: видно, где они, не видно
+  // сколько принесли.
+  const ownerSummary = await teamSummary(key, week, { owners: true });
   // Неделя показывает форму, а общий минус — сколько человек должен вообще.
   const allTime = await allTimeProfit();
   const tiers = summary.buyers[0]
@@ -42,7 +45,7 @@ export default async function PeakPage() {
       allTimeCents: team ? (allTime.get(b.buyer.id) ?? 0) : null,
     }));
 
-  if (ranked.length === 0 && grounded.length === 0) {
+  if (ranked.length === 0 && grounded.length === 0 && ownerSummary.buyers.length === 0) {
     return <Empty>За {label} отчётов ещё нет — гора пустая.</Empty>;
   }
 
@@ -93,6 +96,31 @@ export default async function PeakPage() {
       onTop,
     };
   });
+
+  // Овнеры на склоне — примерно по своему профиту, но без суммы на метке.
+  const OWNER_BEARINGS = [58, 206, 128, 292, 96, 244];
+  const ownerPins: Pin3D[] = ownerSummary.buyers.map((row, i) => {
+    const level = row.netCents > 0 ? Math.max(0.06, Math.min(0.88, row.netCents / summitCents)) : 0.08;
+    const angle = OWNER_BEARINGS[i % OWNER_BEARINGS.length];
+    const [u, v, at] = terrain.surfaceUV(angle, Math.min(level, 0.88));
+    const stem = STEMS[(i + 3) % STEMS.length];
+    return {
+      id: `owner-${row.buyer.id}`,
+      initials: row.buyer.initials,
+      handle: row.buyer.handle,
+      color: row.buyer.color,
+      profitCents: row.netCents,
+      u,
+      v,
+      level: at,
+      stem: stem * (0.38 + 0.62 * (1 - level)),
+      me: false,
+      strong: true,
+      onTop: false,
+      hideProfit: true,
+    };
+  });
+  const allPins = [...pins, ...ownerPins];
 
   const leadCents = Math.max(ranked[0]?.netCents ?? 1, 1);
   const viewer = summary.buyers.find((r) => r.buyer.id === viewerId) ?? null;
@@ -368,7 +396,7 @@ export default async function PeakPage() {
         />
         <Peak3D
           terrain={terrain.raw}
-          pins={pins}
+          pins={allPins}
           route={route}
           rules={ruleMarks}
           ringRadius={RING}

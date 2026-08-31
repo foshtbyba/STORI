@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Panel, Badge, Empty } from './ui';
 import { IconCalendar } from './icons';
+import Select from './Select';
 
 export type SheetRow = {
   key: string;
@@ -68,16 +69,13 @@ export default function ClosedSheets({
           {months.length > 0 ? (
             <div className="mb-3 flex items-center gap-2.5">
               <span className="lab">Месяц</span>
-              <select
-                value={month}
-                onChange={(e) => setMonth(e.target.value)}
-                className="n h-9 rounded-lg border border-line bg-sub px-3 text-[13px] text-soft outline-none transition focus:border-sage [color-scheme:dark]"
-              >
-                <option value="">все</option>
-                {months.map((m) => (
-                  <option key={m.value} value={m.value}>{m.label}</option>
-                ))}
-              </select>
+              <span className="w-[190px]">
+                <Select
+                  value={month}
+                  onChange={setMonth}
+                  options={[{ value: '', label: 'все' }, ...months]}
+                />
+              </span>
             </div>
           ) : null}
 

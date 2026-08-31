@@ -136,7 +136,9 @@ export async function saveDayGrid(
     return { ok: false, error: 'Выбери тип расходника.' };
   }
 
-  const buyers = await prisma.buyer.findMany({ where: { archived: false, owner: false } });
+  // Овнеры тоже заводятся этой таблицей — их доход/расход вводят руками. В
+  // командную стату они всё равно не попадают (teamSummary их исключает).
+  const buyers = await prisma.buyer.findMany({ where: { archived: false } });
   const byId = new Map(buyers.map((b) => [b.id, b]));
   let saved = 0;
 
