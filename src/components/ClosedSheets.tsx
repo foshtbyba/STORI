@@ -24,7 +24,9 @@ const usd = (c: number) => `$${Math.round(c / 100).toLocaleString('ru-RU')}`;
 const rub = (c: number, rate: number) =>
   `${Math.round((c / 100) * (rate / 100)).toLocaleString('ru-RU')} ₽`;
 
-const GRID = 'grid grid-cols-[1.3fr_1fr] lg:grid-cols-[1.5fr_0.7fr_repeat(3,1fr)_1fr]';
+// Последняя колонка чуть уже — иначе «К выплате» уезжает к самому краю и
+// отрывается от остальных цифр.
+const GRID = 'grid grid-cols-[1.3fr_1fr] gap-x-3 lg:grid-cols-[1.6fr_0.7fr_repeat(3,1fr)_0.7fr]';
 
 /**
  * Закрытые расчётные листы: сворачиваемое окно с выбором месяца. В месяце —
@@ -89,7 +91,7 @@ export default function ClosedSheets({
                 <span className="lab hidden text-right lg:block">Оклад и процент</span>
                 <span className="lab hidden text-right lg:block">Бонусы</span>
                 <span className="lab hidden text-right lg:block">В рублях</span>
-                <span className="lab text-right">К выплате</span>
+                <span className="lab text-right lg:pr-6">К выплате</span>
               </div>
               {shown.map((s) => (
                 <a
@@ -115,7 +117,7 @@ export default function ClosedSheets({
                     {s.bonusCents ? `+${usd(s.bonusCents)}` : '—'}
                   </span>
                   <span className="n hidden text-right text-[13px] text-mute lg:block">{rub(s.payoutCents, s.rate)}</span>
-                  <span className="n text-right text-[17px] font-semibold">{usd(s.payoutCents)}</span>
+                  <span className="n text-right text-[17px] font-semibold lg:pr-6">{usd(s.payoutCents)}</span>
                 </a>
               ))}
             </>

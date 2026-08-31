@@ -97,12 +97,13 @@ export default async function PeakPage() {
     };
   });
 
-  // Овнеры на склоне — примерно по своему профиту, но без суммы на метке.
+  // Овнеры на склоне — на своей реальной высоте (профит / вершина), как баеры,
+  // тоже поднимаются, но сумму на метке не показываем.
   const OWNER_BEARINGS = [58, 206, 128, 292, 96, 244];
   const ownerPins: Pin3D[] = ownerSummary.buyers.map((row, i) => {
-    const level = row.netCents > 0 ? Math.max(0.06, Math.min(0.88, row.netCents / summitCents)) : 0.08;
+    const level = row.netCents > 0 ? Math.max(0.05, Math.min(1, row.netCents / summitCents)) : 0.06;
     const angle = OWNER_BEARINGS[i % OWNER_BEARINGS.length];
-    const [u, v, at] = terrain.surfaceUV(angle, Math.min(level, 0.88));
+    const [u, v, at] = terrain.surfaceUV(angle, Math.min(level, 0.92));
     const stem = STEMS[(i + 3) % STEMS.length];
     return {
       id: `owner-${row.buyer.id}`,
