@@ -135,9 +135,33 @@ export function Avatar({
 }
 
 export function Empty({ children }: { children: ReactNode }) {
+  // Пунктирку рисуем SVG-обводкой, а не border-dashed: браузеры кладут CSS-штрих
+  // по скруглённым углам неровно — на углах он рвётся и «пляшет». Одна rect с
+  // strokeDasharray даёт ровные штрихи и на прямых, и на закруглениях.
   return (
-    <div className="rounded-[18px] border border-dashed border-line px-6 py-10 text-center text-[13px] text-mute">
-      {children}
+    <div className="relative rounded-[18px] px-6 py-10 text-center text-[13px] text-mute">
+      <svg
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full"
+        preserveAspectRatio="none"
+      >
+        {/* rect на весь размер: внешняя половина штриха обрезается краем svg —
+            остаётся ровная линия по периметру, без calc в атрибутах (SVG его
+            не понимает). */}
+        <rect
+          x="0"
+          y="0"
+          width="100%"
+          height="100%"
+          rx="18"
+          ry="18"
+          fill="none"
+          stroke="var(--color-line2)"
+          strokeWidth="2"
+          strokeDasharray="6 6"
+        />
+      </svg>
+      <span className="relative">{children}</span>
     </div>
   );
 }
