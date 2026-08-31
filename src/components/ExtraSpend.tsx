@@ -4,9 +4,10 @@ import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { grossUp, usd } from '@/lib/money';
 import { AGENCY_COMMISSION_BPS } from '@/lib/extra-spend';
+import { fmtDay, weekdayShort } from '@/lib/period';
 import { saveExtraSpend } from '@/app/actions/days';
 import { Panel, PanelHead, Avatar } from './ui';
-import { IconTag } from './icons';
+import { IconTag, IconCalendar } from './icons';
 
 export type ExtraBuyer = { id: string; handle: string; initials: string; color: string; owner?: boolean };
 export type ExtraSeed = { buyerId: string; spend: string; note: string };
@@ -17,6 +18,16 @@ const toCents = (v: string) => {
 };
 
 const PCT = (AGENCY_COMMISSION_BPS / 100).toString().replace('.', ',');
+
+/**
+ * «31.08, пн» — день, в который уедет цифра. Календарь стоит наверху страницы,
+ * у отчёта; отсюда его не видно, а класть расход не в тот день — дорого. Дату
+ * поэтому пишем прямо в шапке таблицы, рядом с кнопкой сохранения.
+ */
+function dayLabel(iso: string) {
+  const d = new Date(`${iso}T00:00:00.000Z`);
+  return `${fmtDay(d)}, ${weekdayShort(d)}`;
+}
 
 /**
  * Доп. расходы за день — агентские кабинеты.
@@ -70,17 +81,21 @@ export default function ExtraSpend({
     [rows],
   );
 
-  // Овнеры считаются отдельным листом — в командное «Итого» их агентка не идёт.
+  // Овнеры считаются отдельным листом, в командное «Итого» их агентка не идёт.
+  // Но и молчать про неё нельзя: иначе вбитая овнеру сумма даёт «Итого $0» —
+  // выглядит как потерянная цифра. Поэтому считаем обе суммы и вторую
+  // показываем отдельной строкой.
   const totals = calc.reduce(
     (acc, r) => {
-      if (ownerSet.has(r.buyerId)) return { ...acc, filled: acc.filled + (r.touched ? 1 : 0) };
+      const owner = ownerSet.has(r.buyerId);
       return {
-        net: acc.net + r.spendNetCents,
-        gross: acc.gross + r.spendGrossCents,
+        net: acc.net + (owner ? 0 : r.spendNetCents),
+        gross: acc.gross + (owner ? 0 : r.spendGrossCents),
+        ownerGross: acc.ownerGross + (owner ? r.spendGrossCents : 0),
         filled: acc.filled + (r.touched ? 1 : 0),
       };
     },
-    { net: 0, gross: 0, filled: 0 },
+    { net: 0, gross: 0, ownerGross: 0, filled: 0 },
   );
 
   // Сохраняем и пустые строки тоже: так стёртая сумма доедет до сервера и
@@ -122,21 +137,31 @@ export default function ExtraSpend({
           </span>
         }
         right={
-          <button
-            type="button"
-            onClick={submit}
-            disabled={pending || locked || (totals.filled === 0 && !hadSaved)}
-            className="h-11 shrink-0 rounded-full bg-sage px-6 text-[13px] font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
-          >
-            {pending ? 'Сохраняем…' : `Сохранить · ${totals.filled}`}
-          </button>
+          <div className="flex flex-wrap items-center justify-end gap-2.5 sm:gap-3">
+            {/* Тот же день, что и у отчёта наверху: календарь там один на всю
+                страницу. Дату дублируем сюда, чтобы её было видно с кнопки. */}
+            <span className="flex h-11 shrink-0 items-center gap-2 rounded-full bg-amber-t px-4 text-[12.5px] text-amber">
+              <IconCalendar color="#d2a06a" size={14} />
+              <span className="n">{dayLabel(date)}</span>
+            </span>
+            <button
+              type="button"
+              onClick={submit}
+              disabled={pending || locked || (totals.filled === 0 && !hadSaved)}
+              className="h-11 shrink-0 rounded-full bg-sage px-6 text-[13px] font-semibold text-bg transition hover:opacity-90 disabled:opacity-40"
+            >
+              {pending ? 'Сохраняем…' : `Сохранить · ${totals.filled}`}
+            </button>
+          </div>
         }
       />
 
       <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
-        Сюда вбиваем то, что не приезжает из Brocard: пополнения агентских кабинетов. Синхронизация
-        эти строки не трогает — они целиком ручные. В профит, ROI и зарплату попадают наравне с
-        обычным расходом, только комиссия у них своя: {PCT}%, и больше никаких сверху.
+        Сюда вбиваем то, что не приезжает из Brocard: пополнения агентских кабинетов. Расход ляжет
+        на <span className="text-soft">{dayLabel(date)}</span> — тот же день, что и в отчёте выше,
+        он выбирается календарём в его шапке. Синхронизация эти строки не трогает: они целиком
+        ручные. В профит, ROI и зарплату попадают наравне с обычным расходом, только комиссия у них
+        своя: {PCT}%, и больше никаких сверху.
       </p>
 
       <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-visible sm:px-0">
@@ -188,6 +213,9 @@ export default function ExtraSpend({
           </span>
           <span className="text-[11.5px] text-mute">
             комиссия {usd(totals.gross - totals.net)}
+            {totals.ownerGross ? (
+              <span className="ml-2 text-amber">+ у овнеров {usd(totals.ownerGross)}</span>
+            ) : null}
           </span>
         </div>
       </div>
