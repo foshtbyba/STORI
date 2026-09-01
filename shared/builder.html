@@ -2540,8 +2540,10 @@ function showTab(t){
   else if(t==="cpreview"){out.style.display="none";prev.style.display="block";if(note)note.style.display="none";renderPreview("chest");}
   else{
     prev.style.display="none";out.style.display="block";
-    if(t==="src"){ out.readOnly=false; out.classList.add("edit"); if(note)note.style.display="block"; var src=getSource(); if(out.value!==src) out.value=src; }
-    else{ out.readOnly=true; out.classList.remove("edit"); if(note)note.style.display="none"; out.value=FILES[t]||""; }
+    // редактируемые вкладки исходника: «✎ исходник» и «index.html» (обе правят исходник ленда).
+    // call/error/chest — собранные файлы, только просмотр.
+    if(t==="src"||t==="index"){ out.readOnly=false; out.classList.add("edit"); if(note){note.style.display="block"; note.textContent="✎ Правь исходник ленда — правки применяются сразу (пересборка). Ищи по коду строкой поиска сверху.";} var src=getSource(); if(out.value!==src) out.value=src; }
+    else{ out.readOnly=true; out.classList.remove("edit"); if(note){ note.style.display="block"; note.textContent="🔒 Собранный файл — только просмотр. Чтобы править код ленда — вкладка «index.html» или «✎ исходник»."; } out.value=FILES[t]||""; }
   }
   // не трогаем выделение/скролл, если пользователь прямо сейчас редактирует код (пересборка не должна мешать)
   if(!isPrev && document.activeElement!==out) runFind("reset");
@@ -3181,7 +3183,7 @@ function enhanceSelect(sel){
   document.querySelectorAll(".dl button[data-f]").forEach(function(b){b.addEventListener("click",function(){if(!FILES.index)build();var f=b.dataset.f;dl(f+".html",FILES[f]);});});
   // правка исходника на вкладке «✎ исходник» — пишем обратно и пересобираем (не дёргая showTab, чтобы не сбросить текст)
   var _srcT; document.getElementById("out").addEventListener("input",function(){
-    if(currentTab!=="src") return;
+    if(currentTab!=="src" && currentTab!=="index") return;   // обе вкладки правят исходник ленда
     setSource(document.getElementById("out").value);
     clearTimeout(_srcT); _srcT=setTimeout(function(){ try{build();}catch(e){} },400);
   });
