@@ -1253,8 +1253,8 @@ const PARTNERS = {
          idLabel:"Campaign ID (campaign_id)", country:true, successPage:"success.html", errorPage:"error.html" },
     hint:"rocketprofit (как everad): форма постит в трекер rocketprofit через скрытый iframe, потом редирект на success.html. Нужен только Campaign ID (id потока); country_code — авто из «Код гео». subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." },
   "KMA.pro": { label:"KMA.pro", mode:"kma", native:true,
-    kma:{ subField:"data1" },
-    hint:"KMA: форма и скрипты KMA (cdnkma.biz) остаются как в рабочем ленде — offer_id/channel/landing/webmaster/цены НЕ трогаем. Конструктор только ловит subid в data1, вставляет Meta Pixel и back-fix, ставит язык. call/error/success не генерятся (у KMA свои). Загружай рабочий ленд KMA папкой." }
+    kma:{ subField:"data1", needFile:"api/success.php" },
+    hint:"KMA: форма постит на api/success.php — это файл-обработчик KMA из ОБЩЕГО архива, свой под каждый оффер. ОБЯЗАТЕЛЬНО загрузи его в поле выше — конструктор положит его в ленд (api/success.php). Форму/скрипты KMA не трогаем, ловим subid в data1, вставляем Meta Pixel и back-fix. Загружай рабочий ленд KMA папкой + файл api." }
 };
 
 /* ================= ДВИЖОК ЗАКАЗА ================= */
@@ -2165,18 +2165,20 @@ function handlerLoaded(){ return !!(UP_HANDLER && UP_HANDLER.bytes && UP_HANDLER
 function handlerEntry(name){ return {name:name, bytes:UP_HANDLER.bytes}; }
 // ВАЖНО: держим lemon.php только В ПАМЯТИ ТЕКУЩЕЙ СЕССИИ (не сохраняем на диск/localStorage).
 // В сессии не слетает (пересборка, смена папки), но при открытии нового файла билдера с нуля — просит загрузить заново.
+var HANDLER_NAME="lemon.php";   // имя требуемого файла-обработчика текущей партнёрки (lemon.php / api/success.php …)
 function renderHandlerState(){
   var drop=document.getElementById("handlerDrop"), t=document.getElementById("handlerDropT"),
       s=document.getElementById("handlerDropS"), clr=document.getElementById("handlerClear");
   if(!t) return;
+  var need=(HANDLER_NAME||"файл").split("/").pop();
   if(handlerLoaded()){
-    var nm=UP_HANDLER.orig||UP_HANDLER.name||"lemon.php";
+    var nm=UP_HANDLER.orig||UP_HANDLER.name||need;
     t.textContent="✓ "+nm+" добавлен";
-    if(s) s.textContent="нажми, чтобы заменить другим lemon.php";
+    if(s) s.textContent="нажми, чтобы заменить другим "+need;
     if(drop){ drop.style.borderColor="#a9d8bf"; drop.style.background="#f4faf6"; }   // мягкий зелёный
     if(clr) clr.style.display="flex";
   } else {
-    t.textContent="Загрузи lemon.php";
+    t.textContent="Загрузи "+need;
     if(s) s.textContent="свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся как есть.";
     if(drop){ drop.style.borderColor=""; drop.style.background=""; }
     if(clr) clr.style.display="none";
@@ -2185,6 +2187,8 @@ function renderHandlerState(){
 var TEXT_EXT=/\.(html?|css|js|json|svg|txt|xml|webmanifest|map)$/i;
 var IMG_EXT=/\.(png|jpe?g|webp|gif|svg|ico|avif|bmp)$/i;
 function baseName(p){return p.split("/").pop();}
+// совпадение файла папки с нужным обработчиком: по полному пути ИЛИ по имени файла (needFile может быть с подпапкой: api/success.php)
+function matchesNeedFile(path, needFile){ if(!needFile) return false; path=(path||"").toLowerCase(); needFile=needFile.toLowerCase(); return path===needFile || baseName(path)===baseName(needFile); }
 function mimeOf(p){var e=(p.split(".").pop()||"").toLowerCase();return {png:"image/png",jpg:"image/jpeg",jpeg:"image/jpeg",webp:"image/webp",gif:"image/gif",svg:"image/svg+xml",ico:"image/x-icon",avif:"image/avif",bmp:"image/bmp",css:"text/css",js:"application/javascript",mjs:"application/javascript",html:"text/html",htm:"text/html",json:"application/json",woff:"font/woff",woff2:"font/woff2",ttf:"font/ttf",otf:"font/otf",eot:"application/vnd.ms-fontobject"}[e]||"application/octet-stream";}
 async function ingest(items){ // items:[{file, rel}] где rel = "folder/sub/file"
   if(!items||!items.length) return null;
@@ -2367,7 +2371,7 @@ function readCfg(){
     phpGen:php?php.gen:"",subField:php?php.subField:(ev?ev.subField:(kma?kma.subField:"")),phpCountry:!!(php&&php.country),phpLanding:!!(php&&php.landing),phpStream:!!(php&&php.stream),
     phpAction:php?(php.action||"order.php"):"",phpNoId:!!(php&&php.noId),mainExt:php?(php.mainExt||"html"):"html",phpExtraHidden:php?(php.extraHidden||""):"",
     evAction:ev?ev.action:"",evPxField:ev?ev.pxField:"",evCampaign:val("product_id"),
-    needFile:php?(php.needFile||""):"",successName:(php&&php.successPage)||(ev&&ev.successPage)||"call.html",errorName:(php&&php.errorPage)||(ev&&ev.errorPage)||"error.html",pageGen:php?(php.pageGen||""):"",
+    needFile:php?(php.needFile||""):(kma?(kma.needFile||""):""),successName:(php&&php.successPage)||(ev&&ev.successPage)||"call.html",errorName:(php&&php.errorPage)||(ev&&ev.errorPage)||"error.html",pageGen:php?(php.pageGen||""):"",
     endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
@@ -2402,7 +2406,7 @@ function build(){
   }
   FILES.orderphp=(cfg.mode==="php" && cfg.phpGen)?orderPhpFor(cfg):"";   // limonad handler (lemon.php) не генерим — он из архива оффера
   // проверка обязательного внешнего файла-обработчика (lemon.php для limonad): в папке ИЛИ загружен отдельно
-  var inFolder=MODE==="folder" && FOLDER && FOLDER.files.some(function(f){return baseName(f.path).toLowerCase()===cfg.needFile.toLowerCase();});
+  var inFolder=MODE==="folder" && FOLDER && FOLDER.files.some(function(f){return matchesNeedFile(f.path, cfg.needFile);});
   var needFileMissing=cfg.needFile && !inFolder && !handlerLoaded();
   if(miss.length){st.className="status warn";st.textContent="Заполни обязательные: "+miss.join(", ");}
   else if(needFileMissing){st.className="status warn";st.textContent="⚠ Нет "+cfg.needFile+"! Загрузи его в поле выше (🍋) или положи в папку ленда — бери из архива ИМЕННО этого оффера. Без него лид не уйдёт.";}
@@ -2654,7 +2658,7 @@ function downloadZip(){
       if(b===errn){had.error=1;return {name:x.path,str:cfg.repCallErr?FILES.error:x.str};}
       if(b==="ywbackfix.js"){had.yw=1;return {name:x.path,str:YWBACKFIX_JS};}
       if(genPhp&&b==="order.php"){had.php=1;return {name:x.path,str:FILES.orderphp};}   // патчим свой order.php (shakes/hamsters)
-      if(nf&&b===nf){had.handler=1;return handlerLoaded()?handlerEntry(x.path):(x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes});}   // lemon.php: загруженный (сырые байты) или из папки как есть
+      if(nf&&matchesNeedFile(x.path,nf)){had.handler=1;return handlerLoaded()?handlerEntry(x.path):(x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes});}   // lemon.php / api/success.php: загруженный (сырые байты) или из папки как есть
       return x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes};
     });
     // страницы success/error ОБЯЗАНЫ существовать — это цель редиректа lemon.php/order.php/ENGINE. Если в папке их нет — добавляем всегда (иначе после отправки белый экран).
@@ -2693,7 +2697,7 @@ function downloadChestZip(){
       if(baseName(f.path).toLowerCase()==="ywbackfix.js") return;  // back-fix в сундук не тащим
       if(cfg.mode==="php" && baseName(f.path).toLowerCase()==="order.php") return;  // свой order.php уже добавлен
       if(pres[f.path]) return;
-      if(nf && baseName(f.path).toLowerCase()===nf){ hadHandler=true; out.push(handlerLoaded()?handlerEntry(f.path):(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes})); return; }  // lemon.php: как есть (сырые байты / файл из папки)
+      if(nf && matchesNeedFile(f.path,nf)){ hadHandler=true; out.push(handlerLoaded()?handlerEntry(f.path):(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes})); return; }  // lemon.php / api/success.php: как есть
       if(isForeignHandler(baseName(f.path), cfg)) return;   // чужой обработчик (lemon.php при everad и т.п.) — не тащим в сундук
       out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes});
     });
@@ -2789,7 +2793,9 @@ function enhanceSelect(sel){
     document.getElementById("apiKeyWrap").style.display=manual?"block":"none";
     document.getElementById("countryWrap").style.display=needCountry?"block":"none";
     document.getElementById("phpFields").style.display=(needLanding||needStream)?"block":"none";
-    document.getElementById("handlerFields").style.display=(php&&php.needFile)?"block":"none";   // limonad: загрузка lemon.php
+    var needF=(php&&php.needFile)||(pk.kma&&pk.kma.needFile)||"";   // limonad: lemon.php; KMA: api/success.php
+    document.getElementById("handlerFields").style.display=needF?"block":"none";
+    if(needF){ HANDLER_NAME=needF; var hl=document.getElementById("handlerLabel"); if(hl) hl.textContent="Файл-обработчик ("+needF+") *"; try{ renderHandlerState(); }catch(e){} }
     document.getElementById("pidWrap").style.display=(isKma||(php&&php.noId))?"none":"block";   // KMA/limonad: id оффера не нужен (он в ленде/lemon.php); everad: нужен campaign_id
     // если в правой ячейке ряда ничего не показано (m1/hamsters) — «Код гео» на всю ширину, без пустого места
     var cellUsed=manual||needCountry;
