@@ -141,6 +141,24 @@ export default async function OffersPage({
             const previewSrc = previewFile
               ? `/api/offer-file/${previewFile.id}?w=560`
               : offer.previewUrl;
+            // Показываем только непустые списки исключений. Пустая плашка «нет»
+            // рядом с заполненной — просто шум, а две пустых подряд занимают
+            // треть карточки и не говорят ничего: на такой случай хватает одной
+            // строки «исключений нет».
+            const banBoxes = [
+              {
+                key: 'bans',
+                title: 'Регионы-исключения',
+                label: 'копировать регионы',
+                items: parseGeos(offer.bansJson),
+              },
+              {
+                key: 'cities',
+                title: 'Города-исключения',
+                label: 'копировать города',
+                items: parseGeos(offer.citiesJson),
+              },
+            ].filter((box) => box.items.length > 0);
             return (
               <Panel key={offer.id} className="flex flex-col gap-4 p-3.5">
                 <div className="relative flex h-[168px] items-center justify-center overflow-hidden rounded-[18px] bg-sub">
@@ -191,29 +209,33 @@ export default async function OffersPage({
                 </div>
 
                 {/*
-                  Исключения: регионы и города — двумя списками, у каждого своя
-                  кнопка. Вводят их через запятую, а кабинет ждёт построчно, и
+                  Исключения: регионы и города — своим списком и своей кнопкой.
+                  Вводят их через запятую, а кабинет ждёт построчно, и
                   раскладывать это руками в блокноте на каждый запуск — ровно та
                   работа, которую должна делать кнопка.
                 */}
-                {[
-                  { key: 'bans', title: 'Регионы-исключения', label: 'копировать регионы', items: parseGeos(offer.bansJson) },
-                  { key: 'cities', title: 'Города-исключения', label: 'копировать города', items: parseGeos(offer.citiesJson) },
-                ].map((box) => (
+                {banBoxes.length === 0 ? (
+                  <div className="rounded-[18px] bg-sub px-4 py-3.5 text-[12px] text-mute">
+                    Исключений нет
+                  </div>
+                ) : null}
+                {banBoxes.map((box) => (
                   <div key={box.key} className="rounded-[18px] bg-sub px-4 py-3.5">
-                    <div className="mb-2.5 flex items-center justify-between gap-2">
+                    <div className="mb-1.5 flex items-center justify-between gap-2">
                       <span className="lab text-rust">{box.title}</span>
                       {team ? (
                         <CopyList items={box.items} label={box.label} title={box.title} />
                       ) : null}
                     </div>
                     {/*
-                      Короткое исключение — «таблетка», как гео. Но сюда порой
-                      вставляют целый абзац со списком городов: круглые бока
-                      вокруг восьми строк текста превращаются в кляксу. Длинное
-                      кладём строкой во всю ширину и с обычными углами.
+                      Список свёрнут целиком: исключений бывает под сотню, и
+                      развёрнутыми они топят карточку — а читают их редко, чаще
+                      просто копируют кнопкой. Короткое исключение внутри —
+                      «таблетка», как гео; длинное кладём строкой во всю ширину
+                      и с обычными углами, иначе круглые бока вокруг абзаца
+                      превращаются в кляксу.
                     */}
-                    <Clamp collapsedPx={52}>
+                    <Clamp collapsedPx={0} moreLabel="показать исключения">
                       <div className="flex flex-wrap gap-1.5">
                         {box.items.map((ban) => (
                           <span
@@ -227,7 +249,6 @@ export default async function OffersPage({
                             {ban}
                           </span>
                         ))}
-                        {box.items.length === 0 ? <span className="text-[12px] text-mute">нет</span> : null}
                       </div>
                     </Clamp>
                   </div>
