@@ -1251,7 +1251,10 @@ const PARTNERS = {
   "rocketprofit.com": { label:"rocketprofit.com", mode:"everad",
     ev:{ action:"https://tracker.rocketprofit.com/conversion/new", subField:"sid5", pxField:"sid1",
          idLabel:"Campaign ID (campaign_id)", country:true, successPage:"success.html", errorPage:"error.html" },
-    hint:"rocketprofit (как everad): форма постит в трекер rocketprofit через скрытый iframe, потом редирект на success.html. Нужен только Campaign ID (id потока); country_code — авто из «Код гео». subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." }
+    hint:"rocketprofit (как everad): форма постит в трекер rocketprofit через скрытый iframe, потом редирект на success.html. Нужен только Campaign ID (id потока); country_code — авто из «Код гео». subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." },
+  "KMA.pro": { label:"KMA.pro", mode:"kma", native:true,
+    kma:{ subField:"data1" },
+    hint:"KMA: форма и скрипты KMA (cdnkma.biz) остаются как в рабочем ленде — offer_id/channel/landing/webmaster/цены НЕ трогаем. Конструктор только ловит subid в data1, вставляет Meta Pixel и back-fix, ставит язык. call/error/success не генерятся (у KMA свои). Загружай рабочий ленд KMA папкой." }
 };
 
 /* ================= ДВИЖОК ЗАКАЗА ================= */
@@ -1860,6 +1863,12 @@ function patchHtml(cfg, html){
     var etail=everadTail(cfg);
     var eyw=backfixBlock(cfg); if(eyw) etail+="\n"+eyw;
     if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,etail+"\n</body>"); else html+="\n"+etail;
+  } else if(cfg.mode==="kma"){
+    // KMA: форму и скрипты KMA (cdnkma.biz) НЕ трогаем — они сами шлют лид. Только ловим subid в data1 (+ back-fix).
+    if(!cfg.backfix){ var kbf=html.match(/<script\b[^>]*ywbackfix\.js[^>]*data-links=['"]\s*\[\s*"([^"]+)"/i); if(kbf) cfg.backfix=kbf[1]; }
+    var ktail=phpSubidScript(cfg);   // subField=data1 -> заполняем из URL ?s/?subid или keitaro
+    var kyw=backfixBlock(cfg); if(kyw) ktail+="\n"+kyw;
+    if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,ktail+"\n</body>"); else html+="\n"+ktail;
   } else {
     if(cfg.autofix){
       html=html.replace(/<form\b(?![^>]*data-order-form)([^>]*)>/i,'<form data-order-form$1>');
@@ -2353,9 +2362,9 @@ function wirePagePick(id,slot,label){
 }
 function val(id){return document.getElementById(id).value.trim();}
 function readCfg(){
-  var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value, php=pk.php||null, ev=pk.ev||null;
-  return {mode:php?"php":(ev?"everad":(pk.mode||"js")),partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
-    phpGen:php?php.gen:"",subField:php?php.subField:(ev?ev.subField:""),phpCountry:!!(php&&php.country),phpLanding:!!(php&&php.landing),phpStream:!!(php&&php.stream),
+  var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value, php=pk.php||null, ev=pk.ev||null, kma=pk.kma||null;
+  return {mode:php?"php":(ev?"everad":(kma?"kma":(pk.mode||"js"))),native:!!pk.native,partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
+    phpGen:php?php.gen:"",subField:php?php.subField:(ev?ev.subField:(kma?kma.subField:"")),phpCountry:!!(php&&php.country),phpLanding:!!(php&&php.landing),phpStream:!!(php&&php.stream),
     phpAction:php?(php.action||"order.php"):"",phpNoId:!!(php&&php.noId),mainExt:php?(php.mainExt||"html"):"html",phpExtraHidden:php?(php.extraHidden||""):"",
     evAction:ev?ev.action:"",evPxField:ev?ev.pxField:"",evCampaign:val("product_id"),
     needFile:php?(php.needFile||""):"",successName:(php&&php.successPage)||(ev&&ev.successPage)||"call.html",errorName:(php&&php.errorPage)||(ev&&ev.errorPage)||"error.html",pageGen:php?(php.pageGen||""):"",
@@ -2376,6 +2385,7 @@ function build(){
   var need;
   if(cfg.mode==="php"){ need=[]; if(!cfg.phpNoId)need.push("product_id"); if(cfg.phpCountry)need.push("country"); if(cfg.phpLanding)need.push("landingUrl"); }
   else if(cfg.mode==="everad"){ need=["product_id","langCode"]; }   // campaign_id + гео; country_code авто из гео
+  else if(cfg.mode==="kma"){ need=[]; }   // KMA: всё в рабочем ленде (offer_id/channel/landing/webmaster) — поля не нужны
   else need=["product_id","ref","api_key","langCode"];
   var miss=need.filter(function(k){return !cfg[k];});
   if(cfg.pxOn && !cfg.pxid) { /* динамический пиксель — норм */ }
@@ -2631,10 +2641,11 @@ function downloadZip(){
       if(REMOVE[x.path]) return false;
       if(cfg.makeChest && baseName(x.path).toLowerCase()==="chest.html") return false; // сундук уходит в свой zip
       var b=baseName(x.path).toLowerCase();
-      // лишние старые спасибо/ошибка (не активные success/error партнёрки) — выкидываем, чтобы не засоряли папку
-      if(x.path!==FOLDER.indexPath && isSuccErrPage(b) && b!==succL && b!==errL) return false;
+      // лишние старые спасибо/ошибка (не активные success/error партнёрки) — выкидываем, чтобы не засоряли папку.
+      // для нативных партнёрок (KMA) НЕ трогаем — у них свои success.php и т.п.
+      if(!cfg.native && x.path!==FOLDER.indexPath && isSuccErrPage(b) && b!==succL && b!==errL) return false;
       // чужой серверный обработчик (напр. lemon.php при everad/rocketprofit/m1) — выкидываем
-      if(isForeignHandler(b, cfg)) return false;
+      if(!cfg.native && isForeignHandler(b, cfg)) return false;
       return true;
     }).map(function(x){
       var b=baseName(x.path).toLowerCase(), succ=cfg.successName.toLowerCase(), errn=cfg.errorName.toLowerCase(), nf=(cfg.needFile||"").toLowerCase();
@@ -2646,9 +2657,10 @@ function downloadZip(){
       if(nf&&b===nf){had.handler=1;return handlerLoaded()?handlerEntry(x.path):(x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes});}   // lemon.php: загруженный (сырые байты) или из папки как есть
       return x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes};
     });
-    // страницы success/error ОБЯЗАНЫ существовать — это цель редиректа lemon.php/order.php/ENGINE. Если в папке их нет — добавляем всегда (иначе после отправки белый экран)
-    if(!had.call)  out.push({name:cfg.successName,str:FILES.call});
-    if(!had.error) out.push({name:cfg.errorName,str:FILES.error});
+    // страницы success/error ОБЯЗАНЫ существовать — это цель редиректа lemon.php/order.php/ENGINE. Если в папке их нет — добавляем всегда (иначе после отправки белый экран).
+    // KMA (native) — свои success/error, не генерим/не добавляем.
+    if(!cfg.native && !had.call)  out.push({name:cfg.successName,str:FILES.call});
+    if(!cfg.native && !had.error) out.push({name:cfg.errorName,str:FILES.error});
     if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});
     if(genPhp&&!had.php) out.push({name:"order.php",str:FILES.orderphp});
     if(cfg.needFile&&handlerLoaded()&&!had.handler) out.push(handlerEntry(cfg.needFile));
@@ -2761,7 +2773,7 @@ function enhanceSelect(sel){
   var sel=document.getElementById("partner");
   Object.keys(PARTNERS).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PARTNERS[k].label;sel.appendChild(o);});
   function applyPartner(){
-    var pk=PARTNERS[sel.value], php=pk.php||null, ev=pk.ev||null, isPhp=!!php || pk.mode==="php", isEverad=!!ev || pk.mode==="everad";
+    var pk=PARTNERS[sel.value], php=pk.php||null, ev=pk.ev||null, isPhp=!!php || pk.mode==="php", isEverad=!!ev || pk.mode==="everad", isKma=pk.mode==="kma";
     document.getElementById("partnerHint").textContent=pk.hint;
     var refEl=document.getElementById("ref"), keyEl=document.getElementById("api_key");
     [["ref",refEl],["api_key",keyEl]].forEach(function(pair){
@@ -2772,13 +2784,13 @@ function enhanceSelect(sel){
     var needCountry=!!(php&&php.country)||!!(ev&&ev.country), needLanding=!!(php&&php.landing), needStream=!!(php&&php.stream);
     var hasFixedKeys=(pk.api_key!=null&&pk.api_key!=="")||(pk.ref!=null&&pk.ref!=="");   // закреплённые ключи (m1)
     // ref/api_key показываем ТОЛЬКО когда их надо вводить вручную (custom); у m1/everad они не нужны -> скрыты
-    var manual=(!isPhp && !isEverad && !hasFixedKeys);
+    var manual=(!isPhp && !isEverad && !isKma && !hasFixedKeys);
     document.getElementById("refWrap").style.display=manual?"block":"none";
     document.getElementById("apiKeyWrap").style.display=manual?"block":"none";
     document.getElementById("countryWrap").style.display=needCountry?"block":"none";
     document.getElementById("phpFields").style.display=(needLanding||needStream)?"block":"none";
     document.getElementById("handlerFields").style.display=(php&&php.needFile)?"block":"none";   // limonad: загрузка lemon.php
-    document.getElementById("pidWrap").style.display=(php&&php.noId)?"none":"block";   // limonad: id оффера не нужен (он в lemon.php); everad: нужен campaign_id
+    document.getElementById("pidWrap").style.display=(isKma||(php&&php.noId))?"none":"block";   // KMA/limonad: id оффера не нужен (он в ленде/lemon.php); everad: нужен campaign_id
     // если в правой ячейке ряда ничего не показано (m1/hamsters) — «Код гео» на всю ширину, без пустого места
     var cellUsed=manual||needCountry;
     document.getElementById("partnerCell").style.display=cellUsed?"":"none";
