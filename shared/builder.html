@@ -2726,10 +2726,9 @@ function downloadZip(){
     if(cfg.kmaApi){
       var present={}; out.forEach(function(f){ present[(f.name||"").toLowerCase()]=1; });
       if(KMA_API&&KMA_API.files) KMA_API.files.forEach(function(f){ var low=f.path.toLowerCase(); if(present[low]) return; out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes}); present[low]=1; });
-      var tplSucc=kmaTplSuccessPhp(cfg), tplErr=kmaTplErrorPhp(cfg);
-      var setTpl=function(re,content){ var found=false; out.forEach(function(f){ if(re.test(f.name||"")){ f.str=content; delete f.bytes; found=true; } }); return found; };
-      var hasSucc=setTpl(/(^|\/)api\/template\/success\.php$/i, tplSucc);
-      setTpl(/(^|\/)api\/template\/error\.php$/i, tplErr);
+      // ТОЛЬКО дизайн success: меняем api/template/success.php на наш; всё остальное в api/ — как есть
+      var tplSucc=kmaTplSuccessPhp(cfg), hasSucc=false;
+      out.forEach(function(f){ if(/(^|\/)api\/template\/success\.php$/i.test(f.name||"")){ f.str=tplSucc; delete f.bytes; hasSucc=true; } });
       if(!hasSucc) out.push({name:"api/template/success.php",str:tplSucc});
     }
     dl(zipName(cfg),makeZip(out),"application/zip");
@@ -2985,7 +2984,20 @@ function enhanceSelect(sel){
   renderHandlerState();   // стартовое состояние (в новой сессии lemon.php не загружен -> просит загрузить)
   // KMA: загрузка папки api (файл-инпут webkitdirectory + drag-drop)
   async function loadKmaApi(items){
-    try{ var res=await ingest(items); KMA_API={files:res.files}; renderKmaApi(); try{build();}catch(_){} }
+    try{
+      // читаем как есть, СОХРАНЯЯ структуру внутри api/ (ingest срезал бы верхнюю папку -> файлы улетали в корень)
+      var TXT=/\.(php|html?|css|js|mjs|json|svg|txt|xml|md|map|ini|conf|htaccess|webmanifest)$/i;
+      var files=[];
+      for(var i=0;i<items.length;i++){
+        var it=items[i], rel=(it.rel||(it.file&&it.file.name)||"").replace(/\\/g,"/");
+        var parts=rel.split("/"); if(parts.length>1) parts.shift();   // убираем ИМЯ выбранной папки (api/…)
+        var path="api/"+parts.join("/");
+        var f=it.file; if(!f) continue;
+        if(TXT.test(rel)) files.push({path:path, kind:"text", str:await f.text()});
+        else files.push({path:path, kind:"bin", bytes:new Uint8Array(await f.arrayBuffer())});
+      }
+      KMA_API={files:files}; renderKmaApi(); try{build();}catch(_){}
+    }
     catch(e){ var st=document.getElementById("status"); if(st){st.className="status warn";st.textContent="Ошибка чтения папки api: "+e.message;} }
   }
   var kfi=document.getElementById("kmaApiFolder");
