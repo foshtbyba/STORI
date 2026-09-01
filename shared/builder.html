@@ -585,7 +585,16 @@
           <div class="s" id="handlerDropS">свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся как есть.</div>
           <input id="handlerFile" type="file" accept=".php">
         </label>
-        <div class="hint">⚠ <b>lemon.php у каждого оффера свой</b> (внутри его OFFER_ID и токен). Загружай новый под каждый оффер. Файл кладётся в сборку <b>без изменений</b>. success.php/error.php генерятся сами.</div>
+        <div class="hint" id="handlerHint">⚠ <b>lemon.php у каждого оффера свой</b> (внутри его OFFER_ID и токен). Загружай новый под каждый оффер. Файл кладётся в сборку <b>без изменений</b>. success.php/error.php генерятся сами.</div>
+        <label class="drop" for="kmaApiFolder" id="kmaApiDrop" style="display:none;padding:14px;position:relative">
+          <b class="x" id="kmaApiClear" title="Убрать папку" style="position:absolute;top:8px;right:10px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.32);color:#fff;font-size:12px;display:none;align-items:center;justify-content:center;line-height:1;cursor:pointer;z-index:2">✕</b>
+          <div class="ic">🗂</div>
+          <div class="t" id="kmaApiDropT">Загрузи папку api (KMA)</div>
+          <div class="s">из общего архива KMA: config.php, KmaLead.php, custom.min.js, css/, img/… — вся папка api целиком. success.php заменим на наш.</div>
+          <input id="kmaApiFolder" type="file" webkitdirectory directory multiple>
+        </label>
+        <div class="filelist" id="kmaApiList" style="display:none"></div>
+        <div class="hint" id="kmaApiHint" style="display:none">⚠ Папка <b>api</b> у KMA своя под оффер (внутри config.php с токеном/каналом). Кладётся в ленд как <code>api/</code>, а <code>api/success.php</code> заменяется на наш дизайн (переведённый + пиксель).</div>
       </div>
       <div id="apiKeyWrap">
         <label>API-ключ вебмастера (api_key) 🔒</label>
@@ -1253,8 +1262,8 @@ const PARTNERS = {
          idLabel:"Campaign ID (campaign_id)", country:true, successPage:"success.html", errorPage:"error.html" },
     hint:"rocketprofit (как everad): форма постит в трекер rocketprofit через скрытый iframe, потом редирект на success.html. Нужен только Campaign ID (id потока); country_code — авто из «Код гео». subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." },
   "KMA.pro": { label:"KMA.pro", mode:"kma", native:true,
-    kma:{ subField:"data1", needFile:"api/success.php" },
-    hint:"KMA: форма постит на api/success.php — это файл-обработчик KMA из ОБЩЕГО архива, свой под каждый оффер. ОБЯЗАТЕЛЬНО загрузи его в поле выше — конструктор положит его в ленд (api/success.php). Форму/скрипты KMA не трогаем, ловим subid в data1, вставляем Meta Pixel и back-fix. Загружай рабочий ленд KMA папкой + файл api." }
+    kma:{ subField:"data1", apiFolder:true, successFile:"success.php" },
+    hint:"KMA: нужна ПАПКА api из общего архива KMA (config.php, custom.min.js, KmaLead.php, success.php…) — ОБЯЗАТЕЛЬНО загрузи её в поле выше, конструктор положит её в ленд как api/. Файл api/success.php заменяется на наш (переведённый + пиксель). Форму/скрипты KMA не трогаем, ловим subid в data1, вставляем Meta Pixel и back-fix." }
 };
 
 /* ================= ДВИЖОК ЗАКАЗА ================= */
@@ -1686,6 +1695,42 @@ function limonadErrorPhp(cfg){
 (img?'  <img class="prod" src="'+img+'" alt="'+esc(cfg.brand)+'" loading="lazy">\n':'')+
 '  <h1>'+esc(t.errt)+'</h1>\n  <p>'+esc(t.el1)+'</p>\n  <p class="muted">'+esc(t.el2)+'</p>\n'+
 '  <button class="retry" onclick="history.back()">'+esc(t.retry)+'</button>\n</div>\n</body>\n</html>\n';
+}
+// KMA: свой api/success.php — сохраняем логику отправки лида KMA (KmaLead), но дизайн НАШ (переведённый, с пикселем)
+function kmaSuccessPhp(cfg){
+  var t=cfg.t, dir=t.rtl?' dir="rtl"':'', img=pageImg(cfg,"success");
+  var php="<?php\n"+
+"require_once __DIR__ . '/config.php';\n"+
+"require_once __DIR__ . '/KmaLead.php';\n"+
+"$name=isset($_POST['name'])?trim($_POST['name']):'';\n"+
+"$phone=isset($_POST['phone'])?trim($_POST['phone']):'';\n"+
+"$country=isset($_POST['country'])?trim($_POST['country']):'';\n"+
+"$lang=isset($_POST['language'])?trim($_POST['language']):'"+cfg.langCode+"';\n"+
+"$subid=isset($_POST['subid'])?trim($_POST['subid']):'';\n"+
+"$data1=isset($_POST['data1'])?trim($_POST['data1']):'';\n"+
+"$lead_sent=false;\n"+
+"if($name && $phone){\n"+
+"  $kma=new KmaLead(KMA_ACCESS_TOKEN); $kma->debug=false;\n"+
+"  $data=array('name'=>$name,'phone'=>$phone,'ip'=>$kma->getIp(),'country'=>$country,'language'=>$lang,'channel'=>KMA_CHANNEL);\n"+
+"  if($data1) $data['data1']=$data1; if($subid) $data['subid']=$subid;\n"+
+"  $raw=$kma->addLeadAndReturnPage($data);\n"+
+"  if($raw){ $r=json_decode($raw,true); if(isset($r['order'])) $lead_sent=true; }\n"+
+"}\n"+
+"?>\n";
+  return php+
+'<!DOCTYPE html>\n<html lang="'+cfg.langCode+'"'+dir+'>\n<head>\n<meta charset="utf-8">\n<title>'+esc(cfg.brand)+'</title>\n'+
+'<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<meta name="robots" content="noindex, nofollow">\n'+
+'<style>'+THANKS_CSS+'</style>\n</head>\n<body>\n'+
+'<?php if($lead_sent): ?>\n'+
+'<div class="card">\n  <div class="ic ok"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 8 16-16"/></svg></div>\n'+
+(img?'  <img class="prod" src="'+img+'" alt="'+esc(cfg.brand)+'" loading="lazy">\n':'')+
+'  <h1>'+esc(t.thanks)+'</h1>\n'+
+'  <p><?php if($name): ?><b><?php echo htmlspecialchars($name, ENT_QUOTES, "UTF-8"); ?></b> — <?php endif; ?>'+esc(t.tl1)+'</p>\n'+
+'  <p class="muted">'+esc(t.tl2)+'</p>\n'+limonadPixel(cfg)+'\n</div>\n'+
+'<?php else: ?>\n'+
+'<div class="card err">\n  <div class="ic err"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M26 15v16"/><path d="M26 37l.02 0"/></svg></div>\n'+
+'  <h1>'+esc(t.errt)+'</h1>\n  <p>'+esc(t.el1)+'</p>\n  <button class="retry" onclick="history.back()">'+esc(t.retry)+'</button>\n</div>\n'+
+'<?php endif; ?>\n</body>\n</html>\n';
 }
 // страницы спасибо/ошибки: для limonad — свои .php-генераторы, иначе обычные call/error
 function successFile(cfg){ return cfg.pageGen==="limonad"?limonadSuccessPhp(cfg):buildCall(cfg); }
@@ -2160,6 +2205,7 @@ function makeZip(files){
 var FOLDER=null;
 var CHEST_FOLDER=null;
 var UP_HANDLER={name:"",bytes:null,str:""};   // загруженный обработчик (lemon.php) — храним СЫРЫЕ байты, кладём как есть
+var KMA_API=null;   // загруженная папка api KMA: {files:[{path,kind,str/bytes}]} — кладётся в ленд как api/, success.php заменяем нашим
 function handlerLoaded(){ return !!(UP_HANDLER && UP_HANDLER.bytes && UP_HANDLER.bytes.length); }
 // zip-элемент обработчика: всегда сырые байты (без единой правки)
 function handlerEntry(name){ return {name:name, bytes:UP_HANDLER.bytes}; }
@@ -2182,6 +2228,23 @@ function renderHandlerState(){
     if(s) s.textContent="свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся как есть.";
     if(drop){ drop.style.borderColor=""; drop.style.background=""; }
     if(clr) clr.style.display="none";
+  }
+}
+function renderKmaApi(){
+  var drop=document.getElementById("kmaApiDrop"), t=document.getElementById("kmaApiDropT"),
+      clr=document.getElementById("kmaApiClear"), list=document.getElementById("kmaApiList");
+  if(!t) return;
+  var loaded=!!(KMA_API && KMA_API.files && KMA_API.files.length);
+  if(loaded){
+    t.textContent="✓ папка api загружена · "+KMA_API.files.length+" файлов";
+    if(drop){ drop.style.borderColor="#a9d8bf"; drop.style.background="#f4faf6"; }
+    if(clr) clr.style.display="flex";
+    if(list){ list.style.display="block"; list.innerHTML=KMA_API.files.slice(0,50).map(function(f){ var main=/(^|\/)success\.php$/i.test(f.path); return '<div><span>'+esc(f.path)+'</span>'+(main?'<span class="tag">→ наш дизайн</span>':'')+'</div>'; }).join(""); }
+  } else {
+    t.textContent="Загрузи папку api (KMA)";
+    if(drop){ drop.style.borderColor=""; drop.style.background=""; }
+    if(clr) clr.style.display="none";
+    if(list){ list.style.display="none"; list.innerHTML=""; }
   }
 }
 var TEXT_EXT=/\.(html?|css|js|json|svg|txt|xml|webmanifest|map)$/i;
@@ -2370,7 +2433,7 @@ function readCfg(){
   return {mode:php?"php":(ev?"everad":(kma?"kma":(pk.mode||"js"))),native:!!pk.native,partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
     phpGen:php?php.gen:"",subField:php?php.subField:(ev?ev.subField:(kma?kma.subField:"")),phpCountry:!!(php&&php.country),phpLanding:!!(php&&php.landing),phpStream:!!(php&&php.stream),
     phpAction:php?(php.action||"order.php"):"",phpNoId:!!(php&&php.noId),mainExt:php?(php.mainExt||"html"):"html",phpExtraHidden:php?(php.extraHidden||""):"",
-    evAction:ev?ev.action:"",evPxField:ev?ev.pxField:"",evCampaign:val("product_id"),
+    evAction:ev?ev.action:"",evPxField:ev?ev.pxField:"",evCampaign:val("product_id"),kmaApi:!!(kma&&kma.apiFolder),
     needFile:php?(php.needFile||""):(kma?(kma.needFile||""):""),successName:(php&&php.successPage)||(ev&&ev.successPage)||"call.html",errorName:(php&&php.errorPage)||(ev&&ev.errorPage)||"error.html",pageGen:php?(php.pageGen||""):"",
     endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
@@ -2408,8 +2471,13 @@ function build(){
   // проверка обязательного внешнего файла-обработчика (lemon.php для limonad): в папке ИЛИ загружен отдельно
   var inFolder=MODE==="folder" && FOLDER && FOLDER.files.some(function(f){return matchesNeedFile(f.path, cfg.needFile);});
   var needFileMissing=cfg.needFile && !inFolder && !handlerLoaded();
+  // KMA: нужна папка api (загружена отдельно ИЛИ уже лежит в папке ленда)
+  var kmaApiInFolder=MODE==="folder" && FOLDER && FOLDER.files.some(function(f){return /(^|\/)api\/(success\.php|config\.php|kmalead\.php)$/i.test(f.path);});
+  var kmaApiLoaded=!!(KMA_API && KMA_API.files && KMA_API.files.length);
+  var kmaApiMissing=cfg.kmaApi && !kmaApiLoaded && !kmaApiInFolder;
   if(miss.length){st.className="status warn";st.textContent="Заполни обязательные: "+miss.join(", ");}
   else if(needFileMissing){st.className="status warn";st.textContent="⚠ Нет "+cfg.needFile+"! Загрузи его в поле выше (🍋) или положи в папку ленда — бери из архива ИМЕННО этого оффера. Без него лид не уйдёт.";}
+  else if(kmaApiMissing){st.className="status warn";st.textContent="⚠ Нет папки api (KMA)! Загрузи её в поле выше — из общего архива KMA (config.php/KmaLead.php/success.php…). Без неё лид не уйдёт.";}
   else{st.className="status ok";st.textContent=(MODE==="folder"?"Готово ✓ Папка: index пропатчен, call/error заменены":"Готово ✓")+(cfg.pxOn?" · Meta Pixel вставлен ("+(cfg.pxid||"динамический {fbpx}")+", конверсия "+cfg.pxev+")":"")+(cfg.needFile?(" · "+cfg.needFile+" на месте ✓"):"");}
   showTab(currentTab);
 }
@@ -2668,6 +2736,17 @@ function downloadZip(){
     if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});
     if(genPhp&&!had.php) out.push({name:"order.php",str:FILES.orderphp});
     if(cfg.needFile&&handlerLoaded()&&!had.handler) out.push(handlerEntry(cfg.needFile));
+    // KMA: папка api из архива KMA (config/KmaLead/custom.min.js/…), а api/success.php заменяем НАШИМ дизайном
+    if(cfg.kmaApi){
+      var kmaSucc=kmaSuccessPhp(cfg), hasApiSucc=false, present={};
+      out.forEach(function(f){ var n=(f.name||""); present[n.toLowerCase()]=1; if(/(^|\/)api\/success\.php$/i.test(n)){ f.str=kmaSucc; delete f.bytes; hasApiSucc=true; } });   // api уже была в папке ленда -> подменяем success.php
+      if(KMA_API&&KMA_API.files) KMA_API.files.forEach(function(f){
+        var p=f.path, low=p.toLowerCase();
+        if(/(^|\/)success\.php$/i.test(p)){ if(!hasApiSucc && !present[low]){ out.push({name:p,str:kmaSucc}); present[low]=1; hasApiSucc=true; } return; }
+        if(present[low]) return;
+        out.push(f.kind==="text"?{name:p,str:f.str}:{name:p,bytes:f.bytes}); present[low]=1;
+      });
+    }
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
     var files=[{name:cfg.mainExt==="php"?"index.php":"index.html",str:FILES.index},{name:cfg.successName,str:FILES.call},{name:cfg.errorName,str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}];
@@ -2793,9 +2872,16 @@ function enhanceSelect(sel){
     document.getElementById("apiKeyWrap").style.display=manual?"block":"none";
     document.getElementById("countryWrap").style.display=needCountry?"block":"none";
     document.getElementById("phpFields").style.display=(needLanding||needStream)?"block":"none";
-    var needF=(php&&php.needFile)||(pk.kma&&pk.kma.needFile)||"";   // limonad: lemon.php; KMA: api/success.php
-    document.getElementById("handlerFields").style.display=needF?"block":"none";
+    var needF=(php&&php.needFile)||"";   // limonad: одиночный lemon.php
+    var needApi=!!(pk.kma&&pk.kma.apiFolder);   // KMA: папка api
+    document.getElementById("handlerFields").style.display=(needF||needApi)?"block":"none";
+    document.getElementById("handlerDrop").style.display=needF?"":"none";
+    document.getElementById("handlerLabel").style.display=needF?"":"none";
+    document.getElementById("handlerHint").style.display=needF?"":"none";
+    document.getElementById("kmaApiDrop").style.display=needApi?"":"none";
+    document.getElementById("kmaApiHint").style.display=needApi?"":"none";
     if(needF){ HANDLER_NAME=needF; var hl=document.getElementById("handlerLabel"); if(hl) hl.textContent="Файл-обработчик ("+needF+") *"; try{ renderHandlerState(); }catch(e){} }
+    if(needApi){ try{ renderKmaApi(); }catch(e){} }
     document.getElementById("pidWrap").style.display=(isKma||(php&&php.noId))?"none":"block";   // KMA/limonad: id оффера не нужен (он в ленде/lemon.php); everad: нужен campaign_id
     // если в правой ячейке ряда ничего не показано (m1/hamsters) — «Код гео» на всю ширину, без пустого места
     var cellUsed=manual||needCountry;
@@ -2912,6 +2998,26 @@ function enhanceSelect(sel){
     renderHandlerState(); try{ build(); }catch(_){}
   }); }
   renderHandlerState();   // стартовое состояние (в новой сессии lemon.php не загружен -> просит загрузить)
+  // KMA: загрузка папки api (файл-инпут webkitdirectory + drag-drop)
+  async function loadKmaApi(items){
+    try{ var res=await ingest(items); KMA_API={files:res.files}; renderKmaApi(); try{build();}catch(_){} }
+    catch(e){ var st=document.getElementById("status"); if(st){st.className="status warn";st.textContent="Ошибка чтения папки api: "+e.message;} }
+  }
+  var kfi=document.getElementById("kmaApiFolder");
+  if(kfi){ kfi.addEventListener("change",function(e){ loadKmaApi(Array.prototype.map.call(e.target.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};})); }); }
+  var kclr=document.getElementById("kmaApiClear");
+  if(kclr){ kclr.addEventListener("click",function(e){ e.preventDefault(); e.stopPropagation(); KMA_API=null; if(kfi)kfi.value=""; renderKmaApi(); try{build();}catch(_){} }); }
+  var kdrop=document.getElementById("kmaApiDrop");
+  if(kdrop){
+    ["dragenter","dragover"].forEach(function(ev){kdrop.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();kdrop.classList.add("drag");});});
+    ["dragleave","dragend"].forEach(function(ev){kdrop.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();kdrop.classList.remove("drag");});});
+    kdrop.addEventListener("drop",async function(e){ e.preventDefault();e.stopPropagation();kdrop.classList.remove("drag");
+      var dt=e.dataTransfer, roots=[];
+      if(dt&&dt.items){for(var i=0;i<dt.items.length;i++){var en=dt.items[i].webkitGetAsEntry?dt.items[i].webkitGetAsEntry():null;if(en)roots.push(en);}}
+      if(roots.length){var out=[];for(var r=0;r<roots.length;r++){await walkEntry(roots[r],"",out);}await loadKmaApi(out.map(function(o){return {file:o.file, rel:o.rel};}));}
+      else if(dt&&dt.files&&dt.files.length){await loadKmaApi(Array.prototype.map.call(dt.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};}));}
+    });
+  }
   var cfi=document.getElementById("chestFolder");
   if(cfi){
     cfi.addEventListener("change",function(e){ loadChestFolder(Array.prototype.map.call(e.target.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};})); });
