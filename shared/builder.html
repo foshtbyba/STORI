@@ -1696,41 +1696,26 @@ function limonadErrorPhp(cfg){
 '  <h1>'+esc(t.errt)+'</h1>\n  <p>'+esc(t.el1)+'</p>\n  <p class="muted">'+esc(t.el2)+'</p>\n'+
 '  <button class="retry" onclick="history.back()">'+esc(t.retry)+'</button>\n</div>\n</body>\n</html>\n';
 }
-// KMA: свой api/success.php — сохраняем логику отправки лида KMA (KmaLead), но дизайн НАШ (переведённый, с пикселем)
-function kmaSuccessPhp(cfg){
+// KMA: НЕ трогаем api/success.php (это роутер, с ним общается custom.min.js). Меняем только ДИЗАЙН —
+// api/template/success.php (читает $_SESSION, который выставил роутер) и api/template/error.php.
+function kmaTplSuccessPhp(cfg){
   var t=cfg.t, dir=t.rtl?' dir="rtl"':'', img=pageImg(cfg,"success");
-  var php="<?php\n"+
-"require_once __DIR__ . '/config.php';\n"+
-"require_once __DIR__ . '/KmaLead.php';\n"+
-"$name=isset($_POST['name'])?trim($_POST['name']):'';\n"+
-"$phone=isset($_POST['phone'])?trim($_POST['phone']):'';\n"+
-"$country=isset($_POST['country'])?trim($_POST['country']):'';\n"+
-"$lang=isset($_POST['language'])?trim($_POST['language']):'"+cfg.langCode+"';\n"+
-"$subid=isset($_POST['subid'])?trim($_POST['subid']):'';\n"+
-"$data1=isset($_POST['data1'])?trim($_POST['data1']):'';\n"+
-"$lead_sent=false;\n"+
-"if($name && $phone){\n"+
-"  $kma=new KmaLead(KMA_ACCESS_TOKEN); $kma->debug=false;\n"+
-"  $data=array('name'=>$name,'phone'=>$phone,'ip'=>$kma->getIp(),'country'=>$country,'language'=>$lang,'channel'=>KMA_CHANNEL);\n"+
-"  if($data1) $data['data1']=$data1; if($subid) $data['subid']=$subid;\n"+
-"  $raw=$kma->addLeadAndReturnPage($data);\n"+
-"  if($raw){ $r=json_decode($raw,true); if(isset($r['order'])) $lead_sent=true; }\n"+
-"}\n"+
-"?>\n";
-  return php+
-'<!DOCTYPE html>\n<html lang="'+cfg.langCode+'"'+dir+'>\n<head>\n<meta charset="utf-8">\n<title>'+esc(cfg.brand)+'</title>\n'+
+  return "<?php if(session_status()===PHP_SESSION_NONE) @session_start(); $name=isset($_SESSION['name'])?$_SESSION['name']:''; ?>\n"+
+'<!DOCTYPE html>\n<html lang="'+cfg.langCode+'"'+dir+'>\n<head>\n<meta charset="utf-8">\n<title>'+esc(t.thanks)+'</title>\n'+
 '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<meta name="robots" content="noindex, nofollow">\n'+
 '<style>'+THANKS_CSS+'</style>\n</head>\n<body>\n'+
-'<?php if($lead_sent): ?>\n'+
 '<div class="card">\n  <div class="ic ok"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 8 16-16"/></svg></div>\n'+
 (img?'  <img class="prod" src="'+img+'" alt="'+esc(cfg.brand)+'" loading="lazy">\n':'')+
 '  <h1>'+esc(t.thanks)+'</h1>\n'+
 '  <p><?php if($name): ?><b><?php echo htmlspecialchars($name, ENT_QUOTES, "UTF-8"); ?></b> — <?php endif; ?>'+esc(t.tl1)+'</p>\n'+
-'  <p class="muted">'+esc(t.tl2)+'</p>\n'+limonadPixel(cfg)+'\n</div>\n'+
-'<?php else: ?>\n'+
+'  <p class="muted">'+esc(t.tl2)+'</p>\n'+limonadPixel(cfg)+'\n</div>\n</body>\n</html>\n';
+}
+function kmaTplErrorPhp(cfg){
+  var t=cfg.t, dir=t.rtl?' dir="rtl"':'';
+  return '<!DOCTYPE html>\n<html lang="'+cfg.langCode+'"'+dir+'>\n<head>\n<meta charset="utf-8">\n<title>'+esc(t.errt)+'</title>\n'+
+'<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<style>'+THANKS_CSS+'</style>\n</head>\n<body>\n'+
 '<div class="card err">\n  <div class="ic err"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M26 15v16"/><path d="M26 37l.02 0"/></svg></div>\n'+
-'  <h1>'+esc(t.errt)+'</h1>\n  <p>'+esc(t.el1)+'</p>\n  <button class="retry" onclick="history.back()">'+esc(t.retry)+'</button>\n</div>\n'+
-'<?php endif; ?>\n</body>\n</html>\n';
+'  <h1>'+esc(t.errt)+'</h1>\n  <p>'+esc(t.el1)+'</p>\n  <button class="retry" onclick="history.back()">'+esc(t.retry)+'</button>\n</div>\n</body>\n</html>\n';
 }
 // страницы спасибо/ошибки: для limonad — свои .php-генераторы, иначе обычные call/error
 function successFile(cfg){ return cfg.pageGen==="limonad"?limonadSuccessPhp(cfg):buildCall(cfg); }
@@ -2239,7 +2224,7 @@ function renderKmaApi(){
     t.textContent="✓ папка api загружена · "+KMA_API.files.length+" файлов";
     if(drop){ drop.style.borderColor="#a9d8bf"; drop.style.background="#f4faf6"; }
     if(clr) clr.style.display="flex";
-    if(list){ list.style.display="block"; list.innerHTML=KMA_API.files.slice(0,50).map(function(f){ var main=/(^|\/)success\.php$/i.test(f.path); return '<div><span>'+esc(f.path)+'</span>'+(main?'<span class="tag">→ наш дизайн</span>':'')+'</div>'; }).join(""); }
+    if(list){ list.style.display="block"; list.innerHTML=KMA_API.files.slice(0,50).map(function(f){ var main=/(^|\/)template\/(success|error)\.php$/i.test(f.path); return '<div><span>'+esc(f.path)+'</span>'+(main?'<span class="tag">→ наш дизайн</span>':'')+'</div>'; }).join(""); }
   } else {
     t.textContent="Загрузи папку api (KMA)";
     if(drop){ drop.style.borderColor=""; drop.style.background=""; }
@@ -2736,16 +2721,16 @@ function downloadZip(){
     if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});
     if(genPhp&&!had.php) out.push({name:"order.php",str:FILES.orderphp});
     if(cfg.needFile&&handlerLoaded()&&!had.handler) out.push(handlerEntry(cfg.needFile));
-    // KMA: папка api из архива KMA (config/KmaLead/custom.min.js/…), а api/success.php заменяем НАШИМ дизайном
+    // KMA: кладём папку api из архива КАК ЕСТЬ (success.php-роутер/KmaLead/config/custom.min.js не трогаем!),
+    // меняем ТОЛЬКО дизайн-шаблоны api/template/success.php и api/template/error.php на наши.
     if(cfg.kmaApi){
-      var kmaSucc=kmaSuccessPhp(cfg), hasApiSucc=false, present={};
-      out.forEach(function(f){ var n=(f.name||""); present[n.toLowerCase()]=1; if(/(^|\/)api\/success\.php$/i.test(n)){ f.str=kmaSucc; delete f.bytes; hasApiSucc=true; } });   // api уже была в папке ленда -> подменяем success.php
-      if(KMA_API&&KMA_API.files) KMA_API.files.forEach(function(f){
-        var p=f.path, low=p.toLowerCase();
-        if(/(^|\/)success\.php$/i.test(p)){ if(!hasApiSucc && !present[low]){ out.push({name:p,str:kmaSucc}); present[low]=1; hasApiSucc=true; } return; }
-        if(present[low]) return;
-        out.push(f.kind==="text"?{name:p,str:f.str}:{name:p,bytes:f.bytes}); present[low]=1;
-      });
+      var present={}; out.forEach(function(f){ present[(f.name||"").toLowerCase()]=1; });
+      if(KMA_API&&KMA_API.files) KMA_API.files.forEach(function(f){ var low=f.path.toLowerCase(); if(present[low]) return; out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes}); present[low]=1; });
+      var tplSucc=kmaTplSuccessPhp(cfg), tplErr=kmaTplErrorPhp(cfg);
+      var setTpl=function(re,content){ var found=false; out.forEach(function(f){ if(re.test(f.name||"")){ f.str=content; delete f.bytes; found=true; } }); return found; };
+      var hasSucc=setTpl(/(^|\/)api\/template\/success\.php$/i, tplSucc);
+      setTpl(/(^|\/)api\/template\/error\.php$/i, tplErr);
+      if(!hasSucc) out.push({name:"api/template/success.php",str:tplSucc});
     }
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
