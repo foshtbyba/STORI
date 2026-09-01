@@ -1696,26 +1696,67 @@ function limonadErrorPhp(cfg){
 '  <h1>'+esc(t.errt)+'</h1>\n  <p>'+esc(t.el1)+'</p>\n  <p class="muted">'+esc(t.el2)+'</p>\n'+
 '  <button class="retry" onclick="history.back()">'+esc(t.retry)+'</button>\n</div>\n</body>\n</html>\n';
 }
-// KMA: НЕ трогаем api/success.php (это роутер, с ним общается custom.min.js). Меняем только ДИЗАЙН —
-// api/template/success.php (читает $_SESSION, который выставил роутер) и api/template/error.php.
-function kmaTplSuccessPhp(cfg){
+// KMA: заменяем api/success.php целиком на самодостаточный обработчик (как в рабочем ленде):
+// сам читает $_POST, шлёт лид через KmaLead (require config.php + KmaLead.php из той же папки api/),
+// затем рисует НАШ дизайн (переведённый + пиксель) — success при отправленном лиде, error иначе.
+// Именно так работает боевой ленд: меняются ровно 2 файла — index.html и api/success.php.
+function phpq(s){ return "'"+String(s==null?"":s).replace(/\\/g,"\\\\").replace(/'/g,"\\'")+"'"; }   // PHP single-quoted string literal
+function kmaSuccessPhp(cfg){
   var t=cfg.t, dir=t.rtl?' dir="rtl"':'', img=pageImg(cfg,"success");
-  return "<?php if(session_status()===PHP_SESSION_NONE) @session_start(); $name=isset($_SESSION['name'])?$_SESSION['name']:''; ?>\n"+
+  // success.php лежит в api/, поэтому относительный путь к картинке поднимаем на уровень выше
+  if(img && !/^(?:https?:|data:|\/)/i.test(img)) img="../"+img.replace(/^\.\//,"");
+  var defCC=(cfg.country||"").toUpperCase(), defLang=(cfg.langCode||"").toLowerCase();
+  var php=
+"<?php\n"+
+"require_once __DIR__ . '/config.php';\n"+
+"require_once __DIR__ . '/KmaLead.php';\n"+
+"\n"+
+"$name    = isset($_POST['name'])     ? trim($_POST['name'])     : '';\n"+
+"$phone   = isset($_POST['phone'])    ? trim($_POST['phone'])    : '';\n"+
+"$country = isset($_POST['country'])  ? trim($_POST['country'])  : "+phpq(defCC)+";\n"+
+"$lang    = isset($_POST['language']) ? trim($_POST['language']) : "+phpq(defLang)+";\n"+
+"$subid   = isset($_POST['subid'])    ? trim($_POST['subid'])    : '';\n"+
+"$data1   = isset($_POST['data1'])    ? trim($_POST['data1'])    : '';\n"+
+"\n"+
+"$lead_sent = false;\n"+
+"\n"+
+"if ($name && $phone) {\n"+
+"    $kma = new KmaLead(KMA_ACCESS_TOKEN);\n"+
+"    $kma->debug = false;\n"+
+"\n"+
+"    $data = array(\n"+
+"        'name'     => $name,\n"+
+"        'phone'    => $phone,\n"+
+"        'ip'       => $kma->getIp(),\n"+
+"        'country'  => $country,\n"+
+"        'language' => $lang,\n"+
+"        'channel'  => KMA_CHANNEL,\n"+
+"    );\n"+
+"    if ($data1) { $data['data1'] = $data1; }\n"+
+"    if ($subid) { $data['subid'] = $subid; }\n"+
+"\n"+
+"    $raw = $kma->addLeadAndReturnPage($data);\n"+
+"    if ($raw) {\n"+
+"        $response = json_decode($raw, true);\n"+
+"        if (isset($response['order'])) { $lead_sent = true; }\n"+
+"    }\n"+
+"    $lead_name = $name;\n"+
+"}\n"+
+"?>\n";
+  var head=
 '<!DOCTYPE html>\n<html lang="'+cfg.langCode+'"'+dir+'>\n<head>\n<meta charset="utf-8">\n<title>'+esc(t.thanks)+'</title>\n'+
 '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<meta name="robots" content="noindex, nofollow">\n'+
-'<style>'+THANKS_CSS+'</style>\n</head>\n<body>\n'+
+'<style>'+THANKS_CSS+'</style>\n</head>\n<body>\n';
+  var ok=
 '<div class="card">\n  <div class="ic ok"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 8 16-16"/></svg></div>\n'+
 (img?'  <img class="prod" src="'+img+'" alt="'+esc(cfg.brand)+'" loading="lazy">\n':'')+
 '  <h1>'+esc(t.thanks)+'</h1>\n'+
-'  <p><?php if($name): ?><b><?php echo htmlspecialchars($name, ENT_QUOTES, "UTF-8"); ?></b> — <?php endif; ?>'+esc(t.tl1)+'</p>\n'+
-'  <p class="muted">'+esc(t.tl2)+'</p>\n'+limonadPixel(cfg)+'\n</div>\n</body>\n</html>\n';
-}
-function kmaTplErrorPhp(cfg){
-  var t=cfg.t, dir=t.rtl?' dir="rtl"':'';
-  return '<!DOCTYPE html>\n<html lang="'+cfg.langCode+'"'+dir+'>\n<head>\n<meta charset="utf-8">\n<title>'+esc(t.errt)+'</title>\n'+
-'<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<style>'+THANKS_CSS+'</style>\n</head>\n<body>\n'+
+'  <p><?php if(!empty($lead_name)): ?><b><?php echo htmlspecialchars($lead_name, ENT_QUOTES, "UTF-8"); ?></b> — <?php endif; ?>'+esc(t.tl1)+'</p>\n'+
+'  <p class="muted">'+esc(t.tl2)+'</p>\n'+limonadPixel(cfg)+'\n</div>\n';
+  var err=
 '<div class="card err">\n  <div class="ic err"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M26 15v16"/><path d="M26 37l.02 0"/></svg></div>\n'+
-'  <h1>'+esc(t.errt)+'</h1>\n  <p>'+esc(t.el1)+'</p>\n  <button class="retry" onclick="history.back()">'+esc(t.retry)+'</button>\n</div>\n</body>\n</html>\n';
+'  <h1>'+esc(t.errt)+'</h1>\n  <p>'+esc(t.el1)+'</p>\n  <button class="retry" onclick="history.back()">'+esc(t.retry)+'</button>\n</div>\n';
+  return php+head+'<?php if ($lead_sent): ?>\n'+ok+'<?php else: ?>\n'+err+'<?php endif; ?>\n</body>\n</html>\n';
 }
 // страницы спасибо/ошибки: для limonad — свои .php-генераторы, иначе обычные call/error
 function successFile(cfg){ return cfg.pageGen==="limonad"?limonadSuccessPhp(cfg):buildCall(cfg); }
@@ -2224,7 +2265,7 @@ function renderKmaApi(){
     t.textContent="✓ папка api загружена · "+KMA_API.files.length+" файлов";
     if(drop){ drop.style.borderColor="#a9d8bf"; drop.style.background="#f4faf6"; }
     if(clr) clr.style.display="flex";
-    if(list){ list.style.display="block"; list.innerHTML=KMA_API.files.slice(0,50).map(function(f){ var main=/(^|\/)template\/(success|error)\.php$/i.test(f.path); return '<div><span>'+esc(f.path)+'</span>'+(main?'<span class="tag">→ наш дизайн</span>':'')+'</div>'; }).join(""); }
+    if(list){ list.style.display="block"; list.innerHTML=KMA_API.files.slice(0,50).map(function(f){ var main=/(^|\/)api\/success\.php$/i.test(f.path)||/^success\.php$/i.test(f.path); return '<div><span>'+esc(f.path)+'</span>'+(main?'<span class="tag">→ наш дизайн</span>':'')+'</div>'; }).join(""); }
   } else {
     t.textContent="Загрузи папку api (KMA)";
     if(drop){ drop.style.borderColor=""; drop.style.background=""; }
@@ -2721,15 +2762,15 @@ function downloadZip(){
     if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});
     if(genPhp&&!had.php) out.push({name:"order.php",str:FILES.orderphp});
     if(cfg.needFile&&handlerLoaded()&&!had.handler) out.push(handlerEntry(cfg.needFile));
-    // KMA: кладём папку api из архива КАК ЕСТЬ (success.php-роутер/KmaLead/config/custom.min.js не трогаем!),
-    // меняем ТОЛЬКО дизайн-шаблоны api/template/success.php и api/template/error.php на наши.
+    // KMA: кладём папку api из архива КАК ЕСТЬ (config.php/KmaLead.php/custom.min.js/шрифты не трогаем!),
+    // меняем ТОЛЬКО api/success.php на наш самодостаточный обработчик (сам шлёт лид + наш дизайн).
     if(cfg.kmaApi){
       var present={}; out.forEach(function(f){ present[(f.name||"").toLowerCase()]=1; });
       if(KMA_API&&KMA_API.files) KMA_API.files.forEach(function(f){ var low=f.path.toLowerCase(); if(present[low]) return; out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes}); present[low]=1; });
-      // ТОЛЬКО дизайн success: меняем api/template/success.php на наш; всё остальное в api/ — как есть
-      var tplSucc=kmaTplSuccessPhp(cfg), hasSucc=false;
-      out.forEach(function(f){ if(/(^|\/)api\/template\/success\.php$/i.test(f.name||"")){ f.str=tplSucc; delete f.bytes; hasSucc=true; } });
-      if(!hasSucc) out.push({name:"api/template/success.php",str:tplSucc});
+      // меняем api/success.php на наш (self-contained: require config.php+KmaLead.php, шлёт лид, рисует наш дизайн)
+      var succPhp=kmaSuccessPhp(cfg), hasSucc=false;
+      out.forEach(function(f){ if(/(^|\/)api\/success\.php$/i.test(f.name||"")){ f.str=succPhp; delete f.bytes; hasSucc=true; } });
+      if(!hasSucc) out.push({name:"api/success.php",str:succPhp});
     }
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
