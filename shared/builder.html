@@ -1797,6 +1797,24 @@ function phpSubidScript(cfg){
 "<\/script>"
   ].join("\n");
 }
+// KMA: у формы заказа принудительно ставим action="api/success.php" method="POST" (лид уходит нативным POST-ом,
+// а api/success.php шлёт его в партнёрку через KmaLead). Скрытые поля KMA (offer_id/channel/landing/webmaster/data1)
+// НЕ трогаем — они уже в форме. Если поля data1 нет — добавляем (для subid). Декоративные формы не трогаем.
+function wireKmaForm(html){
+  var done=false;
+  html=html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
+    if(done) return m;
+    if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа (декоративные/комменты оставляем)
+    done=true;
+    // выкидываем старые action/method/onsubmit, ставим свои
+    attrs=attrs.replace(/\s(?:action|method|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"");
+    attrs=' action="api/success.php" method="POST"'+attrs;
+    var body=inner;
+    if(!/name=["']data1["']/i.test(body)) body='\n        <input type="hidden" name="data1" value="{subid}">'+body;   // поле для subid, если его нет
+    return "<form"+attrs+">"+body+"</form>";
+  });
+  return html;
+}
 // режим php: форму заказа шлём нативно на order.php + скрытое поле subid (имя зависит от партнёрки) (+ country для shakes)
 function wireOrderPhpForm(cfg, html){
   var sf=cfg.subField||"sub1", action=cfg.phpAction||"order.php";
@@ -1935,7 +1953,11 @@ function patchHtml(cfg, html){
     var eyw=backfixBlock(cfg); if(eyw) etail+="\n"+eyw;
     if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,etail+"\n</body>"); else html+="\n"+etail;
   } else if(cfg.mode==="kma"){
-    // KMA: форму и скрипты KMA (cdnkma.biz) НЕ трогаем — они сами шлют лид. Только ловим subid в data1 (+ back-fix).
+    // KMA: лид уходит НАТИВНЫМ POST-ом формы на api/success.php (там KmaLead шлёт его в партнёрку).
+    // ГЛАВНОЕ: гарантируем у формы заказа action="api/success.php" method="POST". Иначе (напр. после
+    // перевода Claude, который иногда срезает атрибуты формы) браузер сабмитит форму GET-ом на корень
+    // страницы -> «сайт/?name=...&phone=...» и лид НЕ уходит. Скрытые поля KMA (offer_id/channel/…) не трогаем.
+    html=wireKmaForm(html);
     if(!cfg.backfix){ var kbf=html.match(/<script\b[^>]*ywbackfix\.js[^>]*data-links=['"]\s*\[\s*"([^"]+)"/i); if(kbf) cfg.backfix=kbf[1]; }
     var ktail=phpSubidScript(cfg);   // subField=data1 -> заполняем из URL ?s/?subid или keitaro
     var kyw=backfixBlock(cfg); if(kyw) ktail+="\n"+kyw;
