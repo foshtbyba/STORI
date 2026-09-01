@@ -45,6 +45,13 @@ export const PARTNERS: Partner[] = [
   },
   { key: 'everad.com', label: 'everad.com', idLabel: 'Campaign ID (campaign_id)' },
   { key: 'rocketprofit.com', label: 'rocketprofit.com', idLabel: 'Campaign ID (campaign_id)' },
+  {
+    key: 'KMA.pro',
+    label: 'KMA.pro',
+    idLabel: '',
+    noId: true,
+    note: 'ID оффера у этой партнёрки не нужен: он лежит внутри папки api из архива оффера (config.php с токеном и каналом). Саму папку берут из архива и грузят в конструктор руками — скопировать её отсюда нельзя.',
+  },
 ];
 // «Другая (вручную)» в этом списке нет намеренно. В конструкторе такой режим
 // есть, но там у партнёрки руками задают endpoint, ref и api_key — а они в

@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Конструктор лендов</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iOCIgZmlsbD0iIzZlODM0MSIvPjxyZWN0IHg9IjcuNSIgeT0iOC41IiB3aWR0aD0iMTciIGhlaWdodD0iMi42IiByeD0iMS4zIiBmaWxsPSIjZmZmZmZmIi8+PHJlY3QgeD0iNy41IiB5PSIxNC43IiB3aWR0aD0iMTciIGhlaWdodD0iMi42IiByeD0iMS4zIiBmaWxsPSIjZmZmZmZmIi8+PHJlY3QgeD0iNy41IiB5PSIyMC45IiB3aWR0aD0iMTAiIGhlaWdodD0iMi42IiByeD0iMS4zIiBmaWxsPSIjZmZmZmZmIi8+PC9zdmc+">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
@@ -146,6 +147,13 @@
     font-size:12px;font-weight:600;color:var(--mut);
   }
   .subtoggle:hover{color:var(--soft)}
+  .subtoggle.trchest-toggle{border-top:none;margin:16px 0 0;padding:12px 14px;background:var(--sub);border:1px solid var(--line);border-radius:var(--r-sm);font-size:13.5px;font-weight:600;color:var(--fg);gap:9px;transition:border-color .15s,background .15s}
+  .subtoggle.trchest-toggle:hover{border-color:var(--acc);background:var(--raise);color:var(--fg)}
+  .subtoggle.trchest-toggle .ic{font-size:16px;line-height:1}
+  .subtoggle.trchest-toggle .lbl{flex:0 0 auto}
+  .subtoggle.trchest-toggle .chev{margin-left:auto;color:var(--mut)}
+  .subtoggle.trchest-toggle:hover .chev{color:var(--acc)}
+  .subtoggle.trchest-toggle.open{border-color:var(--acc);background:var(--acc-soft)}
 
   /* ── Приём оффера из дешборда ──────────────────────────────────────
      Оффер уже заведён в дешборде: партнёрка, ID, гео, ссылка. Здесь его
@@ -168,14 +176,14 @@
     display:block;margin:16px 0 7px;
     font-size:11.5px;font-weight:500;letter-spacing:-.005em;text-transform:none;color:var(--mut);
   }
-  input[type=text],input:not([type]),select,textarea{
+  input[type=text],input[type=password],input[type=tel],input[type=email],input[type=number],input:not([type]),select,textarea{
     width:100%;background:var(--field);border:1px solid var(--line);color:var(--fg);
     border-radius:var(--r-sm);padding:11px 13px;font-size:14px;
     transition:border-color .15s,box-shadow .15s,background .15s;outline:none;
   }
-  input:hover,select:hover,textarea:hover{border-color:var(--line2)}
+  input:hover,select:hover,textarea:hover{border-color:var(--line2);background:var(--raise)}
   input:focus,select:focus,textarea:focus{
-    border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft);
+    border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft);background:var(--field);
   }
   input::placeholder,textarea::placeholder{color:var(--faint)}
   input.locked,input[readonly]{
@@ -189,6 +197,24 @@
   :root:not([data-theme="dark"]) select{
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2377746C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   }
+  /* свой (в стиле темы) дропдаун вместо нативного списка ОС */
+  .csx{position:relative}
+  .csx > select{position:absolute;inset:0;width:100%;height:100%;opacity:0;pointer-events:none;margin:0}
+  .csx-trigger{display:flex;align-items:center;gap:8px;width:100%;background:var(--field);border:1px solid var(--line);color:var(--fg);border-radius:var(--r-sm);padding:11px 13px;font-size:14px;cursor:pointer;user-select:none;transition:border-color .15s,box-shadow .15s;box-sizing:border-box}
+  .csx-trigger:hover{border-color:var(--line2)}
+  .csx.open .csx-trigger{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+  .csx-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .csx-arrow{flex:0 0 auto;width:15px;height:15px;color:var(--mut);transition:transform .18s}
+  .csx-arrow svg{width:100%;height:100%;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .csx.open .csx-arrow{transform:rotate(180deg)}
+  .csx-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:60;background:var(--panel-solid);border:1px solid var(--line2);border-radius:var(--r-md);padding:5px;box-shadow:0 14px 38px rgba(0,0,0,.34);max-height:340px;overflow:auto;display:none}
+  .csx.open .csx-menu{display:block;animation:csxpop .12s ease}
+  @keyframes csxpop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .csx-opt{display:flex;align-items:center;gap:8px;padding:10px 11px;border-radius:8px;color:var(--fg);font-size:14px;cursor:pointer;line-height:1.3}
+  .csx-opt:hover{background:var(--raise)}
+  .csx-opt.sel{color:var(--acc);font-weight:600}
+  .csx-tick{flex:0 0 auto;width:14px;text-align:center;color:var(--acc);opacity:0}
+  .csx-opt.sel .csx-tick{opacity:1}
   textarea{
     min-height:170px;resize:vertical;border-radius:var(--r-md);
     font-family:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
@@ -276,6 +302,7 @@
   }
   .imgtile:hover{border-color:var(--line2)}
   .imgtile.rep{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc-soft)}
+  .imgtile.drag{border-color:var(--acc);border-style:dashed;background:var(--acc-soft)}
   .imgtile.sel{outline:2px solid var(--acc);outline-offset:3px;animation:selpulse .5s ease}
   @keyframes selpulse{0%{outline-color:transparent}100%{outline-color:var(--acc)}}
   .imgtile .thumb{
@@ -400,6 +427,14 @@
     padding:20px 22px;white-space:pre;overflow:auto;resize:none;
   }
   .out:hover,.out:focus{border-color:var(--line);box-shadow:none}
+  .out.edit{color:var(--fg);border-color:var(--acc);box-shadow:0 0 0 2px var(--acc-soft)}
+  .codefind{display:flex;gap:6px;align-items:center;margin-bottom:10px}
+  .codefind input{flex:1;min-width:0;background:var(--field);border:1px solid var(--line);color:var(--fg);border-radius:var(--r-sm);padding:9px 12px;font-size:13px;outline:none}
+  .codefind input:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+  .codefind .findcount{font-size:12px;color:var(--mut);min-width:44px;text-align:center}
+  .codefind button{flex:0 0 auto;width:34px;height:34px;border:1px solid var(--line);background:var(--sub);color:var(--fg);border-radius:var(--r-sm);cursor:pointer;font-size:14px}
+  .codefind button:hover{border-color:var(--acc);color:var(--acc)}
+  .editnote{font-size:12px;color:var(--mut);background:var(--acc-soft);border:1px solid var(--acc);border-radius:var(--r-sm);padding:8px 12px;margin-bottom:10px}
   iframe{
     width:100%;height:calc(100vh - 236px);min-height:340px;border:1px solid var(--line);
     border-radius:var(--r);background:#fff;display:block;
@@ -550,7 +585,16 @@
           <div class="s" id="handlerDropS">свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся как есть.</div>
           <input id="handlerFile" type="file" accept=".php">
         </label>
-        <div class="hint">⚠ <b>lemon.php у каждого оффера свой</b> (внутри его OFFER_ID и токен). Загружай новый под каждый оффер. Файл кладётся в сборку <b>без изменений</b>. success.php/error.php генерятся сами.</div>
+        <div class="hint" id="handlerHint">⚠ <b>lemon.php у каждого оффера свой</b> (внутри его OFFER_ID и токен). Загружай новый под каждый оффер. Файл кладётся в сборку <b>без изменений</b>. success.php/error.php генерятся сами.</div>
+        <label class="drop" for="kmaApiFolder" id="kmaApiDrop" style="display:none;padding:14px;position:relative">
+          <b class="x" id="kmaApiClear" title="Убрать папку" style="position:absolute;top:8px;right:10px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.32);color:#fff;font-size:12px;display:none;align-items:center;justify-content:center;line-height:1;cursor:pointer;z-index:2">✕</b>
+          <div class="ic">🗂</div>
+          <div class="t" id="kmaApiDropT">Загрузи папку api (KMA)</div>
+          <div class="s">из общего архива KMA: config.php, KmaLead.php, custom.min.js, css/, img/… — вся папка api целиком. success.php заменим на наш.</div>
+          <input id="kmaApiFolder" type="file" webkitdirectory directory multiple>
+        </label>
+        <div class="filelist" id="kmaApiList" style="display:none"></div>
+        <div class="hint" id="kmaApiHint" style="display:none">⚠ Папка <b>api</b> у KMA своя под оффер (внутри config.php с токеном/каналом). Кладётся в ленд как <code>api/</code>, а <code>api/success.php</code> заменяется на наш дизайн (переведённый + пиксель).</div>
       </div>
       <div id="apiKeyWrap">
         <label>API-ключ вебмастера (api_key) 🔒</label>
@@ -627,8 +671,8 @@
     <div class="grp">
       <h3>Источник</h3>
       <div class="seg">
-        <button id="modeHtml" class="active">Вставить HTML</button>
-        <button id="modeFolder">Загрузить папку</button>
+        <button id="modeFolder" class="active">Загрузить папку</button>
+        <button id="modeHtml">Вставить HTML</button>
       </div>
 
       <div id="paneHtml">
@@ -646,7 +690,7 @@
         </label>
         <div class="filelist" id="filelist" style="display:none"></div>
         <div id="imgwrap" style="display:none">
-          <label style="margin-top:14px">Картинки оффера/дизайна — наведи (превью), «Заменить» = загрузить свою (имя сохраняется). Аватары комментариев спрятаны отдельно.</label>
+          <label style="margin-top:14px">Картинки оффера/дизайна — «Заменить» или <b>перетащи фото прямо на плитку</b> (имя файла сохраняется). Аватары комментариев спрятаны отдельно.</label>
           <div class="imggrid" id="imggrid"></div>
         </div>
         <div id="cleanwrap" style="display:none">
@@ -663,6 +707,139 @@
       <div class="hint" style="margin-top:2px">Перегенерит эти страницы под наш шаблон и выбранный язык. Сними, если у тебя свои call/error, которые нужно сохранить.</div>
       <div class="chk"><input type="checkbox" id="keepComments"><label>Оставлять комментарии-пояснения в коде</label></div>
       <div class="hint" style="margin-top:2px">По умолчанию выключено: готовый ленд чистый, без служебных <code>&lt;!-- … --&gt;</code> конструктора. Включи, если хочешь видеть пометки, что и куда вставлено.</div>
+    </div>
+
+    <div id="trWrap" class="grp" style="margin-top:14px">
+      <div class="gtoggle" data-target="trBody"><span class="chev">▸</span> 🌐 Перевод ленда через Claude</div>
+      <div id="trBody" style="display:none">
+        <label>API-ключ Anthropic</label>
+        <input id="trKey" type="password" placeholder="sk-ant-...">
+        <div class="hint" style="margin-top:2px">Ключ запоминается <b>только в этом браузере</b> (localStorage) — в файл/репозиторий не попадает, отправляется только на api.anthropic.com. Чтобы убрать — очисти поле.</div>
+        <label style="margin-top:10px">Модель</label>
+        <select id="trModel">
+          <option value="claude-opus-5">Opus 5 — лучшее качество</option>
+          <option value="claude-sonnet-5">Sonnet 5 — дешевле/быстрее</option>
+          <option value="claude-haiku-4-5">Haiku 4.5 — самый дешёвый</option>
+        </select>
+        <label style="margin-top:10px">Скорость / качество</label>
+        <select id="trEffort">
+          <option value="low">⚡ Быстро — минимум «размышления» (для перевода обычно хватает)</option>
+          <option value="medium" selected>⚖️ Баланс</option>
+          <option value="high">💎 Качество — больше «размышления», медленнее</option>
+        </select>
+        <div class="hint" style="margin-top:2px">Перевод — задача механическая, поэтому «Быстро/Баланс» обычно достаточно и заметно шустрее. «Качество» — если нужна очень аккуратная локализация. (Для Haiku не применяется.)</div>
+        <div class="hint" style="margin-top:6px">Автоматом из полей выше подставятся: <b>ОФФЕР</b> (бренд), <b>ЯЗЫК</b>, <b>ГЕО</b>, <b>ЦЕНА</b>, <b>СТАРАЯ ЦЕНА</b>. Поля ниже — по желанию.</div>
+        <label style="margin-top:10px">Форма продукта</label>
+        <select id="trForm">
+          <option value="">— не менять —</option>
+          <option value="капсулы">Капсулы</option>
+          <option value="таблетки">Таблетки</option>
+          <option value="гель">Гель</option>
+          <option value="крем">Крем</option>
+          <option value="мазь">Мазь</option>
+          <option value="спрей">Спрей</option>
+          <option value="капли">Капли</option>
+          <option value="саше">Саше</option>
+          <option value="порошок">Порошок</option>
+          <option value="сироп">Сироп</option>
+          <option value="бальзам">Бальзам</option>
+          <option value="драже">Драже</option>
+        </select>
+        <label style="margin-top:10px">Состав / особенности приёма и доп. пожелания</label>
+        <textarea id="trExtra" style="min-height:80px" placeholder="состав и как принимать (загугли); тон, имя эксперта, название портала, возраст ЦА…"></textarea>
+        <div class="subtoggle" data-target="trPromptWrap" style="margin-top:8px"><span class="chev">▸</span> Промт (расширенно, можно править)</div>
+        <div id="trPromptWrap" style="display:none"><textarea id="trPrompt" style="min-height:200px">Ты — инструмент подготовки рекламных лендингов. Тебе дают БЛОК ПЕРЕМЕННЫХ и полный HTML ленда.
+Верни РОВНО ОДИН готовый HTML-файл, выполнив все шаги ниже. В ответе — только код, без пояснений.
+
+### 0. Форматирование кода (ГЛАВНОЕ ПРАВИЛО)
+- Меняй ТОЛЬКО текстовое содержимое и указанные атрибуты. Саму разметку не трогай:
+  сохрани один-в-один отступы, переносы строк, вложенность и выравнивание оригинала.
+- НЕ переформатируй, НЕ «сплющивай» теги в одну строку, НЕ переставляй атрибуты,
+  НЕ добавляй и НЕ убирай пустые строки, НЕ меняй стиль кавычек. Диф должен быть
+  минимальным — как будто правил только слова внутри тегов.
+- Если удаляешь блок (скрипт/пиксель/мусор) — убери и лишние пустые строки/отступ от него,
+  не оставляй за собой комментариев-заглушек. Всё остальное форматирование не трогай.
+
+### 1. Перевод
+- Переведи ВЕСЬ видимый текст на язык из «ЯЗЫК»: заголовки, абзацы, подписи к фото, отзывы,
+  таблицы, кнопки, плейсхолдеры, <title>. Перевод — естественный, «нативный»,
+  как писал бы носитель; не дословный, адаптируй идиомы и медицинские формулировки.
+- alt-атрибуты картинок НЕ переводи — оставляй как в исходном ленде.
+- HTML-теги, классы, структуру, ссылки и порядок блоков НЕ меняй — переводится только текст.
+- Проставь lang у <html> под язык. Для арабского/иврита/урду/фарси добавь dir="rtl".
+
+### 2. Локализация под ГЕО
+- Имя врача/эксперта → типичное имя для страны «ГЕО».
+- Города и регионы в тексте → реальные города «ГЕО».
+- Национальность/«жители страны», названия учреждений → как принято в «ГЕО».
+- Имена авторов отзывов → характерные местные имена и фамилии.
+- Название портала/сайта в шапке и подвале → уместное локальное (в том же стиле).
+- Валюта и формат чисел — по локали «ГЕО».
+- Медицинские факты, проценты, цифры исследований оставь без изменений.
+
+### 3. Имя оффера
+- Замени название продукта на значение «ОФФЕР» ВЕЗДЕ: в тексте, заголовках, <title>,
+  отзывах, форме. Если задано «ТЕКУЩЕЕ ИМЯ ОФФЕРА» — заменяй именно его; иначе определи
+  текущее название сам и замени все его вхождения.
+- Имена файлов картинок (src) и alt-атрибуты НЕ трогай — оставляй как в исходном ленде.
+
+### 3.5. Форма продукта (капсулы → гель и т.п.)
+- Если задана «ФОРМА ПРОДУКТА» и она отличается от той, что в исходном ленде — замени
+  упоминания старой формы на новую ПО ВСЕМУ тексту. Если задана «ТЕКУЩАЯ ФОРМА» — заменяй
+  именно её; иначе определи текущую форму сам (капсулы/таблетки/флакон/крем/…).
+- Меняй не только само слово, но и всё, что с ним связано, чтобы текст остался логичным:
+  единицы и тару, глаголы применения (принимать→наносить), счётные слова и дозировки.
+- Не выдумывай новых обещаний и цифр — меняешь только форму подачи, факты/проценты оставь.
+- Если «ФОРМА ПРОДУКТА» не задана — ничего не меняй, оставь форму как в оригинале.
+
+### 4. Цена
+- Поставь «ЦЕНА» как основную цену оффера во всех местах, где она показывается.
+- Если задана «СТАРАЯ ЦЕНА» — используй её как зачёркнутую старую; если не задана, но в макете
+  есть зачёркнутая цена — поставь правдоподобную бо́льшую круглую сумму в той же валюте.
+- Валюту бери из «ЦЕНА» и держи одинаковой по всему ленду.
+
+### 5. Очистка (техническая обвязка)
+СНАЧАЛА определи тип страницы. Если есть механика открывающегося сундука/рулетки
+(#pushChest, классы chest…, saleBox, монеты/coin, bounce.js, spin/scratch/wheel,
+«крутить/открыть/приз») — это СУНДУК, работай по 5-Б. Иначе — обычный ленд, 5-А.
+НИКОГДА не удаляй и не меняй визуал: <style>, <link rel="stylesheet">, favicon, class, id,
+inline-style, вёрстку. Чистка касается ТОЛЬКО скриптов/пикселей/мусора, не оформления.
+5-А. Обычный ленд — удали полностью: все внешние скрипты, все инлайновые скрипты (отправка,
+ленивая загрузка, скролл), блок Meta Pixel/Facebook целиком, атрибуты on* со всех тегов,
+макросы трекера {fbpx}/{subid}/{sub_id_30} и любые {…}, скрытый служебный мусор прелендов.
+5-Б. Сундук — чистим ВЫБОРОЧНО: ОСТАВЬ bounce.js и любые скрипты открытия/анимации сундука,
+обработчики клика по #pushChest, логику монет/рулетки/приза, jQuery если от него зависит
+анимация. Удали только явный шлак: отправку/трекер, пиксель/аналитику, скрытые трекер-inputs,
+макросы {…}. Даты dtime_nums(…) → статичная дата. Сомневаешься — ОСТАВЬ.
+Для обеих: инлайновые даты <script>dtime_nums(…)</script> → статичной датой формата страницы.
+Удаляй аккуратно, без комментариев-заглушек.
+
+### 6. Форма заказа → контракт конструктора
+- Тег формы: добавь data-order-form. Убери action, method, onsubmit. id формы ОСТАВЬ как есть.
+- Поле имени: input type="text" name="name". Поле телефона: input type="tel" name="phone".
+- Кнопка: button type="submit" или input type="submit".
+- Удали скрытые поля product_id, ref, langCode, api_key, webmaster_* — их подставит конструктор.
+- Если форм несколько — оставь только форму заказа.
+
+### 7. Двойная верификация (ОБЯЗАТЕЛЬНО)
+Проход 1 — найди ВСЕ фрагменты на исходном языке (кроме <style>/@font-face/CSS-переменных)
+и переведи их. Проход 2 — проверь, что ни один src/href файла не изменился; если при замене
+имени оффера случайно изменился src — откати src к оригиналу.
+
+### 8. Результат
+- Один валидный HTML, без единого <script> (кроме сундука). Ноль исходного языка в видимом тексте.
+- Все src/href файлов как в оригинале. DOCTYPE→html→head→body, UTF-8.
+- Сохрани всю вёрстку/стили/картинки. НИЧЕГО не добавляй от себя (ни пикселей, ни скриптов формы).
+- Верни только код итогового файла.</textarea></div>
+        <button class="btn" id="trRun" type="button" style="margin-top:10px">🌐 Перевести ленд</button>
+        <div class="status" id="trStatus"></div>
+        <div class="subtoggle trchest-toggle" data-target="trChestWrap"><span class="ic">🎁</span><span class="lbl">Перевести сундук</span><span class="chev">▸</span></div>
+        <div id="trChestWrap" style="display:none">
+          <div class="hint" style="margin-top:2px">Переводит HTML подключённой папки сундука тем же ключом/моделью/промтом. Сначала подключи папку сундука в блоке «Сундук».</div>
+          <button class="btn" id="trRunChest" type="button" style="margin-top:6px">🎁 Перевести сундук</button>
+          <div class="status" id="trStatusChest"></div>
+        </div>
+      </div>
     </div>
 
     <button class="btn" id="build">⚙️ Собрать</button>
@@ -683,9 +860,17 @@
       <div class="tab" data-t="call">call.html</div>
       <div class="tab" data-t="error">error.html</div>
       <div class="tab" data-t="chest" id="tabChest" style="display:none">chest.html</div>
+      <div class="tab" data-t="src">✎ исходник</div>
       <div class="tab" data-t="preview">👁 превью ленд</div>
       <div class="tab" data-t="cpreview" id="tabCPrev" style="display:none">👁 превью сундук</div>
     </div>
+    <div class="codefind" id="codefind" style="display:none">
+      <input id="findInput" placeholder="🔎 найти в коде… (Enter — след., Shift+Enter — пред.)" spellcheck="false">
+      <span class="findcount" id="findCount"></span>
+      <button type="button" id="findPrev" title="Предыдущее">↑</button>
+      <button type="button" id="findNext" title="Следующее">↓</button>
+    </div>
+    <div class="editnote" id="editnote" style="display:none">✎ Правь исходник ленда — правки применяются сразу (пересборка). Ищи по коду строкой поиска сверху.</div>
     <textarea class="out" id="out" spellcheck="false" readonly></textarea>
     <iframe id="prev" style="display:none"></iframe>
   </div>
@@ -1076,9 +1261,9 @@ const PARTNERS = {
     ev:{ action:"https://tracker.rocketprofit.com/conversion/new", subField:"sid5", pxField:"sid1",
          idLabel:"Campaign ID (campaign_id)", country:true, successPage:"success.html", errorPage:"error.html" },
     hint:"rocketprofit (как everad): форма постит в трекер rocketprofit через скрытый iframe, потом редирект на success.html. Нужен только Campaign ID (id потока); country_code — авто из «Код гео». subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." },
-  "custom": { label:"Другая (вручную)", mode:"js", endpoint:"", okField:"result", okValue:"ok", idField:"id",
-    ref:"", api_key:"",
-    hint:"Заполни endpoint/ref/api_key/okField под свою партнёрку." }
+  "KMA.pro": { label:"KMA.pro", mode:"kma", native:true,
+    kma:{ subField:"data1", apiFolder:true, successFile:"success.php" },
+    hint:"KMA: нужна ПАПКА api из общего архива KMA (config.php, custom.min.js, KmaLead.php, success.php…) — ОБЯЗАТЕЛЬНО загрузи её в поле выше, конструктор положит её в ленд как api/. Файл api/success.php заменяется на наш (переведённый + пиксель). Форму/скрипты KMA не трогаем, ловим subid в data1, вставляем Meta Pixel и back-fix." }
 };
 
 /* ================= ДВИЖОК ЗАКАЗА ================= */
@@ -1511,6 +1696,68 @@ function limonadErrorPhp(cfg){
 '  <h1>'+esc(t.errt)+'</h1>\n  <p>'+esc(t.el1)+'</p>\n  <p class="muted">'+esc(t.el2)+'</p>\n'+
 '  <button class="retry" onclick="history.back()">'+esc(t.retry)+'</button>\n</div>\n</body>\n</html>\n';
 }
+// KMA: заменяем api/success.php целиком на самодостаточный обработчик (как в рабочем ленде):
+// сам читает $_POST, шлёт лид через KmaLead (require config.php + KmaLead.php из той же папки api/),
+// затем рисует НАШ дизайн (переведённый + пиксель) — success при отправленном лиде, error иначе.
+// Именно так работает боевой ленд: меняются ровно 2 файла — index.html и api/success.php.
+function phpq(s){ return "'"+String(s==null?"":s).replace(/\\/g,"\\\\").replace(/'/g,"\\'")+"'"; }   // PHP single-quoted string literal
+function kmaSuccessPhp(cfg){
+  var t=cfg.t, dir=t.rtl?' dir="rtl"':'', img=pageImg(cfg,"success");
+  // success.php лежит в api/, поэтому относительный путь к картинке поднимаем на уровень выше
+  if(img && !/^(?:https?:|data:|\/)/i.test(img)) img="../"+img.replace(/^\.\//,"");
+  var defCC=(cfg.country||"").toUpperCase(), defLang=(cfg.langCode||"").toLowerCase();
+  var php=
+"<?php\n"+
+"require_once __DIR__ . '/config.php';\n"+
+"require_once __DIR__ . '/KmaLead.php';\n"+
+"\n"+
+"$name    = isset($_POST['name'])     ? trim($_POST['name'])     : '';\n"+
+"$phone   = isset($_POST['phone'])    ? trim($_POST['phone'])    : '';\n"+
+"$country = isset($_POST['country'])  ? trim($_POST['country'])  : "+phpq(defCC)+";\n"+
+"$lang    = isset($_POST['language']) ? trim($_POST['language']) : "+phpq(defLang)+";\n"+
+"$subid   = isset($_POST['subid'])    ? trim($_POST['subid'])    : '';\n"+
+"$data1   = isset($_POST['data1'])    ? trim($_POST['data1'])    : '';\n"+
+"\n"+
+"$lead_sent = false;\n"+
+"\n"+
+"if ($name && $phone) {\n"+
+"    $kma = new KmaLead(KMA_ACCESS_TOKEN);\n"+
+"    $kma->debug = false;\n"+
+"\n"+
+"    $data = array(\n"+
+"        'name'     => $name,\n"+
+"        'phone'    => $phone,\n"+
+"        'ip'       => $kma->getIp(),\n"+
+"        'country'  => $country,\n"+
+"        'language' => $lang,\n"+
+"        'channel'  => KMA_CHANNEL,\n"+
+"    );\n"+
+"    if ($data1) { $data['data1'] = $data1; }\n"+
+"    if ($subid) { $data['subid'] = $subid; }\n"+
+"\n"+
+"    $raw = $kma->addLeadAndReturnPage($data);\n"+
+"    if ($raw) {\n"+
+"        $response = json_decode($raw, true);\n"+
+"        if (isset($response['order'])) { $lead_sent = true; }\n"+
+"    }\n"+
+"    $lead_name = $name;\n"+
+"}\n"+
+"?>\n";
+  var head=
+'<!DOCTYPE html>\n<html lang="'+cfg.langCode+'"'+dir+'>\n<head>\n<meta charset="utf-8">\n<title>'+esc(t.thanks)+'</title>\n'+
+'<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<meta name="robots" content="noindex, nofollow">\n'+
+'<style>'+THANKS_CSS+'</style>\n</head>\n<body>\n';
+  var ok=
+'<div class="card">\n  <div class="ic ok"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 8 16-16"/></svg></div>\n'+
+(img?'  <img class="prod" src="'+img+'" alt="'+esc(cfg.brand)+'" loading="lazy">\n':'')+
+'  <h1>'+esc(t.thanks)+'</h1>\n'+
+'  <p><?php if(!empty($lead_name)): ?><b><?php echo htmlspecialchars($lead_name, ENT_QUOTES, "UTF-8"); ?></b> — <?php endif; ?>'+esc(t.tl1)+'</p>\n'+
+'  <p class="muted">'+esc(t.tl2)+'</p>\n'+limonadPixel(cfg)+'\n</div>\n';
+  var err=
+'<div class="card err">\n  <div class="ic err"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M26 15v16"/><path d="M26 37l.02 0"/></svg></div>\n'+
+'  <h1>'+esc(t.errt)+'</h1>\n  <p>'+esc(t.el1)+'</p>\n  <button class="retry" onclick="history.back()">'+esc(t.retry)+'</button>\n</div>\n';
+  return php+head+'<?php if ($lead_sent): ?>\n'+ok+'<?php else: ?>\n'+err+'<?php endif; ?>\n</body>\n</html>\n';
+}
 // страницы спасибо/ошибки: для limonad — свои .php-генераторы, иначе обычные call/error
 function successFile(cfg){ return cfg.pageGen==="limonad"?limonadSuccessPhp(cfg):buildCall(cfg); }
 function errorFile(cfg){ return cfg.pageGen==="limonad"?limonadErrorPhp(cfg):buildError(cfg); }
@@ -1549,6 +1796,24 @@ function phpSubidScript(cfg){
 "})();",
 "<\/script>"
   ].join("\n");
+}
+// KMA: у формы заказа принудительно ставим action="api/success.php" method="POST" (лид уходит нативным POST-ом,
+// а api/success.php шлёт его в партнёрку через KmaLead). Скрытые поля KMA (offer_id/channel/landing/webmaster/data1)
+// НЕ трогаем — они уже в форме. Если поля data1 нет — добавляем (для subid). Декоративные формы не трогаем.
+function wireKmaForm(html){
+  var done=false;
+  html=html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
+    if(done) return m;
+    if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа (декоративные/комменты оставляем)
+    done=true;
+    // выкидываем старые action/method/onsubmit, ставим свои
+    attrs=attrs.replace(/\s(?:action|method|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"");
+    attrs=' action="api/success.php" method="POST"'+attrs;
+    var body=inner;
+    if(!/name=["']data1["']/i.test(body)) body='\n        <input type="hidden" name="data1" value="{subid}">'+body;   // поле для subid, если его нет
+    return "<form"+attrs+">"+body+"</form>";
+  });
+  return html;
 }
 // режим php: форму заказа шлём нативно на order.php + скрытое поле subid (имя зависит от партнёрки) (+ country для shakes)
 function wireOrderPhpForm(cfg, html){
@@ -1687,6 +1952,16 @@ function patchHtml(cfg, html){
     var etail=everadTail(cfg);
     var eyw=backfixBlock(cfg); if(eyw) etail+="\n"+eyw;
     if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,etail+"\n</body>"); else html+="\n"+etail;
+  } else if(cfg.mode==="kma"){
+    // KMA: лид уходит НАТИВНЫМ POST-ом формы на api/success.php (там KmaLead шлёт его в партнёрку).
+    // ГЛАВНОЕ: гарантируем у формы заказа action="api/success.php" method="POST". Иначе (напр. после
+    // перевода Claude, который иногда срезает атрибуты формы) браузер сабмитит форму GET-ом на корень
+    // страницы -> «сайт/?name=...&phone=...» и лид НЕ уходит. Скрытые поля KMA (offer_id/channel/…) не трогаем.
+    html=wireKmaForm(html);
+    if(!cfg.backfix){ var kbf=html.match(/<script\b[^>]*ywbackfix\.js[^>]*data-links=['"]\s*\[\s*"([^"]+)"/i); if(kbf) cfg.backfix=kbf[1]; }
+    var ktail=phpSubidScript(cfg);   // subField=data1 -> заполняем из URL ?s/?subid или keitaro
+    var kyw=backfixBlock(cfg); if(kyw) ktail+="\n"+kyw;
+    if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,ktail+"\n</body>"); else html+="\n"+ktail;
   } else {
     if(cfg.autofix){
       html=html.replace(/<form\b(?![^>]*data-order-form)([^>]*)>/i,'<form data-order-form$1>');
@@ -1978,31 +2253,53 @@ function makeZip(files){
 var FOLDER=null;
 var CHEST_FOLDER=null;
 var UP_HANDLER={name:"",bytes:null,str:""};   // загруженный обработчик (lemon.php) — храним СЫРЫЕ байты, кладём как есть
+var KMA_API=null;   // загруженная папка api KMA: {files:[{path,kind,str/bytes}]} — кладётся в ленд как api/, success.php заменяем нашим
 function handlerLoaded(){ return !!(UP_HANDLER && UP_HANDLER.bytes && UP_HANDLER.bytes.length); }
 // zip-элемент обработчика: всегда сырые байты (без единой правки)
 function handlerEntry(name){ return {name:name, bytes:UP_HANDLER.bytes}; }
 // ВАЖНО: держим lemon.php только В ПАМЯТИ ТЕКУЩЕЙ СЕССИИ (не сохраняем на диск/localStorage).
 // В сессии не слетает (пересборка, смена папки), но при открытии нового файла билдера с нуля — просит загрузить заново.
+var HANDLER_NAME="lemon.php";   // имя требуемого файла-обработчика текущей партнёрки (lemon.php / api/success.php …)
 function renderHandlerState(){
   var drop=document.getElementById("handlerDrop"), t=document.getElementById("handlerDropT"),
       s=document.getElementById("handlerDropS"), clr=document.getElementById("handlerClear");
   if(!t) return;
+  var need=(HANDLER_NAME||"файл").split("/").pop();
   if(handlerLoaded()){
-    var nm=UP_HANDLER.orig||UP_HANDLER.name||"lemon.php";
+    var nm=UP_HANDLER.orig||UP_HANDLER.name||need;
     t.textContent="✓ "+nm+" добавлен";
-    if(s) s.textContent="нажми, чтобы заменить другим lemon.php";
+    if(s) s.textContent="нажми, чтобы заменить другим "+need;
     if(drop){ drop.style.borderColor="#a9d8bf"; drop.style.background="#f4faf6"; }   // мягкий зелёный
     if(clr) clr.style.display="flex";
   } else {
-    t.textContent="Загрузи lemon.php";
+    t.textContent="Загрузи "+need;
     if(s) s.textContent="свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся как есть.";
     if(drop){ drop.style.borderColor=""; drop.style.background=""; }
     if(clr) clr.style.display="none";
   }
 }
+function renderKmaApi(){
+  var drop=document.getElementById("kmaApiDrop"), t=document.getElementById("kmaApiDropT"),
+      clr=document.getElementById("kmaApiClear"), list=document.getElementById("kmaApiList");
+  if(!t) return;
+  var loaded=!!(KMA_API && KMA_API.files && KMA_API.files.length);
+  if(loaded){
+    t.textContent="✓ папка api загружена · "+KMA_API.files.length+" файлов";
+    if(drop){ drop.style.borderColor="#a9d8bf"; drop.style.background="#f4faf6"; }
+    if(clr) clr.style.display="flex";
+    if(list){ list.style.display="block"; list.innerHTML=KMA_API.files.slice(0,50).map(function(f){ var main=/(^|\/)api\/success\.php$/i.test(f.path)||/^success\.php$/i.test(f.path); return '<div><span>'+esc(f.path)+'</span>'+(main?'<span class="tag">→ наш дизайн</span>':'')+'</div>'; }).join(""); }
+  } else {
+    t.textContent="Загрузи папку api (KMA)";
+    if(drop){ drop.style.borderColor=""; drop.style.background=""; }
+    if(clr) clr.style.display="none";
+    if(list){ list.style.display="none"; list.innerHTML=""; }
+  }
+}
 var TEXT_EXT=/\.(html?|css|js|json|svg|txt|xml|webmanifest|map)$/i;
 var IMG_EXT=/\.(png|jpe?g|webp|gif|svg|ico|avif|bmp)$/i;
 function baseName(p){return p.split("/").pop();}
+// совпадение файла папки с нужным обработчиком: по полному пути ИЛИ по имени файла (needFile может быть с подпапкой: api/success.php)
+function matchesNeedFile(path, needFile){ if(!needFile) return false; path=(path||"").toLowerCase(); needFile=needFile.toLowerCase(); return path===needFile || baseName(path)===baseName(needFile); }
 function mimeOf(p){var e=(p.split(".").pop()||"").toLowerCase();return {png:"image/png",jpg:"image/jpeg",jpeg:"image/jpeg",webp:"image/webp",gif:"image/gif",svg:"image/svg+xml",ico:"image/x-icon",avif:"image/avif",bmp:"image/bmp",css:"text/css",js:"application/javascript",mjs:"application/javascript",html:"text/html",htm:"text/html",json:"application/json",woff:"font/woff",woff2:"font/woff2",ttf:"font/ttf",otf:"font/otf",eot:"application/vnd.ms-fontobject"}[e]||"application/octet-stream";}
 async function ingest(items){ // items:[{file, rel}] где rel = "folder/sub/file"
   if(!items||!items.length) return null;
@@ -2104,12 +2401,17 @@ function imgTile(x, container){
   var inp=tile.querySelector("input"),btnR=tile.querySelector(".rep-b"),btnN=tile.querySelector(".ren-b"),im=tile.querySelector("img");
   btnR.addEventListener("click",function(){inp.click();});
   btnN.addEventListener("click",function(){ var nn=window.prompt("Новое имя файла (ссылки в коде обновятся автоматически):", baseName(x.path)); if(nn){ renameAsset(x, nn); } });
-  inp.addEventListener("change",async function(){
-    var f=inp.files[0];if(!f)return;
+  async function applyReplace(f){
+    if(!f || !/^image\//i.test(f.type||"")) return;
     x.bytes=new Uint8Array(await f.arrayBuffer());x.kind="bin";x.replaced=true;delete x.str;
     im.src=URL.createObjectURL(new Blob([x.bytes],{type:f.type||mimeOf(x.path)}));
     tile.classList.add("rep");
-  });
+  }
+  inp.addEventListener("change",function(){ if(inp.files&&inp.files[0]) applyReplace(inp.files[0]); });
+  // перетаскивание фото прямо на плитку — заменить эту картинку без выбора файла
+  ["dragenter","dragover"].forEach(function(ev){ tile.addEventListener(ev,function(e){ e.preventDefault();e.stopPropagation();tile.classList.add("drag"); }); });
+  ["dragleave","dragend"].forEach(function(ev){ tile.addEventListener(ev,function(e){ e.preventDefault();e.stopPropagation();tile.classList.remove("drag"); }); });
+  tile.addEventListener("drop",function(e){ e.preventDefault();e.stopPropagation();tile.classList.remove("drag"); var dt=e.dataTransfer, f=dt&&dt.files&&dt.files[0]; if(f) applyReplace(f); });
   container.appendChild(tile);
 }
 function refreshFolder(){ renderFileList(); renderImages(); renderCleanup(); }
@@ -2161,7 +2463,7 @@ function renderCleanup(){
 }
 
 /* ================= UI / СБОРКА ================= */
-var MODE="html";
+var MODE="folder";
 var PAGE_IMG={page:null};
 function wirePagePick(id,slot,label){
   var box=document.getElementById(id),inp=box.querySelector("input"),tt=box.querySelector(".t"),xx=box.querySelector(".x");
@@ -2175,12 +2477,12 @@ function wirePagePick(id,slot,label){
 }
 function val(id){return document.getElementById(id).value.trim();}
 function readCfg(){
-  var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value, php=pk.php||null, ev=pk.ev||null;
-  return {mode:php?"php":(ev?"everad":(pk.mode||"js")),partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
-    phpGen:php?php.gen:"",subField:php?php.subField:(ev?ev.subField:""),phpCountry:!!(php&&php.country),phpLanding:!!(php&&php.landing),phpStream:!!(php&&php.stream),
+  var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value, php=pk.php||null, ev=pk.ev||null, kma=pk.kma||null;
+  return {mode:php?"php":(ev?"everad":(kma?"kma":(pk.mode||"js"))),native:!!pk.native,partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
+    phpGen:php?php.gen:"",subField:php?php.subField:(ev?ev.subField:(kma?kma.subField:"")),phpCountry:!!(php&&php.country),phpLanding:!!(php&&php.landing),phpStream:!!(php&&php.stream),
     phpAction:php?(php.action||"order.php"):"",phpNoId:!!(php&&php.noId),mainExt:php?(php.mainExt||"html"):"html",phpExtraHidden:php?(php.extraHidden||""):"",
-    evAction:ev?ev.action:"",evPxField:ev?ev.pxField:"",evCampaign:val("product_id"),
-    needFile:php?(php.needFile||""):"",successName:(php&&php.successPage)||(ev&&ev.successPage)||"call.html",errorName:(php&&php.errorPage)||(ev&&ev.errorPage)||"error.html",pageGen:php?(php.pageGen||""):"",
+    evAction:ev?ev.action:"",evPxField:ev?ev.pxField:"",evCampaign:val("product_id"),kmaApi:!!(kma&&kma.apiFolder),
+    needFile:php?(php.needFile||""):(kma?(kma.needFile||""):""),successName:(php&&php.successPage)||(ev&&ev.successPage)||"call.html",errorName:(php&&php.errorPage)||(ev&&ev.errorPage)||"error.html",pageGen:php?(php.pageGen||""):"",
     endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
@@ -2198,6 +2500,7 @@ function build(){
   var need;
   if(cfg.mode==="php"){ need=[]; if(!cfg.phpNoId)need.push("product_id"); if(cfg.phpCountry)need.push("country"); if(cfg.phpLanding)need.push("landingUrl"); }
   else if(cfg.mode==="everad"){ need=["product_id","langCode"]; }   // campaign_id + гео; country_code авто из гео
+  else if(cfg.mode==="kma"){ need=[]; }   // KMA: всё в рабочем ленде (offer_id/channel/landing/webmaster) — поля не нужны
   else need=["product_id","ref","api_key","langCode"];
   var miss=need.filter(function(k){return !cfg[k];});
   if(cfg.pxOn && !cfg.pxid) { /* динамический пиксель — норм */ }
@@ -2214,10 +2517,15 @@ function build(){
   }
   FILES.orderphp=(cfg.mode==="php" && cfg.phpGen)?orderPhpFor(cfg):"";   // limonad handler (lemon.php) не генерим — он из архива оффера
   // проверка обязательного внешнего файла-обработчика (lemon.php для limonad): в папке ИЛИ загружен отдельно
-  var inFolder=MODE==="folder" && FOLDER && FOLDER.files.some(function(f){return baseName(f.path).toLowerCase()===cfg.needFile.toLowerCase();});
+  var inFolder=MODE==="folder" && FOLDER && FOLDER.files.some(function(f){return matchesNeedFile(f.path, cfg.needFile);});
   var needFileMissing=cfg.needFile && !inFolder && !handlerLoaded();
+  // KMA: нужна папка api (загружена отдельно ИЛИ уже лежит в папке ленда)
+  var kmaApiInFolder=MODE==="folder" && FOLDER && FOLDER.files.some(function(f){return /(^|\/)api\/(success\.php|config\.php|kmalead\.php)$/i.test(f.path);});
+  var kmaApiLoaded=!!(KMA_API && KMA_API.files && KMA_API.files.length);
+  var kmaApiMissing=cfg.kmaApi && !kmaApiLoaded && !kmaApiInFolder;
   if(miss.length){st.className="status warn";st.textContent="Заполни обязательные: "+miss.join(", ");}
   else if(needFileMissing){st.className="status warn";st.textContent="⚠ Нет "+cfg.needFile+"! Загрузи его в поле выше (🍋) или положи в папку ленда — бери из архива ИМЕННО этого оффера. Без него лид не уйдёт.";}
+  else if(kmaApiMissing){st.className="status warn";st.textContent="⚠ Нет папки api (KMA)! Загрузи её в поле выше — из общего архива KMA (config.php/KmaLead.php/success.php…). Без неё лид не уйдёт.";}
   else{st.className="status ok";st.textContent=(MODE==="folder"?"Готово ✓ Папка: index пропатчен, call/error заменены":"Готово ✓")+(cfg.pxOn?" · Meta Pixel вставлен ("+(cfg.pxid||"динамический {fbpx}")+", конверсия "+cfg.pxev+")":"")+(cfg.needFile?(" · "+cfg.needFile+" на месте ✓"):"");}
   showTab(currentTab);
 }
@@ -2225,10 +2533,39 @@ var currentTab="index";
 function showTab(t){
   currentTab=t;
   document.querySelectorAll(".tab").forEach(function(el){el.classList.toggle("active",el.dataset.t===t);});
-  var out=document.getElementById("out"),prev=document.getElementById("prev");
-  if(t==="preview"){out.style.display="none";prev.style.display="block";renderPreview("index");}
-  else if(t==="cpreview"){out.style.display="none";prev.style.display="block";renderPreview("chest");}
-  else{prev.style.display="none";out.style.display="block";out.value=FILES[t]||"";}
+  var out=document.getElementById("out"),prev=document.getElementById("prev"),find=document.getElementById("codefind"),note=document.getElementById("editnote");
+  var isPrev=(t==="preview"||t==="cpreview");
+  if(find) find.style.display=isPrev?"none":"flex";
+  if(t==="preview"){out.style.display="none";prev.style.display="block";if(note)note.style.display="none";renderPreview("index");}
+  else if(t==="cpreview"){out.style.display="none";prev.style.display="block";if(note)note.style.display="none";renderPreview("chest");}
+  else{
+    prev.style.display="none";out.style.display="block";
+    if(t==="src"){ out.readOnly=false; out.classList.add("edit"); if(note)note.style.display="block"; var src=getSource(); if(out.value!==src) out.value=src; }
+    else{ out.readOnly=true; out.classList.remove("edit"); if(note)note.style.display="none"; out.value=FILES[t]||""; }
+  }
+  // не трогаем выделение/скролл, если пользователь прямо сейчас редактирует код (пересборка не должна мешать)
+  if(!isPrev && document.activeElement!==out) runFind("reset");
+}
+// исходник ленда (папка -> index в папке; вставка HTML -> textarea) — редактируемый на вкладке «✎ исходник»
+function getSource(){ if(MODE==="folder" && FOLDER && FOLDER.indexPath){ var f=FOLDER.files.filter(function(x){return x.path===FOLDER.indexPath;})[0]; return f?f.str:""; } return document.getElementById("html").value||""; }
+function setSource(v){ if(MODE==="folder" && FOLDER && FOLDER.indexPath){ FOLDER.files.forEach(function(x){ if(x.path===FOLDER.indexPath) x.str=v; }); } else document.getElementById("html").value=v; }
+// поиск по коду в области #out: reset (пересчитать под новый текст), next, prev
+var _findIdx=0;
+function runFind(mode){
+  var fi=document.getElementById("findInput"); if(!fi) return;
+  var q=fi.value, out=document.getElementById("out"), cnt=document.getElementById("findCount");
+  if(!q){ if(cnt)cnt.textContent=""; return; }
+  var text=out.value, tl=text.toLowerCase(), ql=q.toLowerCase();
+  var matches=[], i=tl.indexOf(ql); while(i!==-1){ matches.push(i); i=tl.indexOf(ql,i+ql.length); }
+  if(!matches.length){ if(cnt)cnt.textContent="0/0"; return; }
+  if(mode==="reset") _findIdx=0; else _findIdx=((_findIdx||0)+(mode==="prev"?-1:1)+matches.length)%matches.length;
+  var pos=matches[_findIdx];
+  out.setSelectionRange(pos,pos+q.length);
+  var line=text.slice(0,pos).split("\n").length, lh=parseInt(getComputedStyle(out).lineHeight)||19;
+  out.scrollTop=Math.max(0,(line-4)*lh);
+  // фокус переводим на код ТОЛЬКО при навигации (Enter/стрелки) — иначе воровали бы фокус у строки поиска при вводе
+  if(mode!=="reset"){ out.focus(); out.setSelectionRange(pos,pos+q.length); }
+  if(cnt) cnt.textContent=(_findIdx+1)+"/"+matches.length;
 }
 // байты -> base64 (чанками, чтобы не переполнить стек)
 function bytesToB64(b){var C=0x8000,s="";for(var i=0;i<b.length;i+=C){s+=String.fromCharCode.apply(null,b.subarray(i,i+C));}return btoa(s);}
@@ -2424,10 +2761,11 @@ function downloadZip(){
       if(REMOVE[x.path]) return false;
       if(cfg.makeChest && baseName(x.path).toLowerCase()==="chest.html") return false; // сундук уходит в свой zip
       var b=baseName(x.path).toLowerCase();
-      // лишние старые спасибо/ошибка (не активные success/error партнёрки) — выкидываем, чтобы не засоряли папку
-      if(x.path!==FOLDER.indexPath && isSuccErrPage(b) && b!==succL && b!==errL) return false;
+      // лишние старые спасибо/ошибка (не активные success/error партнёрки) — выкидываем, чтобы не засоряли папку.
+      // для нативных партнёрок (KMA) НЕ трогаем — у них свои success.php и т.п.
+      if(!cfg.native && x.path!==FOLDER.indexPath && isSuccErrPage(b) && b!==succL && b!==errL) return false;
       // чужой серверный обработчик (напр. lemon.php при everad/rocketprofit/m1) — выкидываем
-      if(isForeignHandler(b, cfg)) return false;
+      if(!cfg.native && isForeignHandler(b, cfg)) return false;
       return true;
     }).map(function(x){
       var b=baseName(x.path).toLowerCase(), succ=cfg.successName.toLowerCase(), errn=cfg.errorName.toLowerCase(), nf=(cfg.needFile||"").toLowerCase();
@@ -2436,15 +2774,26 @@ function downloadZip(){
       if(b===errn){had.error=1;return {name:x.path,str:cfg.repCallErr?FILES.error:x.str};}
       if(b==="ywbackfix.js"){had.yw=1;return {name:x.path,str:YWBACKFIX_JS};}
       if(genPhp&&b==="order.php"){had.php=1;return {name:x.path,str:FILES.orderphp};}   // патчим свой order.php (shakes/hamsters)
-      if(nf&&b===nf){had.handler=1;return handlerLoaded()?handlerEntry(x.path):(x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes});}   // lemon.php: загруженный (сырые байты) или из папки как есть
+      if(nf&&matchesNeedFile(x.path,nf)){had.handler=1;return handlerLoaded()?handlerEntry(x.path):(x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes});}   // lemon.php / api/success.php: загруженный (сырые байты) или из папки как есть
       return x.kind==="text"?{name:x.path,str:x.str}:{name:x.path,bytes:x.bytes};
     });
-    // страницы success/error ОБЯЗАНЫ существовать — это цель редиректа lemon.php/order.php/ENGINE. Если в папке их нет — добавляем всегда (иначе после отправки белый экран)
-    if(!had.call)  out.push({name:cfg.successName,str:FILES.call});
-    if(!had.error) out.push({name:cfg.errorName,str:FILES.error});
+    // страницы success/error ОБЯЗАНЫ существовать — это цель редиректа lemon.php/order.php/ENGINE. Если в папке их нет — добавляем всегда (иначе после отправки белый экран).
+    // KMA (native) — свои success/error, не генерим/не добавляем.
+    if(!cfg.native && !had.call)  out.push({name:cfg.successName,str:FILES.call});
+    if(!cfg.native && !had.error) out.push({name:cfg.errorName,str:FILES.error});
     if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});
     if(genPhp&&!had.php) out.push({name:"order.php",str:FILES.orderphp});
     if(cfg.needFile&&handlerLoaded()&&!had.handler) out.push(handlerEntry(cfg.needFile));
+    // KMA: кладём папку api из архива КАК ЕСТЬ (config.php/KmaLead.php/custom.min.js/шрифты не трогаем!),
+    // меняем ТОЛЬКО api/success.php на наш самодостаточный обработчик (сам шлёт лид + наш дизайн).
+    if(cfg.kmaApi){
+      var present={}; out.forEach(function(f){ present[(f.name||"").toLowerCase()]=1; });
+      if(KMA_API&&KMA_API.files) KMA_API.files.forEach(function(f){ var low=f.path.toLowerCase(); if(present[low]) return; out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes}); present[low]=1; });
+      // меняем api/success.php на наш (self-contained: require config.php+KmaLead.php, шлёт лид, рисует наш дизайн)
+      var succPhp=kmaSuccessPhp(cfg), hasSucc=false;
+      out.forEach(function(f){ if(/(^|\/)api\/success\.php$/i.test(f.name||"")){ f.str=succPhp; delete f.bytes; hasSucc=true; } });
+      if(!hasSucc) out.push({name:"api/success.php",str:succPhp});
+    }
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
     var files=[{name:cfg.mainExt==="php"?"index.php":"index.html",str:FILES.index},{name:cfg.successName,str:FILES.call},{name:cfg.errorName,str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}];
@@ -2458,12 +2807,10 @@ function downloadChestZip(){
   var cfg=readCfg(); cfg.makeChest=true;
   build();
   if(!FILES.chest){ alert("Не удалось собрать сундук."); return; }
-  var out=[
-    {name:"index.html",str:FILES.chest},
-    {name:cfg.successName,str:FILES.call},
-    {name:cfg.errorName,str:FILES.error}
-    // js/ywbackfix.js в сундук НЕ кладём — back-fix там не нужен
-  ];
+  var out=[{name:"index.html",str:FILES.chest}];
+  // call/error — только НЕ для нативных партнёрок (KMA: своя api/success.php)
+  if(!cfg.native){ out.push({name:cfg.successName,str:FILES.call}); out.push({name:cfg.errorName,str:FILES.error}); }
+  // js/ywbackfix.js в сундук НЕ кладём — back-fix там не нужен
   if(cfg.mode==="php" && FILES.orderphp) out.push({name:"order.php",str:FILES.orderphp});   // серверный прокси shakes и для сундука
   var nf=(cfg.needFile||"").toLowerCase(), hadHandler=false;
   if(CHEST_FOLDER){
@@ -2474,12 +2821,25 @@ function downloadChestZip(){
       if(baseName(f.path).toLowerCase()==="ywbackfix.js") return;  // back-fix в сундук не тащим
       if(cfg.mode==="php" && baseName(f.path).toLowerCase()==="order.php") return;  // свой order.php уже добавлен
       if(pres[f.path]) return;
-      if(nf && baseName(f.path).toLowerCase()===nf){ hadHandler=true; out.push(handlerLoaded()?handlerEntry(f.path):(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes})); return; }  // lemon.php: как есть (сырые байты / файл из папки)
+      if(nf && matchesNeedFile(f.path,nf)){ hadHandler=true; out.push(handlerLoaded()?handlerEntry(f.path):(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes})); return; }  // lemon.php / api/success.php: как есть
       if(isForeignHandler(baseName(f.path), cfg)) return;   // чужой обработчик (lemon.php при everad и т.п.) — не тащим в сундук
       out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes});
     });
   }
   if(cfg.needFile && handlerLoaded() && !hadHandler) out.push(handlerEntry(cfg.needFile));   // lemon.php только загружен -> тоже кладём в сундук (как есть)
+  // KMA: сундук — тоже отдельный сайт, ему нужна та же папка api/ и наш api/success.php (иначе лид из сундука не уйдёт).
+  if(cfg.kmaApi){
+    var present={}; out.forEach(function(f){ present[(f.name||"").toLowerCase()]=1; });
+    // источники папки api: загруженная KMA_API + api/* из папки ленда (FOLDER)
+    var apiSrc=[];
+    if(KMA_API&&KMA_API.files) apiSrc=apiSrc.concat(KMA_API.files);
+    if(FOLDER&&FOLDER.files) FOLDER.files.forEach(function(f){ if(/(^|\/)api\//i.test(f.path)) apiSrc.push(f); });
+    apiSrc.forEach(function(f){ var low=(f.path||"").toLowerCase(); if(present[low]) return; out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes}); present[low]=1; });
+    // меняем api/success.php на наш self-contained обработчик
+    var succPhp=kmaSuccessPhp(cfg), hasSucc=false;
+    out.forEach(function(f){ if(/(^|\/)api\/success\.php$/i.test(f.name||"")){ f.str=succPhp; delete f.bytes; hasSucc=true; } });
+    if(!hasSucc) out.push({name:"api/success.php",str:succPhp});
+  }
   dl(safeName(cfg.brand)+(cfg.langCode?("_"+cfg.langCode.toLowerCase()):"")+"_chest.zip", makeZip(out), "application/zip");
 }
 
@@ -2513,12 +2873,48 @@ function showTopToast(msg,isErr){
   t.classList.add("show");
   clearTimeout(_toastTimer); _toastTimer=setTimeout(function(){ t.classList.remove("show"); }, isErr?6000:9000);
 }
+// свой дропдаун поверх нативного <select>: сам select остаётся источником (value/change/options),
+// но визуально скрыт, а список рисуем и стилизуем сами — одинаково с остальной тёмной темой.
+function enhanceSelect(sel){
+  if(!sel || sel.dataset.csx || !sel.options) return;
+  sel.dataset.csx="1";
+  var wrap=document.createElement("div"); wrap.className="csx";
+  sel.parentNode.insertBefore(wrap, sel); wrap.appendChild(sel);
+  var trig=document.createElement("div"); trig.className="csx-trigger"; trig.setAttribute("tabindex","0"); trig.setAttribute("role","button");
+  var lbl=document.createElement("span"); lbl.className="csx-label";
+  var arr=document.createElement("span"); arr.className="csx-arrow"; arr.innerHTML='<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>';
+  trig.appendChild(lbl); trig.appendChild(arr);
+  var menu=document.createElement("div"); menu.className="csx-menu";
+  wrap.appendChild(trig); wrap.appendChild(menu);
+  function esc(s){return String(s==null?"":s).replace(/[<>&]/g,function(c){return c==="<"?"&lt;":c===">"?"&gt;":"&amp;";});}
+  function build(){
+    menu.innerHTML="";
+    Array.prototype.forEach.call(sel.options,function(o){
+      var it=document.createElement("div"); it.className="csx-opt"+(o.value===sel.value?" sel":""); it.dataset.value=o.value;
+      it.innerHTML='<span class="csx-tick">✓</span><span>'+esc(o.textContent)+'</span>';
+      it.addEventListener("click",function(){ pick(o.value); });
+      menu.appendChild(it);
+    });
+  }
+  function syncLabel(){
+    var o=sel.options[sel.selectedIndex]; lbl.textContent=o?o.textContent:"";
+    Array.prototype.forEach.call(menu.children,function(c){ c.classList.toggle("sel", c.dataset.value===sel.value); });
+  }
+  function open(){ build(); wrap.classList.add("open"); }
+  function close(){ wrap.classList.remove("open"); }
+  function pick(v){ if(sel.value!==v){ sel.value=v; sel.dispatchEvent(new Event("change",{bubbles:true})); } syncLabel(); close(); }
+  trig.addEventListener("click",function(){ wrap.classList.contains("open")?close():open(); });
+  trig.addEventListener("keydown",function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); trig.click(); } else if(e.key==="Escape"){ close(); } });
+  document.addEventListener("click",function(e){ if(!wrap.contains(e.target)) close(); });
+  sel.addEventListener("change",syncLabel);   // программная смена (вставка оффера) обновляет подпись
+  build(); syncLabel();
+}
 /* init */
 (function(){
   var sel=document.getElementById("partner");
   Object.keys(PARTNERS).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PARTNERS[k].label;sel.appendChild(o);});
   function applyPartner(){
-    var pk=PARTNERS[sel.value], php=pk.php||null, ev=pk.ev||null, isPhp=!!php || pk.mode==="php", isEverad=!!ev || pk.mode==="everad";
+    var pk=PARTNERS[sel.value], php=pk.php||null, ev=pk.ev||null, isPhp=!!php || pk.mode==="php", isEverad=!!ev || pk.mode==="everad", isKma=pk.mode==="kma";
     document.getElementById("partnerHint").textContent=pk.hint;
     var refEl=document.getElementById("ref"), keyEl=document.getElementById("api_key");
     [["ref",refEl],["api_key",keyEl]].forEach(function(pair){
@@ -2529,13 +2925,22 @@ function showTopToast(msg,isErr){
     var needCountry=!!(php&&php.country)||!!(ev&&ev.country), needLanding=!!(php&&php.landing), needStream=!!(php&&php.stream);
     var hasFixedKeys=(pk.api_key!=null&&pk.api_key!=="")||(pk.ref!=null&&pk.ref!=="");   // закреплённые ключи (m1)
     // ref/api_key показываем ТОЛЬКО когда их надо вводить вручную (custom); у m1/everad они не нужны -> скрыты
-    var manual=(!isPhp && !isEverad && !hasFixedKeys);
+    var manual=(!isPhp && !isEverad && !isKma && !hasFixedKeys);
     document.getElementById("refWrap").style.display=manual?"block":"none";
     document.getElementById("apiKeyWrap").style.display=manual?"block":"none";
     document.getElementById("countryWrap").style.display=needCountry?"block":"none";
     document.getElementById("phpFields").style.display=(needLanding||needStream)?"block":"none";
-    document.getElementById("handlerFields").style.display=(php&&php.needFile)?"block":"none";   // limonad: загрузка lemon.php
-    document.getElementById("pidWrap").style.display=(php&&php.noId)?"none":"block";   // limonad: id оффера не нужен (он в lemon.php); everad: нужен campaign_id
+    var needF=(php&&php.needFile)||"";   // limonad: одиночный lemon.php
+    var needApi=!!(pk.kma&&pk.kma.apiFolder);   // KMA: папка api
+    document.getElementById("handlerFields").style.display=(needF||needApi)?"block":"none";
+    document.getElementById("handlerDrop").style.display=needF?"":"none";
+    document.getElementById("handlerLabel").style.display=needF?"":"none";
+    document.getElementById("handlerHint").style.display=needF?"":"none";
+    document.getElementById("kmaApiDrop").style.display=needApi?"":"none";
+    document.getElementById("kmaApiHint").style.display=needApi?"":"none";
+    if(needF){ HANDLER_NAME=needF; var hl=document.getElementById("handlerLabel"); if(hl) hl.textContent="Файл-обработчик ("+needF+") *"; try{ renderHandlerState(); }catch(e){} }
+    if(needApi){ try{ renderKmaApi(); }catch(e){} }
+    document.getElementById("pidWrap").style.display=(isKma||(php&&php.noId))?"none":"block";   // KMA/limonad: id оффера не нужен (он в ленде/lemon.php); everad: нужен campaign_id
     // если в правой ячейке ряда ничего не показано (m1/hamsters) — «Код гео» на всю ширину, без пустого места
     var cellUsed=manual||needCountry;
     document.getElementById("partnerCell").style.display=cellUsed?"":"none";
@@ -2561,7 +2966,10 @@ function showTopToast(msg,isErr){
     var PLAIN={ offerId:"product_id", geo:"langCode", landingUrl:"landingUrl", streamCode:"streamCode",
                 name:"brand", price:"price", image:"image", backfix:"backfix" };
 
+    var applying=false;   // защита от двойного добавления (paste + клик/Enter одновременно)
     function apply(raw){
+      if(applying) return false; applying=true;
+      setTimeout(function(){ applying=false; }, 500);
       var data;
       try{ data=JSON.parse(String(raw||"").trim()); }catch(e){ data=null; }
       if(!data || typeof data!=="object" || !data["msteam-offer"]){
@@ -2573,19 +2981,15 @@ function showTopToast(msg,isErr){
         var el=document.getElementById(PLAIN[k]);
         if(el && data[k]!=null && String(data[k]).trim()!==""){ el.value=String(data[k]).trim(); filled.push(k); }
       });
-      // Язык служебных страниц. Если пришёл код, которого у нас в списке нет
-      // (в поле легко вписать код гео вместо кода языка), пробуем перевести
-      // его в язык — молча оставлять английский хуже.
-      var GEO2UI={cz:"cs",at:"de",ch:"de",be:"fr",gr:"el",dk:"da",se:"sv",ee:"et",si:"sl",
-                  ua:"uk",pk:"ur",ae:"ar",sa:"ar",ma:"ar",eg:"ar",il:"he",ph:"tl",
-                  gb:"en",uk:"en",us:"en",au:"en",ie:"en",ca:"en",
-                  mx:"es",cl:"es",co:"es",pe:"es",ar:"es",br:"pt",rs:"sr",by:"ru",kz:"ru"};
-      var want=String(data.uiLang||data.geo||"").trim().toLowerCase().split(/[-_]/)[0];
-      if(want){
-        var ui=document.getElementById("uiLang");
-        var has=function(v){ return ui && Array.prototype.some.call(ui.options,function(o){return o.value===v;}); };
-        var code=has(want)?want:(has(GEO2UI[want])?GEO2UI[want]:"");
-        if(code){ ui.value=code; filled.push("uiLang"); }
+      // Язык служебных страниц + страна: прогоняем «Код гео» через ШТАТНЫЙ обработчик поля langCode
+      // (в нём полная таблица GEO2LANG + langFromGeo). Он сам выставит язык call/error/chest и страну.
+      var lc=document.getElementById("langCode");
+      if(lc && lc.value.trim()){ lc.dispatchEvent(new Event("input")); filled.push("uiLang"); }
+      // если дашборд ЯВНО прислал uiLang — уважаем его поверх (он есть в списке языков)
+      var ui=document.getElementById("uiLang");
+      if(data.uiLang && ui){
+        var v=String(data.uiLang).trim().toLowerCase().split(/[-_]/)[0];
+        if(Array.prototype.some.call(ui.options,function(o){return o.value===v;})){ ui.value=v; ui.dispatchEvent(new Event("change")); }
       }
       if(data.partner){
         if(Array.prototype.some.call(sel.options,function(o){return o.value===data.partner;})){
@@ -2603,14 +3007,32 @@ function showTopToast(msg,isErr){
     }
 
     btn.addEventListener("click",async function(){
-      if(box.value.trim()){ apply(box.value); return; }
-      try{ var txt=await navigator.clipboard.readText(); if(txt&&txt.trim()){ apply(txt); return; } }catch(e){}
-      showTopToast("Пусто: вставь строку оффера в поле", true);
+      if(btn.dataset.busy==="1") return;                 // один клик — один оффер
+      btn.dataset.busy="1"; btn.disabled=true; var oldTxt=btn.textContent; btn.textContent="⏳";
+      try{
+        // 1) сразу читаем буфер обмена и вставляем — один клик
+        try{
+          if(navigator.clipboard && navigator.clipboard.readText){
+            var txt=await navigator.clipboard.readText();
+            if(txt && txt.trim()){ apply(txt); return; }
+          }
+        }catch(e){}
+        // 2) если в поле уже что-то набрано/вставлено — применяем его
+        if(box.value.trim()){ apply(box.value); return; }
+        // 3) браузер не дал прочитать буфер (локальный файл) — фокус в поле: Ctrl+V вставит и применит сам
+        box.focus();
+        showTopToast("Нажми Ctrl+V — оффер вставится и применится сам", true);
+      } finally {
+        btn.dataset.busy=""; btn.disabled=false; btn.textContent=oldTxt;
+      }
     });
-    // Ctrl+V прямо в поле — вставка срабатывает сама, без нажатия кнопки.
+    // Ctrl+V / правая кнопка → Вставить прямо в поле — применяем СРАЗУ, без кнопки.
+    // Применяем на ЛЮБОЙ вставке (apply сам проверит формат и подскажет, если строка не та) —
+    // это надёжно работает даже когда браузер запрещает чтение буфера по кнопке (локальный файл).
     box.addEventListener("paste",function(e){
-      var txt=(e.clipboardData||window.clipboardData).getData("text");
-      if(txt&&txt.indexOf("msteam-offer")>-1){ e.preventDefault(); apply(txt); }
+      var cd=e.clipboardData||window.clipboardData;
+      var txt=cd?cd.getData("text"):"";
+      if(txt&&txt.trim()){ e.preventDefault(); box.value=txt.trim(); apply(txt); }
     });
     box.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); btn.click(); } });
   })();
@@ -2634,6 +3056,39 @@ function showTopToast(msg,isErr){
     renderHandlerState(); try{ build(); }catch(_){}
   }); }
   renderHandlerState();   // стартовое состояние (в новой сессии lemon.php не загружен -> просит загрузить)
+  // KMA: загрузка папки api (файл-инпут webkitdirectory + drag-drop)
+  async function loadKmaApi(items){
+    try{
+      // читаем как есть, СОХРАНЯЯ структуру внутри api/ (ingest срезал бы верхнюю папку -> файлы улетали в корень)
+      var TXT=/\.(php|html?|css|js|mjs|json|svg|txt|xml|md|map|ini|conf|htaccess|webmanifest)$/i;
+      var files=[];
+      for(var i=0;i<items.length;i++){
+        var it=items[i], rel=(it.rel||(it.file&&it.file.name)||"").replace(/\\/g,"/");
+        var parts=rel.split("/"); if(parts.length>1) parts.shift();   // убираем ИМЯ выбранной папки (api/…)
+        var path="api/"+parts.join("/");
+        var f=it.file; if(!f) continue;
+        if(TXT.test(rel)) files.push({path:path, kind:"text", str:await f.text()});
+        else files.push({path:path, kind:"bin", bytes:new Uint8Array(await f.arrayBuffer())});
+      }
+      KMA_API={files:files}; renderKmaApi(); try{build();}catch(_){}
+    }
+    catch(e){ var st=document.getElementById("status"); if(st){st.className="status warn";st.textContent="Ошибка чтения папки api: "+e.message;} }
+  }
+  var kfi=document.getElementById("kmaApiFolder");
+  if(kfi){ kfi.addEventListener("change",function(e){ loadKmaApi(Array.prototype.map.call(e.target.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};})); }); }
+  var kclr=document.getElementById("kmaApiClear");
+  if(kclr){ kclr.addEventListener("click",function(e){ e.preventDefault(); e.stopPropagation(); KMA_API=null; if(kfi)kfi.value=""; renderKmaApi(); try{build();}catch(_){} }); }
+  var kdrop=document.getElementById("kmaApiDrop");
+  if(kdrop){
+    ["dragenter","dragover"].forEach(function(ev){kdrop.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();kdrop.classList.add("drag");});});
+    ["dragleave","dragend"].forEach(function(ev){kdrop.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();kdrop.classList.remove("drag");});});
+    kdrop.addEventListener("drop",async function(e){ e.preventDefault();e.stopPropagation();kdrop.classList.remove("drag");
+      var dt=e.dataTransfer, roots=[];
+      if(dt&&dt.items){for(var i=0;i<dt.items.length;i++){var en=dt.items[i].webkitGetAsEntry?dt.items[i].webkitGetAsEntry():null;if(en)roots.push(en);}}
+      if(roots.length){var out=[];for(var r=0;r<roots.length;r++){await walkEntry(roots[r],"",out);}await loadKmaApi(out.map(function(o){return {file:o.file, rel:o.rel};}));}
+      else if(dt&&dt.files&&dt.files.length){await loadKmaApi(Array.prototype.map.call(dt.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};}));}
+    });
+  }
   var cfi=document.getElementById("chestFolder");
   if(cfi){
     cfi.addEventListener("change",function(e){ loadChestFolder(Array.prototype.map.call(e.target.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};})); });
@@ -2664,17 +3119,19 @@ function showTopToast(msg,isErr){
 
   var ul=document.getElementById("uiLang");
   LANGS.forEach(function(p){var o=document.createElement("option");o.value=p[0];o.textContent=p[1];ul.appendChild(o);});
+  // свой дропдаун вместо нативного списка ОС — для всех селектов (партнёрка/событие пикселя/язык)
+  ["partner","pxev","uiLang"].forEach(function(id){ enhanceSelect(document.getElementById(id)); });
   // авто-подстановка языка call/error/chest из кода гео (выбор вручную остаётся)
   var GEO2LANG={cr:"es",mx:"es",co:"es",cl:"es",pe:"es",ec:"es",gt:"es",pk:"ur",tn:"ar",ma:"ar",sa:"ar",ae:"ar",eg:"ar",dz:"ar",kw:"ar",qa:"ar",be:"nl",ch:"de",at:"de",br:"pt",gr:"el",cz:"cs",dk:"da",se:"sv",ee:"et",si:"sl",rs:"sr",ua:"uk",gb:"en",uk:"en",us:"en",ie:"en",il:"he"};
   function hasLang(c){return LANGS.some(function(p){return p[0]===c;});}
-  function langFromGeo(c){c=(c||"").toLowerCase().trim();return GEO2LANG[c]||(hasLang(c)?c:null);}
+  function langFromGeo(c){c=(c||"").toLowerCase().trim();var base=c.split(/[-_]/)[0];return GEO2LANG[c]||GEO2LANG[base]||(hasLang(c)?c:(hasLang(base)?base:null));}
   var langEl=document.getElementById("langCode");
   // код гео/языка -> ISO-2 страна для shakes (fr-BE -> BE, cs -> CZ, pk -> PK, cr -> CR …)
   var LANG2CC={cs:"CZ",da:"DK",sv:"SE",el:"GR",ur:"PK",he:"IL",uk:"UA",et:"EE",sl:"SI",ja:"JP",ko:"KR",zh:"CN",nb:"NO",nn:"NO",ca:"ES",fa:"IR",hi:"IN",vi:"VN"};
   function ccFromGeo(v){ v=(v||"").trim(); if(!v) return ""; var m=v.match(/[-_]([a-z]{2})$/i); if(m) return m[1].toUpperCase(); var base=v.slice(0,2).toLowerCase(); return (LANG2CC[base]||base).toUpperCase(); }
   var countryEl=document.getElementById("country");
   function autoFillCountry(){ if(!countryEl) return; if(!countryEl.value || countryEl.dataset.auto==="1"){ var cc=ccFromGeo(langEl.value); if(cc){ countryEl.value=cc; countryEl.dataset.auto="1"; } } }
-  langEl.addEventListener("input",function(){ var L=langFromGeo(langEl.value); if(L){ul.value=L;} autoFillCountry(); try{build();}catch(e){} });
+  langEl.addEventListener("input",function(){ var L=langFromGeo(langEl.value); if(L){ul.value=L; ul.dispatchEvent(new Event("change"));} autoFillCountry(); try{build();}catch(e){} });
   if(countryEl){ countryEl.addEventListener("input",function(){ countryEl.dataset.auto=countryEl.value?"0":"1"; try{build();}catch(e){} }); }
 
   function setMode(m){
@@ -2687,12 +3144,13 @@ function showTopToast(msg,isErr){
   }
   document.getElementById("modeHtml").addEventListener("click",function(){setMode("html");});
   document.getElementById("modeFolder").addEventListener("click",function(){setMode("folder");});
+  setMode("folder");   // папка — основной режим, показываем первым
 
   document.getElementById("folder").addEventListener("change",function(e){
     loadFolder(Array.prototype.map.call(e.target.files,function(f){return {file:f, rel:f.webkitRelativePath||f.name};}));
   });
-  // drag-and-drop папки в зону загрузки
-  var drop=document.querySelector(".drop");
+  // drag-and-drop папки в зону загрузки (именно дропзона папки, а не первый .drop на странице — им был lemon.php)
+  var drop=document.querySelector('label.drop[for="folder"]');
   ["dragenter","dragover"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();drop.classList.add("drag");});});
   ["dragleave","dragend"].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();e.stopPropagation();drop.classList.remove("drag");});});
   drop.addEventListener("drop",async function(e){
@@ -2721,6 +3179,135 @@ function showTopToast(msg,isErr){
   document.getElementById("btnChest").addEventListener("click",downloadChestZip);
   document.querySelectorAll(".tab").forEach(function(el){el.addEventListener("click",function(){showTab(el.dataset.t);});});
   document.querySelectorAll(".dl button[data-f]").forEach(function(b){b.addEventListener("click",function(){if(!FILES.index)build();var f=b.dataset.f;dl(f+".html",FILES[f]);});});
+  // правка исходника на вкладке «✎ исходник» — пишем обратно и пересобираем (не дёргая showTab, чтобы не сбросить текст)
+  var _srcT; document.getElementById("out").addEventListener("input",function(){
+    if(currentTab!=="src") return;
+    setSource(document.getElementById("out").value);
+    clearTimeout(_srcT); _srcT=setTimeout(function(){ try{build();}catch(e){} },400);
+  });
+  // поиск по коду
+  var fi=document.getElementById("findInput");
+  if(fi){
+    fi.addEventListener("input",function(){ runFind("reset"); });
+    fi.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); runFind(e.shiftKey?"prev":"next"); } });
+    document.getElementById("findNext").addEventListener("click",function(){ runFind("next"); });
+    document.getElementById("findPrev").addEventListener("click",function(){ runFind("prev"); });
+  }
+})();
+</script>
+
+<script>
+/* ================= ПЕРЕВОД ЛЕНДА ЧЕРЕЗ CLAUDE ================= */
+(function(){
+  var keyEl=document.getElementById("trKey"), modelEl=document.getElementById("trModel"),
+      promptEl=document.getElementById("trPrompt"),
+      runBtn=document.getElementById("trRun"), st=document.getElementById("trStatus");
+  if(!runBtn) return;
+  try{ enhanceSelect(modelEl); }catch(e){}
+  try{ enhanceSelect(document.getElementById("trEffort")); }catch(e){}
+  try{ enhanceSelect(document.getElementById("trForm")); }catch(e){}
+  // API-ключ запоминаем ТОЛЬКО в этом браузере (localStorage) — в файл/репозиторий не попадает.
+  try{ var savedKey=localStorage.getItem("lb_anthropic_key"); if(savedKey) keyEl.value=savedKey; }catch(e){}
+  keyEl.addEventListener("input",function(){ try{ var v=keyEl.value.trim(); if(v) localStorage.setItem("lb_anthropic_key",v); else localStorage.removeItem("lb_anthropic_key"); }catch(e){} });
+  function status(msg,cls){ st.className="status"+(cls?(" "+cls):""); st.textContent=msg; }
+  // блок переменных: авто из полей билдера + ручной ввод
+  function varsBlock(){
+    var cfg=readCfg(), lines=[];
+    var ul=document.getElementById("uiLang"), o=ul.options[ul.selectedIndex], langName=o?o.textContent:cfg.langCode;
+    if(cfg.brand && cfg.brand!=="Product") lines.push("ОФФЕР (новое имя продукта): "+cfg.brand);
+    if(langName) lines.push("ЯЗЫК (на какой перевести): "+langName);
+    if(cfg.langCode) lines.push("ГЕО (страна/код): "+cfg.langCode);
+    if(cfg.price && cfg.price!=="—" && /\d/.test(cfg.price)){
+      lines.push("ЦЕНА (на ленде): "+cfg.price);
+      try{ var was=doubleCalc(cfg.price).full; if(was) lines.push("СТАРАЯ ЦЕНА (зачёркнутая): "+was); }catch(e){}
+    }
+    function v(id){ var e=document.getElementById(id); return e?(e.value||"").trim():""; }
+    if(v("trForm"))  lines.push("ФОРМА ПРОДУКТА: "+v("trForm"));
+    if(v("trExtra")) lines.push("ДОП. ПОЖЕЛАНИЯ: "+v("trExtra"));
+    return lines.join("\n");
+  }
+  // источник и приёмник index (папка или вставленный HTML)
+  function indexSrc(){
+    if(MODE==="folder" && FOLDER && FOLDER.indexPath){ var f=FOLDER.files.filter(function(x){return x.path===FOLDER.indexPath;})[0]; return f?f.str:""; }
+    return document.getElementById("html").value||"";
+  }
+  function putIndex(str){
+    if(MODE==="folder" && FOLDER && FOLDER.indexPath){ FOLDER.files.forEach(function(x){ if(x.path===FOLDER.indexPath) x.str=str; }); }
+    else document.getElementById("html").value=str;
+  }
+  function stripFence(s){ s=String(s||"").trim(); var m=s.match(/^```[a-zA-Z]*\s*\n([\s\S]*?)\n```$/); if(m) return m[1].trim(); return s.replace(/^```[a-zA-Z]*\s*/,"").replace(/\s*```$/,"").trim(); }
+  // надёжно вырезать HTML-документ из ответа (на случай если модель добавила текст/фенсы вокруг)
+  function extractHtml(s){ s=stripFence(s); var lo=s.search(/<!doctype html|<html[\s>]/i); if(lo>0) s=s.slice(lo); var hi=s.toLowerCase().lastIndexOf("</html>"); if(hi>-1) s=s.slice(0,hi+7); return s.trim(); }
+
+  // источник/приёмник HTML сундука (из подключённой папки сундука)
+  function chestSrc(){ if(CHEST_FOLDER && CHEST_FOLDER.mainPath){ var f=CHEST_FOLDER.files.filter(function(x){return x.path===CHEST_FOLDER.mainPath;})[0]; return f?f.str:""; } return ""; }
+  function putChest(str){ if(CHEST_FOLDER && CHEST_FOLDER.mainPath){ CHEST_FOLDER.files.forEach(function(x){ if(x.path===CHEST_FOLDER.mainPath) x.str=str; }); } }
+  function stat(el,msg,cls){ if(!el) return; el.className="status"+(cls?(" "+cls):""); el.textContent=msg; }
+
+  // универсальный перевод: getSrc()->HTML, putDst(HTML) кладёт обратно; pv — вкладка превью после сборки
+  async function doTranslate(getSrc, putDst, stEl, btnEl, what, pv){
+    if(btnEl.dataset.busy==="1") return;
+    var key=(keyEl.value||"").trim();
+    if(!key){ stat(stEl,"Вставь API-ключ Anthropic (sk-ant-…) в блоке перевода слева","warn"); return; }
+    var html=getSrc();
+    if(!html || !html.trim()){ stat(stEl,"Нет "+what+": сначала подключи его","warn"); return; }
+    var model=modelEl.value, system=(promptEl.value||"").trim();
+    var user=varsBlock()+"\n\nHTML:\n"+html;
+    // лимит вывода: даём максимум, чтобы большой ленд + «размышление» модели не обрезались
+    var maxTok=(model==="claude-haiku-4-5")?32000:128000;
+    // эффорт (глубина «размышления») — главный рычаг скорости; у haiku не поддерживается
+    var effEl=document.getElementById("trEffort"), effort=effEl?effEl.value:"medium";
+    var reqBody={ model:model, max_tokens:maxTok, stream:true, system:system, messages:[{role:"user",content:user}] };
+    if(model!=="claude-haiku-4-5") reqBody.output_config={ effort:effort };
+    btnEl.dataset.busy="1"; btnEl.disabled=true; var old=btnEl.textContent; btnEl.textContent="⏳ Перевожу…";
+    stat(stEl,"Отправляю в Claude ("+model+", "+effort+")…","");
+    try{
+      var res=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{ "content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true" },
+        body:JSON.stringify(reqBody)
+      });
+      if(!res.ok){ var t=""; try{t=await res.text();}catch(e){} stat(stEl,"Ошибка API "+res.status+": "+t.slice(0,240),"warn"); return; }
+      var reader=res.body.getReader(), dec=new TextDecoder(), buf="", out="", expected=Math.max(1, html.length), stopReason=null;
+      while(true){
+        var r=await reader.read(); if(r.done) break;
+        buf+=dec.decode(r.value,{stream:true});
+        var parts=buf.split("\n"); buf=parts.pop();
+        for(var i=0;i<parts.length;i++){
+          var line=parts[i]; if(line.indexOf("data:")!==0) continue;
+          var d=line.slice(5).trim(); if(!d||d==="[DONE]") continue;
+          try{ var ev=JSON.parse(d);
+            if(ev.type==="content_block_delta" && ev.delta && ev.delta.type==="text_delta"){ out+=ev.delta.text; var pct=Math.min(99,Math.round(out.length/expected*100)); stat(stEl,"Перевожу… "+pct+"%",""); }
+            else if(ev.type==="message_delta" && ev.delta && ev.delta.stop_reason){ stopReason=ev.delta.stop_reason; }
+            else if(ev.type==="error"){ stat(stEl,"Ошибка Claude: "+((ev.error&&ev.error.message)||"unknown"),"warn"); return; }
+          }catch(e){}
+        }
+      }
+      // обрезка по лимиту токенов -> НЕ применяем битый результат
+      if(stopReason==="max_tokens"){ stat(stEl,"⚠ Ответ обрезан лимитом токенов — "+what+" слишком большой для одного запроса. Возьми модель помощнее или раздели/уменьши. Битый результат не применён.","warn"); return; }
+      stat(stEl,"Перевожу… 100% — собираю","");
+      var raw=out; out=extractHtml(out);
+      if(!out || out.length<100 || !/<html|<!doctype/i.test(out) || !/<\/html>/i.test(out)){
+        var diag="сырых "+raw.length+" симв, после разбора "+out.length+", stop="+(stopReason||"?");
+        if(stopReason==="refusal"){ stat(stEl,"⚠ Модель отклонила запрос (refusal) — обычно из-за мед-формулировок ленда. Попробуй другую модель или смягчи утверждения. ["+diag+"]","warn"); }
+        else if(!raw){ stat(stEl,"⚠ Пустой ответ от API ["+diag+"]. Чаще всего это file:// (CORS) — открой билдер по ссылке http/https, а не двойным кликом. Также проверь ключ/баланс.","warn"); }
+        else{ stat(stEl,"⚠ Ответ не похож на цельный HTML ["+diag+"]. Начало: "+raw.slice(0,160)+" … Проверь модель/лимиты или пришли это мне.","warn"); }
+        return;
+      }
+      putDst(out);
+      try{ build(); }catch(e){}
+      try{ if(pv) showTab(pv); }catch(e){}
+      stat(stEl,"Готово ✓ "+what[0].toUpperCase()+what.slice(1)+" переведён и вставлен обратно — можно собирать","ok");
+    }catch(err){
+      stat(stEl,"Сбой запроса: "+(err&&err.message||err)+". Если CORS/сеть — открой билдер по ссылке (http), а не как файл, либо проверь ключ.","warn");
+    }finally{
+      btnEl.dataset.busy=""; btnEl.disabled=false; btnEl.textContent=old;
+    }
+  }
+
+  runBtn.addEventListener("click",function(){ doTranslate(indexSrc, putIndex, st, runBtn, "ленд", "preview"); });
+  var runChest=document.getElementById("trRunChest");
+  if(runChest) runChest.addEventListener("click",function(){ doTranslate(chestSrc, putChest, document.getElementById("trStatusChest"), runChest, "сундук", "cpreview"); });
 })();
 </script>
 </body>
