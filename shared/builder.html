@@ -2807,12 +2807,10 @@ function downloadChestZip(){
   var cfg=readCfg(); cfg.makeChest=true;
   build();
   if(!FILES.chest){ alert("Не удалось собрать сундук."); return; }
-  var out=[
-    {name:"index.html",str:FILES.chest},
-    {name:cfg.successName,str:FILES.call},
-    {name:cfg.errorName,str:FILES.error}
-    // js/ywbackfix.js в сундук НЕ кладём — back-fix там не нужен
-  ];
+  var out=[{name:"index.html",str:FILES.chest}];
+  // call/error — только НЕ для нативных партнёрок (KMA: своя api/success.php)
+  if(!cfg.native){ out.push({name:cfg.successName,str:FILES.call}); out.push({name:cfg.errorName,str:FILES.error}); }
+  // js/ywbackfix.js в сундук НЕ кладём — back-fix там не нужен
   if(cfg.mode==="php" && FILES.orderphp) out.push({name:"order.php",str:FILES.orderphp});   // серверный прокси shakes и для сундука
   var nf=(cfg.needFile||"").toLowerCase(), hadHandler=false;
   if(CHEST_FOLDER){
@@ -2829,6 +2827,19 @@ function downloadChestZip(){
     });
   }
   if(cfg.needFile && handlerLoaded() && !hadHandler) out.push(handlerEntry(cfg.needFile));   // lemon.php только загружен -> тоже кладём в сундук (как есть)
+  // KMA: сундук — тоже отдельный сайт, ему нужна та же папка api/ и наш api/success.php (иначе лид из сундука не уйдёт).
+  if(cfg.kmaApi){
+    var present={}; out.forEach(function(f){ present[(f.name||"").toLowerCase()]=1; });
+    // источники папки api: загруженная KMA_API + api/* из папки ленда (FOLDER)
+    var apiSrc=[];
+    if(KMA_API&&KMA_API.files) apiSrc=apiSrc.concat(KMA_API.files);
+    if(FOLDER&&FOLDER.files) FOLDER.files.forEach(function(f){ if(/(^|\/)api\//i.test(f.path)) apiSrc.push(f); });
+    apiSrc.forEach(function(f){ var low=(f.path||"").toLowerCase(); if(present[low]) return; out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes}); present[low]=1; });
+    // меняем api/success.php на наш self-contained обработчик
+    var succPhp=kmaSuccessPhp(cfg), hasSucc=false;
+    out.forEach(function(f){ if(/(^|\/)api\/success\.php$/i.test(f.name||"")){ f.str=succPhp; delete f.bytes; hasSucc=true; } });
+    if(!hasSucc) out.push({name:"api/success.php",str:succPhp});
+  }
   dl(safeName(cfg.brand)+(cfg.langCode?("_"+cfg.langCode.toLowerCase()):"")+"_chest.zip", makeZip(out), "application/zip");
 }
 
