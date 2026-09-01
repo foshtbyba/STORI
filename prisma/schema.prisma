@@ -113,7 +113,11 @@ model Offer {
   /// Free text — payout terms are negotiated, not computed.
   payout     String  @default("")
   geosJson   String  @default("[]")
+  /// Регионы, куда лить нельзя. Хранится списком, вводится через запятую.
   bansJson   String  @default("[]")
+  /// Города-исключения — отдельным списком от регионов: в кабинете они
+  /// исключаются разными полями, и копировать их нужно порознь.
+  citiesJson String  @default("[]")
   notesJson  String  @default("[]")
   previewUrl String?
 

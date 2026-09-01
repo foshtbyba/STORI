@@ -12,6 +12,7 @@ import DeleteOffer from '@/components/DeleteOffer';
 import Link from 'next/link';
 import OfferSearch from '@/components/OfferSearch';
 import Clamp from '@/components/Clamp';
+import CopyList from '@/components/CopyList';
 
 export default async function OffersPage({
   searchParams,
@@ -189,32 +190,48 @@ export default async function OffersPage({
                   </div>
                 </div>
 
-                <div className="rounded-[18px] bg-sub px-4 py-3.5">
-                  <div className="lab mb-2.5 text-rust">Регионы-исключения</div>
-                  {/*
-                    Короткое исключение — «таблетка», как гео. Но сюда порой
-                    вставляют целый абзац со списком городов: круглые бока
-                    вокруг восьми строк текста превращаются в кляксу. Длинное
-                    кладём строкой во всю ширину и с обычными углами.
-                  */}
-                  <Clamp collapsedPx={52}>
-                    <div className="flex flex-wrap gap-1.5">
-                      {parseGeos(offer.bansJson).map((ban) => (
-                        <span
-                          key={ban}
-                          className={
-                            ban.length > 28
-                              ? 'basis-full rounded-xl bg-rust-t px-3.5 py-2.5 text-[12px] leading-relaxed text-rust'
-                              : 'rounded-full bg-rust-t px-3 py-1 text-[12px] text-rust'
-                          }
-                        >
-                          {ban}
-                        </span>
-                      ))}
-                      {parseGeos(offer.bansJson).length === 0 ? <span className="text-[12px] text-mute">нет</span> : null}
+                {/*
+                  Исключения: регионы и города — двумя списками, у каждого своя
+                  кнопка. Вводят их через запятую, а кабинет ждёт построчно, и
+                  раскладывать это руками в блокноте на каждый запуск — ровно та
+                  работа, которую должна делать кнопка.
+                */}
+                {[
+                  { key: 'bans', title: 'Регионы-исключения', label: 'копировать регионы', items: parseGeos(offer.bansJson) },
+                  { key: 'cities', title: 'Города-исключения', label: 'копировать города', items: parseGeos(offer.citiesJson) },
+                ].map((box) => (
+                  <div key={box.key} className="rounded-[18px] bg-sub px-4 py-3.5">
+                    <div className="mb-2.5 flex items-center justify-between gap-2">
+                      <span className="lab text-rust">{box.title}</span>
+                      {team ? (
+                        <CopyList items={box.items} label={box.label} title={box.title} />
+                      ) : null}
                     </div>
-                  </Clamp>
-                </div>
+                    {/*
+                      Короткое исключение — «таблетка», как гео. Но сюда порой
+                      вставляют целый абзац со списком городов: круглые бока
+                      вокруг восьми строк текста превращаются в кляксу. Длинное
+                      кладём строкой во всю ширину и с обычными углами.
+                    */}
+                    <Clamp collapsedPx={52}>
+                      <div className="flex flex-wrap gap-1.5">
+                        {box.items.map((ban) => (
+                          <span
+                            key={ban}
+                            className={
+                              ban.length > 28
+                                ? 'basis-full rounded-xl bg-rust-t px-3.5 py-2.5 text-[12px] leading-relaxed text-rust'
+                                : 'rounded-full bg-rust-t px-3 py-1 text-[12px] text-rust'
+                            }
+                          >
+                            {ban}
+                          </span>
+                        ))}
+                        {box.items.length === 0 ? <span className="text-[12px] text-mute">нет</span> : null}
+                      </div>
+                    </Clamp>
+                  </div>
+                ))}
 
                 {/*
                   Заметки идут сразу за исключениями, вплотную. Раньше распорка
@@ -321,6 +338,7 @@ function draftFor(o: OfferRow | null): OfferDraft {
     status: o?.status ?? 'ACTIVE',
     geos: parseGeos(o?.geosJson ?? '[]').join(', '),
     bans: parseGeos(o?.bansJson ?? '[]').join(', '),
+    cities: parseGeos(o?.citiesJson ?? '[]').join(', '),
     notes: parseGeos(o?.notesJson ?? '[]').join('\n'),
     previewUrl: o?.previewUrl ?? '',
     previewId: o?.files?.find((f) => f.kind === 'PREVIEW')?.id ?? null,

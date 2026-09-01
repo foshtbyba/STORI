@@ -66,6 +66,7 @@ export async function saveOffer(formData: FormData) {
     payout: String(formData.get('payout') ?? '').trim(),
     geosJson: list(formData.get('geos')),
     bansJson: list(formData.get('bans')),
+    citiesJson: list(formData.get('cities')),
     notesJson: list(formData.get('notes')),
     previewUrl: String(formData.get('previewUrl') ?? '').trim() || null,
     partnerKey: String(formData.get('partnerKey') ?? '').trim(),

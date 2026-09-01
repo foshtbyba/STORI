@@ -26,6 +26,7 @@ export type OfferDraft = {
   status: string;
   geos: string;
   bans: string;
+  cities: string;
   notes: string;
   previewUrl: string;
   /** Уже загруженное превью — показываем, что заменяем. */
@@ -168,12 +169,23 @@ export default function OfferForm({
           />
         </div>
         <Field label="Гео через запятую" name="geos" value={v.geos} onChange={set('geos')} placeholder="IT, ES, PT" />
+        {/* Исключения вводят через запятую — так быстрее печатать. На карточке
+            их же отдаёт кнопка построчно: рекламный кабинет ждёт именно так. */}
         <Field
           label="Регионы-исключения"
           name="bans"
           value={v.bans}
           onChange={set('bans')}
           placeholder="Регионы, куда лить нельзя"
+          hint="Через запятую. На карточке копируются построчно."
+        />
+        <Field
+          label="Города-исключения"
+          name="cities"
+          value={v.cities}
+          onChange={set('cities')}
+          placeholder="Города, куда лить нельзя"
+          hint="Отдельным списком: в кабинете города исключаются не там же, где регионы."
         />
         <Field
           label="Выплата за продажу"
