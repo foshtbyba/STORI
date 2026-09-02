@@ -42,6 +42,9 @@ export default async function PayrollPage({
   const consumableCents = sum(rows, (r) =>
     r.buyer.consumablesAffectSalary ? r.consumableCents : 0,
   );
+  // Хвост: сколько минуса приехало с прошлых недель и сколько уедет дальше.
+  const carriedCents = sum(rows, (r) => r.carriedCents);
+  const carryOutCents = sum(rows, (r) => r.carryOutCents);
 
   async function close() {
     'use server';
@@ -127,7 +130,9 @@ export default async function PayrollPage({
             note:
               totals.avgRate === null
                 ? `порог ${usd(minTier)} не взят — платим ${okladRub.toLocaleString('ru-RU')} ₽`
-                : `считаем с ${usd(totals.base)} — профит минус расходники`,
+                : carriedCents > 0
+                  ? `считаем с ${usd(totals.base)} — профит минус расходники минус хвост`
+                  : `считаем с ${usd(totals.base)} — профит минус расходники`,
             color: totals.avgRate === null ? 'text-rust' : 'text-text',
           },
           { label: 'Разовые бонусы', value: usd(totals.bonus), note: 'начислены вручную', color: 'text-sage' },
@@ -212,10 +217,11 @@ export default async function PayrollPage({
           </p>
         </div>
 
-        <div className="mt-5 grid grid-cols-[1.4fr_0.7fr_1fr] lg:grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] pb-2.5">
+        <div className="mt-5 grid grid-cols-[1.4fr_0.7fr_1fr] lg:grid-cols-[1.6fr_repeat(4,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] pb-2.5">
           <span className="lab">Баер</span>
           <span className="lab hidden text-right lg:block">Профит</span>
           <span className="lab hidden text-right lg:block">Расходники</span>
+          <span className="lab hidden text-right lg:block">Хвост</span>
           <span className="lab hidden text-right lg:block">Считаем с</span>
           <span className="lab text-right">Ставка</span>
           <span className="lab hidden text-right lg:block">ЗП, $</span>
@@ -227,7 +233,7 @@ export default async function PayrollPage({
         {rows.map((row) => (
           <div
             key={row.buyer.id}
-            className="grid grid-cols-[1.4fr_0.7fr_1fr] lg:grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] items-center border-t border-line py-3"
+            className="grid grid-cols-[1.4fr_0.7fr_1fr] lg:grid-cols-[1.6fr_repeat(4,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] items-center border-t border-line py-3"
           >
             <span className="flex items-center gap-3">
               <Avatar initials={row.buyer.initials} color={row.buyer.color} />
@@ -238,6 +244,17 @@ export default async function PayrollPage({
                     ? `на окладе · ${rub(row.fixedCents, rate)}`
                     : `порог взят · ${row.ratePct}%`}
                 </span>
+                {/* Про хвост говорим прямо в строке: на телефоне колонок нет, а
+                    это главная причина, почему процент не идёт. */}
+                {row.carryOutCents > 0 ? (
+                  <span className="block text-[11.5px] text-rust">
+                    тянет минус {usd(row.carryOutCents)}
+                  </span>
+                ) : row.carryCoveredCents > 0 ? (
+                  <span className="block text-[11.5px] text-sage">
+                    минус перекрыт {usd(row.carryCoveredCents)}
+                  </span>
+                ) : null}
               </span>
             </span>
             <span className="n hidden text-right text-[13.5px] text-soft lg:block">{usd(row.profitCents)}</span>
@@ -255,6 +272,20 @@ export default async function PayrollPage({
                 </span>
               );
             })()}
+            {/* Хвост: минус с прошлых недель, который человек перекрывает сам.
+                Пусто — значит чист, и лишнего нуля в строке не рисуем. */}
+            <span
+              className={`n hidden text-right text-[13.5px] lg:block ${
+                row.carriedCents ? 'text-rust' : 'text-dim'
+              }`}
+              title={
+                row.carriedCents
+                  ? `Пришло ${usd(row.carriedCents)}, перекрыто ${usd(row.carryCoveredCents)}, уедет дальше ${usd(row.carryOutCents)}`
+                  : undefined
+              }
+            >
+              {row.carriedCents ? `−${usd(row.carriedCents)}` : '—'}
+            </span>
             <span className="n hidden text-right text-[13.5px] lg:block">{usd(row.baseCents)}</span>
             <span className="text-right">
               <span
@@ -283,7 +314,7 @@ export default async function PayrollPage({
 
         {/* У баера строка одна — подвал «Итого» дублировал бы её. */}
         {team ? (
-          <Sub className="mt-2.5 grid grid-cols-[1.4fr_0.7fr_1fr] lg:grid-cols-[1.6fr_repeat(3,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] items-center px-4 py-3.5">
+          <Sub className="mt-2.5 grid grid-cols-[1.4fr_0.7fr_1fr] lg:grid-cols-[1.6fr_repeat(4,1fr)_0.7fr_1fr_1.1fr_0.85fr_1.05fr] items-center px-4 py-3.5">
           <span className="lab text-text">Итого</span>
           <span className="n hidden text-right text-[13.5px] lg:block">{usd(profitCents)}</span>
           <span
@@ -292,6 +323,13 @@ export default async function PayrollPage({
             }`}
           >
             {consumableCents ? `−${usd(consumableCents)}` : usd(0)}
+          </span>
+          <span
+            className={`n hidden text-right text-[13.5px] lg:block ${
+              carriedCents ? 'text-rust' : 'text-dim'
+            }`}
+          >
+            {carriedCents ? `−${usd(carriedCents)}` : '—'}
           </span>
           <span className="n hidden text-right text-[13.5px] lg:block">{usd(totals.base)}</span>
           <span className="n text-right text-[12.5px] text-mute">{rateLabel}</span>

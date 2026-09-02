@@ -30,14 +30,30 @@ export default function BuyerCabinet({ data, label }: { data: Data; label: strin
             {usd(data.salaryCents).replace('$', '')}
           </div>
           <div className="n mt-2.5 text-[13px] text-mute">
-            {rub(data.salaryCents, rate)} · {data.ratePct}% с {usd(data.baseCents)} — это профит за вычетом расходников
+            {rub(data.salaryCents, rate)} · {data.ratePct}% с {usd(data.baseCents)} — это профит за вычетом
+            расходников{data.carriedCents > 0 ? ' и минуса с прошлых недель' : ''}
           </div>
+          {/* Хвост — главная причина, почему процент может не идти при плюсовой
+              неделе. Человек должен видеть её сразу, а не вычислять из цифр. */}
+          {data.carryOutCents > 0 ? (
+            <div className="mt-3 rounded-xl bg-rust-t px-3.5 py-2.5 text-[12px] leading-relaxed text-rust">
+              Минус с прошлых недель: <span className="n">{usd(data.carryOutCents)}</span>. Пока он не
+              перекрыт, процент не начисляется — платится оклад.
+            </div>
+          ) : data.carryCoveredCents > 0 ? (
+            <div className="mt-3 rounded-xl bg-sage-t px-3.5 py-2.5 text-[12px] leading-relaxed text-sage">
+              Минус прошлых недель перекрыт: <span className="n">{usd(data.carryCoveredCents)}</span>.
+              Дальше процент идёт с остатка.
+            </div>
+          ) : null}
 
           <div className="flex-1" />
           <div className="relative mt-6 h-2 rounded-full bg-sub">
             <div
               className="absolute left-0 top-0 h-2 rounded-full bg-sage"
-              style={{ width: `${Math.min(100, (data.baseCents / scale) * 100)}%` }}
+              // База уходит в минус, когда тянется хвост: полоса тогда пустая,
+              // а не отрицательной ширины.
+              style={{ width: `${Math.max(0, Math.min(100, (data.baseCents / scale) * 100))}%` }}
             />
             {data.tiers.map((t) => (
               <span

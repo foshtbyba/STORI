@@ -1,4 +1,5 @@
 import { sum, wholeDollars } from './money';
+import { splitCarry } from './carry';
 
 export type Tier = { fromCents: number; ratePct: number };
 
@@ -81,17 +82,28 @@ export type PayoutInput = {
   /** Курс в сотых: нужен, чтобы перевести рублёвый оклад в доллары. */
   rubPerUsd: number;
   bonusCents?: number;
+  /**
+   * Неперекрытый минус с прошлых недель. Вычитается из базы до процента:
+   * свой минус человек перекрывает сам, и только остаток идёт в ставку.
+   */
+  carriedCents?: number;
 };
 
 /**
  * Оклад — нижняя граница, а не добавка. Не взял минимальный порог или ушёл в
  * минус — получаешь оклад и ничего сверх него. Взял порог — процент считается
  * со всей суммы и оклад в нём растворяется.
+ *
+ * Хвост прошлых недель вычитается из базы ДО ставки: пока минус не перекрыт,
+ * процента нет. На оклад он не влияет — оклад платится всегда, это пол.
  */
 export function computePayout(input: PayoutInput) {
-  const baseCents = input.consumablesAffectSalary
+  const grossBaseCents = input.consumablesAffectSalary
     ? input.profitCents - input.consumableCents
     : input.profitCents;
+  const carry = splitCarry(grossBaseCents, input.carriedCents ?? 0);
+  // База, с которой реально считается процент: своё за неделю минус хвост.
+  const baseCents = grossBaseCents - carry.inCents;
   const ratePct = baseCents > 0 ? rateFor(baseCents, input.tiers) : 0;
   const tierCents = Math.max(0, wholeDollars((baseCents * ratePct) / 100));
   const fixedCents = okladCents(input.fixedRub ?? DEFAULT_FIXED_RUB, input.rubPerUsd);
@@ -99,7 +111,16 @@ export function computePayout(input: PayoutInput) {
   const salaryCents = onOklad ? fixedCents : tierCents;
   const bonusCents = input.bonusCents ?? 0;
   return {
+    /** База под процент: своё за неделю за вычетом хвоста прошлых недель. */
     baseCents,
+    /** То же до вычета хвоста — «сколько человек сделал за эту неделю». */
+    grossBaseCents,
+    /** Пришло долгом с прошлых недель. */
+    carriedCents: carry.inCents,
+    /** Сколько долга перекрыли этой неделей. */
+    carryCoveredCents: carry.coveredCents,
+    /** Что поедет в следующую неделю — вместе с новым минусом, если он есть. */
+    carryOutCents: carry.outCents,
     ratePct,
     tierCents,
     fixedCents,

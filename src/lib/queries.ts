@@ -3,6 +3,7 @@ import { prisma } from './db';
 import { periodRange, periodKeyOf, dayKey, daysOfRange, weekKey, weekBounds, rangeOf, titleOf, weeksOfRange, periodLabel } from './period';
 import { profitOf, sum, grossUp, ceilDollars, DEFAULT_COMMISSION_BPS } from './money';
 import { computePayout, parseTiers, DEFAULT_TIERS } from './salary';
+import { carriedDebt, type WeekBase } from './carry';
 import { fetchRate, rateIsStale } from './rate';
 
 export async function getPeriod(key: string) {
@@ -59,6 +60,59 @@ export type Range = { from: Date; to: Date };
  * нему же закрывается выплата. `range` сужает счёт до нужного отрезка —
  * сводка и гора смотрят на текущую неделю, а зарплата на весь месяц.
  */
+/**
+ * Неперекрытый минус, который люди притащили из недель ДО `before`.
+ *
+ * Считаем из истории, а не храним отдельной цифрой: хвост — это производная от
+ * отчётов, и любая правка старого дня должна его пересчитывать сама. Хранимое
+ * поле в этом месте разъехалось бы с отчётами на первой же правке задним
+ * числом, и никто бы этого не заметил.
+ *
+ * Всё берём двумя запросами и складываем по неделям в памяти: недель у команды
+ * десятки, а не миллионы, и ходить в базу за каждой — впустую.
+ */
+async function carriedByBuyer(before: Date, charged: Map<string, boolean>) {
+  const ids = [...charged.keys()];
+  if (ids.length === 0) return new Map<string, number>();
+
+  const [days, consumables] = await Promise.all([
+    prisma.dayReport.findMany({
+      where: { date: { lt: before }, buyerId: { in: ids } },
+      select: { buyerId: true, date: true, revenueCents: true, spendGrossCents: true },
+    }),
+    prisma.consumableEntry.findMany({
+      where: { date: { lt: before }, buyerId: { in: ids } },
+      select: { buyerId: true, date: true, totalCents: true },
+    }),
+  ]);
+
+  /** баер → неделя → база этой недели. */
+  const byBuyer = new Map<string, Map<string, number>>();
+  const add = (buyerId: string, date: Date, cents: number) => {
+    if (!charged.has(buyerId)) return;
+    const weeks = byBuyer.get(buyerId) ?? new Map<string, number>();
+    const key = weekKey(date);
+    weeks.set(key, (weeks.get(key) ?? 0) + cents);
+    byBuyer.set(buyerId, weeks);
+  };
+
+  for (const d of days) add(d.buyerId, d.date, d.revenueCents - d.spendGrossCents);
+  // Расходники входят в базу только у тех, кому они заряжены, — ровно как в
+  // computePayout. Иначе хвост считался бы по одному правилу, а зарплата по
+  // другому, и человек не сошёлся бы сам с собой.
+  for (const c of consumables) {
+    if (!c.buyerId || !charged.get(c.buyerId)) continue;
+    add(c.buyerId, c.date, -c.totalCents);
+  }
+
+  const out = new Map<string, number>();
+  for (const [buyerId, weeks] of byBuyer) {
+    const rows: WeekBase[] = [...weeks].map(([wk, baseCents]) => ({ weekKey: wk, baseCents }));
+    out.set(buyerId, carriedDebt(rows));
+  }
+  return out;
+}
+
 export async function teamSummary(key: string, range?: Range, opts?: { owners?: boolean }) {
   const { from, to } = range ?? periodRange(key);
   const [period, allBuyers, days, consumables, bonuses] = await Promise.all([
@@ -94,6 +148,13 @@ export async function teamSummary(key: string, range?: Range, opts?: { owners?: 
   // (from <= сейчас), оклад считается как обычно.
   const upcoming = from.getTime() > Date.now();
 
+  // Хвост минуса с прошлых недель. Считаем по тем же людям и тому же правилу
+  // про расходники, что и зарплату, — иначе цифры разойдутся.
+  const carried = await carriedByBuyer(
+    from,
+    new Map(buyers.map((b) => [b.id, b.consumablesAffectSalary])),
+  );
+
   const rows = buyers.map((buyer) => {
     const mine = days.filter((d) => d.buyerId === buyer.id);
     const revenueCents = sum(mine, (d) => d.revenueCents);
@@ -113,11 +174,22 @@ export async function teamSummary(key: string, range?: Range, opts?: { owners?: 
       fixedRub: buyer.salaryRule?.fixedRub,
       rubPerUsd: period.rubPerUsd,
       bonusCents,
+      carriedCents: carried.get(buyer.id) ?? 0,
     });
     // Будущую неделю обнуляем по деньгам: ни оклада, ни ставки — только бонусы,
     // если их вдруг проставили заранее. Статистику (профит, ROI) не трогаем.
     const eff = upcoming
-      ? { ...payout, salaryCents: 0, tierCents: 0, fixedCents: 0, onOklad: false, totalCents: payout.bonusCents }
+      ? {
+          ...payout,
+          salaryCents: 0,
+          tierCents: 0,
+          fixedCents: 0,
+          onOklad: false,
+          totalCents: payout.bonusCents,
+          // Работы ещё не было: хвост её не гасил и не рос — он просто ждёт.
+          carryCoveredCents: 0,
+          carryOutCents: payout.carriedCents,
+        }
       : payout;
 
     return {
@@ -160,6 +232,9 @@ export async function teamSummary(key: string, range?: Range, opts?: { owners?: 
     salaryCents: sum(rows, (r) => r.salaryCents),
     bonusCents: sum(rows, (r) => r.bonusCents),
     payoutCents: sum(rows, (r) => r.totalCents),
+    /** Минус, пришедший с прошлых недель, и что из него уедет дальше. */
+    carriedCents: sum(rows, (r) => r.carriedCents),
+    carryOutCents: sum(rows, (r) => r.carryOutCents),
   };
 
   return {
@@ -209,6 +284,10 @@ export async function buyerSummary(buyerId: string, key: string, range?: Range) 
   const spendGrossCents = sum(days, (d) => d.spendGrossCents);
   const profitCents = revenueCents - spendGrossCents;
   const consumableCents = sum(consumables, (c) => c.totalCents);
+  const carried = await carriedByBuyer(
+    from,
+    new Map([[buyer.id, buyer.consumablesAffectSalary]]),
+  );
   const payout = computePayout({
     profitCents,
     consumableCents,
@@ -217,6 +296,7 @@ export async function buyerSummary(buyerId: string, key: string, range?: Range) 
     fixedRub: buyer.salaryRule?.fixedRub,
     rubPerUsd: period.rubPerUsd,
     bonusCents: sum(bonuses, (b) => b.amountCents),
+    carriedCents: carried.get(buyer.id) ?? 0,
   });
 
   return {
