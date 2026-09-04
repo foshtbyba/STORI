@@ -1906,10 +1906,12 @@ function wireOrderPhpForm(cfg, html){
   if(cfg.phpExtraHidden) hidden+=cfg.phpExtraHidden;
   // SkyLead: скрытое поле offer/flow в форме -> ошибка no-api (по докам). Держим их только в order.php, из формы выкидываем.
   var extraStrip=(cfg.phpGen==="skylead")?"|offer|flow":"";
-  var stripRe=new RegExp('<input[^>]*name=["\'](?:sub1|subid|clickid|country'+extraStrip+'|utm_[a-z]+|fbpxl?)["\'][^>]*>\\s*',"gi");
+  // + чистим everad-остатки (если ленд раньше был everad): campaign_id/country_code/sid1/sid5 — иначе мусор в POST.
+  var stripRe=new RegExp('<input[^>]*name=["\'](?:sub1|subid|clickid|country'+extraStrip+'|campaign_id|country_code|sid\\d+|utm_[a-z]+|fbpxl?)["\'][^>]*>\\s*',"gi");
   return html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
     if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа (декоративные оставляем)
-    attrs=attrs.replace(/\s(?:action|method|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"").replace(/\sdata-order-form\b/gi,"");
+    // target тоже срезаем: остаток target="ev_frame" от everad-сборки отправлял бы ответ order.php в скрытый iframe -> белый экран/404
+    attrs=attrs.replace(/\s(?:action|method|target|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"").replace(/\sdata-order-form\b/gi,"");
     // класс order_form (гайд shakes: за него цепляется countries.js, если подключён)
     if(/\bclass\s*=\s*["']/i.test(attrs)) attrs=attrs.replace(/(\bclass\s*=\s*["'])([^"']*)(["'])/i,function(m2,a,c,z){ return /\border_form\b/.test(c)?m2:a+(c?c+" ":"")+"order_form"+z; });
     else attrs=' class="order_form"'+attrs;
@@ -2021,7 +2023,10 @@ function patchHtml(cfg, html){
   }
   if(cfg.pxOn){ html=stripPixel(html); html=injectHead(html,pixelBlock(cfg,false)); }
   if(cfg.mode==="php"){
-    // shakes: форма постит на серверный order.php; JS-движок НЕ вставляем
+    // если ленд раньше был everad — выкидываем его сабмит-скрипт (редирект на success.html -> 404) и скрытый iframe.
+    html=html.replace(/<script(?![^>]*\bsrc=)[^>]*>((?:(?!<\/script>)[\s\S])*?)<\/script>/gi,function(m,body){ return /ev_order_form|ev_submit_btn|ev_frame|\/conversion\/new|tracker\.(?:everad|rocketprofit)\.com/i.test(body)?"":m; });
+    html=html.replace(/<iframe\b[^>]*(?:name|id)=["']ev_frame["'][^>]*>(?:(?!<\/iframe>)[\s\S])*?<\/iframe>/gi,"");
+    // shakes/skylead: форма постит на серверный order.php; JS-движок НЕ вставляем
     html=wireOrderPhpForm(cfg, html);
     // та же надёжная ловля subid, что и у m1: URL ?s/?subid или keitaro_subid -> в скрытое sub1
     var tail=phpSubidScript(cfg);
