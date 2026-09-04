@@ -577,11 +577,9 @@
         <div class="hint">shakes: форма постит на серверный <b>order.php</b> (генерируется автоматически с твоим ключом, <b>ID оффера</b>, <b>landingUrl</b> и страницами call/error). ref не нужен, <b>страна</b> — авто из «Код гео», <b>streamCode</b> — только для статистики. Хост должен поддерживать <b>PHP</b>. Загружай ленд <b>папкой</b>.</div>
       </div>
       <div id="skyleadFields" style="display:none">
-        <label>SkyLead API-ключ (закреплён) 🔒</label>
-        <input id="sl_key" type="password" placeholder="закреплён за партнёркой" autocomplete="off" readonly>
-        <label style="margin-top:8px">ID потока (flow) *</label>
+        <label>ID потока (flow) *</label>
         <input id="sl_flow" placeholder="номер потока из раздела «Потоки» SkyLead">
-        <div class="hint">SkyLead: форма постит на серверный <b>order.php</b> (генерируется с твоим ключом, <b>offer</b> и <b>flow</b>), лид уходит на <b>api.skylead.biz/wm/push.json</b>. <b>ID оффера (offer)</b> — в поле выше. Страна — авто из «Код гео». Хост с <b>PHP+cURL</b>. Ключ нигде не сохраняется — только в собранном order.php.</div>
+        <div class="hint">SkyLead: форма постит на серверный <b>order.php</b> (генерируется с закреплённым ключом, <b>offer</b> и <b>flow</b>), лид уходит на <b>api.skylead.biz/wm/push.json</b>. <b>ID оффера (offer)</b> — в поле выше, <b>API-ключ закреплён за партнёркой</b>. Страна — авто из «Код гео». Хост с <b>PHP+cURL</b>.</div>
       </div>
       <div id="handlerFields" style="display:none">
         <label id="handlerLabel">Файл обработчика (lemon.php) *</label>
@@ -2572,7 +2570,7 @@ function readCfg(){
     needFile:php?(php.needFile||""):(kma?(kma.needFile||""):""),successName:(php&&php.successPage)||(ev&&ev.successPage)||"call.html",errorName:(php&&php.errorPage)||(ev&&ev.errorPage)||"error.html",pageGen:php?(php.pageGen||""):"",
     endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
-    slKey:val("sl_key"),slFlow:val("sl_flow"),
+    slKey:(function(){try{return atob(SKYLEAD_KEY_B64);}catch(e){return"";}})(),slFlow:val("sl_flow"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
     brand:val("brand")||"Product",image:val("image")||"images/product.png",price:val("price")||"—",
     successImg:PAGE_IMG.page,errorImg:PAGE_IMG.page,
@@ -3020,8 +3018,7 @@ function enhanceSelect(sel){
     document.getElementById("apiKeyWrap").style.display=manual?"block":"none";
     document.getElementById("countryWrap").style.display=needCountry?"block":"none";
     document.getElementById("phpFields").style.display=(needLanding||needStream)?"block":"none";
-    document.getElementById("skyleadFields").style.display=(pk.skylead)?"block":"none";   // SkyLead: api-ключ + flow
-    if(pk.skylead){ var slk=document.getElementById("sl_key"); if(slk){ try{ slk.value=atob(SKYLEAD_KEY_B64); }catch(e){} slk.readOnly=true; slk.classList.add("locked"); } }   // ключ закреплён за партнёркой: авто-подстановка + блок (скрыт: маска + base64 в коде)
+    document.getElementById("skyleadFields").style.display=(pk.skylead)?"block":"none";   // SkyLead: только flow (ключ закреплён в коде, поля нет)
     var needF=(php&&php.needFile)||"";   // limonad: одиночный lemon.php
     var needApi=!!(pk.kma&&pk.kma.apiFolder);   // KMA: папка api
     document.getElementById("handlerFields").style.display=(needF||needApi)?"block":"none";
