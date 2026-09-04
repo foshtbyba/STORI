@@ -156,6 +156,11 @@ model OfferGeo {
   streamCode     String @default("")
   /// Цена на служебных страницах: «39 €».
   price          String @default("")
+  /// Исключения этого гео. У одного оффера в разных странах запрещены разные
+  /// регионы и города, поэтому списки лежат на гео, а не на оффере. Общие для
+  /// всех гео остаются на самом оффере — их не дублируют в каждой строке.
+  bansJson       String @default("[]")
+  citiesJson     String @default("[]")
   sort           Int    @default(0)
 
   @@index([offerId])

@@ -16,6 +16,9 @@ export type GeoDraft = {
   landingUrl: string;
   streamCode: string;
   price: string;
+  /** Исключения этого гео, через запятую. Общие для всех — на самом оффере. */
+  bans: string;
+  cities: string;
 };
 
 export type OfferDraft = {
@@ -80,6 +83,8 @@ const emptyGeo = (): GeoDraft => ({
   landingUrl: '',
   streamCode: '',
   price: '',
+  bans: '',
+  cities: '',
 });
 
 /**
@@ -348,6 +353,24 @@ export default function OfferForm({
                   }
                 />
               ) : null}
+              {/* Исключения гео: в разных странах у одного оффера запрещено
+                  разное. Общие для всех гео остаются в шапке оффера, здесь —
+                  только то, что своё именно тут. */}
+              <Field
+                wide
+                label="Регионы-исключения этого гео"
+                value={r.bans}
+                onChange={(val) => setRow(i, 'bans', val)}
+                placeholder="через запятую"
+                hint="Общие для всех гео вводятся выше, в шапке оффера."
+              />
+              <Field
+                wide
+                label="Города-исключения этого гео"
+                value={r.cities}
+                onChange={(val) => setRow(i, 'cities', val)}
+                placeholder="через запятую"
+              />
               <Field
                 label="Язык call/error"
                 value={r.uiLang}

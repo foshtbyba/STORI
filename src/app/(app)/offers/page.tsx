@@ -12,7 +12,7 @@ import DeleteOffer from '@/components/DeleteOffer';
 import Link from 'next/link';
 import OfferSearch from '@/components/OfferSearch';
 import Clamp from '@/components/Clamp';
-import CopyList from '@/components/CopyList';
+import CopyExclusions, { type ExclusionGroup } from '@/components/CopyExclusions';
 
 export default async function OffersPage({
   searchParams,
@@ -145,20 +145,44 @@ export default async function OffersPage({
             // рядом с заполненной — просто шум, а две пустых подряд занимают
             // треть карточки и не говорят ничего: на такой случай хватает одной
             // строки «исключений нет».
+            //
+            // Исключения бывают двух сортов: общие на весь оффер и свои у гео —
+            // в разных странах у одного товара запрещено разное. В кабинет
+            // уезжает сумма того и другого, поэтому склеиваем их здесь, а не
+            // заставляем человека держать в голове два списка.
+            const boxOf = (
+              key: string,
+              title: string,
+              label: string,
+              commonJson: string,
+              ownJson: (g: (typeof offer.geos)[number]) => string,
+            ) => {
+              const common = parseGeos(commonJson);
+              const perGeo = offer.geos.map((g) => ({
+                langCode: g.langCode,
+                own: parseGeos(ownJson(g)),
+              }));
+              const hasOwn = perGeo.some((g) => g.own.length > 0);
+
+              // Ни у кого своих нет — незачем городить разбивку по гео: список
+              // один на всех, и кнопка копирует его сразу.
+              const groups: ExclusionGroup[] = hasOwn
+                ? perGeo.map((g) => ({
+                    langCode: g.langCode,
+                    key: g.langCode,
+                    // Дубли убираем: общее исключение, повторённое в гео, в
+                    // кабинет должно уехать один раз.
+                    items: [...new Set([...common, ...g.own])],
+                  }))
+                : [{ langCode: '', key: '', items: common }];
+
+              return { key, title, label, groups, byGeo: hasOwn };
+            };
+
             const banBoxes = [
-              {
-                key: 'bans',
-                title: 'Регионы-исключения',
-                label: 'копировать регионы',
-                items: parseGeos(offer.bansJson),
-              },
-              {
-                key: 'cities',
-                title: 'Города-исключения',
-                label: 'копировать города',
-                items: parseGeos(offer.citiesJson),
-              },
-            ].filter((box) => box.items.length > 0);
+              boxOf('bans', 'Регионы-исключения', 'копировать регионы', offer.bansJson, (g) => g.bansJson),
+              boxOf('cities', 'Города-исключения', 'копировать города', offer.citiesJson, (g) => g.citiesJson),
+            ].filter((box) => box.groups.some((g) => g.items.length > 0));
             return (
               <Panel key={offer.id} className="flex flex-col gap-4 p-3.5">
                 <div className="relative flex h-[168px] items-center justify-center overflow-hidden rounded-[18px] bg-sub">
@@ -224,7 +248,7 @@ export default async function OffersPage({
                     <div className="mb-1.5 flex items-center justify-between gap-2">
                       <span className="lab text-rust">{box.title}</span>
                       {team ? (
-                        <CopyList items={box.items} label={box.label} title={box.title} />
+                        <CopyExclusions label={box.label} title={box.title} groups={box.groups} />
                       ) : null}
                     </div>
                     {/*
@@ -236,20 +260,31 @@ export default async function OffersPage({
                       превращаются в кляксу.
                     */}
                     <Clamp collapsedPx={0} moreLabel="показать исключения">
-                      <div className="flex flex-wrap gap-1.5">
-                        {box.items.map((ban) => (
-                          <span
-                            key={ban}
-                            className={
-                              ban.length > 28
-                                ? 'basis-full rounded-xl bg-rust-t px-3.5 py-2.5 text-[12px] leading-relaxed text-rust'
-                                : 'rounded-full bg-rust-t px-3 py-1 text-[12px] text-rust'
-                            }
-                          >
-                            {ban}
-                          </span>
-                        ))}
-                      </div>
+                      {box.groups.map((group) => (
+                        <div key={group.key} className="mb-2 last:mb-0">
+                          {/* Заголовок гео — только когда списки правда разные:
+                              над единственным общим он был бы шумом. */}
+                          {box.byGeo ? (
+                            <div className="n mb-1.5 text-[11px] text-dim">
+                              {group.key.toUpperCase()}
+                            </div>
+                          ) : null}
+                          <div className="flex flex-wrap gap-1.5">
+                            {group.items.map((ban) => (
+                              <span
+                                key={ban}
+                                className={
+                                  ban.length > 28
+                                    ? 'basis-full rounded-xl bg-rust-t px-3.5 py-2.5 text-[12px] leading-relaxed text-rust'
+                                    : 'rounded-full bg-rust-t px-3 py-1 text-[12px] text-rust'
+                                }
+                              >
+                                {ban}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
                     </Clamp>
                   </div>
                 ))}
@@ -345,7 +380,16 @@ export default async function OffersPage({
 type OfferRow = NonNullable<
   Awaited<ReturnType<typeof prisma.offer.findUnique>>
 > & {
-  geos: { langCode: string; uiLang: string; partnerOfferId: string; landingUrl: string; streamCode: string; price: string }[];
+  geos: {
+    langCode: string;
+    uiLang: string;
+    partnerOfferId: string;
+    landingUrl: string;
+    streamCode: string;
+    price: string;
+    bansJson: string;
+    citiesJson: string;
+  }[];
   files?: { id: string; name: string; kind: string }[];
 };
 
@@ -374,6 +418,8 @@ function draftFor(o: OfferRow | null): OfferDraft {
       landingUrl: g.landingUrl,
       streamCode: g.streamCode,
       price: g.price,
+      bans: parseGeos(g.bansJson).join(', '),
+      cities: parseGeos(g.citiesJson).join(', '),
     })),
   };
 }

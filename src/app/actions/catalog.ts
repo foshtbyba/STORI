@@ -31,7 +31,19 @@ const GeoRow = z.object({
   landingUrl: z.string().trim().max(500).default(''),
   streamCode: z.string().trim().max(120).default(''),
   price: z.string().trim().max(60).default(''),
+  // Исключения приходят строкой через запятую — как и у оффера целиком.
+  bans: z.string().max(4000).default(''),
+  cities: z.string().max(4000).default(''),
 });
+
+/** Строка «через запятую» → список. Тот же разбор, что и у полей оффера. */
+const listOf = (raw: string) =>
+  JSON.stringify(
+    String(raw ?? '')
+      .split(/[,\n]/)
+      .map((x) => x.trim())
+      .filter(Boolean),
+  );
 
 function parseGeoRows(raw: FormDataEntryValue | null) {
   try {
@@ -86,7 +98,14 @@ export async function saveOffer(formData: FormData) {
   await prisma.offerGeo.deleteMany({ where: { offerId: offer.id } });
   if (geos.length) {
     await prisma.offerGeo.createMany({
-      data: geos.map((g) => ({ ...g, offerId: offer.id })),
+      // bans/cities приходят строкой через запятую, а в базе лежат списком —
+      // разворачиваем здесь, чтобы форма не знала про формат хранения.
+      data: geos.map(({ bans, cities, ...g }) => ({
+        ...g,
+        offerId: offer.id,
+        bansJson: listOf(bans),
+        citiesJson: listOf(cities),
+      })),
     });
   }
 
