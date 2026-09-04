@@ -577,8 +577,8 @@
         <div class="hint">shakes: форма постит на серверный <b>order.php</b> (генерируется автоматически с твоим ключом, <b>ID оффера</b>, <b>landingUrl</b> и страницами call/error). ref не нужен, <b>страна</b> — авто из «Код гео», <b>streamCode</b> — только для статистики. Хост должен поддерживать <b>PHP</b>. Загружай ленд <b>папкой</b>.</div>
       </div>
       <div id="skyleadFields" style="display:none">
-        <label>SkyLead API-ключ (из профиля) *</label>
-        <input id="sl_key" type="password" placeholder="вид NNNN-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx (из профиля SkyLead)" autocomplete="off">
+        <label>SkyLead API-ключ (закреплён) 🔒</label>
+        <input id="sl_key" type="password" placeholder="закреплён за партнёркой" autocomplete="off" readonly>
         <label style="margin-top:8px">ID потока (flow) *</label>
         <input id="sl_flow" placeholder="номер потока из раздела «Потоки» SkyLead">
         <div class="hint">SkyLead: форма постит на серверный <b>order.php</b> (генерируется с твоим ключом, <b>offer</b> и <b>flow</b>), лид уходит на <b>api.skylead.biz/wm/push.json</b>. <b>ID оффера (offer)</b> — в поле выше. Страна — авто из «Код гео». Хост с <b>PHP+cURL</b>. Ключ нигде не сохраняется — только в собранном order.php.</div>
@@ -3021,7 +3021,7 @@ function enhanceSelect(sel){
     document.getElementById("countryWrap").style.display=needCountry?"block":"none";
     document.getElementById("phpFields").style.display=(needLanding||needStream)?"block":"none";
     document.getElementById("skyleadFields").style.display=(pk.skylead)?"block":"none";   // SkyLead: api-ключ + flow
-    if(pk.skylead){ var slk=document.getElementById("sl_key"); if(slk && !slk.value){ try{ slk.value=atob(SKYLEAD_KEY_B64); }catch(e){} } }   // подставляем ключ (скрыт: замаскирован + закодирован в коде)
+    if(pk.skylead){ var slk=document.getElementById("sl_key"); if(slk){ try{ slk.value=atob(SKYLEAD_KEY_B64); }catch(e){} slk.readOnly=true; slk.classList.add("locked"); } }   // ключ закреплён за партнёркой: авто-подстановка + блок (скрыт: маска + base64 в коде)
     var needF=(php&&php.needFile)||"";   // limonad: одиночный lemon.php
     var needApi=!!(pk.kma&&pk.kma.apiFolder);   // KMA: папка api
     document.getElementById("handlerFields").style.display=(needF||needApi)?"block":"none";
