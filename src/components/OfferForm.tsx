@@ -340,7 +340,12 @@ export default function OfferForm({
                   label="Код потока"
                   value={r.streamCode}
                   onChange={(val) => setRow(i, 'streamCode', val)}
-                  placeholder="опционально"
+                  placeholder={partner.needsStream ? 'номер потока из кабинета' : 'опционально'}
+                  hint={
+                    partner.needsStream
+                      ? 'Обязательно для этой партнёрки: без потока лид не примут.'
+                      : undefined
+                  }
                 />
               ) : null}
               <Field

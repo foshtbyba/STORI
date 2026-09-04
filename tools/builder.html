@@ -576,6 +576,11 @@
         </div>
         <div class="hint">shakes: форма постит на серверный <b>order.php</b> (генерируется автоматически с твоим ключом, <b>ID оффера</b>, <b>landingUrl</b> и страницами call/error). ref не нужен, <b>страна</b> — авто из «Код гео», <b>streamCode</b> — только для статистики. Хост должен поддерживать <b>PHP</b>. Загружай ленд <b>папкой</b>.</div>
       </div>
+      <div id="skyleadFields" style="display:none">
+        <label>ID потока (flow) *</label>
+        <input id="sl_flow" placeholder="номер потока из раздела «Потоки» SkyLead">
+        <div class="hint">SkyLead: форма постит на серверный <b>order.php</b> (генерируется с закреплённым ключом, <b>offer</b> и <b>flow</b>), лид уходит на <b>api.skylead.biz/wm/push.json</b>. <b>ID оффера (offer)</b> — в поле выше, <b>API-ключ закреплён за партнёркой</b>. Страна — авто из «Код гео». Хост с <b>PHP+cURL</b>.</div>
+      </div>
       <div id="handlerFields" style="display:none">
         <label id="handlerLabel">Файл обработчика (lemon.php) *</label>
         <label class="drop" for="handlerFile" id="handlerDrop" style="padding:14px;position:relative">
@@ -1238,6 +1243,7 @@ function trace(msg, style = null) {
 
 <script>
 /* ================= АДАПТЕРЫ ПАРТНЁРОК ================= */
+var SKYLEAD_KEY_B64="MzM0MS0xOGM5NjhhYzA3MzI4MDEzZjI1ZTM0ZWJjYTY2MzA1OQ==";   // ключ SkyLead (закодирован, не открытым текстом)
 const PARTNERS = {
   "m1.top": { label:"m1.top", mode:"js", endpoint:"https://m1.top/send_order/", okField:"result", okValue:"ok", idField:"id",
     ref:"1029931", api_key:"2188aad9cfb9f55626bf1d64cf4e95e0",
@@ -1263,7 +1269,10 @@ const PARTNERS = {
     hint:"rocketprofit (как everad): форма постит в трекер rocketprofit через скрытый iframe, потом редирект на success.html. Нужен только Campaign ID (id потока); country_code — авто из «Код гео». subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." },
   "KMA.pro": { label:"KMA.pro", mode:"kma", native:true,
     kma:{ subField:"data1", apiFolder:true, successFile:"success.php" },
-    hint:"KMA: нужна ПАПКА api из общего архива KMA (config.php, custom.min.js, KmaLead.php, success.php…) — ОБЯЗАТЕЛЬНО загрузи её в поле выше, конструктор положит её в ленд как api/. Файл api/success.php заменяется на наш (переведённый + пиксель). Форму/скрипты KMA не трогаем, ловим subid в data1, вставляем Meta Pixel и back-fix." }
+    hint:"KMA: нужна ПАПКА api из общего архива KMA (config.php, custom.min.js, KmaLead.php, success.php…) — ОБЯЗАТЕЛЬНО загрузи её в поле выше, конструктор положит её в ленд как api/. Файл api/success.php заменяется на наш (переведённый + пиксель). Форму/скрипты KMA не трогаем, ловим subid в data1, вставляем Meta Pixel и back-fix." },
+  "skylead.biz": { label:"skylead.biz", mode:"php", domain:"skylead.biz", skylead:true,
+    php:{ gen:"skylead", subField:"subid", country:true, idLabel:"ID оффера (offer)" },
+    hint:"SkyLead: серверный order.php (генерируется) — форма постит на него, лид уходит на api.skylead.biz/wm/push.json (POST). Заполни SkyLead API-ключ (из профиля, вид 3341-…), ID оффера (offer) и ID потока (flow). Страна (ISO) — авто из «Код гео», subid ловится сам. Хост должен поддерживать PHP+cURL. Загружай ленд папкой. call/error генерятся сами (перевод + пиксель)." }
 };
 
 /* ================= ДВИЖОК ЗАКАЗА ================= */
@@ -1658,8 +1667,82 @@ function hamstersOrderPhp(cfg){
 "}\n"+
 "?>\n";
 }
+// skylead.biz: лид уходит POST-ом на api.skylead.biz/wm/push.json?id=<api-ключ>.
+// Обязательные поля: flow, offer, ip, phone. Ответ {status:ok,id} — успех. subid — трекерная метка.
+// ВАЖНО: offer/flow держим ТОЛЬКО на сервере (в форму НЕ кладём — иначе SkyLead вернёт no-api).
+function skyleadOrderPhp(cfg){
+  var apiId=String(cfg.slKey||"").replace(/'/g,"");
+  var offer=String(cfg.product_id||"").replace(/[^0-9A-Za-z_-]/g,"");
+  var flow=String(cfg.slFlow||"").replace(/[^0-9A-Za-z_-]/g,"");
+  return "<?php\n"+
+"/**\n"+
+" * order.php — Lead submission to SkyLead (skylead.biz)\n"+
+" */\n\n"+
+"$API_ID     = '"+apiId+"';\n"+
+"$OFFER      = '"+offer+"';\n"+
+"$FLOW       = '"+flow+"';\n"+
+"$THANK_PAGE = '"+(cfg.success||"call.html")+"';\n"+
+"$ERROR_PAGE = '"+(cfg.error||"error.html")+"';\n"+
+"$DEF_COUNTRY= '"+(shakesCountry(cfg)||"")+"';\n\n"+
+"$name  = isset($_POST['name'])  ? trim($_POST['name'])  : '';\n"+
+"$phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';\n"+
+"$subid = isset($_POST['subid']) ? trim($_POST['subid']) : '';\n"+
+"if (strpos($subid, '{') !== false) { $subid = ''; }\n"+
+"$country = (isset($_POST['country']) && $_POST['country'] !== '') ? trim($_POST['country']) : $DEF_COUNTRY;\n\n"+
+"if ($phone === '') { header('Location: ' . $ERROR_PAGE); exit; }\n\n"+
+"$data = array(\n"+
+"    'flow'  => $FLOW,\n"+
+"    'offer' => $OFFER,\n"+
+"    'ip'    => getUserIP(),\n"+
+"    'name'  => $name,\n"+
+"    'phone' => $phone,\n"+
+"    'ua'    => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',\n"+
+");\n"+
+"if ($country !== '') { $data['country'] = $country; }\n"+
+"if ($subid !== '')   { $data['subid']   = $subid; }\n\n"+
+"$ok = sendLead('https://api.skylead.biz/wm/push.json?id=' . rawurlencode($API_ID), $data);\n\n"+
+"if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { include __DIR__ . '/' . $THANK_PAGE; }\n"+
+"elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { include __DIR__ . '/' . $ERROR_PAGE; }\n"+
+"else { header('Location: ' . ($ok ? $THANK_PAGE : $ERROR_PAGE)); }\n"+
+"exit;\n\n"+
+"function sendLead($url, $data) {\n"+
+"    $curl = curl_init();\n"+
+"    curl_setopt($curl, CURLOPT_URL, $url);\n"+
+"    curl_setopt($curl, CURLOPT_POST, true);\n"+
+"    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));\n"+
+"    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);\n"+
+"    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);\n"+
+"    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);\n"+
+"    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5);\n"+
+"    curl_setopt($curl, CURLOPT_TIMEOUT, 25);\n"+
+"    for ($i = 0; $i < 3; $i++) {\n"+
+"        $raw = curl_exec($curl);\n"+
+"        if (!curl_errno($curl)) {\n"+
+"            $resp = json_decode(is_string($raw) ? $raw : '', true);\n"+
+"            if (is_array($resp) && isset($resp['status'])) {\n"+
+"                curl_close($curl);\n"+
+"                return $resp['status'] === 'ok';\n"+   // получили однозначный ответ (ok/error) — не ретраим
+"            }\n"+
+"        }\n"+
+"        if ($i + 1 < 3) sleep($i + 1);\n"+
+"    }\n"+
+"    curl_close($curl);\n"+
+"    return false;\n"+
+"}\n\n"+
+"function getUserIP() {\n"+
+"    foreach (array('HTTP_CF_CONNECTING_IP','HTTP_TRUE_CLIENT_IP','HTTP_X_FORWARDED_FOR','HTTP_X_REAL_IP','HTTP_CLIENT_IP','REMOTE_ADDR') as $key) {\n"+
+"        if (!empty($_SERVER[$key]) && is_string($_SERVER[$key])) {\n"+
+"            $ip = $_SERVER[$key];\n"+
+"            if ($key === 'HTTP_X_FORWARDED_FOR' && preg_match('/([^,\\s]+)\\s*$/', $ip, $m)) $ip = $m[1];\n"+
+"            if (filter_var($ip, FILTER_VALIDATE_IP) !== false) return $ip;\n"+
+"        }\n"+
+"    }\n"+
+"    return null;\n"+
+"}\n"+
+"?>\n";
+}
 // какой order.php генерить под партнёрку
-function orderPhpFor(cfg){ return cfg.phpGen==="hamsters" ? hamstersOrderPhp(cfg) : shakesOrderPhp(cfg); }
+function orderPhpFor(cfg){ return cfg.phpGen==="hamsters" ? hamstersOrderPhp(cfg) : (cfg.phpGen==="skylead" ? skyleadOrderPhp(cfg) : shakesOrderPhp(cfg)); }
 // FB-пиксель для success.php (limonad): id берётся из ?fbpxl или localStorage, срабатывает конверсия
 function limonadPixel(cfg){
   if(!cfg.pxOn) return "";
@@ -1821,7 +1904,9 @@ function wireOrderPhpForm(cfg, html){
   var hidden='<input type="hidden" name="'+sf+'" value="{subid}">\n        ';
   if(cfg.phpCountry) hidden+='<input type="hidden" name="country" value="'+shakesCountry(cfg)+'">\n        ';
   if(cfg.phpExtraHidden) hidden+=cfg.phpExtraHidden;
-  var stripRe=/<input[^>]*name=["'](?:sub1|subid|clickid|country|utm_[a-z]+|fbpxl?)["'][^>]*>\s*/gi;
+  // SkyLead: скрытое поле offer/flow в форме -> ошибка no-api (по докам). Держим их только в order.php, из формы выкидываем.
+  var extraStrip=(cfg.phpGen==="skylead")?"|offer|flow":"";
+  var stripRe=new RegExp('<input[^>]*name=["\'](?:sub1|subid|clickid|country'+extraStrip+'|utm_[a-z]+|fbpxl?)["\'][^>]*>\\s*',"gi");
   return html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
     if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа (декоративные оставляем)
     attrs=attrs.replace(/\s(?:action|method|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"").replace(/\sdata-order-form\b/gi,"");
@@ -2485,6 +2570,7 @@ function readCfg(){
     needFile:php?(php.needFile||""):(kma?(kma.needFile||""):""),successName:(php&&php.successPage)||(ev&&ev.successPage)||"call.html",errorName:(php&&php.errorPage)||(ev&&ev.errorPage)||"error.html",pageGen:php?(php.pageGen||""):"",
     endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
+    slKey:(function(){try{return atob(SKYLEAD_KEY_B64);}catch(e){return"";}})(),slFlow:val("sl_flow"),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
     brand:val("brand")||"Product",image:val("image")||"images/product.png",price:val("price")||"—",
     successImg:PAGE_IMG.page,errorImg:PAGE_IMG.page,
@@ -2540,8 +2626,10 @@ function showTab(t){
   else if(t==="cpreview"){out.style.display="none";prev.style.display="block";if(note)note.style.display="none";renderPreview("chest");}
   else{
     prev.style.display="none";out.style.display="block";
-    if(t==="src"){ out.readOnly=false; out.classList.add("edit"); if(note)note.style.display="block"; var src=getSource(); if(out.value!==src) out.value=src; }
-    else{ out.readOnly=true; out.classList.remove("edit"); if(note)note.style.display="none"; out.value=FILES[t]||""; }
+    // редактируемые вкладки исходника: «✎ исходник» и «index.html» (обе правят исходник ленда).
+    // call/error/chest — собранные файлы, только просмотр.
+    if(t==="src"||t==="index"){ out.readOnly=false; out.classList.add("edit"); if(note){note.style.display="block"; note.textContent="✎ Правь исходник ленда — правки применяются сразу (пересборка). Ищи по коду строкой поиска сверху.";} var src=getSource(); if(out.value!==src) out.value=src; }
+    else{ out.readOnly=true; out.classList.remove("edit"); if(note){ note.style.display="block"; note.textContent="🔒 Собранный файл — только просмотр. Чтобы править код ленда — вкладка «index.html» или «✎ исходник»."; } out.value=FILES[t]||""; }
   }
   // не трогаем выделение/скролл, если пользователь прямо сейчас редактирует код (пересборка не должна мешать)
   if(!isPrev && document.activeElement!==out) runFind("reset");
@@ -2930,6 +3018,7 @@ function enhanceSelect(sel){
     document.getElementById("apiKeyWrap").style.display=manual?"block":"none";
     document.getElementById("countryWrap").style.display=needCountry?"block":"none";
     document.getElementById("phpFields").style.display=(needLanding||needStream)?"block":"none";
+    document.getElementById("skyleadFields").style.display=(pk.skylead)?"block":"none";   // SkyLead: только flow (ключ закреплён в коде, поля нет)
     var needF=(php&&php.needFile)||"";   // limonad: одиночный lemon.php
     var needApi=!!(pk.kma&&pk.kma.apiFolder);   // KMA: папка api
     document.getElementById("handlerFields").style.display=(needF||needApi)?"block":"none";
@@ -2981,6 +3070,13 @@ function enhanceSelect(sel){
         var el=document.getElementById(PLAIN[k]);
         if(el && data[k]!=null && String(data[k]).trim()!==""){ el.value=String(data[k]).trim(); filled.push(k); }
       });
+      // У SkyLead поток живёт в своём поле (sl_flow), а не в общем streamCode:
+      // без этого «Код потока» из карточки оффера не доезжал никуда и его
+      // приходилось вбивать руками на каждой сборке.
+      var slf=document.getElementById("sl_flow");
+      if(slf && data.streamCode!=null && String(data.streamCode).trim()!==""){
+        slf.value=String(data.streamCode).trim();
+      }
       // Язык служебных страниц + страна: прогоняем «Код гео» через ШТАТНЫЙ обработчик поля langCode
       // (в нём полная таблица GEO2LANG + langFromGeo). Он сам выставит язык call/error/chest и страну.
       var lc=document.getElementById("langCode");
@@ -3181,7 +3277,7 @@ function enhanceSelect(sel){
   document.querySelectorAll(".dl button[data-f]").forEach(function(b){b.addEventListener("click",function(){if(!FILES.index)build();var f=b.dataset.f;dl(f+".html",FILES[f]);});});
   // правка исходника на вкладке «✎ исходник» — пишем обратно и пересобираем (не дёргая showTab, чтобы не сбросить текст)
   var _srcT; document.getElementById("out").addEventListener("input",function(){
-    if(currentTab!=="src") return;
+    if(currentTab!=="src" && currentTab!=="index") return;   // обе вкладки правят исходник ленда
     setSource(document.getElementById("out").value);
     clearTimeout(_srcT); _srcT=setTimeout(function(){ try{build();}catch(e){} },400);
   });

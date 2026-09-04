@@ -20,8 +20,10 @@ export type Partner = {
   noId?: boolean;
   /** shakes без URL лендинга лид не примет. */
   needsLanding?: boolean;
-  /** Код потока — только у shakes и только для статистики. */
+  /** Код потока: у shakes только для статистики, у skylead — обязателен. */
   hasStream?: boolean;
+  /** Без потока партнёрка лид не примет — спрашиваем его как обязательный. */
+  needsStream?: boolean;
   note?: string;
 };
 
@@ -45,6 +47,14 @@ export const PARTNERS: Partner[] = [
   },
   { key: 'everad.com', label: 'everad.com', idLabel: 'Campaign ID (campaign_id)' },
   { key: 'rocketprofit.com', label: 'rocketprofit.com', idLabel: 'Campaign ID (campaign_id)' },
+  {
+    key: 'skylead.biz',
+    label: 'skylead.biz',
+    idLabel: 'ID оффера (offer)',
+    hasStream: true,
+    needsStream: true,
+    note: 'Ключ закреплён за партнёркой — вводить его не надо. Нужны ID оффера и код потока (раздел «Потоки» в кабинете SkyLead); страна подставится из кода гео. Хост под ленд должен уметь PHP с cURL.',
+  },
   {
     key: 'KMA.pro',
     label: 'KMA.pro',
@@ -152,5 +162,6 @@ export function builderGaps(o: BuilderOffer): string[] {
   if (!partner.noId && !o.partnerOfferId.trim()) gaps.push(partner.idLabel || 'ID оффера');
   if (!o.langCode.trim()) gaps.push('код гео');
   if (partner.needsLanding && !o.landingUrl.trim()) gaps.push('URL лендинга');
+  if (partner.needsStream && !o.streamCode.trim()) gaps.push('код потока');
   return gaps;
 }
