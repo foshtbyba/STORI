@@ -3091,6 +3091,14 @@ function enhanceSelect(sel){
         var el=document.getElementById(PLAIN[k]);
         if(el && data[k]!=null && String(data[k]).trim()!==""){ el.value=String(data[k]).trim(); filled.push(k); }
       });
+      // У SkyLead поток живёт в своём поле (sl_flow), а не в общем streamCode:
+      // без этого «Код потока» из карточки оффера не доезжал никуда и его
+      // приходилось вбивать руками на каждой сборке.
+      var slf=document.getElementById("sl_flow");
+      if(slf && data.streamCode!=null && String(data.streamCode).trim()!==""){
+        slf.value=String(data.streamCode).trim();
+        filled.push("flow");
+      }
       // Язык служебных страниц + страна: прогоняем «Код гео» через ШТАТНЫЙ обработчик поля langCode
       // (в нём полная таблица GEO2LANG + langFromGeo). Он сам выставит язык call/error/chest и страну.
       var lc=document.getElementById("langCode");
