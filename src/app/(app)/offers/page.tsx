@@ -2,6 +2,7 @@ import { requireUser } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { parseGeos, OFFER_STATUS } from '@/lib/format';
+import { PREVIEW_REV } from '@/lib/preview';
 import { saveOffer, deleteOffer, uploadOfferFiles, deleteOfferFile } from '@/app/actions/catalog';
 import { builderPayload, builderGaps, partnerOf, DEFAULT_BACKFIX } from '@/lib/builder';
 import { Panel, Empty } from '@/components/ui';
@@ -141,7 +142,7 @@ export default async function OffersPage({
             // trim=1 — срезаем однотонные поля вокруг товара: без этого превью с
             // широкими полями выглядит вчетверо мельче соседнего, снятого впритык.
             const previewSrc = previewFile
-              ? `/api/offer-file/${previewFile.id}?w=560&trim=1`
+              ? `/api/offer-file/${previewFile.id}?w=560&trim=1&rev=${PREVIEW_REV}`
               : offer.previewUrl;
             // Показываем только непустые списки исключений. Пустая плашка «нет»
             // рядом с заполненной — просто шум, а две пустых подряд занимают
