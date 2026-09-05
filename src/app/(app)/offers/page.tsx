@@ -187,14 +187,34 @@ export default async function OffersPage({
               <Panel key={offer.id} className="flex flex-col gap-4 p-3.5">
                 <div className="relative flex h-[168px] items-center justify-center overflow-hidden rounded-[18px] bg-sub">
                   {previewSrc ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={previewSrc}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover"
-                    />
+                    <>
+                      {/*
+                        Товар показываем целиком (object-contain), а не обрезаем
+                        по рамке: у превью пропорции какие угодно — от узкой
+                        баночки до широкой раскладки с коробкой, — и cover резал
+                        как раз то, ради чего превью и смотрят.
+                        Пустоту по бокам закрываем размытой копией той же
+                        картинки: файл уже в кэше, второй загрузки нет, а дыра в
+                        сетке не зияет.
+                      */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={previewSrc}
+                        alt=""
+                        aria-hidden="true"
+                        loading="lazy"
+                        decoding="async"
+                        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-25 blur-xl"
+                      />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={previewSrc}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        className="relative h-full w-full object-contain p-2"
+                      />
+                    </>
                   ) : (
                     <span className="text-[11.5px] text-mute">превью не загружено</span>
                   )}
