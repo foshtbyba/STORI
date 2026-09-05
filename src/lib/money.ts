@@ -26,6 +26,29 @@ export function roundForPeak(cents: number): number {
   return Math.round(dollars / step) * step;
 }
 
+/**
+ * Следующая веха для горы — круглая сумма строго выше достигнутой.
+ *
+ * Нужна, когда верх лесенки уже взят: дальше порогов нет, и гора замирала —
+ * лидер стоял на макушке, а склон переставал что-либо значить. Веха даёт
+ * следующую цель: не ставку, а просто высоту, до которой ещё расти.
+ *
+ * Шаг растёт вместе с суммой, как и у округления на самой горе: у $1 200 веха
+ * $1 500, у $12 000 — $13 000. «Строго выше» важно: веха вровень с достигнутым
+ * снова упирала бы гору в потолок.
+ */
+export function nextPeakMilestone(cents: number): number {
+  const dollars = Math.max(0, cents / 100);
+  const step =
+    dollars < 1_000 ? 250
+    : dollars < 5_000 ? 500
+    : dollars < 10_000 ? 1_000
+    : dollars < 50_000 ? 5_000
+    : dollars < 100_000 ? 10_000
+    : 50_000;
+  return (Math.floor(dollars / step) + 1) * step * 100;
+}
+
 function money(value: number, symbol: string, sign?: boolean) {
   const body =
     symbol === '$'

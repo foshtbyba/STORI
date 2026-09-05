@@ -89,21 +89,50 @@ async function shrink(data: Uint8Array, width: number, trim = false) {
  * карточке они лежат в одной сетке, и второй выглядит вчетверо мельче первого
  * — при том что места ему отведено столько же.
  *
- * Обрезка идёт по цвету угловой точки, поэтому на фото (где угол не образует
- * ровной рамки) она просто ничего не делает. Если же обрезалось «в ноль» —
- * картинка была однотонной, и лучше показать её целиком, чем точку.
+ * Наивная обрезка тут ломается на белом товаре: у бутылки на белом фоне корпус
+ * от фона неотличим, и обрезка режет прямо по товару до цветной этикетки — от
+ * бутылки 160×320 остаётся кусок 90×60. Этикетка сидит не по центру, и товар
+ * в карточке уезжает вбок.
+ *
+ * Поэтому обрезку не применяем как есть, а берём из неё только подсказку и
+ * правим двумя правилами:
+ *
+ *  1. Симметрия. С противоположных сторон срезаем поровну — по меньшему из
+ *     двух полей. Товар остаётся ровно там, где стоял, что бы обрезка ни
+ *     нашла с одного бока.
+ *  2. Потолок. Сколько отдавать — зависит от того, однозначен ли фон.
+ *     У картинки с прозрачностью он однозначен: прозрачным товар не бывает,
+ *     и обрезке можно верить почти целиком. У непрозрачной (белый лист) —
+ *     нет, и больше трети стороны не отдаём.
  */
 async function trimmed(sharp: typeof import('sharp').default, data: Buffer) {
   try {
-    const out = await sharp(data).trim({ threshold: 12 }).toBuffer();
-    const before = await sharp(data).metadata();
-    const after = await sharp(out).metadata();
-    const tiny =
-      !after.width || !after.height || after.width < 32 || after.height < 32 ||
-      // Съело почти всё — значит поймало не поля, а сам товар.
-      (before.width && before.height &&
-        (after.width * after.height) / (before.width * before.height) < 0.05);
-    return tiny ? data : out;
+    const { info } = await sharp(data).trim({ threshold: 12 }).toBuffer({ resolveWithObject: true });
+    const meta = await sharp(data).metadata();
+    const W = meta.width ?? 0;
+    const H = meta.height ?? 0;
+    if (!W || !H || !info.width || !info.height) return data;
+
+    // Сколько обрезка сняла с каждой стороны.
+    const left = -(info.trimOffsetLeft ?? 0);
+    const top = -(info.trimOffsetTop ?? 0);
+    const right = W - info.width - left;
+    const bottom = H - info.height - top;
+    if (left < 0 || top < 0 || right < 0 || bottom < 0) return data;
+
+    // Поровну с боков и сверху-снизу — товар остаётся там же, где стоял.
+    // Дальше ограничиваем, и тут вся разница между двумя видами превью:
+    // прозрачные поля — это точно поля, белые — может быть и сам товар.
+    const share = meta.hasAlpha ? 0.45 : 1 / 6;
+    const padX = Math.min(left, right, Math.floor(W * share));
+    const padY = Math.min(top, bottom, Math.floor(H * share));
+    const width = W - padX * 2;
+    const height = H - padY * 2;
+    if (width < 32 || height < 32) return data;
+    // Резать нечего — отдаём как есть, лишний проход через sharp ни к чему.
+    if (padX === 0 && padY === 0) return data;
+
+    return await sharp(data).extract({ left: padX, top: padY, width, height }).toBuffer();
   } catch {
     // Обрезать не вышло (однотонная картинка, чужой формат) — не беда.
     return data;

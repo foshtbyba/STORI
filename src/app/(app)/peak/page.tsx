@@ -2,7 +2,7 @@ import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { currentPeriodKey, teamSummary, defaultTiers, allTimeProfit } from '@/lib/queries';
 import { periodRange, periodTitle } from '@/lib/period';
-import { usd } from '@/lib/money';
+import { usd, nextPeakMilestone } from '@/lib/money';
 import { parseTiers } from '@/lib/salary';
 import { DEFAULT_TERRAIN, weekSeed, getTerrain } from '@/lib/terrain';
 import Peak3D, { type Pin3D, type Rule3D, type Route3D } from '@/components/Peak3D';
@@ -68,8 +68,17 @@ export default async function PeakPage() {
    */
   const topCents = tiers[tiers.length - 1]?.fromCents ?? 1_000_000;
   const bestCents = ranked.reduce((max, r) => Math.max(max, r.netCents), 0);
-  const summitCents = tiers.find((t) => t.fromCents > bestCents)?.fromCents ?? topCents;
-  const scaled = summitCents < topCents;
+  /**
+   * Верх лесенки взят — дальше порогов нет, и гора замирала: лидер стоял на
+   * макушке, склон переставал что-либо значить, а расти было некуда. Теперь
+   * поверх лесенки встаёт веха — круглая сумма выше достигнутого. Это не
+   * ставка, а просто следующая высота, и берётся она заново каждый раз.
+   */
+  const beyondLadder = bestCents >= topCents;
+  const summitCents = beyondLadder
+    ? nextPeakMilestone(bestCents)
+    : (tiers.find((t) => t.fromCents > bestCents)?.fromCents ?? topCents);
+  const scaled = !beyondLadder && summitCents < topCents;
   const leader = ranked[0];
 
   const pins: Pin3D[] = ranked.map((row, i) => {
@@ -127,7 +136,11 @@ export default async function PeakPage() {
   const viewer = summary.buyers.find((r) => r.buyer.id === viewerId) ?? null;
   const climbing = Boolean(viewer && viewer.netCents > 0);
   const viewerPlace = climbing ? ranked.findIndex((r) => r.buyer.id === viewerId) + 1 : 0;
-  const onTop = Boolean(viewer) && viewer!.netCents >= summitCents;
+  // «Ты на вершине» — это про взятый верх лесенки, а не про то, что упёрся в
+  // текущую отметку горы: веха уходит выше сразу, как её берут, и поздравлять
+  // человека одну секунду было бы издевательством.
+  const tookLadder = Boolean(viewer) && viewer!.netCents >= topCents;
+  const onTop = tookLadder;
   const toPeak = viewer ? Math.max(0, summitCents - viewer.netCents) : 0;
 
   const RING = terrain.config.radius + 26;
@@ -250,6 +263,18 @@ export default async function PeakPage() {
     }))
     .filter((r) => r.level <= 1);
 
+  // Веху рисуем отдельной отметкой на самом верху: у неё нет ставки, это просто
+  // следующая высота. Без неё макушка была бы безымянной.
+  if (beyondLadder) {
+    ruleMarks.push({
+      level: 1,
+      label: usd(summitCents, { round: true }),
+      rate: 'новая веха',
+      color: '#d2a06a',
+      passed: false,
+    });
+  }
+
   return (
     <div className="grid items-start gap-3.5 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,2fr)]">
       <div className="flex flex-col gap-3.5">
@@ -287,14 +312,12 @@ export default async function PeakPage() {
                 </div>
               </Sub>
               <Sub className="px-4 py-3">
-                <div className="lab">{onTop ? 'Сверх вершины' : 'До вершины'}</div>
+                <div className="lab">{beyondLadder ? 'До новой вехи' : onTop ? 'Сверх вершины' : 'До вершины'}</div>
                 <div
                   className="n mt-1.5 text-[20px] font-semibold"
-                  style={{ color: onTop ? '#b4c68c' : '#ce6e58' }}
+                  style={{ color: toPeak === 0 ? '#b4c68c' : beyondLadder ? '#d2a06a' : '#ce6e58' }}
                 >
-                  {onTop
-                    ? usd(viewer.netCents - summitCents)
-                    : usd(toPeak)}
+                  {toPeak === 0 ? usd(viewer.netCents - summitCents) : usd(toPeak)}
                 </div>
               </Sub>
             </div>
@@ -334,6 +357,7 @@ export default async function PeakPage() {
               <span className="text-[12.5px] text-mute">
                 вершина — {usd(summitCents, { round: true })}
                 {scaled ? ` из ${usd(topCents, { round: true })}` : ''}
+                {beyondLadder ? ` · верх лесенки ${usd(topCents, { round: true })} взят` : ''}
               </span>
             }
           />
