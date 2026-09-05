@@ -4,7 +4,7 @@ import { currentPeriodKey, teamSummary, defaultTiers, allTimeProfit } from '@/li
 import { periodRange, periodTitle } from '@/lib/period';
 import { usd, nextPeakMilestone } from '@/lib/money';
 import { parseTiers } from '@/lib/salary';
-import { DEFAULT_TERRAIN, weekSeed, getTerrain } from '@/lib/terrain';
+import { weekSeed, getTerrain, terrainForStage } from '@/lib/terrain';
 import Peak3D, { type Pin3D, type Rule3D, type Route3D } from '@/components/Peak3D';
 import type { Grounded } from '@/components/Mountain';
 import { Panel, PanelHead, Sub, Avatar, Empty } from '@/components/ui';
@@ -49,9 +49,6 @@ export default async function PeakPage() {
     return <Empty>За {label} отчётов ещё нет — гора пустая.</Empty>;
   }
 
-  // Рельеф считаем здесь, а на клиент отдаём его в координатах площадки: там
-  // он и проецируется, поэтому гору можно обойти вокруг.
-  const terrain = getTerrain({ ...DEFAULT_TERRAIN, seed: weekSeed() });
   const viewerId = user.buyer?.id ?? null;
   /**
    * Вершина — ближайшая невзятая веха, а не всегда верх лесенки.
@@ -91,6 +88,21 @@ export default async function PeakPage() {
     ? nextPeakMilestone(bestCents)
     : (tiers.find((t) => t.fromCents > bestCents)?.fromCents ?? topCents);
   const scaled = !beyondLadder && summitCents < topCents;
+
+  /**
+   * Сколько высот уже взято. По этому числу строится сам рельеф: взял вершину
+   * — перед тобой встаёт следующая гора, крупнее и злее, а не та же самая с
+   * переставленной подписью.
+   */
+  const stage =
+    tiers.filter((t) => t.fromCents < summitCents).length +
+    // За лесенкой ступени продолжают идти по вехам, иначе рельеф застыл бы на
+    // последней ступени навсегда.
+    (beyondLadder ? Math.floor(summitCents / Math.max(topCents, 1)) : 0);
+
+  // Рельеф считаем здесь, а на клиент отдаём его в координатах площадки: там
+  // он и проецируется, поэтому гору можно обойти вокруг.
+  const terrain = getTerrain(terrainForStage(stage, weekSeed()));
   const leader = ranked[0];
 
   const pins: Pin3D[] = ranked.map((row, i) => {
