@@ -7,6 +7,7 @@ import { Panel, PanelHead, Empty } from '@/components/ui';
 import DayRow, { type DayRowData } from '@/components/DayRow';
 import WeekNav from '@/components/WeekNav';
 import { IconCalendar, IconPlus } from '@/components/icons';
+import { AGENCY_SOURCE } from '@/lib/extra-spend';
 
 /**
  * Отчёты по дням.
@@ -46,6 +47,34 @@ export default async function DaysPage({
     include: { buyer: true, paymentMethod: true },
     orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
   });
+
+  /*
+    Агентка — не отдельный день, а приписка к дню баера: тот же человек, та же
+    дата, просто часть денег ушла мимо карт и со своей комиссией. Двумя
+    строками это читалось как два разных дня, где у одного «профит −$165» без
+    дохода, — и человек в отчёте видел минус там, где день закрыт в плюс.
+    Поэтому склеиваем: одна строка на день, агентка приписана к расходу.
+  */
+  const agency = days.filter((d) => d.source === AGENCY_SOURCE);
+  const taken = new Set<string>();
+  const merged = days
+    .filter((d) => d.source !== AGENCY_SOURCE)
+    .map((d) => {
+      // К одной основной строке цепляем одну агентку: если у баера за день
+      // несколько строк (разные офферы), вторая её уже не заберёт.
+      const extra = agency.find(
+        (a) => a.buyerId === d.buyerId && a.date.getTime() === d.date.getTime() && !taken.has(a.id),
+      );
+      if (extra) taken.add(extra.id);
+      return { main: d, extra };
+    });
+
+  // Агентка без основной строки — день, где кроме неё ничего не заводили.
+  // Такую показываем сама по себе, иначе расход просто пропал бы из отчёта.
+  const rows = [
+    ...merged,
+    ...agency.filter((a) => !taken.has(a.id)).map((a) => ({ main: a, extra: undefined })),
+  ].sort((x, y) => y.main.date.getTime() - x.main.date.getTime());
 
   const ownersHref = (on: boolean) => {
     const p = new URLSearchParams();
@@ -111,14 +140,14 @@ export default async function DaysPage({
         <span className="lab pl-2 text-right md:pl-3">{canEdit ? 'Правка' : ''}</span>
       </div>
 
-      {days.length === 0 ? (
+      {rows.length === 0 ? (
         <Empty>
           {isCurrent
             ? 'За текущую неделю отчётов пока нет.'
             : `За ${weekLabel(key)} отчётов нет.`}
         </Empty>
       ) : (
-        days.map((d) => {
+        rows.map(({ main: d, extra }) => {
           const row: DayRowData = {
             id: d.id,
             day: fmtDay(d.date),
@@ -130,6 +159,15 @@ export default async function DaysPage({
             spendGrossCents: d.spendGrossCents,
             commissionBps: d.commissionBps,
             note: d.note,
+            extra: extra
+              ? {
+                  id: extra.id,
+                  spendNetCents: extra.spendNetCents,
+                  spendGrossCents: extra.spendGrossCents,
+                  commissionBps: extra.commissionBps,
+                  note: extra.note,
+                }
+              : undefined,
           };
           return <DayRow key={d.id} row={row} canEdit={canEdit} />;
         })
