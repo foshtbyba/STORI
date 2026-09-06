@@ -98,7 +98,7 @@ Postgres: команда работает одновременно, а SQLite э
 ```bash
 # на сервере, от root
 apt update && apt install -y git curl
-git clone -b claude/profit-tracking-dashboard-ulxq52 <репозиторий> ms-team
+git clone <репозиторий> ms-team
 cd ms-team
 bash scripts/bootstrap.sh
 ```
@@ -149,7 +149,7 @@ DOMAIN=203-0-113-45.sslip.io      # для IP 203.0.113.45
 3. На сервере поменяй домен в `.env` и подними заново:
 
    ```bash
-   cd ~/msteam
+   cd ~/ms-team
    sed -i 's/^DOMAIN=.*/DOMAIN=твойдомен, www.твойдомен/' .env
    docker compose up -d
    docker compose logs -f caddy      # видно выпуск сертификата
@@ -170,6 +170,28 @@ DOMAIN=203-0-113-45.sslip.io      # для IP 203.0.113.45
 4. Локально: `npm run use:postgres`, закоммить изменённую схему.
 5. После первого деплоя один раз накати миграции: `npm run db:migrate`
    с боевым `DATABASE_URL` в окружении.
+
+### Миграции
+
+Каталоги в `prisma/migrations` накатываются в алфавитном порядке имени, поэтому
+номер всегда пишется двумя цифрами: `09_integrations` идёт раньше
+`10_ad_spend`, а `9_integrations` — позже, и миграция падает на таблице,
+которой ещё нет.
+
+После правки `prisma/schema.prisma` заводи миграцию, иначе на чистом сервере
+поднимется база без новых колонок — сборка при этом пройдёт, а приложение
+упадёт на первом запросе. Проверить, что SQL догоняет схему:
+
+```bash
+npx prisma migrate diff \
+  --from-migrations ./prisma/migrations \
+  --to-schema-datamodel ./prisma/schema.prisma \
+  --shadow-database-url "$DATABASE_URL" --exit-code
+```
+
+«No difference detected» — расхождений нет. Иначе тот же вызов с `--script`
+напечатает недостающий SQL: положи его в новый каталог `NN_имя/migration.sql`.
+
 
 ### Первые пользователи
 

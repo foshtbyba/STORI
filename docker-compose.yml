@@ -25,6 +25,10 @@ services:
       AUTH_SECRET: ${AUTH_SECRET:?задай AUTH_SECRET в .env}
       # Пустой ключ выключает ручку /api/sync — так и задумано.
       SYNC_SECRET: ${SYNC_SECRET:-}
+      # Часовой пояс, по которому синхронизация нарезает сутки. Контейнер живёт
+      # в UTC, а день команды закрывается по Москве — без этого свежие цифры
+      # уезжали бы на сутки назад.
+      SYNC_TZ: ${SYNC_TZ:-Europe/Moscow}
     expose:
       - '3000'
     healthcheck:
