@@ -4,7 +4,7 @@ import { prisma } from '@/lib/db';
 import { currentPeriodKey, teamSummary, firstToCross } from '@/lib/queries';
 import { periodTitle, isWeekKey, shiftKey, fmtDay } from '@/lib/period';
 import PeriodNav from '@/components/PeriodNav';
-import { Panel, PanelHead, Empty } from '@/components/ui';
+import { Panel, PanelHead, Sub, Empty } from '@/components/ui';
 import BuyerRoster, { type RosterRow } from '@/components/BuyerRoster';
 import AddMember from '@/components/AddMember';
 import BonusPanel, { type BonusRow } from '@/components/BonusPanel';
@@ -12,7 +12,11 @@ import LadderEditor, { type LadderRule } from '@/components/LadderEditor';
 import BuyerLadder, { type BuyerLadderRow } from '@/components/BuyerLadder';
 import CollapsiblePanel from '@/components/CollapsiblePanel';
 import { parseTiers } from '@/lib/salary';
-import { IconUsers, IconChart, IconWallet } from '@/components/icons';
+import { SYNC_DAYS } from '@/lib/sync';
+import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
+import { linkGroup, linkBrocardTeam } from '@/app/actions/integrations';
+import { TrackerForm, BrocardForm, SyncNow } from '@/components/IntegrationForms';
+import { IconUsers, IconChart, IconWallet, IconLink, IconWarn } from '@/components/icons';
 
 /** tiersJson → строки для ввода (доллары/проценты). */
 function toLadderRule(id: string, name: string, tiersJson: string, fixedRub: number): LadderRule {
@@ -30,8 +34,11 @@ function toLadderRule(id: string, name: string, tiersJson: string, fixedRub: num
 /**
  * Админ-настройки — отдельное окно за надписью ADMIN в шапке. Здесь редкие
  * вещи, которым не место в основных отчётах: ростер команды (дата выхода, день
- * рождения, позиция), разовые бонусы. Дальше сюда же вшиваются прочие
- * настройки.
+ * рождения, позиция), разовые бонусы и ключи к источникам цифр.
+ *
+ * Ключи от Brocard и Keitaro живут тут, а не на своей вкладке: настраивают их
+ * раз в жизни, а доступ под ними — к деньгам и трекеру всей команды. Кабинеты
+ * Facebook, наоборот, уехали в «Рекламу» — там их каждый день и смотрят.
  */
 export default async function AdminPage({
   searchParams,
@@ -60,6 +67,25 @@ export default async function AdminPage({
       orderBy: { createdAt: 'desc' },
     }),
   ]);
+
+  // Источники цифр: ключи, привязки групп и команд.
+  const [tracker, groups, brocard, brocardTeams, linkBuyers] = await Promise.all([
+    prisma.tracker.findFirst(),
+    prisma.trackerGroup.findMany({
+      include: { buyer: { select: { handle: true } } },
+      orderBy: { name: 'asc' },
+    }),
+    prisma.brocardConfig.findFirst(),
+    prisma.brocardTeam.findMany({ orderBy: { name: 'asc' } }),
+    prisma.buyer.findMany({
+      where: { archived: false },
+      select: { id: true, handle: true },
+      orderBy: { handle: 'asc' },
+    }),
+  ]);
+  const unlinkedGroups = groups.filter((g) => !g.buyerId).length;
+  // Общак — не «непривязанная»: она назначена расходниками осознанно.
+  const unlinkedTeams = brocardTeams.filter((t) => !t.buyerId && !t.overhead).length;
 
   const rosterRows: RosterRow[] = (
     await prisma.buyer.findMany({
@@ -194,6 +220,182 @@ export default async function AdminPage({
             }),
           )}
         />
+      </CollapsiblePanel>
+
+      {/* ── Источники цифр ────────────────────────────────────────────── */}
+      <Panel className="p-4 sm:p-6">
+        <PanelHead
+          icon={<IconLink color="#b4c68c" />}
+          tint="bg-sage-t"
+          title="Источники цифр"
+          aside={
+            <span className="hidden text-[12.5px] text-mute sm:inline">
+              каждые полчаса — сегодня, раз в сутки — все {SYNC_DAYS} дней
+            </span>
+          }
+          right={<SyncNow />}
+        />
+        <p className="mt-4 text-[12px] leading-relaxed text-mute">
+          Доход приходит из Keitaro и ложится в отчёты дня. Реальный расход — с Brocard
+          (фактические списания с карт); Facebook тянется отдельно и только для справки, в
+          зарплату он не идёт. Синхронизация никогда не спорит с человеком: поправленную руками
+          цифру в отчёте она не трогает и отмечает такую строку отдельно. Кабинеты Facebook
+          подключаются в окне «Реклама».
+        </p>
+      </Panel>
+
+      {/* ── Brocard ───────────────────────────────────────────────────── */}
+      <CollapsiblePanel
+        icon={<IconWallet color="#b4c68c" />}
+        tint="bg-sage-t"
+        title="Brocard"
+        aside={<span className="text-[12.5px] text-mute">реальный расход</span>}
+        summary={brocard?.lastSyncAt ? <span className="text-[12.5px] text-mute">последний заход {fmtDay(brocard.lastSyncAt)}</span> : undefined}
+      >
+        {brocard?.lastError ? (
+          <Sub className="mt-3 px-3.5 py-2.5 text-[12px] leading-relaxed text-rust">
+            {brocard.lastError}
+          </Sub>
+        ) : null}
+
+        <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
+          Ключ берётся в кабинете Brocard: раздел <span className="text-soft">Автоматизация → API</span>,
+          сначала «Включить», затем «Создать». Расход отсюда — фактические списания с карт, он и идёт
+          в отчёты и зарплату. Отклонённые и центовые проверки карты в расход не считаем.
+        </p>
+        <BrocardForm hasKey={Boolean(brocard?.apiKey)} />
+
+        <div className="mt-5 border-t border-line pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-[12.5px] font-semibold">Команды Brocard</span>
+            {unlinkedTeams ? (
+              <span className="flex items-center gap-2 text-[12px] text-rust">
+                <IconWarn color="#ce6e58" size={14} />
+                без баера: {unlinkedTeams}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
+            Расход делится по командам: команда — это баер. Пока команда не привязана, её траты
+            никуда не пишутся и показываются отдельной строкой в отчёте о синхронизации.
+          </p>
+
+          {brocardTeams.length === 0 ? (
+            <Empty>Команд пока не видно — сохрани ключ выше, и они подтянутся.</Empty>
+          ) : (
+            <div className="mt-3 flex flex-col gap-2">
+              {brocardTeams.map((t) => (
+                <form
+                  key={t.id}
+                  action={linkBrocardTeam}
+                  className="flex flex-wrap items-center gap-2.5 rounded-[16px] bg-sub px-3.5 py-2.5"
+                >
+                  <input type="hidden" name="id" value={t.id} />
+                  <span className="min-w-0 flex-1 truncate text-[13px]">
+                    {t.name}
+                    <span className="ml-2 text-[11px] text-dim">#{t.externalId}</span>
+                    {t.overhead ? (
+                      <span className="ml-2 rounded-full bg-rust-t px-2 py-0.5 text-[10px] text-rust">
+                        расходники
+                      </span>
+                    ) : null}
+                  </span>
+                  <select
+                    name="buyerId"
+                    defaultValue={t.overhead ? BROCARD_OVERHEAD : (t.buyerId ?? '')}
+                    className="h-9 rounded-xl border border-line2 bg-panel px-3 text-[12.5px] text-text outline-none focus:border-sage"
+                  >
+                    <option value="">— не привязана —</option>
+                    <option value={BROCARD_OVERHEAD}>Расходники на команду</option>
+                    {linkBuyers.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.handle}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="submit"
+                    className="rounded-full border border-line2 px-3.5 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage"
+                  >
+                    Сохранить
+                  </button>
+                </form>
+              ))}
+            </div>
+          )}
+        </div>
+      </CollapsiblePanel>
+
+      {/* ── Keitaro ───────────────────────────────────────────────────── */}
+      <CollapsiblePanel
+        icon={<IconChart color="#b4c68c" />}
+        tint="bg-sage-t"
+        title="Keitaro"
+        aside={<span className="text-[12.5px] text-mute">доход</span>}
+        summary={tracker?.lastSyncAt ? <span className="text-[12.5px] text-mute">последний заход {fmtDay(tracker.lastSyncAt)}</span> : undefined}
+      >
+        {tracker?.lastError ? (
+          <Sub className="mt-3 px-3.5 py-2.5 text-[12px] leading-relaxed text-rust">
+            {tracker.lastError}
+          </Sub>
+        ) : null}
+
+        <TrackerForm baseUrl={tracker?.baseUrl ?? ''} hasKey={Boolean(tracker?.apiKey)} />
+
+        <div className="mt-5 border-t border-line pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-[12.5px] font-semibold">Группы кампаний</span>
+            {unlinkedGroups ? (
+              <span className="flex items-center gap-2 text-[12px] text-rust">
+                <IconWarn color="#ce6e58" size={14} />
+                без баера: {unlinkedGroups}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
+            Доход делится по группам: группа — это баер. Пока группа не привязана, её доход никуда
+            не записывается и показывается отдельной строкой в отчёте о синхронизации — молча
+            терять деньги нельзя.
+          </p>
+
+          {groups.length === 0 ? (
+            <Empty>Групп пока не видно — сохрани ключ выше, и они подтянутся.</Empty>
+          ) : (
+            <div className="mt-3 flex flex-col gap-2">
+              {groups.map((g) => (
+                <form
+                  key={g.id}
+                  action={linkGroup}
+                  className="flex flex-wrap items-center gap-2.5 rounded-[16px] bg-sub px-3.5 py-2.5"
+                >
+                  <input type="hidden" name="id" value={g.id} />
+                  <span className="min-w-0 flex-1 truncate text-[13px]">
+                    {g.name}
+                    <span className="ml-2 text-[11px] text-dim">#{g.externalId}</span>
+                  </span>
+                  <select
+                    name="buyerId"
+                    defaultValue={g.buyerId ?? ''}
+                    className="h-9 rounded-xl border border-line2 bg-panel px-3 text-[12.5px] text-text outline-none focus:border-sage"
+                  >
+                    <option value="">— не привязана —</option>
+                    {linkBuyers.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.handle}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="submit"
+                    className="rounded-full border border-line2 px-3.5 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage"
+                  >
+                    Сохранить
+                  </button>
+                </form>
+              ))}
+            </div>
+          )}
+        </div>
       </CollapsiblePanel>
     </div>
   );

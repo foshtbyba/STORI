@@ -1,5 +1,8 @@
 import 'server-only';
 
+import axios from 'axios';
+import { HttpsProxyAgent } from 'https-proxy-agent';
+
 /**
  * Тонкий клиент к Marketing API Facebook. Нужны ровно две вещи: список
  * кабинетов под токеном и дневной расход по каждому.
@@ -120,27 +123,68 @@ export function extractFbToken(raw: string): { token: string; ua?: string } {
   return { token: s };
 }
 
+/**
+ * Чем и через что ходим в Graph.
+ *
+ * `ua` приезжает из мультитокена антидетекта. `proxyUrl` — прокси того
+ * аккаунта, которому принадлежит ключ: кабинеты арендованные, и Facebook
+ * заметно спокойнее, когда запросы идут с привычного адреса, а не с адреса
+ * сервера. Оба поля необязательны — без них ходим напрямую.
+ */
+export type FbNet = { ua?: string; proxyUrl?: string | null };
+
+/**
+ * Один запрос к Graph, с прокси или без.
+ *
+ * Через прокси идём axios-ом: у него агент подключается одной строкой.
+ * Напрямую — обычным fetch, без лишней зависимости в горячем пути. Наружу оба
+ * пути отдают одно и то же — код ответа и тело строкой, — поэтому разбор
+ * ошибок ниже общий и про транспорт ничего не знает.
+ */
+async function send(url: URL, net: FbNet): Promise<{ status: number; text: string }> {
+  const headers = net.ua ? { 'User-Agent': net.ua } : undefined;
+
+  if (net.proxyUrl) {
+    const agent = new HttpsProxyAgent(net.proxyUrl);
+    const res = await axios.get(url.toString(), {
+      headers,
+      httpAgent: agent,
+      httpsAgent: agent,
+      timeout: 20000,
+      // Тело нужно строкой и без разбора: JSON парсится ниже, вместе с
+      // ответами прямого пути.
+      responseType: 'text',
+      transformResponse: [(d) => d],
+      // Четырёхсотки — это ответ Facebook с телом, а не сбой связи: разбираем
+      // их сами, поэтому axios не должен бросать исключение.
+      validateStatus: () => true,
+    });
+    return { status: res.status, text: String(res.data ?? '') };
+  }
+
+  const res = await fetch(url, { cache: 'no-store', headers });
+  return { status: res.status, text: await res.text() };
+}
+
 async function call(
   path: string,
   token: string,
   params: Record<string, string> = {},
-  ua?: string,
+  net: FbNet = {},
 ) {
   const url = new URL(`${API}${path}`);
   url.searchParams.set('access_token', token);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
 
-  let res: Response;
+  let res: { status: number; text: string };
   try {
-    res = await fetch(url, {
-      cache: 'no-store',
-      headers: ua ? { 'User-Agent': ua } : undefined,
-    });
+    res = await send(url, net);
   } catch (e) {
-    throw new FbError(`Не достучались до Facebook: ${(e as Error).message}`);
+    const via = net.proxyUrl ? ' (через прокси — проверь адрес и доступность)' : '';
+    throw new FbError(`Не достучались до Facebook${via}: ${(e as Error).message}`);
   }
 
-  const text = await res.text();
+  const text = res.text;
   let body: unknown;
   try {
     body = JSON.parse(text);
@@ -161,7 +205,9 @@ async function call(
   if (err) {
     throw new FbError(fbErrorMessage(err, res.status));
   }
-  if (!res.ok) throw new FbError(`Facebook ответил ${res.status}`);
+  if (res.status < 200 || res.status >= 300) {
+    throw new FbError(`Facebook ответил ${res.status}`);
+  }
   return body as Record<string, unknown>;
 }
 
@@ -216,7 +262,7 @@ function fbHint(code: number, subcode: number | undefined, why: string): string 
  * Кабинеты, доступные под токеном. Постранично: у крупного BM их бывает
  * больше сотни, а Facebook отдаёт по 25 за раз.
  */
-export async function listAccounts(token: string, ua?: string) {
+export async function listAccounts(token: string, net: FbNet = {}) {
   const out: FbAccount[] = [];
   let after = '';
 
@@ -227,7 +273,7 @@ export async function listAccounts(token: string, ua?: string) {
       fields: 'account_id,name,currency',
       limit: '100',
       ...(after ? { after } : {}),
-    }, ua);
+    }, net);
     const data = (body.data ?? []) as { account_id?: string; name?: string; currency?: string }[];
     for (const row of data) {
       if (!row.account_id) continue;
@@ -260,7 +306,7 @@ export async function accountSpend(
   externalId: string,
   from: string,
   to: string,
-  ua?: string,
+  net: FbNet = {},
 ) {
   const body = await call(`/${externalId}/insights`, token, {
     fields: 'spend',
@@ -268,7 +314,7 @@ export async function accountSpend(
     time_increment: '1',
     time_range: JSON.stringify({ since: from, until: to }),
     limit: '500',
-  }, ua);
+  }, net);
 
   const rows = (body.data ?? []) as { date_start?: string; spend?: string }[];
   const out: FbSpendDay[] = [];
@@ -287,14 +333,15 @@ export async function accountSpend(
  * Проверка вставленной строки: разбираем плоский токен или мультитокен, потом
  * смотрим, кто под ним и сколько кабинетов видно.
  */
-export async function checkToken(raw: string) {
+export async function checkToken(raw: string, proxyUrl?: string | null) {
   const { token, ua } = extractFbToken(raw);
+  const net: FbNet = { ua, proxyUrl };
 
   // /me падает — проблема в самом токене (не тот, протух, обрезан). Помечаем
   // шаг, чтобы отличать это от «токен рабочий, но нет доступа к кабинетам».
   let me: Record<string, unknown>;
   try {
-    me = await call('/me', token, { fields: 'id,name' }, ua);
+    me = await call('/me', token, { fields: 'id,name' }, net);
   } catch (e) {
     if (e instanceof FbError) {
       throw new FbError(`${e.message} (шаг: проверка токена)`);
@@ -304,7 +351,7 @@ export async function checkToken(raw: string) {
 
   let accounts: FbAccount[];
   try {
-    accounts = await listAccounts(token, ua);
+    accounts = await listAccounts(token, net);
   } catch (e) {
     if (e instanceof FbError) {
       throw new FbError(`${e.message} (шаг: список кабинетов — токен рабочий, но кабинеты не отдал)`);

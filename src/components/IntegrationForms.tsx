@@ -40,6 +40,11 @@ function Answer({ state }: { state: ActionState }) {
 
 export function TokenForm({ buyers }: { buyers: { id: string; handle: string }[] }) {
   const [state, action] = useActionState(addToken, null);
+  // Токен и куки — два входа в один и тот же кабинет, а не два поля подряд:
+  // показываем ровно один. Невыбранное поле не просто спрятано, а не
+  // отрисовано — иначе в отправку уехало бы и оно.
+  const [mode, setMode] = useState<'token' | 'cookies'>('token');
+
   return (
     <form action={action} className="mt-4 flex flex-col gap-2.5">
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-[1fr_1fr]">
@@ -58,24 +63,82 @@ export function TokenForm({ buyers }: { buyers: { id: string; handle: string }[]
           <input name="label" placeholder="BM основной" className={field} />
         </label>
       </div>
+
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+        <span className="text-[11.5px] text-mute">Чем подключаем</span>
+        <div className="flex items-center gap-1 rounded-full bg-sub p-1">
+          {([
+            ['token', 'Токен'],
+            ['cookies', 'Cookies'],
+          ] as const).map(([value, title]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setMode(value)}
+              aria-pressed={mode === value}
+              className={`rounded-full px-3.5 py-1.5 text-[12px] transition ${
+                mode === value ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
+              }`}
+            >
+              {title}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {mode === 'token' ? (
+        <label className="block">
+          <span className="mb-1.5 block text-[11.5px] text-mute">Токен или мультитокен</span>
+          <textarea
+            name="token"
+            placeholder="EAAB… или мультитокен eyJ…"
+            rows={2}
+            className={`${field} n h-auto resize-y py-2.5`}
+            required
+          />
+          <span className="mt-1 block text-[11px] text-dim">
+            Подойдёт и плоский токен, и мультитокен из антидетекта — из него сам достанется ключ.
+          </span>
+        </label>
+      ) : (
+        <label className="block">
+          <span className="mb-1.5 block text-[11.5px] text-mute">Куки одной строкой (JSON)</span>
+          <textarea
+            name="cookiesJson"
+            placeholder={'[{"name": "c_user", "value": "…"}, …]'}
+            rows={4}
+            className={`${field} n h-auto resize-y py-2.5 text-[11.5px] leading-relaxed`}
+            required
+          />
+          <span className="mt-1 block text-[11px] text-dim">
+            Выгрузка кук из антидетекта. Ключ достанем сами — откроем ими Ads Manager и заберём
+            оттуда. Почти всегда нужен прокси того же аккаунта, иначе Facebook покажет вход, а не
+            кабинет.
+          </span>
+        </label>
+      )}
+
       <label className="block">
         <span className="mb-1.5 block text-[11.5px] text-mute">
-          Токен или мультитокен
+          Прокси{mode === 'token' ? ' · необязательно' : ''}
         </span>
-        <textarea
-          name="token"
-          placeholder="EAAB… или мультитокен eyJ…"
-          rows={2}
-          className={`${field} n h-auto resize-y py-2.5`}
-          required
+        <input
+          name="proxyUrl"
+          placeholder="1.2.3.4:8000:логин:пароль"
+          className={`${field} n`}
         />
         <span className="mt-1 block text-[11px] text-dim">
-          Подойдёт и плоский токен, и мультитокен из антидетекта — из него сам достанется ключ.
+          Вставляй как дал провайдер — строка разбирается сама:{' '}
+          <span className="n text-mute">адрес:порт:логин:пароль</span>,{' '}
+          <span className="n text-mute">логин:пароль@адрес:порт</span>, тот же список в обратном
+          порядке или готовый <span className="n text-mute">http://…</span>. Через прокси пойдут все
+          запросы к Facebook — и проверка сейчас, и синхронизация потом. SOCKS пока не поддержан.
         </span>
       </label>
+
       <div className="flex justify-end">
         <SubmitButton
-          pendingLabel="Проверяю токен…"
+          pendingLabel={mode === 'cookies' ? 'Достаю ключ из кук…' : 'Проверяю токен…'}
           className="rounded-full bg-sage px-6 py-2.5 text-[13px] font-semibold text-bg transition hover:opacity-90"
         >
           Проверить и добавить

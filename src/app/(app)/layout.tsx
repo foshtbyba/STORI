@@ -7,7 +7,7 @@ import ScrollCalm from '@/components/ScrollCalm';
 import TopBar from '@/components/TopBar';
 import Workspace from '@/components/Workspace';
 import {
-  IconCalendar, IconChart, IconBox, IconPeak, IconTag, IconWallet, IconLink, IconRocket, IconLogout,
+  IconCalendar, IconChart, IconBox, IconPeak, IconTag, IconWallet, IconRocket,
 } from '@/components/icons';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -33,13 +33,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     { href: '/payroll', label: 'Зарплата', icon: <IconWallet size={15} /> },
     { href: '/offers', label: 'Офферы', icon: <IconTag size={15} /> },
   ];
-  // Источники цифр настраивает только админ — под ключами доступ к кабинетам
-  // и трекеру всей команды.
-  if (role === 'ADMIN') {
-    // Овнеры и расходники на команду живут прямо в сводке, отдельной вкладки нет.
-    statsItems.push({ href: '/integrations', label: 'Источники', icon: <IconLink size={15} /> });
-    statsItems.push({ href: '/sources', label: 'FBtool', icon: <IconLogout size={15} /> });
-  }
+  // Отдельной вкладки «Источники» больше нет: ключи от Brocard и Keitaro
+  // переехали в админку (их трогают раз в жизни), а кабинеты Facebook — в окно
+  // «Реклама», где их и смотрят каждый день.
 
   // Пространство «Реклама»: техничка — мониторинг ФБ, управление, автозалив.
   const adsItems = [

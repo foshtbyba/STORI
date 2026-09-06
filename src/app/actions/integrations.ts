@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireAdmin, requireUser } from '@/lib/auth';
 import { checkToken, FbError } from '@/lib/fb';
+import { extractTokenFromCookies } from '@/lib/fb-engine';
+import { parseProxy } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
 import { checkBrocard, BrocardError } from '@/lib/brocard';
 import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
@@ -18,7 +20,11 @@ import { syncAll } from '@/lib/sync';
 const Token = z.object({
   buyerId: z.string().min(1),
   label: z.string().trim().max(80).default(''),
-  token: z.string().trim().min(20, 'Токен слишком короткий — похоже, скопировался не весь'),
+  // Токен и куки — два входа в один кабинет, поэтому оба необязательны по
+  // отдельности: что именно вставили, проверяем ниже.
+  token: z.string().trim().default(''),
+  cookiesJson: z.string().trim().default(''),
+  proxyUrl: z.string().trim().max(300).default(''),
 });
 
 export type ActionState = { ok: boolean; error?: string; message?: string } | null;
@@ -28,26 +34,59 @@ export async function addToken(_prev: ActionState, form: FormData): Promise<Acti
   const parsed = Token.safeParse({
     buyerId: form.get('buyerId'),
     label: form.get('label') ?? '',
-    token: form.get('token'),
+    token: form.get('token') ?? '',
+    cookiesJson: form.get('cookiesJson') ?? '',
+    proxyUrl: form.get('proxyUrl') ?? '',
   });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? 'Проверь поля' };
+  }
+  const { buyerId, label, cookiesJson } = parsed.data;
+
+  // Прокси приходит в том виде, в каком его дал провайдер: списком
+  // `ip:порт:логин:пароль`, с собакой или готовым URL. Приводим к URL один раз
+  // здесь и дальше по коду ходит уже нормализованная строка.
+  const proxy = parseProxy(parsed.data.proxyUrl);
+  if (proxy && 'error' in proxy) return { ok: false, error: proxy.error };
+  const proxyUrl = proxy?.url ?? '';
+
+  // Вход либо ключом, либо куками. Куки — путь для арендованных кабинетов, где
+  // своего токена не выпустить: открываем ими Ads Manager и забираем ключ
+  // оттуда. Ходить при этом нужно с прокси аккаунта, иначе Facebook показывает
+  // страницу входа, а не кабинет.
+  let raw = parsed.data.token;
+  if (!raw && !cookiesJson) {
+    return { ok: false, error: 'Вставь токен или куки — без одного из них подключать нечего' };
+  }
+  if (!raw) {
+    try {
+      raw = await extractTokenFromCookies(cookiesJson, proxyUrl || null);
+    } catch (e) {
+      return { ok: false, error: (e as Error).message };
+    }
+  }
+  if (raw.length < 20) {
+    return { ok: false, error: 'Токен слишком короткий — похоже, скопировался не весь' };
   }
 
   // Токен проверяем сразу: класть в базу неработающий ключ, чтобы потом
   // гадать, почему нет цифр, — так себе идея.
   let found;
   try {
-    found = await checkToken(parsed.data.token);
+    found = await checkToken(raw, proxyUrl || null);
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
 
   const created = await prisma.adToken.create({
     data: {
-      buyerId: parsed.data.buyerId,
-      label: parsed.data.label || found.name,
-      token: parsed.data.token,
+      buyerId,
+      label: label || found.name,
+      token: raw,
+      // Куки храним рядом с ключом: ключ из них живёт недолго, и следующий раз
+      // его достанем сами, не дёргая человека.
+      cookiesJson: cookiesJson || null,
+      proxyUrl: proxyUrl || null,
     },
   });
 
@@ -64,7 +103,8 @@ export async function addToken(_prev: ActionState, form: FormData): Promise<Acti
     });
   }
 
-  revalidatePath('/integrations');
+  revalidatePath('/admin');
+  revalidatePath('/ads');
   return { ok: true, message: `${found.name}: кабинетов найдено ${found.accounts.length}` };
 }
 
@@ -99,7 +139,8 @@ export async function addMyToken(_prev: ActionState, form: FormData): Promise<Ac
   }
 
   revalidatePath('/ads');
-  revalidatePath('/integrations');
+  revalidatePath('/admin');
+  revalidatePath('/ads');
   return { ok: true, message: `${found.name}: кабинетов найдено ${found.accounts.length}` };
 }
 
@@ -119,7 +160,8 @@ export async function deleteToken(form: FormData) {
   await requireAdmin();
   const id = String(form.get('id') ?? '');
   if (id) await prisma.adToken.delete({ where: { id } });
-  revalidatePath('/integrations');
+  revalidatePath('/admin');
+  revalidatePath('/ads');
 }
 
 export async function toggleToken(form: FormData) {
@@ -129,7 +171,8 @@ export async function toggleToken(form: FormData) {
   if (token) {
     await prisma.adToken.update({ where: { id }, data: { enabled: !token.enabled } });
   }
-  revalidatePath('/integrations');
+  revalidatePath('/admin');
+  revalidatePath('/ads');
 }
 
 export async function toggleAccount(form: FormData) {
@@ -137,7 +180,8 @@ export async function toggleAccount(form: FormData) {
   const id = String(form.get('id') ?? '');
   const acc = await prisma.adAccount.findUnique({ where: { id } });
   if (acc) await prisma.adAccount.update({ where: { id }, data: { enabled: !acc.enabled } });
-  revalidatePath('/integrations');
+  revalidatePath('/admin');
+  revalidatePath('/ads');
 }
 
 const TrackerInput = z.object({
@@ -178,7 +222,8 @@ export async function saveTracker(_prev: ActionState, form: FormData): Promise<A
     });
   }
 
-  revalidatePath('/integrations');
+  revalidatePath('/admin');
+  revalidatePath('/ads');
   return {
     ok: true,
     message: `Кампаний ${found.campaigns}, групп ${found.groups.length}`,
@@ -195,7 +240,8 @@ export async function linkGroup(form: FormData) {
       data: { buyerId: buyerId || null },
     });
   }
-  revalidatePath('/integrations');
+  revalidatePath('/admin');
+  revalidatePath('/ads');
 }
 
 const BrocardInput = z.object({
@@ -235,7 +281,8 @@ export async function saveBrocard(_prev: ActionState, form: FormData): Promise<A
     });
   }
 
-  revalidatePath('/integrations');
+  revalidatePath('/admin');
+  revalidatePath('/ads');
   return { ok: true, message: `Команд найдено: ${found.teams.length}` };
 }
 
@@ -252,14 +299,16 @@ export async function linkBrocardTeam(form: FormData) {
       data: { buyerId: overhead ? null : buyerId || null, overhead },
     });
   }
-  revalidatePath('/integrations');
+  revalidatePath('/admin');
+  revalidatePath('/ads');
   revalidatePath('/owners');
 }
 
 export async function runSync() {
   await requireAdmin();
   const result = await syncAll();
-  revalidatePath('/integrations');
+  revalidatePath('/admin');
+  revalidatePath('/ads');
   revalidatePath('/days');
   revalidatePath('/');
   return result;

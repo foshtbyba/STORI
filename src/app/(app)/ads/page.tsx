@@ -4,30 +4,45 @@ import { prisma } from '@/lib/db';
 import { fmtDay, weekBounds, weekKey } from '@/lib/period';
 import { usd } from '@/lib/money';
 import { Panel, PanelHead, Sub, Empty, Avatar } from '@/components/ui';
-import { MyTokenForm } from '@/components/IntegrationForms';
-import { deleteMyToken } from '@/app/actions/integrations';
+import ConfirmSubmit from '@/components/ConfirmSubmit';
+import { MyTokenForm, TokenForm } from '@/components/IntegrationForms';
+import { deleteMyToken, deleteToken, toggleToken, toggleAccount } from '@/app/actions/integrations';
 import { IconRocket, IconWallet, IconTag, IconChart } from '@/components/icons';
 
 /**
  * Обзор рекламного пространства — техничка ФБ.
  *
- * Пока здесь витрина того, что уже подключено: токены и кабинеты по баерам и
- * справочный расход из ФБ за неделю. Управление кампаниями и автозалив живут
- * на соседних вкладках и подключаются следующими шагами.
+ * Кабинеты живут здесь целиком: и витрина подключённого, и подключение нового.
+ * Раньше команду админ заводил на отдельной вкладке в «Статистике», а баер —
+ * тут: одно и то же дело в двух местах, и каждый раз надо было вспоминать, в
+ * каком. Ключи от Brocard и Keitaro остались в админке — их трогают раз в
+ * жизни, а кабинеты смотрят каждый день.
  */
 export default async function AdsOverviewPage() {
   const user = await requireUser();
-  const team = canSeeTeam(user.role as Role);
+  const role = user.role as Role;
+  const team = canSeeTeam(role);
+  const admin = role === 'ADMIN';
   const scoped = scopeBuyerId(user);
 
-  const tokens = await prisma.adToken.findMany({
-    where: team ? {} : { buyerId: scoped ?? '__none__' },
-    include: {
-      buyer: { select: { handle: true, initials: true, color: true } },
-      accounts: { orderBy: { name: 'asc' } },
-    },
-    orderBy: { createdAt: 'asc' },
-  });
+  const [tokens, buyers] = await Promise.all([
+    prisma.adToken.findMany({
+      where: team ? {} : { buyerId: scoped ?? '__none__' },
+      include: {
+        buyer: { select: { handle: true, initials: true, color: true } },
+        accounts: { orderBy: { name: 'asc' } },
+      },
+      orderBy: { createdAt: 'asc' },
+    }),
+    // Список баеров нужен только админской форме — остальным её не показываем.
+    admin
+      ? prisma.buyer.findMany({
+          where: { archived: false },
+          select: { id: true, handle: true },
+          orderBy: { handle: 'asc' },
+        })
+      : Promise.resolve([]),
+  ]);
 
   // Справочный расход за текущую неделю по кабинетам.
   const { from, to } = weekBounds(weekKey(new Date()));
@@ -65,16 +80,12 @@ export default async function AdsOverviewPage() {
         />
         {tokens.length === 0 ? (
           <div className="mt-4">
-            <Empty>
-              {user.buyer
-                ? 'Кабинеты ещё не подключены — добавь свой токен ниже.'
-                : 'Токенов пока нет — добавь их в «Статистика → Источники».'}
-            </Empty>
+            <Empty>Кабинеты ещё не подключены — добавь первый ниже.</Empty>
           </div>
         ) : (
           tokens.map((token) => (
             <div key={token.id} className="mt-4 border-t border-line pt-4">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <Avatar initials={token.buyer.initials} color={token.buyer.color} />
                 <span className="min-w-0 flex-1">
                   <span className="block text-[14.5px] font-semibold">
@@ -84,30 +95,110 @@ export default async function AdsOverviewPage() {
                   <span className="block text-[11.5px] text-mute">
                     {token.lastSyncAt ? `обновлено ${fmtDay(token.lastSyncAt)}` : 'ещё не синхронизировано'}
                     {' · '}
-                    {token.enabled ? 'включён' : 'выключен'}
+                    кабинетов {token.accounts.length}
+                    {token.proxyUrl ? (
+                      <span className="ml-2 rounded-full bg-steel-t px-2 py-0.5 text-[10px] text-steel">
+                        через прокси
+                      </span>
+                    ) : null}
                   </span>
                 </span>
-                {/* Свой токен можно снять прямо тут; чужие — только у админа в Источниках. */}
-                {user.buyer && token.buyerId === user.buyer.id ? (
+
+                {/* Включение и снятие чужого токена — только у админа. */}
+                {admin ? (
+                  <form action={toggleToken}>
+                    <input type="hidden" name="id" value={token.id} />
+                    <button
+                      type="submit"
+                      className={`rounded-full px-3.5 py-1.5 text-[12px] transition ${
+                        token.enabled ? 'bg-sage-t text-sage' : 'bg-sub text-mute'
+                      }`}
+                    >
+                      {token.enabled ? 'включён' : 'выключен'}
+                    </button>
+                  </form>
+                ) : (
+                  <span className="text-[12px] text-mute">{token.enabled ? 'включён' : 'выключен'}</span>
+                )}
+
+                {admin ? (
+                  <form action={deleteToken}>
+                    <input type="hidden" name="id" value={token.id} />
+                    <ConfirmSubmit
+                      className="px-1 text-[13px] text-dim transition hover:text-rust"
+                      armedClassName="!text-rust font-semibold"
+                      title="Отвязать токен"
+                    >
+                      ✕
+                    </ConfirmSubmit>
+                  </form>
+                ) : user.buyer && token.buyerId === user.buyer.id ? (
+                  /* Свой токен баер снимает сам. */
                   <form action={deleteMyToken}>
                     <input type="hidden" name="id" value={token.id} />
-                    <button type="submit" className="px-1 text-[13px] text-dim transition hover:text-rust" title="Отвязать">
+                    <button
+                      type="submit"
+                      className="px-1 text-[13px] text-dim transition hover:text-rust"
+                      title="Отвязать"
+                    >
                       ✕
                     </button>
                   </form>
                 ) : null}
               </div>
+
+              {token.lastError ? (
+                <Sub className="mt-2.5 px-3.5 py-2.5 text-[12px] leading-relaxed text-rust">
+                  {token.lastError}
+                </Sub>
+              ) : null}
+
               <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                {token.accounts.map((acc) => (
-                  <Sub key={acc.id} className="flex items-center justify-between px-3.5 py-2.5">
-                    <span className="min-w-0 truncate text-[12.5px] text-soft" title={acc.externalId}>
-                      {acc.name || acc.externalId}
-                    </span>
+                {token.accounts.map((acc) => {
+                  const money = (
                     <span className="n ml-2 shrink-0 text-[12.5px] text-mute">
                       {usd(spendByAccount.get(acc.id) ?? 0)}
                     </span>
-                  </Sub>
-                ))}
+                  );
+                  // Админ может выключить кабинет из синхронизации кликом прямо
+                  // по плитке — отдельная кнопка рядом с каждой из них только
+                  // засорила бы сетку.
+                  return admin ? (
+                    <form key={acc.id} action={toggleAccount}>
+                      <input type="hidden" name="id" value={acc.id} />
+                      <button
+                        type="submit"
+                        className="w-full text-left"
+                        title={
+                          acc.enabled
+                            ? `${acc.externalId} · выключить из синхронизации`
+                            : `${acc.externalId} · включить`
+                        }
+                      >
+                        <Sub className="flex items-center justify-between px-3.5 py-2.5 transition hover:bg-raise">
+                          <span
+                            className={`min-w-0 truncate text-[12.5px] ${
+                              acc.enabled ? 'text-soft' : 'text-dim line-through'
+                            }`}
+                          >
+                            {acc.name || acc.externalId}
+                            {acc.currency !== 'USD' ? (
+                              <span className="ml-1.5 text-rust">{acc.currency}</span>
+                            ) : null}
+                          </span>
+                          {money}
+                        </Sub>
+                      </button>
+                    </form>
+                  ) : (
+                    <Sub key={acc.id} className="flex items-center justify-between px-3.5 py-2.5">
+                      <span className="min-w-0 truncate text-[12.5px] text-soft" title={acc.externalId}>
+                        {acc.name || acc.externalId}
+                      </span>
+                      {money}
+                    </Sub>
+                  );
+                })}
                 {token.accounts.length === 0 ? (
                   <span className="text-[12px] text-mute">кабинетов под токеном не видно</span>
                 ) : null}
@@ -120,22 +211,33 @@ export default async function AdsOverviewPage() {
           расход с Brocard.
         </p>
 
-        {/* Баер подключает свой кабинет сам, прямо здесь. Команду целиком
-            админ по-прежнему настраивает в «Статистика → Источники». */}
-        {user.buyer ? (
-          <div className="mt-5 border-t border-line pt-4">
-            <div className="text-[12.5px] font-semibold">Подключить свой кабинет</div>
-            <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
-              Токен из Facebook или мультитокен из антидетекта. Всё, что видно под ним, — твои
-              кабинеты; расход отсюда справочный.
-            </p>
-            <MyTokenForm />
-          </div>
-        ) : (
-          <div className="mt-5 border-t border-line pt-4 text-[11.5px] text-mute">
-            Кабинеты команды подключаются в «Статистика → Источники».
-          </div>
-        )}
+        <div className="mt-5 border-t border-line pt-4">
+          {admin ? (
+            <>
+              <div className="text-[12.5px] font-semibold">Добавить кабинет</div>
+              <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
+                Два входа на выбор: готовый токен (плоский или мультитокен из антидетекта) либо куки
+                аккаунта — ключ из них достанется сам. Прокси задаётся тут же и дальше используется
+                на каждом запросе к Facebook. Расход отсюда информативный: настоящий берётся с
+                Brocard.
+              </p>
+              <TokenForm buyers={buyers} />
+            </>
+          ) : user.buyer ? (
+            <>
+              <div className="text-[12.5px] font-semibold">Подключить свой кабинет</div>
+              <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
+                Токен из Facebook или мультитокен из антидетекта. Всё, что видно под ним, — твои
+                кабинеты; расход отсюда справочный.
+              </p>
+              <MyTokenForm />
+            </>
+          ) : (
+            <div className="text-[11.5px] text-mute">
+              Кабинеты подключает админ — у аккаунта нет профиля баера.
+            </div>
+          )}
+        </div>
       </Panel>
 
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 lg:gap-3.5">

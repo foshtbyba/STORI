@@ -151,9 +151,13 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
       // Разбираем то, что вставил человек: плоский ключ или мультитокен. Тем же
       // user-agent, что зашит в мультитокене, потом и ходим в Graph.
       const { token: access, ua } = extractFbToken(token.token);
+      // Через тот же прокси, с которым токен заводили: если кабинет пускает
+      // только со своего адреса, синхронизация обязана ходить так же, иначе
+      // ключ проходит проверку при добавлении и молча отваливается потом.
+      const net = { ua, proxyUrl: token.proxyUrl };
       // Список кабинетов освежаем на каждом заходе: в BM их добавляют и
       // отключают, и узнавать об этом из тишины неоткуда.
-      const seen = await listAccounts(access, ua);
+      const seen = await listAccounts(access, net);
       for (const acc of seen) {
         await prisma.adAccount.upsert({
           where: { tokenId_externalId: { tokenId: token.id, externalId: acc.externalId } },
@@ -174,7 +178,7 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
       // Расход кладём в информативную таблицу кабинета, а не в отчёт дня.
       // Валюту не приводим: показываем как есть, у каждого дня она своя.
       for (const acc of accounts) {
-        const spend = await accountSpend(access, acc.externalId, from, to, ua);
+        const spend = await accountSpend(access, acc.externalId, from, to, net);
         for (const d of spend) {
           await prisma.adAccountDay.upsert({
             where: { accountId_date: { accountId: acc.id, date: atMidnight(d.date) } },
