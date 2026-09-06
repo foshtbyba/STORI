@@ -1,0 +1,492 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // SQLite keeps the dev setup to a single file. Switch provider to
+  // "postgresql" and point DATABASE_URL at the server for production —
+  // no model in this schema depends on SQLite-specific behaviour.
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Roles are strings because SQLite has no enum type; the union lives in
+/// src/lib/roles.ts so both layers stay in step.
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("BUYER")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  buyer Buyer?
+}
+
+/// A buyer is the unit everything is reported against. Kept separate from
+/// User so an admin can hold a buyer profile too, and so a buyer can be
+/// archived without deleting the account.
+model Buyer {
+  id       String  @id @default(cuid())
+  userId   String  @unique
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  handle   String  @unique
+  initials String
+  color    String  @default("#8A8A8A")
+  source   String  @default("Facebook")
+  teamId   String?
+  team     Team?   @relation(fields: [teamId], references: [id])
+  archived Boolean @default(false)
+
+  /// С какого дня баер в команде. Недели, целиком прошедшие до этой даты, не
+  /// попадают в его расчёт — иначе оклад капал бы за время, когда он ещё не
+  /// работал. null — считаем, что был всегда (старые баеры).
+  startedAt DateTime?
+
+  /// Овнер — не баер: в зарплате и в командном отчёте не участвует вовсе, его
+  /// статистику видит только админ отдельным листом. Нужен, чтобы тянуть цифры
+  /// по кабинетам владельцев, не смешивая их с командой.
+  owner Boolean @default(false)
+
+  /// День рождения — только справочно, в расчётах не участвует.
+  birthday DateTime?
+
+  /// Позиция в команде: 'BUYER' (баер) или 'LEAD' (тимлид). Справочно, отдельно
+  /// от роли доступа. null — не задана.
+  position String?
+
+  /// When true the buyer's own consumables are subtracted before the
+  /// salary rate is applied. Configurable per buyer on purpose.
+  consumablesAffectSalary Boolean @default(true)
+
+  salaryRuleId String?
+  salaryRule   SalaryRule? @relation(fields: [salaryRuleId], references: [id])
+
+  days         DayReport[]
+  consumables  ConsumableEntry[]
+  bonuses      Bonus[]
+  payouts      Payout[]
+  attendance   Attendance[]
+  adTokens     AdToken[]
+  adGroups     TrackerGroup[]
+  brocardTeams BrocardTeam[]
+}
+
+model Team {
+  id     String  @id @default(cuid())
+  name   String
+  leadId String?
+  buyers Buyer[]
+}
+
+/// The ladder. Tiers are stored as JSON so a rule can be reshaped without a
+/// migration: [{ "fromCents": 80000, "ratePct": 30 }, ...]
+model SalaryRule {
+  id        String  @id @default(cuid())
+  name      String
+  tiersJson String
+  /// Оклад за расчётный период (неделю), в рублях. Платится всегда — даже
+  /// если баер не взял минимальный порог или закрыл неделю в минус. Как только
+  /// процент по порогу перерастает оклад, платим процент: оклад работает
+  /// нижней границей, а не добавкой сверху.
+  fixedRub  Int     @default(10000)
+  buyers    Buyer[]
+}
+
+model PaymentMethod {
+  id            String      @id @default(cuid())
+  name          String      @unique
+  /// Commission in basis points: 450 = 4.50%. Snapshotted onto every day
+  /// report so historic numbers never move when this changes.
+  commissionBps Int         @default(450)
+  archived      Boolean     @default(false)
+  days          DayReport[]
+}
+
+model Offer {
+  id         String  @id @default(cuid())
+  name       String
+  vertical   String  @default("")
+  network    String  @default("")
+  status     String  @default("ACTIVE")
+  /// Free text — payout terms are negotiated, not computed.
+  payout     String  @default("")
+  geosJson   String  @default("[]")
+  /// Регионы, куда лить нельзя. Хранится списком, вводится через запятую.
+  bansJson   String  @default("[]")
+  /// Города-исключения — отдельным списком от регионов: в кабинете они
+  /// исключаются разными полями, и копировать их нужно порознь.
+  citiesJson String  @default("[]")
+  notesJson  String  @default("[]")
+  previewUrl String?
+
+  /// Ключ партнёрки в конструкторе: m1.top, shakes.pro, hamsters.run…
+  /// Партнёрка у оффера одна, а вот гео — сколько угодно, и данные под каждое
+  /// свои: см. OfferGeo.
+  partnerKey String @default("")
+  /// Куда уводить по кнопке «Назад». Ссылка у команды одна на все офферы,
+  /// поэтому подставляется сразу и меняется редко.
+  backfix    String @default("https://nutrivition.top/VXsVxCX?sun={sub_id_30}")
+
+  geos  OfferGeo[]
+  files OfferFile[]
+
+  updatedAt DateTime    @updatedAt
+  createdAt DateTime    @default(now())
+  days      DayReport[]
+}
+
+/// Один оффер — много гео, и в конструктор под каждое уходят свои данные:
+/// свой ID в кабинете партнёрки, свой лендинг, своя цена. Поэтому не поля
+/// оффера, а отдельные строки.
+model OfferGeo {
+  id             String @id @default(cuid())
+  offerId        String
+  offer          Offer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  /// Код гео для конструктора: cz, be, fr.
+  langCode       String
+  /// Язык служебных страниц. Пусто — берём код гео: почти всегда совпадают.
+  uiLang         String @default("")
+  /// ID оффера в кабинете партнёрки: product_id, offerId, OFFER_KEY, campaign_id.
+  partnerOfferId String @default("")
+  /// URL оригинального лендинга — обязателен для shakes.
+  landingUrl     String @default("")
+  /// Код потока, только для статистики shakes.
+  streamCode     String @default("")
+  /// Цена на служебных страницах: «39 €».
+  price          String @default("")
+  /// Исключения этого гео. У одного оффера в разных странах запрещены разные
+  /// регионы и города, поэтому списки лежат на гео, а не на оффере. Общие для
+  /// всех гео остаются на самом оффере — их не дублируют в каждой строке.
+  bansJson       String @default("[]")
+  citiesJson     String @default("[]")
+  sort           Int    @default(0)
+
+  @@index([offerId])
+}
+
+/// Превью и фото отзывов лежат прямо в базе: отдельного хранилища у нас нет,
+/// а картинки маленькие. Диск контейнера для этого не годится — он пропадает
+/// при пересборке.
+model OfferFile {
+  id        String   @id @default(cuid())
+  offerId   String
+  offer     Offer    @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  /// PREVIEW — превью оффера, REVIEW — фото под отзывы.
+  kind      String   @default("PREVIEW")
+  name      String
+  mime      String
+  size      Int
+  data      Bytes
+  createdAt DateTime @default(now())
+
+  @@index([offerId, kind])
+}
+
+/// One row per buyer per offer per day.
+model DayReport {
+  id       String   @id @default(cuid())
+  date     DateTime
+  buyerId  String
+  buyer    Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  offerId  String?
+  offer    Offer?   @relation(fields: [offerId], references: [id])
+  source   String   @default("Facebook")
+  geosJson String   @default("[]")
+
+  revenueCents  Int
+  spendNetCents Int
+
+  paymentMethodId String?
+  paymentMethod   PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
+  /// Snapshot of the commission actually charged, in basis points.
+  commissionBps   Int            @default(450)
+  /// spendNet grossed up by the commission. Stored, not derived, so a later
+  /// rate change cannot rewrite a closed period.
+  spendGrossCents Int
+
+  /// Когда деньги за этот день реально закинули на рекламный кабинет. Пока
+  /// null — сумма висит долгом и приплюсовывается к закиду следующего дня.
+  toppedUpAt DateTime?
+
+  note String @default("")
+
+  /// Что в последний раз записала синхронизация. Нужно, чтобы отличить «никто
+  /// не трогал» от «человек поправил руками»: если текущее значение равно
+  /// записанному, строку можно спокойно обновлять, если нет — правка ручная и
+  /// синхронизация её не переписывает.
+  spendSyncedCents   Int?
+  revenueSyncedCents Int?
+  syncedAt           DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([buyerId, date, offerId, source])
+  @@index([date])
+  @@index([buyerId, date])
+}
+
+model ConsumableType {
+  id      String            @id @default(cuid())
+  name    String            @unique
+  color   String            @default("#A5735A")
+  entries ConsumableEntry[]
+}
+
+model ConsumableEntry {
+  id         String         @id @default(cuid())
+  date       DateTime
+  typeId     String
+  type       ConsumableType @relation(fields: [typeId], references: [id])
+  /// Null means the cost sits on the team rather than on one buyer.
+  buyerId    String?
+  buyer      Buyer?         @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+  qty        Int            @default(1)
+  totalCents Int
+  note       String         @default("")
+  createdAt  DateTime       @default(now())
+
+  @@index([date])
+  @@index([buyerId, date])
+}
+
+model Bonus {
+  id          String   @id @default(cuid())
+  buyerId     String
+  buyer       Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  periodKey   String
+  amountCents Int
+  note        String   @default("")
+  createdAt   DateTime @default(now())
+
+  @@index([periodKey])
+}
+
+/// A month. Closing one freezes its day reports and stamps the FX rate the
+/// payroll was actually computed at.
+model Period {
+  id            String    @id @default(cuid())
+  key           String    @unique
+  status        String    @default("OPEN")
+  /// Курс в сотых: 8000 = 80,00 ₽/$.
+  rubPerUsd     Int       @default(8000)
+  /// AUTO — тянем из источника, MANUAL — задан руками и не перезаписывается.
+  rateSource    String    @default("AUTO")
+  rateUpdatedAt DateTime?
+  closedAt      DateTime?
+  payouts       Payout[]
+}
+
+model Payout {
+  id       String @id @default(cuid())
+  periodId String
+  period   Period @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  buyerId  String
+  buyer    Buyer  @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+
+  profitCents     Int
+  consumableCents Int
+  baseCents       Int
+  ratePct         Int
+  salaryCents     Int
+  bonusCents      Int
+  totalCents      Int
+  status          String    @default("PENDING")
+  paidAt          DateTime?
+
+  @@unique([periodId, buyerId])
+}
+
+/// Календарь отсутствий: опоздания, прогулы, отпуска, выходные, больничные.
+/// Одна отметка на баера в день — двух причин у одного дня не бывает.
+model Attendance {
+  id        String   @id @default(cuid())
+  date      DateTime
+  buyerId   String
+  buyer     Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  kind      String
+  /// PENDING — заявка баера ждёт админа, APPROVED — отметка действует,
+  /// REJECTED — админ отказал. Всё, что ставит админ, сразу APPROVED.
+  status    String   @default("APPROVED")
+  /// Минуты опоздания. Заполняется только для kind = LATE.
+  minutes   Int      @default(0)
+  note      String   @default("")
+  createdAt DateTime @default(now())
+
+  @@unique([buyerId, date])
+  @@index([date])
+}
+
+model Setting {
+  key   String @id
+  value String
+}
+
+/// Every write to a money-bearing row lands here. Without it there is no
+/// answer to "who changed my numbers".
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actorName String   @default("")
+  entity    String
+  entityId  String
+  action    String
+  diffJson  String   @default("{}")
+  at        DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([at])
+}
+
+/// ─── Интеграции ────────────────────────────────────────────────────────────
+
+/// Токен Facebook. Кабинеты у баеров лежат в разных Business Manager, поэтому
+/// токен привязан к баеру: всё, что видно под ним, — его расход. Токен берётся
+/// у System User в BM: он бессрочный и не завязан на чей-то личный вход.
+model AdToken {
+  id          String   @id @default(cuid())
+  buyerId     String
+  buyer       Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  label       String   @default("")
+
+  // Данные FBtool
+  token       String   @default("") // EAAB...
+  cookiesJson String?  // Хранение кук в JSON
+  proxyUrl    String?  // http://login:pass@ip:port
+
+  enabled     Boolean  @default(true)
+  status      String   @default("ACTIVE") // ACTIVE, TOKEN_EXPIRED, PROXY_ERROR
+  lastSyncAt  DateTime?
+  lastError   String   @default("")
+
+  accounts    AdAccount[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Рекламный кабинет, найденный под токеном. Отдельной привязки к баеру нет —
+/// он и так наследует владельца токена.
+model AdAccount {
+  id            String   @id @default(cuid())
+  tokenId       String
+  adToken       AdToken  @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  externalId    String   // act_123456789
+  name          String   @default("")
+  currency      String   @default("USD")
+  accountStatus Int      @default(1) // 1 = ACTIVE, 2 = DISABLED
+  enabled       Boolean  @default(true)
+
+  lastSpendAt DateTime?
+  createdAt   DateTime    @default(now())
+  days        AdAccountDay[]
+  campaigns   FbCampaign[]
+
+  @@unique([tokenId, externalId])
+}
+
+model FbCampaign {
+  id           String    @id @default(cuid())
+  adAccountId  String
+  adAccount    AdAccount @relation(fields: [adAccountId], references: [id], onDelete: Cascade)
+  campaignId   String    @unique // FB ID
+  name         String
+  status       String    // ACTIVE, PAUSED, ARCHIVED
+  dailyBudget  Int?      // В центах
+  updatedAt    DateTime  @updatedAt
+}
+
+/// Дневной расход кабинета из Facebook — ИНФОРМАТИВНО.
+///
+/// Реальный расход команды приходит из Brocard: там фактические списания с
+/// карт. Цифра из ФБ нужна для будущего мониторинга и управления кампаниями, а
+/// не для зарплаты, поэтому лежит отдельно и в отчёты дня не попадает — иначе
+/// подменила бы настоящий расход.
+model AdAccountDay {
+  id         String    @id @default(cuid())
+  accountId  String
+  account    AdAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  date       DateTime
+  spendCents Int
+  currency   String    @default("USD")
+
+  @@unique([accountId, date])
+  @@index([date])
+}
+
+/// Keitaro. Инстанс один на команду, поэтому строка тут ровно одна.
+model Tracker {
+  id      String  @id @default(cuid())
+  /// https://tracker.example.com — без хвоста.
+  baseUrl String
+  apiKey  String
+  enabled Boolean @default(true)
+
+  lastSyncAt DateTime?
+  lastError  String    @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Группа кампаний в Keitaro. Доход делится по группам: группа — это баер.
+/// Пока группа не привязана, её доход никуда не попадает и висит в настройках
+/// с пометкой — молча терять деньги нельзя.
+model TrackerGroup {
+  id         String  @id @default(cuid())
+  /// id группы в Keitaro.
+  externalId String  @unique
+  name       String  @default("")
+  buyerId    String?
+  buyer      Buyer?  @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+}
+
+/// Brocard — источник РЕАЛЬНОГО расхода: фактические списания с карт. Инстанс
+/// один на команду, поэтому строка ровно одна. Адрес API фиксированный, храним
+/// только ключ.
+model BrocardConfig {
+  id      String  @id @default(cuid())
+  apiKey  String
+  enabled Boolean @default(true)
+
+  lastSyncAt DateTime?
+  lastError  String    @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Команда в Brocard. Расход делится по командам: команда — это баер. Пока
+/// команда не привязана, её расход никуда не пишется и виден в настройках.
+model BrocardTeam {
+  id         String  @id @default(cuid())
+  /// id команды в Brocard.
+  externalId String  @unique
+  name       String  @default("")
+  buyerId    String?
+  buyer      Buyer?  @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+
+  /// Команда-«общак»: её расход — не спенд баера, а расходники на всю команду.
+  /// Такой расход не привязывается к человеку и в профит никому не идёт, а
+  /// копится отдельной строкой в OverheadDay и виден только на листе овнеров.
+  overhead Boolean @default(false)
+
+  lastSeenAt DateTime?
+  createdAt  DateTime  @default(now())
+}
+
+/// Расходники на команду по дням — сумма с Brocard-команд, помеченных «общак».
+/// Пишется только синком, руками не правится, поэтому просто перезаписывается.
+model OverheadDay {
+  id         String   @id @default(cuid())
+  /// Полночь дня (МСК-день, приведённый к UTC), как и у DayReport.
+  date       DateTime @unique
+  /// Сумма с Brocard (тело платежа + внутренние сборы), в центах, до накрутки
+  /// комиссии за пополнение.
+  spendCents Int      @default(0)
+  updatedAt  DateTime @updatedAt
+}

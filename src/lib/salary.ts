@@ -1,0 +1,173 @@
+import { sum, wholeDollars } from './money';
+import { splitCarry } from './carry';
+
+export type Tier = { fromCents: number; ratePct: number };
+
+/**
+ * The ladder is not marginal: the rate of the highest threshold reached is
+ * applied to the whole base. That is what makes the thresholds worth chasing —
+ * and what makes the gap below one expensive. Both facts are surfaced in the UI.
+ */
+export const DEFAULT_TIERS: Tier[] = [
+  { fromCents: 80_000, ratePct: 30 },
+  { fromCents: 160_000, ratePct: 30 },
+  { fromCents: 240_000, ratePct: 30 },
+  { fromCents: 500_000, ratePct: 40 },
+  { fromCents: 1_000_000, ratePct: 50 },
+];
+
+export function parseTiers(json: string | null | undefined): Tier[] {
+  if (!json) return DEFAULT_TIERS;
+  try {
+    const parsed = JSON.parse(json) as Tier[];
+    if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_TIERS;
+    return [...parsed].sort((a, b) => a.fromCents - b.fromCents);
+  } catch {
+    return DEFAULT_TIERS;
+  }
+}
+
+/** Оклад за неделю по умолчанию, в рублях. Расчётный период — неделя. */
+export const DEFAULT_FIXED_RUB = 10_000;
+
+/**
+ * Оклад задан в рублях, а вся арифметика идёт в долларовых центах. Курс
+ * хранится в сотых (8400 = 84,00 ₽/$), отсюда множитель.
+ */
+export function okladCents(fixedRub: number, rubPerUsd: number) {
+  if (!rubPerUsd) return 0;
+  return wholeDollars((fixedRub * 10_000) / rubPerUsd);
+}
+
+export function rateFor(baseCents: number, tiers: Tier[]): number {
+  let rate = 0;
+  for (const tier of tiers) if (baseCents >= tier.fromCents) rate = tier.ratePct;
+  return rate;
+}
+
+/**
+ * Ближайший невзятый порог и что он даёт.
+ *
+ * Считаем не по проценту, а по выплате целиком: оклад — это пол, а не
+ * добавка. Пока процент оклад не перебил, платится оклад, и взятый порог его
+ * не дополняет, а заменяет. Поэтому разницу берём между выплатами, а не
+ * между процентными частями — иначе выходит, что к окладу что-то прибавится.
+ */
+export function nextTier(baseCents: number, tiers: Tier[], fixedCents = 0) {
+  const upcoming = tiers.find((t) => t.fromCents > baseCents);
+  if (!upcoming) return null;
+  const current = baseCents > 0 ? rateFor(baseCents, tiers) : 0;
+  const tierNow = Math.max(0, wholeDollars((baseCents * current) / 100));
+  const tierThen = wholeDollars((upcoming.fromCents * upcoming.ratePct) / 100);
+  const payoutNowCents = Math.max(tierNow, fixedCents);
+  const payoutThenCents = Math.max(tierThen, fixedCents);
+  return {
+    fromCents: upcoming.fromCents,
+    ratePct: upcoming.ratePct,
+    needCents: upcoming.fromCents - baseCents,
+    payoutNowCents,
+    payoutThenCents,
+    gainCents: payoutThenCents - payoutNowCents,
+    /** Сейчас тянет оклад — значит порог выплату заменит, а не увеличит. */
+    fromOklad: tierNow <= fixedCents,
+  };
+}
+
+export type PayoutInput = {
+  profitCents: number;
+  consumableCents: number;
+  consumablesAffectSalary: boolean;
+  tiers: Tier[];
+  fixedRub?: number;
+  /** Курс в сотых: нужен, чтобы перевести рублёвый оклад в доллары. */
+  rubPerUsd: number;
+  bonusCents?: number;
+  /**
+   * Неперекрытый минус с прошлых недель. Вычитается из базы до процента:
+   * свой минус человек перекрывает сам, и только остаток идёт в ставку.
+   */
+  carriedCents?: number;
+};
+
+/**
+ * Оклад — нижняя граница, а не добавка. Не взял минимальный порог или ушёл в
+ * минус — получаешь оклад и ничего сверх него. Взял порог — процент считается
+ * со всей суммы и оклад в нём растворяется.
+ *
+ * Хвост прошлых недель вычитается из базы ДО ставки: пока минус не перекрыт,
+ * процента нет. На оклад он не влияет — оклад платится всегда, это пол.
+ */
+export function computePayout(input: PayoutInput) {
+  const grossBaseCents = input.consumablesAffectSalary
+    ? input.profitCents - input.consumableCents
+    : input.profitCents;
+  const carry = splitCarry(grossBaseCents, input.carriedCents ?? 0);
+  // База, с которой реально считается процент: своё за неделю минус хвост.
+  const baseCents = grossBaseCents - carry.inCents;
+  const ratePct = baseCents > 0 ? rateFor(baseCents, input.tiers) : 0;
+  const tierCents = Math.max(0, wholeDollars((baseCents * ratePct) / 100));
+  const fixedCents = okladCents(input.fixedRub ?? DEFAULT_FIXED_RUB, input.rubPerUsd);
+  const onOklad = tierCents <= fixedCents;
+  const salaryCents = onOklad ? fixedCents : tierCents;
+  const bonusCents = input.bonusCents ?? 0;
+  return {
+    /** База под процент: своё за неделю за вычетом хвоста прошлых недель. */
+    baseCents,
+    /** То же до вычета хвоста — «сколько человек сделал за эту неделю». */
+    grossBaseCents,
+    /** Пришло долгом с прошлых недель. */
+    carriedCents: carry.inCents,
+    /** Сколько долга перекрыли этой неделей. */
+    carryCoveredCents: carry.coveredCents,
+    /** Что поедет в следующую неделю — вместе с новым минусом, если он есть. */
+    carryOutCents: carry.outCents,
+    ratePct,
+    tierCents,
+    fixedCents,
+    /** Выплату вытянул оклад, а не процент. */
+    onOklad,
+    salaryCents,
+    bonusCents,
+    totalCents: salaryCents + bonusCents,
+    next: nextTier(baseCents, input.tiers, fixedCents),
+  };
+}
+
+/**
+ * Итоги по расчётному листу.
+ *
+ * Средняя ставка считается только по тем, кому реально платят процентом. Тем,
+ * кого вытянул оклад, процента нет вовсе: делить оклад на их базу — значит
+ * получать бессмысленные числа вроде 102,9%, потому что оклад к базе никакого
+ * отношения не имеет.
+ */
+export function payrollTotals(
+  rows: {
+    salaryCents: number;
+    bonusCents: number;
+    baseCents: number;
+    tierCents: number;
+    fixedCents: number;
+    onOklad: boolean;
+  }[],
+) {
+  const salary = sum(rows, (r) => r.salaryCents);
+  const bonus = sum(rows, (r) => r.bonusCents);
+  const base = sum(rows, (r) => r.baseCents);
+
+  const onPercent = rows.filter((r) => !r.onOklad);
+  const percentBase = sum(onPercent, (r) => r.baseCents);
+  const percentPay = sum(onPercent, (r) => r.tierCents);
+
+  return {
+    salary,
+    bonus,
+    base,
+    total: salary + bonus,
+    /** null — процент не сработал ни у кого, платим оклады. */
+    avgRate: percentBase > 0 ? (percentPay / percentBase) * 100 : null,
+    /** Сколько людей на окладе и сколько это стоит. */
+    okladCount: rows.length - onPercent.length,
+    okladCents: sum(rows.filter((r) => r.onOklad), (r) => r.fixedCents),
+  };
+}

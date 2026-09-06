@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+prisma/dev.db
+prisma/dev.db-journal
+.env
+next-env.d.ts
+*.tsbuildinfo
+
+# Собранный архив для деплоя — артефакт, не коммитим
+msteam.zip
+*.zip

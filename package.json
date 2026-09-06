@@ -1,0 +1,47 @@
+{
+  "name": "ms-team",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:reset": "rm -f prisma/dev.db && prisma db push && tsx prisma/seed.ts",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:new": "prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script",
+    "use:postgres": "node scripts/switch-db.mjs postgresql",
+    "use:sqlite": "node scripts/switch-db.mjs sqlite",
+    "user:create": "tsx scripts/create-user.ts",
+    "user:password": "tsx scripts/set-password.ts",
+    "check:sync": "tsx scripts/check-sync.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.2.1",
+    "axios": "^1.20.0",
+    "bcryptjs": "^2.4.3",
+    "https-proxy-agent": "^9.1.0",
+    "jose": "^5.9.6",
+    "next": "^15.5.24",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "sharp": "^0.35.4",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "prisma": "^6.2.1",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}
