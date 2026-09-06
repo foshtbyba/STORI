@@ -1,3 +1,13 @@
+# Логи у драйвера json-file по умолчанию растут без предела. Контейнер,
+# упавший в рестарт-луп, пишет их непрерывно — так один раз и был съеден диск
+# сервера, а следом встал и ssh: полная файловая система роняет всё. Держим
+# по три файла на десять мегабайт: недавняя история под рукой, потолок жёсткий.
+x-logs: &logs
+  driver: json-file
+  options:
+    max-size: '10m'
+    max-file: '3'
+
 services:
   db:
     image: postgres:16-alpine
@@ -8,6 +18,7 @@ services:
       POSTGRES_DB: msteam
     volumes:
       - db:/var/lib/postgresql/data
+    logging: *logs
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U msteam']
       interval: 5s
@@ -31,6 +42,7 @@ services:
       SYNC_TZ: ${SYNC_TZ:-Europe/Moscow}
     expose:
       - '3000'
+    logging: *logs
     healthcheck:
       test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3000/login']
       interval: 15s
@@ -47,6 +59,7 @@ services:
       - '443:443'
     environment:
       DOMAIN: ${DOMAIN:?задай DOMAIN в .env}
+    logging: *logs
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
