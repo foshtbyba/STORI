@@ -5,6 +5,7 @@ import { fmtWhen } from '@/lib/period';
 import { campaignBadge, type StatusTone } from '@/lib/fb-status';
 import { Panel, PanelHead, Empty, Sub, Avatar } from '@/components/ui';
 import { IconRocket } from '@/components/icons';
+import SyncCampaigns from '@/components/SyncCampaigns';
 
 /**
  * Кампании — что заведено в кабинетах и что реально запущено.
@@ -30,6 +31,7 @@ function fmtBudget(cents: number | null, currency: string) {
 export default async function CampaignsPage() {
   const user = await requireUser();
   const team = canSeeTeam(user.role as Role);
+  const admin = (user.role as Role) === 'ADMIN';
   const scoped = scopeBuyerId(user);
 
   // Кампании через кабинет → токен → баер. Баер видит только свои.
@@ -80,6 +82,7 @@ export default async function CampaignsPage() {
               {lastSync ? ` · обновлено ${fmtWhen(lastSync)}` : ''}
             </span>
           }
+          right={admin ? <SyncCampaigns /> : undefined}
         />
 
         {campaigns.length === 0 ? (

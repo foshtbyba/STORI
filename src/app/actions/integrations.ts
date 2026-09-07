@@ -10,7 +10,7 @@ import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
 import { checkBrocard, BrocardError } from '@/lib/brocard';
 import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
-import { syncAll } from '@/lib/sync';
+import { syncAll, syncFacebookCampaigns } from '@/lib/sync';
 
 /**
  * Настройка интеграций. Всё здесь — только для админа: под этими ключами
@@ -387,6 +387,18 @@ export async function linkBrocardTeam(form: FormData) {
   revalidatePath('/admin');
   revalidatePath('/ads');
   revalidatePath('/');
+}
+
+/**
+ * Обновить ТОЛЬКО кампании с Facebook — без Keitaro и Brocard. Кнопка на
+ * странице кампаний: когда нужна свежая картина по рекламе, а доход/расход
+ * дёргать незачем.
+ */
+export async function runCampaignSync() {
+  await requireAdmin();
+  const result = await syncFacebookCampaigns();
+  revalidatePath('/ads/campaigns');
+  return result;
 }
 
 export async function runSync() {
