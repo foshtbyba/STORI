@@ -330,17 +330,17 @@ export default function CampaignsTable({
           <thead>
             <tr className="text-left text-[10.5px] uppercase tracking-wide text-mute">
               <th className="cursor-pointer whitespace-nowrap py-2 pr-3 font-medium" onClick={() => sortBy('name')}>Объявление{arrow('name')}</th>
-              <th className="cursor-pointer whitespace-nowrap px-2 py-2 text-center font-medium" onClick={() => sortBy('budget')}>Бюджет{arrow('budget')}</th>
+              <th className="cursor-pointer whitespace-nowrap px-3 py-2 text-center font-medium" onClick={() => sortBy('budget')}>Бюджет{arrow('budget')}</th>
               {COLS.map((c) => (
                 <th
                   key={c.key}
-                  className={`cursor-pointer whitespace-nowrap px-2 py-2 text-center font-medium ${c.key === 'profit' ? 'text-soft' : ''}`}
+                  className={`cursor-pointer whitespace-nowrap px-3 py-2 text-center font-medium ${c.key === 'profit' ? 'text-soft' : ''}`}
                   onClick={() => sortBy(c.key)}
                 >
                   {c.label}{arrow(c.key)}
                 </th>
               ))}
-              <th className="whitespace-nowrap px-2 py-2 text-center font-medium">Действия</th>
+              <th className="whitespace-nowrap px-3 py-2 text-center font-medium">Действия</th>
             </tr>
           </thead>
           <tbody>
@@ -377,7 +377,7 @@ export default function CampaignsTable({
                     </div>
                   </td>
                   {/* Бюджет — редактируемый */}
-                  <td className="px-2 py-2.5 text-center">
+                  <td className="px-3 py-2.5 text-center">
                     {editing ? (
                       <span className="inline-flex items-center gap-1">
                         <input
@@ -400,33 +400,34 @@ export default function CampaignsTable({
                       </button>
                     )}
                   </td>
-                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{int(r.impressions)}</td>
-                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{int(r.clicks)}</td>
-                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{r.clicks ? money(r.cpc) : '—'}</td>
-                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{pct(r.clicks, r.impressions)}</td>
-                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{r.impressions ? money(r.cpm) : '—'}</td>
-                  <td className="n px-2 py-2.5 text-center text-[13px] text-soft">{int(r.leads)}</td>
-                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{r.leads ? money(r.cpl) : '—'}</td>
-                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{pct(r.leads, r.clicks)}</td>
-                  <td className="n px-2 py-2.5 text-center text-[13px] text-soft">
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{int(r.impressions)}</td>
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{int(r.clicks)}</td>
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{r.clicks ? money(r.cpc) : '—'}</td>
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{pct(r.clicks, r.impressions)}</td>
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{r.impressions ? money(r.cpm) : '—'}</td>
+                  <td className="n px-3 py-2.5 text-center text-[13px] text-soft">{int(r.leads)}</td>
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{r.leads ? money(r.cpl) : '—'}</td>
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{pct(r.leads, r.clicks)}</td>
+                  <td className="n px-3 py-2.5 text-center text-[13px] text-soft">
                     {money(r.spendCents)}
                     {r.currency !== 'USD' ? <span className="ml-1 text-[10px] text-rust">{r.currency}</span> : null}
                   </td>
-                  <td className="n px-2 py-2.5 text-center text-[13px] text-soft">{money(r.revenueCents)}</td>
-                  <td className={`n px-2 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{money(r.profitCents)}</td>
-                  <td className={`n px-2 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{r.spendCents ? pct(r.profitCents, r.spendCents, 1) : '—'}</td>
+                  <td className="n px-3 py-2.5 text-center text-[13px] text-soft">{money(r.revenueCents)}</td>
+                  <td className={`n px-3 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{money(r.profitCents)}</td>
+                  <td className={`n px-3 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{r.spendCents ? pct(r.profitCents, r.spendCents, 1) : '—'}</td>
                   {/* Действия */}
                   <td className="px-2 py-2.5 text-center">
                     <button
                       type="button"
                       disabled={pending}
                       onClick={() => run(r.id, active ? 'PAUSED' : 'ACTIVE')}
-                      className={`rounded-full px-2.5 py-1 text-[10.5px] transition ${
+                      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[10.5px] transition ${
                         active ? 'bg-amber-t text-amber hover:opacity-80' : 'bg-sage-t text-sage hover:opacity-80'
                       } ${pending ? 'cursor-progress opacity-60' : ''}`}
                       title={active ? 'Поставить на паузу' : 'Запустить'}
                     >
-                      {active ? '⏸ пауза' : '▶ запуск'}
+                      {active ? 'пауза' : 'запуск'}
+                      <span className="text-[9px]">{active ? '⏸' : '▶'}</span>
                     </button>
                   </td>
                 </tr>
