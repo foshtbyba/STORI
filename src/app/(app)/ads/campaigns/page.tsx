@@ -51,6 +51,16 @@ export default async function CampaignsPage({
     ? { adAccount: { adToken: { buyer: { owner: true } } } }
     : { adAccount: { adToken: { buyerId: scoped ?? '__none__' } } };
 
+  // Овнеры для переключателя — берём отдельно, чтобы SKO/MPR были в списке даже
+  // если у одного из них за выбранный период нет объявлений.
+  const owners = admin
+    ? await prisma.buyer.findMany({
+        where: { archived: false, owner: true },
+        select: { handle: true, initials: true, color: true },
+        orderBy: { handle: 'asc' },
+      })
+    : [];
+
   const ads = await prisma.fbAd.findMany({
     where,
     include: {
@@ -111,7 +121,7 @@ export default async function CampaignsPage({
   return (
     <div className="flex flex-col gap-3.5">
       <Panel className="p-4 sm:p-6">
-        <CampaignsTable rows={rows} win={win} day={dayValid ? day! : ''} admin={admin} updated={lastSync ? fmtWhen(lastSync) : null} />
+        <CampaignsTable rows={rows} win={win} day={dayValid ? day! : ''} owners={owners} admin={admin} updated={lastSync ? fmtWhen(lastSync) : null} />
 
         <p className="mt-4 text-[11px] leading-relaxed text-dim">
           Расход/клики/показы/лиды — из Facebook по объявлениям. Доход и профит — из Keitaro по

@@ -79,12 +79,14 @@ export default function CampaignsTable({
   rows,
   win,
   day,
+  owners,
   admin,
   updated,
 }: {
   rows: AdRow[];
   win: number;
   day: string;
+  owners: { handle: string; initials: string; color: string }[];
   admin: boolean;
   updated: string | null;
 }) {
@@ -112,13 +114,16 @@ export default function CampaignsTable({
 
   const all = useMemo(() => rows.map(enrich), [rows]);
 
-  // Овнеры/баеры для переключателя. Порядок: сначала SKO, потом MPR, дальше по
-  // алфавиту — как просили.
+  // Переключатель профилей. Для админа список овнеров приходит с сервера (SKO/MPR
+  // есть всегда, даже без данных за период); иначе берём из строк. Порядок:
+  // сначала SKO, потом MPR, дальше по алфавиту.
   const buyers = useMemo(() => {
-    const list = [...new Map(all.map((r) => [r.buyer, { handle: r.buyer, initials: r.initials, color: r.color }])).values()];
+    const list = owners.length
+      ? owners.map((o) => ({ handle: o.handle, initials: o.initials, color: o.color }))
+      : [...new Map(all.map((r) => [r.buyer, { handle: r.buyer, initials: r.initials, color: r.color }])).values()];
     const rank = (h: string) => (h === 'SKO' ? 0 : h === 'MPR' ? 1 : 2);
-    return list.sort((a, b) => rank(a.handle) - rank(b.handle) || a.handle.localeCompare(b.handle));
-  }, [all]);
+    return [...list].sort((a, b) => rank(a.handle) - rank(b.handle) || a.handle.localeCompare(b.handle));
+  }, [all, owners]);
 
   // По умолчанию — первый профиль (SKO). Выбор запоминаем в браузере, чтобы при
   // следующем заходе открывался тот же. localStorage читаем после монтирования,
