@@ -106,7 +106,7 @@ export function TokenForm({ buyers }: { buyers: { id: string; handle: string }[]
         </label>
       ) : (
         <label className="block">
-          <span className="mb-1.5 block text-[11.5px] text-mute">Куки одной строкой (JSON)</span>
+          <span className="mb-1.5 block text-[11.5px] text-mute">Куки или мультитокен целиком</span>
           <textarea
             name="cookiesJson"
             placeholder={'[{"name": "c_user", "value": "…"}, …]'}
@@ -115,9 +115,9 @@ export function TokenForm({ buyers }: { buyers: { id: string; handle: string }[]
             required
           />
           <span className="mt-1 block text-[11px] text-dim">
-            Выгрузка кук из антидетекта. Ключ достанем сами — откроем ими Ads Manager и заберём
-            оттуда. Почти всегда нужен прокси того же аккаунта, иначе Facebook покажет вход, а не
-            кабинет.
+            Подойдёт и список кук в JSON, и мультитокен целиком — куки и user-agent достанутся из
+            него сами. Ключ добудем, открыв ими Ads Manager. Почти всегда нужен прокси того же
+            аккаунта, иначе Facebook покажет вход, а не кабинет.
           </span>
         </label>
       )}
