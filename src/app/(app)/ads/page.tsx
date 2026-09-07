@@ -160,7 +160,7 @@ export default async function AdsOverviewPage() {
           <PanelHead
             icon={<IconWallet color="#d2a06a" />}
             tint="bg-amber-t"
-            title="Овнеры"
+            title="Аккаунты овнеров"
             aside={<span className="text-[12.5px] text-mute">отдельный лист, вне командной статистики</span>}
           />
           {[...ownersByHandle.entries()].map(([handle, list]) => (

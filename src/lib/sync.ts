@@ -3,7 +3,8 @@ import { prisma } from './db';
 import { dayKey } from './period';
 import { grossUp, ceilDollars } from './money';
 import { mergeDay } from './sync-rule';
-import { accountSpend, listAccounts, fbAccess, FbError, fbErrorKind } from './fb';
+import { accountSpend, listAccounts, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
+import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
 import { dailyRevenue, listCampaigns, KeitaroError } from './keitaro';
 import { dailySpend, listTeams, BrocardError } from './brocard';
@@ -139,6 +140,44 @@ async function writeDay(row: Report, result: SyncResult) {
  * складывается в свою таблицу AdAccountDay, а не в DayReport — иначе подменила
  * бы настоящий расход, по которому считается зарплата.
  */
+/**
+ * Сессионный ключ из антидетекта живёт недолго и однажды перестаёт
+ * приниматься (код 190 «протух» или код 1 «сессия кончилась»). Но куки того же
+ * профиля обычно ещё живы, а из них ключ достаётся заново — тем же способом,
+ * что и расширение FBtool: открываем куками Ads Manager через прокси аккаунта и
+ * забираем свежий EAAB.
+ *
+ * Достали новый ключ — перекладываем его в мультитокен, сохранив куки и
+ * user-agent, и пишем обратно. Синхронизация повторяет заход уже с ним и не
+ * встаёт, не дёргая человека. Не вышло (куки тоже мертвы) — вернём null, и
+ * тогда токен честно уходит в ошибку.
+ */
+async function refreshTokenFromCookies(t: {
+  id: string;
+  token: string;
+  cookiesJson: string | null;
+  proxyUrl: string | null;
+}): Promise<boolean> {
+  if (!t.cookiesJson) return false;
+  const fresh = await extractTokenFromCookies(t.cookiesJson, t.proxyUrl);
+  if (!fresh || fresh.length < 20) return false;
+
+  // Сохраняем куки и ua, меняем только сам ключ — так fbAccess дальше соберёт
+  // тот же браузерный набор, только со свежим токеном.
+  const { ua } = extractFbToken(t.token);
+  let cookies: unknown = [];
+  try {
+    const parsed = JSON.parse(t.cookiesJson);
+    cookies = Array.isArray(parsed) ? parsed : parsed?.cookies ?? [];
+  } catch {
+    cookies = [];
+  }
+  const blob = Buffer.from(JSON.stringify({ cookies, ua, token: fresh })).toString('base64');
+  await prisma.adToken.update({ where: { id: t.id }, data: { token: blob } });
+  t.token = blob;
+  return true;
+}
+
 export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
   const result = emptyResult();
   const { from, to } = daysBack(days);
@@ -156,7 +195,9 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
   // FB_CONCURRENCY сразу: главный рычаг скорости. Серийность с паузами нужна
   // только ВНУТРИ одного аккаунта (ниже), чтобы не выглядеть роботом с его IP.
   await pool(tokens, FB_CONCURRENCY, async (token) => {
-    try {
+    // Один заход по токену. Выносим в функцию, чтобы при протухшем ключе
+    // обновить его из кук и повторить ровно один раз.
+    const work = async () => {
       // Доступ собираем как при добавлении: ключ, куки, ua и прокси аккаунта.
       const { token: access, net } = fbAccess(token.token, {
         cookiesJson: token.cookiesJson,
@@ -219,7 +260,25 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
         where: { id: token.id },
         data: { lastSyncAt: new Date(), lastError: '', pausedUntil: null },
       });
+    };
+
+    try {
+      await work();
     } catch (e) {
+      // Ключ протух (190) или сессия кончилась (код 1) — пробуем достать
+      // свежий из кук и повторить заход один раз. Вышло — как будто ничего не
+      // было; не вышло — падаем в обычную обработку ниже с исходной ошибкой.
+      const refreshable = fbErrorKind(e) === 'token' || (e instanceof FbError && e.code === 1);
+      if (refreshable && token.cookiesJson) {
+        try {
+          if (await refreshTokenFromCookies(token)) {
+            await work();
+            return;
+          }
+        } catch {
+          // обновление не удалось — сообщим об исходной проблеме
+        }
+      }
       const kind = fbErrorKind(e);
       const why = e instanceof FbError ? e.message : `Сбой: ${(e as Error).message}`;
 

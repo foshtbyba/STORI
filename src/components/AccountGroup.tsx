@@ -146,8 +146,8 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
                       дубль
                     </span>
                   ) : null}
-                  <span className="n ml-auto text-[10px] text-dim" title="ID кабинета в Facebook">
-                    {acc.externalId}
+                  <span className="n ml-auto text-[10px] text-dim" title={`ID кабинета в Facebook: ${acc.externalId}`}>
+                    {acc.externalId.replace(/^act_/, '')}
                   </span>
                 </div>
 
@@ -155,19 +155,26 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
                   <div className="mt-2 flex items-center gap-1.5">
                     <form action={toggleAccount}>
                       <input type="hidden" name="id" value={acc.id} />
-                      <button type="submit" className="rounded-full bg-raise px-2.5 py-1 text-[10.5px] text-soft transition hover:text-text">
-                        {acc.enabled ? 'в синке' : 'выкл'}
+                      <button
+                        type="submit"
+                        title={acc.enabled ? 'Расход тянется — нажми, чтобы исключить из синхронизации' : 'Исключён из синхронизации — нажми, чтобы вернуть'}
+                        className={`rounded-full px-2.5 py-1 text-[10.5px] transition ${
+                          acc.enabled ? 'bg-sage-t text-sage' : 'bg-raise text-dim hover:text-soft'
+                        }`}
+                      >
+                        {acc.enabled ? '✓ тянуть расход' : 'не тянуть'}
                       </button>
                     </form>
                     <form action={toggleAgency}>
                       <input type="hidden" name="id" value={acc.id} />
                       <button
                         type="submit"
+                        title={acc.agency ? 'Агентский — расход идёт в агентский автоматически. Нажми, чтобы снять' : 'Пометить агентским — его расход пойдёт в агентский автоматически'}
                         className={`rounded-full px-2.5 py-1 text-[10.5px] transition ${
                           acc.agency ? 'bg-teal-t text-teal' : 'bg-raise text-soft hover:text-text'
                         }`}
                       >
-                        {acc.agency ? '★ агентский' : 'сделать агентским'}
+                        {acc.agency ? '★ агентский' : 'в агентский'}
                       </button>
                     </form>
                   </div>
