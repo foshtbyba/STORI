@@ -148,6 +148,28 @@ export default async function AdminPage({
         <AddMember />
       </Panel>
 
+      {/* ── Источники цифр ────────────────────────────────────────────── */}
+      <Panel className="p-4 sm:p-6">
+        <PanelHead
+          icon={<IconLink color="#b4c68c" />}
+          tint="bg-sage-t"
+          title="Источники цифр"
+          aside={
+            <span className="hidden text-[12.5px] text-mute sm:inline">
+              каждые полчаса — сегодня, раз в сутки — все {SYNC_DAYS} дней
+            </span>
+          }
+          right={<SyncNow />}
+        />
+        <p className="mt-4 text-[12px] leading-relaxed text-mute">
+          Доход приходит из Keitaro и ложится в отчёты дня. Реальный расход — с Brocard
+          (фактические списания с карт); Facebook тянется отдельно и только для справки, в
+          зарплату он не идёт. Синхронизация никогда не спорит с человеком: поправленную руками
+          цифру в отчёте она не трогает и отмечает такую строку отдельно. Кабинеты Facebook
+          подключаются в окне «Реклама».
+        </p>
+      </Panel>
+
       {buyerLadders.length > 0 ? (
         <CollapsiblePanel
           icon={<IconChart color="#b4c68c" />}
@@ -221,28 +243,6 @@ export default async function AdminPage({
           )}
         />
       </CollapsiblePanel>
-
-      {/* ── Источники цифр ────────────────────────────────────────────── */}
-      <Panel className="p-4 sm:p-6">
-        <PanelHead
-          icon={<IconLink color="#b4c68c" />}
-          tint="bg-sage-t"
-          title="Источники цифр"
-          aside={
-            <span className="hidden text-[12.5px] text-mute sm:inline">
-              каждые полчаса — сегодня, раз в сутки — все {SYNC_DAYS} дней
-            </span>
-          }
-          right={<SyncNow />}
-        />
-        <p className="mt-4 text-[12px] leading-relaxed text-mute">
-          Доход приходит из Keitaro и ложится в отчёты дня. Реальный расход — с Brocard
-          (фактические списания с карт); Facebook тянется отдельно и только для справки, в
-          зарплату он не идёт. Синхронизация никогда не спорит с человеком: поправленную руками
-          цифру в отчёте она не трогает и отмечает такую строку отдельно. Кабинеты Facebook
-          подключаются в окне «Реклама».
-        </p>
-      </Panel>
 
       {/* ── Brocard ───────────────────────────────────────────────────── */}
       <CollapsiblePanel
