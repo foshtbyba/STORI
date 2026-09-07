@@ -125,6 +125,8 @@ export async function addToken(_prev: ActionState, form: FormData): Promise<Acti
         externalId: acc.externalId,
         name: acc.name,
         currency: acc.currency,
+        accountStatus: acc.accountStatus,
+        disableReason: acc.disableReason,
       },
     });
   }
@@ -182,7 +184,14 @@ export async function addMyToken(_prev: ActionState, form: FormData): Promise<Ac
   });
   for (const acc of found.accounts) {
     await prisma.adAccount.create({
-      data: { tokenId: created.id, externalId: acc.externalId, name: acc.name, currency: acc.currency },
+      data: {
+        tokenId: created.id,
+        externalId: acc.externalId,
+        name: acc.name,
+        currency: acc.currency,
+        accountStatus: acc.accountStatus,
+        disableReason: acc.disableReason,
+      },
     });
   }
 
@@ -244,6 +253,20 @@ export async function toggleAccount(form: FormData) {
   if (acc) await prisma.adAccount.update({ where: { id }, data: { enabled: !acc.enabled } });
   revalidatePath('/admin');
   revalidatePath('/ads');
+}
+
+/**
+ * Пометить кабинет агентским/основным среди дублей. Один act_ID виден под
+ * несколькими профилями; помеченный считается за настоящий, дубли под другими
+ * токенами уходят из подсчёта и сворачиваются.
+ */
+export async function toggleAgency(form: FormData) {
+  await requireAdmin();
+  const id = String(form.get('id') ?? '');
+  const acc = id ? await prisma.adAccount.findUnique({ where: { id } }) : null;
+  if (acc) await prisma.adAccount.update({ where: { id }, data: { agency: !acc.agency } });
+  revalidatePath('/ads');
+  revalidatePath('/admin');
 }
 
 const TrackerInput = z.object({

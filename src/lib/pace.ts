@@ -55,3 +55,27 @@ export function shuffle<T>(arr: T[]): T[] {
   }
   return a;
 }
+
+/** Максимум токенов, опрашиваемых одновременно. Разные токены — разные
+ *  аккаунты и прокси, их можно вести параллельно; серийность нужна только
+ *  внутри аккаунта. */
+export const FB_CONCURRENCY = envInt('SYNC_FB_CONCURRENCY', 4);
+
+/**
+ * Выполнить задачи с ограничением на число одновременно идущих. Простой пул:
+ * держим не больше `limit` промисов в полёте, по мере завершения берём
+ * следующий. Порядок результатов сохраняется по входному массиву.
+ */
+export async function pool<T, R>(items: T[], limit: number, fn: (item: T, index: number) => Promise<R>): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const i = next;
+      next += 1;
+      results[i] = await fn(items[i], i);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}

@@ -379,7 +379,12 @@ model AdAccount {
   externalId    String   // act_123456789
   name          String   @default("")
   currency      String   @default("USD")
-  accountStatus Int      @default(1) // 1 = ACTIVE, 2 = DISABLED
+  accountStatus Int      @default(1) // код account_status из Facebook
+  disableReason Int      @default(0) // код disable_reason: 0 нет, 1 integrity, 3 риск-платёж…
+  // Агентский/основной кабинет. Один и тот же act_ID виден под несколькими
+  // профилями; помеченный здесь считается за «настоящий», дубли под другими
+  // токенами не идут в подсчёт и свёрнуты.
+  agency        Boolean  @default(false)
   enabled       Boolean  @default(true)
 
   lastSpendAt DateTime?

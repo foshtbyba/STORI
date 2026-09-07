@@ -21,6 +21,10 @@ export type FbAccount = {
   externalId: string;
   name: string;
   currency: string;
+  /** account_status из Facebook: 1 активен, 2 отключён, 3 не оплачен и т.д. */
+  accountStatus: number;
+  /** disable_reason: почему отключён (0 — не отключён). */
+  disableReason: number;
 };
 
 /** День расхода по одному кабинету. */
@@ -311,17 +315,25 @@ export async function listAccounts(token: string, net: FbNet = {}) {
   // синхронизацию навсегда.
   for (let page = 0; page < 40; page += 1) {
     const body = await call('/me/adaccounts', token, {
-      fields: 'account_id,name,currency',
+      fields: 'account_id,name,currency,account_status,disable_reason',
       limit: '100',
       ...(after ? { after } : {}),
     }, net);
-    const data = (body.data ?? []) as { account_id?: string; name?: string; currency?: string }[];
+    const data = (body.data ?? []) as {
+      account_id?: string;
+      name?: string;
+      currency?: string;
+      account_status?: number;
+      disable_reason?: number;
+    }[];
     for (const row of data) {
       if (!row.account_id) continue;
       out.push({
         externalId: `act_${row.account_id}`,
         name: row.name ?? '',
         currency: row.currency ?? 'USD',
+        accountStatus: Number(row.account_status ?? 1),
+        disableReason: Number(row.disable_reason ?? 0),
       });
     }
     const next = (body.paging as { cursors?: { after?: string }; next?: string } | undefined);

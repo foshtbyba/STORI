@@ -53,6 +53,24 @@ export function fmtDay(date: Date) {
   return `${String(date.getUTCDate()).padStart(2, '0')}.${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
+/**
+ * Дата и время последнего обновления: «07.09 в 14:35». Время — в поясе
+ * команды (SYNC_TZ, по умолчанию Москва), а не в UTC: сервер живёт в UTC, но
+ * баеру важно своё время. Intl сам переведёт.
+ */
+export function fmtWhen(date: Date, tz = process.env.SYNC_TZ || 'Europe/Moscow') {
+  const parts = new Intl.DateTimeFormat('ru-RU', {
+    timeZone: tz,
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(date);
+  const g = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
+  return `${g('day')}.${g('month')} в ${g('hour')}:${g('minute')}`;
+}
+
 export function weekdayShort(date: Date) {
   return ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][date.getUTCDay()];
 }
