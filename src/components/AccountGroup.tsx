@@ -49,9 +49,13 @@ const TONE: Record<StatusTone, string> = {
 export default function AccountGroup({ group, defaultOpen = false }: { group: Group; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
 
-  // Короткая сводка для свёрнутого вида: сколько не активны.
-  const bad = group.accounts.filter((a) => a.badge.tone === 'bad').length;
-  const warn = group.accounts.filter((a) => a.badge.tone === 'warn').length;
+  // Короткая сводка для свёрнутого вида: считаем только кабинеты, что реально в
+  // трекинге. Выключенный из синхронизации кабинет (в том числе давно
+  // забаненный, который убрали) в сводку «бан N» вверху не попадает — иначе она
+  // копит мёртвые кабинеты и перестаёт отражать живую картину.
+  const tracked = group.accounts.filter((a) => a.enabled);
+  const bad = tracked.filter((a) => a.badge.tone === 'bad').length;
+  const warn = tracked.filter((a) => a.badge.tone === 'warn').length;
 
   return (
     <div className="mt-3 border-t border-line pt-3">
