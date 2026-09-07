@@ -6,7 +6,6 @@ import { GRID_CONSUMABLE_NOTE } from '@/lib/consumables';
 import { AGENCY_SOURCE } from '@/lib/extra-spend';
 import DayGrid, { type GridSeed } from '@/components/DayGrid';
 import ExtraSpend, { type ExtraSeed } from '@/components/ExtraSpend';
-import TopUps, { type TopUpRow } from '@/components/TopUps';
 
 // Отчёты заводит только команда: баер видит свои дни, но не редактирует их.
 // Баера сюда не пускаем — requireTeamView отправит его в кабинет.
@@ -22,7 +21,7 @@ export default async function NewDayPage({
   const day = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : today;
   const when = new Date(`${day}T00:00:00.000Z`);
 
-  const [buyers, owners, types, saved, entries, period, owed] = await Promise.all([
+  const [buyers, owners, types, saved, entries, period] = await Promise.all([
     prisma.buyer.findMany({ where: { archived: false, owner: false }, orderBy: { handle: 'asc' } }),
     // Овнеры идут в ту же таблицу с пометкой «овнер»: их доход/расход тоже
     // заводят руками, но в командный итог они не попадают.
@@ -31,13 +30,6 @@ export default async function NewDayPage({
     prisma.dayReport.findMany({ where: { date: when } }),
     prisma.consumableEntry.findMany({ where: { date: when, note: GRID_CONSUMABLE_NOTE } }),
     prisma.period.findUnique({ where: { key: periodKeyOf(when) } }),
-    // Всё, что до этой даты включительно и ещё не закинуто, плюс уже закрытое
-    // за этот день — из этого складывается «сколько нужно закинуть».
-    // Закидываем доход, который был: именно его реинвестируют в кабинеты.
-    prisma.dayReport.findMany({
-      where: { date: { lte: when } },
-      select: { buyerId: true, date: true, revenueCents: true, toppedUpAt: true },
-    }),
   ]);
 
   const defaultBps = DEFAULT_COMMISSION_BPS;
@@ -67,23 +59,6 @@ export default async function NewDayPage({
       note: row?.note ?? '',
     };
   });
-
-  const dayMs = when.getTime();
-  const topUps: TopUpRow[] = buyers
-    .map((b) => {
-      const mine = owed.filter((d) => d.buyerId === b.id);
-      const add = (rows: typeof mine) => rows.reduce((a, d) => a + d.revenueCents, 0);
-      return {
-        buyerId: b.id,
-        handle: b.handle,
-        initials: b.initials,
-        color: b.color,
-        todayCents: add(mine.filter((d) => !d.toppedUpAt && d.date.getTime() === dayMs)),
-        debtCents: add(mine.filter((d) => !d.toppedUpAt && d.date.getTime() < dayMs)),
-        settledCents: add(mine.filter((d) => d.toppedUpAt)),
-      };
-    })
-    .filter((r) => r.todayCents + r.debtCents + r.settledCents > 0);
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -115,7 +90,6 @@ export default async function NewDayPage({
         locked={period?.status === 'CLOSED' || !isEditable(when)}
       />
 
-      {topUps.length > 0 ? <TopUps date={day} rows={topUps} /> : null}
     </div>
   );
 }

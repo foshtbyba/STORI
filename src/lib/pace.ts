@@ -21,10 +21,6 @@ function envInt(name: string, fallback: number): number {
 export const FB_PAUSE_MIN_MS = envInt('SYNC_FB_PAUSE_MIN_MS', 2000);
 export const FB_PAUSE_MAX_MS = envInt('SYNC_FB_PAUSE_MAX_MS', 6000);
 
-/** Пауза между разными токенами (аккаунтами): по умолчанию 8–20 секунд. */
-export const FB_TOKEN_GAP_MIN_MS = envInt('SYNC_FB_TOKEN_GAP_MIN_MS', 8000);
-export const FB_TOKEN_GAP_MAX_MS = envInt('SYNC_FB_TOKEN_GAP_MAX_MS', 20000);
-
 /** Сколько часов токен «отдыхает» после тревожного сигнала. */
 export const FB_COOLDOWN_HOURS = envInt('SYNC_FB_COOLDOWN_HOURS', 6);
 
@@ -39,9 +35,6 @@ export function jitter(minMs: number, maxMs: number): Promise<void> {
 
 /** Пауза «как человек между кликами по кабинетам». */
 export const humanPause = () => jitter(FB_PAUSE_MIN_MS, FB_PAUSE_MAX_MS);
-
-/** Пауза между аккаунтами. */
-export const tokenGap = () => jitter(FB_TOKEN_GAP_MIN_MS, FB_TOKEN_GAP_MAX_MS);
 
 /**
  * Перемешать массив (Фишер—Йетс). Порядок кабинетов каждый заход разный —

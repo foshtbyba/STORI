@@ -7,7 +7,7 @@ import { accountBadge } from '@/lib/fb-status';
 import { Panel, PanelHead, Empty } from '@/components/ui';
 import { MyTokenForm, TokenForm } from '@/components/IntegrationForms';
 import AccountGroup, { type Group } from '@/components/AccountGroup';
-import { IconRocket, IconWallet, IconTag, IconChart } from '@/components/icons';
+import { IconWallet, IconTag, IconChart } from '@/components/icons';
 
 /**
  * Обзор рекламного пространства — техничка ФБ.
