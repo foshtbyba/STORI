@@ -35,7 +35,9 @@ export default async function AdsOverviewPage() {
     }),
     admin
       ? prisma.buyer.findMany({
-          where: { archived: false },
+          // Админ заводит только овнерские кабинеты (SKO/MPR). Обычные баеры
+          // подключают свои сами — им незачем светиться в этом списке.
+          where: { archived: false, owner: true },
           select: { id: true, handle: true },
           orderBy: { handle: 'asc' },
         })
@@ -118,33 +120,30 @@ export default async function AdsOverviewPage() {
           расход с Brocard.
         </p>
 
-        <div className="mt-5 border-t border-line pt-4">
-          {admin ? (
-            <>
-              <div className="text-[12.5px] font-semibold">Добавить кабинет</div>
-              <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
-                Мультитокен из антидетекта целиком (куки и ключ достанутся сами) плюс прокси
-                аккаунта. Или System-User токен — тому прокси не нужен.
-              </p>
-              <TokenForm buyers={buyers} />
-            </>
-          ) : user.buyer ? (
-            <>
-              <div className="text-[12.5px] font-semibold">Подключить свой кабинет</div>
-              <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
-                Мультитокен из антидетекта и прокси аккаунта. Всё, что видно под ним, — твои
-                кабинеты.
-              </p>
-              <MyTokenForm />
-            </>
-          ) : (
-            <div className="text-[11.5px] text-mute">Кабинеты подключает админ — у аккаунта нет профиля баера.</div>
-          )}
-        </div>
+        {admin ? (
+          <p className="mt-5 border-t border-line pt-4 text-[11.5px] leading-relaxed text-mute">
+            Командные кабинеты баеры подключают у себя сами. Овнерские — в разделе ниже.
+          </p>
+        ) : user.buyer ? (
+          <div className="mt-5 border-t border-line pt-4">
+            <div className="text-[12.5px] font-semibold">Подключить свой кабинет</div>
+            <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
+              Мультитокен из антидетекта и прокси аккаунта. Всё, что видно под ним, — твои
+              кабинеты.
+            </p>
+            <MyTokenForm />
+          </div>
+        ) : (
+          <p className="mt-5 border-t border-line pt-4 text-[11.5px] text-mute">
+            У аккаунта нет профиля баера — подключать кабинеты не с чем.
+          </p>
+        )}
       </Panel>
 
-      {/* Овнеры — отдельно, у каждого свой блок. Только под админом. */}
-      {ownerTokens.length > 0 ? (
+      {/* Овнеры — отдельно, у каждого свой блок. Только под админом. Здесь же
+          админ и добавляет овнерские кабинеты — обычные баеры подключают свои
+          у себя. */}
+      {admin ? (
         <Panel className="p-4 sm:p-6">
           <PanelHead
             icon={<IconWallet color="#d2a06a" />}
@@ -152,12 +151,27 @@ export default async function AdsOverviewPage() {
             title="Аккаунты овнеров"
             aside={<span className="text-[12.5px] text-mute">отдельный лист, вне командной статистики</span>}
           />
-          {[...ownersByHandle.entries()].map(([handle, list]) => (
-            <div key={handle} className="mt-4">
-              <div className="text-[12.5px] font-semibold text-amber">{handle}</div>
-              {list.map((t) => <AccountGroup key={t.id} group={toGroup(t)} />)}
+          {ownerTokens.length === 0 ? (
+            <div className="mt-4">
+              <Empty>Овнерских кабинетов пока нет — добавь ниже.</Empty>
             </div>
-          ))}
+          ) : (
+            [...ownersByHandle.entries()].map(([handle, list]) => (
+              <div key={handle} className="mt-4">
+                <div className="text-[12.5px] font-semibold text-amber">{handle}</div>
+                {list.map((t) => <AccountGroup key={t.id} group={toGroup(t)} />)}
+              </div>
+            ))
+          )}
+
+          <div className="mt-5 border-t border-line pt-4">
+            <div className="text-[12.5px] font-semibold">Добавить овнерский кабинет</div>
+            <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
+              На овнера (SKO/MPR). Мультитокен из антидетекта целиком плюс прокси аккаунта, или
+              System-User токен — тому прокси не нужен.
+            </p>
+            <TokenForm buyers={buyers} />
+          </div>
         </Panel>
       ) : null}
 
