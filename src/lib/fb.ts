@@ -1,7 +1,8 @@
 import 'server-only';
 
 import axios from 'axios';
-import { HttpsProxyAgent } from 'https-proxy-agent';
+
+import { proxyAgent } from './proxy-agent';
 
 /**
  * Тонкий клиент к Marketing API Facebook. Нужны ровно две вещи: список
@@ -145,7 +146,7 @@ async function send(url: URL, net: FbNet): Promise<{ status: number; text: strin
   const headers = net.ua ? { 'User-Agent': net.ua } : undefined;
 
   if (net.proxyUrl) {
-    const agent = new HttpsProxyAgent(net.proxyUrl);
+    const agent = proxyAgent(net.proxyUrl);
     const res = await axios.get(url.toString(), {
       headers,
       httpAgent: agent,

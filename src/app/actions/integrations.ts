@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db';
 import { requireAdmin, requireUser } from '@/lib/auth';
 import { checkToken, FbError } from '@/lib/fb';
 import { extractTokenFromCookies } from '@/lib/fb-engine';
-import { parseProxy } from '@/lib/proxy';
+import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
 import { checkBrocard, BrocardError } from '@/lib/brocard';
 import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
@@ -25,6 +25,7 @@ const Token = z.object({
   token: z.string().trim().default(''),
   cookiesJson: z.string().trim().default(''),
   proxyUrl: z.string().trim().max(300).default(''),
+  proxyKind: z.enum(['http', 'socks5']).default('http'),
 });
 
 export type ActionState = { ok: boolean; error?: string; message?: string } | null;
@@ -37,6 +38,7 @@ export async function addToken(_prev: ActionState, form: FormData): Promise<Acti
     token: form.get('token') ?? '',
     cookiesJson: form.get('cookiesJson') ?? '',
     proxyUrl: form.get('proxyUrl') ?? '',
+    proxyKind: form.get('proxyKind') ?? 'http',
   });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? 'Проверь поля' };
@@ -46,7 +48,7 @@ export async function addToken(_prev: ActionState, form: FormData): Promise<Acti
   // Прокси приходит в том виде, в каком его дал провайдер: списком
   // `ip:порт:логин:пароль`, с собакой или готовым URL. Приводим к URL один раз
   // здесь и дальше по коду ходит уже нормализованная строка.
-  const proxy = parseProxy(parsed.data.proxyUrl);
+  const proxy = parseProxy(parsed.data.proxyUrl, parsed.data.proxyKind as ProxyKind);
   if (proxy && 'error' in proxy) return { ok: false, error: proxy.error };
   const proxyUrl = proxy?.url ?? '';
 

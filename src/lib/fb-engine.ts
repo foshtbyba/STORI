@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { HttpsProxyAgent } from 'https-proxy-agent';
+
+import { proxyAgent } from './proxy-agent';
 
 // Функция отправки запросов к FB через Прокси аккаунта
 export async function makeFbRequest(url: string, params: Record<string, any> = {}, proxyUrl?: string | null, method = 'GET') {
@@ -12,7 +13,7 @@ export async function makeFbRequest(url: string, params: Record<string, any> = {
   };
 
   if (proxyUrl) {
-    const agent = new HttpsProxyAgent(proxyUrl);
+    const agent = proxyAgent(proxyUrl);
     config.httpsAgent = agent;
     config.httpAgent = agent;
   }
@@ -41,7 +42,7 @@ export async function extractTokenFromCookies(cookiesJsonStr: string, proxyUrl?:
     };
 
     if (proxyUrl) {
-      const agent = new HttpsProxyAgent(proxyUrl);
+      const agent = proxyAgent(proxyUrl);
       config.httpsAgent = agent;
       config.httpAgent = agent;
     }

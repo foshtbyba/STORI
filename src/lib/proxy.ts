@@ -7,12 +7,16 @@
  * пароле и потом гадать, почему кабинет не отвечает. Поэтому принимаем всё
  * перечисленное и приводим к URL, который понимает агент.
  *
- * Наружу всегда выходит `http://логин:пароль@хост:порт` — схема по умолчанию
- * http, потому что в этих списках почти всегда HTTP-прокси, а те, кто даёт
- * https, пишут схему явно.
+ * Наружу выходит `схема://логин:пароль@хост:порт`. Схему в списках не пишут,
+ * а на глаз HTTP от SOCKS не отличить — порт бывает один и тот же. Поэтому её
+ * выбирают в форме, а `kind` сюда приходит оттуда; явно написанная в строке
+ * схема сильнее выбранной.
  */
 
 export type ProxyParse = { url: string } | { error: string };
+
+/** Что выбрано в форме рядом с полем прокси. */
+export type ProxyKind = 'http' | 'socks5';
 
 const isPort = (s: string) => /^\d{1,5}$/.test(s) && Number(s) >= 1 && Number(s) <= 65535;
 
@@ -45,27 +49,27 @@ function creds(user: string, pass: string) {
  * Пустая строка — это «без прокси», а не ошибка: поле необязательное.
  * Возвращает нормализованный URL либо текст того, что не так.
  */
-export function parseProxy(raw: string): ProxyParse | null {
+export function parseProxy(raw: string, kind: ProxyKind = 'http'): ProxyParse | null {
   const s = raw.trim();
   if (!s) return null;
   if (/\s/.test(s)) return { error: 'В строке прокси есть пробел — вставь её одной строкой' };
 
   // Схема, если её написали явно.
   let rest = s;
+  const allowed = ['http', 'https', 'socks', 'socks4', 'socks5', 'socks5h'];
   const scheme = s.match(/^([a-z][a-z0-9+.-]*):\/\//i);
   if (scheme) {
     const name = scheme[1].toLowerCase();
-    if (name.startsWith('socks')) {
-      return {
-        error: 'SOCKS-прокси пока не поддержан — нужен HTTP. Если провайдер даёт оба, возьми HTTP-порт.',
-      };
-    }
-    if (name !== 'http' && name !== 'https') {
-      return { error: `Схема ${name}:// не поддержана — нужен http или https` };
+    if (!allowed.includes(name)) {
+      return { error: `Схема ${name}:// не поддержана — нужен http, https или socks5` };
     }
     rest = s.slice(scheme[0].length);
   }
-  const prefix = scheme ? `${scheme[1].toLowerCase()}://` : 'http://';
+  const prefix = scheme
+    ? `${scheme[1].toLowerCase()}://`
+    : kind === 'socks5'
+      ? 'socks5://'
+      : 'http://';
   rest = rest.replace(/\/+$/, '');
   if (!rest) return { error: 'Не хватает адреса и порта' };
 

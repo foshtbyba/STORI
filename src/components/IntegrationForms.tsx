@@ -44,6 +44,10 @@ export function TokenForm({ buyers }: { buyers: { id: string; handle: string }[]
   // показываем ровно один. Невыбранное поле не просто спрятано, а не
   // отрисовано — иначе в отправку уехало бы и оно.
   const [mode, setMode] = useState<'token' | 'cookies'>('token');
+  // HTTP или SOCKS на глаз не отличить: в списках провайдеров схемы нет, а порт
+  // бывает один и тот же. Угадывать нельзя — на «не том» агенте запрос не
+  // падает, а молча висит до таймаута; поэтому спрашиваем прямо.
+  const [proxyKind, setProxyKind] = useState<'http' | 'socks5'>('http');
 
   return (
     <form action={action} className="mt-4 flex flex-col gap-2.5">
@@ -118,10 +122,31 @@ export function TokenForm({ buyers }: { buyers: { id: string; handle: string }[]
         </label>
       )}
 
-      <label className="block">
-        <span className="mb-1.5 block text-[11.5px] text-mute">
-          Прокси{mode === 'token' ? ' · необязательно' : ''}
-        </span>
+      <div className="block">
+        <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
+          <span className="text-[11.5px] text-mute">
+            Прокси{mode === 'token' ? ' · необязательно' : ''}
+          </span>
+          <div className="flex items-center gap-1 rounded-full bg-sub p-1">
+            {([
+              ['http', 'HTTP'],
+              ['socks5', 'SOCKS5'],
+            ] as const).map(([value, title]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setProxyKind(value)}
+                aria-pressed={proxyKind === value}
+                className={`rounded-full px-3 py-1 text-[11.5px] transition ${
+                  proxyKind === value ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
+                }`}
+              >
+                {title}
+              </button>
+            ))}
+          </div>
+        </div>
+        <input type="hidden" name="proxyKind" value={proxyKind} />
         <input
           name="proxyUrl"
           placeholder="1.2.3.4:8000:логин:пароль"
@@ -131,10 +156,11 @@ export function TokenForm({ buyers }: { buyers: { id: string; handle: string }[]
           Вставляй как дал провайдер — строка разбирается сама:{' '}
           <span className="n text-mute">адрес:порт:логин:пароль</span>,{' '}
           <span className="n text-mute">логин:пароль@адрес:порт</span>, тот же список в обратном
-          порядке или готовый <span className="n text-mute">http://…</span>. Через прокси пойдут все
-          запросы к Facebook — и проверка сейчас, и синхронизация потом. SOCKS пока не поддержан.
+          порядке или готовый URL со схемой. Тип уточни у провайдера: на неверном запрос не
+          ошибается, а молча висит. Через прокси пойдут все запросы к Facebook — и проверка сейчас,
+          и синхронизация потом.
         </span>
-      </label>
+      </div>
 
       <div className="flex justify-end">
         <SubmitButton
