@@ -1,0 +1,356 @@
+'use client';
+
+import { useMemo, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { Avatar } from './ui';
+import { campaignBadge, type StatusTone } from '@/lib/fb-status';
+import { setAdRunning, setAdBudget } from '@/app/actions/integrations';
+
+export type AdRow = {
+  id: string;
+  adId: string;
+  name: string;
+  status: string;
+  thumbnailUrl: string;
+  linkUrl: string;
+  ktToken: string;
+  adsetName: string;
+  dailyBudgetCents: number | null;
+  targeting: string;
+  account: string;
+  act: string;
+  currency: string;
+  buyer: string;
+  initials: string;
+  color: string;
+  spendCents: number;
+  impressions: number;
+  clicks: number;
+  leads: number;
+  revenueCents: number;
+};
+
+const TONE: Record<StatusTone, string> = {
+  ok: 'bg-sage-t text-sage',
+  warn: 'bg-amber-t text-amber',
+  bad: 'bg-rust-t text-rust',
+  mute: 'bg-sub text-mute',
+};
+
+const money = (cents: number) =>
+  '$' + (cents / 100).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const int = (n: number) => Math.round(n).toLocaleString('ru-RU');
+const pct = (part: number, whole: number, digits = 2) =>
+  whole ? ((part / whole) * 100).toFixed(digits).replace('.', ',') + '%' : '—';
+
+type Enriched = AdRow & {
+  cpc: number; // центы
+  ctr: number; // доля
+  cpm: number; // центы
+  cpl: number; // центы
+  cr: number; // доля
+  profitCents: number;
+  roi: number; // доля
+};
+
+type SortKey =
+  | 'name' | 'buyer' | 'status' | 'budget'
+  | 'impressions' | 'clicks' | 'cpc' | 'ctr' | 'cpm'
+  | 'leads' | 'cpl' | 'cr' | 'spend' | 'revenue' | 'profit' | 'roi';
+
+const COLS: { key: SortKey; label: string; num?: boolean }[] = [
+  { key: 'impressions', label: 'Показы', num: true },
+  { key: 'clicks', label: 'Клики', num: true },
+  { key: 'cpc', label: 'CPC', num: true },
+  { key: 'ctr', label: 'CTR', num: true },
+  { key: 'cpm', label: 'CPM', num: true },
+  { key: 'leads', label: 'Лиды', num: true },
+  { key: 'cpl', label: 'CPL', num: true },
+  { key: 'cr', label: 'CR', num: true },
+  { key: 'spend', label: 'Расход', num: true },
+  { key: 'revenue', label: 'Доход', num: true },
+  { key: 'profit', label: 'Профит', num: true },
+  { key: 'roi', label: 'ROI', num: true },
+];
+
+export default function CampaignsTable({ rows, win }: { rows: AdRow[]; win: number }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  const [q, setQ] = useState('');
+  const [buyer, setBuyer] = useState<string>('all');
+  const [sortKey, setSortKey] = useState<SortKey>('spend');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [budgets, setBudgets] = useState<Record<string, string>>({});
+  const [msg, setMsg] = useState<string | null>(null);
+
+  const enrich = (r: AdRow): Enriched => {
+    const profitCents = r.revenueCents - r.spendCents;
+    return {
+      ...r,
+      cpc: r.clicks ? Math.round(r.spendCents / r.clicks) : 0,
+      ctr: r.impressions ? r.clicks / r.impressions : 0,
+      cpm: r.impressions ? Math.round((r.spendCents / r.impressions) * 1000) : 0,
+      cpl: r.leads ? Math.round(r.spendCents / r.leads) : 0,
+      cr: r.clicks ? r.leads / r.clicks : 0,
+      profitCents,
+      roi: r.spendCents ? profitCents / r.spendCents : 0,
+    };
+  };
+
+  const all = useMemo(() => rows.map(enrich), [rows]);
+
+  // Сводка — по всему периоду (не зависит от поиска), деньги считаем в USD.
+  const summary = useMemo(() => {
+    let spend = 0, clicks = 0, leads = 0, revenue = 0, impressions = 0;
+    let foreign = false;
+    for (const r of all) {
+      clicks += r.clicks; leads += r.leads; impressions += r.impressions;
+      if (r.currency === 'USD') { spend += r.spendCents; revenue += r.revenueCents; }
+      else foreign = true;
+    }
+    return { spend, clicks, leads, revenue, impressions, profit: revenue - spend, foreign };
+  }, [all]);
+
+  const buyers = useMemo(
+    () => [...new Map(all.map((r) => [r.buyer, { handle: r.buyer, initials: r.initials, color: r.color }])).values()],
+    [all],
+  );
+
+  const view = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    let list = all;
+    if (buyer !== 'all') list = list.filter((r) => r.buyer === buyer);
+    if (needle) {
+      list = list.filter((r) =>
+        `${r.name} ${r.adsetName} ${r.act} ${r.targeting} ${r.account}`.toLowerCase().includes(needle),
+      );
+    }
+    const dir = sortDir === 'asc' ? 1 : -1;
+    const val = (r: Enriched): number | string => {
+      switch (sortKey) {
+        case 'name': return r.name.toLowerCase();
+        case 'buyer': return r.buyer.toLowerCase();
+        case 'status': return r.status;
+        case 'budget': return r.dailyBudgetCents ?? -1;
+        case 'spend': return r.spendCents;
+        case 'revenue': return r.revenueCents;
+        case 'profit': return r.profitCents;
+        default: return (r as unknown as Record<string, number>)[sortKey] ?? 0;
+      }
+    };
+    return [...list].sort((a, b) => {
+      const x = val(a), y = val(b);
+      if (typeof x === 'string' || typeof y === 'string') return String(x).localeCompare(String(y)) * dir;
+      return (x - y) * dir;
+    });
+  }, [all, q, buyer, sortKey, sortDir]);
+
+  const sortBy = (k: SortKey) => {
+    if (k === sortKey) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    else { setSortKey(k); setSortDir('desc'); }
+  };
+
+  const run = (id: string, status: 'ACTIVE' | 'PAUSED') => {
+    setMsg(null);
+    start(async () => {
+      const fd = new FormData();
+      fd.set('id', id); fd.set('status', status);
+      const res = await setAdRunning(null, fd);
+      if (res && !res.ok) setMsg(res.error ?? 'Не вышло');
+      else router.refresh();
+    });
+  };
+
+  const saveBudget = (id: string) => {
+    const v = budgets[id];
+    if (!v) return;
+    setMsg(null);
+    start(async () => {
+      const fd = new FormData();
+      fd.set('id', id); fd.set('budget', v);
+      const res = await setAdBudget(null, fd);
+      if (res && !res.ok) setMsg(res.error ?? 'Не вышло');
+      else { setBudgets((b) => { const n = { ...b }; delete n[id]; return n; }); router.refresh(); }
+    });
+  };
+
+  const arrow = (k: SortKey) => (k === sortKey ? (sortDir === 'asc' ? ' ▲' : ' ▼') : '');
+  const tile = (label: string, value: string, sub?: string, tone?: 'sage' | 'rust') => (
+    <div className="rounded-[18px] bg-sub px-4 py-3">
+      <div className="text-[11px] text-mute">{label}</div>
+      <div className={`n mt-1 text-[20px] font-semibold ${tone === 'sage' ? 'text-sage' : tone === 'rust' ? 'text-rust' : ''}`}>{value}</div>
+      {sub ? <div className="n mt-0.5 text-[11px] text-dim">{sub}</div> : null}
+    </div>
+  );
+
+  return (
+    <div className="mt-4 flex flex-col gap-3">
+      {/* Сводка */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        {tile('Расход', money(summary.spend))}
+        {tile('Клики', int(summary.clicks), `CPC ${summary.clicks ? money(Math.round(summary.spend / summary.clicks)) : '—'}`)}
+        {tile('Лиды', int(summary.leads), `CPL ${summary.leads ? money(Math.round(summary.spend / summary.leads)) : '—'}`)}
+        {tile('Доход', money(summary.revenue))}
+        {tile('Профит', money(summary.profit), undefined, summary.profit >= 0 ? 'sage' : 'rust')}
+        {tile('ROI', summary.spend ? pct(summary.profit, summary.spend, 1) : '—', undefined, summary.profit >= 0 ? 'sage' : 'rust')}
+      </div>
+
+      {/* Панель управления списком */}
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Поиск: объявление, адсет, act, гео…"
+          className="h-9 min-w-[220px] flex-1 rounded-full border border-line2 bg-sub px-4 text-[12.5px] text-text outline-none transition focus:border-sage"
+        />
+        <div className="flex items-center gap-1 rounded-full bg-sub p-1">
+          {([['1', 'сегодня'], ['7', '7 дней'], ['14', '14 дней']] as const).map(([v, t]) => (
+            <a
+              key={v}
+              href={`/ads/campaigns${v === '1' ? '' : `?d=${v}`}`}
+              className={`rounded-full px-3 py-1 text-[11.5px] transition ${
+                String(win) === v ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
+              }`}
+            >
+              {t}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {buyers.length > 1 ? (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setBuyer('all')}
+            className={`rounded-full px-3 py-1 text-[11.5px] transition ${buyer === 'all' ? 'bg-raise font-semibold text-text' : 'bg-sub text-mute hover:text-soft'}`}
+          >
+            все
+          </button>
+          {buyers.map((b) => (
+            <button
+              key={b.handle}
+              type="button"
+              onClick={() => setBuyer(b.handle)}
+              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] transition ${buyer === b.handle ? 'bg-raise font-semibold text-text' : 'bg-sub text-mute hover:text-soft'}`}
+            >
+              <Avatar initials={b.initials} color={b.color} size={18} />
+              {b.handle}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      {msg ? <div className="rounded-xl px-3.5 py-2.5 text-[12px]" style={{ background: '#2c1f1a', color: '#ce6e58' }}>{msg}</div> : null}
+
+      {/* Таблица */}
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[1180px] border-collapse text-[12px]">
+          <thead>
+            <tr className="text-left text-[10.5px] uppercase tracking-wide text-mute">
+              <th className="cursor-pointer py-2 pr-3 font-medium" onClick={() => sortBy('name')}>Объявление{arrow('name')}</th>
+              <th className="cursor-pointer px-2 py-2 text-right font-medium" onClick={() => sortBy('budget')}>Бюджет{arrow('budget')}</th>
+              {COLS.map((c) => (
+                <th key={c.key} className="cursor-pointer px-2 py-2 text-right font-medium" onClick={() => sortBy(c.key)}>
+                  {c.label}{arrow(c.key)}
+                </th>
+              ))}
+              <th className="px-2 py-2 text-right font-medium">Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            {view.map((r) => {
+              const badge = campaignBadge(r.status);
+              const active = r.status === 'ACTIVE';
+              const editing = budgets[r.id] !== undefined;
+              return (
+                <tr key={r.id} className="border-t border-line align-top">
+                  {/* Объявление */}
+                  <td className="py-2.5 pr-3">
+                    <div className="flex items-start gap-2.5">
+                      {r.thumbnailUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={r.thumbnailUrl} alt="" className="mt-0.5 h-9 w-9 shrink-0 rounded-md object-cover" />
+                      ) : (
+                        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-sub text-dim">—</span>
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="max-w-[240px] truncate text-[12.5px] text-soft" title={r.name}>{r.name || `#${r.adId}`}</span>
+                          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${TONE[badge.tone]}`}>{badge.label}</span>
+                          {r.ktToken ? null : <span className="shrink-0 rounded-full bg-sub px-2 py-0.5 text-[10px] text-dim" title="Токен КТ в ссылке не распознан">нет потока</span>}
+                        </div>
+                        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10.5px] text-dim">
+                          <span className="flex items-center gap-1"><Avatar initials={r.initials} color={r.color} size={14} />{r.buyer}</span>
+                          <span title="кабинет">· {r.account}</span>
+                          <span className="n" title="act_ID">· {r.act}</span>
+                          {r.adsetName ? <span className="max-w-[180px] truncate" title={r.adsetName}>· {r.adsetName}</span> : null}
+                          {r.targeting ? <span className="n">· {r.targeting}</span> : null}
+                          {r.linkUrl ? <a href={r.linkUrl} target="_blank" rel="noreferrer" className="text-steel hover:underline">· ссылка</a> : null}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  {/* Бюджет — редактируемый */}
+                  <td className="px-2 py-2.5 text-right">
+                    {editing ? (
+                      <span className="inline-flex items-center gap-1">
+                        <input
+                          value={budgets[r.id]}
+                          onChange={(e) => setBudgets((b) => ({ ...b, [r.id]: e.target.value }))}
+                          onKeyDown={(e) => { if (e.key === 'Enter') saveBudget(r.id); }}
+                          className="n h-7 w-16 rounded-md border border-line2 bg-sub px-2 text-right text-[11.5px] outline-none focus:border-sage"
+                          autoFocus
+                        />
+                        <button type="button" disabled={pending} onClick={() => saveBudget(r.id)} className="text-sage">✓</button>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setBudgets((b) => ({ ...b, [r.id]: r.dailyBudgetCents != null ? String(Math.round(r.dailyBudgetCents / 100)) : '' }))}
+                        className="n text-[12px] text-mute transition hover:text-sage"
+                        title="Изменить дневной бюджет адсета"
+                      >
+                        {r.dailyBudgetCents != null ? money(r.dailyBudgetCents) : '—'}
+                      </button>
+                    )}
+                  </td>
+                  <td className="n px-2 py-2.5 text-right text-mute">{int(r.impressions)}</td>
+                  <td className="n px-2 py-2.5 text-right text-mute">{int(r.clicks)}</td>
+                  <td className="n px-2 py-2.5 text-right text-mute">{r.clicks ? money(r.cpc) : '—'}</td>
+                  <td className="n px-2 py-2.5 text-right text-mute">{pct(r.clicks, r.impressions)}</td>
+                  <td className="n px-2 py-2.5 text-right text-mute">{r.impressions ? money(r.cpm) : '—'}</td>
+                  <td className="n px-2 py-2.5 text-right text-soft">{int(r.leads)}</td>
+                  <td className="n px-2 py-2.5 text-right text-mute">{r.leads ? money(r.cpl) : '—'}</td>
+                  <td className="n px-2 py-2.5 text-right text-mute">{pct(r.leads, r.clicks)}</td>
+                  <td className="n px-2 py-2.5 text-right text-soft">
+                    {money(r.spendCents)}
+                    {r.currency !== 'USD' ? <span className="ml-1 text-[10px] text-rust">{r.currency}</span> : null}
+                  </td>
+                  <td className="n px-2 py-2.5 text-right text-mute">{money(r.revenueCents)}</td>
+                  <td className={`n px-2 py-2.5 text-right font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{money(r.profitCents)}</td>
+                  <td className={`n px-2 py-2.5 text-right ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{r.spendCents ? pct(r.profitCents, r.spendCents, 1) : '—'}</td>
+                  {/* Действия */}
+                  <td className="px-2 py-2.5 text-right">
+                    <button
+                      type="button"
+                      disabled={pending}
+                      onClick={() => run(r.id, active ? 'PAUSED' : 'ACTIVE')}
+                      className={`rounded-full px-2.5 py-1 text-[10.5px] transition ${
+                        active ? 'bg-amber-t text-amber hover:opacity-80' : 'bg-sage-t text-sage hover:opacity-80'
+                      } ${pending ? 'cursor-progress opacity-60' : ''}`}
+                      title={active ? 'Поставить на паузу' : 'Запустить'}
+                    >
+                      {active ? '⏸ пауза' : '▶ запуск'}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className="text-[11px] text-dim">Объявлений: {view.length}. Клик по заголовку — сортировка. Клик по бюджету — правка.</div>
+    </div>
+  );
+}

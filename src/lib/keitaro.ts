@@ -160,6 +160,52 @@ export async function dailyRevenue(
   return out;
 }
 
+export type KeitaroAdDay = {
+  date: string;
+  /** Значение sub_id_4 — это ad_id объявления Facebook. */
+  subId4: string;
+  revenueCents: number;
+  conversions: number;
+};
+
+/**
+ * Доход и конверсии по дням в разрезе sub_id_4 (= ad_id объявления Facebook).
+ *
+ * Стандартный шаблон Facebook в Keitaro кладёт ad.id в Sub ID 4, поэтому по нему
+ * доход сводится к конкретному объявлению — для профита в таблице кампаний.
+ */
+export async function revenueByAd(
+  baseUrl: string,
+  apiKey: string,
+  from: string,
+  to: string,
+  timezone = 'UTC',
+) {
+  const raw = await call(baseUrl, apiKey, '/report/build', {
+    range: { from, to, timezone },
+    grouping: ['day', 'sub_id_4'],
+    metrics: ['conversions', 'sale_revenue'],
+    filters: [],
+    limit: 50000,
+  });
+
+  const rows = ((raw as { rows?: unknown }).rows ?? []) as Record<string, unknown>[];
+  const out: KeitaroAdDay[] = [];
+  for (const row of rows) {
+    const day = String(row.day ?? row.date ?? '').slice(0, 10);
+    const subId4 = String(row.sub_id_4 ?? '').trim();
+    if (!day || !subId4) continue;
+    const money = Number(row.sale_revenue ?? 0);
+    out.push({
+      date: day,
+      subId4,
+      revenueCents: Number.isFinite(money) ? Math.round(money * 100) : 0,
+      conversions: Math.round(pickNumber(row, ['conversions', 'sales'])),
+    });
+  }
+  return out;
+}
+
 /**
  * Первое НЕнулевое число из списка полей. Ноль пропускаем как возможную
  * заглушку и берём следующее имя; если везде ноль или пусто — значит дохода

@@ -3,10 +3,10 @@ import { prisma } from './db';
 import { dayKey } from './period';
 import { grossUp, ceilDollars, DEFAULT_COMMISSION_BPS } from './money';
 import { mergeDay } from './sync-rule';
-import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adSpend, adLinks, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
+import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, adMeta, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
-import { dailyRevenue, listCampaigns, indexByToken, updateCostsBulk, KeitaroError, type CostEntry } from './keitaro';
+import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, KeitaroError, type CostEntry } from './keitaro';
 import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -635,6 +635,8 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
   // Индекс токенов кампаний КТ: по ключу из ссылки объявления → кампания.
   // Без трекера привязывать не к чему — расход соберём, но потоки не проставим.
   const index = new Map<string, MatchedCampaign>();
+  // Доход по объявлению из КТ (sub_id_4 = ad_id) — для профита в таблице.
+  const revByAd = new Map<string, number>();
   const tracker = await prisma.tracker.findFirst({ where: { enabled: true } });
   if (tracker) {
     try {
@@ -642,6 +644,9 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
       for (const [key, c] of indexByToken(camps)) {
         index.set(key, { id: c.id, name: c.name, token: c.token || c.alias });
       }
+
+      const adRev = await revenueByAd(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
+      for (const r of adRev) revByAd.set(`${r.subId4}|${r.date}`, r.revenueCents);
 
       // Заодно освежаем доход по кампаниям за это же окно — чтобы экран
       // статистики был самодостаточным (расход и доход одной кнопкой), а не
@@ -703,26 +708,39 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
 
       for (const acc of shuffle(token.accounts)) {
         await humanPause();
-        const spend = await adSpend(access, acc.externalId, from, to, net);
-        if (spend.length === 0) continue;
+        const stats = await adStats(access, acc.externalId, from, to, net);
+        if (stats.length === 0) continue;
 
-        const adIds = [...new Set(spend.map((s) => s.adId))];
-        const nameOf = new Map(spend.map((s) => [s.adId, s.adName]));
-        const metas = await adLinks(access, adIds, net);
+        const adIds = [...new Set(stats.map((s) => s.adId))];
+        const nameOf = new Map(stats.map((s) => [s.adId, s.adName]));
+        const metas = await adMeta(access, adIds, net);
         const metaOf = new Map(metas.map((m) => [m.adId, m]));
 
-        // Запоминаем объявления с распознанным потоком — для списка и чтобы
-        // было видно, у каких ссылка не распозналась (пустой ktToken).
-        for (const adId of adIds) {
+        // Дневные строки по объявлению: обходим по объявлению, чтобы сначала
+        // завести/обновить сам FbAd (мету), а потом его дни (FbAdDay).
+        const byAd = new Map<string, typeof stats>();
+        for (const s of stats) {
+          const arr = byAd.get(s.adId) ?? [];
+          arr.push(s);
+          byAd.set(s.adId, arr);
+        }
+
+        for (const [adId, rows] of byAd) {
           const m = metaOf.get(adId);
           const link = m?.link ?? '';
           const matched = matchKtCampaign(link, index);
-          await prisma.fbAd.upsert({
+
+          const fbAd = await prisma.fbAd.upsert({
             where: { adId },
             update: {
               adAccountId: acc.id,
               name: m?.name || nameOf.get(adId) || '',
               status: m?.status ?? 'UNKNOWN',
+              adsetId: m?.adsetId ?? '',
+              adsetName: m?.adsetName ?? '',
+              dailyBudget: m?.dailyBudget ?? null,
+              targeting: m?.targeting ?? '',
+              thumbnailUrl: m?.thumbnailUrl ?? '',
               linkUrl: link,
               ktToken: matched?.token ?? '',
               lastSpendAt: new Date(),
@@ -732,48 +750,75 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
               adId,
               name: m?.name || nameOf.get(adId) || '',
               status: m?.status ?? 'UNKNOWN',
+              adsetId: m?.adsetId ?? '',
+              adsetName: m?.adsetName ?? '',
+              dailyBudget: m?.dailyBudget ?? null,
+              targeting: m?.targeting ?? '',
+              thumbnailUrl: m?.thumbnailUrl ?? '',
               linkUrl: link,
               ktToken: matched?.token ?? '',
               lastSpendAt: new Date(),
             },
           });
-        }
 
-        // Складываем расход по потоку и дню.
-        for (const s of spend) {
-          const m = metaOf.get(s.adId);
-          const matched = m ? matchKtCampaign(m.link, index) : null;
-          if (!matched) {
-            unmatchedCents += s.cents;
-            continue;
-          }
-          const key = `${matched.token}|${s.date}`;
-          const b = cost.get(key) ?? {
-            cents: 0,
-            clicks: 0,
-            impressions: 0,
-            currency: acc.currency,
-            campId: matched.id,
-            campName: matched.name,
-            token: matched.token,
-          };
-          b.cents += s.cents;
-          b.clicks += s.clicks;
-          b.impressions += s.impressions;
-          cost.set(key, b);
-          result.touched += 1;
-
-          // В КТ льём только доллары (агентские кабинеты всегда USD; курс тут не
-          // считаем). Одна запись на объявление и день с фильтром по его ad_id.
-          if (acc.currency === 'USD') {
-            const arr = pushByCamp.get(matched.id) ?? [];
-            arr.push({
-              start_date: `${s.date} 00:00`,
-              end_date: `${s.date} 23:59`,
-              cost: s.cents / 100,
-              filters: { [KT_AD_SUBID]: s.adId },
+          for (const s of rows) {
+            // Дневные метрики объявления + доход из КТ по ad_id (для профита).
+            const revenueCents = revByAd.get(`${adId}|${s.date}`) ?? 0;
+            await prisma.fbAdDay.upsert({
+              where: { adId_date: { adId: fbAd.id, date: atMidnight(s.date) } },
+              update: {
+                spendCents: s.cents,
+                impressions: s.impressions,
+                clicks: s.clicks,
+                leads: s.leads,
+                revenueCents,
+                currency: acc.currency,
+              },
+              create: {
+                adId: fbAd.id,
+                date: atMidnight(s.date),
+                spendCents: s.cents,
+                impressions: s.impressions,
+                clicks: s.clicks,
+                leads: s.leads,
+                revenueCents,
+                currency: acc.currency,
+              },
             });
-            pushByCamp.set(matched.id, arr);
+            result.touched += 1;
+
+            // Расход по потоку и дню (для заливки cost в КТ фоном).
+            if (!matched) {
+              unmatchedCents += s.cents;
+              continue;
+            }
+            const key = `${matched.token}|${s.date}`;
+            const b = cost.get(key) ?? {
+              cents: 0,
+              clicks: 0,
+              impressions: 0,
+              currency: acc.currency,
+              campId: matched.id,
+              campName: matched.name,
+              token: matched.token,
+            };
+            b.cents += s.cents;
+            b.clicks += s.clicks;
+            b.impressions += s.impressions;
+            cost.set(key, b);
+
+            // В КТ льём только доллары (агентские кабинеты всегда USD; курс тут
+            // не считаем). Запись на объявление и день с фильтром по его ad_id.
+            if (acc.currency === 'USD') {
+              const arr = pushByCamp.get(matched.id) ?? [];
+              arr.push({
+                start_date: `${s.date} 00:00`,
+                end_date: `${s.date} 23:59`,
+                cost: s.cents / 100,
+                filters: { [KT_AD_SUBID]: adId },
+              });
+              pushByCamp.set(matched.id, arr);
+            }
           }
         }
       }

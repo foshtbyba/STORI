@@ -171,7 +171,7 @@ export type FbNet = { ua?: string; proxyUrl?: string | null; cookie?: string | n
  * пути отдают одно и то же — код ответа и тело строкой, — поэтому разбор
  * ошибок ниже общий и про транспорт ничего не знает.
  */
-async function send(url: URL, net: FbNet): Promise<{ status: number; text: string }> {
+async function send(url: URL, net: FbNet, method: 'GET' | 'POST' = 'GET'): Promise<{ status: number; text: string }> {
   // Токены, снятые из Ads Manager, публичный Graph API принимает только когда
   // запрос выглядит как из браузера аккаунта: его user-agent, его куки и его
   // прокси. Без кук на такой токен приходит «код 1 Invalid request», хотя сам
@@ -182,7 +182,10 @@ async function send(url: URL, net: FbNet): Promise<{ status: number; text: strin
 
   if (net.proxyUrl) {
     const agent = proxyAgent(net.proxyUrl);
-    const res = await axios.get(url.toString(), {
+    // Параметры записи (POST) тоже кладём в query — Graph API их так принимает.
+    const res = await axios.request({
+      method,
+      url: url.toString(),
       headers,
       httpAgent: agent,
       httpsAgent: agent,
@@ -202,6 +205,7 @@ async function send(url: URL, net: FbNet): Promise<{ status: number; text: strin
   }
 
   const res = await fetch(url, {
+    method,
     cache: 'no-store',
     headers: Object.keys(headers).length ? headers : undefined,
   });
@@ -213,6 +217,7 @@ async function call(
   token: string,
   params: Record<string, string> = {},
   net: FbNet = {},
+  method: 'GET' | 'POST' = 'GET',
 ) {
   const url = new URL(`${API}${path}`);
   url.searchParams.set('access_token', token);
@@ -220,7 +225,7 @@ async function call(
 
   let res: { status: number; text: string };
   try {
-    res = await send(url, net);
+    res = await send(url, net, method);
   } catch (e) {
     const via = net.proxyUrl ? ' (через прокси — проверь адрес и доступность)' : '';
     throw new FbError(`Не достучались до Facebook${via}: ${(e as Error).message}`);
@@ -467,8 +472,8 @@ export async function listCampaigns(token: string, externalId: string, net: FbNe
   return out;
 }
 
-/** День расхода по одному объявлению. */
-export type FbAdSpendRow = {
+/** Дневные метрики по одному объявлению. */
+export type FbAdStatRow = {
   adId: string;
   adName: string;
   /** YYYY-MM-DD, как отдаёт Facebook (в поясе кабинета). */
@@ -478,28 +483,50 @@ export type FbAdSpendRow = {
   /** Клики по ссылке (inline_link_clicks) и показы — для CTR/CPC. */
   clicks: number;
   impressions: number;
+  /** Результаты/лиды из FB (сумма конверсионных actions). */
+  leads: number;
 };
 
 /**
- * Дневной расход по ОБЪЯВЛЕНИЯМ кабинета за отрезок.
+ * Типы actions, которые считаем «результатом/лидом». Facebook отдаёт действия
+ * массивом по типам; единого поля «результат» в API нет — оно зависит от цели
+ * оптимизации адсета. Суммируем конверсионные типы: для натры это лид/регистрация,
+ * для товарки — покупка/подписка. Расхождение с Ads Manager возможно, но порядок
+ * тот же.
+ */
+const LEAD_ACTIONS = /(^|\.)(lead|complete_registration|purchase|subscribe|start_trial|submit_application)$|lead_grouped/i;
+
+function leadsFromActions(actions: unknown): number {
+  if (!Array.isArray(actions)) return 0;
+  let total = 0;
+  for (const a of actions as { action_type?: string; value?: string }[]) {
+    if (a.action_type && LEAD_ACTIONS.test(a.action_type)) {
+      total += Math.round(Number(a.value ?? 0)) || 0;
+    }
+  }
+  return total;
+}
+
+/**
+ * Дневные метрики по ОБЪЯВЛЕНИЯМ кабинета за отрезок.
  *
- * `level=ad` раскладывает расход по каждому объявлению — так его можно
- * приписать конкретному потоку в Keitaro (токен кампании стоит в ссылке
- * объявления). Пустые (без расхода) объявления Facebook в отчёт не включает,
+ * `level=ad` раскладывает всё по каждому объявлению — расход можно приписать
+ * потоку в Keitaro (токен в ссылке), а показы/клики/лиды показать в таблице.
+ * Пустые (без показов и расхода) объявления Facebook в отчёт не включает,
  * поэтому набор сразу узкий — только то, что реально крутилось.
  */
-export async function adSpend(
+export async function adStats(
   token: string,
   externalId: string,
   from: string,
   to: string,
   net: FbNet = {},
 ) {
-  const out: FbAdSpendRow[] = [];
+  const out: FbAdStatRow[] = [];
   let after = '';
   for (let page = 0; page < 40; page += 1) {
     const body = await call(`/${externalId}/insights`, token, {
-      fields: 'spend,ad_id,ad_name,impressions,inline_link_clicks',
+      fields: 'spend,ad_id,ad_name,impressions,inline_link_clicks,actions',
       level: 'ad',
       time_increment: '1',
       time_range: JSON.stringify({ since: from, until: to }),
@@ -514,18 +541,22 @@ export async function adSpend(
       spend?: string;
       impressions?: string;
       inline_link_clicks?: string;
+      actions?: unknown;
     }[];
     for (const row of rows) {
       if (!row.date_start || !row.ad_id) continue;
       const cents = Math.round(Number(row.spend ?? 0) * 100);
-      if (!Number.isFinite(cents) || cents <= 0) continue;
+      const impressions = Math.round(Number(row.impressions ?? 0)) || 0;
+      // Пропускаем строки без активности вовсе (ни показа, ни расхода).
+      if ((!Number.isFinite(cents) || cents <= 0) && impressions <= 0) continue;
       out.push({
         adId: row.ad_id,
         adName: row.ad_name ?? '',
         date: row.date_start,
-        cents,
+        cents: Number.isFinite(cents) ? cents : 0,
         clicks: Math.round(Number(row.inline_link_clicks ?? 0)) || 0,
-        impressions: Math.round(Number(row.impressions ?? 0)) || 0,
+        impressions,
+        leads: leadsFromActions(row.actions),
       });
     }
     const next = body.paging as { cursors?: { after?: string }; next?: string } | undefined;
@@ -541,23 +572,24 @@ export type FbAdMeta = {
   status: string;
   /** Целевая ссылка креатива (destination URL) — в ней и стоит токен КТ. */
   link: string;
+  adsetId: string;
+  adsetName: string;
+  /** Дневной бюджет адсета в центах валюты кабинета (null — бюджет на кампании). */
+  dailyBudget: number | null;
+  /** Короткая подпись таргета: «40-65 HU». */
+  targeting: string;
+  thumbnailUrl: string;
 };
 
 /**
- * Мета объявлений по списку id: статус и целевая ссылка креатива.
- *
- * Тянем ТОЛЬКО по тем id, у которых был расход (их даёт adSpend) — так запросов
- * немного, и мы не выгружаем тысячи давно остановленных объявлений. Facebook
- * отдаёт до полусотни объектов за раз по `?ids=`, поэтому бьём на пачки.
- *
- * Ссылка у разных типов объявлений лежит в разных местах креатива (обычная
- * ссылка, видео с кнопкой, гибкий/динамический формат) — перебираем известные
- * места и берём первую найденную.
+ * Мета объявлений по списку id: статус, ссылка, адсет с бюджетом и таргетом,
+ * превью. Тянем ТОЛЬКО по id с активностью (их даёт adStats) — запросов немного.
+ * Facebook отдаёт до полусотни объектов за раз по `?ids=`, поэтому бьём на пачки.
  */
-export async function adLinks(token: string, ids: string[], net: FbNet = {}) {
+export async function adMeta(token: string, ids: string[], net: FbNet = {}) {
   const out: FbAdMeta[] = [];
   const fields =
-    'name,effective_status,creative{link_url,object_url,object_story_spec{link_data{link},video_data{call_to_action{value{link}}},template_data{link}},asset_feed_spec{link_urls{website_url}}}';
+    'name,effective_status,adset{id,name,daily_budget,targeting{age_min,age_max,geo_locations{countries}}},creative{thumbnail_url,link_url,object_url,object_story_spec{link_data{link},video_data{call_to_action{value{link}}},template_data{link}},asset_feed_spec{link_urls{website_url}}}';
 
   for (let i = 0; i < ids.length; i += 50) {
     const chunk = ids.slice(i, i + 50);
@@ -566,17 +598,45 @@ export async function adLinks(token: string, ids: string[], net: FbNet = {}) {
       const ad = raw as {
         name?: string;
         effective_status?: string;
-        creative?: unknown;
+        creative?: { thumbnail_url?: string };
+        adset?: {
+          id?: string;
+          name?: string;
+          daily_budget?: string;
+          targeting?: {
+            age_min?: number;
+            age_max?: number;
+            geo_locations?: { countries?: string[] };
+          };
+        };
       };
+      const budget = ad.adset?.daily_budget != null ? Math.round(Number(ad.adset.daily_budget)) : null;
       out.push({
         adId,
         name: ad.name ?? '',
         status: ad.effective_status ?? 'UNKNOWN',
-        link: pickCreativeLink(ad.creative),
+        link: pickCreativeLink((raw as { creative?: unknown }).creative),
+        adsetId: ad.adset?.id ?? '',
+        adsetName: ad.adset?.name ?? '',
+        dailyBudget: Number.isFinite(budget as number) ? budget : null,
+        targeting: targetingLabel(ad.adset?.targeting),
+        thumbnailUrl: ad.creative?.thumbnail_url ?? '',
       });
     }
   }
   return out;
+}
+
+/** «40-65 HU» из таргета адсета. Пусто, если ничего не задано. */
+function targetingLabel(t?: {
+  age_min?: number;
+  age_max?: number;
+  geo_locations?: { countries?: string[] };
+}): string {
+  if (!t) return '';
+  const age = t.age_min && t.age_max ? `${t.age_min}-${t.age_max}` : '';
+  const geo = (t.geo_locations?.countries ?? []).slice(0, 3).join(', ');
+  return [age, geo].filter(Boolean).join(' ');
 }
 
 /** Первая целевая ссылка из креатива — по всем местам, где она бывает. */
@@ -604,6 +664,24 @@ function pickCreativeLink(creative: unknown): string {
     if (s) return s;
   }
   return '';
+}
+
+/**
+ * Пауза/запуск объявления. FB принимает status ACTIVE|PAUSED на самом объекте
+ * объявления. Возвращает true, если Facebook подтвердил успех.
+ */
+export async function setAdStatus(token: string, adId: string, status: 'ACTIVE' | 'PAUSED', net: FbNet = {}) {
+  const body = await call(`/${adId}`, token, { status }, net, 'POST');
+  return Boolean((body as { success?: boolean }).success ?? true);
+}
+
+/**
+ * Сменить дневной бюджет адсета. `cents` — в минимальных единицах валюты
+ * кабинета (как отдаёт Facebook). Меняется на уровне адсета, а не объявления.
+ */
+export async function setAdsetBudget(token: string, adsetId: string, cents: number, net: FbNet = {}) {
+  const body = await call(`/${adsetId}`, token, { daily_budget: String(Math.round(cents)) }, net, 'POST');
+  return Boolean((body as { success?: boolean }).success ?? true);
 }
 
 export async function checkToken(

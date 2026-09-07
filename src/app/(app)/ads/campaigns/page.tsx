@@ -1,42 +1,48 @@
 import { requireUser, scopeBuyerId } from '@/lib/auth';
-import { canSeeTeam, type Role } from '@/lib/roles';
+import { type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
 import { fmtWhen } from '@/lib/period';
-import { campaignBadge, type StatusTone } from '@/lib/fb-status';
-import { Panel, PanelHead, Empty, Sub, Avatar } from '@/components/ui';
+import { Panel, PanelHead, Empty } from '@/components/ui';
 import { IconRocket } from '@/components/icons';
-import SyncCampaigns from '@/components/SyncCampaigns';
+import SyncAds from '@/components/SyncAds';
+import CampaignsTable, { type AdRow } from '@/components/CampaignsTable';
 
 /**
- * Кампании — что заведено в кабинетах и что реально запущено.
+ * Кампании — таблица статистики по объявлениям из Facebook (референс — FBTOOL).
  *
- * Данные тянет глубокий заход синхронизации (раз в сутки) и кладёт в FbCampaign.
- * Здесь только показываем: сгруппировано по баеру и кабинету, статус — цветом,
- * запущенные сверху. Метрики (лиды, клики, CTR, расход) и пауза/запуск —
- * следующий шаг.
+ * Данные тянет заход `syncFacebookAds` (кнопка «Обновить стату» и крон
+ * `?only=ads`) и кладёт в FbAd + FbAdDay. Здесь только показываем: свод сверху,
+ * таблица по объявлениям с сортировкой и поиском, и управление (пауза/старт,
+ * бюджет). Доход/профит — из Keitaro по ad_id, только для ориентира.
+ *
+ * Скоуп как в остальной рекламе: баер видит свои объявления, админ — овнерские
+ * (SKO/MPR), а не весь скоуп команды.
  */
-const TONE: Record<StatusTone, string> = {
-  ok: 'bg-sage-t text-sage',
-  warn: 'bg-amber-t text-amber',
-  bad: 'bg-rust-t text-rust',
-  mute: 'bg-sub text-mute',
-};
-
-function fmtBudget(cents: number | null, currency: string) {
-  if (cents == null) return '—';
-  const v = Math.round(cents / 100);
-  return `${v.toLocaleString('ru-RU')} ${currency === 'USD' ? '$' : currency}/день`;
-}
-
-export default async function CampaignsPage() {
+export default async function CampaignsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ d?: string }>;
+}) {
   const user = await requireUser();
-  const team = canSeeTeam(user.role as Role);
-  const admin = (user.role as Role) === 'ADMIN';
+  const role = user.role as Role;
+  const admin = role === 'ADMIN';
   const scoped = scopeBuyerId(user);
 
-  // Кампании через кабинет → токен → баер. Баер видит только свои.
-  const campaigns = await prisma.fbCampaign.findMany({
-    where: team ? {} : { adAccount: { adToken: { buyerId: scoped ?? '__none__' } } },
+  const { d } = await searchParams;
+  const win = d === '7' ? 7 : d === '14' ? 14 : 1; // по умолчанию — сегодня
+
+  // Окно по календарным дням в UTC (как хранится FbAdDay.date).
+  const today = new Date();
+  const toMid = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  const fromMid = new Date(toMid);
+  fromMid.setUTCDate(fromMid.getUTCDate() - (win - 1));
+
+  const where = admin
+    ? { adAccount: { adToken: { buyer: { owner: true } } } }
+    : { adAccount: { adToken: { buyerId: scoped ?? '__none__' } } };
+
+  const ads = await prisma.fbAd.findMany({
+    where,
     include: {
       adAccount: {
         select: {
@@ -46,28 +52,53 @@ export default async function CampaignsPage() {
           adToken: { select: { lastSyncAt: true, buyer: { select: { handle: true, initials: true, color: true, owner: true } } } },
         },
       },
+      days: { where: { date: { gte: fromMid, lte: toMid } } },
     },
   });
 
-  // Запущенные вперёд, дальше по имени.
-  const rank = (s: string) => (s === 'ACTIVE' ? 0 : s.includes('PAUSED') ? 1 : 2);
-  campaigns.sort((a, b) => rank(a.status) - rank(b.status) || a.name.localeCompare(b.name));
+  const rows: AdRow[] = [];
+  let lastSync: Date | null = null;
+  for (const a of ads) {
+    const t = a.adAccount.adToken.lastSyncAt;
+    if (t && (!lastSync || t > lastSync)) lastSync = t;
 
-  const active = campaigns.filter((c) => c.status === 'ACTIVE').length;
-  const lastSync = campaigns.reduce<Date | null>((m, c) => {
-    const t = c.adAccount.adToken.lastSyncAt;
-    return t && (!m || t > m) ? t : m;
-  }, null);
+    let spend = 0, impressions = 0, clicks = 0, leads = 0, revenue = 0;
+    for (const day of a.days) {
+      spend += day.spendCents;
+      impressions += day.impressions;
+      clicks += day.clicks;
+      leads += day.leads;
+      revenue += day.revenueCents;
+    }
+    // В таблицу — только то, что крутилось в окне.
+    if (spend === 0 && impressions === 0) continue;
 
-  // Группируем по баеру, внутри — по кабинету.
-  type Row = (typeof campaigns)[number];
-  const byBuyer = new Map<string, { initials: string; color: string; owner: boolean; rows: Row[] }>();
-  for (const c of campaigns) {
-    const b = c.adAccount.adToken.buyer;
-    const g = byBuyer.get(b.handle) ?? { initials: b.initials, color: b.color, owner: b.owner, rows: [] };
-    g.rows.push(c);
-    byBuyer.set(b.handle, g);
+    rows.push({
+      id: a.id,
+      adId: a.adId,
+      name: a.name,
+      status: a.status,
+      thumbnailUrl: a.thumbnailUrl,
+      linkUrl: a.linkUrl,
+      ktToken: a.ktToken,
+      adsetName: a.adsetName,
+      dailyBudgetCents: a.dailyBudget,
+      targeting: a.targeting,
+      account: a.adAccount.name || a.adAccount.externalId.replace(/^act_/, ''),
+      act: a.adAccount.externalId.replace(/^act_/, ''),
+      currency: a.adAccount.currency,
+      buyer: a.adAccount.adToken.buyer.handle,
+      initials: a.adAccount.adToken.buyer.initials,
+      color: a.adAccount.adToken.buyer.color,
+      spendCents: spend,
+      impressions,
+      clicks,
+      leads,
+      revenueCents: revenue,
+    });
   }
+
+  const label = win === 1 ? 'сегодня' : `${win} дней`;
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -78,60 +109,27 @@ export default async function CampaignsPage() {
           title="Кампании"
           aside={
             <span className="text-[12.5px] text-mute">
-              запущено {active} из {campaigns.length}
+              {label}
               {lastSync ? ` · обновлено ${fmtWhen(lastSync)}` : ''}
             </span>
           }
-          right={admin ? <SyncCampaigns /> : undefined}
+          right={admin ? <SyncAds /> : undefined}
         />
 
-        {campaigns.length === 0 ? (
+        {rows.length === 0 ? (
           <div className="mt-4">
             <Empty>
-              Кампаний пока не видно. Они подтягиваются раз в сутки глубоким заходом синхронизации —
-              или запусти вручную в ADMIN → «Синхронизировать сейчас».
+              Статистики пока нет. Нажми «Обновить стату» (у админа) или дождись крона —
+              подтянутся расход, клики и лиды по объявлениям за {label}.
             </Empty>
           </div>
         ) : (
-          [...byBuyer.entries()].map(([handle, g]) => (
-            <div key={handle} className="mt-4 border-t border-line pt-4">
-              <div className="flex items-center gap-2.5">
-                <Avatar initials={g.initials} color={g.color} size={30} />
-                <span className="text-[13.5px] font-semibold">
-                  {handle}
-                  {g.owner ? <span className="ml-2 text-[11px] text-amber">овнер</span> : null}
-                </span>
-                <span className="text-[11.5px] text-mute">
-                  · запущено {g.rows.filter((r) => r.status === 'ACTIVE').length} из {g.rows.length}
-                </span>
-              </div>
-
-              <div className="mt-2.5 flex flex-col gap-1.5">
-                {g.rows.map((c) => {
-                  const badge = campaignBadge(c.status);
-                  return (
-                    <Sub key={c.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3.5 py-2.5">
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] ${TONE[badge.tone]}`}>{badge.label}</span>
-                      <span className="min-w-0 flex-1 truncate text-[12.5px] text-soft" title={c.name}>
-                        {c.name || '(без названия)'}
-                      </span>
-                      <span className="n text-[11.5px] text-mute">
-                        {fmtBudget(c.dailyBudget, c.adAccount.currency)}
-                      </span>
-                      <span className="n text-[10.5px] text-dim" title={c.adAccount.externalId}>
-                        {c.adAccount.name || c.adAccount.externalId.replace(/^act_/, '')}
-                      </span>
-                    </Sub>
-                  );
-                })}
-              </div>
-            </div>
-          ))
+          <CampaignsTable rows={rows} win={win} />
         )}
 
         <p className="mt-4 text-[11px] leading-relaxed text-dim">
-          Пока это витрина: видно, что запущено, на паузе или отклонено. Метрики (лиды, клики, CTR,
-          расход) и кнопки пауза/запуск — следующий шаг.
+          Расход/клики/показы/лиды — из Facebook по объявлениям. Доход и профит — из Keitaro по
+          ad_id (Sub ID 4), для ориентира. Расход по кампаниям параллельно уходит в сам Keitaro.
         </p>
       </Panel>
     </div>

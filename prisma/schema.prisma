@@ -415,19 +415,50 @@ model FbCampaign {
 /// Пустой ktToken — ссылку не распознали; такое объявление видно в списке
 /// отдельно, чтобы поправить разметку ссылки.
 model FbAd {
-  id          String    @id @default(cuid())
-  adAccountId String
-  adAccount   AdAccount @relation(fields: [adAccountId], references: [id], onDelete: Cascade)
-  adId        String    @unique // ID объявления в Facebook
-  name        String    @default("")
-  status      String    @default("UNKNOWN") // effective_status
-  linkUrl     String    @default("") // destination URL креатива
-  ktToken     String    @default("") // токен кампании Keitaro из ссылки
-  lastSpendAt DateTime?
-  updatedAt   DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  adAccountId  String
+  adAccount    AdAccount @relation(fields: [adAccountId], references: [id], onDelete: Cascade)
+  adId         String    @unique // ID объявления в Facebook
+  name         String    @default("")
+  status       String    @default("UNKNOWN") // effective_status
+  /// ID адсета в FB — по нему меняем бюджет и он же группирует объявления.
+  adsetId      String    @default("")
+  adsetName    String    @default("")
+  /// Дневной бюджет адсета в центах валюты кабинета (может отсутствовать).
+  dailyBudget  Int?
+  /// Короткая подпись таргета: «40-65 HU».
+  targeting    String    @default("")
+  /// Превью креатива (thumbnail_url).
+  thumbnailUrl String    @default("")
+  linkUrl      String    @default("") // destination URL креатива
+  ktToken      String    @default("") // токен кампании Keitaro из ссылки
+  lastSpendAt  DateTime?
+  updatedAt    DateTime  @updatedAt
+  days         FbAdDay[]
 
   @@index([ktToken])
   @@index([adAccountId])
+}
+
+/// Дневные метрики объявления из Facebook — основа таблицы статистики.
+///
+/// `revenueCents` — доход из Keitaro по этому объявлению (sub_id_4 = ad_id),
+/// нужен только для профита в разделе; в зарплату не идёт.
+model FbAdDay {
+  id           String   @id @default(cuid())
+  adId         String
+  ad           FbAd     @relation(fields: [adId], references: [id], onDelete: Cascade)
+  date         DateTime
+  spendCents   Int      @default(0)
+  impressions  Int      @default(0)
+  clicks       Int      @default(0) // клики по ссылке (inline_link_clicks)
+  leads        Int      @default(0) // результаты/лиды из FB (actions)
+  revenueCents Int      @default(0) // доход из Keitaro по ad_id
+  currency     String   @default("USD")
+  updatedAt    DateTime @updatedAt
+
+  @@unique([adId, date])
+  @@index([date])
 }
 
 /// Расход из Facebook, привязанный к кампании Keitaro по токену, по дням.

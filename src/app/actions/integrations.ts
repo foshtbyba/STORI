@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireAdmin, requireUser } from '@/lib/auth';
-import { checkToken, FbError } from '@/lib/fb';
+import { checkToken, setAdStatus, setAdsetBudget, fbAccess, FbError } from '@/lib/fb';
 import { extractTokenFromCookies, readCookieBlob, cookieHeaderOf } from '@/lib/fb-engine';
 import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
@@ -512,8 +512,64 @@ export async function runCampaignSync() {
 export async function runAdsSync() {
   await requireAdmin();
   const result = await syncFacebookAds();
-  revalidatePath('/ads/roi');
+  revalidatePath('/ads/campaigns');
   return result;
+}
+
+/**
+ * Управление рекламой из таблицы кампаний. Находим объявление, поднимаем доступ
+ * его токена (ключ+куки+прокси) и шлём команду в Facebook. Право: админ — любые,
+ * баер — только свои объявления.
+ */
+async function adAccessFor(adId: string) {
+  const user = await requireUser();
+  const ad = await prisma.fbAd.findUnique({
+    where: { id: adId },
+    include: { adAccount: { include: { adToken: { include: { buyer: true } } } } },
+  });
+  if (!ad) return { error: 'Объявление не найдено' as const };
+  const tok = ad.adAccount.adToken;
+  const admin = (user.role as string) === 'ADMIN';
+  const own = user.buyer && tok.buyerId === user.buyer.id;
+  if (!admin && !own) return { error: 'Это не твоё объявление' as const };
+  const { token: access, net } = fbAccess(tok.token, { cookiesJson: tok.cookiesJson, proxyUrl: tok.proxyUrl });
+  return { ad, access, net };
+}
+
+export type AdActionState = { ok: boolean; error?: string } | null;
+
+/** Пауза/запуск объявления. `status` приходит из формы. */
+export async function setAdRunning(_prev: AdActionState, form: FormData): Promise<AdActionState> {
+  const id = String(form.get('id') ?? '');
+  const status = String(form.get('status') ?? '') === 'ACTIVE' ? 'ACTIVE' : 'PAUSED';
+  const ctx = await adAccessFor(id);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+  try {
+    await setAdStatus(ctx.access, ctx.ad.adId, status, ctx.net);
+    await prisma.fbAd.update({ where: { id }, data: { status } });
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+  revalidatePath('/ads/campaigns');
+  return { ok: true };
+}
+
+/** Сменить дневной бюджет адсета объявления (в долларах из формы). */
+export async function setAdBudget(_prev: AdActionState, form: FormData): Promise<AdActionState> {
+  const id = String(form.get('id') ?? '');
+  const dollars = Number(String(form.get('budget') ?? '').replace(',', '.'));
+  if (!Number.isFinite(dollars) || dollars <= 0) return { ok: false, error: 'Некорректный бюджет' };
+  const ctx = await adAccessFor(id);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+  if (!ctx.ad.adsetId) return { ok: false, error: 'У объявления не найден адсет' };
+  try {
+    await setAdsetBudget(ctx.access, ctx.ad.adsetId, Math.round(dollars * 100), ctx.net);
+    await prisma.fbAd.update({ where: { id }, data: { dailyBudget: Math.round(dollars * 100) } });
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+  revalidatePath('/ads/campaigns');
+  return { ok: true };
 }
 
 export async function runSync() {

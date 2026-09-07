@@ -22,7 +22,7 @@ export default function SyncAds() {
           pending ? 'cursor-progress opacity-60' : ''
         }`}
       >
-        {pending ? 'Тяну расход…' : 'Обновить расход'}
+        {pending ? 'Тяну стату…' : 'Обновить стату'}
       </button>
       {result ? (
         <span className="text-[11.5px] text-mute">
