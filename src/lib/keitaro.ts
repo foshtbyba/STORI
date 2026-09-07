@@ -238,7 +238,7 @@ export type CostEntry = {
 
 /**
  * Залить расход в Keitaro пачкой (ручка «Update costs in bulk»,
- * POST /admin_api/v1/clicks/cost).
+ * POST /admin_api/v1/clicks/update_costs).
  *
  * Расход применяется к кликам указанных кампаний за отрезок: трекер сам
  * раскладывает сумму по кликам (CPC = сумма / клики). Шлём на ОДНУ кампанию
@@ -252,7 +252,7 @@ export async function updateCostsBulk(
   costs: CostEntry[],
 ) {
   if (costs.length === 0) return;
-  await call(baseUrl, apiKey, '/clicks/cost', {
+  await call(baseUrl, apiKey, '/clicks/update_costs', {
     campaign_ids: [Number(campaignId)],
     costs,
   });
