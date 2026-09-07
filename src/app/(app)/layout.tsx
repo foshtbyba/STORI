@@ -41,6 +41,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const adsItems = [
     { href: '/ads', label: 'Обзор', icon: <IconChart size={15} /> },
     { href: '/ads/campaigns', label: 'Кампании', icon: <IconRocket size={15} /> },
+    { href: '/ads/roi', label: 'Профит', icon: <IconWallet size={15} /> },
     { href: '/ads/upload', label: 'Автозалив', icon: <IconTag size={15} /> },
   ];
 

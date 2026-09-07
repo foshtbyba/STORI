@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { syncAll, syncFacebookCampaigns, SYNC_DAYS } from '@/lib/sync';
+import { syncAll, syncFacebookCampaigns, syncFacebookAds, SYNC_DAYS } from '@/lib/sync';
 
 // Синхронизация нарочно неспешная — с паузами между запросами к Facebook,
 // чтобы не словить чекпоинт. Полный заход длится минуты, поэтому маршрут
@@ -33,6 +33,8 @@ export const maxDuration = 900;
  *   0,20,40 8-23 * * * sleep $((RANDOM \% 300)); curl -fsS --max-time 900 -H "X-Sync-Key: …" "https://msdash.top/api/sync?only=campaigns"
  *   # КАМПАНИИ, ночью реже (в 1:00, 3:00, 5:00):
  *   0 1,3,5 * * *  sleep $((RANDOM \% 300)); curl -fsS --max-time 900 -H "X-Sync-Key: …" "https://msdash.top/api/sync?only=campaigns"
+ *   # РАСХОД ПО ПОТОКАМ (ROI), днём каждый час в :35, сдвиг 0–10 мин:
+ *   35 8-23 * * * sleep $((RANDOM \% 600)); curl -fsS --max-time 900 -H "X-Sync-Key: …" "https://msdash.top/api/sync?only=ads&days=3"
  *
  * Минуты (7 и 13) взяты не круглые тоже намеренно. `--max-time` большой:
  * заход с паузами длится минуты, curl не должен оборвать его раньше времени.
@@ -57,6 +59,16 @@ export async function GET(req: Request) {
   if (url.searchParams.get('only') === 'campaigns') {
     const result = await syncFacebookCampaigns();
     return NextResponse.json({ ok: true, only: 'campaigns', ...result });
+  }
+
+  // Расход по объявлениям с привязкой к потокам Keitaro: ?only=ads[&days=N].
+  // Отдельно от общего синка — это лишние запросы к ФБ, поэтому цепляют его
+  // своим кроном пореже (напр. пару раз в час днём), когда нужен свежий ROI.
+  if (url.searchParams.get('only') === 'ads') {
+    const askedAds = Number(url.searchParams.get('days'));
+    const adDays = Number.isFinite(askedAds) && askedAds > 0 ? Math.min(31, Math.max(1, Math.round(askedAds))) : 7;
+    const result = await syncFacebookAds(adDays);
+    return NextResponse.json({ ok: true, only: 'ads', days: adDays, ...result });
   }
 
   // Глубину зажимаем в 1…31: случайный ?days=9999 не должен вешать чужие API.

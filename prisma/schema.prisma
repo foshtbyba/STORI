@@ -392,6 +392,7 @@ model AdAccount {
   createdAt   DateTime    @default(now())
   days        AdAccountDay[]
   campaigns   FbCampaign[]
+  ads         FbAd[]
 
   @@unique([tokenId, externalId])
 }
@@ -405,6 +406,67 @@ model FbCampaign {
   status       String    // ACTIVE, PAUSED, ARCHIVED
   dailyBudget  Int?      // В центах
   updatedAt    DateTime  @updatedAt
+}
+
+/// Объявление Facebook с привязкой к кампании Keitaro.
+///
+/// Токен кампании КТ (`qynyTnDK` в ссылке объявления) достаём из destination
+/// URL креатива — по нему расход объявления приписывается нужному потоку в КТ.
+/// Пустой ktToken — ссылку не распознали; такое объявление видно в списке
+/// отдельно, чтобы поправить разметку ссылки.
+model FbAd {
+  id          String    @id @default(cuid())
+  adAccountId String
+  adAccount   AdAccount @relation(fields: [adAccountId], references: [id], onDelete: Cascade)
+  adId        String    @unique // ID объявления в Facebook
+  name        String    @default("")
+  status      String    @default("UNKNOWN") // effective_status
+  linkUrl     String    @default("") // destination URL креатива
+  ktToken     String    @default("") // токен кампании Keitaro из ссылки
+  lastSpendAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  @@index([ktToken])
+  @@index([adAccountId])
+}
+
+/// Расход из Facebook, привязанный к кампании Keitaro по токену, по дням.
+///
+/// Сумма спенда всех объявлений с этим токеном за день. Отсюда строится ROI по
+/// потокам на экране «Профит» и (этап 2) расход заливается обратно в Keitaro.
+model KtCostDay {
+  id             String    @id @default(cuid())
+  date           DateTime
+  ktToken        String    // токен кампании Keitaro
+  ktCampaignId   String    @default("") // id кампании в КТ (для записи расхода через API)
+  ktCampaignName String    @default("")
+  spendCents     Int
+  currency       String    @default("USD")
+  /// Когда этот расход залит в Keitaro (этап 2). null — ещё не заливали.
+  pushedAt       DateTime?
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([ktToken, date])
+  @@index([date])
+}
+
+/// Доход и конверсии Keitaro в разрезе кампании и дня.
+///
+/// Тот же отчёт, что делит доход по баерам, но сохранённый по кампаниям — чтобы
+/// сводить доход с расходом из ФБ на экране «Профит» и считать ROI по каждому
+/// потоку, а не только по баеру.
+model KtCampaignDay {
+  id           String   @id @default(cuid())
+  date         DateTime
+  campaignId   String   // id кампании в Keitaro
+  campaignName String   @default("")
+  groupId      String   @default("")
+  revenueCents Int      @default(0)
+  conversions  Int      @default(0)
+  updatedAt    DateTime @updatedAt
+
+  @@unique([campaignId, date])
+  @@index([date])
 }
 
 /// Дневной расход кабинета из Facebook — ИНФОРМАТИВНО.

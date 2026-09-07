@@ -467,6 +467,133 @@ export async function listCampaigns(token: string, externalId: string, net: FbNe
   return out;
 }
 
+/** День расхода по одному объявлению. */
+export type FbAdSpendRow = {
+  adId: string;
+  adName: string;
+  /** YYYY-MM-DD, как отдаёт Facebook (в поясе кабинета). */
+  date: string;
+  /** Расход в минимальных единицах валюты кабинета. */
+  cents: number;
+};
+
+/**
+ * Дневной расход по ОБЪЯВЛЕНИЯМ кабинета за отрезок.
+ *
+ * `level=ad` раскладывает расход по каждому объявлению — так его можно
+ * приписать конкретному потоку в Keitaro (токен кампании стоит в ссылке
+ * объявления). Пустые (без расхода) объявления Facebook в отчёт не включает,
+ * поэтому набор сразу узкий — только то, что реально крутилось.
+ */
+export async function adSpend(
+  token: string,
+  externalId: string,
+  from: string,
+  to: string,
+  net: FbNet = {},
+) {
+  const out: FbAdSpendRow[] = [];
+  let after = '';
+  for (let page = 0; page < 40; page += 1) {
+    const body = await call(`/${externalId}/insights`, token, {
+      fields: 'spend,ad_id,ad_name',
+      level: 'ad',
+      time_increment: '1',
+      time_range: JSON.stringify({ since: from, until: to }),
+      limit: '500',
+      ...(after ? { after } : {}),
+    }, net);
+
+    const rows = (body.data ?? []) as {
+      date_start?: string;
+      ad_id?: string;
+      ad_name?: string;
+      spend?: string;
+    }[];
+    for (const row of rows) {
+      if (!row.date_start || !row.ad_id) continue;
+      const cents = Math.round(Number(row.spend ?? 0) * 100);
+      if (!Number.isFinite(cents) || cents <= 0) continue;
+      out.push({ adId: row.ad_id, adName: row.ad_name ?? '', date: row.date_start, cents });
+    }
+    const next = body.paging as { cursors?: { after?: string }; next?: string } | undefined;
+    if (!next?.next || !next.cursors?.after) break;
+    after = next.cursors.after;
+  }
+  return out;
+}
+
+export type FbAdMeta = {
+  adId: string;
+  name: string;
+  status: string;
+  /** Целевая ссылка креатива (destination URL) — в ней и стоит токен КТ. */
+  link: string;
+};
+
+/**
+ * Мета объявлений по списку id: статус и целевая ссылка креатива.
+ *
+ * Тянем ТОЛЬКО по тем id, у которых был расход (их даёт adSpend) — так запросов
+ * немного, и мы не выгружаем тысячи давно остановленных объявлений. Facebook
+ * отдаёт до полусотни объектов за раз по `?ids=`, поэтому бьём на пачки.
+ *
+ * Ссылка у разных типов объявлений лежит в разных местах креатива (обычная
+ * ссылка, видео с кнопкой, гибкий/динамический формат) — перебираем известные
+ * места и берём первую найденную.
+ */
+export async function adLinks(token: string, ids: string[], net: FbNet = {}) {
+  const out: FbAdMeta[] = [];
+  const fields =
+    'name,effective_status,creative{link_url,object_url,object_story_spec{link_data{link},video_data{call_to_action{value{link}}},template_data{link}},asset_feed_spec{link_urls{website_url}}}';
+
+  for (let i = 0; i < ids.length; i += 50) {
+    const chunk = ids.slice(i, i + 50);
+    const body = await call('', token, { ids: chunk.join(','), fields }, net);
+    for (const [adId, raw] of Object.entries(body as Record<string, unknown>)) {
+      const ad = raw as {
+        name?: string;
+        effective_status?: string;
+        creative?: unknown;
+      };
+      out.push({
+        adId,
+        name: ad.name ?? '',
+        status: ad.effective_status ?? 'UNKNOWN',
+        link: pickCreativeLink(ad.creative),
+      });
+    }
+  }
+  return out;
+}
+
+/** Первая целевая ссылка из креатива — по всем местам, где она бывает. */
+function pickCreativeLink(creative: unknown): string {
+  const c = (creative ?? {}) as Record<string, unknown>;
+  const spec = (c.object_story_spec ?? {}) as Record<string, unknown>;
+
+  const linkData = (spec.link_data ?? {}) as { link?: unknown };
+  const videoData = (spec.video_data ?? {}) as {
+    call_to_action?: { value?: { link?: unknown } };
+  };
+  const templateData = (spec.template_data ?? {}) as { link?: unknown };
+  const feed = (c.asset_feed_spec ?? {}) as { link_urls?: { website_url?: unknown }[] };
+
+  const candidates = [
+    linkData.link,
+    videoData.call_to_action?.value?.link,
+    templateData.link,
+    feed.link_urls?.[0]?.website_url,
+    c.link_url,
+    c.object_url,
+  ];
+  for (const v of candidates) {
+    const s = typeof v === 'string' ? v.trim() : '';
+    if (s) return s;
+  }
+  return '';
+}
+
 export async function checkToken(
   raw: string,
   opts: { proxyUrl?: string | null; cookie?: string | null } = {},

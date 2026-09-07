@@ -67,6 +67,11 @@ export type KeitaroCampaign = {
   name: string;
   groupId: string;
   groupName: string;
+  /** Токен из TDS-ссылки: `track.top/qynyTnDK` → `qynyTnDK`. По нему объявление
+   *  ФБ (в ссылке которого он и стоит) приписывается к этой кампании. */
+  token: string;
+  /** Человекочитаемый псевдоним ссылки — второй способ адресовать кампанию. */
+  alias: string;
 };
 
 /** Кампании со своими группами. Кампания без группы попадает в «Без группы». */
@@ -84,8 +89,24 @@ export async function listCampaigns(baseUrl: string, apiKey: string) {
       name: String(c.name ?? ''),
       groupId,
       groupName: String(group.name ?? '') || (groupId === 'none' ? 'Без группы' : groupId),
+      token: String(c.token ?? ''),
+      alias: String(c.alias ?? ''),
     };
   });
+}
+
+/**
+ * Индекс «токен/псевдоним кампании → кампания». По ключу из ссылки объявления
+ * находим кампанию КТ. Кладём и токен, и alias: ссылку размечают то одним, то
+ * другим. Регистр сохраняем — токены Keitaro регистрозависимы.
+ */
+export function indexByToken(campaigns: KeitaroCampaign[]) {
+  const map = new Map<string, KeitaroCampaign>();
+  for (const c of campaigns) {
+    if (c.token) map.set(c.token, c);
+    if (c.alias) map.set(c.alias, c);
+  }
+  return map;
 }
 
 export type KeitaroDay = {

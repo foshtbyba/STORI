@@ -3,10 +3,11 @@ import { prisma } from './db';
 import { dayKey } from './period';
 import { grossUp, ceilDollars, DEFAULT_COMMISSION_BPS } from './money';
 import { mergeDay } from './sync-rule';
-import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
+import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adSpend, adLinks, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
-import { dailyRevenue, listCampaigns, KeitaroError } from './keitaro';
+import { dailyRevenue, listCampaigns, indexByToken, KeitaroError } from './keitaro';
+import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
 /**
@@ -334,12 +335,35 @@ export async function syncKeitaro(days = SYNC_DAYS): Promise<SyncResult> {
     const linked = await prisma.trackerGroup.findMany({ where: { buyerId: { not: null } } });
     const buyerOfGroup = new Map(linked.map((g) => [g.externalId, g.buyerId!]));
     const groupOfCampaign = new Map(campaigns.map((c) => [c.id, c.groupId]));
+    const infoOfCampaign = new Map(campaigns.map((c) => [c.id, { name: c.name, groupId: c.groupId }]));
 
     const rows = await dailyRevenue(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
 
     /** Доход по «баер + день»: у баера обычно несколько кампаний. */
     const byBuyerDay = new Map<string, number>();
     for (const row of rows) {
+      // Доход по кампании и дню сохраняем как есть — на нём строится ROI по
+      // потокам (свод с расходом из ФБ). Строку пишет только синк, спорить не с
+      // кем, поэтому просто перезаписываем.
+      const info = infoOfCampaign.get(row.campaignId);
+      await prisma.ktCampaignDay.upsert({
+        where: { campaignId_date: { campaignId: row.campaignId, date: atMidnight(row.date) } },
+        update: {
+          campaignName: info?.name ?? '',
+          groupId: info?.groupId ?? '',
+          revenueCents: row.revenueCents,
+          conversions: row.conversions,
+        },
+        create: {
+          campaignId: row.campaignId,
+          date: atMidnight(row.date),
+          campaignName: info?.name ?? '',
+          groupId: info?.groupId ?? '',
+          revenueCents: row.revenueCents,
+          conversions: row.conversions,
+        },
+      });
+
       const groupId = groupOfCampaign.get(row.campaignId);
       const buyerId = groupId ? buyerOfGroup.get(groupId) : undefined;
       if (!buyerId) {
@@ -567,6 +591,194 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
       });
     }
   });
+
+  return result;
+}
+
+/** Кампания КТ, найденная по токену из ссылки объявления. */
+type MatchedCampaign = { id: string; name: string; token: string };
+
+/** Первый кандидат из ссылки, который есть в индексе токенов кампаний КТ. */
+function matchKtCampaign(link: string, index: Map<string, MatchedCampaign>): MatchedCampaign | null {
+  for (const cand of parseKtCandidates(link)) {
+    const hit = index.get(cand);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+/**
+ * Расход из Facebook НА УРОВНЕ ОБЪЯВЛЕНИЙ, привязанный к потокам Keitaro.
+ *
+ * Зачем отдельно от расхода кабинета: в ссылке каждого объявления стоит токен
+ * кампании КТ (`track.top/qynyTnDK`). Раскладываем расход по объявлениям, из
+ * ссылки достаём токен, находим кампанию в трекере — и суммируем расход по
+ * кампании КТ и дню. Отсюда виден ROI по каждому потоку, а не только доход.
+ *
+ * Защиты те же, что у прочих заходов в ФБ: параллельно по токенам, пауза внутри
+ * токена, кулдаун при троттлинге, обновление протухшего ключа из кук. Тянем
+ * ссылки только у объявлений, где реально был расход, — запросов немного.
+ */
+export async function syncFacebookAds(days = 7): Promise<SyncResult> {
+  const result = emptyResult();
+  const { from, to } = daysBack(days);
+  const now = new Date();
+
+  // Индекс токенов кампаний КТ: по ключу из ссылки объявления → кампания.
+  // Без трекера привязывать не к чему — расход соберём, но потоки не проставим.
+  const index = new Map<string, MatchedCampaign>();
+  const tracker = await prisma.tracker.findFirst({ where: { enabled: true } });
+  if (tracker) {
+    try {
+      const camps = await listCampaigns(tracker.baseUrl, tracker.apiKey);
+      for (const [key, c] of indexByToken(camps)) {
+        index.set(key, { id: c.id, name: c.name, token: c.token || c.alias });
+      }
+    } catch (e) {
+      const why = e instanceof KeitaroError ? e.message : `Сбой: ${(e as Error).message}`;
+      result.problems.push(`Keitaro: не получить кампании для привязки расхода — ${why}`);
+    }
+  } else {
+    result.problems.push('Keitaro не подключён — расход не к чему привязать');
+  }
+
+  // Копим расход по «кампания КТ + день» за весь заход: на один поток могут
+  // лить сразу несколько кабинетов, поэтому суммируем глобально, а пишем в
+  // KtCostDay уже после обхода.
+  type Bucket = { cents: number; currency: string; campId: string; campName: string; token: string };
+  const cost = new Map<string, Bucket>();
+  let unmatchedCents = 0;
+
+  const all = await prisma.adToken.findMany({
+    where: { enabled: true },
+    include: { accounts: { where: { enabled: true } }, buyer: { select: { handle: true } } },
+  });
+  const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
+
+  await pool(tokens, FB_CONCURRENCY, async (token) => {
+    const work = async () => {
+      const { token: access, net } = fbAccess(token.token, {
+        cookiesJson: token.cookiesJson,
+        proxyUrl: token.proxyUrl,
+      });
+
+      for (const acc of shuffle(token.accounts)) {
+        await humanPause();
+        const spend = await adSpend(access, acc.externalId, from, to, net);
+        if (spend.length === 0) continue;
+
+        const adIds = [...new Set(spend.map((s) => s.adId))];
+        const nameOf = new Map(spend.map((s) => [s.adId, s.adName]));
+        const metas = await adLinks(access, adIds, net);
+        const metaOf = new Map(metas.map((m) => [m.adId, m]));
+
+        // Запоминаем объявления с распознанным потоком — для списка и чтобы
+        // было видно, у каких ссылка не распозналась (пустой ktToken).
+        for (const adId of adIds) {
+          const m = metaOf.get(adId);
+          const link = m?.link ?? '';
+          const matched = matchKtCampaign(link, index);
+          await prisma.fbAd.upsert({
+            where: { adId },
+            update: {
+              adAccountId: acc.id,
+              name: m?.name || nameOf.get(adId) || '',
+              status: m?.status ?? 'UNKNOWN',
+              linkUrl: link,
+              ktToken: matched?.token ?? '',
+              lastSpendAt: new Date(),
+            },
+            create: {
+              adAccountId: acc.id,
+              adId,
+              name: m?.name || nameOf.get(adId) || '',
+              status: m?.status ?? 'UNKNOWN',
+              linkUrl: link,
+              ktToken: matched?.token ?? '',
+              lastSpendAt: new Date(),
+            },
+          });
+        }
+
+        // Складываем расход по потоку и дню.
+        for (const s of spend) {
+          const m = metaOf.get(s.adId);
+          const matched = m ? matchKtCampaign(m.link, index) : null;
+          if (!matched) {
+            unmatchedCents += s.cents;
+            continue;
+          }
+          const key = `${matched.token}|${s.date}`;
+          const b = cost.get(key) ?? {
+            cents: 0,
+            currency: acc.currency,
+            campId: matched.id,
+            campName: matched.name,
+            token: matched.token,
+          };
+          b.cents += s.cents;
+          cost.set(key, b);
+          result.touched += 1;
+        }
+      }
+
+      await prisma.adToken.update({
+        where: { id: token.id },
+        data: { lastSyncAt: new Date(), lastError: '', pausedUntil: null },
+      });
+    };
+
+    try {
+      await work();
+    } catch (e) {
+      const refreshable = fbErrorKind(e) === 'token' || (e instanceof FbError && e.code === 1);
+      if (refreshable && token.cookiesJson) {
+        try {
+          if (await refreshTokenFromCookies(token)) {
+            await work();
+            return;
+          }
+        } catch {
+          /* обновление не удалось — сообщим об исходной ошибке */
+        }
+      }
+      const kind = fbErrorKind(e);
+      const why = e instanceof FbError ? e.message : `Сбой: ${(e as Error).message}`;
+      const scary = kind === 'throttle' || kind === 'blocked';
+      const pausedUntil = scary ? new Date(now.getTime() + FB_COOLDOWN_HOURS * 3600_000) : token.pausedUntil ?? null;
+      const note = scary ? `${why} — токен на паузе до ${pausedUntil?.toLocaleString('ru-RU')}` : why;
+      result.problems.push(`${token.buyer.handle}: ${note}`);
+      await prisma.adToken.update({
+        where: { id: token.id },
+        data: { lastError: note, lastSyncAt: new Date(), pausedUntil },
+      });
+    }
+  });
+
+  // Перезаписываем окно целиком: чистим дни отрезка и кладём свежие суммы, чтобы
+  // исчезнувший расход не оставался висеть за прошлые дни.
+  const fromDate = atMidnight(from);
+  const toDate = atMidnight(to);
+  await prisma.ktCostDay.deleteMany({ where: { date: { gte: fromDate, lte: toDate } } });
+  for (const [key, b] of cost) {
+    const iso = key.split('|')[1];
+    await prisma.ktCostDay.create({
+      data: {
+        date: atMidnight(iso),
+        ktToken: b.token,
+        ktCampaignId: b.campId,
+        ktCampaignName: b.campName,
+        spendCents: b.cents,
+        currency: b.currency,
+      },
+    });
+  }
+
+  if (unmatchedCents > 0) {
+    result.problems.push(
+      `ФБ: расход $${Math.round(unmatchedCents / 100).toLocaleString('ru-RU')} без потока в КТ — у объявлений не распознан токен в ссылке`,
+    );
+  }
 
   return result;
 }

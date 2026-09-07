@@ -10,7 +10,7 @@ import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
 import { checkBrocard, BrocardError } from '@/lib/brocard';
 import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
-import { syncAll, syncFacebookCampaigns } from '@/lib/sync';
+import { syncAll, syncFacebookCampaigns, syncFacebookAds } from '@/lib/sync';
 
 /**
  * Настройка интеграций. Всё здесь — только для админа: под этими ключами
@@ -398,6 +398,17 @@ export async function runCampaignSync() {
   await requireAdmin();
   const result = await syncFacebookCampaigns();
   revalidatePath('/ads/campaigns');
+  return result;
+}
+
+/**
+ * Обновить расход по объявлениям и привязку к потокам Keitaro — для экрана ROI.
+ * Лишние запросы к ФБ, поэтому это отдельная кнопка, а не часть общего синка.
+ */
+export async function runAdsSync() {
+  await requireAdmin();
+  const result = await syncFacebookAds();
+  revalidatePath('/ads/roi');
   return result;
 }
 
