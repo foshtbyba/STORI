@@ -386,7 +386,7 @@ export async function linkBrocardTeam(form: FormData) {
   }
   revalidatePath('/admin');
   revalidatePath('/ads');
-  revalidatePath('/owners');
+  revalidatePath('/');
 }
 
 export async function runSync() {

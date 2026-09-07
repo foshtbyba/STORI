@@ -76,7 +76,10 @@ export default async function AdsOverviewPage() {
       enabled: a.enabled,
       agency: a.agency,
       duplicate: (seen.get(a.externalId) ?? 0) > 1,
-      spend: usd(spendByAccount.get(a.id) ?? 0),
+      spend:
+        a.currency === 'USD'
+          ? usd(spendByAccount.get(a.id) ?? 0)
+          : Math.round((spendByAccount.get(a.id) ?? 0) / 100).toLocaleString('ru-RU'),
       badge: accountBadge(a.accountStatus, a.disableReason),
     })),
   });

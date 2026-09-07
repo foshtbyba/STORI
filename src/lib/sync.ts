@@ -1,7 +1,7 @@
 import 'server-only';
 import { prisma } from './db';
 import { dayKey } from './period';
-import { grossUp, ceilDollars } from './money';
+import { grossUp, ceilDollars, DEFAULT_COMMISSION_BPS } from './money';
 import { mergeDay } from './sync-rule';
 import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
 import { extractTokenFromCookies } from './fb-engine';
@@ -91,7 +91,7 @@ async function writeDay(row: Report, result: SyncResult) {
     const revenue = ceilDollars(row.revenueCents ?? 0);
     if (!spend && !revenue) return;
 
-    const bps = 450;
+    const bps = DEFAULT_COMMISSION_BPS;
     await prisma.dayReport.create({
       data: {
         buyerId: row.buyerId,

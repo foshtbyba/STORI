@@ -134,7 +134,12 @@ export function grossUp(spendNetCents: number, commissionBps: number) {
   return wholeDollars(spendNetCents / rest);
 }
 
-/** Прежняя формула — нужна только чтобы найти строки, посчитанные по ней. */
+/**
+ * Устаревший гросс-ап: умножал net на (1+ставка) и округлял до целого доллара
+ * ВСЮ сумму. Оставлен только для служебного скрипта recalc-commission, который
+ * находит и пересчитывает строки, посчитанные по старой формуле. В расчётах
+ * приложения не используется.
+ */
 export function grossUpLegacy(spendNetCents: number, commissionBps: number) {
   return wholeDollars(spendNetCents * (1 + commissionBps / 10_000));
 }

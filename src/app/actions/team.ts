@@ -168,7 +168,7 @@ export async function saveBuyerProfile(
 
   revalidatePath('/admin');
   revalidatePath('/payroll');
-  revalidatePath('/owners');
+  revalidatePath('/');
   revalidatePath('/');
   revalidatePath('/peak');
   revalidatePath('/days');
