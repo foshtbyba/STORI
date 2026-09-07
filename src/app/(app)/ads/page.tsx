@@ -6,6 +6,7 @@ import { usd } from '@/lib/money';
 import { Panel, PanelHead, Sub, Empty, Avatar } from '@/components/ui';
 import ConfirmSubmit from '@/components/ConfirmSubmit';
 import { MyTokenForm, TokenForm } from '@/components/IntegrationForms';
+import TokenLabel from '@/components/TokenLabel';
 import { deleteMyToken, deleteToken, toggleToken, toggleAccount } from '@/app/actions/integrations';
 import { IconRocket, IconWallet, IconTag, IconChart } from '@/components/icons';
 
@@ -88,9 +89,13 @@ export default async function AdsOverviewPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <Avatar initials={token.buyer.initials} color={token.buyer.color} />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[14.5px] font-semibold">
+                  <span className="flex items-center gap-2 text-[14.5px] font-semibold">
                     {token.buyer.handle}
-                    <span className="ml-2 text-[12px] font-normal text-mute">{token.label}</span>
+                    {admin ? (
+                      <TokenLabel id={token.id} label={token.label} />
+                    ) : (
+                      <span className="text-[12px] font-normal text-mute">{token.label}</span>
+                    )}
                   </span>
                   <span className="block text-[11.5px] text-mute">
                     {token.lastSyncAt ? `обновлено ${fmtDay(token.lastSyncAt)}` : 'ещё не синхронизировано'}
@@ -99,6 +104,11 @@ export default async function AdsOverviewPage() {
                     {token.proxyUrl ? (
                       <span className="ml-2 rounded-full bg-steel-t px-2 py-0.5 text-[10px] text-steel">
                         через прокси
+                      </span>
+                    ) : null}
+                    {token.pausedUntil && token.pausedUntil > new Date() ? (
+                      <span className="ml-2 rounded-full bg-amber-t px-2 py-0.5 text-[10px] text-amber">
+                        на паузе
                       </span>
                     ) : null}
                   </span>

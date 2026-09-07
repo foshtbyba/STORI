@@ -3,7 +3,8 @@ import { prisma } from './db';
 import { dayKey } from './period';
 import { grossUp, ceilDollars } from './money';
 import { mergeDay } from './sync-rule';
-import { accountSpend, listAccounts, fbAccess, FbError } from './fb';
+import { accountSpend, listAccounts, fbAccess, FbError, fbErrorKind } from './fb';
+import { humanPause, tokenGap, shuffle, FB_COOLDOWN_HOURS } from './pace';
 import { dailyRevenue, listCampaigns, KeitaroError } from './keitaro';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -141,12 +142,22 @@ async function writeDay(row: Report, result: SyncResult) {
 export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
   const result = emptyResult();
   const { from, to } = daysBack(days);
-  const tokens = await prisma.adToken.findMany({
+  const now = new Date();
+
+  // Токены берём в случайном порядке и пропускаем те, что на кулдауне: после
+  // троттлинга или сигнала «подозрительная активность» аккаунт должен остыть,
+  // а не получать запросы по расписанию.
+  const all = await prisma.adToken.findMany({
     where: { enabled: true },
     include: { accounts: true, buyer: { select: { handle: true } } },
   });
+  const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
 
-  for (const token of tokens) {
+  for (let i = 0; i < tokens.length; i += 1) {
+    const token = tokens[i];
+    // Пауза между аккаунтами: разные владельцы не должны идти встык.
+    if (i > 0) await tokenGap();
+
     try {
       // Собираем доступ ровно так же, как при добавлении: ключ из мультитокена,
       // его куки, user-agent и прокси того же аккаунта. Сессионный токен из
@@ -156,6 +167,7 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
         cookiesJson: token.cookiesJson,
         proxyUrl: token.proxyUrl,
       });
+
       // Список кабинетов освежаем на каждом заходе: в BM их добавляют и
       // отключают, и узнавать об этом из тишины неоткуда.
       const seen = await listAccounts(access, net);
@@ -172,13 +184,17 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
         });
       }
 
-      const accounts = await prisma.adAccount.findMany({
-        where: { tokenId: token.id, enabled: true },
-      });
+      // Кабинеты обходим тоже вперемешку: одинаковый порядок из раза в раз —
+      // машинный почерк.
+      const accounts = shuffle(
+        await prisma.adAccount.findMany({ where: { tokenId: token.id, enabled: true } }),
+      );
 
       // Расход кладём в информативную таблицу кабинета, а не в отчёт дня.
       // Валюту не приводим: показываем как есть, у каждого дня она своя.
       for (const acc of accounts) {
+        // Пауза перед каждым запросом расхода: главный рычаг против чекпоинта.
+        await humanPause();
         const spend = await accountSpend(access, acc.externalId, from, to, net);
         for (const d of spend) {
           await prisma.adAccountDay.upsert({
@@ -201,15 +217,34 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
 
       await prisma.adToken.update({
         where: { id: token.id },
-        data: { lastSyncAt: new Date(), lastError: '' },
+        data: { lastSyncAt: new Date(), lastError: '', pausedUntil: null },
       });
     } catch (e) {
+      const kind = fbErrorKind(e);
       const why = e instanceof FbError ? e.message : `Сбой: ${(e as Error).message}`;
-      result.problems.push(`${token.buyer.handle}: ${why}`);
+
+      // Троттлинг или «подозрительная активность» — немедленно уводим токен на
+      // кулдаун и прекращаем его обход. Дальше по остальным токенам идём, но
+      // этот больше не трогаем до истечения паузы: именно долбёжка после
+      // первого сигнала и доводит аккаунт до чекпоинта.
+      const scary = kind === 'throttle' || kind === 'blocked';
+      const pausedUntil = scary
+        ? new Date(now.getTime() + FB_COOLDOWN_HOURS * 3600_000)
+        : token.pausedUntil ?? null;
+
+      const note = scary
+        ? `${why} — токен на паузе до ${pausedUntil?.toLocaleString('ru-RU')}, чтобы не словить чекпоинт`
+        : why;
+
+      result.problems.push(`${token.buyer.handle}: ${note}`);
       await prisma.adToken.update({
         where: { id: token.id },
-        data: { lastError: why, lastSyncAt: new Date() },
+        data: { lastError: note, lastSyncAt: new Date(), pausedUntil },
       });
+
+      // На блокировке отдаём Facebook передышку и по остальным аккаунтам тоже:
+      // если один профиль уже под подозрением, весь прокси-пул лучше не гнать.
+      if (kind === 'blocked') await tokenGap();
     }
   }
 

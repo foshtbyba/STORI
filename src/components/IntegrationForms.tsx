@@ -63,8 +63,8 @@ export function TokenForm({ buyers }: { buyers: { id: string; handle: string }[]
           </select>
         </label>
         <label className="block">
-          <span className="mb-1.5 block text-[11.5px] text-mute">Подпись</span>
-          <input name="label" placeholder="BM основной" className={field} />
+          <span className="mb-1.5 block text-[11.5px] text-mute">Подпись · можно оставить пустой</span>
+          <input name="label" placeholder="подставится имя профиля" className={field} />
         </label>
       </div>
 

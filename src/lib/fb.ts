@@ -37,10 +37,34 @@ export type FbSpendDay = {
  * случая одинаково, иначе в интерфейсе окажется «Unexpected token <».
  */
 export class FbError extends Error {
-  constructor(message: string) {
+  /** Код и субкод Facebook — по ним синхронизация решает, отступить ли. */
+  code?: number;
+  subcode?: number;
+  constructor(message: string, code?: number, subcode?: number) {
     super(message);
     this.name = 'FbError';
+    this.code = code;
+    this.subcode = subcode;
   }
+}
+
+/**
+ * Что это за ошибка Facebook — по коду. Синхронизация реагирует по-разному:
+ * на троттлинг и «подозрительную активность» надо немедленно отступить и дать
+ * аккаунту отдохнуть, чтобы не доводить до чекпоинта; протухший токен трогать
+ * бессмысленно; остальное — разовый сбой.
+ */
+export function fbErrorKind(e: unknown): 'throttle' | 'blocked' | 'token' | 'other' {
+  if (!(e instanceof FbError) || e.code == null) return 'other';
+  const c = e.code;
+  // Троттлинг: слишком часто дёргали API.
+  if (c === 4 || c === 17 || c === 32 || c === 613 || c === 80004) return 'throttle';
+  // 368 — «временно заблокировано за подозрительную активность». Прямой
+  // предвестник чекпоинта: тут нельзя ходить дальше ни в коем случае.
+  if (c === 368) return 'blocked';
+  // 190 — токен недействителен/протух: ходить им бесполезно.
+  if (c === 190) return 'token';
+  return 'other';
 }
 
 /**
@@ -217,7 +241,7 @@ async function call(
     }
   ).error;
   if (err) {
-    throw new FbError(fbErrorMessage(err, res.status));
+    throw new FbError(fbErrorMessage(err, res.status), err.code, err.error_subcode);
   }
   if (res.status < 200 || res.status >= 300) {
     throw new FbError(`Facebook ответил ${res.status}`);

@@ -223,6 +223,20 @@ export async function toggleToken(form: FormData) {
   revalidatePath('/ads');
 }
 
+/**
+ * Переименовать подпись токена. Имя профиля подставляется автоматически при
+ * добавлении, но человек всегда может поправить — прямо в строке кабинета,
+ * без переподключения и без лишних запросов к Facebook.
+ */
+export async function renameToken(form: FormData) {
+  await requireAdmin();
+  const id = String(form.get('id') ?? '');
+  const label = String(form.get('label') ?? '').trim().slice(0, 80);
+  if (id) await prisma.adToken.update({ where: { id }, data: { label } });
+  revalidatePath('/admin');
+  revalidatePath('/ads');
+}
+
 export async function toggleAccount(form: FormData) {
   await requireAdmin();
   const id = String(form.get('id') ?? '');

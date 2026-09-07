@@ -360,6 +360,10 @@ model AdToken {
   status      String   @default("ACTIVE") // ACTIVE, TOKEN_EXPIRED, PROXY_ERROR
   lastSyncAt  DateTime?
   lastError   String   @default("")
+  // До этого момента синхронизация токен не трогает: выставляется после
+  // троттлинга или сигнала «подозрительная активность», чтобы дать аккаунту
+  // остыть и не доводить до чекпоинта.
+  pausedUntil DateTime?
 
   accounts    AdAccount[]
   createdAt   DateTime @default(now())
