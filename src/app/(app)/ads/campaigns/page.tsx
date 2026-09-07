@@ -19,21 +19,33 @@ import CampaignsTable, { type AdRow } from '@/components/CampaignsTable';
 export default async function CampaignsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ d?: string }>;
+  searchParams: Promise<{ d?: string; day?: string }>;
 }) {
   const user = await requireUser();
   const role = user.role as Role;
   const admin = role === 'ADMIN';
   const scoped = scopeBuyerId(user);
 
-  const { d } = await searchParams;
-  const win = d === '7' ? 7 : d === '14' ? 14 : 1; // по умолчанию — сегодня
+  const { d, day } = await searchParams;
+  const dayValid = !!day && /^\d{4}-\d{2}-\d{2}$/.test(day);
 
-  // Окно по календарным дням в UTC (как хранится FbAdDay.date).
-  const today = new Date();
-  const toMid = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-  const fromMid = new Date(toMid);
-  fromMid.setUTCDate(fromMid.getUTCDate() - (win - 1));
+  // Окно по календарным дням в UTC (как хранится FbAdDay.date). Либо конкретный
+  // день из календаря (?day=YYYY-MM-DD), либо пресет (сегодня/7/14).
+  let fromMid: Date;
+  let toMid: Date;
+  let win: number;
+  if (dayValid) {
+    const dd = new Date(`${day}T00:00:00.000Z`);
+    fromMid = dd;
+    toMid = dd;
+    win = 1;
+  } else {
+    win = d === '7' ? 7 : d === '14' ? 14 : 1;
+    const today = new Date();
+    toMid = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    fromMid = new Date(toMid);
+    fromMid.setUTCDate(fromMid.getUTCDate() - (win - 1));
+  }
 
   const where = admin
     ? { adAccount: { adToken: { buyer: { owner: true } } } }
@@ -99,7 +111,7 @@ export default async function CampaignsPage({
   return (
     <div className="flex flex-col gap-3.5">
       <Panel className="p-4 sm:p-6">
-        <CampaignsTable rows={rows} win={win} admin={admin} updated={lastSync ? fmtWhen(lastSync) : null} />
+        <CampaignsTable rows={rows} win={win} day={dayValid ? day! : ''} admin={admin} updated={lastSync ? fmtWhen(lastSync) : null} />
 
         <p className="mt-4 text-[11px] leading-relaxed text-dim">
           Расход/клики/показы/лиды — из Facebook по объявлениям. Доход и профит — из Keitaro по

@@ -78,11 +78,13 @@ const COLS: { key: SortKey; label: string; num?: boolean }[] = [
 export default function CampaignsTable({
   rows,
   win,
+  day,
   admin,
   updated,
 }: {
   rows: AdRow[];
   win: number;
+  day: string;
   admin: boolean;
   updated: string | null;
 }) {
@@ -252,7 +254,7 @@ export default function CampaignsTable({
           <h2 className="text-[17px] font-semibold tracking-[-0.015em]">Кампании</h2>
           <span className="hidden h-5 w-px bg-line2 sm:block" />
           <span className="text-[12.5px] text-mute">
-            {win === 1 ? 'сегодня' : `${win} дней`}
+            {day ? `${day.slice(8, 10)}.${day.slice(5, 7)}.${day.slice(0, 4)}` : win === 1 ? 'сегодня' : `${win} дней`}
             {updated ? ` · обновлено ${updated}` : ''}
           </span>
         </div>
@@ -289,13 +291,24 @@ export default function CampaignsTable({
               key={v}
               href={`/ads/campaigns${v === '1' ? '' : `?d=${v}`}`}
               className={`rounded-full px-3 py-1 text-[11.5px] transition ${
-                String(win) === v ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
+                !day && String(win) === v ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
               }`}
             >
               {t}
             </a>
           ))}
         </div>
+        {/* Конкретный день из календаря — стата ровно за него. */}
+        <input
+          type="date"
+          value={day}
+          max={new Date().toISOString().slice(0, 10)}
+          onChange={(e) => router.push(e.target.value ? `/ads/campaigns?day=${e.target.value}` : '/ads/campaigns')}
+          className={`h-9 rounded-full border bg-sub px-3 text-[12px] outline-none transition focus:border-sage ${
+            day ? 'border-sage text-text' : 'border-line2 text-mute'
+          }`}
+          title="Стата за конкретный день"
+        />
       </div>
 
       {msg ?<div className="rounded-xl px-3.5 py-2.5 text-[12px]" style={{ background: '#2c1f1a', color: '#ce6e58' }}>{msg}</div> : null}
