@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { syncAll, SYNC_DAYS } from '@/lib/sync';
+import { syncAll, syncFacebookCampaigns, SYNC_DAYS } from '@/lib/sync';
 
 // Синхронизация нарочно неспешная — с паузами между запросами к Facebook,
 // чтобы не словить чекпоинт. Полный заход длится минуты, поэтому маршрут
@@ -25,10 +25,14 @@ export const maxDuration = 900;
  * вразнобой с паузами между кабинетами (см. src/lib/pace.ts) — это второй,
  * главный слой защиты от чекпоинта.
  *
- *   # лёгкий заход раз в ~час, со сдвигом 0–40 минут:
+ *   # РАСХОД, лёгкий, раз в ~час со сдвигом 0–40 мин:
  *   7 * * * * sleep $((RANDOM \% 2400)); curl -fsS --max-time 900 -H "X-Sync-Key: …" "https://msdash.top/api/sync?days=1"
- *   # глубокий заход раз в сутки ночью, со сдвигом 0–90 минут:
+ *   # РАСХОД, глубокий, раз в сутки ночью со сдвигом 0–90 мин:
  *   13 4 * * * sleep $((RANDOM \% 5400)); curl -fsS --max-time 1200 -H "X-Sync-Key: …" "https://msdash.top/api/sync?days=14"
+ *   # КАМПАНИИ, часто днём (в :00 :20 :40 с 8 до 23 ч), сдвиг 0–5 мин:
+ *   0,20,40 8-23 * * * sleep $((RANDOM \% 300)); curl -fsS --max-time 900 -H "X-Sync-Key: …" "https://msdash.top/api/sync?only=campaigns"
+ *   # КАМПАНИИ, ночью реже (в 1:00, 3:00, 5:00):
+ *   0 1,3,5 * * *  sleep $((RANDOM \% 300)); curl -fsS --max-time 900 -H "X-Sync-Key: …" "https://msdash.top/api/sync?only=campaigns"
  *
  * Минуты (7 и 13) взяты не круглые тоже намеренно. `--max-time` большой:
  * заход с паузами длится минуты, curl не должен оборвать его раньше времени.
@@ -46,6 +50,13 @@ export async function GET(req: Request) {
   const given = req.headers.get('x-sync-key') ?? url.searchParams.get('key') ?? '';
   if (given !== secret) {
     return NextResponse.json({ ok: false, error: 'не тот ключ' }, { status: 401 });
+  }
+
+  // Лёгкий заход только за кампаниями: ?only=campaigns. Его крон дёргает часто
+  // днём и редко ночью — расход при этом не трогается.
+  if (url.searchParams.get('only') === 'campaigns') {
+    const result = await syncFacebookCampaigns();
+    return NextResponse.json({ ok: true, only: 'campaigns', ...result });
   }
 
   // Глубину зажимаем в 1…31: случайный ?days=9999 не должен вешать чужие API.

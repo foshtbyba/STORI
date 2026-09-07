@@ -129,34 +129,31 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
 
           <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {group.accounts.map((acc) => (
-              <Sub key={acc.id} className={`px-3.5 py-2.5 ${acc.enabled ? '' : 'opacity-55'}`}>
-                <div className="flex items-center justify-between gap-2">
-                  <span className={`min-w-0 truncate text-[12.5px] ${acc.enabled ? 'text-soft' : 'text-dim line-through'}`}>
-                    {acc.name || acc.externalId}
+              <Sub key={acc.id} className={`px-3.5 py-2 ${acc.enabled ? '' : 'opacity-55'}`}>
+                {/* Строка 1: имя + статус справа от него, сумма у правого края. */}
+                <div className="flex items-center gap-2">
+                  <span className={`shrink-0 truncate text-[12.5px] ${acc.enabled ? 'text-soft' : 'text-dim line-through'}`}>
+                    {acc.name || acc.externalId.replace(/^act_/, '')}
                   </span>
-                  <span className="n shrink-0 text-[12.5px] text-mute">
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${TONE[acc.badge.tone]}`}>
+                    {acc.badge.label}
+                  </span>
+                  {acc.agency ? (
+                    <span className="shrink-0 rounded-full bg-teal-t px-2 py-0.5 text-[10px] text-teal">агентский</span>
+                  ) : null}
+                  {acc.duplicate ? (
+                    <span className="shrink-0 rounded-full bg-sub px-2 py-0.5 text-[10px] text-dim" title="Тот же act_ID виден под другим профилем">
+                      дубль
+                    </span>
+                  ) : null}
+                  <span className="n ml-auto shrink-0 text-[12.5px] text-mute">
                     {acc.spend}
                     {acc.currency !== 'USD' ? <span className="ml-1 text-rust">{acc.currency}</span> : null}
                   </span>
                 </div>
 
-                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] ${TONE[acc.badge.tone]}`}>{acc.badge.label}</span>
-                  {acc.agency ? (
-                    <span className="rounded-full bg-teal-t px-2 py-0.5 text-[10px] text-teal">агентский</span>
-                  ) : null}
-                  {acc.duplicate ? (
-                    <span className="rounded-full bg-sub px-2 py-0.5 text-[10px] text-dim" title="Тот же act_ID виден под другим профилем">
-                      дубль
-                    </span>
-                  ) : null}
-                  <span className="n ml-auto text-[10px] text-dim" title={`ID кабинета в Facebook: ${acc.externalId}`}>
-                    {acc.externalId.replace(/^act_/, '')}
-                  </span>
-                </div>
-
                 {group.admin ? (
-                  <div className="mt-2 flex items-center gap-1.5">
+                  <div className="mt-1.5 flex items-center gap-1.5">
                     <form action={toggleAccount}>
                       <input type="hidden" name="id" value={acc.id} />
                       <button
@@ -181,8 +178,17 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
                         {acc.agency ? '★ агентский' : 'в агентский'}
                       </button>
                     </form>
+                    <span className="n ml-auto text-[10px] text-dim" title={`ID кабинета в Facebook: ${acc.externalId}`}>
+                      {acc.externalId.replace(/^act_/, '')}
+                    </span>
                   </div>
-                ) : null}
+                ) : (
+                  <div className="mt-1 text-right">
+                    <span className="n text-[10px] text-dim" title={`ID кабинета в Facebook: ${acc.externalId}`}>
+                      {acc.externalId.replace(/^act_/, '')}
+                    </span>
+                  </div>
+                )}
               </Sub>
             ))}
           </div>

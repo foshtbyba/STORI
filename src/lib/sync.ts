@@ -255,32 +255,6 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
           data: { lastSpendAt: new Date() },
         });
 
-        // Кампании тянем только в глубоком заходе (раз в сутки): меняются они
-        // редко, а каждый лишний запрос — риск чекпоинта. Пауза перед ним, как
-        // и перед расходом.
-        if (days >= 7) {
-          await humanPause();
-          const camps = await listFbCampaigns(access, acc.externalId, net);
-          const liveIds: string[] = [];
-          for (const c of camps) {
-            liveIds.push(c.campaignId);
-            await prisma.fbCampaign.upsert({
-              where: { campaignId: c.campaignId },
-              update: { name: c.name, status: c.status, dailyBudget: c.dailyBudget, adAccountId: acc.id },
-              create: {
-                adAccountId: acc.id,
-                campaignId: c.campaignId,
-                name: c.name,
-                status: c.status,
-                dailyBudget: c.dailyBudget,
-              },
-            });
-          }
-          // Убираем кампании, которых больше нет под кабинетом (удалены).
-          await prisma.fbCampaign.deleteMany({
-            where: { adAccountId: acc.id, campaignId: { notIn: liveIds.length ? liveIds : ['__none__'] } },
-          });
-        }
       }
 
       await prisma.adToken.update({
@@ -514,6 +488,89 @@ export async function syncBrocard(days = SYNC_DAYS): Promise<SyncResult> {
 }
 
 /** Все источники разом — то, что дёргает кнопка в настройках и крон. */
+/**
+ * Отдельный лёгкий заход ТОЛЬКО за кампаниями — статус и бюджет, без расхода.
+ *
+ * Мониторингу нужна свежесть: днём гоняем часто, ночью реже (расписание крона).
+ * Поэтому кампании отвязаны от тяжёлого 14-дневного расхода и ходят своим
+ * циклом — те же защиты: параллельно по токенам, пауза внутри токена, кулдаун,
+ * обновление протухшего ключа из кук.
+ */
+export async function syncFacebookCampaigns(): Promise<SyncResult> {
+  const result = emptyResult();
+  const now = new Date();
+  const all = await prisma.adToken.findMany({
+    where: { enabled: true },
+    include: { accounts: { where: { enabled: true } }, buyer: { select: { handle: true } } },
+  });
+  const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
+
+  await pool(tokens, FB_CONCURRENCY, async (token) => {
+    const work = async () => {
+      const { token: access, net } = fbAccess(token.token, {
+        cookiesJson: token.cookiesJson,
+        proxyUrl: token.proxyUrl,
+      });
+      for (const acc of shuffle(token.accounts)) {
+        await humanPause();
+        const camps = await listFbCampaigns(access, acc.externalId, net);
+        const liveIds: string[] = [];
+        for (const c of camps) {
+          liveIds.push(c.campaignId);
+          await prisma.fbCampaign.upsert({
+            where: { campaignId: c.campaignId },
+            update: { name: c.name, status: c.status, dailyBudget: c.dailyBudget, adAccountId: acc.id },
+            create: {
+              adAccountId: acc.id,
+              campaignId: c.campaignId,
+              name: c.name,
+              status: c.status,
+              dailyBudget: c.dailyBudget,
+            },
+          });
+          result.touched += 1;
+        }
+        // Пропавшие под кабинетом кампании убираем (удалены/архив вне выборки).
+        await prisma.fbCampaign.deleteMany({
+          where: { adAccountId: acc.id, campaignId: { notIn: liveIds.length ? liveIds : ['__none__'] } },
+        });
+      }
+      await prisma.adToken.update({
+        where: { id: token.id },
+        data: { lastSyncAt: new Date(), lastError: '', pausedUntil: null },
+      });
+    };
+
+    try {
+      await work();
+    } catch (e) {
+      const refreshable = fbErrorKind(e) === 'token' || (e instanceof FbError && e.code === 1);
+      if (refreshable && token.cookiesJson) {
+        try {
+          if (await refreshTokenFromCookies(token)) {
+            await work();
+            return;
+          }
+        } catch {
+          /* обновление не удалось — сообщим об исходной ошибке */
+        }
+      }
+      const kind = fbErrorKind(e);
+      const why = e instanceof FbError ? e.message : `Сбой: ${(e as Error).message}`;
+      const scary = kind === 'throttle' || kind === 'blocked';
+      const pausedUntil = scary ? new Date(now.getTime() + FB_COOLDOWN_HOURS * 3600_000) : token.pausedUntil ?? null;
+      const note = scary ? `${why} — токен на паузе до ${pausedUntil?.toLocaleString('ru-RU')}` : why;
+      result.problems.push(`${token.buyer.handle}: ${note}`);
+      await prisma.adToken.update({
+        where: { id: token.id },
+        data: { lastError: note, lastSyncAt: new Date(), pausedUntil },
+      });
+    }
+  });
+
+  return result;
+}
+
 export async function syncAll(days = SYNC_DAYS) {
   // Расход раньше дохода: если у дня ещё нет строки, её заводит расход с
   // Brocard, а доход из Keitaro потом лишь дописывает revenue.
