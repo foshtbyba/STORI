@@ -13,14 +13,14 @@ export type AccountBadge = { label: string; tone: StatusTone };
 
 /** disable_reason: почему кабинет отключён. */
 const DISABLE: Record<number, AccountBadge> = {
-  1: { label: 'бан · integrity', tone: 'bad' },
-  2: { label: 'проверка IP', tone: 'warn' },
+  1: { label: 'бан · нарушение правил', tone: 'bad' },
+  2: { label: 'проверка кабинета', tone: 'warn' },
   3: { label: 'риск-платёж', tone: 'warn' },
   4: { label: 'закрыт', tone: 'bad' },
-  5: { label: 'проверка AFC', tone: 'warn' },
+  5: { label: 'проверка оплаты', tone: 'warn' },
   7: { label: 'проверка рисков', tone: 'warn' },
-  8: { label: 'бан · политики', tone: 'bad' },
-  9: { label: 'первичный бан', tone: 'bad' },
+  8: { label: 'бан · нарушение правил', tone: 'bad' },
+  9: { label: 'бан навсегда', tone: 'bad' },
 };
 
 /** account_status: общее состояние кабинета. */
