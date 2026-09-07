@@ -53,6 +53,9 @@ async function call(
   if (!res.ok) {
     throw new KeitaroError(`Трекер ответил ${res.status}: ${text.slice(0, 200)}`);
   }
+  // Часть ручек на успехе отвечают пустым телом (напр. обновление расхода) —
+  // это не ошибка, возвращаем пустой объект.
+  if (!text.trim()) return {};
   try {
     return JSON.parse(text);
   } catch {
@@ -170,6 +173,37 @@ function pickNumber(row: Record<string, unknown>, keys: string[]) {
     if (Number.isFinite(n) && n !== 0) return n;
   }
   return 0;
+}
+
+/** Одна запись расхода для заливки в Keitaro: отрезок времени и сумма. */
+export type CostEntry = {
+  /** «YYYY-MM-DD HH:MM» в поясе трекера. */
+  start_date: string;
+  end_date: string;
+  /** Расход в долларах (число, не центы). */
+  cost: number;
+};
+
+/**
+ * Залить расход в Keitaro пачкой (ручка «Update costs in bulk»,
+ * POST /admin_api/v1/clicks/cost).
+ *
+ * Расход применяется к кликам указанных кампаний за отрезок: трекер сам
+ * раскладывает сумму по кликам (CPC = сумма / клики). Шлём на ОДНУ кампанию
+ * массив дневных сумм — так расход в отчётах КТ встаёт рядом с доходом, и
+ * наконец считается ROI внутри самого трекера.
+ */
+export async function updateCostsBulk(
+  baseUrl: string,
+  apiKey: string,
+  campaignId: string,
+  costs: CostEntry[],
+) {
+  if (costs.length === 0) return;
+  await call(baseUrl, apiKey, '/clicks/cost', {
+    campaign_ids: [Number(campaignId)],
+    costs,
+  });
 }
 
 /** Проверка связи: сколько кампаний и групп видно под ключом. */

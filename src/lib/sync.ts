@@ -6,7 +6,7 @@ import { mergeDay } from './sync-rule';
 import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adSpend, adLinks, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
-import { dailyRevenue, listCampaigns, indexByToken, KeitaroError } from './keitaro';
+import { dailyRevenue, listCampaigns, indexByToken, updateCostsBulk, KeitaroError } from './keitaro';
 import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -780,7 +780,67 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
     );
   }
 
+  // Заливаем посчитанный расход в сам Keitaro — чтобы cost встал рядом с
+  // доходом в отчётах трекера и ROI считался уже внутри КТ.
+  if (tracker) {
+    await pushCostsToKeitaro(tracker, from, to, result);
+  }
+
   return result;
+}
+
+/**
+ * Отдаём расход в Keitaro (ручка «Update costs in bulk»).
+ *
+ * Берём уже посчитанный KtCostDay за окно, группируем по кампании КТ и на
+ * каждую шлём массив дневных сумм. В КТ льём только доллары: агентские кабинеты
+ * всегда USD, а курс для иной валюты тут не считаем. Успешно залитые дни метим
+ * `pushedAt` — на экране «Профит» видно, что расход в трекере.
+ */
+async function pushCostsToKeitaro(
+  tracker: { baseUrl: string; apiKey: string },
+  from: string,
+  to: string,
+  result: SyncResult,
+) {
+  const rows = await prisma.ktCostDay.findMany({
+    where: {
+      date: { gte: atMidnight(from), lte: atMidnight(to) },
+      ktCampaignId: { not: '' },
+      currency: 'USD',
+    },
+  });
+
+  const byCampaign = new Map<string, typeof rows>();
+  for (const r of rows) {
+    const arr = byCampaign.get(r.ktCampaignId) ?? [];
+    arr.push(r);
+    byCampaign.set(r.ktCampaignId, arr);
+  }
+
+  for (const [campaignId, list] of byCampaign) {
+    const costs = list.map((r) => {
+      const iso = dayKey(r.date);
+      return {
+        start_date: `${iso} 00:00`,
+        end_date: `${iso} 23:59`,
+        cost: Math.round(r.spendCents) / 100,
+      };
+    });
+    try {
+      await updateCostsBulk(tracker.baseUrl, tracker.apiKey, campaignId, costs);
+      await prisma.ktCostDay.updateMany({
+        where: {
+          ktCampaignId: campaignId,
+          date: { gte: atMidnight(from), lte: atMidnight(to) },
+        },
+        data: { pushedAt: new Date() },
+      });
+    } catch (e) {
+      const why = e instanceof KeitaroError ? e.message : `Сбой: ${(e as Error).message}`;
+      result.problems.push(`Keitaro cost (кампания ${campaignId}): ${why}`);
+    }
+  }
 }
 
 export async function syncAll(days = SYNC_DAYS) {

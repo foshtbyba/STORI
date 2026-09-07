@@ -26,6 +26,9 @@ type Camp = {
   revenueCents: number;
   conversions: number;
   foreign: boolean;
+  /** Есть ли расход и весь ли он уже залит в сам Keitaro. */
+  hasCost: boolean;
+  pushed: boolean;
 };
 
 export default async function RoiPage() {
@@ -53,7 +56,7 @@ export default async function RoiPage() {
   const ensure = (id: string): Camp => {
     let c = byCampaign.get(id);
     if (!c) {
-      c = { campaignId: id, name: '', groupId: '', costCents: 0, revenueCents: 0, conversions: 0, foreign: false };
+      c = { campaignId: id, name: '', groupId: '', costCents: 0, revenueCents: 0, conversions: 0, foreign: false, hasCost: false, pushed: true };
       byCampaign.set(id, c);
     }
     return c;
@@ -71,8 +74,13 @@ export default async function RoiPage() {
     const c = ensure(k.ktCampaignId);
     if (!c.name) c.name = k.ktCampaignName;
     // В ROI суммируем только долларовый расход; иную валюту курсом не сводим.
-    if (k.currency === 'USD') c.costCents += k.spendCents;
-    else c.foreign = true;
+    if (k.currency === 'USD') {
+      c.costCents += k.spendCents;
+      c.hasCost = true;
+      if (!k.pushedAt) c.pushed = false;
+    } else {
+      c.foreign = true;
+    }
   }
 
   // Баер потока — через группу кампании. Кампания без известной группы видна
@@ -170,6 +178,7 @@ export default async function RoiPage() {
                       <Sub key={c.campaignId} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3.5 py-2.5">
                         <span className="min-w-0 flex-1 truncate text-[12.5px] text-soft" title={c.name}>
                           {c.name || `кампания ${c.campaignId}`}
+                          {c.hasCost && c.pushed ? <span className="ml-2 text-[10px] text-sage" title="Расход залит в Keitaro">в КТ ✓</span> : null}
                           {c.foreign ? <span className="ml-2 text-[10px] text-rust" title="Был расход в валюте кабинета, отличной от USD — в ROI он не учтён">≠ USD</span> : null}
                         </span>
                         <span className="n w-16 shrink-0 text-right text-[11.5px] text-mute" title="конверсии">
@@ -198,7 +207,8 @@ export default async function RoiPage() {
 
         <p className="mt-4 text-[11px] leading-relaxed text-dim">
           Расход берётся из ФБ по объявлениям и привязывается к кампании Keitaro по токену из ссылки
-          (`track.top/qynyTnDK`). Доход — подтверждённый, из КТ. Обновляется отдельным заходом
+          (`track.top/qynyTnDK`), затем заливается в сам Keitaro (метка «в КТ ✓»), чтобы cost стоял
+          рядом с доходом в отчётах трекера. Доход — подтверждённый, из КТ. Обновляется отдельным заходом
           {updated ? ` · последний расход ${new Intl.DateTimeFormat('ru-RU', { timeZone: process.env.SYNC_TZ || 'Europe/Moscow', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(updated)}` : ''}.
           {unmatched > 0 ? ` Объявлений без распознанного потока: ${unmatched} — проверь токен в ссылке.` : ''}
         </p>
