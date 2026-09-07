@@ -210,7 +210,13 @@ export default function CampaignsTable({
     });
   };
 
-  const arrow = (k: SortKey) => (k === sortKey ? (sortDir === 'asc' ? ' ▲' : ' ▼') : '');
+  // Метка сортировки с ЗАРЕЗЕРВИРОВАННОЙ шириной: показ/скрытие стрелки не должны
+  // менять ширину колонки и дёргать всю таблицу.
+  const arrow = (k: SortKey) => (
+    <span className="ml-0.5 inline-block w-3 text-center align-middle text-[9px] text-dim">
+      {k === sortKey ? (sortDir === 'asc' ? '▲' : '▼') : ''}
+    </span>
+  );
   const tile = (label: string, value: string, sub?: string, tone?: 'sage' | 'rust') => (
     <div className="rounded-[18px] bg-sub px-4 py-3">
       <div className="text-[11px] text-mute">{label}</div>
@@ -402,7 +408,7 @@ export default function CampaignsTable({
                     {r.currency !== 'USD' ? <span className="ml-1 text-[10px] text-rust">{r.currency}</span> : null}
                   </td>
                   <td className="n px-2 py-2.5 text-center text-[13px] text-soft">{money(r.revenueCents)}</td>
-                  <td className={`n px-2 py-2.5 text-center text-[16px] font-bold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{money(r.profitCents)}</td>
+                  <td className={`n px-2 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{money(r.profitCents)}</td>
                   <td className={`n px-2 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{r.spendCents ? pct(r.profitCents, r.spendCents, 1) : '—'}</td>
                   {/* Действия */}
                   <td className="px-2 py-2.5 text-center">
