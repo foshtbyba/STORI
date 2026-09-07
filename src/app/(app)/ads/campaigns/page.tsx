@@ -2,9 +2,7 @@ import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
 import { fmtWhen } from '@/lib/period';
-import { Panel, PanelHead, Empty } from '@/components/ui';
-import { IconRocket } from '@/components/icons';
-import SyncAds from '@/components/SyncAds';
+import { Panel } from '@/components/ui';
 import CampaignsTable, { type AdRow } from '@/components/CampaignsTable';
 
 /**
@@ -98,34 +96,10 @@ export default async function CampaignsPage({
     });
   }
 
-  const label = win === 1 ? 'сегодня' : `${win} дней`;
-
   return (
     <div className="flex flex-col gap-3.5">
       <Panel className="p-4 sm:p-6">
-        <PanelHead
-          icon={<IconRocket color="#b4c68c" />}
-          tint="bg-sage-t"
-          title="Кампании"
-          aside={
-            <span className="text-[12.5px] text-mute">
-              {label}
-              {lastSync ? ` · обновлено ${fmtWhen(lastSync)}` : ''}
-            </span>
-          }
-          right={admin ? <SyncAds /> : undefined}
-        />
-
-        {rows.length === 0 ? (
-          <div className="mt-4">
-            <Empty>
-              Статистики пока нет. Нажми «Обновить стату» (у админа) или дождись крона —
-              подтянутся расход, клики и лиды по объявлениям за {label}.
-            </Empty>
-          </div>
-        ) : (
-          <CampaignsTable rows={rows} win={win} />
-        )}
+        <CampaignsTable rows={rows} win={win} admin={admin} updated={lastSync ? fmtWhen(lastSync) : null} />
 
         <p className="mt-4 text-[11px] leading-relaxed text-dim">
           Расход/клики/показы/лиды — из Facebook по объявлениям. Доход и профит — из Keitaro по

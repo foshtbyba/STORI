@@ -13,22 +13,31 @@ export default function SyncAds() {
   const [result, setResult] = useState<Awaited<ReturnType<typeof runAdsSync>> | null>(null);
 
   return (
-    <div className="flex flex-wrap items-center gap-2.5">
-      <button
-        type="button"
-        disabled={pending}
-        onClick={() => start(async () => setResult(await runAdsSync()))}
-        className={`rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage ${
-          pending ? 'cursor-progress opacity-60' : ''
-        }`}
-      >
-        {pending ? 'Тяну стату…' : 'Обновить стату'}
-      </button>
-      {result ? (
-        <span className="text-[11.5px] text-mute">
-          обновлено {result.touched}
-          {result.problems.length ? ` · проблемы: ${result.problems.length}` : ''}
-        </span>
+    <div className="flex flex-col items-end gap-1.5">
+      <div className="flex flex-wrap items-center gap-2.5">
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => start(async () => setResult(await runAdsSync()))}
+          className={`rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage ${
+            pending ? 'cursor-progress opacity-60' : ''
+          }`}
+        >
+          {pending ? 'Тяну стату…' : 'Обновить стату'}
+        </button>
+        {result ? (
+          <span className="text-[11.5px] text-mute">
+            обновлено {result.touched}
+            {result.problems.length ? ` · проблемы: ${result.problems.length}` : ''}
+          </span>
+        ) : null}
+      </div>
+      {result?.problems.length ? (
+        <div className="max-w-md rounded-xl px-3 py-2 text-right text-[11px] leading-relaxed" style={{ background: '#2c1f1a', color: '#ce6e58' }}>
+          {result.problems.map((p) => (
+            <div key={p}>{p}</div>
+          ))}
+        </div>
       ) : null}
     </div>
   );

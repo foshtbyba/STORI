@@ -1,8 +1,10 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Avatar } from './ui';
+import { Avatar, Badge } from './ui';
+import { IconRocket } from './icons';
+import SyncAds from './SyncAds';
 import { campaignBadge, type StatusTone } from '@/lib/fb-status';
 import { setAdRunning, setAdBudget } from '@/app/actions/integrations';
 
@@ -73,11 +75,20 @@ const COLS: { key: SortKey; label: string; num?: boolean }[] = [
   { key: 'roi', label: 'ROI', num: true },
 ];
 
-export default function CampaignsTable({ rows, win }: { rows: AdRow[]; win: number }) {
+export default function CampaignsTable({
+  rows,
+  win,
+  admin,
+  updated,
+}: {
+  rows: AdRow[];
+  win: number;
+  admin: boolean;
+  updated: string | null;
+}) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [q, setQ] = useState('');
-  const [buyer, setBuyer] = useState<string>('all');
   const [sortKey, setSortKey] = useState<SortKey>('spend');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [budgets, setBudgets] = useState<Record<string, string>>({});
@@ -99,27 +110,50 @@ export default function CampaignsTable({ rows, win }: { rows: AdRow[]; win: numb
 
   const all = useMemo(() => rows.map(enrich), [rows]);
 
-  // Сводка — по всему периоду (не зависит от поиска), деньги считаем в USD.
+  // Овнеры/баеры для переключателя. Порядок: сначала SKO, потом MPR, дальше по
+  // алфавиту — как просили.
+  const buyers = useMemo(() => {
+    const list = [...new Map(all.map((r) => [r.buyer, { handle: r.buyer, initials: r.initials, color: r.color }])).values()];
+    const rank = (h: string) => (h === 'SKO' ? 0 : h === 'MPR' ? 1 : 2);
+    return list.sort((a, b) => rank(a.handle) - rank(b.handle) || a.handle.localeCompare(b.handle));
+  }, [all]);
+
+  // По умолчанию — первый профиль (SKO). Выбор запоминаем в браузере, чтобы при
+  // следующем заходе открывался тот же. localStorage читаем после монтирования,
+  // иначе серверный и клиентский рендер разойдутся.
+  const [buyer, setBuyerState] = useState<string>(buyers.length > 1 ? buyers[0].handle : 'all');
+  const setBuyer = (v: string) => {
+    setBuyerState(v);
+    try { localStorage.setItem('ads.campaigns.buyer', v); } catch { /* приватный режим */ }
+  };
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('ads.campaigns.buyer');
+      if (saved && (saved === 'all' || buyers.some((b) => b.handle === saved))) setBuyerState(saved);
+    } catch { /* нет доступа к localStorage */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Строки выбранного овнера (без учёта поиска) — на них считаем сводку.
+  const byBuyer = useMemo(
+    () => (buyer === 'all' ? all : all.filter((r) => r.buyer === buyer)),
+    [all, buyer],
+  );
+
   const summary = useMemo(() => {
     let spend = 0, clicks = 0, leads = 0, revenue = 0, impressions = 0;
     let foreign = false;
-    for (const r of all) {
+    for (const r of byBuyer) {
       clicks += r.clicks; leads += r.leads; impressions += r.impressions;
       if (r.currency === 'USD') { spend += r.spendCents; revenue += r.revenueCents; }
       else foreign = true;
     }
     return { spend, clicks, leads, revenue, impressions, profit: revenue - spend, foreign };
-  }, [all]);
-
-  const buyers = useMemo(
-    () => [...new Map(all.map((r) => [r.buyer, { handle: r.buyer, initials: r.initials, color: r.color }])).values()],
-    [all],
-  );
+  }, [byBuyer]);
 
   const view = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    let list = all;
-    if (buyer !== 'all') list = list.filter((r) => r.buyer === buyer);
+    let list = byBuyer;
     if (needle) {
       list = list.filter((r) =>
         `${r.name} ${r.adsetName} ${r.act} ${r.targeting} ${r.account}`.toLowerCase().includes(needle),
@@ -143,7 +177,7 @@ export default function CampaignsTable({ rows, win }: { rows: AdRow[]; win: numb
       if (typeof x === 'string' || typeof y === 'string') return String(x).localeCompare(String(y)) * dir;
       return (x - y) * dir;
     });
-  }, [all, q, buyer, sortKey, sortDir]);
+  }, [byBuyer, q, sortKey, sortDir]);
 
   const sortBy = (k: SortKey) => {
     if (k === sortKey) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
@@ -184,7 +218,53 @@ export default function CampaignsTable({ rows, win }: { rows: AdRow[]; win: numb
   );
 
   return (
-    <div className="mt-4 flex flex-col gap-3">
+    <div className="flex flex-col gap-3">
+      {/* Шапка: ракета, переключатель овнеров (слева от названия), период, кнопка. */}
+      <div className="flex flex-wrap items-center justify-between gap-y-2.5">
+        <div className="flex min-w-0 flex-wrap items-center gap-2.5">
+          <Badge tint="bg-sage-t"><IconRocket color="#b4c68c" /></Badge>
+          {buyers.length > 1 ? (
+            <div className="flex items-center gap-1 rounded-full bg-sub p-1">
+              {buyers.map((b) => (
+                <button
+                  key={b.handle}
+                  type="button"
+                  onClick={() => setBuyer(b.handle)}
+                  className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] transition ${
+                    buyer === b.handle ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
+                  }`}
+                >
+                  <Avatar initials={b.initials} color={b.color} size={16} />
+                  {b.handle}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setBuyer('all')}
+                className={`rounded-full px-2.5 py-1 text-[12px] transition ${
+                  buyer === 'all' ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
+                }`}
+              >
+                все
+              </button>
+            </div>
+          ) : null}
+          <h2 className="text-[17px] font-semibold tracking-[-0.015em]">Кампании</h2>
+          <span className="hidden h-5 w-px bg-line2 sm:block" />
+          <span className="text-[12.5px] text-mute">
+            {win === 1 ? 'сегодня' : `${win} дней`}
+            {updated ? ` · обновлено ${updated}` : ''}
+          </span>
+        </div>
+        {admin ? <SyncAds /> : null}
+      </div>
+
+      {rows.length === 0 ? (
+        <div className="rounded-[18px] border border-line2 px-6 py-10 text-center text-[13px] text-mute">
+          Статистики пока нет. Нажми «Обновить стату» (у админа) или дождись крона.
+        </div>
+      ) : null}
+
       {/* Сводка */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         {tile('Расход', money(summary.spend))}
@@ -218,44 +298,25 @@ export default function CampaignsTable({ rows, win }: { rows: AdRow[]; win: numb
         </div>
       </div>
 
-      {buyers.length > 1 ? (
-        <div className="flex flex-wrap items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => setBuyer('all')}
-            className={`rounded-full px-3 py-1 text-[11.5px] transition ${buyer === 'all' ? 'bg-raise font-semibold text-text' : 'bg-sub text-mute hover:text-soft'}`}
-          >
-            все
-          </button>
-          {buyers.map((b) => (
-            <button
-              key={b.handle}
-              type="button"
-              onClick={() => setBuyer(b.handle)}
-              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] transition ${buyer === b.handle ? 'bg-raise font-semibold text-text' : 'bg-sub text-mute hover:text-soft'}`}
-            >
-              <Avatar initials={b.initials} color={b.color} size={18} />
-              {b.handle}
-            </button>
-          ))}
-        </div>
-      ) : null}
-
-      {msg ? <div className="rounded-xl px-3.5 py-2.5 text-[12px]" style={{ background: '#2c1f1a', color: '#ce6e58' }}>{msg}</div> : null}
+      {msg ?<div className="rounded-xl px-3.5 py-2.5 text-[12px]" style={{ background: '#2c1f1a', color: '#ce6e58' }}>{msg}</div> : null}
 
       {/* Таблица */}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1180px] border-collapse text-[12px]">
           <thead>
             <tr className="text-left text-[10.5px] uppercase tracking-wide text-mute">
-              <th className="cursor-pointer py-2 pr-3 font-medium" onClick={() => sortBy('name')}>Объявление{arrow('name')}</th>
-              <th className="cursor-pointer px-2 py-2 text-right font-medium" onClick={() => sortBy('budget')}>Бюджет{arrow('budget')}</th>
+              <th className="cursor-pointer whitespace-nowrap py-2 pr-3 font-medium" onClick={() => sortBy('name')}>Объявление{arrow('name')}</th>
+              <th className="cursor-pointer whitespace-nowrap px-2 py-2 text-center font-medium" onClick={() => sortBy('budget')}>Бюджет{arrow('budget')}</th>
               {COLS.map((c) => (
-                <th key={c.key} className="cursor-pointer px-2 py-2 text-right font-medium" onClick={() => sortBy(c.key)}>
+                <th
+                  key={c.key}
+                  className={`cursor-pointer whitespace-nowrap px-2 py-2 text-center font-medium ${c.key === 'profit' ? 'text-soft' : ''}`}
+                  onClick={() => sortBy(c.key)}
+                >
                   {c.label}{arrow(c.key)}
                 </th>
               ))}
-              <th className="px-2 py-2 text-right font-medium">Действия</th>
+              <th className="whitespace-nowrap px-2 py-2 text-center font-medium">Действия</th>
             </tr>
           </thead>
           <tbody>
@@ -292,7 +353,7 @@ export default function CampaignsTable({ rows, win }: { rows: AdRow[]; win: numb
                     </div>
                   </td>
                   {/* Бюджет — редактируемый */}
-                  <td className="px-2 py-2.5 text-right">
+                  <td className="px-2 py-2.5 text-center">
                     {editing ? (
                       <span className="inline-flex items-center gap-1">
                         <input
@@ -315,23 +376,23 @@ export default function CampaignsTable({ rows, win }: { rows: AdRow[]; win: numb
                       </button>
                     )}
                   </td>
-                  <td className="n px-2 py-2.5 text-right text-mute">{int(r.impressions)}</td>
-                  <td className="n px-2 py-2.5 text-right text-mute">{int(r.clicks)}</td>
-                  <td className="n px-2 py-2.5 text-right text-mute">{r.clicks ? money(r.cpc) : '—'}</td>
-                  <td className="n px-2 py-2.5 text-right text-mute">{pct(r.clicks, r.impressions)}</td>
-                  <td className="n px-2 py-2.5 text-right text-mute">{r.impressions ? money(r.cpm) : '—'}</td>
-                  <td className="n px-2 py-2.5 text-right text-soft">{int(r.leads)}</td>
-                  <td className="n px-2 py-2.5 text-right text-mute">{r.leads ? money(r.cpl) : '—'}</td>
-                  <td className="n px-2 py-2.5 text-right text-mute">{pct(r.leads, r.clicks)}</td>
-                  <td className="n px-2 py-2.5 text-right text-soft">
+                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{int(r.impressions)}</td>
+                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{int(r.clicks)}</td>
+                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{r.clicks ? money(r.cpc) : '—'}</td>
+                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{pct(r.clicks, r.impressions)}</td>
+                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{r.impressions ? money(r.cpm) : '—'}</td>
+                  <td className="n px-2 py-2.5 text-center text-[13px] text-soft">{int(r.leads)}</td>
+                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{r.leads ? money(r.cpl) : '—'}</td>
+                  <td className="n px-2 py-2.5 text-center text-[12px] text-mute">{pct(r.leads, r.clicks)}</td>
+                  <td className="n px-2 py-2.5 text-center text-[13px] text-soft">
                     {money(r.spendCents)}
                     {r.currency !== 'USD' ? <span className="ml-1 text-[10px] text-rust">{r.currency}</span> : null}
                   </td>
-                  <td className="n px-2 py-2.5 text-right text-mute">{money(r.revenueCents)}</td>
-                  <td className={`n px-2 py-2.5 text-right font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{money(r.profitCents)}</td>
-                  <td className={`n px-2 py-2.5 text-right ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{r.spendCents ? pct(r.profitCents, r.spendCents, 1) : '—'}</td>
+                  <td className="n px-2 py-2.5 text-center text-[13px] text-soft">{money(r.revenueCents)}</td>
+                  <td className={`n px-2 py-2.5 text-center text-[16px] font-bold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{money(r.profitCents)}</td>
+                  <td className={`n px-2 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{r.spendCents ? pct(r.profitCents, r.spendCents, 1) : '—'}</td>
                   {/* Действия */}
-                  <td className="px-2 py-2.5 text-right">
+                  <td className="px-2 py-2.5 text-center">
                     <button
                       type="button"
                       disabled={pending}
