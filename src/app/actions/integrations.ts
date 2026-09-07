@@ -246,6 +246,110 @@ export async function renameToken(form: FormData) {
   revalidatePath('/ads');
 }
 
+/**
+ * Подкинуть НОВЫЙ токен существующему профилю, не отвязывая его.
+ *
+ * Сессионный ключ из антидетекта живёт недолго и слетает. Раньше приходилось
+ * отвязывать профиль и заводить заново — терялись подписи, флаги агентских,
+ * привязки. Теперь просто вставляем свежий мультитокен: куки/ua/прокси берём из
+ * него (или оставляем прежний прокси), проверяем и обновляем на месте, снимая
+ * пометку об ошибке и паузу. Кабинеты доосвежаем, не трогая их флаги.
+ */
+async function applyNewToken(
+  tokenId: string,
+  rawIn: string,
+  proxyOverride: { url: string } | null,
+): Promise<ActionState> {
+  const raw = rawIn.trim();
+  if (raw.length < 20) {
+    return { ok: false, error: 'Токен слишком короткий — похоже, скопировался не весь' };
+  }
+  const existing = await prisma.adToken.findUnique({ where: { id: tokenId } });
+  if (!existing) return { ok: false, error: 'Профиль не найден' };
+
+  // Куки достаём из мультитокена; плоский ключ без кук — оставим прежние куки.
+  let cookies: unknown[] = [];
+  try {
+    const blob = readCookieBlob(raw);
+    if (Array.isArray(blob.cookies)) cookies = blob.cookies;
+  } catch {
+    // плоский токен без кук — допустимо
+  }
+  const proxyUrl = proxyOverride ? proxyOverride.url : existing.proxyUrl ?? '';
+  const cookieHeader = cookies.length
+    ? cookieHeaderOf(cookies as { name?: unknown; value?: unknown }[])
+    : null;
+
+  let found;
+  try {
+    found = await checkToken(raw, { proxyUrl: proxyUrl || null, cookie: cookieHeader });
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+
+  await prisma.adToken.update({
+    where: { id: tokenId },
+    data: {
+      token: raw,
+      cookiesJson: cookies.length ? JSON.stringify(cookies) : existing.cookiesJson,
+      proxyUrl: proxyUrl || null,
+      status: 'ACTIVE',
+      lastError: '',
+      pausedUntil: null,
+      enabled: true,
+    },
+  });
+
+  // Кабинеты доосвежаем upsert-ом: новые добавятся, у старых обновится статус, а
+  // флаги (в трекинге / агентский) не тронутся.
+  for (const acc of found.accounts) {
+    await prisma.adAccount.upsert({
+      where: { tokenId_externalId: { tokenId, externalId: acc.externalId } },
+      update: {
+        name: acc.name,
+        currency: acc.currency,
+        accountStatus: acc.accountStatus,
+        disableReason: acc.disableReason,
+      },
+      create: {
+        tokenId,
+        externalId: acc.externalId,
+        name: acc.name,
+        currency: acc.currency,
+        accountStatus: acc.accountStatus,
+        disableReason: acc.disableReason,
+      },
+    });
+  }
+
+  revalidatePath('/ads');
+  revalidatePath('/admin');
+  return { ok: true, message: `${found.name}: кабинетов ${found.accounts.length} — токен обновлён` };
+}
+
+/** Админ: обновить токен любого профиля. */
+export async function replaceToken(_prev: ActionState, form: FormData): Promise<ActionState> {
+  await requireAdmin();
+  const id = String(form.get('id') ?? '');
+  const token = String(form.get('token') ?? '');
+  const proxy = parseProxy(String(form.get('proxyUrl') ?? ''), (form.get('proxyKind') as ProxyKind) ?? 'http');
+  if (proxy && 'error' in proxy) return { ok: false, error: proxy.error };
+  return applyNewToken(id, token, proxy ?? null);
+}
+
+/** Баер: обновить токен только своего профиля. */
+export async function replaceMyToken(_prev: ActionState, form: FormData): Promise<ActionState> {
+  const user = await requireUser();
+  if (!user.buyer) return { ok: false, error: 'У аккаунта нет профиля баера' };
+  const id = String(form.get('id') ?? '');
+  const t = id ? await prisma.adToken.findUnique({ where: { id } }) : null;
+  if (!t || t.buyerId !== user.buyer.id) return { ok: false, error: 'Это не твой профиль' };
+  const token = String(form.get('token') ?? '');
+  const proxy = parseProxy(String(form.get('proxyUrl') ?? ''), (form.get('proxyKind') as ProxyKind) ?? 'http');
+  if (proxy && 'error' in proxy) return { ok: false, error: proxy.error };
+  return applyNewToken(id, token, proxy ?? null);
+}
+
 export async function toggleAccount(form: FormData) {
   await requireAdmin();
   const id = String(form.get('id') ?? '');

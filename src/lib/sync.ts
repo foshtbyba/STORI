@@ -642,9 +642,35 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
       for (const [key, c] of indexByToken(camps)) {
         index.set(key, { id: c.id, name: c.name, token: c.token || c.alias });
       }
+
+      // Заодно освежаем доход по кампаниям за это же окно — чтобы экран
+      // статистики был самодостаточным (расход и доход одной кнопкой), а не
+      // ждал отдельного полного синка Keitaro.
+      const info = new Map(camps.map((c) => [c.id, { name: c.name, groupId: c.groupId }]));
+      const rev = await dailyRevenue(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
+      for (const r of rev) {
+        const meta = info.get(r.campaignId);
+        await prisma.ktCampaignDay.upsert({
+          where: { campaignId_date: { campaignId: r.campaignId, date: atMidnight(r.date) } },
+          update: {
+            campaignName: meta?.name ?? '',
+            groupId: meta?.groupId ?? '',
+            revenueCents: r.revenueCents,
+            conversions: r.conversions,
+          },
+          create: {
+            campaignId: r.campaignId,
+            date: atMidnight(r.date),
+            campaignName: meta?.name ?? '',
+            groupId: meta?.groupId ?? '',
+            revenueCents: r.revenueCents,
+            conversions: r.conversions,
+          },
+        });
+      }
     } catch (e) {
       const why = e instanceof KeitaroError ? e.message : `Сбой: ${(e as Error).message}`;
-      result.problems.push(`Keitaro: не получить кампании для привязки расхода — ${why}`);
+      result.problems.push(`Keitaro: не получить данные для привязки расхода — ${why}`);
     }
   } else {
     result.problems.push('Keitaro не подключён — расход не к чему привязать');
@@ -653,7 +679,7 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
   // Копим расход по «кампания КТ + день» за весь заход: на один поток могут
   // лить сразу несколько кабинетов, поэтому суммируем глобально, а пишем в
   // KtCostDay уже после обхода.
-  type Bucket = { cents: number; currency: string; campId: string; campName: string; token: string };
+  type Bucket = { cents: number; clicks: number; impressions: number; currency: string; campId: string; campName: string; token: string };
   const cost = new Map<string, Bucket>();
   let unmatchedCents = 0;
 
@@ -724,12 +750,16 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
           const key = `${matched.token}|${s.date}`;
           const b = cost.get(key) ?? {
             cents: 0,
+            clicks: 0,
+            impressions: 0,
             currency: acc.currency,
             campId: matched.id,
             campName: matched.name,
             token: matched.token,
           };
           b.cents += s.cents;
+          b.clicks += s.clicks;
+          b.impressions += s.impressions;
           cost.set(key, b);
           result.touched += 1;
 
@@ -795,6 +825,8 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
         ktCampaignId: b.campId,
         ktCampaignName: b.campName,
         spendCents: b.cents,
+        clicks: b.clicks,
+        impressions: b.impressions,
         currency: b.currency,
       },
     });

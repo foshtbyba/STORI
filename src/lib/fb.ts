@@ -475,6 +475,9 @@ export type FbAdSpendRow = {
   date: string;
   /** Расход в минимальных единицах валюты кабинета. */
   cents: number;
+  /** Клики по ссылке (inline_link_clicks) и показы — для CTR/CPC. */
+  clicks: number;
+  impressions: number;
 };
 
 /**
@@ -496,7 +499,7 @@ export async function adSpend(
   let after = '';
   for (let page = 0; page < 40; page += 1) {
     const body = await call(`/${externalId}/insights`, token, {
-      fields: 'spend,ad_id,ad_name',
+      fields: 'spend,ad_id,ad_name,impressions,inline_link_clicks',
       level: 'ad',
       time_increment: '1',
       time_range: JSON.stringify({ since: from, until: to }),
@@ -509,12 +512,21 @@ export async function adSpend(
       ad_id?: string;
       ad_name?: string;
       spend?: string;
+      impressions?: string;
+      inline_link_clicks?: string;
     }[];
     for (const row of rows) {
       if (!row.date_start || !row.ad_id) continue;
       const cents = Math.round(Number(row.spend ?? 0) * 100);
       if (!Number.isFinite(cents) || cents <= 0) continue;
-      out.push({ adId: row.ad_id, adName: row.ad_name ?? '', date: row.date_start, cents });
+      out.push({
+        adId: row.ad_id,
+        adName: row.ad_name ?? '',
+        date: row.date_start,
+        cents,
+        clicks: Math.round(Number(row.inline_link_clicks ?? 0)) || 0,
+        impressions: Math.round(Number(row.impressions ?? 0)) || 0,
+      });
     }
     const next = body.paging as { cursors?: { after?: string }; next?: string } | undefined;
     if (!next?.next || !next.cursors?.after) break;

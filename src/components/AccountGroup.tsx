@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Avatar, Sub } from './ui';
 import TokenLabel from './TokenLabel';
 import ConfirmSubmit from './ConfirmSubmit';
+import ReplaceToken from './ReplaceToken';
 import { toggleAccount, toggleAgency, toggleToken, deleteToken, deleteMyToken } from '@/app/actions/integrations';
 import type { StatusTone } from '@/lib/fb-status';
 
@@ -172,13 +173,14 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
       {open ? (
         <>
           {group.admin ? (
-            <div className="mt-3 flex items-center gap-2">
+            <div className="mt-3 flex flex-wrap items-center gap-2">
               <form action={toggleToken}>
                 <input type="hidden" name="id" value={group.tokenId} />
                 <button type="submit" className="rounded-full bg-sub px-3.5 py-1.5 text-[12px] text-soft transition hover:text-text">
                   вкл/выкл токен
                 </button>
               </form>
+              <ReplaceToken tokenId={group.tokenId} />
               <form action={deleteToken}>
                 <input type="hidden" name="id" value={group.tokenId} />
                 <ConfirmSubmit
@@ -191,7 +193,8 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
               </form>
             </div>
           ) : group.own ? (
-            <div className="mt-3">
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <ReplaceToken tokenId={group.tokenId} own />
               <form action={deleteMyToken}>
                 <input type="hidden" name="id" value={group.tokenId} />
                 <button type="submit" className="px-1 text-[12px] text-dim transition hover:text-rust" title="Отвязать">

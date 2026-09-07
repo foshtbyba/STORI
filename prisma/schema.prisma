@@ -441,6 +441,9 @@ model KtCostDay {
   ktCampaignId   String    @default("") // id кампании в КТ (для записи расхода через API)
   ktCampaignName String    @default("")
   spendCents     Int
+  /** Клики (по ссылке) и показы из Facebook — для CTR/CPC на экране статистики. */
+  clicks         Int       @default(0)
+  impressions    Int       @default(0)
   currency       String    @default("USD")
   /// Когда этот расход залит в Keitaro (этап 2). null — ещё не заливали.
   pushedAt       DateTime?

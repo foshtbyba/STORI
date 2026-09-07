@@ -1,5 +1,5 @@
 import { requireUser, scopeBuyerId } from '@/lib/auth';
-import { canSeeTeam, type Role } from '@/lib/roles';
+import { type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
 import { weekBounds, weekKey, weekLabel } from '@/lib/period';
 import { usd, pct } from '@/lib/money';
@@ -23,6 +23,8 @@ type Camp = {
   name: string;
   groupId: string;
   costCents: number;
+  clicks: number;
+  impressions: number;
   revenueCents: number;
   conversions: number;
   foreign: boolean;
@@ -34,7 +36,6 @@ type Camp = {
 export default async function RoiPage() {
   const user = await requireUser();
   const role = user.role as Role;
-  const team = canSeeTeam(role);
   const admin = role === 'ADMIN';
   const scoped = scopeBuyerId(user);
 
@@ -56,7 +57,7 @@ export default async function RoiPage() {
   const ensure = (id: string): Camp => {
     let c = byCampaign.get(id);
     if (!c) {
-      c = { campaignId: id, name: '', groupId: '', costCents: 0, revenueCents: 0, conversions: 0, foreign: false, hasCost: false, pushed: true };
+      c = { campaignId: id, name: '', groupId: '', costCents: 0, clicks: 0, impressions: 0, revenueCents: 0, conversions: 0, foreign: false, hasCost: false, pushed: true };
       byCampaign.set(id, c);
     }
     return c;
@@ -76,6 +77,8 @@ export default async function RoiPage() {
     // В ROI суммируем только долларовый расход; иную валюту курсом не сводим.
     if (k.currency === 'USD') {
       c.costCents += k.spendCents;
+      c.clicks += k.clicks;
+      c.impressions += k.impressions;
       c.hasCost = true;
       if (!k.pushedAt) c.pushed = false;
     } else {
@@ -88,8 +91,14 @@ export default async function RoiPage() {
   type BuyerLite = { id: string; handle: string; initials: string; color: string; owner: boolean };
   const buyerOf = (groupId: string): BuyerLite | null => buyerOfGroup.get(groupId) ?? null;
 
+  // Скоуп: баер видит только свою группу КТ; админ — овнерские (SKO/MPR), а не
+  // весь скоуп команды. Так каждый смотрит своё и раздел не раздувается.
   let camps = [...byCampaign.values()].filter((c) => c.costCents !== 0 || c.revenueCents !== 0);
-  if (!team) camps = camps.filter((c) => buyerOf(c.groupId)?.id === scoped);
+  if (admin) {
+    camps = camps.filter((c) => buyerOf(c.groupId)?.owner === true);
+  } else {
+    camps = camps.filter((c) => buyerOf(c.groupId)?.id === scoped);
+  }
 
   // Группируем по баеру; кампании без баера — в отдельный «без привязки» (команде).
   type Bucket = { buyer: BuyerLite | null; rows: Camp[] };
@@ -113,11 +122,17 @@ export default async function RoiPage() {
   const totalCost = camps.reduce((s, c) => s + c.costCents, 0);
   const totalRev = camps.reduce((s, c) => s + c.revenueCents, 0);
   const totalProfit = totalRev - totalCost;
+  const totalLeads = camps.reduce((s, c) => s + c.conversions, 0);
 
   // Объявления, у которых не распознан токен в ссылке — их расход в поток не
   // попал. Баеру считаем только его, админу/команде — все.
   const unmatched = await prisma.fbAd.count({
-    where: { ktToken: '', ...(team ? {} : { adAccount: { adToken: { buyerId: scoped ?? '__none__' } } }) },
+    where: {
+      ktToken: '',
+      ...(admin
+        ? { adAccount: { adToken: { buyer: { owner: true } } } }
+        : { adAccount: { adToken: { buyerId: scoped ?? '__none__' } } }),
+    },
   });
 
   const lastCost = await prisma.ktCostDay.aggregate({ _max: { updatedAt: true } });
@@ -135,9 +150,10 @@ export default async function RoiPage() {
         />
 
         {/* Итог за неделю */}
-        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
           <Stat label="расход ФБ" value={usd(totalCost)} />
           <Stat label="доход КТ" value={usd(totalRev)} />
+          <Stat label="лиды" value={totalLeads ? fmtInt(totalLeads) : '—'} />
           <Stat label="профит" value={usd(totalProfit)} tone={totalProfit >= 0 ? 'sage' : 'rust'} />
           <Stat label="ROI" value={totalCost > 0 ? pct(totalProfit, totalCost) : '—'} tone={totalProfit >= 0 ? 'sage' : 'rust'} />
         </div>
@@ -175,27 +191,30 @@ export default async function RoiPage() {
                   {bucket.rows.map((c) => {
                     const profit = c.revenueCents - c.costCents;
                     return (
-                      <Sub key={c.campaignId} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3.5 py-2.5">
-                        <span className="min-w-0 flex-1 truncate text-[12.5px] text-soft" title={c.name}>
-                          {c.name || `кампания ${c.campaignId}`}
-                          {c.hasCost && c.pushed ? <span className="ml-2 text-[10px] text-sage" title="Расход залит в Keitaro">в КТ ✓</span> : null}
-                          {c.foreign ? <span className="ml-2 text-[10px] text-rust" title="Был расход в валюте кабинета, отличной от USD — в ROI он не учтён">≠ USD</span> : null}
-                        </span>
-                        <span className="n w-16 shrink-0 text-right text-[11.5px] text-mute" title="конверсии">
-                          {c.conversions || '—'}
-                        </span>
-                        <span className="n w-20 shrink-0 text-right text-[12px] text-mute" title="расход из ФБ">
-                          {usd(c.costCents)}
-                        </span>
-                        <span className="n w-20 shrink-0 text-right text-[12px] text-mute" title="доход из КТ">
-                          {usd(c.revenueCents)}
-                        </span>
-                        <span className={`n w-20 shrink-0 text-right text-[12.5px] font-semibold ${profit >= 0 ? 'text-sage' : 'text-rust'}`} title="профит">
-                          {usd(profit)}
-                        </span>
-                        <span className={`n w-16 shrink-0 text-right text-[11.5px] ${profit >= 0 ? 'text-sage' : 'text-rust'}`} title="ROI">
-                          {c.costCents > 0 ? pct(profit, c.costCents) : '—'}
-                        </span>
+                      <Sub key={c.campaignId} className="px-3.5 py-2.5">
+                        {/* Строка 1: название + бейджи, профит и ROI справа. */}
+                        <div className="flex items-center gap-3">
+                          <span className="min-w-0 flex-1 truncate text-[12.5px] text-soft" title={c.name}>
+                            {c.name || `кампания ${c.campaignId}`}
+                            {c.hasCost && c.pushed ? <span className="ml-2 text-[10px] text-sage" title="Расход залит в Keitaro">в КТ ✓</span> : null}
+                            {c.foreign ? <span className="ml-2 text-[10px] text-rust" title="Был расход в валюте кабинета, отличной от USD — в ROI он не учтён">≠ USD</span> : null}
+                          </span>
+                          <span className={`n shrink-0 text-right text-[13px] font-semibold ${profit >= 0 ? 'text-sage' : 'text-rust'}`} title="профит = доход − расход">
+                            {usd(profit)}
+                          </span>
+                          <span className={`n w-16 shrink-0 text-right text-[11.5px] ${profit >= 0 ? 'text-sage' : 'text-rust'}`} title="ROI = профит / расход">
+                            {c.costCents > 0 ? pct(profit, c.costCents) : '—'}
+                          </span>
+                        </div>
+                        {/* Строка 2: воронка — расход, доход, лиды, CPL, клики, CTR. */}
+                        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-mute">
+                          <span className="n" title="расход из ФБ">расход {usd(c.costCents)}</span>
+                          <span className="n" title="доход из КТ">доход {usd(c.revenueCents)}</span>
+                          <span className="n" title="лиды (конверсии из КТ)">лиды {c.conversions || 0}</span>
+                          <span className="n" title="цена лида = расход / лиды">CPL {perLead(c.costCents, c.conversions)}</span>
+                          <span className="n" title="клики по ссылке (ФБ)">клики {fmtInt(c.clicks)}</span>
+                          <span className="n" title="CTR = клики / показы">CTR {ctr(c.clicks, c.impressions)}</span>
+                        </div>
                       </Sub>
                     );
                   })}
@@ -215,6 +234,22 @@ export default async function RoiPage() {
       </Panel>
     </div>
   );
+}
+
+function fmtInt(n: number) {
+  return Math.round(n).toLocaleString('ru-RU');
+}
+
+/** CTR = клики / показы, в процентах. */
+function ctr(clicks: number, impressions: number) {
+  if (!impressions) return '—';
+  return ((clicks / impressions) * 100).toFixed(2).replace('.', ',') + '%';
+}
+
+/** Цена лида = расход / лиды. */
+function perLead(costCents: number, leads: number) {
+  if (!leads) return '—';
+  return usd(Math.round(costCents / leads));
 }
 
 function Stat({ label, value, tone }: { label: string; value: string; tone?: 'sage' | 'rust' }) {
