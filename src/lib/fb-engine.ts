@@ -40,7 +40,7 @@ export async function makeFbRequest(url: string, params: Record<string, any> = {
  * `c_user` и `xs`, а отброшенные `presence`, `wd`, `dpr` — про онлайн-статус и
  * размер окна, к авторизации отношения не имеют.
  */
-function cookieHeaderOf(cookies: { name?: unknown; value?: unknown }[]): string {
+export function cookieHeaderOf(cookies: { name?: unknown; value?: unknown }[]): string {
   const safe = /^[!#-+\--:<-[\]-~]*$/; // печатные ASCII без пробела, кавычек, запятой, точки с запятой и обратной косой
   return cookies
     .filter((c) => typeof c.name === 'string' && typeof c.value === 'string')
@@ -58,12 +58,13 @@ function cookieHeaderOf(cookies: { name?: unknown; value?: unknown }[]): string 
  * скобки. Заодно из него достаётся `ua`: ходить в Facebook тем же
  * user-agent, что и профиль, надёжнее, чем зашитым в код.
  */
-function readCookieBlob(raw: string): { cookies: unknown[]; ua?: string } {
+export function readCookieBlob(raw: string): { cookies: unknown[]; ua?: string; token?: string } {
   const asObject = (o: any) => {
     const cookies = Array.isArray(o) ? o : o?.cookies;
     if (!Array.isArray(cookies)) return null;
     const ua = typeof o?.ua === 'string' ? o.ua : undefined;
-    return { cookies, ua };
+    const token = typeof o?.token === 'string' ? o.token : undefined;
+    return { cookies, ua, token };
   };
 
   const s = raw.trim();

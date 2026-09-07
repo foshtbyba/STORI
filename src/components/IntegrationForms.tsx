@@ -101,7 +101,9 @@ export function TokenForm({ buyers }: { buyers: { id: string; handle: string }[]
             required
           />
           <span className="mt-1 block text-[11px] text-dim">
-            Подойдёт и плоский токен, и мультитокен из антидетекта — из него сам достанется ключ.
+            Мультитокен из антидетекта целиком — из него достанутся и ключ, и куки, и user-agent.
+            Сессионный ключ Facebook принимает только с ними и прокси аккаунта, поэтому заполни
+            прокси ниже. Плоский System-User токен тоже подойдёт — тому прокси не нужен.
           </span>
         </label>
       ) : (
@@ -213,6 +215,7 @@ export function TrackerForm({ baseUrl, hasKey }: { baseUrl: string; hasKey: bool
 /** Баер привязывает свой кабинет сам — без выбора баера. */
 export function MyTokenForm() {
   const [state, action] = useActionState(addMyToken, null);
+  const [proxyKind, setProxyKind] = useState<'http' | 'socks5'>('http');
   return (
     <form action={action} className="mt-4 flex flex-col gap-2.5">
       <label className="block">
@@ -229,9 +232,41 @@ export function MyTokenForm() {
           required
         />
         <span className="mt-1 block text-[11px] text-dim">
-          Плоский токен или мультитокен из антидетекта — ключ достанется сам.
+          Мультитокен из антидетекта целиком — из него достанутся ключ, куки и user-agent.
+          Плоский токен тоже подойдёт.
         </span>
       </label>
+
+      <div className="block">
+        <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
+          <span className="text-[11.5px] text-mute">Прокси · необязательно</span>
+          <div className="flex items-center gap-1 rounded-full bg-sub p-1">
+            {([
+              ['http', 'HTTP'],
+              ['socks5', 'SOCKS5'],
+            ] as const).map(([value, title]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setProxyKind(value)}
+                aria-pressed={proxyKind === value}
+                className={`rounded-full px-3 py-1 text-[11.5px] transition ${
+                  proxyKind === value ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
+                }`}
+              >
+                {title}
+              </button>
+            ))}
+          </div>
+        </div>
+        <input type="hidden" name="proxyKind" value={proxyKind} />
+        <input name="proxyUrl" placeholder="1.2.3.4:8000:логин:пароль" className={`${field} n`} />
+        <span className="mt-1 block text-[11px] text-dim">
+          Прокси того же аккаунта. Сессионный токен из антидетекта Facebook принимает только через
+          него — тип уточни у провайдера.
+        </span>
+      </div>
+
       <div className="flex justify-end">
         <SubmitButton
           pendingLabel="Проверяю токен…"

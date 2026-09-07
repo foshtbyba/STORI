@@ -3,7 +3,7 @@ import { prisma } from './db';
 import { dayKey } from './period';
 import { grossUp, ceilDollars } from './money';
 import { mergeDay } from './sync-rule';
-import { accountSpend, listAccounts, extractFbToken, FbError } from './fb';
+import { accountSpend, listAccounts, fbAccess, FbError } from './fb';
 import { dailyRevenue, listCampaigns, KeitaroError } from './keitaro';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -148,13 +148,14 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
 
   for (const token of tokens) {
     try {
-      // Разбираем то, что вставил человек: плоский ключ или мультитокен. Тем же
-      // user-agent, что зашит в мультитокене, потом и ходим в Graph.
-      const { token: access, ua } = extractFbToken(token.token);
-      // Через тот же прокси, с которым токен заводили: если кабинет пускает
-      // только со своего адреса, синхронизация обязана ходить так же, иначе
-      // ключ проходит проверку при добавлении и молча отваливается потом.
-      const net = { ua, proxyUrl: token.proxyUrl };
+      // Собираем доступ ровно так же, как при добавлении: ключ из мультитокена,
+      // его куки, user-agent и прокси того же аккаунта. Сессионный токен из
+      // Ads Manager публичный Graph API принимает только с этим набором —
+      // одним ключом он отвечает «код 1», хотя ключ рабочий.
+      const { token: access, net } = fbAccess(token.token, {
+        cookiesJson: token.cookiesJson,
+        proxyUrl: token.proxyUrl,
+      });
       // Список кабинетов освежаем на каждом заходе: в BM их добавляют и
       // отключают, и узнавать об этом из тишины неоткуда.
       const seen = await listAccounts(access, net);

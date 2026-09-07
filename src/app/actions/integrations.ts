@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireAdmin, requireUser } from '@/lib/auth';
 import { checkToken, FbError } from '@/lib/fb';
-import { extractTokenFromCookies } from '@/lib/fb-engine';
+import { extractTokenFromCookies, readCookieBlob, cookieHeaderOf } from '@/lib/fb-engine';
 import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
 import { checkBrocard, BrocardError } from '@/lib/brocard';
@@ -52,30 +52,53 @@ export async function addToken(_prev: ActionState, form: FormData): Promise<Acti
   if (proxy && 'error' in proxy) return { ok: false, error: proxy.error };
   const proxyUrl = proxy?.url ?? '';
 
-  // Вход либо ключом, либо куками. Куки — путь для арендованных кабинетов, где
-  // своего токена не выпустить: открываем ими Ads Manager и забираем ключ
-  // оттуда. Ходить при этом нужно с прокси аккаунта, иначе Facebook показывает
-  // страницу входа, а не кабинет.
+  // Вход либо готовым мультитокеном, либо отдельными куками.
+  //
+  // Мультитокен из антидетекта — это `{cookies, ua, token}`: в нём есть всё
+  // сразу. Именно куками (плюс user-agent и прокси того же аккаунта) публичный
+  // Graph API и принимает сессионный токен — без них на рабочий ключ приходит
+  // «код 1». Поэтому куки не выбрасываем, а храним и подставляем в каждый
+  // запрос к Facebook.
+  //
+  // Режим «Cookies» — когда токена на руках нет: открываем куками Ads Manager
+  // и достаём ключ оттуда. Дальше всё то же самое.
   let raw = parsed.data.token;
-  if (!raw && !cookiesJson) {
-    return { ok: false, error: 'Вставь токен или куки — без одного из них подключать нечего' };
-  }
-  if (!raw) {
+  let cookies: unknown[] = [];
+
+  if (raw) {
+    // В поле токена мог прилететь и мультитокен целиком — вытащим из него куки.
     try {
+      const blob = readCookieBlob(raw);
+      if (Array.isArray(blob.cookies)) cookies = blob.cookies;
+    } catch {
+      // Плоский токен без кук — это допустимо (System User, свежий ключ).
+    }
+  } else if (cookiesJson) {
+    try {
+      const blob = readCookieBlob(cookiesJson);
+      cookies = Array.isArray(blob.cookies) ? blob.cookies : [];
       raw = await extractTokenFromCookies(cookiesJson, proxyUrl || null);
     } catch (e) {
       return { ok: false, error: (e as Error).message };
     }
+  } else {
+    return { ok: false, error: 'Вставь токен или куки — без одного из них подключать нечего' };
   }
+
   if (raw.length < 20) {
     return { ok: false, error: 'Токен слишком короткий — похоже, скопировался не весь' };
   }
 
-  // Токен проверяем сразу: класть в базу неработающий ключ, чтобы потом
-  // гадать, почему нет цифр, — так себе идея.
+  const cookieHeader = cookies.length
+    ? cookieHeaderOf(cookies as { name?: unknown; value?: unknown }[])
+    : null;
+
+  // Токен проверяем сразу, ровно тем же способом, каким потом ходит
+  // синхронизация: тот же токен, те же куки, тот же прокси. Если проверка
+  // прошла — значит и цифры потянутся.
   let found;
   try {
-    found = await checkToken(raw, proxyUrl || null);
+    found = await checkToken(raw, { proxyUrl: proxyUrl || null, cookie: cookieHeader });
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
@@ -85,9 +108,10 @@ export async function addToken(_prev: ActionState, form: FormData): Promise<Acti
       buyerId,
       label: label || found.name,
       token: raw,
-      // Куки храним рядом с ключом: ключ из них живёт недолго, и следующий раз
-      // его достанем сами, не дёргая человека.
-      cookiesJson: cookiesJson || null,
+      // Куки — часть доступа, а не удобство: без них токен не работает.
+      // Храним нормализованным JSON-массивом, чтобы синхронизация собрала из
+      // них тот же заголовок.
+      cookiesJson: cookies.length ? JSON.stringify(cookies) : null,
       proxyUrl: proxyUrl || null,
     },
   });
@@ -120,19 +144,41 @@ export async function addMyToken(_prev: ActionState, form: FormData): Promise<Ac
 
   const token = String(form.get('token') ?? '').trim();
   const label = String(form.get('label') ?? '').trim().slice(0, 80);
+  const proxy = parseProxy(String(form.get('proxyUrl') ?? ''), (form.get('proxyKind') as ProxyKind) ?? 'http');
+  if (proxy && 'error' in proxy) return { ok: false, error: proxy.error };
+  const proxyUrl = proxy?.url ?? '';
   if (token.length < 20) {
     return { ok: false, error: 'Токен слишком короткий — похоже, скопировался не весь' };
   }
 
+  // Мультитокен из антидетекта несёт куки — они и есть доступ к арендованному
+  // кабинету, храним и подставляем их так же, как в админской форме.
+  let cookies: unknown[] = [];
+  try {
+    const blob = readCookieBlob(token);
+    if (Array.isArray(blob.cookies)) cookies = blob.cookies;
+  } catch {
+    // плоский токен без кук — допустимо
+  }
+  const cookieHeader = cookies.length
+    ? cookieHeaderOf(cookies as { name?: unknown; value?: unknown }[])
+    : null;
+
   let found;
   try {
-    found = await checkToken(token);
+    found = await checkToken(token, { proxyUrl: proxyUrl || null, cookie: cookieHeader });
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
 
   const created = await prisma.adToken.create({
-    data: { buyerId: user.buyer.id, label: label || found.name, token },
+    data: {
+      buyerId: user.buyer.id,
+      label: label || found.name,
+      token,
+      cookiesJson: cookies.length ? JSON.stringify(cookies) : null,
+      proxyUrl: proxyUrl || null,
+    },
   });
   for (const acc of found.accounts) {
     await prisma.adAccount.create({

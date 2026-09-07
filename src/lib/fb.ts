@@ -3,6 +3,7 @@ import 'server-only';
 import axios from 'axios';
 
 import { proxyAgent } from './proxy-agent';
+import { cookieHeaderOf, readCookieBlob } from './fb-engine';
 
 /**
  * Тонкий клиент к Marketing API Facebook. Нужны ровно две вещи: список
@@ -132,7 +133,7 @@ export function extractFbToken(raw: string): { token: string; ua?: string } {
  * заметно спокойнее, когда запросы идут с привычного адреса, а не с адреса
  * сервера. Оба поля необязательны — без них ходим напрямую.
  */
-export type FbNet = { ua?: string; proxyUrl?: string | null };
+export type FbNet = { ua?: string; proxyUrl?: string | null; cookie?: string | null };
 
 /**
  * Один запрос к Graph, с прокси или без.
@@ -143,7 +144,13 @@ export type FbNet = { ua?: string; proxyUrl?: string | null };
  * ошибок ниже общий и про транспорт ничего не знает.
  */
 async function send(url: URL, net: FbNet): Promise<{ status: number; text: string }> {
-  const headers = net.ua ? { 'User-Agent': net.ua } : undefined;
+  // Токены, снятые из Ads Manager, публичный Graph API принимает только когда
+  // запрос выглядит как из браузера аккаунта: его user-agent, его куки и его
+  // прокси. Без кук на такой токен приходит «код 1 Invalid request», хотя сам
+  // токен рабочий — это и путало. С куками сессии тот же токен отдаёт данные.
+  const headers: Record<string, string> = {};
+  if (net.ua) headers['User-Agent'] = net.ua;
+  if (net.cookie) headers['Cookie'] = net.cookie;
 
   if (net.proxyUrl) {
     const agent = proxyAgent(net.proxyUrl);
@@ -151,6 +158,9 @@ async function send(url: URL, net: FbNet): Promise<{ status: number; text: strin
       headers,
       httpAgent: agent,
       httpsAgent: agent,
+      // Facebook на длинную цепочку кук иногда отвечает не по-json огромной
+      // HTML-страницей — режем ответ, чтобы не тянуть её целиком в память.
+      maxContentLength: 5_000_000,
       timeout: 20000,
       // Тело нужно строкой и без разбора: JSON парсится ниже, вместе с
       // ответами прямого пути.
@@ -163,7 +173,10 @@ async function send(url: URL, net: FbNet): Promise<{ status: number; text: strin
     return { status: res.status, text: String(res.data ?? '') };
   }
 
-  const res = await fetch(url, { cache: 'no-store', headers });
+  const res = await fetch(url, {
+    cache: 'no-store',
+    headers: Object.keys(headers).length ? headers : undefined,
+  });
   return { status: res.status, text: await res.text() };
 }
 
@@ -337,9 +350,43 @@ export async function accountSpend(
  * Проверка вставленной строки: разбираем плоский токен или мультитокен, потом
  * смотрим, кто под ним и сколько кабинетов видно.
  */
-export async function checkToken(raw: string, proxyUrl?: string | null) {
+/**
+ * Собрать доступ к Graph из того, что лежит в базе у токена.
+ *
+ * Сессионный токен из Ads Manager публичный API принимает только вместе с
+ * куками, user-agent и прокси того же аккаунта. Всё это приезжает в
+ * мультитокене (`{cookies, ua, token}`), который и хранится в поле `token`;
+ * отдельная колонка `cookiesJson` — запасной источник кук, если их сохранили
+ * туда. Здесь оба случая сводятся к одному: строка токена и сеть к ней.
+ */
+export function fbAccess(rawToken: string, opts: { cookiesJson?: string | null; proxyUrl?: string | null } = {}): {
+  token: string;
+  net: FbNet;
+} {
+  const { token, ua } = extractFbToken(rawToken);
+
+  // Куки: сначала из отдельной колонки, иначе — из самого мультитокена.
+  let cookies: unknown[] | undefined;
+  const fromColumn = opts.cookiesJson?.trim();
+  try {
+    if (fromColumn) cookies = readCookieBlob(fromColumn).cookies;
+    else cookies = readCookieBlob(rawToken).cookies;
+  } catch {
+    cookies = undefined;
+  }
+  const cookie = cookies && cookies.length
+    ? cookieHeaderOf(cookies as { name?: unknown; value?: unknown }[])
+    : undefined;
+
+  return { token, net: { ua, proxyUrl: opts.proxyUrl ?? null, cookie: cookie || null } };
+}
+
+export async function checkToken(
+  raw: string,
+  opts: { proxyUrl?: string | null; cookie?: string | null } = {},
+) {
   const { token, ua } = extractFbToken(raw);
-  const net: FbNet = { ua, proxyUrl };
+  const net: FbNet = { ua, proxyUrl: opts.proxyUrl, cookie: opts.cookie };
 
   // /me падает — проблема в самом токене (не тот, протух, обрезан). Помечаем
   // шаг, чтобы отличать это от «токен рабочий, но нет доступа к кабинетам».
