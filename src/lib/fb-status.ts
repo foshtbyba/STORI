@@ -47,3 +47,25 @@ export function accountBadge(accountStatus: number, disableReason: number): Acco
   }
   return STATUS[accountStatus] ?? { label: `статус ${accountStatus}`, tone: 'mute' };
 }
+
+/**
+ * Состояние кампании (effective_status) человеческим ярлыком. «Запущена» —
+ * зелёным, всё остальное приглушённее: на паузе, на модерации, отклонена.
+ */
+const CAMPAIGN: Record<string, AccountBadge> = {
+  ACTIVE: { label: 'запущена', tone: 'ok' },
+  PAUSED: { label: 'на паузе', tone: 'mute' },
+  CAMPAIGN_PAUSED: { label: 'на паузе', tone: 'mute' },
+  ADSET_PAUSED: { label: 'адсеты на паузе', tone: 'mute' },
+  IN_PROCESS: { label: 'запускается', tone: 'warn' },
+  PENDING_REVIEW: { label: 'на модерации', tone: 'warn' },
+  WITH_ISSUES: { label: 'с проблемами', tone: 'warn' },
+  PENDING_BILLING_INFO: { label: 'нет оплаты', tone: 'warn' },
+  DISAPPROVED: { label: 'отклонена', tone: 'bad' },
+  ARCHIVED: { label: 'в архиве', tone: 'mute' },
+  DELETED: { label: 'удалена', tone: 'mute' },
+};
+
+export function campaignBadge(status: string): AccountBadge {
+  return CAMPAIGN[status] ?? { label: status.toLowerCase(), tone: 'mute' };
+}

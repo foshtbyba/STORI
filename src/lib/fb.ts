@@ -417,6 +417,56 @@ export function fbAccess(rawToken: string, opts: { cookiesJson?: string | null; 
   return { token, net: { ua, proxyUrl: opts.proxyUrl ?? null, cookie: cookie || null } };
 }
 
+export type FbCampaignRow = {
+  campaignId: string;
+  name: string;
+  /** effective_status: реальное состояние с учётом модерации и статуса кабинета. */
+  status: string;
+  /** Дневной бюджет в минимальных единицах валюты кабинета (может отсутствовать
+   *  — тогда бюджет на уровне адсета). */
+  dailyBudget: number | null;
+};
+
+/**
+ * Кампании кабинета: что вообще заведено и в каком состоянии. Берём
+ * effective_status — он честнее status, потому что учитывает модерацию и статус
+ * самого кабинета (в PAUSED-кабинете все кампании фактически стоят).
+ *
+ * Постранично и с потолком: у активного кабинета кампаний бывают сотни, а
+ * вешать синхронизацию на одном кабинете нельзя.
+ */
+export async function listCampaigns(token: string, externalId: string, net: FbNet = {}) {
+  const out: FbCampaignRow[] = [];
+  let after = '';
+  for (let page = 0; page < 20; page += 1) {
+    const body = await call(`/${externalId}/campaigns`, token, {
+      fields: 'name,effective_status,daily_budget',
+      limit: '200',
+      ...(after ? { after } : {}),
+    }, net);
+    const data = (body.data ?? []) as {
+      id?: string;
+      name?: string;
+      effective_status?: string;
+      daily_budget?: string;
+    }[];
+    for (const row of data) {
+      if (!row.id) continue;
+      const budget = row.daily_budget != null ? Math.round(Number(row.daily_budget)) : null;
+      out.push({
+        campaignId: row.id,
+        name: row.name ?? '',
+        status: row.effective_status ?? 'UNKNOWN',
+        dailyBudget: Number.isFinite(budget as number) ? budget : null,
+      });
+    }
+    const next = body.paging as { cursors?: { after?: string }; next?: string } | undefined;
+    if (!next?.next || !next.cursors?.after) break;
+    after = next.cursors.after;
+  }
+  return out;
+}
+
 export async function checkToken(
   raw: string,
   opts: { proxyUrl?: string | null; cookie?: string | null } = {},

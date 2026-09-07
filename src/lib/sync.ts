@@ -3,7 +3,7 @@ import { prisma } from './db';
 import { dayKey } from './period';
 import { grossUp, ceilDollars } from './money';
 import { mergeDay } from './sync-rule';
-import { accountSpend, listAccounts, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
+import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
 import { dailyRevenue, listCampaigns, KeitaroError } from './keitaro';
@@ -254,6 +254,33 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
           where: { id: acc.id },
           data: { lastSpendAt: new Date() },
         });
+
+        // Кампании тянем только в глубоком заходе (раз в сутки): меняются они
+        // редко, а каждый лишний запрос — риск чекпоинта. Пауза перед ним, как
+        // и перед расходом.
+        if (days >= 7) {
+          await humanPause();
+          const camps = await listFbCampaigns(access, acc.externalId, net);
+          const liveIds: string[] = [];
+          for (const c of camps) {
+            liveIds.push(c.campaignId);
+            await prisma.fbCampaign.upsert({
+              where: { campaignId: c.campaignId },
+              update: { name: c.name, status: c.status, dailyBudget: c.dailyBudget, adAccountId: acc.id },
+              create: {
+                adAccountId: acc.id,
+                campaignId: c.campaignId,
+                name: c.name,
+                status: c.status,
+                dailyBudget: c.dailyBudget,
+              },
+            });
+          }
+          // Убираем кампании, которых больше нет под кабинетом (удалены).
+          await prisma.fbCampaign.deleteMany({
+            where: { adAccountId: acc.id, campaignId: { notIn: liveIds.length ? liveIds : ['__none__'] } },
+          });
+        }
       }
 
       await prisma.adToken.update({

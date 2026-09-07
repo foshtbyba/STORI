@@ -98,20 +98,6 @@ export default async function AdsOverviewPage() {
     <div className="flex flex-col gap-3.5">
       <Panel className="p-4 sm:p-6">
         <PanelHead
-          icon={<IconRocket color="#b4c68c" />}
-          tint="bg-sage-t"
-          title="Реклама"
-          aside={<span className="text-[12.5px] text-mute">техничка Facebook</span>}
-        />
-        <p className="mt-4 text-[12px] leading-relaxed text-mute">
-          Кабинеты сгруппированы по профилям — жми на строку, чтобы раскрыть. Рядом с кабинетом его
-          статус из Facebook и ID; одинаковый ID под разными профилями помечен «дублём». Расход
-          справочный — реальный считается по Brocard в «Статистике».
-        </p>
-      </Panel>
-
-      <Panel className="p-4 sm:p-6">
-        <PanelHead
           icon={<IconWallet color="#b4c68c" />}
           tint="bg-sage-t"
           title="Подключённые кабинеты"
