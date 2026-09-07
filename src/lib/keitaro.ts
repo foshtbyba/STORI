@@ -175,13 +175,19 @@ function pickNumber(row: Record<string, unknown>, keys: string[]) {
   return 0;
 }
 
-/** Одна запись расхода для заливки в Keitaro: отрезок времени и сумма. */
+/** Одна запись расхода для заливки в Keitaro: отрезок времени, сумма и фильтр. */
 export type CostEntry = {
   /** «YYYY-MM-DD HH:MM» в поясе трекера. */
   start_date: string;
   end_date: string;
   /** Расход в долларах (число, не центы). */
   cost: number;
+  /**
+   * Фильтр кликов (FilterCostRequest): key-value, напр. `{ sub_id_4: "123" }`.
+   * Так расход ложится ровно на клики нужного объявления (ad_id в Sub ID 4),
+   * как это делает FBtool. Без фильтра — на все клики кампании за период.
+   */
+  filters?: Record<string, string>;
 };
 
 /**

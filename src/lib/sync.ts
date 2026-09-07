@@ -6,7 +6,7 @@ import { mergeDay } from './sync-rule';
 import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adSpend, adLinks, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
-import { dailyRevenue, listCampaigns, indexByToken, updateCostsBulk, KeitaroError } from './keitaro';
+import { dailyRevenue, listCampaigns, indexByToken, updateCostsBulk, KeitaroError, type CostEntry } from './keitaro';
 import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -595,6 +595,14 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
   return result;
 }
 
+/**
+ * Sub ID, в котором в кликах Keitaro лежит ID объявления Facebook. Стандартный
+ * шаблон Facebook в Keitaro (и FBtool) кладёт `ad.id` в Sub ID 4 — по нему
+ * расход и привязывается к кликам конкретного объявления. Если в трекере
+ * маппинг иной — поменять здесь одно значение.
+ */
+const KT_AD_SUBID = 'sub_id_4';
+
 /** Кампания КТ, найденная по токену из ссылки объявления. */
 type MatchedCampaign = { id: string; name: string; token: string };
 
@@ -648,6 +656,11 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
   type Bucket = { cents: number; currency: string; campId: string; campName: string; token: string };
   const cost = new Map<string, Bucket>();
   let unmatchedCents = 0;
+
+  // Записи расхода для заливки в Keitaro — по кампании КТ, но каждая с фильтром
+  // по ad_id (Sub ID 4): так расход ложится на клики конкретного объявления,
+  // как это делает FBtool, а не размазывается по всей кампании.
+  const pushByCamp = new Map<string, CostEntry[]>();
 
   const all = await prisma.adToken.findMany({
     where: { enabled: true },
@@ -719,6 +732,19 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
           b.cents += s.cents;
           cost.set(key, b);
           result.touched += 1;
+
+          // В КТ льём только доллары (агентские кабинеты всегда USD; курс тут не
+          // считаем). Одна запись на объявление и день с фильтром по его ad_id.
+          if (acc.currency === 'USD') {
+            const arr = pushByCamp.get(matched.id) ?? [];
+            arr.push({
+              start_date: `${s.date} 00:00`,
+              end_date: `${s.date} 23:59`,
+              cost: s.cents / 100,
+              filters: { [KT_AD_SUBID]: s.adId },
+            });
+            pushByCamp.set(matched.id, arr);
+          }
         }
       }
 
@@ -783,7 +809,7 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
   // Заливаем посчитанный расход в сам Keitaro — чтобы cost встал рядом с
   // доходом в отчётах трекера и ROI считался уже внутри КТ.
   if (tracker) {
-    await pushCostsToKeitaro(tracker, from, to, result);
+    await pushCostsToKeitaro(tracker, pushByCamp, from, to, result);
   }
 
   return result;
@@ -792,43 +818,25 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
 /**
  * Отдаём расход в Keitaro (ручка «Update costs in bulk»).
  *
- * Берём уже посчитанный KtCostDay за окно, группируем по кампании КТ и на
- * каждую шлём массив дневных сумм. В КТ льём только доллары: агентские кабинеты
- * всегда USD, а курс для иной валюты тут не считаем. Успешно залитые дни метим
- * `pushedAt` — на экране «Профит» видно, что расход в трекере.
+ * На вход — записи расхода по кампаниям КТ, каждая с фильтром по ad_id (Sub ID
+ * 4), собранные при обходе объявлений. На каждую кампанию шлём её записи
+ * пачками; успех метим `pushedAt` у строк KtCostDay этой кампании — на экране
+ * «Профит» видно, что расход в трекере.
  */
 async function pushCostsToKeitaro(
   tracker: { baseUrl: string; apiKey: string },
+  entriesByCamp: Map<string, CostEntry[]>,
   from: string,
   to: string,
   result: SyncResult,
 ) {
-  const rows = await prisma.ktCostDay.findMany({
-    where: {
-      date: { gte: atMidnight(from), lte: atMidnight(to) },
-      ktCampaignId: { not: '' },
-      currency: 'USD',
-    },
-  });
-
-  const byCampaign = new Map<string, typeof rows>();
-  for (const r of rows) {
-    const arr = byCampaign.get(r.ktCampaignId) ?? [];
-    arr.push(r);
-    byCampaign.set(r.ktCampaignId, arr);
-  }
-
-  for (const [campaignId, list] of byCampaign) {
-    const costs = list.map((r) => {
-      const iso = dayKey(r.date);
-      return {
-        start_date: `${iso} 00:00`,
-        end_date: `${iso} 23:59`,
-        cost: Math.round(r.spendCents) / 100,
-      };
-    });
+  const CHUNK = 200; // не шлём тысячи записей одним запросом
+  for (const [campaignId, entries] of entriesByCamp) {
+    if (entries.length === 0) continue;
     try {
-      await updateCostsBulk(tracker.baseUrl, tracker.apiKey, campaignId, costs);
+      for (let i = 0; i < entries.length; i += CHUNK) {
+        await updateCostsBulk(tracker.baseUrl, tracker.apiKey, campaignId, entries.slice(i, i + CHUNK));
+      }
       await prisma.ktCostDay.updateMany({
         where: {
           ktCampaignId: campaignId,
