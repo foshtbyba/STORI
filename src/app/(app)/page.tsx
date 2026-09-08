@@ -53,8 +53,9 @@ export default async function HomePage({
         payoutCents: summary.totals.payoutCents,
       }
     : await payoutAcross(week);
-  const teamNetCents =
-    summary.totals.profitCents - summary.totals.consumableCents - payroll.payoutCents;
+  // Расходники в остаток НЕ вычитаем (их покрывает баер): команде остаётся
+  // профит за вычетом только выплат баерам.
+  const teamNetCents = summary.totals.profitCents - payroll.payoutCents;
   const allTime = await allTimeProfit();
   const allTimeTotal = [...allTime.values()].reduce((a, b) => a + b, 0);
 
@@ -181,7 +182,7 @@ export default async function HomePage({
             выглядели одинаково, и сумма в шапке не сходилась с колонкой.
           */}
           {[
-            { name: 'Расходники', cents: summary.totals.consumableCents, taken: true },
+            { name: 'Расходники', cents: summary.totals.consumableCents, taken: false, note: 'на баерах, не из остатка' },
             {
               name: 'Зарплата баеров',
               cents: payroll.payoutCents,

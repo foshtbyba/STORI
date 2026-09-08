@@ -32,12 +32,6 @@ export async function closePeriod(key: string) {
       });
     }
     await tx.period.update({ where: { key }, data: { status: 'CLOSED', closedAt: new Date() } });
-    // Фиксируем чистый команды за неделю в фонд баеров (по periodId — один раз).
-    await tx.fundEntry.upsert({
-      where: { kind_periodId: { kind: 'accrual', periodId: summary.period.id } },
-      create: { kind: 'accrual', periodId: summary.period.id, periodKey: key, amountCents: summary.totals.teamNetCents },
-      update: { amountCents: summary.totals.teamNetCents, periodKey: key },
-    });
     await tx.auditLog.create({
       data: {
         actorId: user.id,
@@ -61,9 +55,6 @@ export async function reopenPeriod(key: string) {
     where: { key },
     data: { status: 'OPEN', closedAt: null },
   });
-  // Открыли неделю обратно — снимаем её взнос в фонд (зафиксируется снова при
-  // закрытии, уже с актуальными цифрами).
-  await prisma.fundEntry.deleteMany({ where: { kind: 'accrual', periodId: period.id } });
   await prisma.auditLog.create({
     data: {
       actorId: user.id,

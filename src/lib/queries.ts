@@ -244,7 +244,10 @@ export async function teamSummary(key: string, range?: Range, opts?: { owners?: 
       ...totals,
       commissionCents: totals.spendGrossCents - totals.spendNetCents,
       roi: totals.spendGrossCents ? (totals.profitCents / totals.spendGrossCents) * 100 : 0,
-      teamNetCents: totals.profitCents - totals.consumableCents - totals.payoutCents,
+      // Расходники в остаток НЕ вычитаем: их покрывает баер своим плюсом (и они
+      // уже уменьшают его базу зарплаты). Команде остаётся профит за вычетом
+      // только выплат баерам.
+      teamNetCents: totals.profitCents - totals.payoutCents,
     },
     consumables: shownConsumables,
     days: shownDays,
