@@ -668,3 +668,21 @@ model TreasurySnapshot {
   note          String   @default("")
   createdAt     DateTime @default(now())
 }
+
+/// Прочие движения денег, которых не видит дашборд: внешний залив в оборотку,
+/// доход мимо КТ, расход мимо дней. Вносит админ руками — чтобы касса сходилась
+/// честно, а каждая сумма была видна строкой. amountCents со знаком:
+/// + приход (денег в доле стало больше), − расход.
+model CapitalAdjustment {
+  id          String   @id @default(cuid())
+  /// 'owner' — движение по доле овнера (тогда buyerId заполнен); 'buyers' —
+  /// по общему капиталу баеров.
+  scope       String
+  buyerId     String?
+  amountCents Int      @default(0)
+  note        String   @default("")
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@index([scope, buyerId])
+}

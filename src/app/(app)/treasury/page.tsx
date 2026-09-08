@@ -13,6 +13,8 @@ import {
   saveSnapshot,
   deleteSnapshot,
   saveFundBase,
+  addAdjustment,
+  deleteAdjustment,
 } from '@/app/actions/treasury';
 
 const ymd = (d: Date) => d.toISOString().slice(0, 10);
@@ -115,14 +117,19 @@ export default async function TreasuryPage() {
                   { name: 'Свои расходники', cents: o.consumableCents, taken: true },
                   { name: 'Общак (½)', cents: o.overheadCents, taken: true, note: '50/50 между овнерами' },
                   { name: 'Выводы', cents: o.withdrawnCents, taken: true },
+                  { name: 'Прочие движения', cents: o.adjustmentCents, signed: true, note: 'мимо дашборда' },
                 ].map((r) => (
                   <div key={r.name} className="flex items-center justify-between border-t border-line py-2 text-[12.5px]">
                     <span className="text-soft">
                       {r.name}
                       {r.note ? <span className="ml-1.5 text-[11px] text-mute">· {r.note}</span> : null}
                     </span>
-                    <span className={`n ${r.base ? 'text-soft' : r.taken && r.cents ? 'text-rust' : r.cents ? 'text-sage' : 'text-mute'}`}>
-                      {r.taken && r.cents ? '− ' : ''}
+                    <span className={`n ${
+                      r.base ? 'text-soft'
+                      : r.signed ? (r.cents > 0 ? 'text-sage' : r.cents < 0 ? 'text-rust' : 'text-mute')
+                      : r.taken && r.cents ? 'text-rust' : r.cents ? 'text-sage' : 'text-mute'
+                    }`}>
+                      {r.signed ? (r.cents > 0 ? '+ ' : r.cents < 0 ? '− ' : '') : r.taken && r.cents ? '− ' : ''}
                       {usd(Math.abs(r.cents))}
                     </span>
                   </div>
@@ -178,6 +185,38 @@ export default async function TreasuryPage() {
                   ))
                 )}
               </div>
+
+              {/* Прочие движения мимо дашборда */}
+              <div className="mt-2">
+                <div className="lab mb-1.5">Прочие движения</div>
+                <form action={addAdjustment} className="flex flex-wrap items-center gap-2">
+                  <input type="hidden" name="scope" value="owner" />
+                  <input type="hidden" name="buyerId" value={o.buyerId} />
+                  <select name="direction" className="h-9 rounded-lg border border-line2 bg-sub px-2 text-[12px] text-text outline-none focus:border-sage">
+                    <option value="in">+ приход</option>
+                    <option value="out">− расход</option>
+                  </select>
+                  <input name="amount" inputMode="decimal" placeholder="сумма, $" className="n h-9 w-24 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
+                  <input name="note" placeholder="что за движение" className="h-9 min-w-0 flex-1 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
+                  <button type="submit" className="h-9 shrink-0 rounded-full bg-raise px-4 text-[12px] font-semibold">Добавить</button>
+                </form>
+                {o.adjustments.length > 0 ? (
+                  <div className="mt-2">
+                    {o.adjustments.map((a) => (
+                      <div key={a.id} className="flex items-center justify-between gap-2 border-t border-line py-1.5 text-[12px]">
+                        <span className="flex min-w-0 items-center gap-2">
+                          <span className={`n shrink-0 ${a.amountCents >= 0 ? 'text-sage' : 'text-rust'}`}>{a.amountCents >= 0 ? '+ ' : '− '}{usd(Math.abs(a.amountCents))}</span>
+                          <span className="truncate text-mute">{a.note || '—'}</span>
+                        </span>
+                        <span className="flex shrink-0 items-center gap-2">
+                          <span className="n text-[11px] text-dim">{ru(a.date)}</span>
+                          <form action={deleteAdjustment}><input type="hidden" name="id" value={a.id} /><button type="submit" className="text-[11px] text-dim transition hover:text-rust">✕</button></form>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             </Panel>
           ))}
 
@@ -202,14 +241,19 @@ export default async function TreasuryPage() {
                 { name: 'Старт (общий бюджет)', cents: t.fund.base, taken: false, base: true },
                 { name: 'Накоплено баерами', cents: t.fund.accrued, taken: t.fund.accrued < 0, note: 'профит − расходники − зп' },
                 { name: 'Выводы', cents: t.fund.withdrawn, taken: true },
+                { name: 'Прочие движения', cents: t.buyersAdjustmentCents, signed: true, note: 'мимо дашборда' },
               ].map((r) => (
                 <div key={r.name} className="flex items-center justify-between border-t border-line py-2 text-[12.5px]">
                   <span className="text-soft">
                     {r.name}
                     {r.note ? <span className="ml-1.5 text-[11px] text-mute">· {r.note}</span> : null}
                   </span>
-                  <span className={`n ${r.base ? 'text-soft' : r.taken && r.cents ? 'text-rust' : r.cents ? 'text-sage' : 'text-mute'}`}>
-                    {r.taken && r.cents ? '− ' : ''}
+                  <span className={`n ${
+                    r.base ? 'text-soft'
+                    : r.signed ? (r.cents > 0 ? 'text-sage' : r.cents < 0 ? 'text-rust' : 'text-mute')
+                    : r.taken && r.cents ? 'text-rust' : r.cents ? 'text-sage' : 'text-mute'
+                  }`}>
+                    {r.signed ? (r.cents > 0 ? '+ ' : r.cents < 0 ? '− ' : '') : r.taken && r.cents ? '− ' : ''}
                     {usd(Math.abs(r.cents))}
                   </span>
                 </div>
@@ -277,6 +321,37 @@ export default async function TreasuryPage() {
                   </div>
                 ))
               )}
+            </div>
+
+            {/* Прочие движения мимо дашборда */}
+            <div className="mt-2">
+              <div className="lab mb-1.5">Прочие движения</div>
+              <form action={addAdjustment} className="flex flex-wrap items-center gap-2">
+                <input type="hidden" name="scope" value="buyers" />
+                <select name="direction" className="h-9 rounded-lg border border-line2 bg-sub px-2 text-[12px] text-text outline-none focus:border-sage">
+                  <option value="in">+ приход</option>
+                  <option value="out">− расход</option>
+                </select>
+                <input name="amount" inputMode="decimal" placeholder="сумма, $" className="n h-9 w-24 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
+                <input name="note" placeholder="что за движение" className="h-9 min-w-0 flex-1 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
+                <button type="submit" className="h-9 shrink-0 rounded-full bg-raise px-4 text-[12px] font-semibold">Добавить</button>
+              </form>
+              {t.buyersAdjustments.length > 0 ? (
+                <div className="mt-2">
+                  {t.buyersAdjustments.map((a) => (
+                    <div key={a.id} className="flex items-center justify-between gap-2 border-t border-line py-1.5 text-[12px]">
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className={`n shrink-0 ${a.amountCents >= 0 ? 'text-sage' : 'text-rust'}`}>{a.amountCents >= 0 ? '+ ' : '− '}{usd(Math.abs(a.amountCents))}</span>
+                        <span className="truncate text-mute">{a.note || '—'}</span>
+                      </span>
+                      <span className="flex shrink-0 items-center gap-2">
+                        <span className="n text-[11px] text-dim">{ru(a.date)}</span>
+                        <form action={deleteAdjustment}><input type="hidden" name="id" value={a.id} /><button type="submit" className="text-[11px] text-dim transition hover:text-rust">✕</button></form>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </Panel>
         </div>

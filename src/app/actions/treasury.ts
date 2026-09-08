@@ -117,6 +117,50 @@ export async function deleteSnapshot(form: FormData) {
   revalidatePath('/treasury');
 }
 
+/**
+ * Прочее движение денег мимо дашборда: внешний залив, доход/расход не через
+ * систему. direction 'in' — приход (+), 'out' — расход (−). scope 'owner'
+ * требует buyerId, 'buyers' — по общему капиталу.
+ */
+export async function addAdjustment(form: FormData) {
+  const user = await requireAdmin();
+  const scope = String(form.get('scope') ?? '');
+  const buyerId = String(form.get('buyerId') ?? '') || null;
+  const direction = String(form.get('direction') ?? 'in');
+  const amount = dollars(form.get('amount'));
+  const note = String(form.get('note') ?? '').trim().slice(0, 200);
+  const dateStr = String(form.get('date') ?? '');
+  if (scope !== 'owner' && scope !== 'buyers') return;
+  if (scope === 'owner' && !buyerId) return;
+  if (!Number.isFinite(amount) || amount <= 0) return;
+  const signed = direction === 'out' ? -Math.round(amount * 100) : Math.round(amount * 100);
+  const date = dateStr ? new Date(dateStr) : new Date();
+  if (Number.isNaN(date.getTime())) return;
+
+  await prisma.capitalAdjustment.create({
+    data: { scope, buyerId, amountCents: signed, note, date },
+  });
+  await prisma.auditLog.create({
+    data: {
+      actorId: user.id,
+      actorName: user.name,
+      entity: 'CapitalAdjustment',
+      entityId: scope === 'owner' ? buyerId! : 'buyers',
+      action: 'treasury:adjust',
+      diffJson: JSON.stringify({ scope, buyerId, amountCents: signed, note }),
+    },
+  });
+  revalidatePath('/treasury');
+}
+
+export async function deleteAdjustment(form: FormData) {
+  await requireAdmin();
+  const id = String(form.get('id') ?? '');
+  if (!id) return;
+  await prisma.capitalAdjustment.deleteMany({ where: { id } });
+  revalidatePath('/treasury');
+}
+
 /** Стартовая база фонда баеров (общий бюджет, с которого команда начала). */
 export async function saveFundBase(form: FormData) {
   const user = await requireAdmin();
