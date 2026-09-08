@@ -51,7 +51,7 @@ export async function closePeriod(key: string) {
   });
 
   revalidatePath('/payroll');
-  revalidatePath('/fund');
+  revalidatePath('/');
   return { ok: true as const };
 }
 
@@ -75,7 +75,7 @@ export async function reopenPeriod(key: string) {
     },
   });
   revalidatePath('/payroll');
-  revalidatePath('/fund');
+  revalidatePath('/');
   return { ok: true as const };
 }
 

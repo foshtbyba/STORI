@@ -22,7 +22,7 @@ export async function addFundWithdrawal(form: FormData) {
       diffJson: JSON.stringify({ cents, note }),
     },
   });
-  revalidatePath('/fund');
+  revalidatePath('/');
 }
 
 /** Удалить запись фонда (вывод — свободно; накопление недели удалять нельзя,
@@ -32,5 +32,5 @@ export async function deleteFundWithdrawal(form: FormData) {
   const id = String(form.get('id') ?? '');
   if (!id) return;
   await prisma.fundEntry.deleteMany({ where: { id, kind: 'withdrawal' } });
-  revalidatePath('/fund');
+  revalidatePath('/');
 }
