@@ -40,7 +40,7 @@ export async function fundState() {
   const allWeeks = new Set<string>();
   for (const d of dayDates) allWeeks.add(weekKey(d.date));
 
-  const raw: { key: string; cents: number; open: boolean }[] = [];
+  const raw: { key: string; cents: number; open: boolean; payoutCents: number }[] = [];
   // Разложение накопленного на составляющие — чтобы на экране было видно,
   // сколько баеры принесли профитом до вычета зарплаты и расходников.
   let profitCents = 0;
@@ -51,7 +51,12 @@ export async function fundState() {
     profitCents += s.totals.profitCents;
     consumableCents += s.totals.consumableCents;
     payoutCents += s.totals.payoutCents;
-    raw.push({ key: wk, cents: s.totals.teamNetCents, open: !closedKeys.has(wk) });
+    raw.push({
+      key: wk,
+      cents: s.totals.teamNetCents,
+      open: !closedKeys.has(wk),
+      payoutCents: s.totals.payoutCents,
+    });
   }
   // Накопительный итог считаем по возрастанию (старые → новые): именно он
   // честно показывает, где плюс недели просто закрыл прошлый минус, а где пошёл

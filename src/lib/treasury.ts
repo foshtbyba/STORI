@@ -1,6 +1,7 @@
 import 'server-only';
 import { prisma } from './db';
 import { fundState } from './fund';
+import { weekKey } from './period';
 import { grossUp, DEFAULT_COMMISSION_BPS } from './money';
 
 /**
@@ -38,7 +39,9 @@ export type OwnerShare = {
   withdrawnCents: number;
   /** Прочие движения (внешние заливы/доход/расход мимо дашборда), со знаком. */
   adjustmentCents: number;
-  /** opening + earned − withdrawn + adjustments. */
+  /** Половина зп баеров, выданной налом с якоря: оборотка должна её овнеру. */
+  buyersSalaryCents: number;
+  /** opening + earned − withdrawn + adjustments + зп-баерам-налом. */
   balanceCents: number;
   withdrawals: { id: string; amountCents: number; note: string; date: Date }[];
   adjustments: { id: string; amountCents: number; note: string; date: Date }[];
@@ -95,6 +98,14 @@ export async function treasuryState() {
       const myAdj = adjOf('owner', o.id);
       const adjustmentCents = myAdj.reduce((s, a) => s + a.amountCents, 0);
       const earnedCents = profitCents - consumableCents - overheadCents;
+      // Зарплата баерам выдаётся налом и не выводится со счетов — значит её
+      // эквивалент лежит в обороте и оборотка должна его овнерам, которые
+      // фронтили налом 50/50. Считаем зп баеров с недели якоря.
+      const anchorWk = weekKey(anchor);
+      const buyersSalarySince = fund.weeks
+        .filter((w) => w.key >= anchorWk)
+        .reduce((s, w) => s + w.payoutCents, 0);
+      const buyersSalaryCents = Math.round(buyersSalarySince / 2);
       return {
         buyerId: o.id,
         handle: o.handle,
@@ -108,7 +119,8 @@ export async function treasuryState() {
         earnedCents,
         withdrawnCents,
         adjustmentCents,
-        balanceCents: opening + earnedCents - withdrawnCents + adjustmentCents,
+        buyersSalaryCents,
+        balanceCents: opening + earnedCents - withdrawnCents + adjustmentCents + buyersSalaryCents,
         withdrawals: o.ownerWithdrawals.map((w) => ({
           id: w.id,
           amountCents: w.amountCents,

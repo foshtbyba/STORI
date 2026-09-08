@@ -119,6 +119,7 @@ export default async function TreasuryPage() {
                   { name: 'Профит кабинетов', cents: o.profitCents, taken: o.profitCents < 0, note: 'доход − расход с комиссией' },
                   { name: 'Свои расходники', cents: o.consumableCents, taken: true },
                   { name: 'Общак (½)', cents: o.overheadCents, taken: true, note: '50/50 между овнерами' },
+                  { name: 'Зп баерам налом (½)', cents: o.buyersSalaryCents, taken: false, note: 'выдана налом, в обороте' },
                   { name: 'Выводы', cents: o.withdrawnCents, taken: true },
                   { name: 'Прочие движения', cents: o.adjustmentCents, signed: true, note: 'мимо дашборда' },
                 ].map((r) => (
