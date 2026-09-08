@@ -216,13 +216,20 @@ export default function CampaignsTable({
     });
   };
 
-  // Метка сортировки с ЗАРЕЗЕРВИРОВАННОЙ шириной: показ/скрытие стрелки не должны
-  // менять ширину колонки и дёргать всю таблицу.
+  // Для левой колонки — стрелка в потоке. Для числовых колонок центрирование
+  // важнее, поэтому там стрелка абсолютная (caret): она не сдвигает подпись, и
+  // заголовок стоит ровно над числом.
   const arrow = (k: SortKey) => (
     <span className="mx-0.5 inline-block w-3 text-center align-middle text-[9px] text-dim">
       {k === sortKey ? (sortDir === 'asc' ? '▲' : '▼') : ''}
     </span>
   );
+  const caret = (k: SortKey) =>
+    k === sortKey ? (
+      <span className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-[9px] text-dim">
+        {sortDir === 'asc' ? '▲' : '▼'}
+      </span>
+    ) : null;
   const tile = (label: string, value: string, sub?: string, tone?: 'sage' | 'rust') => (
     <div className="rounded-[18px] bg-sub px-4 py-3">
       <div className="text-[11px] text-mute">{label}</div>
@@ -322,19 +329,19 @@ export default function CampaignsTable({
           <thead>
             <tr className="text-left text-[10.5px] uppercase tracking-wide text-mute">
               <th className="cursor-pointer whitespace-nowrap py-2 pr-3 font-medium" onClick={() => sortBy('name')}>Объявление{arrow('name')}</th>
-              <th className="cursor-pointer whitespace-nowrap px-3 py-2 text-right font-medium" onClick={() => sortBy('budget')}>
-                {arrow('budget')}<Tip label="Дневной бюджет (адсета или кампании, если CBO). Клик по значению в строке — изменить.">Бюджет</Tip>
-              </th>
               {COLS.map((c) => (
                 <th
                   key={c.key}
-                  className={`cursor-pointer whitespace-nowrap px-3 py-2 text-right font-medium ${c.key === 'profit' ? 'text-soft' : ''}`}
+                  className={`relative cursor-pointer whitespace-nowrap px-3 py-2 text-center font-medium ${c.key === 'profit' ? 'text-soft' : ''}`}
                   onClick={() => sortBy(c.key)}
                 >
-                  {arrow(c.key)}<Tip label={c.hint}>{c.label}</Tip>
+                  <Tip label={c.hint}>{c.label}</Tip>{caret(c.key)}
                 </th>
               ))}
-              <th className="whitespace-nowrap px-3 py-2 text-right font-medium">Действия</th>
+              <th className="whitespace-nowrap px-3 py-2 text-center font-medium">Действия</th>
+              <th className="relative cursor-pointer whitespace-nowrap px-3 py-2 text-center font-medium text-soft" onClick={() => sortBy('budget')}>
+                <Tip label="Дневной бюджет (адсета или кампании, если CBO). Клик по значению — изменить.">Бюджет</Tip>{caret('budget')}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -354,59 +361,34 @@ export default function CampaignsTable({
                         <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-sub text-dim">—</span>
                       )}
                       <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="max-w-[240px] truncate text-[12.5px] text-soft" title={r.name}>{r.name || `#${r.adId}`}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="min-w-0 flex-1 truncate text-[12.5px] text-soft" title={r.name}>{r.name || `#${r.adId}`}</span>
                           <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${TONE[badge.tone]}`}>{badge.label}</span>
                           {r.ktToken ? null : <span className="shrink-0 rounded-full bg-sub px-2 py-0.5 text-[10px] text-dim" title="Токен КТ в ссылке не распознан">нет потока</span>}
                         </div>
-                        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10.5px] text-dim">
-                          <span className="flex items-center gap-1"><Avatar initials={r.initials} color={r.color} size={14} />{r.buyer}</span>
-                          <Tip label="act_ID кабинета в Facebook"><span className="n cursor-help">· {r.act}</span></Tip>
+                        <div className="mt-1 flex items-center gap-x-2 text-[10.5px] text-dim">
+                          <Tip label="act_ID кабинета в Facebook"><span className="n cursor-help">{r.act}</span></Tip>
                           {r.targeting ? <span className="n">· {r.targeting}</span> : null}
                           {r.linkUrl ? <a href={r.linkUrl} target="_blank" rel="noreferrer" className="text-steel hover:underline">· ссылка</a> : null}
                         </div>
                       </div>
                     </div>
                   </td>
-                  {/* Бюджет — редактируемый */}
-                  <td className="px-3 py-2.5 text-right">
-                    {editing ? (
-                      <span className="inline-flex items-center gap-1">
-                        <input
-                          value={budgets[r.id]}
-                          onChange={(e) => setBudgets((b) => ({ ...b, [r.id]: e.target.value }))}
-                          onKeyDown={(e) => { if (e.key === 'Enter') saveBudget(r.id); }}
-                          className="n h-7 w-16 rounded-md border border-line2 bg-sub px-2 text-right text-[11.5px] outline-none focus:border-sage"
-                          autoFocus
-                        />
-                        <button type="button" disabled={pending} onClick={() => saveBudget(r.id)} className="text-sage">✓</button>
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setBudgets((b) => ({ ...b, [r.id]: r.dailyBudgetCents != null ? String(Math.round(r.dailyBudgetCents / 100)) : '' }))}
-                        className="n text-[12px] text-mute transition hover:text-sage"
-                        title="Изменить дневной бюджет адсета"
-                      >
-                        {r.dailyBudgetCents != null ? money(r.dailyBudgetCents) : '—'}
-                      </button>
-                    )}
-                  </td>
-                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{int(r.impressions)}</td>
-                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{int(r.clicks)}</td>
-                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{r.clicks ? money(r.cpc) : '—'}</td>
-                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{pct(r.clicks, r.impressions)}</td>
-                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{r.impressions ? money(r.cpm) : '—'}</td>
-                  <td className="n px-3 py-2.5 text-right text-[13px] text-soft">{int(r.leads)}</td>
-                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{r.leads ? money(r.cpl) : '—'}</td>
-                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{pct(r.leads, r.clicks)}</td>
-                  <td className="n px-3 py-2.5 text-right text-[13px] text-soft">
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{int(r.impressions)}</td>
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{int(r.clicks)}</td>
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{r.clicks ? money(r.cpc) : '—'}</td>
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{pct(r.clicks, r.impressions)}</td>
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{r.impressions ? money(r.cpm) : '—'}</td>
+                  <td className="n px-3 py-2.5 text-center text-[13px] text-soft">{int(r.leads)}</td>
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{r.leads ? money(r.cpl) : '—'}</td>
+                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{pct(r.leads, r.clicks)}</td>
+                  <td className="n px-3 py-2.5 text-center text-[13px] text-soft">
                     {money(r.spendCents)}
                     {r.currency !== 'USD' ? <span className="ml-1 text-[10px] text-rust">{r.currency}</span> : null}
                   </td>
-                  <td className="n px-3 py-2.5 text-right text-[13px] text-soft">{money(r.revenueCents)}</td>
-                  <td className={`n px-3 py-2.5 text-right text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{money(r.profitCents)}</td>
-                  <td className={`n px-3 py-2.5 text-right text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{r.spendCents ? pct(r.profitCents, r.spendCents, 1) : '—'}</td>
+                  <td className="n px-3 py-2.5 text-center text-[13px] text-soft">{money(r.revenueCents)}</td>
+                  <td className={`n px-3 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{money(r.profitCents)}</td>
+                  <td className={`n px-3 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{r.spendCents ? pct(r.profitCents, r.spendCents, 1) : '—'}</td>
                   {/* Действия */}
                   <td className="px-2 py-2.5 text-center">
                     <button
@@ -421,6 +403,30 @@ export default function CampaignsTable({
                       {active ? 'пауза' : 'запуск'}
                       <span className="text-[9px]">{active ? '⏸' : '▶'}</span>
                     </button>
+                  </td>
+                  {/* Бюджет — редактируемый, выделен, рядом с кнопкой запуска */}
+                  <td className="px-3 py-2.5 text-center">
+                    {editing ? (
+                      <span className="inline-flex items-center gap-1">
+                        <input
+                          value={budgets[r.id]}
+                          onChange={(e) => setBudgets((b) => ({ ...b, [r.id]: e.target.value }))}
+                          onKeyDown={(e) => { if (e.key === 'Enter') saveBudget(r.id); }}
+                          className="n h-7 w-16 rounded-md border border-line2 bg-sub px-2 text-center text-[12px] outline-none focus:border-sage"
+                          autoFocus
+                        />
+                        <button type="button" disabled={pending} onClick={() => saveBudget(r.id)} className="text-sage">✓</button>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setBudgets((b) => ({ ...b, [r.id]: r.dailyBudgetCents != null ? String(Math.round(r.dailyBudgetCents / 100)) : '' }))}
+                        className="n rounded-md bg-sub px-2.5 py-1 text-[13px] font-semibold text-text transition hover:text-sage"
+                        title="Изменить дневной бюджет адсета"
+                      >
+                        {r.dailyBudgetCents != null ? money(r.dailyBudgetCents) : '—'}
+                      </button>
+                    )}
                   </td>
                 </tr>
               );
