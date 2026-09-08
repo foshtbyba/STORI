@@ -115,7 +115,7 @@ export default async function PayrollPage({
 
   return (
     <div className="flex flex-col gap-3.5">
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-[1.25fr_repeat(3,1fr)] lg:gap-3.5">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-[1.25fr_repeat(2,1fr)] lg:gap-3.5">
         <Panel className="flex flex-col justify-between p-6">
           <PanelHead
             icon={<IconWallet color="#b4c68c" />}
@@ -126,17 +126,6 @@ export default async function PayrollPage({
           <div className="n text-[12.5px] text-mute">{rub(totals.total, rate)}</div>
         </Panel>
         {[
-          {
-            label: team ? 'Средняя ставка' : 'Твоя ставка',
-            value: rateLabel,
-            note:
-              totals.avgRate === null
-                ? `порог ${usd(minTier)} не взят — платим ${okladRub.toLocaleString('ru-RU')} ₽`
-                : carriedCents > 0
-                  ? `считаем с ${usd(totals.base)} — профит минус расходники минус хвост`
-                  : `считаем с ${usd(totals.base)} — профит минус расходники`,
-            color: totals.avgRate === null ? 'text-rust' : 'text-text',
-          },
           { label: 'Разовые бонусы', value: usd(totals.bonus), note: 'начислены вручную', color: 'text-sage' },
           team
             ? { label: 'Остаётся команде', value: usd(summary.totals.teamNetCents), note: 'профит − расходники − ЗП', color: 'text-text' }
