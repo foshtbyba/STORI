@@ -119,6 +119,7 @@ export default function CampaignsTable({
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [budgets, setBudgets] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   // Группировка: по объявлениям или свёрнуто по кампаниям. И показывать ли
   // объявления без открута. Оба выбора запоминаем в браузере.
   const [group, setGroupState] = useState<'ad' | 'campaign'>('ad');
@@ -381,6 +382,7 @@ export default function CampaignsTable({
       </div>
 
       {msg ?<div className="rounded-xl px-3.5 py-2.5 text-[12px]" style={{ background: '#2c1f1a', color: '#ce6e58' }}>{msg}</div> : null}
+      {notice ? <div className="flex items-center justify-between gap-3 rounded-xl bg-sage-t px-3.5 py-2.5 text-[12px] text-sage"><span>{notice}</span><button type="button" onClick={() => setNotice(null)} className="text-[13px] opacity-70 hover:opacity-100">✕</button></div> : null}
 
       {/* Таблица */}
       <div className="overflow-x-auto">
@@ -483,7 +485,7 @@ export default function CampaignsTable({
                   </td>
                   {/* Действия */}
                   <td className="px-2 py-2.5 text-center">
-                    {r.isCampaign ? <span className="text-dim">—</span> : <AdActions id={r.id} active={active} name={r.name} onError={setMsg} />}
+                    {r.isCampaign ? <span className="text-dim">—</span> : <AdActions id={r.id} active={active} name={r.name} onError={(m) => { setNotice(null); setMsg(m); }} onOk={(m) => { setMsg(null); setNotice(m); }} />}
                   </td>
                 </tr>
               );

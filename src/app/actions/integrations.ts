@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireAdmin, requireUser } from '@/lib/auth';
-import { checkToken, setAdStatus, setAdsetBudget, duplicateAd, duplicateCampaign, adCampaignId, campaignInfo, renameAd, getAdCreative, applyAdText, fbAccess, fbErrorKind, FbError, type FbNet, type AdText } from '@/lib/fb';
+import { checkToken, setAdStatus, setAdsetBudget, duplicateAd, duplicateAdset, duplicateCampaign, adCampaignId, campaignInfo, renameAd, getAdCreative, applyAdText, fbAccess, fbErrorKind, FbError, type FbNet, type AdText } from '@/lib/fb';
 import { extractTokenFromCookies, readCookieBlob, cookieHeaderOf } from '@/lib/fb-engine';
 import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
@@ -624,65 +624,44 @@ export async function setAdBudget(_prev: AdActionState, form: FormData): Promise
   return { ok: true };
 }
 
-/** Дублировать объявление в том же адсете (копия — на паузе). */
-export async function duplicateAdAction(_prev: AdActionState, form: FormData): Promise<AdActionState> {
+/**
+ * Дублировать объект N раз (на паузе). `level` — что копируем: объявление,
+ * адсет или всю кампанию. Кампания/адсет собираются по частям (обход лимита FB).
+ */
+export async function duplicateAction(_prev: AdActionState, form: FormData): Promise<AdActionState> {
   const id = String(form.get('id') ?? '');
-  const ctx = await adAccessFor(id);
-  if ('error' in ctx) return { ok: false, error: ctx.error };
-  try {
-    await withFreshToken(ctx, (a, n) => duplicateAd(a, ctx.ad.adId, n));
-  } catch (e) {
-    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
-  }
-  revalidatePath('/ads/campaigns');
-  return { ok: true };
-}
-
-/** Дублировать всю кампанию объявления со структурой (копия — на паузе). */
-export async function duplicateCampaignAction(_prev: AdActionState, form: FormData): Promise<AdActionState> {
-  const id = String(form.get('id') ?? '');
+  const level = String(form.get('level') ?? 'ad'); // ad | adset | campaign
+  const cap = level === 'campaign' ? 3 : 20;
+  const count = Math.min(cap, Math.max(1, Math.round(Number(String(form.get('count') ?? '1')) || 1)));
   const ctx = await adAccessFor(id);
   if ('error' in ctx) return { ok: false, error: ctx.error };
   let campId = '';
   try {
-    campId = await withFreshToken(ctx, (a, n) => adCampaignId(a, ctx.ad.adId, n));
-    if (!campId) return { ok: false, error: 'Не нашёл кампанию объявления' };
-    await withFreshToken(ctx, (a, n) => duplicateCampaign(a, campId, n));
+    for (let i = 0; i < count; i += 1) {
+      if (level === 'campaign') {
+        campId = campId || (await withFreshToken(ctx, (a, n) => adCampaignId(a, ctx.ad.adId, n)));
+        if (!campId) return { ok: false, error: 'Не нашёл кампанию объявления' };
+        await withFreshToken(ctx, (a, n) => duplicateCampaign(a, campId, n));
+      } else if (level === 'adset') {
+        if (!ctx.ad.adsetId) return { ok: false, error: 'Не нашёл адсет объявления' };
+        await withFreshToken(ctx, (a, n) => duplicateAdset(a, ctx.ad.adsetId, n));
+      } else {
+        await withFreshToken(ctx, (a, n) => duplicateAd(a, ctx.ad.adId, n));
+      }
+    }
   } catch (e) {
     let msg = e instanceof FbError ? e.message : (e as Error).message;
-    // «код 1» на копии кампании обычно не про сессию (пауза/бюджет работают).
-    // Частая причина — кампания в спец-категории: её FB копировать через API не
-    // даёт. Подтянем инфо и скажем прямо, вместо мутного «код 1».
-    if (e instanceof FbError && e.code === 1 && campId) {
+    // «код 1» на копии кампании обычно не про сессию — частая причина —
+    // спец-категория: её FB копировать через API не даёт. Скажем прямо.
+    if (level === 'campaign' && e instanceof FbError && e.code === 1 && campId) {
       try {
         const info = await campaignInfo(ctx.access, campId, ctx.net);
         if (info.specialAdCategories.length) {
-          msg = `Кампания в спец-категории (${info.specialAdCategories.join(', ')}) — Facebook не даёт копировать её через API. Скопируй вручную в Ads Manager. Дубль отдельных объявлений при этом работает.`;
-        } else {
-          msg = 'Facebook не смог скопировать кампанию (код 1) — обычно из-за особенностей самой кампании/аккаунта, а не токена (пауза и дубль объявления работают). Пока можно скопировать вручную в Ads Manager; дубль объявлений доступен здесь.';
+          msg = `Кампания в спец-категории (${info.specialAdCategories.join(', ')}) — Facebook не даёт копировать её через API. Скопируй вручную в Ads Manager.`;
         }
-      } catch {
-        /* не смогли уточнить — оставляем исходный текст */
-      }
+      } catch { /* не уточнили — оставляем исходный текст */ }
     }
     return { ok: false, error: msg };
-  }
-  revalidatePath('/ads/campaigns');
-  return { ok: true };
-}
-
-/** Дублировать объявление N раз (для масштабирования). Копии — на паузе. */
-export async function duplicateAdNAction(_prev: AdActionState, form: FormData): Promise<AdActionState> {
-  const id = String(form.get('id') ?? '');
-  const n = Math.min(20, Math.max(1, Math.round(Number(String(form.get('count') ?? '1')) || 1)));
-  const ctx = await adAccessFor(id);
-  if ('error' in ctx) return { ok: false, error: ctx.error };
-  try {
-    for (let i = 0; i < n; i += 1) {
-      await withFreshToken(ctx, (a, nn) => duplicateAd(a, ctx.ad.adId, nn));
-    }
-  } catch (e) {
-    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
   revalidatePath('/ads/campaigns');
   return { ok: true };

@@ -2,9 +2,10 @@ import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
 import { currentPeriodKey } from '@/lib/queries';
-import { periodRange, periodTitle, weekKey, fmtDay } from '@/lib/period';
+import { periodRange, periodTitle, weekKey, fmtDay, isWeekKey, shiftKey } from '@/lib/period';
 import { usd, sum } from '@/lib/money';
 import { addConsumable, deleteConsumable } from '@/app/actions/catalog';
+import PeriodNav from '@/components/PeriodNav';
 import { Panel, PanelHead, Avatar, Empty } from '@/components/ui';
 import Select from '@/components/Select';
 import DateField from '@/components/DateField';
@@ -14,13 +15,14 @@ import { IconBox } from '@/components/icons';
 export default async function ConsumablesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ week?: string }>;
+  searchParams: Promise<{ p?: string; week?: string }>;
 }) {
   const user = await requireUser();
-  const { week } = await searchParams;
+  const { p, week } = await searchParams;
   // Списания недельные, как и вся статистика. Прошлые недели не пропадают —
-  // открываются тем же ключом в адресе.
-  const key = week ? weekKey(new Date(`${week}T00:00:00.000Z`)) : await currentPeriodKey();
+  // листаются стрелками (?p=ключ понедельника). `week` оставлен для старых ссылок.
+  const wanted = p ?? (week ? weekKey(new Date(`${week}T00:00:00.000Z`)) : '');
+  const key = wanted && isWeekKey(wanted) ? wanted : await currentPeriodKey();
   const { from, to } = periodRange(key);
   const label = periodTitle(key);
   const scoped = scopeBuyerId(user);
@@ -66,6 +68,11 @@ export default async function ConsumablesPage({
 
   return (
     <div className="flex flex-col gap-3.5">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[13px] text-mute">Списания · {label}</span>
+        <PeriodNav base="/consumables" label={label} isWeek prev={shiftKey(key, -1)} next={shiftKey(key, 1)} week={key} month={key} weeksOnly />
+      </div>
+
       {canEdit ? (
       <form action={addConsumable} className="grid grid-cols-2 items-end gap-2.5 rounded-[26px] border border-line bg-panel p-4 sm:grid-cols-3 sm:gap-3 sm:p-5 lg:grid-cols-[repeat(5,1fr)_auto]">
         <DateField name="date" defaultValue={today} />

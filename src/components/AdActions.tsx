@@ -4,9 +4,11 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import {
-  setAdRunning, duplicateAdAction, duplicateAdNAction, duplicateCampaignAction,
+  setAdRunning, duplicateAction,
   remoderateAd, renameAdAction, getAdText, setAdText,
 } from '@/app/actions/integrations';
+
+type DupLevel = 'ad' | 'adset' | 'campaign';
 
 type ActionFn = (prev: null, form: FormData) => Promise<{ ok: boolean; error?: string } | null>;
 
@@ -20,17 +22,20 @@ export default function AdActions({
   active,
   name,
   onError,
+  onOk,
 }: {
   id: string;
   active: boolean;
   name: string;
   onError: (msg: string) => void;
+  onOk: (msg: string) => void;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const [text, setText] = useState<null | { message: string; headline: string; description: string }>(null);
+  const [dup, setDup] = useState<null | { level: DupLevel; count: number }>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -50,7 +55,7 @@ export default function AdActions({
     };
   }, [open]);
 
-  const run = (fn: ActionFn, extra?: Record<string, string>) => {
+  const run = (fn: ActionFn, extra?: Record<string, string>, okMsg?: string) => {
     setOpen(false);
     start(async () => {
       const fd = new FormData();
@@ -58,7 +63,7 @@ export default function AdActions({
       for (const [k, v] of Object.entries(extra ?? {})) fd.set(k, v);
       const res = await fn(null, fd);
       if (res && !res.ok) onError(res.error ?? 'Не вышло');
-      else router.refresh();
+      else { if (okMsg) onOk(okMsg); router.refresh(); }
     });
   };
 
@@ -87,23 +92,23 @@ export default function AdActions({
       fd.set('message', t.message); fd.set('headline', t.headline); fd.set('description', t.description);
       const res = await setAdText(null, fd);
       if (res && !res.ok) onError(res.error ?? 'Не вышло');
-      else router.refresh();
+      else { onOk('Текст изменён — объявление ушло на ре-модерацию'); router.refresh(); }
     });
   };
 
-  const dupN = () => {
-    setOpen(false);
-    const v = window.prompt('Сколько копий сделать?', '3');
-    const n = Math.min(20, Math.max(1, Math.round(Number(v) || 0)));
-    if (!v || !n) return;
-    run(duplicateAdNAction, { count: String(n) });
+  const runDup = () => {
+    if (!dup) return;
+    const { level, count } = dup;
+    setDup(null);
+    const label = level === 'campaign' ? 'кампании' : level === 'adset' ? 'адсета' : 'объявления';
+    run(duplicateAction, { level, count: String(count) }, `Копий ${label}: ${count} (на паузе). Появятся после «Обновить стату» / в Ads Manager.`);
   };
 
   const rename = () => {
     setOpen(false);
     const v = window.prompt('Новое имя объявления:', name);
     if (v == null || !v.trim()) return;
-    run(renameAdAction, { name: v.trim() });
+    run(renameAdAction, { name: v.trim() }, 'Переименовано');
   };
 
   const item = 'flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-soft transition hover:bg-sub disabled:opacity-50';
@@ -142,13 +147,48 @@ export default function AdActions({
               style={{ position: 'fixed', left: Math.min(pos.x, window.innerWidth - 8), top: pos.y, transform: 'translateX(-100%)' }}
               className="z-50 min-w-[230px] overflow-hidden rounded-xl border border-line2 bg-raise py-1 shadow-lg"
             >
-              <button type="button" className={item} disabled={pending} onClick={() => run(duplicateAdAction)}>🧬 Дублировать объявление</button>
-              <button type="button" className={item} disabled={pending} onClick={dupN}>✖️ Дублировать ×N</button>
-              <button type="button" className={item} disabled={pending} onClick={() => run(duplicateCampaignAction)}>📄 Дублировать кампанию</button>
+              <button type="button" className={item} disabled={pending} onClick={() => { setOpen(false); setDup({ level: 'ad', count: 1 }); }}>🧬 Дублировать…</button>
               <div className="my-1 border-t border-line" />
-              <button type="button" className={item} disabled={pending} onClick={() => run(remoderateAd)}>🔁 Перемодерация (точка)</button>
+              <button type="button" className={item} disabled={pending} onClick={() => run(remoderateAd, undefined, 'Отправлено на ре-модерацию')}>🔁 Перемодерация (точка)</button>
               <button type="button" className={item} disabled={pending} onClick={openTextEditor}>✏️ Сменить текст…</button>
               <button type="button" className={item} disabled={pending} onClick={rename}>🏷️ Переименовать…</button>
+            </div>,
+            document.body,
+          )
+        : null}
+
+      {dup && typeof document !== 'undefined'
+        ? createPortal(
+            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4" onClick={() => setDup(null)}>
+              <div onClick={(e) => e.stopPropagation()} className="w-full max-w-xs rounded-2xl border border-line2 bg-raise p-5 text-left shadow-2xl">
+                <div className="mb-3 text-[14px] font-semibold text-text">Что дублировать?</div>
+                <div className="mb-3 flex flex-col gap-1">
+                  {([['ad', 'Объявление'], ['adset', 'Адсет (группу)'], ['campaign', 'Кампанию']] as const).map(([v, t]) => (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => setDup({ ...dup, level: v })}
+                      className={`rounded-lg px-3 py-2 text-left text-[12.5px] transition ${dup.level === v ? 'bg-sage-t text-sage font-semibold' : 'bg-sub text-soft hover:text-text'}`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+                <div className="mb-1 text-[11px] text-mute">Сколько копий</div>
+                <input
+                  type="number"
+                  min={1}
+                  max={dup.level === 'campaign' ? 3 : 20}
+                  value={dup.count}
+                  onChange={(e) => setDup({ ...dup, count: Math.max(1, Math.round(Number(e.target.value) || 1)) })}
+                  className="n mb-4 w-full rounded-lg border border-line2 bg-sub px-3 py-2 text-[13px] text-text outline-none focus:border-sage"
+                />
+                <div className="mb-3 text-[10.5px] text-dim">Копии создаются на паузе. Кампания/адсет собираются по частям (это чуть дольше).</div>
+                <div className="flex justify-end gap-2">
+                  <button type="button" onClick={() => setDup(null)} className="rounded-full px-4 py-1.5 text-[12px] text-mute hover:text-soft">Отмена</button>
+                  <button type="button" disabled={pending} onClick={runDup} className="rounded-full bg-sage-t px-4 py-1.5 text-[12px] font-semibold text-sage hover:opacity-80 disabled:opacity-50">Дублировать</button>
+                </div>
+              </div>
             </div>,
             document.body,
           )

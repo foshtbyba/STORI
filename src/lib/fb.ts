@@ -929,6 +929,27 @@ export async function applyAdText(token: string, accountExternalId: string, adId
   return newId;
 }
 
+/**
+ * Дублировать адсет со всеми объявлениями — НА ПАУЗЕ. Если объявлений ≥2, разом
+ * копировать нельзя (лимит FB <3 объектов), поэтому копируем адсет-оболочку и
+ * объявления по одному. При ≤1 объявлении хватает одной глубокой копии.
+ */
+export async function duplicateAdset(token: string, adsetId: string, net: FbNet = {}) {
+  const adIds = await listIds(`/${adsetId}/ads`, token, net);
+  if (adIds.length <= 1) {
+    const b = await call(`/${adsetId}/copies`, token, { deep_copy: 'true', status_option: 'PAUSED' }, net, 'POST');
+    return String((b as { copied_adset_id?: string; id?: string }).copied_adset_id ?? (b as { id?: string }).id ?? '');
+  }
+  const asB = await call(`/${adsetId}/copies`, token, { deep_copy: 'false', status_option: 'PAUSED' }, net, 'POST');
+  const newAdsetId = String((asB as { copied_adset_id?: string; id?: string }).copied_adset_id ?? (asB as { id?: string }).id ?? '');
+  if (!newAdsetId) throw new FbError('Facebook не вернул id копии адсета');
+  for (const adId of adIds) {
+    await sleep(400);
+    await call(`/${adId}/copies`, token, { adset_id: newAdsetId, status_option: 'PAUSED' }, net, 'POST');
+  }
+  return newAdsetId;
+}
+
 /** Справка по кампании — имя, цель и спец-категории. Нужна, чтобы объяснить,
  *  почему копия могла не пройти (спец-категорию FB копировать не даёт). */
 export async function campaignInfo(token: string, campaignId: string, net: FbNet = {}) {
