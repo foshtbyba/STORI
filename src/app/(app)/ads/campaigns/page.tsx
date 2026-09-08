@@ -61,6 +61,24 @@ export default async function CampaignsPage({
       })
     : [];
 
+  // Профили, которые сейчас НЕ обновляются: у токена стоит lastError (сессия
+  // слетела и даже авто-подхват из кук не помог, либо кабинет забанен). Их
+  // статистика и расход заморожены на моменте до сбоя — это надо явно показать,
+  // иначе легко не заметить и лить вслепую.
+  const staleWhere = admin
+    ? { enabled: true, lastError: { not: '' }, buyer: { owner: true } }
+    : { enabled: true, lastError: { not: '' }, buyerId: scoped ?? '__none__' };
+  const staleTokens = await prisma.adToken.findMany({
+    where: staleWhere,
+    select: { label: true, lastError: true, lastSyncAt: true, buyer: { select: { handle: true } } },
+    orderBy: { lastSyncAt: 'asc' },
+  });
+  const stale = staleTokens.map((t) => ({
+    who: [t.buyer?.handle, t.label].filter(Boolean).join(' · ') || 'профиль',
+    error: t.lastError,
+    when: t.lastSyncAt ? fmtWhen(t.lastSyncAt) : null,
+  }));
+
   const ads = await prisma.fbAd.findMany({
     where,
     include: {
@@ -120,6 +138,24 @@ export default async function CampaignsPage({
 
   return (
     <div className="flex flex-col gap-3.5">
+      {stale.length ? (
+        <div className="rounded-[18px] border px-4 py-3 text-[12.5px]" style={{ borderColor: '#5a3a2a', background: '#2c1f1a', color: '#ce6e58' }}>
+          <div className="font-semibold">⚠ Не обновляются {stale.length} проф.: статистика и расход по ним заморожены</div>
+          <ul className="mt-1.5 flex flex-col gap-1">
+            {stale.map((s, i) => (
+              <li key={i} className="text-[11.5px] leading-snug">
+                <span className="font-medium">{s.who}</span>
+                {s.when ? <span className="text-mute"> · последнее обновление {s.when}</span> : null}
+                <span className="block text-[11px] text-mute">{s.error}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-1.5 text-[11px] text-mute">
+            Обнови токен профиля (кнопка «подкинуть токен» в кабинетах) или переоткрой его сессию в антидетекте. После — жми «Обновить стату»: пропущенные дни (до 14) догрузятся, дыр в расходе не будет.
+          </div>
+        </div>
+      ) : null}
+
       <Panel className="p-4 sm:p-6">
         <CampaignsTable rows={rows} win={win} day={dayValid ? day! : ''} owners={owners} admin={admin} updated={lastSync ? fmtWhen(lastSync) : null} />
 

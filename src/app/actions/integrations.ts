@@ -10,7 +10,7 @@ import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
 import { checkBrocard, BrocardError } from '@/lib/brocard';
 import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
-import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies } from '@/lib/sync';
+import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies, SYNC_DAYS } from '@/lib/sync';
 
 /**
  * Настройка интеграций. Всё здесь — только для админа: под этими ключами
@@ -511,7 +511,11 @@ export async function runCampaignSync() {
  */
 export async function runAdsSync() {
   await requireAdmin();
-  const result = await syncFacebookAds();
+  // Ручное обновление тянем на всю глубину (14 дней), а не за пару дней: если
+  // токен слетал и его починили не сразу, за это окно догрузятся пропущенные
+  // дни — и статистика, и расход в КТ (синк перечитывает окно и перезаписывает
+  // cost), так что дыр по дням не остаётся.
+  const result = await syncFacebookAds(SYNC_DAYS);
   revalidatePath('/ads/campaigns');
   return result;
 }
