@@ -254,10 +254,12 @@ export async function updateCostsBulk(
   costs: CostEntry[],
 ) {
   if (costs.length === 0) return;
-  // Keitaro требует currency в каждой записи — по умолчанию USD.
+  // Keitaro требует currency — и на верхнем уровне запроса, и в каждой записи.
+  // Ставим на обоих уровнях, чтобы точно прошло (по умолчанию USD).
   const withCurrency = costs.map((c) => ({ currency: 'USD', ...c }));
   await call(baseUrl, apiKey, '/clicks/update_costs', {
     campaign_ids: [Number(campaignId)],
+    currency: 'USD',
     costs: withCurrency,
   });
 }
