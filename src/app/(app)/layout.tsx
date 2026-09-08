@@ -31,6 +31,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     { href: '/consumables', label: 'Расходники', icon: <IconBox size={15} /> },
     { href: '/attendance', label: 'Календарь', icon: <IconCalendar size={15} /> },
     { href: '/payroll', label: 'Зарплата', icon: <IconWallet size={15} /> },
+    // Фонд баеров — касса чистого заработка, только для админа.
+    ...(role === 'ADMIN' ? [{ href: '/fund', label: 'Фонд', icon: <IconWallet size={15} /> }] : []),
     { href: '/offers', label: 'Офферы', icon: <IconTag size={15} /> },
   ];
   // Отдельной вкладки «Источники» больше нет: ключи от Brocard и Keitaro

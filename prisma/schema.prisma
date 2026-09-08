@@ -601,3 +601,27 @@ model OverheadDay {
   spendCents Int      @default(0)
   updatedAt  DateTime @updatedAt
 }
+
+/// Фонд баеров — «касса» чистого заработка команды. Виден только админу.
+///
+/// Баланс = стартовая база (общий бюджет на открут, 1900) + накопленный чистый
+/// профит команды по закрытым неделям − выводы. При закрытии недели её
+/// «остаётся команде» фиксируется отдельной записью (kind=accrual, по periodId,
+/// чтобы не задвоить и убрать при переоткрытии); выводы админ вносит вручную
+/// (kind=withdrawal).
+model FundEntry {
+  id          String   @id @default(cuid())
+  kind        String   // 'accrual' | 'withdrawal'
+  /// Период-источник для accrual (у withdrawal пусто) — уникален, чтобы неделя
+  /// фиксировалась в фонд один раз.
+  periodId    String?
+  /// Человекочитаемый ключ недели (для accrual) — для показа.
+  periodKey   String   @default("")
+  /// accrual: +чистый команды за неделю; withdrawal: сумма вывода (вычитается).
+  amountCents Int      @default(0)
+  note        String   @default("")
+  createdAt   DateTime @default(now())
+
+  @@unique([kind, periodId])
+  @@index([createdAt])
+}
