@@ -1,8 +1,6 @@
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { currentPeriodKey, teamSummary, buyerSummary, allTimeProfit, payoutAcross, overheadMonths } from '@/lib/queries';
-import { fundState } from '@/lib/fund';
-import { addFundWithdrawal, deleteFundWithdrawal } from '@/app/actions/fund';
 import { usd, rub, sum, profitOf } from '@/lib/money';
 import {
   periodRange, periodTitle, daysOfRange, dayKey,
@@ -69,8 +67,6 @@ export default async function HomePage({
         allTimeProfit({ owners: true }),
       ])
     : [[], [], new Map<string, number>()];
-  // Фонд баеров — только админу; показываем баланс под «Остаётся команде».
-  const fund = isAdmin ? await fundState() : null;
   /*
     График рисуем чистыми — профит дня минус расходники, списанные этим днём.
     Раньше столбики складывались в «профит с рекламы», а крупная цифра над
@@ -461,71 +457,6 @@ export default async function HomePage({
       >
         <ProfitBars data={series} />
       </CollapsiblePanel>
-
-      {/* Фонд баеров — свёрнут показывает баланс, развёрнут: пополнения по
-          неделям, снятия и форма вывода. Только у админа. */}
-      {fund ? (
-        <CollapsiblePanel
-          icon={<IconWallet color="#b4c68c" />}
-          tint="bg-sage-t"
-          title="Фонд баеров"
-          aside={<span className="text-[12.5px] text-mute">накоплено {fund.accrued < 0 ? '− ' : '+ '}{usd(Math.abs(fund.accrued))}{fund.withdrawn ? ` · выведено − ${usd(fund.withdrawn)}` : ''}</span>}
-          summary={<span className="rounded-full bg-sage-t px-3.5 py-1.5"><span className="n text-[12.5px] font-semibold text-sage">{usd(fund.balance)}</span></span>}
-        >
-          <div className="flex flex-col gap-4">
-            {/* Вывод со счёта */}
-            <form action={addFundWithdrawal} className="flex flex-wrap items-center gap-2">
-              <input name="amount" inputMode="decimal" placeholder="вывести, $" className="n h-9 w-28 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
-              <input name="note" placeholder="комментарий (кому/за что)" className="h-9 min-w-0 flex-1 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
-              <button type="submit" className="h-9 shrink-0 rounded-full bg-rust px-4 text-[12px] font-semibold text-bg">Вывести</button>
-            </form>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              {/* Пополнения по неделям */}
-              <div>
-                <div className="mb-1.5 text-[11px] uppercase tracking-wide text-mute">Пополнения по неделям</div>
-                {fund.weeks.length === 0 ? (
-                  <div className="text-[12px] text-dim">Пока нет данных.</div>
-                ) : (
-                  fund.weeks.map((a) => (
-                    <div key={a.key} className="flex items-center justify-between gap-2 border-t border-line py-2 text-[12.5px]">
-                      <span className="text-soft">{periodTitle(a.key)}{a.open ? <span className="ml-1.5 text-[10.5px] text-dim">· текущая</span> : null}</span>
-                      <span className="flex items-baseline gap-2 text-right">
-                        <span className={`n ${a.cents >= 0 ? 'text-sage' : 'text-rust'}`}>{a.cents >= 0 ? '+ ' : '− '}{usd(Math.abs(a.cents))}</span>
-                        {/* Накопительно: сколько в фонде после этой недели. Видно,
-                            где плюс лишь закрыл минус, а где реальный заработок. */}
-                        <span className="n w-20 text-[11px] text-dim" title="Накопительно в фонде после этой недели">
-                          → {a.cumCents < 0 ? '−' : ''}{usd(Math.abs(a.cumCents))}
-                        </span>
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-              {/* Снятия */}
-              <div>
-                <div className="mb-1.5 text-[11px] uppercase tracking-wide text-mute">Снятия со счёта</div>
-                {fund.withdrawals.length === 0 ? (
-                  <div className="text-[12px] text-dim">Выводов пока не было.</div>
-                ) : (
-                  fund.withdrawals.map((w) => (
-                    <div key={w.id} className="flex items-center justify-between gap-2 border-t border-line py-2 text-[12.5px]">
-                      <span className="flex min-w-0 items-center gap-2">
-                        <span className="n shrink-0 text-rust">− {usd(w.amountCents)}</span>
-                        <span className="truncate text-mute">{w.note || '—'}</span>
-                      </span>
-                      <span className="flex shrink-0 items-center gap-2">
-                        <span className="n text-[11px] text-dim">{w.createdAt.toLocaleDateString('ru-RU')}</span>
-                        <form action={deleteFundWithdrawal}><input type="hidden" name="id" value={w.id} /><button type="submit" className="text-[11px] text-dim transition hover:text-rust">✕</button></form>
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        </CollapsiblePanel>
-      ) : null}
     </div>
   );
 }

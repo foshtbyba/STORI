@@ -2,8 +2,10 @@ import { requireUser } from '@/lib/auth';
 import { type Role } from '@/lib/roles';
 import { treasuryState } from '@/lib/treasury';
 import { usd } from '@/lib/money';
+import { periodTitle } from '@/lib/period';
 import { Panel, PanelHead, Sub, Empty, Avatar, Big } from '@/components/ui';
-import { IconWallet } from '@/components/icons';
+import { IconWallet, IconUsers } from '@/components/icons';
+import { addFundWithdrawal, deleteFundWithdrawal } from '@/app/actions/fund';
 import {
   saveOwnerOpening,
   addOwnerWithdrawal,
@@ -93,11 +95,8 @@ export default async function TreasuryPage() {
         </div>
       </Panel>
 
-      {/* Доли овнеров: старт + заработок − выводы */}
-      {t.shares.length === 0 ? (
-        <Empty>Овнеров в системе нет — заведи их на листе «Овнеры».</Empty>
-      ) : (
-        <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 lg:gap-3.5">
+      {/* Три доли: овнеры + общий капитал баеров (фонд) */}
+      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-3 lg:gap-3.5">
           {t.shares.map((o) => (
             <Panel key={o.buyerId} className="flex flex-col p-4 sm:p-6">
               <PanelHead
@@ -156,10 +155,12 @@ export default async function TreasuryPage() {
                 <button type="submit" className="h-9 shrink-0 rounded-full bg-rust px-4 text-[12px] font-semibold text-bg">Вывести</button>
               </form>
 
-              {o.withdrawals.length > 0 ? (
-                <div className="mt-3">
-                  <div className="lab mb-1.5">Выводы</div>
-                  {o.withdrawals.map((w) => (
+              <div className="mt-3">
+                <div className="lab mb-1.5">История выводов</div>
+                {o.withdrawals.length === 0 ? (
+                  <div className="text-[12px] text-dim">Выводов не было.</div>
+                ) : (
+                  o.withdrawals.map((w) => (
                     <div key={w.id} className="flex items-center justify-between gap-2 border-t border-line py-1.5 text-[12px]">
                       <span className="flex min-w-0 items-center gap-2">
                         <span className="n shrink-0 text-rust">− {usd(w.amountCents)}</span>
@@ -173,13 +174,79 @@ export default async function TreasuryPage() {
                         </form>
                       </span>
                     </div>
-                  ))}
-                </div>
-              ) : null}
+                  ))
+                )}
+              </div>
             </Panel>
           ))}
+
+          {/* Третья доля — общий капитал баеров (фонд) */}
+          <Panel className="flex flex-col p-4 sm:p-6">
+            <PanelHead
+              icon={<IconUsers color="#b4c68c" />}
+              tint="bg-sage-t"
+              title="Капитал баеров"
+              aside={
+                <span className="text-[12.5px] text-mute">
+                  накоплено {t.fund.accrued < 0 ? '− ' : '+ '}{usd(Math.abs(t.fund.accrued))}
+                  {t.fund.withdrawn ? ` · выведено − ${usd(t.fund.withdrawn)}` : ''}
+                </span>
+              }
+            />
+            <Big cents={t.fund.balance} size={40} className="mt-4" />
+
+            {/* Вывод из фонда (50/50 между овнерами) */}
+            <form action={addFundWithdrawal} className="mt-4 flex flex-wrap items-center gap-2">
+              <input name="amount" inputMode="decimal" placeholder="вывести, $" className="n h-9 w-28 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
+              <input name="note" placeholder="комментарий (50/50 овнерам)" className="h-9 min-w-0 flex-1 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
+              <button type="submit" className="h-9 shrink-0 rounded-full bg-rust px-4 text-[12px] font-semibold text-bg">Вывести</button>
+            </form>
+
+            {/* Пополнения по неделям с накопительным итогом */}
+            <div className="mt-4">
+              <div className="lab mb-1.5">Пополнения по неделям</div>
+              {t.fund.weeks.length === 0 ? (
+                <div className="text-[12px] text-dim">Пока нет данных.</div>
+              ) : (
+                t.fund.weeks.map((a) => (
+                  <div key={a.key} className="flex items-center justify-between gap-2 border-t border-line py-1.5 text-[12px]">
+                    <span className="text-soft">{periodTitle(a.key)}{a.open ? <span className="ml-1.5 text-[10.5px] text-dim">· текущая</span> : null}</span>
+                    <span className="flex items-baseline gap-2 text-right">
+                      <span className={`n ${a.cents >= 0 ? 'text-sage' : 'text-rust'}`}>{a.cents >= 0 ? '+ ' : '− '}{usd(Math.abs(a.cents))}</span>
+                      <span className="n w-16 text-[11px] text-dim" title="Накопительно в фонде после этой недели">
+                        → {a.cumCents < 0 ? '−' : ''}{usd(Math.abs(a.cumCents))}
+                      </span>
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* История выводов из фонда */}
+            <div className="mt-3">
+              <div className="lab mb-1.5">История выводов</div>
+              {t.fund.withdrawals.length === 0 ? (
+                <div className="text-[12px] text-dim">Выводов не было.</div>
+              ) : (
+                t.fund.withdrawals.map((w) => (
+                  <div key={w.id} className="flex items-center justify-between gap-2 border-t border-line py-1.5 text-[12px]">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="n shrink-0 text-rust">− {usd(w.amountCents)}</span>
+                      <span className="truncate text-mute">{w.note || '—'}</span>
+                    </span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <span className="n text-[11px] text-dim">{w.createdAt.toLocaleDateString('ru-RU')}</span>
+                      <form action={deleteFundWithdrawal}>
+                        <input type="hidden" name="id" value={w.id} />
+                        <button type="submit" className="text-[11px] text-dim transition hover:text-rust">✕</button>
+                      </form>
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </Panel>
         </div>
-      )}
 
       {/* Снимок реальных денег по источникам */}
       <Panel className="p-4 sm:p-6">
