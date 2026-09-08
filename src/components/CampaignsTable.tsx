@@ -6,8 +6,9 @@ import { Avatar, Badge } from './ui';
 import { IconRocket } from './icons';
 import Tip from './Tip';
 import SyncAds from './SyncAds';
+import AdActions from './AdActions';
 import { campaignBadge, type StatusTone } from '@/lib/fb-status';
-import { setAdRunning, setAdBudget } from '@/app/actions/integrations';
+import { setAdBudget } from '@/app/actions/integrations';
 
 export type AdRow = {
   id: string;
@@ -190,17 +191,6 @@ export default function CampaignsTable({
   const sortBy = (k: SortKey) => {
     if (k === sortKey) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
     else { setSortKey(k); setSortDir('desc'); }
-  };
-
-  const run = (id: string, status: 'ACTIVE' | 'PAUSED') => {
-    setMsg(null);
-    start(async () => {
-      const fd = new FormData();
-      fd.set('id', id); fd.set('status', status);
-      const res = await setAdRunning(null, fd);
-      if (res && !res.ok) setMsg(res.error ?? 'Не вышло');
-      else router.refresh();
-    });
   };
 
   const saveBudget = (id: string) => {
@@ -415,18 +405,7 @@ export default function CampaignsTable({
                   </td>
                   {/* Действия */}
                   <td className="px-2 py-2.5 text-center">
-                    <button
-                      type="button"
-                      disabled={pending}
-                      onClick={() => run(r.id, active ? 'PAUSED' : 'ACTIVE')}
-                      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[10.5px] transition ${
-                        active ? 'bg-amber-t text-amber hover:opacity-80' : 'bg-sage-t text-sage hover:opacity-80'
-                      } ${pending ? 'cursor-progress opacity-60' : ''}`}
-                      title={active ? 'Поставить на паузу' : 'Запустить'}
-                    >
-                      {active ? 'пауза' : 'запуск'}
-                      <span className="text-[9px]">{active ? '⏸' : '▶'}</span>
-                    </button>
+                    <AdActions id={r.id} active={active} onError={setMsg} />
                   </td>
                 </tr>
               );

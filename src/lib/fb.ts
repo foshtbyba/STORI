@@ -709,6 +709,41 @@ export async function setAdsetBudget(token: string, adsetId: string, cents: numb
   return Boolean((body as { success?: boolean }).success ?? true);
 }
 
+/**
+ * Дублировать объявление в том же адсете (ручка `/{ad_id}/copies`). Копия
+ * создаётся НА ПАУЗЕ, чтобы не начать лить до проверки. Возвращает id копии.
+ */
+export async function duplicateAd(token: string, adId: string, net: FbNet = {}) {
+  const body = await call(`/${adId}/copies`, token, { status_option: 'PAUSED' }, net, 'POST');
+  return String((body as { copied_ad_id?: string; id?: string }).copied_ad_id ?? (body as { id?: string }).id ?? '');
+}
+
+/** id кампании объявления — нужен, чтобы дублировать всю кампанию целиком. */
+export async function adCampaignId(token: string, adId: string, net: FbNet = {}) {
+  const body = await call(`/${adId}`, token, { fields: 'campaign{id}' }, net);
+  return String((body as { campaign?: { id?: string } }).campaign?.id ?? '');
+}
+
+/**
+ * Дублировать кампанию со всей структурой (адсеты + объявления), `deep_copy`.
+ * Копия — на паузе. Для больших кампаний Facebook делает это асинхронно, но
+ * запрос всё равно ставится в очередь; ошибку (если что) вернёт сразу.
+ */
+export async function duplicateCampaign(token: string, campaignId: string, net: FbNet = {}) {
+  const body = await call(
+    `/${campaignId}/copies`,
+    token,
+    { deep_copy: 'true', status_option: 'PAUSED' },
+    net,
+    'POST',
+  );
+  return String(
+    (body as { copied_campaign_id?: string; id?: string; ad_object_ids?: unknown }).copied_campaign_id ??
+      (body as { id?: string }).id ??
+      '',
+  );
+}
+
 export async function checkToken(
   raw: string,
   opts: { proxyUrl?: string | null; cookie?: string | null } = {},

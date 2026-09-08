@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireAdmin, requireUser } from '@/lib/auth';
-import { checkToken, setAdStatus, setAdsetBudget, fbAccess, FbError } from '@/lib/fb';
+import { checkToken, setAdStatus, setAdsetBudget, duplicateAd, duplicateCampaign, adCampaignId, fbAccess, FbError } from '@/lib/fb';
 import { extractTokenFromCookies, readCookieBlob, cookieHeaderOf } from '@/lib/fb-engine';
 import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
@@ -566,6 +566,36 @@ export async function setAdBudget(_prev: AdActionState, form: FormData): Promise
   try {
     await setAdsetBudget(ctx.access, target, Math.round(dollars * 100), ctx.net);
     await prisma.fbAd.update({ where: { id }, data: { dailyBudget: Math.round(dollars * 100) } });
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+  revalidatePath('/ads/campaigns');
+  return { ok: true };
+}
+
+/** Дублировать объявление в том же адсете (копия — на паузе). */
+export async function duplicateAdAction(_prev: AdActionState, form: FormData): Promise<AdActionState> {
+  const id = String(form.get('id') ?? '');
+  const ctx = await adAccessFor(id);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+  try {
+    await duplicateAd(ctx.access, ctx.ad.adId, ctx.net);
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+  revalidatePath('/ads/campaigns');
+  return { ok: true };
+}
+
+/** Дублировать всю кампанию объявления со структурой (копия — на паузе). */
+export async function duplicateCampaignAction(_prev: AdActionState, form: FormData): Promise<AdActionState> {
+  const id = String(form.get('id') ?? '');
+  const ctx = await adAccessFor(id);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+  try {
+    const campId = await adCampaignId(ctx.access, ctx.ad.adId, ctx.net);
+    if (!campId) return { ok: false, error: 'Не нашёл кампанию объявления' };
+    await duplicateCampaign(ctx.access, campId, ctx.net);
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }

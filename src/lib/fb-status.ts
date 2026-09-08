@@ -59,11 +59,15 @@ const CAMPAIGN: Record<string, AccountBadge> = {
   ADSET_PAUSED: { label: 'адсеты на паузе', tone: 'mute' },
   IN_PROCESS: { label: 'запускается', tone: 'warn' },
   PENDING_REVIEW: { label: 'на модерации', tone: 'warn' },
+  PENDING_PROCESSING: { label: 'обрабатывается', tone: 'warn' },
+  PREAPPROVED: { label: 'предодобрено', tone: 'warn' },
   WITH_ISSUES: { label: 'с проблемами', tone: 'warn' },
   PENDING_BILLING_INFO: { label: 'нет оплаты', tone: 'warn' },
-  DISAPPROVED: { label: 'отклонена', tone: 'bad' },
+  DISAPPROVED: { label: 'отклонено', tone: 'bad' },
+  ADSET_DISAPPROVED: { label: 'отклонено', tone: 'bad' },
+  CAMPAIGN_DISAPPROVED: { label: 'отклонено', tone: 'bad' },
   ARCHIVED: { label: 'в архиве', tone: 'mute' },
-  DELETED: { label: 'удалена', tone: 'mute' },
+  DELETED: { label: 'удалено', tone: 'mute' },
 };
 
 export function campaignBadge(status: string): AccountBadge {
