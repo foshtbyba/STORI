@@ -361,7 +361,7 @@ export default function CampaignsTable({
                         </div>
                         <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10.5px] text-dim">
                           <span className="flex items-center gap-1"><Avatar initials={r.initials} color={r.color} size={14} />{r.buyer}</span>
-                          <span className="n">· {r.act}</span>
+                          <Tip label="act_ID кабинета в Facebook"><span className="n cursor-help">· {r.act}</span></Tip>
                           {r.targeting ? <span className="n">· {r.targeting}</span> : null}
                           {r.linkUrl ? <a href={r.linkUrl} target="_blank" rel="noreferrer" className="text-steel hover:underline">· ссылка</a> : null}
                         </div>
