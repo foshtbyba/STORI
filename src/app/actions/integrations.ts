@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireAdmin, requireUser } from '@/lib/auth';
-import { checkToken, setAdStatus, setAdsetBudget, duplicateAd, duplicateCampaign, adCampaignId, fbAccess, fbErrorKind, FbError, type FbNet } from '@/lib/fb';
+import { checkToken, setAdStatus, setAdsetBudget, duplicateAd, duplicateCampaign, adCampaignId, campaignInfo, fbAccess, fbErrorKind, FbError, type FbNet } from '@/lib/fb';
 import { extractTokenFromCookies, readCookieBlob, cookieHeaderOf } from '@/lib/fb-engine';
 import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
@@ -631,14 +631,29 @@ export async function duplicateCampaignAction(_prev: AdActionState, form: FormDa
   const id = String(form.get('id') ?? '');
   const ctx = await adAccessFor(id);
   if ('error' in ctx) return { ok: false, error: ctx.error };
+  let campId = '';
   try {
-    await withFreshToken(ctx, async (a, n) => {
-      const campId = await adCampaignId(a, ctx.ad.adId, n);
-      if (!campId) throw new FbError('Не нашёл кампанию объявления');
-      await duplicateCampaign(a, campId, n);
-    });
+    campId = await withFreshToken(ctx, (a, n) => adCampaignId(a, ctx.ad.adId, n));
+    if (!campId) return { ok: false, error: 'Не нашёл кампанию объявления' };
+    await withFreshToken(ctx, (a, n) => duplicateCampaign(a, campId, n));
   } catch (e) {
-    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+    let msg = e instanceof FbError ? e.message : (e as Error).message;
+    // «код 1» на копии кампании обычно не про сессию (пауза/бюджет работают).
+    // Частая причина — кампания в спец-категории: её FB копировать через API не
+    // даёт. Подтянем инфо и скажем прямо, вместо мутного «код 1».
+    if (e instanceof FbError && e.code === 1 && campId) {
+      try {
+        const info = await campaignInfo(ctx.access, campId, ctx.net);
+        if (info.specialAdCategories.length) {
+          msg = `Кампания в спец-категории (${info.specialAdCategories.join(', ')}) — Facebook не даёт копировать её через API. Скопируй вручную в Ads Manager. Дубль отдельных объявлений при этом работает.`;
+        } else {
+          msg = 'Facebook не смог скопировать кампанию (код 1) — обычно из-за особенностей самой кампании/аккаунта, а не токена (пауза и дубль объявления работают). Пока можно скопировать вручную в Ads Manager; дубль объявлений доступен здесь.';
+        }
+      } catch {
+        /* не смогли уточнить — оставляем исходный текст */
+      }
+    }
+    return { ok: false, error: msg };
   }
   revalidatePath('/ads/campaigns');
   return { ok: true };

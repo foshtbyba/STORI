@@ -759,22 +759,45 @@ export async function adCampaignId(token: string, adId: string, net: FbNet = {})
 
 /**
  * Дублировать кампанию со всей структурой (адсеты + объявления), `deep_copy`.
- * Копия — на паузе. Для больших кампаний Facebook делает это асинхронно, но
- * запрос всё равно ставится в очередь; ошибку (если что) вернёт сразу.
+ * Копия — на паузе.
+ *
+ * Facebook на глубокой копии кампании иногда отвечает «код 1» без объяснений.
+ * Один из известных капризов — параметр `status_option`, поэтому при code 1
+ * пробуем ещё раз без него (копия унаследует статус источника, но у арендных
+ * кабинетов кампании и так обычно на паузе). Если и это не помогло — пусть
+ * ошибка всплывёт наверх, там мы уточним причину (напр. спец-категория).
  */
 export async function duplicateCampaign(token: string, campaignId: string, net: FbNet = {}) {
-  const body = await call(
-    `/${campaignId}/copies`,
-    token,
-    { deep_copy: 'true', status_option: 'PAUSED' },
-    net,
-    'POST',
-  );
+  const attempt = (extra: Record<string, string>) =>
+    call(`/${campaignId}/copies`, token, { deep_copy: 'true', ...extra }, net, 'POST');
+  let body: Record<string, unknown>;
+  try {
+    body = await attempt({ status_option: 'PAUSED' });
+  } catch (e) {
+    if (e instanceof FbError && e.code === 1) body = await attempt({});
+    else throw e;
+  }
   return String(
-    (body as { copied_campaign_id?: string; id?: string; ad_object_ids?: unknown }).copied_campaign_id ??
+    (body as { copied_campaign_id?: string; id?: string }).copied_campaign_id ??
       (body as { id?: string }).id ??
       '',
   );
+}
+
+/** Справка по кампании — имя, цель и спец-категории. Нужна, чтобы объяснить,
+ *  почему копия могла не пройти (спец-категорию FB копировать не даёт). */
+export async function campaignInfo(token: string, campaignId: string, net: FbNet = {}) {
+  const body = await call(
+    `/${campaignId}`,
+    token,
+    { fields: 'name,objective,special_ad_categories' },
+    net,
+  );
+  const b = body as { name?: string; objective?: string; special_ad_categories?: unknown };
+  const cats = Array.isArray(b.special_ad_categories)
+    ? (b.special_ad_categories as unknown[]).map(String).filter((c) => c && c !== 'NONE')
+    : [];
+  return { name: b.name ?? '', objective: b.objective ?? '', specialAdCategories: cats };
 }
 
 export async function checkToken(
