@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Avatar, Badge } from './ui';
 import { IconRocket } from './icons';
+import Tip from './Tip';
 import SyncAds from './SyncAds';
 import { campaignBadge, type StatusTone } from '@/lib/fb-status';
 import { setAdRunning, setAdBudget } from '@/app/actions/integrations';
@@ -60,19 +61,19 @@ type SortKey =
   | 'impressions' | 'clicks' | 'cpc' | 'ctr' | 'cpm'
   | 'leads' | 'cpl' | 'cr' | 'spend' | 'revenue' | 'profit' | 'roi';
 
-const COLS: { key: SortKey; label: string; num?: boolean }[] = [
-  { key: 'impressions', label: 'Показы', num: true },
-  { key: 'clicks', label: 'Клики', num: true },
-  { key: 'cpc', label: 'CPC', num: true },
-  { key: 'ctr', label: 'CTR', num: true },
-  { key: 'cpm', label: 'CPM', num: true },
-  { key: 'leads', label: 'Лиды', num: true },
-  { key: 'cpl', label: 'CPL', num: true },
-  { key: 'cr', label: 'CR', num: true },
-  { key: 'spend', label: 'Расход', num: true },
-  { key: 'revenue', label: 'Доход', num: true },
-  { key: 'profit', label: 'Профит', num: true },
-  { key: 'roi', label: 'ROI', num: true },
+const COLS: { key: SortKey; label: string; hint: string }[] = [
+  { key: 'impressions', label: 'Показы', hint: 'Показы объявления (impressions)' },
+  { key: 'clicks', label: 'Клики', hint: 'Клики по ссылке (inline link clicks)' },
+  { key: 'cpc', label: 'CPC', hint: 'Цена клика: расход / клики' },
+  { key: 'ctr', label: 'CTR', hint: 'Кликабельность: клики / показы' },
+  { key: 'cpm', label: 'CPM', hint: 'Цена 1000 показов: расход / показы × 1000' },
+  { key: 'leads', label: 'Лиды', hint: 'Результаты из Facebook (конверсионные actions)' },
+  { key: 'cpl', label: 'CPL', hint: 'Цена лида: расход / лиды' },
+  { key: 'cr', label: 'CR', hint: 'Конверсия: лиды / клики' },
+  { key: 'spend', label: 'Расход', hint: 'Расход из Facebook' },
+  { key: 'revenue', label: 'Доход', hint: 'Доход из Keitaro по ad_id (Sub ID 4)' },
+  { key: 'profit', label: 'Профит', hint: 'Доход − расход' },
+  { key: 'roi', label: 'ROI', hint: 'Профит / расход' },
 ];
 
 export default function CampaignsTable({
@@ -251,15 +252,6 @@ export default function CampaignsTable({
                   {b.handle}
                 </button>
               ))}
-              <button
-                type="button"
-                onClick={() => setBuyer('all')}
-                className={`rounded-full px-2.5 py-1 text-[12px] transition ${
-                  buyer === 'all' ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
-                }`}
-              >
-                все
-              </button>
             </div>
           ) : null}
           <h2 className="text-[17px] font-semibold tracking-[-0.015em]">Кампании</h2>
@@ -330,17 +322,19 @@ export default function CampaignsTable({
           <thead>
             <tr className="text-left text-[10.5px] uppercase tracking-wide text-mute">
               <th className="cursor-pointer whitespace-nowrap py-2 pr-3 font-medium" onClick={() => sortBy('name')}>Объявление{arrow('name')}</th>
-              <th className="cursor-pointer whitespace-nowrap px-3 py-2 text-center font-medium" onClick={() => sortBy('budget')}>Бюджет{arrow('budget')}</th>
+              <th className="cursor-pointer whitespace-nowrap px-3 py-2 text-right font-medium" onClick={() => sortBy('budget')}>
+                <Tip label="Дневной бюджет адсета. Клик по значению в строке — изменить.">Бюджет</Tip>{arrow('budget')}
+              </th>
               {COLS.map((c) => (
                 <th
                   key={c.key}
-                  className={`cursor-pointer whitespace-nowrap px-3 py-2 text-center font-medium ${c.key === 'profit' ? 'text-soft' : ''}`}
+                  className={`cursor-pointer whitespace-nowrap px-3 py-2 text-right font-medium ${c.key === 'profit' ? 'text-soft' : ''}`}
                   onClick={() => sortBy(c.key)}
                 >
-                  {c.label}{arrow(c.key)}
+                  <Tip label={c.hint}>{c.label}</Tip>{arrow(c.key)}
                 </th>
               ))}
-              <th className="whitespace-nowrap px-3 py-2 text-center font-medium">Действия</th>
+              <th className="whitespace-nowrap px-3 py-2 text-right font-medium">Действия</th>
             </tr>
           </thead>
           <tbody>
@@ -349,7 +343,7 @@ export default function CampaignsTable({
               const active = r.status === 'ACTIVE';
               const editing = budgets[r.id] !== undefined;
               return (
-                <tr key={r.id} className="border-t border-line align-top">
+                <tr key={r.id} className="border-t border-line align-middle">
                   {/* Объявление */}
                   <td className="py-2.5 pr-3">
                     <div className="flex items-start gap-2.5">
@@ -367,9 +361,7 @@ export default function CampaignsTable({
                         </div>
                         <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10.5px] text-dim">
                           <span className="flex items-center gap-1"><Avatar initials={r.initials} color={r.color} size={14} />{r.buyer}</span>
-                          <span title="кабинет">· {r.account}</span>
-                          <span className="n" title="act_ID">· {r.act}</span>
-                          {r.adsetName ? <span className="max-w-[180px] truncate" title={r.adsetName}>· {r.adsetName}</span> : null}
+                          <span className="n">· {r.act}</span>
                           {r.targeting ? <span className="n">· {r.targeting}</span> : null}
                           {r.linkUrl ? <a href={r.linkUrl} target="_blank" rel="noreferrer" className="text-steel hover:underline">· ссылка</a> : null}
                         </div>
@@ -377,7 +369,7 @@ export default function CampaignsTable({
                     </div>
                   </td>
                   {/* Бюджет — редактируемый */}
-                  <td className="px-3 py-2.5 text-center">
+                  <td className="px-3 py-2.5 text-right">
                     {editing ? (
                       <span className="inline-flex items-center gap-1">
                         <input
@@ -400,21 +392,21 @@ export default function CampaignsTable({
                       </button>
                     )}
                   </td>
-                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{int(r.impressions)}</td>
-                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{int(r.clicks)}</td>
-                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{r.clicks ? money(r.cpc) : '—'}</td>
-                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{pct(r.clicks, r.impressions)}</td>
-                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{r.impressions ? money(r.cpm) : '—'}</td>
-                  <td className="n px-3 py-2.5 text-center text-[13px] text-soft">{int(r.leads)}</td>
-                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{r.leads ? money(r.cpl) : '—'}</td>
-                  <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{pct(r.leads, r.clicks)}</td>
-                  <td className="n px-3 py-2.5 text-center text-[13px] text-soft">
+                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{int(r.impressions)}</td>
+                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{int(r.clicks)}</td>
+                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{r.clicks ? money(r.cpc) : '—'}</td>
+                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{pct(r.clicks, r.impressions)}</td>
+                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{r.impressions ? money(r.cpm) : '—'}</td>
+                  <td className="n px-3 py-2.5 text-right text-[13px] text-soft">{int(r.leads)}</td>
+                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{r.leads ? money(r.cpl) : '—'}</td>
+                  <td className="n px-3 py-2.5 text-right text-[12px] text-mute">{pct(r.leads, r.clicks)}</td>
+                  <td className="n px-3 py-2.5 text-right text-[13px] text-soft">
                     {money(r.spendCents)}
                     {r.currency !== 'USD' ? <span className="ml-1 text-[10px] text-rust">{r.currency}</span> : null}
                   </td>
-                  <td className="n px-3 py-2.5 text-center text-[13px] text-soft">{money(r.revenueCents)}</td>
-                  <td className={`n px-3 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{money(r.profitCents)}</td>
-                  <td className={`n px-3 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{r.spendCents ? pct(r.profitCents, r.spendCents, 1) : '—'}</td>
+                  <td className="n px-3 py-2.5 text-right text-[13px] text-soft">{money(r.revenueCents)}</td>
+                  <td className={`n px-3 py-2.5 text-right text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{money(r.profitCents)}</td>
+                  <td className={`n px-3 py-2.5 text-right text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{r.spendCents ? pct(r.profitCents, r.spendCents, 1) : '—'}</td>
                   {/* Действия */}
                   <td className="px-2 py-2.5 text-center">
                     <button
