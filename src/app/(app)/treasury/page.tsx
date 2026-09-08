@@ -1,0 +1,219 @@
+import { requireUser } from '@/lib/auth';
+import { type Role } from '@/lib/roles';
+import { treasuryState } from '@/lib/treasury';
+import { usd } from '@/lib/money';
+import { Panel, PanelHead, Sub, Empty, Avatar, Big } from '@/components/ui';
+import { IconWallet } from '@/components/icons';
+import {
+  saveOwnerOpening,
+  addOwnerWithdrawal,
+  deleteOwnerWithdrawal,
+  saveSnapshot,
+  deleteSnapshot,
+} from '@/app/actions/treasury';
+
+const ymd = (d: Date) => d.toISOString().slice(0, 10);
+const ru = (d: Date) => d.toLocaleDateString('ru-RU');
+
+export default async function TreasuryPage() {
+  const user = await requireUser();
+  if ((user.role as Role) !== 'ADMIN') {
+    return <Empty>Касса доступна только админу.</Empty>;
+  }
+
+  const t = await treasuryState();
+  const total = t.expectedCents;
+  const pct = (c: number) => (total > 0 ? Math.round((c / total) * 100) : 0);
+
+  const sources = t.realBySource;
+  const snapDate = t.snapshot ? ymd(t.snapshot.date) : ymd(new Date());
+
+  return (
+    <div className="flex flex-col gap-3.5">
+      {/* Сверка: ожидается (дашборд) против факта (снимок) */}
+      <Panel className="p-4 sm:p-6">
+        <PanelHead icon={<IconWallet color="#b4c68c" />} tint="bg-sage-t" title="Касса — сверка" />
+        <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+          <Sub className="px-4 py-3.5">
+            <div className="text-[11.5px] text-mute">Ожидается (доли + фонд)</div>
+            <div className="n mt-2 text-[24px] font-semibold">{usd(t.expectedCents)}</div>
+            <div className="mt-1 text-[11.5px] text-mute">овнеры {usd(t.ownersCents)} · баеры {usd(t.buyersCents)}</div>
+          </Sub>
+          <Sub className="px-4 py-3.5">
+            <div className="text-[11.5px] text-mute">По факту (снимок{t.snapshot ? ` ${ru(t.snapshot.date)}` : ''})</div>
+            <div className="n mt-2 text-[24px] font-semibold">{t.realCents === null ? '—' : usd(t.realCents)}</div>
+            <div className="mt-1 text-[11.5px] text-mute">
+              {sources
+                ? `партн. ${usd(sources.partnersCents)} · брок. ${usd(sources.brocardCents)} · карта ${usd(sources.cardCents)} · агенты ${usd(sources.agentsCents)}`
+                : 'снимок ещё не внесён'}
+            </div>
+          </Sub>
+          <Sub className="px-4 py-3.5">
+            <div className="text-[11.5px] text-mute">Расхождение (факт − ожидается)</div>
+            <div
+              className="n mt-2 text-[24px] font-semibold"
+              style={{
+                color: t.diffCents === null ? '#8a8a8a' : Math.abs(t.diffCents) < 100 ? '#b4c68c' : '#e5484d',
+              }}
+            >
+              {t.diffCents === null ? '—' : `${t.diffCents >= 0 ? '+' : '−'}${usd(Math.abs(t.diffCents))}`}
+            </div>
+            <div className="mt-1 text-[11.5px] text-mute">
+              {t.diffCents === null
+                ? 'внеси снимок ниже'
+                : Math.abs(t.diffCents) < 100
+                  ? 'сходится'
+                  : t.diffCents > 0
+                    ? 'по факту денег больше — где-то недосчитали профит/приход'
+                    : 'по факту денег меньше — где-то недосчитали расход/вывод'}
+            </div>
+          </Sub>
+        </div>
+
+        {/* Три доли одного пирога */}
+        <div className="mt-4 border-t border-line pt-4">
+          <div className="lab mb-2.5">Из чего складывается ожидаемое</div>
+          {t.shares.map((o) => (
+            <div key={o.buyerId} className="flex items-center justify-between border-t border-line py-2 text-[13px]">
+              <span className="flex items-center gap-2.5">
+                <Avatar initials={o.initials} color={o.color} />
+                <span className="text-soft">Доля {o.handle}</span>
+              </span>
+              <span className="n">
+                {usd(o.balanceCents)} <span className="text-[11px] text-mute">· {pct(o.balanceCents)}%</span>
+              </span>
+            </div>
+          ))}
+          <div className="flex items-center justify-between border-t border-line py-2 text-[13px]">
+            <span className="text-soft">Общий капитал баеров (фонд)</span>
+            <span className="n">
+              {usd(t.buyersCents)} <span className="text-[11px] text-mute">· {pct(t.buyersCents)}%</span>
+            </span>
+          </div>
+        </div>
+      </Panel>
+
+      {/* Доли овнеров: старт + заработок − выводы */}
+      {t.shares.length === 0 ? (
+        <Empty>Овнеров в системе нет — заведи их на листе «Овнеры».</Empty>
+      ) : (
+        <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 lg:gap-3.5">
+          {t.shares.map((o) => (
+            <Panel key={o.buyerId} className="flex flex-col p-4 sm:p-6">
+              <PanelHead
+                icon={<Avatar initials={o.initials} color={o.color} />}
+                title={`Доля ${o.handle}`}
+                aside={<span className="text-[12.5px] text-mute">{o.anchorDate ? `с ${ru(o.anchorDate)}` : 'старт не задан'}</span>}
+              />
+              <Big cents={o.balanceCents} size={40} className="mt-4" />
+
+              {/* Разбор: старт + профит − расходники − overhead/2 − выводы */}
+              <div className="mt-4">
+                {[
+                  { name: 'Старт (утверждён)', cents: o.openingCents, taken: false, base: true },
+                  { name: 'Профит кабинетов', cents: o.profitCents, taken: o.profitCents < 0, note: 'доход − расход с комиссией' },
+                  { name: 'Свои расходники', cents: o.consumableCents, taken: true },
+                  { name: 'Общак (½)', cents: o.overheadCents, taken: true, note: '50/50 между овнерами' },
+                  { name: 'Выводы', cents: o.withdrawnCents, taken: true },
+                ].map((r) => (
+                  <div key={r.name} className="flex items-center justify-between border-t border-line py-2 text-[12.5px]">
+                    <span className="text-soft">
+                      {r.name}
+                      {r.note ? <span className="ml-1.5 text-[11px] text-mute">· {r.note}</span> : null}
+                    </span>
+                    <span className={`n ${r.base ? 'text-soft' : r.taken && r.cents ? 'text-rust' : r.cents ? 'text-sage' : 'text-mute'}`}>
+                      {r.taken && r.cents ? '− ' : ''}
+                      {usd(Math.abs(r.cents))}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Задать стартовый баланс и якорь */}
+              <form action={saveOwnerOpening} className="mt-4 flex flex-wrap items-center gap-2">
+                <input type="hidden" name="buyerId" value={o.buyerId} />
+                <input
+                  name="opening"
+                  defaultValue={o.openingCents ? String(o.openingCents / 100) : ''}
+                  inputMode="decimal"
+                  placeholder="старт, $"
+                  className="n h-9 w-28 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage"
+                />
+                <input
+                  name="anchor"
+                  type="date"
+                  defaultValue={o.anchorDate ? ymd(o.anchorDate) : ''}
+                  className="n h-9 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage"
+                />
+                <button type="submit" className="h-9 shrink-0 rounded-full bg-raise px-4 text-[12px] font-semibold">Сохранить старт</button>
+              </form>
+
+              {/* Вывод овнеру */}
+              <form action={addOwnerWithdrawal} className="mt-2 flex flex-wrap items-center gap-2">
+                <input type="hidden" name="buyerId" value={o.buyerId} />
+                <input name="amount" inputMode="decimal" placeholder="вывести, $" className="n h-9 w-28 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
+                <input name="note" placeholder="комментарий" className="h-9 min-w-0 flex-1 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
+                <button type="submit" className="h-9 shrink-0 rounded-full bg-rust px-4 text-[12px] font-semibold text-bg">Вывести</button>
+              </form>
+
+              {o.withdrawals.length > 0 ? (
+                <div className="mt-3">
+                  <div className="lab mb-1.5">Выводы</div>
+                  {o.withdrawals.map((w) => (
+                    <div key={w.id} className="flex items-center justify-between gap-2 border-t border-line py-1.5 text-[12px]">
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="n shrink-0 text-rust">− {usd(w.amountCents)}</span>
+                        <span className="truncate text-mute">{w.note || '—'}</span>
+                      </span>
+                      <span className="flex shrink-0 items-center gap-2">
+                        <span className="n text-[11px] text-dim">{ru(w.date)}</span>
+                        <form action={deleteOwnerWithdrawal}>
+                          <input type="hidden" name="id" value={w.id} />
+                          <button type="submit" className="text-[11px] text-dim transition hover:text-rust">✕</button>
+                        </form>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </Panel>
+          ))}
+        </div>
+      )}
+
+      {/* Снимок реальных денег по источникам */}
+      <Panel className="p-4 sm:p-6">
+        <PanelHead icon={<IconWallet color="#b4c68c" />} tint="bg-sage-t" title="Реальные деньги — снимок" />
+        <p className="mt-2 text-[12.5px] text-mute">
+          Внеси, сколько сейчас реально лежит по каждому источнику. Система сверит сумму с ожидаемым выше и покажет расхождение.
+          Снимок на одну дату перезаписывается.
+        </p>
+        <form action={saveSnapshot} className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+          {[
+            { name: 'partners', label: 'Партнёрки, $', val: sources?.partnersCents },
+            { name: 'brocard', label: 'Брокард, $', val: sources?.brocardCents },
+            { name: 'card', label: 'Счёт/карта, $', val: sources?.cardCents },
+            { name: 'agents', label: 'Агенты, $', val: sources?.agentsCents },
+          ].map((f) => (
+            <label key={f.name} className="flex flex-col gap-1">
+              <span className="lab">{f.label}</span>
+              <input
+                name={f.name}
+                inputMode="decimal"
+                defaultValue={f.val ? String(f.val / 100) : ''}
+                className="n h-9 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage"
+              />
+            </label>
+          ))}
+          <label className="flex flex-col gap-1">
+            <span className="lab">Дата</span>
+            <input name="date" type="date" defaultValue={snapDate} className="n h-9 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
+          </label>
+          <div className="flex items-end">
+            <button type="submit" className="h-9 w-full rounded-full bg-sage px-4 text-[12px] font-semibold text-bg">Внести снимок</button>
+          </div>
+        </form>
+      </Panel>
+    </div>
+  );
+}

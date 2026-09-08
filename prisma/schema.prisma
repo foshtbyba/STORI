@@ -71,6 +71,9 @@ model Buyer {
   adTokens     AdToken[]
   adGroups     TrackerGroup[]
   brocardTeams BrocardTeam[]
+
+  ownerCapital     OwnerCapital?
+  ownerWithdrawals OwnerWithdrawal[]
 }
 
 model Team {
@@ -624,4 +627,44 @@ model FundEntry {
 
   @@unique([kind, periodId])
   @@index([createdAt])
+}
+
+/// Стартовый баланс овнера в кассе на дату-якорь: утверждённая вручную сумма, от
+/// которой дальше считается заработок его кабинетов и его выводы. Овнер сам
+/// крутит рекламу — его доля это его личные деньги в обороте проекта.
+model OwnerCapital {
+  id           String   @id @default(cuid())
+  buyerId      String   @unique
+  buyer        Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  openingCents Int      @default(0)
+  /// С какой даты считаем заработок овнера поверх стартового баланса.
+  anchorDate   DateTime
+  note         String   @default("")
+  updatedAt    DateTime @updatedAt
+}
+
+/// Личный вывод овнера из оборота — деньги уходят ему на руки и из кассы.
+model OwnerWithdrawal {
+  id          String   @id @default(cuid())
+  buyerId     String
+  buyer       Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  amountCents Int      @default(0)
+  note        String   @default("")
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@index([buyerId])
+}
+
+/// Снимок реальных денег по источникам на дату — то, что админ вносит руками и
+/// сверяет с тем, что насчитал дашборд (доли овнеров + фонд баеров).
+model TreasurySnapshot {
+  id            String   @id @default(cuid())
+  date          DateTime @unique
+  partnersCents Int      @default(0)
+  brocardCents  Int      @default(0)
+  cardCents     Int      @default(0)
+  agentsCents   Int      @default(0)
+  note          String   @default("")
+  createdAt     DateTime @default(now())
 }
