@@ -465,7 +465,7 @@ export default async function HomePage({
           icon={<IconWallet color="#b4c68c" />}
           tint="bg-sage-t"
           title="Фонд баеров"
-          aside={<span className="text-[12.5px] text-mute">база {usd(fund.base)} · накоплено + {usd(fund.accrued)}{fund.withdrawn ? ` · выведено − ${usd(fund.withdrawn)}` : ''}</span>}
+          aside={<span className="text-[12.5px] text-mute">накоплено {fund.accrued < 0 ? '− ' : '+ '}{usd(Math.abs(fund.accrued))}{fund.withdrawn ? ` · выведено − ${usd(fund.withdrawn)}` : ''}</span>}
           summary={<span className="rounded-full bg-sage-t px-3.5 py-1.5"><span className="n text-[12.5px] font-semibold text-sage">{usd(fund.balance)}</span></span>}
         >
           <div className="flex flex-col gap-4">
@@ -480,13 +480,13 @@ export default async function HomePage({
               {/* Пополнения по неделям */}
               <div>
                 <div className="mb-1.5 text-[11px] uppercase tracking-wide text-mute">Пополнения по неделям</div>
-                {fund.accruals.length === 0 ? (
-                  <div className="text-[12px] text-dim">Пока ни одна неделя не закрыта.</div>
+                {fund.weeks.length === 0 ? (
+                  <div className="text-[12px] text-dim">Пока нет данных.</div>
                 ) : (
-                  fund.accruals.map((a) => (
-                    <div key={a.id} className="flex items-center justify-between border-t border-line py-2 text-[12.5px]">
-                      <span className="text-soft">{a.periodKey ? periodTitle(a.periodKey) : 'неделя'}</span>
-                      <span className={`n ${a.amountCents >= 0 ? 'text-sage' : 'text-rust'}`}>{a.amountCents >= 0 ? '+ ' : '− '}{usd(Math.abs(a.amountCents))}</span>
+                  fund.weeks.map((a) => (
+                    <div key={a.key} className="flex items-center justify-between border-t border-line py-2 text-[12.5px]">
+                      <span className="text-soft">{periodTitle(a.key)}{a.open ? <span className="ml-1.5 text-[10.5px] text-dim">· текущая</span> : null}</span>
+                      <span className={`n ${a.cents >= 0 ? 'text-sage' : 'text-rust'}`}>{a.cents >= 0 ? '+ ' : '− '}{usd(Math.abs(a.cents))}</span>
                     </div>
                   ))
                 )}
