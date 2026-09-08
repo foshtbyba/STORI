@@ -572,27 +572,41 @@ export async function adStats(
  * `adStats` их не отдаёт (там только с активностью), поэтому берём отдельно.
  */
 export async function listAdIds(token: string, externalId: string, net: FbNet = {}) {
-  const out: string[] = [];
-  let after = '';
-  for (let page = 0; page < 10; page += 1) {
-    const body = await call(`/${externalId}/ads`, token, {
+  // Только валидные для ОБЪЯВЛЕНИЯ статусы (без архив/удалённых — их много и в
+  // таблице не нужны). Один неверный статус в списке → FB отклоняет весь запрос,
+  // поэтому список держим строго из допустимых значений.
+  const LIVE = [
+    'ACTIVE', 'PAUSED', 'PENDING_REVIEW', 'DISAPPROVED', 'PREAPPROVED',
+    'PENDING_BILLING_INFO', 'CAMPAIGN_PAUSED', 'ADSET_PAUSED', 'IN_PROCESS', 'WITH_ISSUES',
+  ];
+  const fetchPage = (after: string, withFilter: boolean) =>
+    call(`/${externalId}/ads`, token, {
       fields: 'id',
-      // Только «живые» статусы — архив/удалённые в таблицу не нужны и их много.
-      effective_status: JSON.stringify([
-        'ACTIVE', 'PAUSED', 'PENDING_REVIEW', 'DISAPPROVED', 'PREAPPROVED',
-        'PENDING_BILLING_INFO', 'CAMPAIGN_PAUSED', 'ADSET_PAUSED', 'WITH_ISSUES', 'PENDING_PROCESSING',
-      ]),
+      ...(withFilter ? { effective_status: JSON.stringify(LIVE) } : {}),
       limit: '500',
       ...(after ? { after } : {}),
     }, net);
-    for (const row of (body.data ?? []) as { id?: string }[]) {
-      if (row.id) out.push(row.id);
+
+  const run = async (withFilter: boolean) => {
+    const out: string[] = [];
+    let after = '';
+    for (let page = 0; page < 10; page += 1) {
+      const body = await fetchPage(after, withFilter);
+      for (const row of (body.data ?? []) as { id?: string }[]) if (row.id) out.push(row.id);
+      const next = body.paging as { cursors?: { after?: string }; next?: string } | undefined;
+      if (!next?.next || !next.cursors?.after) break;
+      after = next.cursors.after;
     }
-    const next = body.paging as { cursors?: { after?: string }; next?: string } | undefined;
-    if (!next?.next || !next.cursors?.after) break;
-    after = next.cursors.after;
+    return out;
+  };
+
+  try {
+    return await run(true);
+  } catch {
+    // Если фильтр статусов не зашёл — берём без него (потом отфильтруем архив
+    // по effective_status из меты выше по стеку не нужно; тут просто вернём id).
+    return await run(false);
   }
-  return out;
 }
 
 export type FbAdMeta = {
@@ -757,31 +771,71 @@ export async function adCampaignId(token: string, adId: string, net: FbNet = {})
   return String((body as { campaign?: { id?: string } }).campaign?.id ?? '');
 }
 
+/** Все id из страничной выборки graph (data[].id) с пагинацией. */
+async function listIds(path: string, token: string, net: FbNet, pages = 10): Promise<string[]> {
+  const out: string[] = [];
+  let after = '';
+  for (let p = 0; p < pages; p += 1) {
+    const body = await call(path, token, { fields: 'id', limit: '500', ...(after ? { after } : {}) }, net);
+    for (const r of (body.data ?? []) as { id?: string }[]) if (r.id) out.push(r.id);
+    const next = body.paging as { cursors?: { after?: string }; next?: string } | undefined;
+    if (!next?.next || !next.cursors?.after) break;
+    after = next.cursors.after;
+  }
+  return out;
+}
+
+/** Небольшая пауза между копиями — чтобы не словить троттлинг на серии /copies. */
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 /**
- * Дублировать кампанию со всей структурой (адсеты + объявления), `deep_copy`.
- * Копия — на паузе.
+ * Дублировать кампанию со всей структурой — НА ПАУЗЕ.
  *
- * Facebook на глубокой копии кампании иногда отвечает «код 1» без объяснений.
- * Один из известных капризов — параметр `status_option`, поэтому при code 1
- * пробуем ещё раз без него (копия унаследует статус источника, но у арендных
- * кабинетов кампании и так обычно на паузе). Если и это не помогло — пусть
- * ошибка всплывёт наверх, там мы уточним причину (напр. спец-категория).
+ * Facebook не даёт скопировать за один синхронный вызов ≥3 объектов
+ * (кампания+адсеты+объявления) — поэтому глубокая копия кампании падает с кодом
+ * 100/1885194 и требует async-пакетов. Обходим без async: собираем копию по
+ * одному объекту (это ниже лимита и работает синхронно) —
+ *   1) копируем кампанию-оболочку (без структуры);
+ *   2) каждый адсет по одному в новую кампанию;
+ *   3) каждое объявление по одному в свой новый адсет.
+ *
+ * Возвращаем id новой кампании и счётчики (сколько адсетов/объявлений скопировано).
  */
 export async function duplicateCampaign(token: string, campaignId: string, net: FbNet = {}) {
-  const attempt = (extra: Record<string, string>) =>
-    call(`/${campaignId}/copies`, token, { deep_copy: 'true', ...extra }, net, 'POST');
-  let body: Record<string, unknown>;
-  try {
-    body = await attempt({ status_option: 'PAUSED' });
-  } catch (e) {
-    if (e instanceof FbError && e.code === 1) body = await attempt({});
-    else throw e;
+  // 1. Структура исходной кампании: адсеты и объявления каждого.
+  const adsetIds = await listIds(`/${campaignId}/adsets`, token, net);
+  const adsByAdset: { adsetId: string; adIds: string[] }[] = [];
+  let totalAds = 0;
+  for (const adsetId of adsetIds) {
+    const adIds = await listIds(`/${adsetId}/ads`, token, net);
+    adsByAdset.push({ adsetId, adIds });
+    totalAds += adIds.length;
   }
-  return String(
-    (body as { copied_campaign_id?: string; id?: string }).copied_campaign_id ??
-      (body as { id?: string }).id ??
-      '',
-  );
+  // Предохранитель: очень большую кампанию по одному копировать долго — не виснем.
+  if (adsetIds.length + totalAds > 120) {
+    throw new FbError('Слишком большая кампания для копии по частям (>120 объектов). Скопируй вручную в Ads Manager.');
+  }
+
+  // 2. Кампания-оболочка (1 объект — под лимитом).
+  const campBody = await call(`/${campaignId}/copies`, token, { deep_copy: 'false', status_option: 'PAUSED' }, net, 'POST');
+  const newCampId = String((campBody as { copied_campaign_id?: string; id?: string }).copied_campaign_id ?? (campBody as { id?: string }).id ?? '');
+  if (!newCampId) throw new FbError('Facebook не вернул id копии кампании');
+
+  // 3. Адсеты по одному в новую кампанию, затем объявления по одному в новый адсет.
+  let copiedAdsets = 0, copiedAds = 0;
+  for (const { adsetId, adIds } of adsByAdset) {
+    await sleep(400);
+    const asBody = await call(`/${adsetId}/copies`, token, { campaign_id: newCampId, deep_copy: 'false', status_option: 'PAUSED' }, net, 'POST');
+    const newAdsetId = String((asBody as { copied_adset_id?: string; id?: string }).copied_adset_id ?? (asBody as { id?: string }).id ?? '');
+    if (!newAdsetId) continue;
+    copiedAdsets += 1;
+    for (const adId of adIds) {
+      await sleep(400);
+      await call(`/${adId}/copies`, token, { adset_id: newAdsetId, status_option: 'PAUSED' }, net, 'POST');
+      copiedAds += 1;
+    }
+  }
+  return { newCampId, copiedAdsets, copiedAds };
 }
 
 /** Справка по кампании — имя, цель и спец-категории. Нужна, чтобы объяснить,

@@ -699,6 +699,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   let nonUsdDays = 0;
   let nonUsdCents = 0;
   let totalSpendCents = 0;
+  let zeroAds = 0; // объявления без открута, заведённые перечислением кабинета
 
   // Расход по объявлениям для заливки в Keitaro (только USD). Копим подробно —
   // кампания, день, ad_id, центы — а КАК заливать, решаем после обхода:
@@ -882,6 +883,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
               update: data,
               create: { adId, ...data },
             });
+            zeroAds += 1;
           }
         }
       }
@@ -1004,6 +1006,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       `Залито в КТ: ${d(pushed.cents)} (${pushed.entries} записей на ${pushed.campaigns} кампаний). ` +
       `Объявлений с потоком: ${matchedAds}. ` +
       `Кампаний с Sub ID 4 (точечно по ad_id): ${subIdCampaigns.size}, остальные — на кампанию. ` +
+      (allAds ? `Объявлений без открута заведено: ${zeroAds}. ` : '') +
       (nonUsdDays ? `Пропущено не-USD: ${d(nonUsdCents)}. ` : '') +
       (unmatchedCents ? `Без потока в ссылке: ${d(unmatchedCents)}.` : ''),
   );
