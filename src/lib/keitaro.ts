@@ -228,6 +228,8 @@ export type CostEntry = {
   end_date: string;
   /** Расход в долларах (число, не центы). */
   cost: number;
+  /** Валюта расхода — Keitaro требует её обязательно. */
+  currency?: string;
   /**
    * Фильтр кликов (FilterCostRequest): key-value, напр. `{ sub_id_4: "123" }`.
    * Так расход ложится ровно на клики нужного объявления (ad_id в Sub ID 4),
@@ -252,9 +254,11 @@ export async function updateCostsBulk(
   costs: CostEntry[],
 ) {
   if (costs.length === 0) return;
+  // Keitaro требует currency в каждой записи — по умолчанию USD.
+  const withCurrency = costs.map((c) => ({ currency: 'USD', ...c }));
   await call(baseUrl, apiKey, '/clicks/update_costs', {
     campaign_ids: [Number(campaignId)],
-    costs,
+    costs: withCurrency,
   });
 }
 
