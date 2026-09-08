@@ -694,6 +694,7 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
   let matchedAds = 0;
   let nonUsdDays = 0;
   let nonUsdCents = 0;
+  let totalSpendCents = 0;
 
   // Записи расхода для заливки в Keitaro — по кампании КТ, но каждая с фильтром
   // по ad_id (Sub ID 4): так расход ложится на клики конкретного объявления,
@@ -772,6 +773,7 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
           });
 
           for (const s of rows) {
+            totalSpendCents += s.cents;
             // Дневные метрики объявления + доход из КТ по ad_id (для профита).
             const revenueCents = revByAd.get(`${adId}|${s.date}`) ?? 0;
             await prisma.fbAdDay.upsert({
@@ -904,9 +906,11 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
   }
 
   // Диагностика: одной строкой видно, дошёл ли расход до КТ и где он теряется.
-  const d = (cents: number) => `$${Math.round(cents / 100).toLocaleString('ru-RU')}`;
+  // Суммы до центов — расход по объявлению часто копеечный, целые доллары врут.
+  const d = (cents: number) => `$${(cents / 100).toFixed(2)}`;
   result.info.push(
-    `Расход→КТ: залито ${d(pushed.cents)} (${pushed.entries} записей на ${pushed.campaigns} кампаний). ` +
+    `Расход ФБ за окно: ${d(totalSpendCents)}. ` +
+      `Залито в КТ: ${d(pushed.cents)} (${pushed.entries} записей на ${pushed.campaigns} кампаний). ` +
       `Объявлений с потоком: ${matchedAds}. ` +
       (nonUsdDays ? `Пропущено не-USD: ${d(nonUsdCents)}. ` : '') +
       (unmatchedCents ? `Без потока в ссылке: ${d(unmatchedCents)}.` : ''),
