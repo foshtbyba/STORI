@@ -28,6 +28,22 @@ export default function SyncAds() {
       {result ? (
         <span className="text-[11.5px] text-mute">
           обновлено {result.touched}
+          {result.info?.length ? (
+            <>
+              {' · '}
+              <Tip
+                label={
+                  <span className="flex flex-col gap-1">
+                    {result.info.map((p) => (
+                      <span key={p}>{p}</span>
+                    ))}
+                  </span>
+                }
+              >
+                <span className="cursor-help text-soft underline decoration-dotted">заливка</span>
+              </Tip>
+            </>
+          ) : null}
           {result.problems.length ? (
             <>
               {' · '}

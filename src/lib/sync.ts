@@ -53,11 +53,13 @@ export type SyncResult = {
   skipped: number;
   /** Что пошло не так — по одной строке на источник. */
   problems: string[];
+  /** Справочные строки (не ошибки): напр. сводка заливки расхода в КТ. */
+  info: string[];
   /** Доход, которому не нашлось баера: группа не привязана. */
   orphanCents: number;
 };
 
-const emptyResult = (): SyncResult => ({ touched: 0, skipped: 0, problems: [], orphanCents: 0 });
+const emptyResult = (): SyncResult => ({ touched: 0, skipped: 0, problems: [], info: [], orphanCents: 0 });
 
 /** YYYY-MM-DD для API и полночь UTC для базы — в одном месте, чтобы не разъехались. */
 function daysBack(count: number) {
@@ -687,6 +689,11 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
   type Bucket = { cents: number; clicks: number; impressions: number; currency: string; campId: string; campName: string; token: string };
   const cost = new Map<string, Bucket>();
   let unmatchedCents = 0;
+  // Диагностика заливки: сколько объявлений с расходом сматчилось с потоком, и
+  // сколько дней-строк пропущено из-за не-USD кабинета (в КТ льём только доллары).
+  let matchedAds = 0;
+  let nonUsdDays = 0;
+  let nonUsdCents = 0;
 
   // Записи расхода для заливки в Keitaro — по кампании КТ, но каждая с фильтром
   // по ad_id (Sub ID 4): так расход ложится на клики конкретного объявления,
@@ -729,6 +736,7 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
           const m = metaOf.get(adId);
           const link = m?.link ?? '';
           const matched = matchKtCampaign(link, index);
+          if (matched) matchedAds += 1;
 
           const fbAd = await prisma.fbAd.upsert({
             where: { adId },
@@ -814,12 +822,15 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
             if (acc.currency === 'USD') {
               const arr = pushByCamp.get(matched.id) ?? [];
               arr.push({
-                start_date: `${s.date} 00:00`,
-                end_date: `${s.date} 23:59`,
+                start_date: `${s.date} 00:00:00`,
+                end_date: `${s.date} 23:59:59`,
                 cost: s.cents / 100,
                 filters: { [KT_AD_SUBID]: adId },
               });
               pushByCamp.set(matched.id, arr);
+            } else {
+              nonUsdDays += 1;
+              nonUsdCents += s.cents;
             }
           }
         }
@@ -887,9 +898,19 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
 
   // Заливаем посчитанный расход в сам Keitaro — чтобы cost встал рядом с
   // доходом в отчётах трекера и ROI считался уже внутри КТ.
+  let pushed = { campaigns: 0, entries: 0, cents: 0 };
   if (tracker) {
-    await pushCostsToKeitaro(tracker, pushByCamp, from, to, result);
+    pushed = await pushCostsToKeitaro(tracker, pushByCamp, from, to, result);
   }
+
+  // Диагностика: одной строкой видно, дошёл ли расход до КТ и где он теряется.
+  const d = (cents: number) => `$${Math.round(cents / 100).toLocaleString('ru-RU')}`;
+  result.info.push(
+    `Расход→КТ: залито ${d(pushed.cents)} (${pushed.entries} записей на ${pushed.campaigns} кампаний). ` +
+      `Объявлений с потоком: ${matchedAds}. ` +
+      (nonUsdDays ? `Пропущено не-USD: ${d(nonUsdCents)}. ` : '') +
+      (unmatchedCents ? `Без потока в ссылке: ${d(unmatchedCents)}.` : ''),
+  );
 
   return result;
 }
@@ -908,8 +929,9 @@ async function pushCostsToKeitaro(
   from: string,
   to: string,
   result: SyncResult,
-) {
+): Promise<{ campaigns: number; entries: number; cents: number }> {
   const CHUNK = 200; // не шлём тысячи записей одним запросом
+  let campaigns = 0, entriesCount = 0, cents = 0;
   for (const [campaignId, entries] of entriesByCamp) {
     if (entries.length === 0) continue;
     try {
@@ -923,11 +945,15 @@ async function pushCostsToKeitaro(
         },
         data: { pushedAt: new Date() },
       });
+      campaigns += 1;
+      entriesCount += entries.length;
+      cents += entries.reduce((s, e) => s + Math.round(e.cost * 100), 0);
     } catch (e) {
       const why = e instanceof KeitaroError ? e.message : `Сбой: ${(e as Error).message}`;
       result.problems.push(`Keitaro cost (кампания ${campaignId}): ${why}`);
     }
   }
+  return { campaigns, entries: entriesCount, cents };
 }
 
 export async function syncAll(days = SYNC_DAYS) {
@@ -941,5 +967,6 @@ export async function syncAll(days = SYNC_DAYS) {
     skipped: brocard.skipped + kt.skipped + fb.skipped,
     orphanCents: kt.orphanCents,
     problems: [...brocard.problems, ...kt.problems, ...fb.problems],
+    info: [...brocard.info, ...kt.info, ...fb.info],
   };
 }
