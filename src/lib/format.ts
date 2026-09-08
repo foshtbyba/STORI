@@ -17,5 +17,5 @@ export const OFFER_STATUS: Record<string, { label: string; color: string; tint: 
   ACTIVE: { label: 'Активен', color: '#b4c68c', tint: '#252e1e' },
   TEST: { label: 'Тест', color: '#e4e4e4', tint: '#2e2e2f' },
   PAUSED: { label: 'Пауза', color: '#ce6e58', tint: '#2c1f1a' },
-  DEAD: { label: 'Умер', color: '#8a8a8a', tint: '#232324' },
+  DEAD: { label: 'Умер', color: '#e5484d', tint: '#2e1618' },
 };

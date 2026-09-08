@@ -187,7 +187,12 @@ export default async function OffersPage({
               boxOf('cities', 'Города-исключения', 'копировать города', offer.citiesJson, (g) => g.citiesJson),
             ].filter((box) => box.groups.some((g) => g.items.length > 0));
             return (
-              <Panel key={offer.id} className="flex flex-col gap-4 p-3.5">
+              <Panel
+                key={offer.id}
+                className={`flex flex-col gap-4 p-3.5 ${
+                  offer.status === 'DEAD' ? 'ring-1 ring-inset ring-[#e5484d]/70' : ''
+                }`}
+              >
                 <div className="relative flex h-[168px] items-center justify-center overflow-hidden rounded-[18px] bg-sub">
                   {previewSrc ? (
                     <>
