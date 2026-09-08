@@ -594,7 +594,12 @@ export type FbAdMeta = {
 export async function adMeta(token: string, ids: string[], net: FbNet = {}) {
   const out: FbAdMeta[] = [];
   const fields =
-    'name,effective_status,adset{id,name,daily_budget,targeting{age_min,age_max,geo_locations{countries}}},campaign{id,daily_budget},creative{thumbnail_url,link_url,object_url,object_story_spec{link_data{link},video_data{call_to_action{value{link}}},template_data{link}},asset_feed_spec{link_urls{website_url}}}';
+    'name,effective_status,adset{id,name,daily_budget,lifetime_budget,targeting{age_min,age_max,geo_locations{countries}}},campaign{id,daily_budget,lifetime_budget},creative{thumbnail_url,link_url,object_url,object_story_spec{link_data{link},video_data{call_to_action{value{link}}},template_data{link}},asset_feed_spec{link_urls{website_url}}}';
+
+  const cents = (v: unknown) => {
+    const n = v != null ? Math.round(Number(v)) : NaN;
+    return Number.isFinite(n) && n > 0 ? n : null;
+  };
 
   for (let i = 0; i < ids.length; i += 50) {
     const chunk = ids.slice(i, i + 50);
@@ -608,20 +613,28 @@ export async function adMeta(token: string, ids: string[], net: FbNet = {}) {
           id?: string;
           name?: string;
           daily_budget?: string;
+          lifetime_budget?: string;
           targeting?: {
             age_min?: number;
             age_max?: number;
             geo_locations?: { countries?: string[] };
           };
         };
-        campaign?: { id?: string; daily_budget?: string };
+        campaign?: { id?: string; daily_budget?: string; lifetime_budget?: string };
       };
-      const adsetBudget = ad.adset?.daily_budget != null ? Math.round(Number(ad.adset.daily_budget)) : null;
-      const campBudget = ad.campaign?.daily_budget != null ? Math.round(Number(ad.campaign.daily_budget)) : null;
-      // Бюджет на адсете приоритетнее; если его нет — берём бюджет кампании (CBO).
-      const onAdset = adsetBudget != null && adsetBudget > 0;
-      const dailyBudget = onAdset ? adsetBudget : campBudget;
-      const budgetTargetId = onAdset ? ad.adset?.id ?? '' : ad.campaign?.id ?? ad.adset?.id ?? '';
+      const adsetDaily = cents(ad.adset?.daily_budget);
+      const campDaily = cents(ad.campaign?.daily_budget);
+      const adsetLife = cents(ad.adset?.lifetime_budget);
+      const campLife = cents(ad.campaign?.lifetime_budget);
+      // Показываем тот бюджет, что реально задан; дневной приоритетнее «на срок».
+      const dailyBudget = adsetDaily ?? campDaily ?? adsetLife ?? campLife;
+      // Менять шлём туда, где бюджет живёт (дневной приоритетнее для правки).
+      const budgetTargetId =
+        adsetDaily != null ? ad.adset?.id ?? ''
+        : campDaily != null ? ad.campaign?.id ?? ''
+        : adsetLife != null ? ad.adset?.id ?? ''
+        : campLife != null ? ad.campaign?.id ?? ''
+        : ad.adset?.id ?? ad.campaign?.id ?? '';
       out.push({
         adId,
         name: ad.name ?? '',

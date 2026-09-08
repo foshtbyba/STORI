@@ -252,14 +252,16 @@ export async function updateCostsBulk(
   apiKey: string,
   campaignId: string,
   costs: CostEntry[],
+  timezone = 'UTC',
 ) {
   if (costs.length === 0) return;
-  // Keitaro требует currency — и на верхнем уровне запроса, и в каждой записи.
-  // Ставим на обоих уровнях, чтобы точно прошло (по умолчанию USD).
+  // Keitaro для этой ручки требует currency и timezone. Ставим на верхнем уровне
+  // и currency дублируем в каждой записи (по умолчанию USD).
   const withCurrency = costs.map((c) => ({ currency: 'USD', ...c }));
   await call(baseUrl, apiKey, '/clicks/update_costs', {
     campaign_ids: [Number(campaignId)],
     currency: 'USD',
+    timezone,
     costs: withCurrency,
   });
 }

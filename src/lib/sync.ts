@@ -914,7 +914,7 @@ async function pushCostsToKeitaro(
     if (entries.length === 0) continue;
     try {
       for (let i = 0; i < entries.length; i += CHUNK) {
-        await updateCostsBulk(tracker.baseUrl, tracker.apiKey, campaignId, entries.slice(i, i + CHUNK));
+        await updateCostsBulk(tracker.baseUrl, tracker.apiKey, campaignId, entries.slice(i, i + CHUNK), SYNC_TZ);
       }
       await prisma.ktCostDay.updateMany({
         where: {
