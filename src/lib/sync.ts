@@ -700,6 +700,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   let nonUsdCents = 0;
   let totalSpendCents = 0;
   let zeroAds = 0; // объявления без открута, заведённые перечислением кабинета
+  let prunedAds = 0; // удалённые из базы объявления, которых больше нет в ФБ
 
   // Расход по объявлениям для заливки в Keitaro (только USD). Копим подробно —
   // кампания, день, ad_id, центы — а КАК заливать, решаем после обхода:
@@ -730,9 +731,10 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
         // обновления) все живые объявления кабинета — так в таблицу попадут и
         // те, что без открута (свежие дубли на паузе и т.п.).
         let adIds = [...statIds];
+        let listed: string[] = [];
         if (allAds) {
           try {
-            const listed = await listAdIds(access, acc.externalId, net);
+            listed = await listAdIds(access, acc.externalId, net);
             adIds = [...new Set([...statIds, ...listed])];
           } catch {
             /* перечисление не удалось — продолжаем только с теми, что с открутом */
@@ -886,6 +888,18 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
             zeroAds += 1;
           }
         }
+
+        // Чистим пропавшие: если получили реальный список живых объявлений
+        // кабинета (listed непустой), удаляем из базы те, которых в ФБ уже нет
+        // (удалённые/архивные дубли и т.п.). Пустой listed = перечисление не
+        // удалось — тогда ничего не трогаем, чтобы не снести живые по ошибке.
+        if (allAds && listed.length > 0) {
+          const live = [...new Set([...statIds, ...listed])];
+          const del = await prisma.fbAd.deleteMany({
+            where: { adAccountId: acc.id, adId: { notIn: live } },
+          });
+          prunedAds += del.count;
+        }
       }
 
       await prisma.adToken.update({
@@ -1007,6 +1021,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       `Объявлений с потоком: ${matchedAds}. ` +
       `Кампаний с Sub ID 4 (точечно по ad_id): ${subIdCampaigns.size}, остальные — на кампанию. ` +
       (allAds ? `Объявлений без открута заведено: ${zeroAds}. ` : '') +
+      (prunedAds ? `Удалено пропавших из ФБ: ${prunedAds}. ` : '') +
       (nonUsdDays ? `Пропущено не-USD: ${d(nonUsdCents)}. ` : '') +
       (unmatchedCents ? `Без потока в ссылке: ${d(unmatchedCents)}.` : ''),
   );
