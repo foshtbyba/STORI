@@ -827,7 +827,7 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
                 start_date: `${s.date} 00:00:00`,
                 end_date: `${s.date} 23:59:59`,
                 cost: s.cents / 100,
-                filters: { [KT_AD_SUBID]: adId },
+                filters: [{ name: KT_AD_SUBID, operator: 'EQUALS', expression: adId }],
               });
               pushByCamp.set(matched.id, arr);
             } else {

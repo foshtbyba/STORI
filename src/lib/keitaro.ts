@@ -221,9 +221,18 @@ function pickNumber(row: Record<string, unknown>, keys: string[]) {
   return 0;
 }
 
+/** Один фильтр кликов Keitaro: имя поля, оператор, значение. Такой же формат,
+ *  как в отчётах (`/report/build`) — массив таких объектов. */
+export type CostFilter = {
+  name: string;
+  /** Оператор сравнения Keitaro. Для точного совпадения — `EQUALS`. */
+  operator: string;
+  expression: string;
+};
+
 /** Одна запись расхода для заливки в Keitaro: отрезок времени, сумма и фильтр. */
 export type CostEntry = {
-  /** «YYYY-MM-DD HH:MM» в поясе трекера. */
+  /** «YYYY-MM-DD HH:MM:SS» в поясе трекера. */
   start_date: string;
   end_date: string;
   /** Расход в долларах (число, не центы). */
@@ -231,11 +240,14 @@ export type CostEntry = {
   /** Валюта расхода — Keitaro требует её обязательно. */
   currency?: string;
   /**
-   * Фильтр кликов (FilterCostRequest): key-value, напр. `{ sub_id_4: "123" }`.
-   * Так расход ложится ровно на клики нужного объявления (ad_id в Sub ID 4),
-   * как это делает FBtool. Без фильтра — на все клики кампании за период.
+   * Фильтры кликов — МАССИВ объектов `{ name, operator, expression }`, как в
+   * отчётах Keitaro. Напр. `[{ name: 'sub_id_4', operator: 'EQUALS',
+   * expression: '123' }]`: расход ложится ровно на клики нужного объявления
+   * (ad_id в Sub ID 4), как это делает FBtool. Без фильтра — на все клики
+   * кампании за период. Key-value (`{ sub_id_4: '123' }`) Keitaro молча
+   * игнорирует, и расход никуда не пишется.
    */
-  filters?: Record<string, string>;
+  filters?: CostFilter[];
 };
 
 /**
