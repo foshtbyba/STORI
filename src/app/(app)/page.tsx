@@ -485,9 +485,16 @@ export default async function HomePage({
                   <div className="text-[12px] text-dim">Пока нет данных.</div>
                 ) : (
                   fund.weeks.map((a) => (
-                    <div key={a.key} className="flex items-center justify-between border-t border-line py-2 text-[12.5px]">
+                    <div key={a.key} className="flex items-center justify-between gap-2 border-t border-line py-2 text-[12.5px]">
                       <span className="text-soft">{periodTitle(a.key)}{a.open ? <span className="ml-1.5 text-[10.5px] text-dim">· текущая</span> : null}</span>
-                      <span className={`n ${a.cents >= 0 ? 'text-sage' : 'text-rust'}`}>{a.cents >= 0 ? '+ ' : '− '}{usd(Math.abs(a.cents))}</span>
+                      <span className="flex items-baseline gap-2 text-right">
+                        <span className={`n ${a.cents >= 0 ? 'text-sage' : 'text-rust'}`}>{a.cents >= 0 ? '+ ' : '− '}{usd(Math.abs(a.cents))}</span>
+                        {/* Накопительно: сколько в фонде после этой недели. Видно,
+                            где плюс лишь закрыл минус, а где реальный заработок. */}
+                        <span className="n w-20 text-[11px] text-dim" title="Накопительно в фонде после этой недели">
+                          → {a.cumCents < 0 ? '−' : ''}{usd(Math.abs(a.cumCents))}
+                        </span>
+                      </span>
                     </div>
                   ))
                 )}

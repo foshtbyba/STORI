@@ -31,14 +31,24 @@ export async function fundState() {
   const allWeeks = new Set<string>();
   for (const d of dayDates) allWeeks.add(weekKey(d.date));
 
-  const weeks: { key: string; cents: number; open: boolean }[] = [];
+  const raw: { key: string; cents: number; open: boolean }[] = [];
   for (const wk of allWeeks) {
     const s = await teamSummary(wk);
-    weeks.push({ key: wk, cents: s.totals.teamNetCents, open: !closedKeys.has(wk) });
+    raw.push({ key: wk, cents: s.totals.teamNetCents, open: !closedKeys.has(wk) });
   }
-  weeks.sort((a, b) => (a.key < b.key ? 1 : -1));
+  // Накопительный итог считаем по возрастанию (старые → новые): именно он
+  // честно показывает, где плюс недели просто закрыл прошлый минус, а где пошёл
+  // реальный заработок. Минусовая неделя тянет итог вниз и не прячется.
+  raw.sort((a, b) => (a.key < b.key ? -1 : 1));
+  let running = 0;
+  const asc = raw.map((w) => {
+    running += w.cents;
+    return { ...w, cumCents: running };
+  });
+  // Показываем новыми сверху.
+  const weeks = [...asc].sort((a, b) => (a.key < b.key ? 1 : -1));
 
-  const accrued = weeks.reduce((s, w) => s + w.cents, 0);
+  const accrued = running;
   const withdrawn = withdrawals.reduce((s, w) => s + w.amountCents, 0);
   return {
     base: FUND_BASE_CENTS,
