@@ -12,6 +12,7 @@ import {
   deleteOwnerWithdrawal,
   saveSnapshot,
   deleteSnapshot,
+  saveFundBase,
 } from '@/app/actions/treasury';
 
 const ymd = (d: Date) => d.toISOString().slice(0, 10);
@@ -194,6 +195,38 @@ export default async function TreasuryPage() {
               }
             />
             <Big cents={t.fund.balance} size={40} className="mt-4" />
+
+            {/* Разбор: старт + накоплено − выводы */}
+            <div className="mt-4">
+              {[
+                { name: 'Старт (общий бюджет)', cents: t.fund.base, taken: false, base: true },
+                { name: 'Накоплено баерами', cents: t.fund.accrued, taken: t.fund.accrued < 0, note: 'профит − расходники − зп' },
+                { name: 'Выводы', cents: t.fund.withdrawn, taken: true },
+              ].map((r) => (
+                <div key={r.name} className="flex items-center justify-between border-t border-line py-2 text-[12.5px]">
+                  <span className="text-soft">
+                    {r.name}
+                    {r.note ? <span className="ml-1.5 text-[11px] text-mute">· {r.note}</span> : null}
+                  </span>
+                  <span className={`n ${r.base ? 'text-soft' : r.taken && r.cents ? 'text-rust' : r.cents ? 'text-sage' : 'text-mute'}`}>
+                    {r.taken && r.cents ? '− ' : ''}
+                    {usd(Math.abs(r.cents))}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Задать стартовую базу фонда */}
+            <form action={saveFundBase} className="mt-4 flex flex-wrap items-center gap-2">
+              <input
+                name="base"
+                defaultValue={t.fund.base ? String(t.fund.base / 100) : ''}
+                inputMode="decimal"
+                placeholder="старт, $"
+                className="n h-9 w-28 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage"
+              />
+              <button type="submit" className="h-9 shrink-0 rounded-full bg-raise px-4 text-[12px] font-semibold">Сохранить старт</button>
+            </form>
 
             {/* Вывод из фонда (50/50 между овнерами) */}
             <form action={addFundWithdrawal} className="mt-4 flex flex-wrap items-center gap-2">

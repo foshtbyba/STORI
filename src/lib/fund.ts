@@ -16,14 +16,24 @@ import { weekKey } from './period';
  * админ вручную. Все недели считаем вживую, чтобы формула всегда была свежей.
  */
 
-/** Стартовая база фонда в центах — 1900$. */
+/** Стартовая база фонда в центах по умолчанию — 1900$. Реальное значение
+ *  редактируется на экране «Касса» и хранится в Setting (fund_base_cents). */
 export const FUND_BASE_CENTS = 190_000;
+const FUND_BASE_KEY = 'fund_base_cents';
+
+/** Текущая стартовая база фонда: из настроек, иначе дефолт 1900$. */
+export async function fundBaseCents() {
+  const row = await prisma.setting.findUnique({ where: { key: FUND_BASE_KEY } });
+  const v = row ? Number(row.value) : NaN;
+  return Number.isFinite(v) ? v : FUND_BASE_CENTS;
+}
 
 export async function fundState() {
-  const [withdrawals, dayDates, closedPeriods] = await Promise.all([
+  const [withdrawals, dayDates, closedPeriods, baseCents] = await Promise.all([
     prisma.fundEntry.findMany({ where: { kind: 'withdrawal' }, orderBy: { createdAt: 'desc' } }),
     prisma.dayReport.groupBy({ by: ['date'] }),
     prisma.period.findMany({ where: { status: 'CLOSED' }, select: { key: true } }),
+    fundBaseCents(),
   ]);
   const closedKeys = new Set(closedPeriods.map((p) => p.key));
 
@@ -50,10 +60,10 @@ export async function fundState() {
   const accrued = running;
   const withdrawn = withdrawals.reduce((s, w) => s + w.amountCents, 0);
   return {
-    base: FUND_BASE_CENTS,
+    base: baseCents,
     accrued,
     withdrawn,
-    balance: FUND_BASE_CENTS + accrued - withdrawn,
+    balance: baseCents + accrued - withdrawn,
     weeks,
     withdrawals,
   };

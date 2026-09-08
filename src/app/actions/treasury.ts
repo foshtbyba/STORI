@@ -116,3 +116,28 @@ export async function deleteSnapshot(form: FormData) {
   await prisma.treasurySnapshot.deleteMany({ where: { id } });
   revalidatePath('/treasury');
 }
+
+/** Стартовая база фонда баеров (общий бюджет, с которого команда начала). */
+export async function saveFundBase(form: FormData) {
+  const user = await requireAdmin();
+  const amount = dollars(form.get('base'));
+  if (!Number.isFinite(amount)) return;
+  const cents = Math.round(amount * 100);
+  await prisma.setting.upsert({
+    where: { key: 'fund_base_cents' },
+    create: { key: 'fund_base_cents', value: String(cents) },
+    update: { value: String(cents) },
+  });
+  await prisma.auditLog.create({
+    data: {
+      actorId: user.id,
+      actorName: user.name,
+      entity: 'Setting',
+      entityId: 'fund_base_cents',
+      action: 'treasury:fund-base',
+      diffJson: JSON.stringify({ cents }),
+    },
+  });
+  revalidatePath('/treasury');
+  revalidatePath('/');
+}
