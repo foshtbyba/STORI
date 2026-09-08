@@ -6,7 +6,7 @@ import { mergeDay } from './sync-rule';
 import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, adMeta, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
-import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, KeitaroError, type CostEntry } from './keitaro';
+import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, campaignsWithSubId4, KeitaroError, type CostEntry } from './keitaro';
 import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -597,6 +597,13 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
   return result;
 }
 
+/**
+ * Sub ID, в котором в кликах Keitaro лежит ID объявления Facebook. Стандартный
+ * шаблон Facebook в Keitaro (и FBtool) кладёт `ad.id` в Sub ID 4 — по нему
+ * расход и привязывается к кликам конкретного объявления. Если в трекере
+ * маппинг иной — поменять здесь одно значение.
+ */
+const KT_AD_SUBID = 'sub_id_4';
 
 /** Кампания КТ, найденная по токену из ссылки объявления. */
 type MatchedCampaign = { id: string; name: string; token: string };
@@ -689,13 +696,12 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
   let nonUsdCents = 0;
   let totalSpendCents = 0;
 
-  // Суммы для заливки в Keitaro — расход по «кампания КТ + день» (только USD).
-  // Льём НА УРОВНЕ КАМПАНИИ, без фильтра по Sub ID 4: в кликах этого трекера
-  // Sub ID 4 пустой, поэтому точечная привязка по ad_id не находит кликов и
-  // расход не пишется вовсе. Поток же надёжно известен из пути ссылки, так что
-  // кладём дневной расход на клики кампании целиком — как и была цель (расход
-  // за своим потоком в КТ). Ключ карты — `campId|YYYY-MM-DD`.
-  const pushAgg = new Map<string, number>();
+  // Расход по объявлениям для заливки в Keitaro (только USD). Копим подробно —
+  // кампания, день, ad_id, центы — а КАК заливать, решаем после обхода:
+  //  • где в кликах кампании заполнен Sub ID 4 → точечно по ad_id (как FBtool);
+  //  • где не заполнен (или не смогли определить) → на кампанию целиком, чтобы
+  //    расход не пропал.
+  const pushRecords: { campId: string; date: string; adId: string; cents: number }[] = [];
 
   const all = await prisma.adToken.findMany({
     where: { enabled: true },
@@ -816,11 +822,10 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
             cost.set(key, b);
 
             // В КТ льём только доллары (агентские кабинеты всегда USD; курс тут
-            // не считаем). Копим дневной расход по кампании потока — заливка
-            // пойдёт на уровне кампании (без фильтра по Sub ID 4).
+            // не считаем). Копим подробно по объявлению — уровень заливки
+            // (по ad_id или на кампанию) выберем после обхода.
             if (acc.currency === 'USD') {
-              const pkey = `${matched.id}|${s.date}`;
-              pushAgg.set(pkey, (pushAgg.get(pkey) ?? 0) + s.cents);
+              pushRecords.push({ campId: matched.id, date: s.date, adId, cents: s.cents });
             } else {
               nonUsdDays += 1;
               nonUsdCents += s.cents;
@@ -889,18 +894,47 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
     );
   }
 
-  // Из сумм по «кампания+день» собираем записи расхода на кампанию (без фильтра
-  // по Sub ID 4 — он в кликах пустой). Одна запись = один день кампании.
+  // Определяем, у каких кампаний в кликах реально заполнен Sub ID 4 — только там
+  // имеет смысл точечная привязка по ad_id. Если запрос не удался — множество
+  // пустое, и всё уйдёт на уровень кампании (расход не потеряем).
+  let subIdCampaigns = new Set<string>();
+  if (tracker && pushRecords.length) {
+    try {
+      subIdCampaigns = await campaignsWithSubId4(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
+    } catch {
+      /* не смогли определить — льём на уровень кампании, расход не пропадёт */
+    }
+  }
+
+  // Собираем записи расхода: где Sub ID 4 есть — точечно по ad_id (фильтр), где
+  // нет — суммой на кампанию за день (одна запись на кампанию+день).
   const pushByCamp = new Map<string, CostEntry[]>();
-  for (const [pkey, cents] of pushAgg) {
-    const [campId, date] = pkey.split('|');
+  const campLevel = new Map<string, number>(); // `campId|YYYY-MM-DD` → центы
+  const addEntry = (campId: string, e: CostEntry) => {
     const arr = pushByCamp.get(campId) ?? [];
-    arr.push({
+    arr.push(e);
+    pushByCamp.set(campId, arr);
+  };
+  for (const r of pushRecords) {
+    if (subIdCampaigns.has(r.campId)) {
+      addEntry(r.campId, {
+        start_date: `${r.date} 00:00:00`,
+        end_date: `${r.date} 23:59:59`,
+        cost: r.cents / 100,
+        filters: [{ name: KT_AD_SUBID, operator: 'EQUALS', expression: r.adId }],
+      });
+    } else {
+      const k = `${r.campId}|${r.date}`;
+      campLevel.set(k, (campLevel.get(k) ?? 0) + r.cents);
+    }
+  }
+  for (const [k, cents] of campLevel) {
+    const [campId, date] = k.split('|');
+    addEntry(campId, {
       start_date: `${date} 00:00:00`,
       end_date: `${date} 23:59:59`,
       cost: cents / 100,
     });
-    pushByCamp.set(campId, arr);
   }
 
   // Заливаем посчитанный расход в сам Keitaro — чтобы cost встал рядом с
@@ -917,6 +951,7 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
     `Расход ФБ за окно: ${d(totalSpendCents)}. ` +
       `Залито в КТ: ${d(pushed.cents)} (${pushed.entries} записей на ${pushed.campaigns} кампаний). ` +
       `Объявлений с потоком: ${matchedAds}. ` +
+      `Кампаний с Sub ID 4 (точечно по ad_id): ${subIdCampaigns.size}, остальные — на кампанию. ` +
       (nonUsdDays ? `Пропущено не-USD: ${d(nonUsdCents)}. ` : '') +
       (unmatchedCents ? `Без потока в ссылке: ${d(unmatchedCents)}.` : ''),
   );

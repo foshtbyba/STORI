@@ -207,6 +207,40 @@ export async function revenueByAd(
 }
 
 /**
+ * Кампании, у кликов которых реально заполнен Sub ID 4 (= ad_id объявления
+ * Facebook). Нужно, чтобы решить, как заливать расход: где Sub ID 4 есть —
+ * точечно по объявлению (фильтр), где нет — на кампанию целиком.
+ *
+ * Берём отчёт по кликам, сгруппированный «кампания + Sub ID 4»: если у кампании
+ * встречается хоть одна строка с непустым Sub ID 4 — значит в её кликах он
+ * проставляется, и точечная привязка сработает.
+ */
+export async function campaignsWithSubId4(
+  baseUrl: string,
+  apiKey: string,
+  from: string,
+  to: string,
+  timezone = 'UTC',
+) {
+  const raw = await call(baseUrl, apiKey, '/report/build', {
+    range: { from, to, timezone },
+    grouping: ['campaign_id', 'sub_id_4'],
+    metrics: ['clicks'],
+    filters: [],
+    limit: 50000,
+  });
+
+  const rows = ((raw as { rows?: unknown }).rows ?? []) as Record<string, unknown>[];
+  const out = new Set<string>();
+  for (const row of rows) {
+    const campaignId = String(row.campaign_id ?? '').trim();
+    const subId4 = String(row.sub_id_4 ?? '').trim();
+    if (campaignId && subId4) out.add(campaignId);
+  }
+  return out;
+}
+
+/**
  * Первое НЕнулевое число из списка полей. Ноль пропускаем как возможную
  * заглушку и берём следующее имя; если везде ноль или пусто — значит дохода
  * правда нет, возвращаем ноль.
