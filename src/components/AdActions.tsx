@@ -36,6 +36,7 @@ export default function AdActions({
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const [text, setText] = useState<null | { message: string; headline: string; description: string }>(null);
   const [dup, setDup] = useState<null | { level: DupLevel; count: number }>(null);
+  const [renaming, setRenaming] = useState<string | null>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -104,11 +105,11 @@ export default function AdActions({
     run(duplicateAction, { level, count: String(count) }, `Копий ${label}: ${count} (на паузе). Появятся после «Обновить стату» / в Ads Manager.`);
   };
 
-  const rename = () => {
-    setOpen(false);
-    const v = window.prompt('Новое имя объявления:', name);
-    if (v == null || !v.trim()) return;
-    run(renameAdAction, { name: v.trim() }, 'Переименовано');
+  const saveRename = () => {
+    const v = (renaming ?? '').trim();
+    setRenaming(null);
+    if (!v) return;
+    run(renameAdAction, { name: v }, 'Переименовано');
   };
 
   const item = 'flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-soft transition hover:bg-sub disabled:opacity-50';
@@ -151,7 +152,29 @@ export default function AdActions({
               <div className="my-1 border-t border-line" />
               <button type="button" className={item} disabled={pending} onClick={() => run(remoderateAd, undefined, 'Отправлено на ре-модерацию')}>🔁 Перемодерация (точка)</button>
               <button type="button" className={item} disabled={pending} onClick={openTextEditor}>✏️ Сменить текст…</button>
-              <button type="button" className={item} disabled={pending} onClick={rename}>🏷️ Переименовать…</button>
+              <button type="button" className={item} disabled={pending} onClick={() => { setOpen(false); setRenaming(name); }}>🏷️ Переименовать…</button>
+            </div>,
+            document.body,
+          )
+        : null}
+
+      {renaming !== null && typeof document !== 'undefined'
+        ? createPortal(
+            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4" onClick={() => setRenaming(null)}>
+              <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-2xl border border-line2 bg-raise p-5 text-left shadow-2xl">
+                <div className="mb-3 text-[14px] font-semibold text-text">Переименовать объявление</div>
+                <input
+                  value={renaming}
+                  onChange={(e) => setRenaming(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') saveRename(); }}
+                  autoFocus
+                  className="mb-4 w-full rounded-lg border border-line2 bg-sub px-3 py-2 text-[12.5px] text-text outline-none focus:border-sage"
+                />
+                <div className="flex justify-end gap-2">
+                  <button type="button" onClick={() => setRenaming(null)} className="rounded-full px-4 py-1.5 text-[12px] text-mute hover:text-soft">Отмена</button>
+                  <button type="button" disabled={pending} onClick={saveRename} className="rounded-full bg-sage-t px-4 py-1.5 text-[12px] font-semibold text-sage hover:opacity-80 disabled:opacity-50">Сохранить</button>
+                </div>
+              </div>
             </div>,
             document.body,
           )
