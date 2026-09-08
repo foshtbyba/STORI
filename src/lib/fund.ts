@@ -1,7 +1,7 @@
 import 'server-only';
 import { prisma } from './db';
 import { teamSummary } from './queries';
-import { weekKey } from './period';
+import { weekKey, shiftKey } from './period';
 
 /**
  * Фонд баеров — касса чистого заработка команды (только для админа).
@@ -40,6 +40,11 @@ export async function fundState() {
   const allWeeks = new Set<string>();
   for (const d of dayDates) allWeeks.add(weekKey(d.date));
 
+  // Зарплата платится с лагом — за позапрошлую неделю. Значит недавние 2 недели
+  // (текущая и прошлая) ещё НЕ выплачены: их зп не вычитаем из фонда и не
+  // относим овнерам, пока не выплачена. Порог «выплачено» — позапрошлая неделя.
+  const paidThruKey = shiftKey(weekKey(new Date()), -2);
+
   const raw: { key: string; cents: number; open: boolean; payoutCents: number }[] = [];
   // Разложение накопленного на составляющие — чтобы на экране было видно,
   // сколько баеры принесли профитом до вычета зарплаты и расходников.
@@ -48,14 +53,18 @@ export async function fundState() {
   let payoutCents = 0;
   for (const wk of allWeeks) {
     const s = await teamSummary(wk);
+    // Зп считаем только по выплаченным неделям (до позапрошлой включительно).
+    const paid = wk <= paidThruKey;
+    const weekPayout = paid ? s.totals.payoutCents : 0;
     profitCents += s.totals.profitCents;
     consumableCents += s.totals.consumableCents;
-    payoutCents += s.totals.payoutCents;
+    payoutCents += weekPayout;
     raw.push({
       key: wk,
-      cents: s.totals.teamNetCents,
+      // Чистое недели для фонда: профит − расходники − выплаченная зп.
+      cents: s.totals.profitCents - s.totals.consumableCents - weekPayout,
       open: !closedKeys.has(wk),
-      payoutCents: s.totals.payoutCents,
+      payoutCents: weekPayout,
     });
   }
   // Накопительный итог считаем по возрастанию (старые → новые): именно он

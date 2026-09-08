@@ -244,7 +244,7 @@ export default async function TreasuryPage() {
                 { name: 'Старт (общий бюджет)', cents: t.fund.base, taken: false, base: true },
                 { name: 'Профит баеров', cents: t.fund.profitCents, taken: t.fund.profitCents < 0, note: 'доход − расход' },
                 { name: 'Расходники', cents: t.fund.consumableCents, taken: true },
-                { name: 'Зарплата баеров', cents: t.fund.payoutCents, taken: true },
+                { name: 'Зарплата баеров', cents: t.fund.payoutCents, taken: true, note: 'только выплаченная (до позапрошлой)' },
                 { name: 'Выводы', cents: t.fund.withdrawn, taken: true },
                 { name: 'Прочие движения', cents: t.buyersAdjustmentCents, signed: true, note: 'мимо дашборда' },
               ].map((r) => (
