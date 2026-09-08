@@ -90,7 +90,10 @@ export default async function TreasuryPage() {
             </div>
           ))}
           <div className="flex items-center justify-between border-t border-line py-2 text-[13px]">
-            <span className="text-soft">Общий капитал баеров (фонд)</span>
+            <span className="flex items-center gap-2.5">
+              <Avatar initials="БА" color="#8a8a8a" />
+              <span className="text-soft">Капитал баеров</span>
+            </span>
             <span className="n">
               {usd(t.buyersCents)} <span className="text-[11px] text-mute">· {pct(t.buyersCents)}%</span>
             </span>
