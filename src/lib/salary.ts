@@ -119,9 +119,8 @@ export function computePayout(input: PayoutInput) {
     carriedCents: carry.inCents,
     /** Сколько долга перекрыли этой неделей. */
     carryCoveredCents: carry.coveredCents,
-    /** Что поедет в следующую неделю — минус базы, а на минусовой неделе ещё и
-     *  выданный оклад: баер отбивает его из будущего плюса. */
-    carryOutCents: carry.outCents + (grossBaseCents < 0 ? fixedCents : 0),
+    /** Что поедет в следующую неделю — вместе с новым минусом, если он есть. */
+    carryOutCents: carry.outCents,
     ratePct,
     tierCents,
     fixedCents,

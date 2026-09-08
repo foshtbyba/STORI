@@ -2,7 +2,7 @@ import 'server-only';
 import { prisma } from './db';
 import { periodRange, periodKeyOf, dayKey, daysOfRange, weekKey, weekBounds, rangeOf, titleOf, weeksOfRange, periodLabel } from './period';
 import { profitOf, sum, grossUp, ceilDollars, DEFAULT_COMMISSION_BPS } from './money';
-import { computePayout, parseTiers, DEFAULT_TIERS, okladCents, DEFAULT_FIXED_RUB } from './salary';
+import { computePayout, parseTiers, DEFAULT_TIERS } from './salary';
 import { carriedDebt, type WeekBase } from './carry';
 import { fetchRate, rateIsStale } from './rate';
 
@@ -71,16 +71,11 @@ export type Range = { from: Date; to: Date };
  * Всё берём двумя запросами и складываем по неделям в памяти: недель у команды
  * десятки, а не миллионы, и ходить в базу за каждой — впустую.
  */
-async function carriedByBuyer(
-  before: Date,
-  charged: Map<string, boolean>,
-  fixedRubBy: Map<string, number>,
-  fallbackRate: number,
-) {
+async function carriedByBuyer(before: Date, charged: Map<string, boolean>) {
   const ids = [...charged.keys()];
   if (ids.length === 0) return new Map<string, number>();
 
-  const [days, consumables, periods] = await Promise.all([
+  const [days, consumables] = await Promise.all([
     prisma.dayReport.findMany({
       where: { date: { lt: before }, buyerId: { in: ids } },
       select: { buyerId: true, date: true, revenueCents: true, spendGrossCents: true },
@@ -89,11 +84,7 @@ async function carriedByBuyer(
       where: { date: { lt: before }, buyerId: { in: ids } },
       select: { buyerId: true, date: true, totalCents: true },
     }),
-    // Курс каждой недели — чтобы перевести рублёвый оклад в доллары так же, как
-    // он был выплачен. Недели без периода считаем по текущему курсу.
-    prisma.period.findMany({ select: { key: true, rubPerUsd: true } }),
   ]);
-  const rateByWeek = new Map(periods.map((p) => [p.key, p.rubPerUsd]));
 
   /** баер → неделя → база этой недели. */
   const byBuyer = new Map<string, Map<string, number>>();
@@ -116,14 +107,7 @@ async function carriedByBuyer(
 
   const out = new Map<string, number>();
   for (const [buyerId, weeks] of byBuyer) {
-    const fixedRub = fixedRubBy.get(buyerId) ?? DEFAULT_FIXED_RUB;
-    const rows: WeekBase[] = [...weeks].map(([wk, baseCents]) => ({
-      weekKey: wk,
-      baseCents,
-      // Оклад для недели считаем по её курсу; уйдёт в долг только если неделя
-      // минусовая (см. carriedDebt).
-      okladCents: okladCents(fixedRub, rateByWeek.get(wk) ?? fallbackRate),
-    }));
+    const rows: WeekBase[] = [...weeks].map(([wk, baseCents]) => ({ weekKey: wk, baseCents }));
     out.set(buyerId, carriedDebt(rows));
   }
   return out;
@@ -169,8 +153,6 @@ export async function teamSummary(key: string, range?: Range, opts?: { owners?: 
   const carried = await carriedByBuyer(
     from,
     new Map(buyers.map((b) => [b.id, b.consumablesAffectSalary])),
-    new Map(buyers.map((b) => [b.id, b.salaryRule?.fixedRub ?? DEFAULT_FIXED_RUB])),
-    period.rubPerUsd,
   );
 
   const rows = buyers.map((buyer) => {
@@ -308,8 +290,6 @@ export async function buyerSummary(buyerId: string, key: string, range?: Range) 
   const carried = await carriedByBuyer(
     from,
     new Map([[buyer.id, buyer.consumablesAffectSalary]]),
-    new Map([[buyer.id, buyer.salaryRule?.fixedRub ?? DEFAULT_FIXED_RUB]]),
-    period.rubPerUsd,
   );
   const payout = computePayout({
     profitCents,

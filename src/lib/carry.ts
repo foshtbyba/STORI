@@ -19,10 +19,6 @@ export type WeekBase = {
   /** Понедельник недели, YYYY-MM-DD — по нему же недели и упорядочены. */
   weekKey: string;
   baseCents: number;
-  /** Оклад, выданный за эту неделю. На МИНУСОВОЙ неделе он уходит в долг вместе
-   *  с минусом: баер отбивает и свой минус, и выданный оклад из будущего плюса.
-   *  На плюсовой неделе не влияет. */
-  okladCents?: number;
 };
 
 /**
@@ -35,10 +31,7 @@ export type WeekBase = {
 export function carriedDebt(weeks: WeekBase[]): number {
   let balance = 0; // ≤ 0: это долг, а не накопления
   for (const week of [...weeks].sort((a, b) => (a.weekKey < b.weekKey ? -1 : 1))) {
-    // Плюсовая неделя гасит долг своей базой. Минусовая добавляет и минус базы,
-    // и выданный оклад — его баер тоже отбивает будущим плюсом.
-    const delta = week.baseCents >= 0 ? week.baseCents : week.baseCents - (week.okladCents ?? 0);
-    balance = Math.min(0, balance + delta);
+    balance = Math.min(0, balance + week.baseCents);
   }
   // max гасит «-0», который иначе печатается в отчёте минусом на пустом месте.
   return Math.max(0, -balance);
