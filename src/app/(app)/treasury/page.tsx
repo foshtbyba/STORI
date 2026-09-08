@@ -4,7 +4,7 @@ import { treasuryState } from '@/lib/treasury';
 import { usd } from '@/lib/money';
 import { periodTitle } from '@/lib/period';
 import { Panel, PanelHead, Sub, Empty, Avatar, Big } from '@/components/ui';
-import { IconWallet, IconUsers } from '@/components/icons';
+import { IconWallet } from '@/components/icons';
 import { addFundWithdrawal, deleteFundWithdrawal } from '@/app/actions/fund';
 import {
   saveOwnerOpening,
@@ -100,8 +100,8 @@ export default async function TreasuryPage() {
 
       {/* Три доли: овнеры + общий капитал баеров (фонд) */}
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-3 lg:gap-3.5">
-          {t.shares.map((o) => (
-            <Panel key={o.buyerId} className="flex flex-col p-4 sm:p-6">
+          {t.shares.map((o, idx) => (
+            <Panel key={o.buyerId} className={`flex flex-col p-4 sm:p-6 ${idx === 0 ? 'order-1' : 'order-3'}`}>
               <PanelHead
                 icon={<Avatar initials={o.initials} color={o.color} />}
                 title={`Доля ${o.handle}`}
@@ -220,11 +220,10 @@ export default async function TreasuryPage() {
             </Panel>
           ))}
 
-          {/* Третья доля — общий капитал баеров (фонд) */}
-          <Panel className="flex flex-col p-4 sm:p-6">
+          {/* Доля баеров — общий капитал (фонд). В центре между овнерами. */}
+          <Panel className="flex flex-col p-4 sm:p-6 order-2">
             <PanelHead
-              icon={<IconUsers color="#b4c68c" />}
-              tint="bg-sage-t"
+              icon={<Avatar initials="БА" color="#8a8a8a" />}
               title="Капитал баеров"
               aside={
                 <span className="text-[12.5px] text-mute">
