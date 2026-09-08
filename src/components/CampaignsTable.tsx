@@ -483,7 +483,7 @@ export default function CampaignsTable({
                   </td>
                   {/* Действия */}
                   <td className="px-2 py-2.5 text-center">
-                    {r.isCampaign ? <span className="text-dim">—</span> : <AdActions id={r.id} active={active} onError={setMsg} />}
+                    {r.isCampaign ? <span className="text-dim">—</span> : <AdActions id={r.id} active={active} name={r.name} onError={setMsg} />}
                   </td>
                 </tr>
               );

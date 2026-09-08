@@ -3,33 +3,36 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
-import { setAdRunning, duplicateAdAction, duplicateCampaignAction } from '@/app/actions/integrations';
+import {
+  setAdRunning, duplicateAdAction, duplicateAdNAction, duplicateCampaignAction,
+  remoderateAd, renameAdAction, getAdText, setAdText,
+} from '@/app/actions/integrations';
+
+type ActionFn = (prev: null, form: FormData) => Promise<{ ok: boolean; error?: string } | null>;
 
 /**
- * Кнопка запуск/пауза + меню «ещё» с действиями над объявлением. Меню рисуем
- * через портал с position:fixed — иначе его обрезала бы прокрутка таблицы
- * (overflow-x). Действия шлют команду в Facebook и обновляют страницу.
- *
- * Дубли создаются на паузе и появляются в таблице после следующей «Обновить
- * стату» — Facebook не отдаёт их мгновенно.
+ * Кнопка запуск/пауза + меню «ещё» с действиями над объявлением. Меню и модалка
+ * смены текста рисуются через портал (position:fixed) — иначе их обрезала бы
+ * прокрутка таблицы. Все правки идут в Facebook и обновляют страницу.
  */
 export default function AdActions({
   id,
   active,
+  name,
   onError,
 }: {
   id: string;
   active: boolean;
+  name: string;
   onError: (msg: string) => void;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const [text, setText] = useState<null | { message: string; headline: string; description: string }>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
 
-  // Меню закрываем по клику вне, Escape и прокрутке — оно на fixed и иначе
-  // «отклеится» от кнопки.
   useEffect(() => {
     if (!open) return;
     const close = () => setOpen(false);
@@ -47,7 +50,7 @@ export default function AdActions({
     };
   }, [open]);
 
-  const act = (fn: (prev: null, form: FormData) => Promise<{ ok: boolean; error?: string } | null>, extra?: Record<string, string>) => {
+  const run = (fn: ActionFn, extra?: Record<string, string>) => {
     setOpen(false);
     start(async () => {
       const fd = new FormData();
@@ -65,6 +68,44 @@ export default function AdActions({
     setOpen((v) => !v);
   };
 
+  const openTextEditor = () => {
+    setOpen(false);
+    start(async () => {
+      const res = await getAdText(id);
+      if (!res.ok) { onError(res.error ?? 'Не удалось прочитать текст'); return; }
+      setText({ message: res.message ?? '', headline: res.headline ?? '', description: res.description ?? '' });
+    });
+  };
+
+  const saveText = () => {
+    if (!text) return;
+    const t = text;
+    setText(null);
+    start(async () => {
+      const fd = new FormData();
+      fd.set('id', id);
+      fd.set('message', t.message); fd.set('headline', t.headline); fd.set('description', t.description);
+      const res = await setAdText(null, fd);
+      if (res && !res.ok) onError(res.error ?? 'Не вышло');
+      else router.refresh();
+    });
+  };
+
+  const dupN = () => {
+    setOpen(false);
+    const v = window.prompt('Сколько копий сделать?', '3');
+    const n = Math.min(20, Math.max(1, Math.round(Number(v) || 0)));
+    if (!v || !n) return;
+    run(duplicateAdNAction, { count: String(n) });
+  };
+
+  const rename = () => {
+    setOpen(false);
+    const v = window.prompt('Новое имя объявления:', name);
+    if (v == null || !v.trim()) return;
+    run(renameAdAction, { name: v.trim() });
+  };
+
   const item = 'flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-soft transition hover:bg-sub disabled:opacity-50';
 
   return (
@@ -72,7 +113,7 @@ export default function AdActions({
       <button
         type="button"
         disabled={pending}
-        onClick={() => act(setAdRunning, { status: active ? 'PAUSED' : 'ACTIVE' })}
+        onClick={() => run(setAdRunning, { status: active ? 'PAUSED' : 'ACTIVE' })}
         className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[10.5px] transition ${
           active ? 'bg-amber-t text-amber hover:opacity-80' : 'bg-sage-t text-sage hover:opacity-80'
         } ${pending ? 'cursor-progress opacity-60' : ''}`}
@@ -99,16 +140,56 @@ export default function AdActions({
             <div
               onClick={(e) => e.stopPropagation()}
               style={{ position: 'fixed', left: Math.min(pos.x, window.innerWidth - 8), top: pos.y, transform: 'translateX(-100%)' }}
-              className="z-50 min-w-[210px] overflow-hidden rounded-xl border border-line2 bg-raise py-1 shadow-lg"
+              className="z-50 min-w-[230px] overflow-hidden rounded-xl border border-line2 bg-raise py-1 shadow-lg"
             >
-              <button type="button" className={item} disabled={pending} onClick={() => act(duplicateAdAction)}>
-                🧬 Дублировать объявление
-              </button>
-              <button type="button" className={item} disabled={pending} onClick={() => act(duplicateCampaignAction)}>
-                📄 Дублировать кампанию
-              </button>
+              <button type="button" className={item} disabled={pending} onClick={() => run(duplicateAdAction)}>🧬 Дублировать объявление</button>
+              <button type="button" className={item} disabled={pending} onClick={dupN}>✖️ Дублировать ×N</button>
+              <button type="button" className={item} disabled={pending} onClick={() => run(duplicateCampaignAction)}>📄 Дублировать кампанию</button>
               <div className="my-1 border-t border-line" />
-              <div className="px-3 py-1.5 text-[10.5px] text-dim">Скоро: смена текста, перемодерка</div>
+              <button type="button" className={item} disabled={pending} onClick={() => run(remoderateAd)}>🔁 Перемодерация (точка)</button>
+              <button type="button" className={item} disabled={pending} onClick={openTextEditor}>✏️ Сменить текст…</button>
+              <button type="button" className={item} disabled={pending} onClick={rename}>🏷️ Переименовать…</button>
+            </div>,
+            document.body,
+          )
+        : null}
+
+      {text && typeof document !== 'undefined'
+        ? createPortal(
+            <div
+              className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+              onClick={() => setText(null)}
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-md rounded-2xl border border-line2 bg-raise p-5 text-left shadow-2xl"
+              >
+                <div className="mb-3 text-[14px] font-semibold text-text">Сменить текст объявления</div>
+                <div className="mb-1 text-[11px] text-mute">Заголовок</div>
+                <input
+                  value={text.headline}
+                  onChange={(e) => setText({ ...text, headline: e.target.value })}
+                  className="mb-3 w-full rounded-lg border border-line2 bg-sub px-3 py-2 text-[12.5px] text-text outline-none focus:border-sage"
+                />
+                <div className="mb-1 text-[11px] text-mute">Основной текст</div>
+                <textarea
+                  value={text.message}
+                  onChange={(e) => setText({ ...text, message: e.target.value })}
+                  rows={4}
+                  className="mb-3 w-full resize-y rounded-lg border border-line2 bg-sub px-3 py-2 text-[12.5px] text-text outline-none focus:border-sage"
+                />
+                <div className="mb-1 text-[11px] text-mute">Описание</div>
+                <input
+                  value={text.description}
+                  onChange={(e) => setText({ ...text, description: e.target.value })}
+                  className="mb-4 w-full rounded-lg border border-line2 bg-sub px-3 py-2 text-[12.5px] text-text outline-none focus:border-sage"
+                />
+                <div className="text-[10.5px] text-dim mb-3">После сохранения объявление уйдёт на ре-модерацию — это нормально.</div>
+                <div className="flex justify-end gap-2">
+                  <button type="button" onClick={() => setText(null)} className="rounded-full px-4 py-1.5 text-[12px] text-mute hover:text-soft">Отмена</button>
+                  <button type="button" disabled={pending} onClick={saveText} className="rounded-full bg-sage-t px-4 py-1.5 text-[12px] font-semibold text-sage hover:opacity-80 disabled:opacity-50">Сохранить</button>
+                </div>
+              </div>
             </div>,
             document.body,
           )

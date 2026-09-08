@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireAdmin, requireUser } from '@/lib/auth';
-import { checkToken, setAdStatus, setAdsetBudget, duplicateAd, duplicateCampaign, adCampaignId, campaignInfo, fbAccess, fbErrorKind, FbError, type FbNet } from '@/lib/fb';
+import { checkToken, setAdStatus, setAdsetBudget, duplicateAd, duplicateCampaign, adCampaignId, campaignInfo, renameAd, getAdCreative, applyAdText, fbAccess, fbErrorKind, FbError, type FbNet, type AdText } from '@/lib/fb';
 import { extractTokenFromCookies, readCookieBlob, cookieHeaderOf } from '@/lib/fb-engine';
 import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
@@ -584,7 +584,19 @@ export async function setAdRunning(_prev: AdActionState, form: FormData): Promis
   const ctx = await adAccessFor(id);
   if ('error' in ctx) return { ok: false, error: ctx.error };
   try {
-    await withFreshToken(ctx, (a, n) => setAdStatus(a, ctx.ad.adId, status, n));
+    await withFreshToken(ctx, async (a, n) => {
+      // При ЗАПУСКЕ поднимаем и родителей: у дубля кампания и адсет на паузе,
+      // и объявление числится «запущено», но не крутится. setAdStatus шлёт
+      // status на любой объект, поэтому им же включаем кампанию и адсет.
+      // На ПАУЗЕ трогаем только само объявление — соседние в адсете/кампании
+      // должны продолжать работать.
+      if (status === 'ACTIVE') {
+        const campId = ctx.ad.campaignId || (await adCampaignId(a, ctx.ad.adId, n));
+        if (campId) await setAdStatus(a, campId, 'ACTIVE', n);
+        if (ctx.ad.adsetId) await setAdStatus(a, ctx.ad.adsetId, 'ACTIVE', n);
+      }
+      await setAdStatus(a, ctx.ad.adId, status, n);
+    });
     await prisma.fbAd.update({ where: { id }, data: { status } });
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
@@ -654,6 +666,86 @@ export async function duplicateCampaignAction(_prev: AdActionState, form: FormDa
       }
     }
     return { ok: false, error: msg };
+  }
+  revalidatePath('/ads/campaigns');
+  return { ok: true };
+}
+
+/** Дублировать объявление N раз (для масштабирования). Копии — на паузе. */
+export async function duplicateAdNAction(_prev: AdActionState, form: FormData): Promise<AdActionState> {
+  const id = String(form.get('id') ?? '');
+  const n = Math.min(20, Math.max(1, Math.round(Number(String(form.get('count') ?? '1')) || 1)));
+  const ctx = await adAccessFor(id);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+  try {
+    for (let i = 0; i < n; i += 1) {
+      await withFreshToken(ctx, (a, nn) => duplicateAd(a, ctx.ad.adId, nn));
+    }
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+  revalidatePath('/ads/campaigns');
+  return { ok: true };
+}
+
+/** Переименовать объявление. */
+export async function renameAdAction(_prev: AdActionState, form: FormData): Promise<AdActionState> {
+  const id = String(form.get('id') ?? '');
+  const name = String(form.get('name') ?? '').trim();
+  if (!name) return { ok: false, error: 'Пустое имя' };
+  const ctx = await adAccessFor(id);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+  try {
+    await withFreshToken(ctx, (a, n) => renameAd(a, ctx.ad.adId, name, n));
+    await prisma.fbAd.update({ where: { id }, data: { name } });
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+  revalidatePath('/ads/campaigns');
+  return { ok: true };
+}
+
+/** Перемодерация: минимальная правка текста (переключить точку в конце) —
+ *  Facebook отправит объявление на проверку заново. */
+export async function remoderateAd(_prev: AdActionState, form: FormData): Promise<AdActionState> {
+  const id = String(form.get('id') ?? '');
+  const ctx = await adAccessFor(id);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+  try {
+    await withFreshToken(ctx, (a, n) => applyAdText(a, ctx.ad.adAccount.externalId, ctx.ad.adId, { mode: 'period' }, n));
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+  revalidatePath('/ads/campaigns');
+  return { ok: true };
+}
+
+/** Текущие тексты объявления — для префилла формы смены текста. */
+export async function getAdText(id: string): Promise<{ ok: boolean; error?: string } & Partial<AdText>> {
+  const ctx = await adAccessFor(id);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+  try {
+    const t = await withFreshToken(ctx, (a, n) => getAdCreative(a, ctx.ad.adId, n));
+    return { ok: true, ...t };
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+}
+
+/** Сменить тексты объявления (создаётся новый креатив → уходит на ре-модерацию). */
+export async function setAdText(_prev: AdActionState, form: FormData): Promise<AdActionState> {
+  const id = String(form.get('id') ?? '');
+  const message = String(form.get('message') ?? '');
+  const headline = String(form.get('headline') ?? '');
+  const description = String(form.get('description') ?? '');
+  const ctx = await adAccessFor(id);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+  try {
+    await withFreshToken(ctx, (a, n) =>
+      applyAdText(a, ctx.ad.adAccount.externalId, ctx.ad.adId, { mode: 'text', message, headline, description }, n),
+    );
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
   revalidatePath('/ads/campaigns');
   return { ok: true };

@@ -22,10 +22,12 @@ export default async function PayrollPage({
   const scoped = scopeBuyerId(user);
   const { p, period } = await searchParams;
   const now = await currentPeriodKey();
-  // Лист листается по неделям: закрытые недели никуда не деваются, их можно
-  // открыть и посмотреть, кто сколько получил.
+  // По умолчанию открываем ПОЗАПРОШЛУЮ неделю (текущая − 2): выплата идёт именно
+  // за неё, а не за прошлую. Пример: сегодня ~8-е → платим за неделю 24–30.
+  // Лист листается по неделям стрелками: закрытые недели никуда не деваются.
+  const payDefault = shiftKey(now, -2);
   const wanted = p ?? period;
-  const key = wanted && isWeekKey(wanted) ? wanted : now;
+  const key = wanted && isWeekKey(wanted) ? wanted : payDefault;
   const summary = await teamSummary(key);
   const rate = summary.period.rubPerUsd;
   const closed = summary.period.status === 'CLOSED';

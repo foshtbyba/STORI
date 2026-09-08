@@ -838,6 +838,97 @@ export async function duplicateCampaign(token: string, campaignId: string, net: 
   return { newCampId, copiedAdsets, copiedAds };
 }
 
+/** Переименовать объявление. */
+export async function renameAd(token: string, adId: string, name: string, net: FbNet = {}) {
+  await call(`/${adId}`, token, { name }, net, 'POST');
+  return true;
+}
+
+/** Тексты креатива объявления: основной текст, заголовок, описание. */
+export type AdText = { message: string; headline: string; description: string };
+
+/** Прочитать тексты креатива (для префилла формы смены текста). Поддержаны
+ *  обычный (link_data), видео (video_data) и динамический (asset_feed_spec). */
+export async function getAdCreative(token: string, adId: string, net: FbNet = {}): Promise<AdText> {
+  const got = await call(`/${adId}`, token, { fields: 'creative{object_story_spec,asset_feed_spec}' }, net);
+  const c = ((got as { creative?: unknown }).creative ?? {}) as {
+    object_story_spec?: {
+      link_data?: { message?: string; name?: string; description?: string };
+      video_data?: { message?: string; title?: string; link_description?: string };
+    };
+    asset_feed_spec?: {
+      bodies?: { text?: string }[];
+      titles?: { text?: string }[];
+      descriptions?: { text?: string }[];
+    };
+  };
+  const spec = c.object_story_spec ?? {};
+  const feed = c.asset_feed_spec;
+  if (spec.link_data) return { message: spec.link_data.message ?? '', headline: spec.link_data.name ?? '', description: spec.link_data.description ?? '' };
+  if (spec.video_data) return { message: spec.video_data.message ?? '', headline: spec.video_data.title ?? '', description: spec.video_data.link_description ?? '' };
+  if (feed) return { message: feed.bodies?.[0]?.text ?? '', headline: feed.titles?.[0]?.text ?? '', description: feed.descriptions?.[0]?.text ?? '' };
+  return { message: '', headline: '', description: '' };
+}
+
+/** Что делаем с текстом: перемодерка (переключить точку в конце) или задать
+ *  новые значения полей. */
+export type AdTextEdit =
+  | { mode: 'period' }
+  | { mode: 'text'; message?: string; headline?: string; description?: string };
+
+/**
+ * Изменить тексты объявления. Креатив в FB неизменяем, поэтому читаем текущий
+ * спек, правим тексты, создаём НОВЫЙ креатив и назначаем его объявлению. Любое
+ * такое изменение FB автоматически отправляет на ре-модерацию — на этом и
+ * построена «перемодерка через точку».
+ */
+export async function applyAdText(token: string, accountExternalId: string, adId: string, edit: AdTextEdit, net: FbNet = {}) {
+  const got = await call(`/${adId}`, token, { fields: 'creative{object_story_spec,asset_feed_spec}' }, net);
+  const creative = ((got as { creative?: unknown }).creative ?? {}) as Record<string, unknown>;
+  const spec = creative.object_story_spec ? structuredClone(creative.object_story_spec) as Record<string, unknown> : null;
+  const feed = creative.asset_feed_spec ? structuredClone(creative.asset_feed_spec) as Record<string, unknown> : null;
+  if (!spec && !feed) throw new FbError('У объявления нестандартный креатив — текст так не поменять.');
+
+  // Точка: убрать, если есть на конце, иначе добавить (минимальная правка →
+  // ре-модерация). Для режима text — подставить заданное, иначе оставить как есть.
+  const toggle = (s = '') => {
+    const t = s.replace(/\s+$/, '');
+    return /\.+$/.test(t) ? t.replace(/\.+$/, '') : `${t}.`;
+  };
+  const pick = (cur = '', key: 'message' | 'headline' | 'description') =>
+    edit.mode === 'period' ? toggle(cur) : ((edit as Record<string, string | undefined>)[key] ?? cur);
+
+  const linkData = spec?.link_data as { message?: string; name?: string; description?: string } | undefined;
+  const videoData = spec?.video_data as { message?: string; title?: string; link_description?: string } | undefined;
+  if (linkData) {
+    linkData.message = pick(linkData.message, 'message');
+    linkData.name = pick(linkData.name, 'headline');
+    if (linkData.description != null || (edit.mode === 'text' && edit.description != null)) linkData.description = pick(linkData.description, 'description');
+  } else if (videoData) {
+    videoData.message = pick(videoData.message, 'message');
+    videoData.title = pick(videoData.title, 'headline');
+    if (videoData.link_description != null || (edit.mode === 'text' && edit.description != null)) videoData.link_description = pick(videoData.link_description, 'description');
+  }
+  if (feed) {
+    const bodies = feed.bodies as { text?: string }[] | undefined;
+    const titles = feed.titles as { text?: string }[] | undefined;
+    const descriptions = feed.descriptions as { text?: string }[] | undefined;
+    if (bodies?.[0]) bodies[0].text = pick(bodies[0].text, 'message');
+    if (titles?.[0]) titles[0].text = pick(titles[0].text, 'headline');
+    if (descriptions?.[0]) descriptions[0].text = pick(descriptions[0].text, 'description');
+  }
+
+  const params: Record<string, string> = {};
+  if (spec) params.object_story_spec = JSON.stringify(spec);
+  if (feed) params.asset_feed_spec = JSON.stringify(feed);
+  const acct = accountExternalId.replace(/^act_/, '');
+  const created = await call(`/act_${acct}/adcreatives`, token, params, net, 'POST');
+  const newId = String((created as { id?: string }).id ?? '');
+  if (!newId) throw new FbError('Facebook не создал новый креатив');
+  await call(`/${adId}`, token, { creative: JSON.stringify({ creative_id: newId }) }, net, 'POST');
+  return newId;
+}
+
 /** Справка по кампании — имя, цель и спец-категории. Нужна, чтобы объяснить,
  *  почему копия могла не пройти (спец-категорию FB копировать не даёт). */
 export async function campaignInfo(token: string, campaignId: string, net: FbNet = {}) {
