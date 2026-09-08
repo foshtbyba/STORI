@@ -566,6 +566,35 @@ export async function adStats(
   return out;
 }
 
+/**
+ * Все id объявлений кабинета (кроме архивных/удалённых) — чтобы в таблице можно
+ * было показать и те, что сейчас без открута (свежие дубли на паузе и т.п.).
+ * `adStats` их не отдаёт (там только с активностью), поэтому берём отдельно.
+ */
+export async function listAdIds(token: string, externalId: string, net: FbNet = {}) {
+  const out: string[] = [];
+  let after = '';
+  for (let page = 0; page < 10; page += 1) {
+    const body = await call(`/${externalId}/ads`, token, {
+      fields: 'id',
+      // Только «живые» статусы — архив/удалённые в таблицу не нужны и их много.
+      effective_status: JSON.stringify([
+        'ACTIVE', 'PAUSED', 'PENDING_REVIEW', 'DISAPPROVED', 'PREAPPROVED',
+        'PENDING_BILLING_INFO', 'CAMPAIGN_PAUSED', 'ADSET_PAUSED', 'WITH_ISSUES', 'PENDING_PROCESSING',
+      ]),
+      limit: '500',
+      ...(after ? { after } : {}),
+    }, net);
+    for (const row of (body.data ?? []) as { id?: string }[]) {
+      if (row.id) out.push(row.id);
+    }
+    const next = body.paging as { cursors?: { after?: string }; next?: string } | undefined;
+    if (!next?.next || !next.cursors?.after) break;
+    after = next.cursors.after;
+  }
+  return out;
+}
+
 export type FbAdMeta = {
   adId: string;
   name: string;
@@ -574,6 +603,8 @@ export type FbAdMeta = {
   link: string;
   adsetId: string;
   adsetName: string;
+  campaignId: string;
+  campaignName: string;
   /** Дневной бюджет в центах — с того уровня, где он задан (адсет или кампания). */
   dailyBudget: number | null;
   /** ID объекта, которому слать смену бюджета: адсет (обычно) или кампания (CBO). */
@@ -594,7 +625,7 @@ export type FbAdMeta = {
 export async function adMeta(token: string, ids: string[], net: FbNet = {}) {
   const out: FbAdMeta[] = [];
   const fields =
-    'name,effective_status,adset{id,name,daily_budget,lifetime_budget,targeting{age_min,age_max,geo_locations{countries}}},campaign{id,daily_budget,lifetime_budget},creative{thumbnail_url,link_url,object_url,object_story_spec{link_data{link},video_data{call_to_action{value{link}}},template_data{link}},asset_feed_spec{link_urls{website_url}}}';
+    'name,effective_status,adset{id,name,daily_budget,lifetime_budget,targeting{age_min,age_max,geo_locations{countries}}},campaign{id,name,daily_budget,lifetime_budget},creative{thumbnail_url,link_url,object_url,object_story_spec{link_data{link},video_data{call_to_action{value{link}}},template_data{link}},asset_feed_spec{link_urls{website_url}}}';
 
   const cents = (v: unknown) => {
     const n = v != null ? Math.round(Number(v)) : NaN;
@@ -620,7 +651,7 @@ export async function adMeta(token: string, ids: string[], net: FbNet = {}) {
             geo_locations?: { countries?: string[] };
           };
         };
-        campaign?: { id?: string; daily_budget?: string; lifetime_budget?: string };
+        campaign?: { id?: string; name?: string; daily_budget?: string; lifetime_budget?: string };
       };
       const adsetDaily = cents(ad.adset?.daily_budget);
       const campDaily = cents(ad.campaign?.daily_budget);
@@ -642,6 +673,8 @@ export async function adMeta(token: string, ids: string[], net: FbNet = {}) {
         link: pickCreativeLink((raw as { creative?: unknown }).creative),
         adsetId: ad.adset?.id ?? '',
         adsetName: ad.adset?.name ?? '',
+        campaignId: ad.campaign?.id ?? '',
+        campaignName: ad.campaign?.name ?? '',
         dailyBudget: Number.isFinite(dailyBudget as number) ? dailyBudget : null,
         budgetTargetId,
         targeting: targetingLabel(ad.adset?.targeting),

@@ -108,9 +108,8 @@ export default async function CampaignsPage({
       leads += day.leads;
       revenue += day.revenueCents;
     }
-    // В таблицу — только то, что крутилось в окне.
-    if (spend === 0 && impressions === 0) continue;
-
+    // Раньше тут отбрасывали объявления без открута. Теперь отдаём все, а
+    // «с открутом / без открута» переключается фильтром в таблице.
     rows.push({
       id: a.id,
       adId: a.adId,
@@ -120,6 +119,8 @@ export default async function CampaignsPage({
       linkUrl: a.linkUrl,
       ktToken: a.ktToken,
       adsetName: a.adsetName,
+      campaignId: a.campaignId,
+      campaignName: a.campaignName,
       dailyBudgetCents: a.dailyBudget,
       targeting: a.targeting,
       account: a.adAccount.name || a.adAccount.externalId.replace(/^act_/, ''),

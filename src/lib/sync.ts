@@ -3,7 +3,7 @@ import { prisma } from './db';
 import { dayKey } from './period';
 import { grossUp, ceilDollars, DEFAULT_COMMISSION_BPS } from './money';
 import { mergeDay } from './sync-rule';
-import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, adMeta, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
+import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, adMeta, listAdIds, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
 import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, campaignsWithSubId4, KeitaroError, type CostEntry } from './keitaro';
@@ -629,10 +629,14 @@ function matchKtCampaign(link: string, index: Map<string, MatchedCampaign>): Mat
  * токена, кулдаун при троттлинге, обновление протухшего ключа из кук. Тянем
  * ссылки только у объявлений, где реально был расход, — запросов немного.
  */
-export async function syncFacebookAds(days = 7): Promise<SyncResult> {
+export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {}): Promise<SyncResult> {
   const result = emptyResult();
   const { from, to } = daysBack(days);
   const now = new Date();
+  // allAds: тянуть и объявления без открута (перечислением ads кабинета), чтобы
+  // они были в таблице под фильтром «без открута». Дороже (лишние запросы к ФБ),
+  // поэтому включаем только на ручном обновлении, не на частом кроне.
+  const allAds = Boolean(opts.allAds);
 
   // Индекс токенов кампаний КТ: по ключу из ссылки объявления → кампания.
   // Без трекера привязывать не к чему — расход соберём, но потоки не проставим.
@@ -719,9 +723,22 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
       for (const acc of shuffle(token.accounts)) {
         await humanPause();
         const stats = await adStats(access, acc.externalId, from, to, net);
-        if (stats.length === 0) continue;
+        const statIds = new Set(stats.map((s) => s.adId));
 
-        const adIds = [...new Set(stats.map((s) => s.adId))];
+        // Набор объявлений для меты: те, что с открутом, плюс (для ручного
+        // обновления) все живые объявления кабинета — так в таблицу попадут и
+        // те, что без открута (свежие дубли на паузе и т.п.).
+        let adIds = [...statIds];
+        if (allAds) {
+          try {
+            const listed = await listAdIds(access, acc.externalId, net);
+            adIds = [...new Set([...statIds, ...listed])];
+          } catch {
+            /* перечисление не удалось — продолжаем только с теми, что с открутом */
+          }
+        }
+        if (adIds.length === 0) continue;
+
         const nameOf = new Map(stats.map((s) => [s.adId, s.adName]));
         const metas = await adMeta(access, adIds, net);
         const metaOf = new Map(metas.map((m) => [m.adId, m]));
@@ -749,6 +766,8 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
               status: m?.status ?? 'UNKNOWN',
               adsetId: m?.adsetId ?? '',
               adsetName: m?.adsetName ?? '',
+              campaignId: m?.campaignId ?? '',
+              campaignName: m?.campaignName ?? '',
               dailyBudget: m?.dailyBudget ?? null,
               budgetTargetId: m?.budgetTargetId ?? '',
               targeting: m?.targeting ?? '',
@@ -830,6 +849,39 @@ export async function syncFacebookAds(days = 7): Promise<SyncResult> {
               nonUsdDays += 1;
               nonUsdCents += s.cents;
             }
+          }
+        }
+
+        // Объявления без открута (есть в кабинете, но не в статистике окна) —
+        // заводим/обновляем саму карточку без дневных строк, чтобы их было видно
+        // в таблице под фильтром «без открута». Расход/дни у них не трогаем.
+        if (allAds) {
+          for (const adId of adIds) {
+            if (statIds.has(adId)) continue;
+            const m = metaOf.get(adId);
+            if (!m) continue;
+            const link = m.link ?? '';
+            const matched = matchKtCampaign(link, index);
+            const data = {
+              adAccountId: acc.id,
+              name: m.name || '',
+              status: m.status ?? 'UNKNOWN',
+              adsetId: m.adsetId ?? '',
+              adsetName: m.adsetName ?? '',
+              campaignId: m.campaignId ?? '',
+              campaignName: m.campaignName ?? '',
+              dailyBudget: m.dailyBudget ?? null,
+              budgetTargetId: m.budgetTargetId ?? '',
+              targeting: m.targeting ?? '',
+              thumbnailUrl: m.thumbnailUrl ?? '',
+              linkUrl: link,
+              ktToken: matched?.token ?? '',
+            };
+            await prisma.fbAd.upsert({
+              where: { adId },
+              update: data,
+              create: { adId, ...data },
+            });
           }
         }
       }

@@ -515,7 +515,9 @@ export async function runAdsSync() {
   // токен слетал и его починили не сразу, за это окно догрузятся пропущенные
   // дни — и статистика, и расход в КТ (синк перечитывает окно и перезаписывает
   // cost), так что дыр по дням не остаётся.
-  const result = await syncFacebookAds(SYNC_DAYS);
+  // allAds: подтягиваем и объявления без открута (чтобы дубли/паузы были видны
+  // под фильтром «без открута»). Ручное обновление нечастое — лишние запросы ок.
+  const result = await syncFacebookAds(SYNC_DAYS, { allAds: true });
   revalidatePath('/ads/campaigns');
   return result;
 }

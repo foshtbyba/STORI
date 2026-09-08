@@ -67,8 +67,10 @@ export async function GET(req: Request) {
   if (url.searchParams.get('only') === 'ads') {
     const askedAds = Number(url.searchParams.get('days'));
     const adDays = Number.isFinite(askedAds) && askedAds > 0 ? Math.min(31, Math.max(1, Math.round(askedAds))) : 7;
-    const result = await syncFacebookAds(adDays);
-    return NextResponse.json({ ok: true, only: 'ads', days: adDays, ...result });
+    // ?all=1 — тянуть и объявления без открута (тяжелее; для редкого глубокого захода).
+    const allAds = url.searchParams.get('all') === '1';
+    const result = await syncFacebookAds(adDays, { allAds });
+    return NextResponse.json({ ok: true, only: 'ads', days: adDays, allAds, ...result });
   }
 
   // Глубину зажимаем в 1…31: случайный ?days=9999 не должен вешать чужие API.

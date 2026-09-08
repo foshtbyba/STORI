@@ -424,6 +424,9 @@ model FbAd {
   /// ID адсета в FB — по нему меняем бюджет и он же группирует объявления.
   adsetId      String    @default("")
   adsetName    String    @default("")
+  /// ID и имя кампании в FB — для группировки таблицы по кампаниям.
+  campaignId   String    @default("")
+  campaignName String    @default("")
   /// Дневной бюджет в центах — с того уровня, где он задан (адсет или кампания).
   dailyBudget  Int?
   /// ID объекта, которому слать смену бюджета: адсет или кампания (CBO).

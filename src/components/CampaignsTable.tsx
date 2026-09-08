@@ -19,6 +19,8 @@ export type AdRow = {
   linkUrl: string;
   ktToken: string;
   adsetName: string;
+  campaignId: string;
+  campaignName: string;
   dailyBudgetCents: number | null;
   targeting: string;
   account: string;
@@ -55,7 +57,25 @@ type Enriched = AdRow & {
   cr: number; // доля
   profitCents: number;
   roi: number; // доля
+  /** В режиме группировки по кампании: сколько объявлений свёрнуто в строку. */
+  adCount?: number;
+  /** Строка — это кампания (агрегат), а не одно объявление. */
+  isCampaign?: boolean;
 };
+
+/** Из «сырых» сумм собираем производные метрики (CPC/CTR/…). */
+function derive(base: { spendCents: number; impressions: number; clicks: number; leads: number; revenueCents: number }) {
+  const profitCents = base.revenueCents - base.spendCents;
+  return {
+    cpc: base.clicks ? Math.round(base.spendCents / base.clicks) : 0,
+    ctr: base.impressions ? base.clicks / base.impressions : 0,
+    cpm: base.impressions ? Math.round((base.spendCents / base.impressions) * 1000) : 0,
+    cpl: base.leads ? Math.round(base.spendCents / base.leads) : 0,
+    cr: base.clicks ? base.leads / base.clicks : 0,
+    profitCents,
+    roi: base.spendCents ? profitCents / base.spendCents : 0,
+  };
+}
 
 type SortKey =
   | 'name' | 'buyer' | 'status' | 'budget'
@@ -99,20 +119,14 @@ export default function CampaignsTable({
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [budgets, setBudgets] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState<string | null>(null);
+  // Группировка: по объявлениям или свёрнуто по кампаниям. И показывать ли
+  // объявления без открута. Оба выбора запоминаем в браузере.
+  const [group, setGroupState] = useState<'ad' | 'campaign'>('ad');
+  const [showZero, setShowZeroState] = useState(false);
+  const setGroup = (v: 'ad' | 'campaign') => { setGroupState(v); try { localStorage.setItem('ads.campaigns.group', v); } catch {} };
+  const setShowZero = (v: boolean) => { setShowZeroState(v); try { localStorage.setItem('ads.campaigns.zero', v ? '1' : '0'); } catch {} };
 
-  const enrich = (r: AdRow): Enriched => {
-    const profitCents = r.revenueCents - r.spendCents;
-    return {
-      ...r,
-      cpc: r.clicks ? Math.round(r.spendCents / r.clicks) : 0,
-      ctr: r.impressions ? r.clicks / r.impressions : 0,
-      cpm: r.impressions ? Math.round((r.spendCents / r.impressions) * 1000) : 0,
-      cpl: r.leads ? Math.round(r.spendCents / r.leads) : 0,
-      cr: r.clicks ? r.leads / r.clicks : 0,
-      profitCents,
-      roi: r.spendCents ? profitCents / r.spendCents : 0,
-    };
-  };
+  const enrich = (r: AdRow): Enriched => ({ ...r, ...derive(r) });
 
   const all = useMemo(() => rows.map(enrich), [rows]);
 
@@ -139,6 +153,8 @@ export default function CampaignsTable({
     try {
       const saved = localStorage.getItem('ads.campaigns.buyer');
       if (saved && (saved === 'all' || buyers.some((b) => b.handle === saved))) setBuyerState(saved);
+      if (localStorage.getItem('ads.campaigns.group') === 'campaign') setGroupState('campaign');
+      if (localStorage.getItem('ads.campaigns.zero') === '1') setShowZeroState(true);
     } catch { /* нет доступа к localStorage */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -161,8 +177,35 @@ export default function CampaignsTable({
   }, [byBuyer]);
 
   const view = useMemo(() => {
+    // Фильтр открута: по умолчанию только то, что реально крутилось в окне.
+    const active = (r: Enriched) => r.spendCents > 0 || r.impressions > 0 || r.clicks > 0;
+    const base = showZero ? byBuyer : byBuyer.filter(active);
+
+    // Группировка по кампании: сворачиваем объявления одной FB-кампании в одну
+    // строку с суммарными метриками. Расход/доход суммируем только по USD.
+    let list: Enriched[];
+    if (group === 'campaign') {
+      const m = new Map<string, { name: string; spendCents: number; impressions: number; clicks: number; leads: number; revenueCents: number; count: number; foreign: boolean }>();
+      for (const r of base) {
+        const key = r.campaignId || `adset:${r.adsetName}`;
+        const g = m.get(key) ?? { name: r.campaignName || r.adsetName || 'Без кампании', spendCents: 0, impressions: 0, clicks: 0, leads: 0, revenueCents: 0, count: 0, foreign: false };
+        g.impressions += r.impressions; g.clicks += r.clicks; g.leads += r.leads;
+        if (r.currency === 'USD') { g.spendCents += r.spendCents; g.revenueCents += r.revenueCents; } else g.foreign = true;
+        g.count += 1;
+        m.set(key, g);
+      }
+      list = [...m.entries()].map(([key, g]) => ({
+        id: key, adId: '', name: g.name, status: '', thumbnailUrl: '', linkUrl: '', ktToken: '',
+        adsetName: '', campaignId: key, campaignName: g.name, dailyBudgetCents: null, targeting: '',
+        account: '', act: '', currency: g.foreign ? 'MIXED' : 'USD', buyer: '', initials: '', color: '',
+        spendCents: g.spendCents, impressions: g.impressions, clicks: g.clicks, leads: g.leads, revenueCents: g.revenueCents,
+        ...derive(g), adCount: g.count, isCampaign: true,
+      }));
+    } else {
+      list = base;
+    }
+
     const needle = q.trim().toLowerCase();
-    let list = byBuyer;
     if (needle) {
       list = list.filter((r) =>
         `${r.name} ${r.adsetName} ${r.act} ${r.targeting} ${r.account}`.toLowerCase().includes(needle),
@@ -186,7 +229,7 @@ export default function CampaignsTable({
       if (typeof x === 'string' || typeof y === 'string') return String(x).localeCompare(String(y)) * dir;
       return (x - y) * dir;
     });
-  }, [byBuyer, q, sortKey, sortDir]);
+  }, [byBuyer, q, sortKey, sortDir, group, showZero]);
 
   const sortBy = (k: SortKey) => {
     if (k === sortKey) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
@@ -285,6 +328,32 @@ export default function CampaignsTable({
           placeholder="Поиск: объявление, адсет, act, гео…"
           className="h-9 min-w-[220px] flex-1 rounded-full border border-line2 bg-sub px-4 text-[12.5px] text-text outline-none transition focus:border-sage"
         />
+        {/* Объявления / Кампании — общая стата по кампании, если у неё много объявлений. */}
+        <div className="flex items-center gap-1 rounded-full bg-sub p-1">
+          {([['ad', 'Объявления'], ['campaign', 'Кампании']] as const).map(([v, t]) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setGroup(v)}
+              className={`rounded-full px-3 py-1 text-[11.5px] transition ${
+                group === v ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+        {/* Показывать ли объявления без открута (свежие дубли, паузы). */}
+        <button
+          type="button"
+          onClick={() => setShowZero(!showZero)}
+          className={`h-9 rounded-full border px-3 text-[11.5px] transition ${
+            showZero ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-mute hover:text-soft'
+          }`}
+          title="Показывать объявления без открута за период"
+        >
+          {showZero ? 'все' : 'без открута'}
+        </button>
         <div className="flex items-center gap-1 rounded-full bg-sub p-1">
           {([['1', 'сегодня'], ['7', '7 дней'], ['14', '14 дней']] as const).map(([v, t]) => (
             <a
@@ -318,7 +387,7 @@ export default function CampaignsTable({
         <table className="w-full min-w-[1180px] border-collapse text-[12px]">
           <thead>
             <tr className="text-left text-[10.5px] uppercase tracking-wide text-mute">
-              <th className="cursor-pointer whitespace-nowrap py-2 pr-3 font-medium" onClick={() => sortBy('name')}>Объявление{arrow('name')}</th>
+              <th className="cursor-pointer whitespace-nowrap py-2 pr-3 font-medium" onClick={() => sortBy('name')}>{group === 'campaign' ? 'Кампания' : 'Объявление'}{arrow('name')}</th>
               {COLS.map((c) => (
                 <th
                   key={c.key}
@@ -341,28 +410,35 @@ export default function CampaignsTable({
               const editing = budgets[r.id] !== undefined;
               return (
                 <tr key={r.id} className="border-t border-line align-middle">
-                  {/* Объявление */}
+                  {/* Кампания (агрегат) или объявление */}
                   <td className="py-2.5 pr-3">
-                    <div className="flex items-start gap-2.5">
-                      {r.thumbnailUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={r.thumbnailUrl} alt="" className="mt-0.5 h-9 w-9 shrink-0 rounded-md object-cover" />
-                      ) : (
-                        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-sub text-dim">—</span>
-                      )}
+                    {r.isCampaign ? (
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="min-w-0 flex-1 truncate text-[12.5px] text-soft" title={r.name}>{r.name || `#${r.adId}`}</span>
-                          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${TONE[badge.tone]}`}>{badge.label}</span>
-                          {r.ktToken ? null : <span className="shrink-0 rounded-full bg-sub px-2 py-0.5 text-[10px] text-dim" title="Токен КТ в ссылке не распознан">нет потока</span>}
-                        </div>
-                        <div className="mt-1 flex items-center gap-x-2 text-[10.5px] text-dim">
-                          <Tip label="act_ID кабинета в Facebook"><span className="n cursor-help">{r.act}</span></Tip>
-                          {r.targeting ? <span className="n">· {r.targeting}</span> : null}
-                          {r.linkUrl ? <a href={r.linkUrl} target="_blank" rel="noreferrer" className="text-steel hover:underline">· ссылка</a> : null}
+                        <div className="truncate text-[12.5px] text-soft" title={r.name}>{r.name}</div>
+                        <div className="mt-0.5 text-[10.5px] text-dim">{r.adCount} объявл.{r.currency === 'MIXED' ? ' · разные валюты' : ''}</div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start gap-2.5">
+                        {r.thumbnailUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={r.thumbnailUrl} alt="" className="mt-0.5 h-9 w-9 shrink-0 rounded-md object-cover" />
+                        ) : (
+                          <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-sub text-dim">—</span>
+                        )}
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="min-w-0 flex-1 truncate text-[12.5px] text-soft" title={r.name}>{r.name || `#${r.adId}`}</span>
+                            <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${TONE[badge.tone]}`}>{badge.label}</span>
+                            {r.ktToken ? null : <span className="shrink-0 rounded-full bg-sub px-2 py-0.5 text-[10px] text-dim" title="Токен КТ в ссылке не распознан">нет потока</span>}
+                          </div>
+                          <div className="mt-1 flex items-center gap-x-2 text-[10.5px] text-dim">
+                            <Tip label="act_ID кабинета в Facebook"><span className="n cursor-help">{r.act}</span></Tip>
+                            {r.targeting ? <span className="n">· {r.targeting}</span> : null}
+                            {r.linkUrl ? <a href={r.linkUrl} target="_blank" rel="noreferrer" className="text-steel hover:underline">· ссылка</a> : null}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                   </td>
                   <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{int(r.impressions)}</td>
                   <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{int(r.clicks)}</td>
@@ -381,7 +457,9 @@ export default function CampaignsTable({
                   <td className={`n px-3 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{r.spendCents ? pct(r.profitCents, r.spendCents, 1) : '—'}</td>
                   {/* Бюджет — редактируемый, выделен; идёт перед кнопкой запуска */}
                   <td className="px-3 py-2.5 text-center">
-                    {editing ? (
+                    {r.isCampaign ? (
+                      <span className="text-dim">—</span>
+                    ) : editing ? (
                       <span className="inline-flex items-center gap-1">
                         <input
                           value={budgets[r.id]}
@@ -405,7 +483,7 @@ export default function CampaignsTable({
                   </td>
                   {/* Действия */}
                   <td className="px-2 py-2.5 text-center">
-                    <AdActions id={r.id} active={active} onError={setMsg} />
+                    {r.isCampaign ? <span className="text-dim">—</span> : <AdActions id={r.id} active={active} onError={setMsg} />}
                   </td>
                 </tr>
               );
@@ -413,7 +491,7 @@ export default function CampaignsTable({
           </tbody>
         </table>
       </div>
-      <div className="text-[11px] text-dim">Объявлений: {view.length}. Клик по заголовку — сортировка. Клик по бюджету — правка.</div>
+      <div className="text-[11px] text-dim">{group === 'campaign' ? 'Кампаний' : 'Объявлений'}: {view.length}. Клик по заголовку — сортировка{group === 'campaign' ? '' : ', клик по бюджету — правка'}.</div>
     </div>
   );
 }
