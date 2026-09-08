@@ -338,10 +338,10 @@ export default function CampaignsTable({
                   <Tip label={c.hint}>{c.label}</Tip>{caret(c.key)}
                 </th>
               ))}
-              <th className="whitespace-nowrap px-3 py-2 text-center font-medium">Действия</th>
               <th className="relative cursor-pointer whitespace-nowrap px-3 py-2 text-center font-medium text-soft" onClick={() => sortBy('budget')}>
                 <Tip label="Дневной бюджет (адсета или кампании, если CBO). Клик по значению — изменить.">Бюджет</Tip>{caret('budget')}
               </th>
+              <th className="whitespace-nowrap px-3 py-2 text-center font-medium">Действия</th>
             </tr>
           </thead>
           <tbody>
@@ -389,22 +389,7 @@ export default function CampaignsTable({
                   <td className="n px-3 py-2.5 text-center text-[13px] text-soft">{money(r.revenueCents)}</td>
                   <td className={`n px-3 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{money(r.profitCents)}</td>
                   <td className={`n px-3 py-2.5 text-center text-[13px] font-semibold ${r.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{r.spendCents ? pct(r.profitCents, r.spendCents, 1) : '—'}</td>
-                  {/* Действия */}
-                  <td className="px-2 py-2.5 text-center">
-                    <button
-                      type="button"
-                      disabled={pending}
-                      onClick={() => run(r.id, active ? 'PAUSED' : 'ACTIVE')}
-                      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[10.5px] transition ${
-                        active ? 'bg-amber-t text-amber hover:opacity-80' : 'bg-sage-t text-sage hover:opacity-80'
-                      } ${pending ? 'cursor-progress opacity-60' : ''}`}
-                      title={active ? 'Поставить на паузу' : 'Запустить'}
-                    >
-                      {active ? 'пауза' : 'запуск'}
-                      <span className="text-[9px]">{active ? '⏸' : '▶'}</span>
-                    </button>
-                  </td>
-                  {/* Бюджет — редактируемый, выделен, рядом с кнопкой запуска */}
+                  {/* Бюджет — редактируемый, выделен; идёт перед кнопкой запуска */}
                   <td className="px-3 py-2.5 text-center">
                     {editing ? (
                       <span className="inline-flex items-center gap-1">
@@ -427,6 +412,21 @@ export default function CampaignsTable({
                         {r.dailyBudgetCents != null ? money(r.dailyBudgetCents) : '—'}
                       </button>
                     )}
+                  </td>
+                  {/* Действия */}
+                  <td className="px-2 py-2.5 text-center">
+                    <button
+                      type="button"
+                      disabled={pending}
+                      onClick={() => run(r.id, active ? 'PAUSED' : 'ACTIVE')}
+                      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-[10.5px] transition ${
+                        active ? 'bg-amber-t text-amber hover:opacity-80' : 'bg-sage-t text-sage hover:opacity-80'
+                      } ${pending ? 'cursor-progress opacity-60' : ''}`}
+                      title={active ? 'Поставить на паузу' : 'Запустить'}
+                    >
+                      {active ? 'пауза' : 'запуск'}
+                      <span className="text-[9px]">{active ? '⏸' : '▶'}</span>
+                    </button>
                   </td>
                 </tr>
               );
