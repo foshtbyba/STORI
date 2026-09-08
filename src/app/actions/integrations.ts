@@ -556,9 +556,18 @@ async function withFreshToken<T>(
     return await fn(ctx.access, ctx.net);
   } catch (e) {
     const refreshable = (e instanceof FbError && e.code === 1) || fbErrorKind(e) === 'token';
-    if (refreshable && ctx.tok.cookiesJson && (await refreshTokenFromCookies(ctx.tok))) {
-      const { token: access, net } = fbAccess(ctx.tok.token, { cookiesJson: ctx.tok.cookiesJson, proxyUrl: ctx.tok.proxyUrl });
-      return await fn(access, net);
+    if (refreshable && ctx.tok.cookiesJson) {
+      // Рефреш может сам упасть (куки тоже мертвы, 400 при извлечении ключа).
+      // Тогда НЕ показываем ошибку рефреша — она сбивает с толку; отдаём
+      // исходную («сессия кончилась»), она подсказывает обновить токен.
+      try {
+        if (await refreshTokenFromCookies(ctx.tok)) {
+          const { token: access, net } = fbAccess(ctx.tok.token, { cookiesJson: ctx.tok.cookiesJson, proxyUrl: ctx.tok.proxyUrl });
+          return await fn(access, net);
+        }
+      } catch {
+        /* рефреш не удался — ниже бросаем исходную ошибку */
+      }
     }
     throw e;
   }

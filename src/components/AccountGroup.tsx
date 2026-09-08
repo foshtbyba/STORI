@@ -28,6 +28,8 @@ export type Group = {
   label: string;
   proxied: boolean;
   paused: boolean;
+  /** Последняя ошибка токена (сессия слетела/бан). Пусто — токен здоров. */
+  error: string;
   updated: string | null;
   accounts: AccountRow[];
   /** Полное управление — у админа; свой кабинет баер только снимает. */
@@ -156,9 +158,14 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
             {group.proxied ? (
               <span className="ml-2 rounded-full bg-steel-t px-2 py-0.5 text-[10px] text-steel">через прокси</span>
             ) : null}
-            {group.paused ? (
+            {/* Состояние токена: слетел → красным, на паузе → жёлтым, иначе «активен». */}
+            {group.error ? (
+              <span className="ml-2 rounded-full bg-rust-t px-2 py-0.5 text-[10px] text-rust" title={group.error}>токен слетел</span>
+            ) : group.paused ? (
               <span className="ml-2 rounded-full bg-amber-t px-2 py-0.5 text-[10px] text-amber">на паузе</span>
-            ) : null}
+            ) : (
+              <span className="ml-2 rounded-full bg-sage-t px-2 py-0.5 text-[10px] text-sage">активен</span>
+            )}
           </span>
         </span>
 

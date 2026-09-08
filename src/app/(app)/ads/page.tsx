@@ -67,6 +67,7 @@ export default async function AdsOverviewPage() {
     label: t.label,
     proxied: Boolean(t.proxyUrl),
     paused: Boolean(t.pausedUntil && t.pausedUntil > now),
+    error: t.lastError ?? '',
     updated: t.lastSyncAt ? fmtWhen(t.lastSyncAt) : null,
     admin,
     own: Boolean(user.buyer && t.buyerId === user.buyer.id),
