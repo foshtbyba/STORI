@@ -53,9 +53,9 @@ export default async function HomePage({
         payoutCents: summary.totals.payoutCents,
       }
     : await payoutAcross(week);
-  // Расходники в остаток НЕ вычитаем (их покрывает баер): команде остаётся
-  // профит за вычетом только выплат баерам.
-  const teamNetCents = summary.totals.profitCents - payroll.payoutCents;
+  // Касса команды после всего: профит − расходники − зарплата.
+  const teamNetCents =
+    summary.totals.profitCents - summary.totals.consumableCents - payroll.payoutCents;
   const allTime = await allTimeProfit();
   const allTimeTotal = [...allTime.values()].reduce((a, b) => a + b, 0);
 
@@ -176,13 +176,14 @@ export default async function HomePage({
           <Big cents={teamNetCents} size={46} className="mt-4" />
           <div className="flex-1" />
           {/*
-            Первые две строки действительно вычитаются из профита. Комиссия за
-            пополнения сидит внутри рекламного расхода — она уже учтена в
-            профите, и списывать её второй раз нельзя. Раньше все три строки
-            выглядели одинаково, и сумма в шапке не сходилась с колонкой.
+            Читается как расчёт сверху вниз: профит с рекламы — база, из неё
+            вычитаются расходники и зарплата. Комиссия за пополнения уже сидит
+            внутри рекламного расхода — показываем справочно, второй раз не
+            списываем.
           */}
           {[
-            { name: 'Расходники', cents: summary.totals.consumableCents, taken: false, note: 'на баерах, не из остатка' },
+            { name: 'Профит с рекламы', cents: summary.totals.profitCents, base: true, note: 'из него и считаем' },
+            { name: 'Расходники', cents: summary.totals.consumableCents, taken: true },
             {
               name: 'Зарплата баеров',
               cents: payroll.payoutCents,
@@ -204,7 +205,9 @@ export default async function HomePage({
                 ) : null}
               </span>
               <span
-                className={`n text-[13.5px] ${row.taken && row.cents ? 'text-rust' : 'text-mute'}`}
+                className={`n text-[13.5px] ${
+                  row.base ? 'text-soft' : row.taken && row.cents ? 'text-rust' : 'text-mute'
+                }`}
               >
                 {row.taken && row.cents ? '− ' : ''}
                 {usd(row.cents)}
