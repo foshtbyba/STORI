@@ -4,13 +4,13 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireAdmin, requireUser } from '@/lib/auth';
-import { checkToken, setAdStatus, setAdsetBudget, duplicateAd, duplicateCampaign, adCampaignId, fbAccess, FbError } from '@/lib/fb';
+import { checkToken, setAdStatus, setAdsetBudget, duplicateAd, duplicateCampaign, adCampaignId, fbAccess, fbErrorKind, FbError, type FbNet } from '@/lib/fb';
 import { extractTokenFromCookies, readCookieBlob, cookieHeaderOf } from '@/lib/fb-engine';
 import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
 import { checkBrocard, BrocardError } from '@/lib/brocard';
 import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
-import { syncAll, syncFacebookCampaigns, syncFacebookAds } from '@/lib/sync';
+import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies } from '@/lib/sync';
 
 /**
  * Настройка интеграций. Всё здесь — только для админа: под этими ключами
@@ -533,7 +533,31 @@ async function adAccessFor(adId: string) {
   const own = user.buyer && tok.buyerId === user.buyer.id;
   if (!admin && !own) return { error: 'Это не твоё объявление' as const };
   const { token: access, net } = fbAccess(tok.token, { cookiesJson: tok.cookiesJson, proxyUrl: tok.proxyUrl });
-  return { ad, access, net };
+  return { ad, access, net, tok };
+}
+
+/**
+ * Выполнить действие в Facebook с авто-восстановлением протухшей сессии.
+ *
+ * Сессионный ключ антидетекта живёт недолго; на «код 1» (сессия кончилась) или
+ * протухший токен достаём свежий ключ из кук того же профиля (как в синке) и
+ * повторяем один раз. Так пауза/бюджет/дубли не падают на живом кабинете
+ * только потому, что ключ устарел между заходами.
+ */
+async function withFreshToken<T>(
+  ctx: { access: string; net: FbNet; tok: { id: string; token: string; cookiesJson: string | null; proxyUrl: string | null } },
+  fn: (access: string, net: FbNet) => Promise<T>,
+): Promise<T> {
+  try {
+    return await fn(ctx.access, ctx.net);
+  } catch (e) {
+    const refreshable = (e instanceof FbError && e.code === 1) || fbErrorKind(e) === 'token';
+    if (refreshable && ctx.tok.cookiesJson && (await refreshTokenFromCookies(ctx.tok))) {
+      const { token: access, net } = fbAccess(ctx.tok.token, { cookiesJson: ctx.tok.cookiesJson, proxyUrl: ctx.tok.proxyUrl });
+      return await fn(access, net);
+    }
+    throw e;
+  }
 }
 
 export type AdActionState = { ok: boolean; error?: string } | null;
@@ -545,7 +569,7 @@ export async function setAdRunning(_prev: AdActionState, form: FormData): Promis
   const ctx = await adAccessFor(id);
   if ('error' in ctx) return { ok: false, error: ctx.error };
   try {
-    await setAdStatus(ctx.access, ctx.ad.adId, status, ctx.net);
+    await withFreshToken(ctx, (a, n) => setAdStatus(a, ctx.ad.adId, status, n));
     await prisma.fbAd.update({ where: { id }, data: { status } });
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
@@ -564,7 +588,7 @@ export async function setAdBudget(_prev: AdActionState, form: FormData): Promise
   const target = ctx.ad.budgetTargetId || ctx.ad.adsetId;
   if (!target) return { ok: false, error: 'Не найден объект бюджета (адсет/кампания)' };
   try {
-    await setAdsetBudget(ctx.access, target, Math.round(dollars * 100), ctx.net);
+    await withFreshToken(ctx, (a, n) => setAdsetBudget(a, target, Math.round(dollars * 100), n));
     await prisma.fbAd.update({ where: { id }, data: { dailyBudget: Math.round(dollars * 100) } });
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
@@ -579,7 +603,7 @@ export async function duplicateAdAction(_prev: AdActionState, form: FormData): P
   const ctx = await adAccessFor(id);
   if ('error' in ctx) return { ok: false, error: ctx.error };
   try {
-    await duplicateAd(ctx.access, ctx.ad.adId, ctx.net);
+    await withFreshToken(ctx, (a, n) => duplicateAd(a, ctx.ad.adId, n));
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
@@ -593,9 +617,11 @@ export async function duplicateCampaignAction(_prev: AdActionState, form: FormDa
   const ctx = await adAccessFor(id);
   if ('error' in ctx) return { ok: false, error: ctx.error };
   try {
-    const campId = await adCampaignId(ctx.access, ctx.ad.adId, ctx.net);
-    if (!campId) return { ok: false, error: 'Не нашёл кампанию объявления' };
-    await duplicateCampaign(ctx.access, campId, ctx.net);
+    await withFreshToken(ctx, async (a, n) => {
+      const campId = await adCampaignId(a, ctx.ad.adId, n);
+      if (!campId) throw new FbError('Не нашёл кампанию объявления');
+      await duplicateCampaign(a, campId, n);
+    });
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }

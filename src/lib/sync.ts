@@ -155,7 +155,7 @@ async function writeDay(row: Report, result: SyncResult) {
  * встаёт, не дёргая человека. Не вышло (куки тоже мертвы) — вернём null, и
  * тогда токен честно уходит в ошибку.
  */
-async function refreshTokenFromCookies(t: {
+export async function refreshTokenFromCookies(t: {
   id: string;
   token: string;
   cookiesJson: string | null;
