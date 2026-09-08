@@ -41,8 +41,16 @@ export async function fundState() {
   for (const d of dayDates) allWeeks.add(weekKey(d.date));
 
   const raw: { key: string; cents: number; open: boolean }[] = [];
+  // Разложение накопленного на составляющие — чтобы на экране было видно,
+  // сколько баеры принесли профитом до вычета зарплаты и расходников.
+  let profitCents = 0;
+  let consumableCents = 0;
+  let payoutCents = 0;
   for (const wk of allWeeks) {
     const s = await teamSummary(wk);
+    profitCents += s.totals.profitCents;
+    consumableCents += s.totals.consumableCents;
+    payoutCents += s.totals.payoutCents;
     raw.push({ key: wk, cents: s.totals.teamNetCents, open: !closedKeys.has(wk) });
   }
   // Накопительный итог считаем по возрастанию (старые → новые): именно он
@@ -62,6 +70,10 @@ export async function fundState() {
   return {
     base: baseCents,
     accrued,
+    /** Профит баеров за всё время (доход − расход), до вычета зп и расходников. */
+    profitCents,
+    consumableCents,
+    payoutCents,
     withdrawn,
     balance: baseCents + accrued - withdrawn,
     weeks,

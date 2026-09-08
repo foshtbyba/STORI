@@ -232,13 +232,15 @@ export default async function TreasuryPage() {
                 </span>
               }
             />
-            <Big cents={t.fund.balance} size={40} className="mt-4" />
+            <Big cents={t.buyersCents} size={40} className="mt-4" />
 
             {/* Разбор: старт + накоплено − выводы */}
             <div className="mt-4">
               {[
                 { name: 'Старт (общий бюджет)', cents: t.fund.base, taken: false, base: true },
-                { name: 'Накоплено баерами', cents: t.fund.accrued, taken: t.fund.accrued < 0, note: 'профит − расходники − зп' },
+                { name: 'Профит баеров', cents: t.fund.profitCents, taken: t.fund.profitCents < 0, note: 'доход − расход' },
+                { name: 'Расходники', cents: t.fund.consumableCents, taken: true },
+                { name: 'Зарплата баеров', cents: t.fund.payoutCents, taken: true },
                 { name: 'Выводы', cents: t.fund.withdrawn, taken: true },
                 { name: 'Прочие движения', cents: t.buyersAdjustmentCents, signed: true, note: 'мимо дашборда' },
               ].map((r) => (
