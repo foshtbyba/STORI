@@ -574,22 +574,27 @@ export type FbAdMeta = {
   link: string;
   adsetId: string;
   adsetName: string;
-  /** Дневной бюджет адсета в центах валюты кабинета (null — бюджет на кампании). */
+  /** Дневной бюджет в центах — с того уровня, где он задан (адсет или кампания). */
   dailyBudget: number | null;
+  /** ID объекта, которому слать смену бюджета: адсет (обычно) или кампания (CBO). */
+  budgetTargetId: string;
   /** Короткая подпись таргета: «40-65 HU». */
   targeting: string;
   thumbnailUrl: string;
 };
 
 /**
- * Мета объявлений по списку id: статус, ссылка, адсет с бюджетом и таргетом,
- * превью. Тянем ТОЛЬКО по id с активностью (их даёт adStats) — запросов немного.
+ * Мета объявлений по списку id: статус, ссылка, адсет и кампания с бюджетом,
+ * таргет, превью. Тянем ТОЛЬКО по id с активностью (их даёт adStats).
  * Facebook отдаёт до полусотни объектов за раз по `?ids=`, поэтому бьём на пачки.
+ *
+ * Бюджет бывает на адсете либо на кампании (CBO). Берём тот, что реально задан,
+ * и запоминаем id этого объекта — чтобы менять бюджет там же, где он живёт.
  */
 export async function adMeta(token: string, ids: string[], net: FbNet = {}) {
   const out: FbAdMeta[] = [];
   const fields =
-    'name,effective_status,adset{id,name,daily_budget,targeting{age_min,age_max,geo_locations{countries}}},creative{thumbnail_url,link_url,object_url,object_story_spec{link_data{link},video_data{call_to_action{value{link}}},template_data{link}},asset_feed_spec{link_urls{website_url}}}';
+    'name,effective_status,adset{id,name,daily_budget,targeting{age_min,age_max,geo_locations{countries}}},campaign{id,daily_budget},creative{thumbnail_url,link_url,object_url,object_story_spec{link_data{link},video_data{call_to_action{value{link}}},template_data{link}},asset_feed_spec{link_urls{website_url}}}';
 
   for (let i = 0; i < ids.length; i += 50) {
     const chunk = ids.slice(i, i + 50);
@@ -609,8 +614,14 @@ export async function adMeta(token: string, ids: string[], net: FbNet = {}) {
             geo_locations?: { countries?: string[] };
           };
         };
+        campaign?: { id?: string; daily_budget?: string };
       };
-      const budget = ad.adset?.daily_budget != null ? Math.round(Number(ad.adset.daily_budget)) : null;
+      const adsetBudget = ad.adset?.daily_budget != null ? Math.round(Number(ad.adset.daily_budget)) : null;
+      const campBudget = ad.campaign?.daily_budget != null ? Math.round(Number(ad.campaign.daily_budget)) : null;
+      // Бюджет на адсете приоритетнее; если его нет — берём бюджет кампании (CBO).
+      const onAdset = adsetBudget != null && adsetBudget > 0;
+      const dailyBudget = onAdset ? adsetBudget : campBudget;
+      const budgetTargetId = onAdset ? ad.adset?.id ?? '' : ad.campaign?.id ?? ad.adset?.id ?? '';
       out.push({
         adId,
         name: ad.name ?? '',
@@ -618,7 +629,8 @@ export async function adMeta(token: string, ids: string[], net: FbNet = {}) {
         link: pickCreativeLink((raw as { creative?: unknown }).creative),
         adsetId: ad.adset?.id ?? '',
         adsetName: ad.adset?.name ?? '',
-        dailyBudget: Number.isFinite(budget as number) ? budget : null,
+        dailyBudget: Number.isFinite(dailyBudget as number) ? dailyBudget : null,
+        budgetTargetId,
         targeting: targetingLabel(ad.adset?.targeting),
         thumbnailUrl: ad.creative?.thumbnail_url ?? '',
       });

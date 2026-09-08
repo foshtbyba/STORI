@@ -219,7 +219,7 @@ export default function CampaignsTable({
   // Метка сортировки с ЗАРЕЗЕРВИРОВАННОЙ шириной: показ/скрытие стрелки не должны
   // менять ширину колонки и дёргать всю таблицу.
   const arrow = (k: SortKey) => (
-    <span className="ml-0.5 inline-block w-3 text-center align-middle text-[9px] text-dim">
+    <span className="mx-0.5 inline-block w-3 text-center align-middle text-[9px] text-dim">
       {k === sortKey ? (sortDir === 'asc' ? '▲' : '▼') : ''}
     </span>
   );
@@ -323,7 +323,7 @@ export default function CampaignsTable({
             <tr className="text-left text-[10.5px] uppercase tracking-wide text-mute">
               <th className="cursor-pointer whitespace-nowrap py-2 pr-3 font-medium" onClick={() => sortBy('name')}>Объявление{arrow('name')}</th>
               <th className="cursor-pointer whitespace-nowrap px-3 py-2 text-right font-medium" onClick={() => sortBy('budget')}>
-                <Tip label="Дневной бюджет адсета. Клик по значению в строке — изменить.">Бюджет</Tip>{arrow('budget')}
+                {arrow('budget')}<Tip label="Дневной бюджет (адсета или кампании, если CBO). Клик по значению в строке — изменить.">Бюджет</Tip>
               </th>
               {COLS.map((c) => (
                 <th
@@ -331,7 +331,7 @@ export default function CampaignsTable({
                   className={`cursor-pointer whitespace-nowrap px-3 py-2 text-right font-medium ${c.key === 'profit' ? 'text-soft' : ''}`}
                   onClick={() => sortBy(c.key)}
                 >
-                  <Tip label={c.hint}>{c.label}</Tip>{arrow(c.key)}
+                  {arrow(c.key)}<Tip label={c.hint}>{c.label}</Tip>
                 </th>
               ))}
               <th className="whitespace-nowrap px-3 py-2 text-right font-medium">Действия</th>

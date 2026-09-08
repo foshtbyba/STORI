@@ -561,9 +561,10 @@ export async function setAdBudget(_prev: AdActionState, form: FormData): Promise
   if (!Number.isFinite(dollars) || dollars <= 0) return { ok: false, error: 'Некорректный бюджет' };
   const ctx = await adAccessFor(id);
   if ('error' in ctx) return { ok: false, error: ctx.error };
-  if (!ctx.ad.adsetId) return { ok: false, error: 'У объявления не найден адсет' };
+  const target = ctx.ad.budgetTargetId || ctx.ad.adsetId;
+  if (!target) return { ok: false, error: 'Не найден объект бюджета (адсет/кампания)' };
   try {
-    await setAdsetBudget(ctx.access, ctx.ad.adsetId, Math.round(dollars * 100), ctx.net);
+    await setAdsetBudget(ctx.access, target, Math.round(dollars * 100), ctx.net);
     await prisma.fbAd.update({ where: { id }, data: { dailyBudget: Math.round(dollars * 100) } });
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
