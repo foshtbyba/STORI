@@ -358,6 +358,48 @@ export default async function TreasuryPage() {
             <button type="submit" className="h-9 w-full rounded-full bg-sage px-4 text-[12px] font-semibold text-bg">Внести снимок</button>
           </div>
         </form>
+
+        {/* История снимков — когда и сколько записывали */}
+        <div className="mt-5 border-t border-line pt-4">
+          <div className="lab mb-2">История снимков</div>
+          {t.snapshots.length === 0 ? (
+            <div className="text-[12px] text-dim">Снимков ещё не было.</div>
+          ) : (
+            <>
+              <div className="hidden grid-cols-[auto_repeat(5,1fr)_auto] gap-x-3 pb-1.5 sm:grid">
+                <span className="lab">Дата</span>
+                <span className="lab text-right">Партнёрки</span>
+                <span className="lab text-right">Брокард</span>
+                <span className="lab text-right">Карта</span>
+                <span className="lab text-right">Агенты</span>
+                <span className="lab text-right">Всего</span>
+                <span />
+              </div>
+              {t.snapshots.map((s) => {
+                const tot = s.partnersCents + s.brocardCents + s.cardCents + s.agentsCents;
+                return (
+                  <div
+                    key={s.id}
+                    className="grid grid-cols-[1fr_auto] items-center gap-x-3 border-t border-line py-2 text-[12.5px] sm:grid-cols-[auto_repeat(5,1fr)_auto]"
+                  >
+                    <span className="n text-soft">{ru(s.date)}</span>
+                    <span className="n hidden text-right text-mute sm:block">{usd(s.partnersCents)}</span>
+                    <span className="n hidden text-right text-mute sm:block">{usd(s.brocardCents)}</span>
+                    <span className="n hidden text-right text-mute sm:block">{usd(s.cardCents)}</span>
+                    <span className="n hidden text-right text-mute sm:block">{usd(s.agentsCents)}</span>
+                    <span className="n text-right font-semibold">{usd(tot)}</span>
+                    <span className="text-right">
+                      <form action={deleteSnapshot} className="inline">
+                        <input type="hidden" name="id" value={s.id} />
+                        <button type="submit" className="text-[11px] text-dim transition hover:text-rust">✕</button>
+                      </form>
+                    </span>
+                  </div>
+                );
+              })}
+            </>
+          )}
+        </div>
       </Panel>
     </div>
   );

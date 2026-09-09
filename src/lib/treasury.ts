@@ -70,16 +70,18 @@ async function ownerEarned(buyerId: string, anchor: Date) {
 }
 
 export async function treasuryState() {
-  const [owners, snapshot, fund, adjustments] = await Promise.all([
+  const [owners, snapshots, fund, adjustments] = await Promise.all([
     prisma.buyer.findMany({
       where: { owner: true, archived: false },
       include: { ownerCapital: true, ownerWithdrawals: { orderBy: { date: 'desc' } } },
       orderBy: { handle: 'asc' },
     }),
-    prisma.treasurySnapshot.findFirst({ orderBy: { date: 'desc' } }),
+    prisma.treasurySnapshot.findMany({ orderBy: { date: 'desc' } }),
     fundState(),
     prisma.capitalAdjustment.findMany({ orderBy: { date: 'desc' } }),
   ]);
+  // Последний снимок — для сверки; остальные — история.
+  const snapshot = snapshots[0] ?? null;
 
   const adjOf = (scope: string, buyerId: string | null) =>
     adjustments.filter((a) => a.scope === scope && (buyerId === null ? true : a.buyerId === buyerId));
@@ -149,6 +151,7 @@ export async function treasuryState() {
     fund,
     expectedCents,
     snapshot,
+    snapshots,
     realBySource,
     realCents,
     /** Факт − ожидается: >0 денег больше, чем насчитано; <0 — недостача. */
