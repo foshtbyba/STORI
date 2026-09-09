@@ -7,12 +7,10 @@ import { Panel, PanelHead, Sub, Empty, Avatar, Big } from '@/components/ui';
 import { IconWallet } from '@/components/icons';
 import { addFundWithdrawal, deleteFundWithdrawal } from '@/app/actions/fund';
 import {
-  saveOwnerOpening,
   addOwnerWithdrawal,
   deleteOwnerWithdrawal,
   saveSnapshot,
   deleteSnapshot,
-  saveFundBase,
   addAdjustment,
   deleteAdjustment,
 } from '@/app/actions/treasury';
@@ -108,28 +106,26 @@ export default async function TreasuryPage() {
               <PanelHead
                 icon={<Avatar initials={o.initials} color={o.color} />}
                 title={`Доля ${o.handle}`}
-                aside={<span className="text-[12.5px] text-mute">{o.anchorDate ? `с ${ru(o.anchorDate)}` : 'старт не задан'}</span>}
+                aside={<span className="text-[12.5px] text-mute">{o.anchorDate ? `с ${ru(o.anchorDate)}` : ''}{o.openingCents ? `${o.anchorDate ? ' · ' : ''}старт ${usd(o.openingCents)}` : ''}</span>}
               />
               <Big cents={o.balanceCents} size={40} className="mt-4" />
 
-              {/* Разбор: старт + профит − расходники − overhead/2 − выводы */}
+              {/* Разбор: что двигало долю с якоря (нулевые строки не показываем) */}
               <div className="mt-4">
                 {[
-                  { name: 'Старт (утверждён)', cents: o.openingCents, taken: false, base: true },
                   { name: 'Профит кабинетов', cents: o.profitCents, taken: o.profitCents < 0, note: 'доход − расход с комиссией' },
                   { name: 'Свои расходники', cents: o.consumableCents, taken: true },
-                  { name: 'Общак (½)', cents: o.overheadCents, taken: true, note: '50/50 между овнерами' },
+                  { name: 'Общак (½)', cents: o.overheadCents, taken: true, note: '50/50 овнерам' },
                   { name: 'Выводы', cents: o.withdrawnCents, taken: true },
                   { name: 'Прочие движения', cents: o.adjustmentCents, signed: true, note: 'мимо дашборда' },
-                ].map((r) => (
+                ].filter((r) => r.cents !== 0).map((r) => (
                   <div key={r.name} className="flex items-center justify-between border-t border-line py-2 text-[12.5px]">
                     <span className="text-soft">
                       {r.name}
                       {r.note ? <span className="ml-1.5 text-[11px] text-mute">· {r.note}</span> : null}
                     </span>
                     <span className={`n ${
-                      r.base ? 'text-soft'
-                      : r.signed ? (r.cents > 0 ? 'text-sage' : r.cents < 0 ? 'text-rust' : 'text-mute')
+                      r.signed ? (r.cents > 0 ? 'text-sage' : r.cents < 0 ? 'text-rust' : 'text-mute')
                       : r.taken && r.cents ? 'text-rust' : r.cents ? 'text-sage' : 'text-mute'
                     }`}>
                       {r.signed ? (r.cents > 0 ? '+ ' : r.cents < 0 ? '− ' : '') : r.taken && r.cents ? '− ' : ''}
@@ -138,25 +134,6 @@ export default async function TreasuryPage() {
                   </div>
                 ))}
               </div>
-
-              {/* Задать стартовый баланс и якорь */}
-              <form action={saveOwnerOpening} className="mt-4 flex flex-wrap items-center gap-2">
-                <input type="hidden" name="buyerId" value={o.buyerId} />
-                <input
-                  name="opening"
-                  defaultValue={o.openingCents ? String(o.openingCents / 100) : ''}
-                  inputMode="decimal"
-                  placeholder="старт, $"
-                  className="n h-9 w-28 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage"
-                />
-                <input
-                  name="anchor"
-                  type="date"
-                  defaultValue={o.anchorDate ? ymd(o.anchorDate) : ''}
-                  className="n h-9 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage"
-                />
-                <button type="submit" className="h-9 shrink-0 rounded-full bg-raise px-4 text-[12px] font-semibold">Сохранить старт</button>
-              </form>
 
               {/* Вывод овнеру */}
               <form action={addOwnerWithdrawal} className="mt-2 flex flex-wrap items-center gap-2">
@@ -237,24 +214,22 @@ export default async function TreasuryPage() {
             />
             <Big cents={t.buyersCents} size={40} className="mt-4" />
 
-            {/* Разбор: старт + накоплено − выводы */}
+            {/* Разбор: что двигало капитал (нулевые строки не показываем) */}
             <div className="mt-4">
               {[
-                { name: 'Старт (общий бюджет)', cents: t.fund.base, taken: false, base: true },
                 { name: 'Профит баеров', cents: t.fund.profitCents, taken: t.fund.profitCents < 0, note: 'доход − расход' },
                 { name: 'Расходники', cents: t.fund.consumableCents, taken: true },
-                { name: 'Зарплата баеров', cents: t.fund.payoutCents, taken: true, note: 'только выплаченная (до позапрошлой)' },
+                { name: 'Зарплата баеров', cents: t.fund.payoutCents, taken: true, note: 'выплаченная (до позапрошлой)' },
                 { name: 'Выводы', cents: t.fund.withdrawn, taken: true },
                 { name: 'Прочие движения', cents: t.buyersAdjustmentCents, signed: true, note: 'мимо дашборда' },
-              ].map((r) => (
+              ].filter((r) => r.cents !== 0).map((r) => (
                 <div key={r.name} className="flex items-center justify-between border-t border-line py-2 text-[12.5px]">
                   <span className="text-soft">
                     {r.name}
                     {r.note ? <span className="ml-1.5 text-[11px] text-mute">· {r.note}</span> : null}
                   </span>
                   <span className={`n ${
-                    r.base ? 'text-soft'
-                    : r.signed ? (r.cents > 0 ? 'text-sage' : r.cents < 0 ? 'text-rust' : 'text-mute')
+                    r.signed ? (r.cents > 0 ? 'text-sage' : r.cents < 0 ? 'text-rust' : 'text-mute')
                     : r.taken && r.cents ? 'text-rust' : r.cents ? 'text-sage' : 'text-mute'
                   }`}>
                     {r.signed ? (r.cents > 0 ? '+ ' : r.cents < 0 ? '− ' : '') : r.taken && r.cents ? '− ' : ''}
@@ -263,18 +238,6 @@ export default async function TreasuryPage() {
                 </div>
               ))}
             </div>
-
-            {/* Задать стартовую базу фонда */}
-            <form action={saveFundBase} className="mt-4 flex flex-wrap items-center gap-2">
-              <input
-                name="base"
-                defaultValue={t.fund.base ? String(t.fund.base / 100) : ''}
-                inputMode="decimal"
-                placeholder="старт, $"
-                className="n h-9 w-28 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage"
-              />
-              <button type="submit" className="h-9 shrink-0 rounded-full bg-raise px-4 text-[12px] font-semibold">Сохранить старт</button>
-            </form>
 
             {/* Вывод из фонда (50/50 между овнерами) */}
             <form action={addFundWithdrawal} className="mt-4 flex flex-wrap items-center gap-2">
@@ -289,17 +252,20 @@ export default async function TreasuryPage() {
               {t.fund.weeks.length === 0 ? (
                 <div className="text-[12px] text-dim">Пока нет данных.</div>
               ) : (
-                t.fund.weeks.map((a) => (
-                  <div key={a.key} className="flex items-center justify-between gap-2 border-t border-line py-1.5 text-[12px]">
-                    <span className="text-soft">{periodTitle(a.key)}{a.open ? <span className="ml-1.5 text-[10.5px] text-dim">· текущая</span> : null}</span>
-                    <span className="flex items-baseline gap-2 text-right">
-                      <span className={`n ${a.cents >= 0 ? 'text-sage' : 'text-rust'}`}>{a.cents >= 0 ? '+ ' : '− '}{usd(Math.abs(a.cents))}</span>
-                      <span className="n w-16 text-[11px] text-dim" title="Накопительно в фонде после этой недели">
-                        → {a.cumCents < 0 ? '−' : ''}{usd(Math.abs(a.cumCents))}
+                // Видно 4 последних, остальное — прокруткой.
+                <div className="max-h-[136px] overflow-y-auto pr-1">
+                  {t.fund.weeks.map((a) => (
+                    <div key={a.key} className="flex items-center justify-between gap-2 border-t border-line py-1.5 text-[12px]">
+                      <span className="text-soft">{periodTitle(a.key)}{a.open ? <span className="ml-1.5 text-[10.5px] text-dim">· текущая</span> : null}</span>
+                      <span className="flex items-baseline gap-2 text-right">
+                        <span className={`n ${a.cents >= 0 ? 'text-sage' : 'text-rust'}`}>{a.cents >= 0 ? '+ ' : '− '}{usd(Math.abs(a.cents))}</span>
+                        <span className="n w-16 text-[11px] text-dim" title="Накопительно в фонде после этой недели">
+                          → {a.cumCents < 0 ? '−' : ''}{usd(Math.abs(a.cumCents))}
+                        </span>
                       </span>
-                    </span>
-                  </div>
-                ))
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
 
