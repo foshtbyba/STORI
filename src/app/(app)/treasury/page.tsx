@@ -118,7 +118,7 @@ export default async function TreasuryPage() {
                   { name: 'Общак (½)', cents: o.overheadCents, taken: true, note: '50/50 овнерам' },
                   { name: 'Выводы', cents: o.withdrawnCents, taken: true },
                   { name: 'Прочие движения', cents: o.adjustmentCents, signed: true, note: 'мимо дашборда' },
-                ].filter((r) => r.cents !== 0).map((r) => (
+                ].filter((r) => r.name !== 'Прочие движения' || r.cents !== 0).map((r) => (
                   <div key={r.name} className="flex items-center justify-between border-t border-line py-2 text-[12.5px]">
                     <span className="text-soft">
                       {r.name}
@@ -166,10 +166,10 @@ export default async function TreasuryPage() {
                 )}
               </div>
 
-              {/* Прочие движения мимо дашборда */}
-              <div className="mt-2">
-                <div className="lab mb-1.5">Прочие движения</div>
-                <form action={addAdjustment} className="flex flex-wrap items-center gap-2">
+              {/* Прочие движения мимо дашборда — свёрнуто */}
+              <details className="mt-2">
+                <summary className="lab cursor-pointer list-none select-none">Прочие движения ▾</summary>
+                <form action={addAdjustment} className="mt-1.5 flex flex-wrap items-center gap-2">
                   <input type="hidden" name="scope" value="owner" />
                   <input type="hidden" name="buyerId" value={o.buyerId} />
                   <select name="direction" className="h-9 rounded-lg border border-line2 bg-sub px-2 text-[12px] text-text outline-none focus:border-sage">
@@ -196,7 +196,7 @@ export default async function TreasuryPage() {
                     ))}
                   </div>
                 ) : null}
-              </div>
+              </details>
             </Panel>
           ))}
 
@@ -246,14 +246,14 @@ export default async function TreasuryPage() {
               <button type="submit" className="h-9 shrink-0 rounded-full bg-rust px-4 text-[12px] font-semibold text-bg">Вывести</button>
             </form>
 
-            {/* Пополнения по неделям с накопительным итогом */}
-            <div className="mt-4">
-              <div className="lab mb-1.5">Пополнения по неделям</div>
+            {/* Пополнения по неделям с накопительным итогом — свёрнуто */}
+            <details className="mt-4">
+              <summary className="lab cursor-pointer list-none select-none">Пополнения по неделям ▾</summary>
               {t.fund.weeks.length === 0 ? (
-                <div className="text-[12px] text-dim">Пока нет данных.</div>
+                <div className="mt-1.5 text-[12px] text-dim">Пока нет данных.</div>
               ) : (
                 // Видно 4 последних, остальное — прокруткой.
-                <div className="max-h-[136px] overflow-y-auto pr-1">
+                <div className="mt-1.5 max-h-[136px] overflow-y-auto pr-1">
                   {t.fund.weeks.map((a) => (
                     <div key={a.key} className="flex items-center justify-between gap-2 border-t border-line py-1.5 text-[12px]">
                       <span className="text-soft">{periodTitle(a.key)}{a.open ? <span className="ml-1.5 text-[10.5px] text-dim">· текущая</span> : null}</span>
@@ -267,7 +267,7 @@ export default async function TreasuryPage() {
                   ))}
                 </div>
               )}
-            </div>
+            </details>
 
             {/* История выводов из фонда */}
             <div className="mt-3">
@@ -293,10 +293,10 @@ export default async function TreasuryPage() {
               )}
             </div>
 
-            {/* Прочие движения мимо дашборда */}
-            <div className="mt-2">
-              <div className="lab mb-1.5">Прочие движения</div>
-              <form action={addAdjustment} className="flex flex-wrap items-center gap-2">
+            {/* Прочие движения мимо дашборда — свёрнуто */}
+            <details className="mt-2">
+              <summary className="lab cursor-pointer list-none select-none">Прочие движения ▾</summary>
+              <form action={addAdjustment} className="mt-1.5 flex flex-wrap items-center gap-2">
                 <input type="hidden" name="scope" value="buyers" />
                 <select name="direction" className="h-9 rounded-lg border border-line2 bg-sub px-2 text-[12px] text-text outline-none focus:border-sage">
                   <option value="in">+ приход</option>
@@ -322,7 +322,7 @@ export default async function TreasuryPage() {
                   ))}
                 </div>
               ) : null}
-            </div>
+            </details>
           </Panel>
         </div>
 
