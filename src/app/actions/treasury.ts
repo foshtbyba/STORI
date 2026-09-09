@@ -113,7 +113,12 @@ export async function deleteSnapshot(form: FormData) {
   await requireAdmin();
   const id = String(form.get('id') ?? '');
   if (!id) return;
-  await prisma.treasurySnapshot.deleteMany({ where: { id } });
+  const snap = await prisma.treasurySnapshot.findUnique({ where: { id } });
+  if (!snap) return;
+  // Снимок можно удалить только первые 3 дня — потом история заморожена.
+  const SNAPSHOT_LOCK_MS = 3 * 24 * 60 * 60 * 1000;
+  if (Date.now() - snap.createdAt.getTime() > SNAPSHOT_LOCK_MS) return;
+  await prisma.treasurySnapshot.delete({ where: { id } });
   revalidatePath('/treasury');
 }
 

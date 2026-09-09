@@ -377,6 +377,8 @@ export default async function TreasuryPage() {
               </div>
               {t.snapshots.map((s) => {
                 const tot = s.partnersCents + s.brocardCents + s.cardCents + s.agentsCents;
+                // Старше 3 дней — удалять нельзя, история заморожена.
+                const locked = Date.now() - s.createdAt.getTime() > 3 * 24 * 60 * 60 * 1000;
                 return (
                   <div
                     key={s.id}
@@ -389,10 +391,14 @@ export default async function TreasuryPage() {
                     <span className="n hidden text-right text-mute sm:block">{usd(s.agentsCents)}</span>
                     <span className="n text-right font-semibold">{usd(tot)}</span>
                     <span className="text-right">
-                      <form action={deleteSnapshot} className="inline">
-                        <input type="hidden" name="id" value={s.id} />
-                        <button type="submit" className="text-[11px] text-dim transition hover:text-rust">✕</button>
-                      </form>
+                      {locked ? (
+                        <span className="text-[11px] text-dim" title="Старше 3 дней — история заморожена">🔒</span>
+                      ) : (
+                        <form action={deleteSnapshot} className="inline">
+                          <input type="hidden" name="id" value={s.id} />
+                          <button type="submit" className="text-[11px] text-dim transition hover:text-rust">✕</button>
+                        </form>
+                      )}
                     </span>
                   </div>
                 );
