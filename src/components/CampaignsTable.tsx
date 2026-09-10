@@ -127,9 +127,9 @@ export default function CampaignsTable({
   const [notice, setNotice] = useState<string | null>(null);
   // Группировка: по объявлениям или свёрнуто по кампаниям. И показывать ли
   // объявления без открута. Оба выбора запоминаем в браузере.
-  const [group, setGroupState] = useState<'ad' | 'campaign' | 'kt'>('ad');
+  const [group, setGroupState] = useState<'ad' | 'campaign'>('ad');
   const [showZero, setShowZeroState] = useState(false);
-  const setGroup = (v: 'ad' | 'campaign' | 'kt') => { setGroupState(v); try { localStorage.setItem('ads.campaigns.group', v); } catch {} };
+  const setGroup = (v: 'ad' | 'campaign') => { setGroupState(v); try { localStorage.setItem('ads.campaigns.group', v); } catch {} };
   const setShowZero = (v: boolean) => { setShowZeroState(v); try { localStorage.setItem('ads.campaigns.zero', v ? '1' : '0'); } catch {} };
 
   const enrich = (r: AdRow): Enriched => ({ ...r, ...derive(r) });
@@ -159,8 +159,7 @@ export default function CampaignsTable({
     try {
       const saved = localStorage.getItem('ads.campaigns.buyer');
       if (saved && (saved === 'all' || buyers.some((b) => b.handle === saved))) setBuyerState(saved);
-      const g = localStorage.getItem('ads.campaigns.group');
-      if (g === 'campaign' || g === 'kt') setGroupState(g);
+      if (localStorage.getItem('ads.campaigns.group') === 'campaign') setGroupState('campaign');
       if (localStorage.getItem('ads.campaigns.zero') === '1') setShowZeroState(true);
     } catch { /* нет доступа к localStorage */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -199,16 +198,11 @@ export default function CampaignsTable({
     // Группировка по кампании: сворачиваем объявления одной FB-кампании в одну
     // строку с суммарными метриками. Расход/доход суммируем только по USD.
     let list: Enriched[];
-    if (group === 'campaign' || group === 'kt') {
+    if (group === 'campaign') {
       const m = new Map<string, { name: string; spendCents: number; impressions: number; clicks: number; leads: number; revenueCents: number; count: number; foreign: boolean }>();
       for (const r of base) {
-        const key = group === 'kt'
-          ? (r.ktToken || '— без потока')
-          : (r.campaignId || `adset:${r.adsetName}`);
-        const label = group === 'kt'
-          ? (r.ktToken || 'без потока КТ')
-          : (r.campaignName || r.adsetName || 'Без кампании');
-        const g = m.get(key) ?? { name: label, spendCents: 0, impressions: 0, clicks: 0, leads: 0, revenueCents: 0, count: 0, foreign: false };
+        const key = r.campaignId || `adset:${r.adsetName}`;
+        const g = m.get(key) ?? { name: r.campaignName || r.adsetName || 'Без кампании', spendCents: 0, impressions: 0, clicks: 0, leads: 0, revenueCents: 0, count: 0, foreign: false };
         g.impressions += r.impressions; g.clicks += r.clicks; g.leads += r.leads;
         if (r.currency === 'USD') { g.spendCents += r.spendCents; g.revenueCents += r.revenueCents; } else g.foreign = true;
         g.count += 1;
@@ -350,7 +344,7 @@ export default function CampaignsTable({
         />
         {/* Объявления / Кампании — общая стата по кампании, если у неё много объявлений. */}
         <div className="flex items-center gap-1 rounded-full bg-sub p-1">
-          {([['ad', 'Объявления'], ['campaign', 'Кампании'], ['kt', 'Потоки КТ']] as const).map(([v, t]) => (
+          {([['ad', 'Объявления'], ['campaign', 'Кампании']] as const).map(([v, t]) => (
             <button
               key={v}
               type="button"
@@ -408,7 +402,7 @@ export default function CampaignsTable({
         <table className="w-full min-w-[1180px] border-collapse text-[12px]">
           <thead>
             <tr className="text-left text-[10.5px] uppercase tracking-wide text-mute">
-              <th className="cursor-pointer whitespace-nowrap py-2 pr-3 font-medium" onClick={() => sortBy('name')}>{group === 'campaign' ? 'Кампания' : group === 'kt' ? 'Поток КТ' : 'Объявление'}{arrow('name')}</th>
+              <th className="cursor-pointer whitespace-nowrap py-2 pr-3 font-medium" onClick={() => sortBy('name')}>{group === 'campaign' ? 'Кампания' : 'Объявление'}{arrow('name')}</th>
               {COLS.map((c) => (
                 <th
                   key={c.key}
@@ -455,6 +449,7 @@ export default function CampaignsTable({
                           </div>
                           <div className="mt-1 flex items-center gap-x-2 text-[10.5px] text-dim">
                             <Tip label="act_ID кабинета в Facebook"><span className="n cursor-help">{r.act}</span></Tip>
+                            <Tip label="ID объявления в Facebook. Два объявления с одним именем — это РАЗНЫЕ объявления (разный ad_id), а не дубль."><span className="n cursor-help">· ad {r.adId}</span></Tip>
                             {r.targeting ? <span className="n">· {r.targeting}</span> : null}
                             {r.linkUrl ? <a href={r.linkUrl} target="_blank" rel="noreferrer" className="text-steel hover:underline">· ссылка</a> : null}
                           </div>
@@ -528,7 +523,7 @@ export default function CampaignsTable({
           </tbody>
         </table>
       </div>
-      <div className="text-[11px] text-dim">{group === 'campaign' ? 'Кампаний' : group === 'kt' ? 'Потоков КТ' : 'Объявлений'}: {view.length}. Клик по заголовку — сортировка{group === 'ad' ? ', клик по бюджету — правка' : ''}. {group === 'kt' ? 'Расход по потоку = что мы залили в КТ; сверяй с колонкой «Расход» в самом Keitaro по этому же токену.' : ''}</div>
+      <div className="text-[11px] text-dim">{group === 'campaign' ? 'Кампаний' : 'Объявлений'}: {view.length}. Клик по заголовку — сортировка{group === 'campaign' ? '' : ', клик по бюджету — правка'}.</div>
     </div>
   );
 }
