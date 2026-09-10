@@ -173,6 +173,10 @@ export default async function CampaignsPage({
       clicks,
       leads,
       revenueCents: revenue,
+      days: a.days
+        .filter((d) => d.spendCents > 0)
+        .map((d) => ({ date: d.date.toISOString().slice(0, 10), spendCents: d.spendCents }))
+        .sort((x, y) => x.date.localeCompare(y.date)),
     });
   }
 
