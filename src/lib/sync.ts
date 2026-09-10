@@ -721,6 +721,11 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   type Bucket = { cents: number; clicks: number; impressions: number; currency: string; campId: string; campName: string; token: string };
   const cost = new Map<string, Bucket>();
   let unmatchedCents = 0;
+  // Куда «утекает» расход — по профилю (соцу). Так в отчёте видно, у какой
+  // группы открут не привязался к кампании КТ: обычно это новые группы, где в
+  // кликах не проставлен ad_id (Sub ID 4) или токен в ссылке не распознан.
+  const unmatchedByHandle = new Map<string, number>();
+  const matchedByHandle = new Map<string, number>();
   // Диагностика заливки: сколько объявлений с расходом сматчилось с потоком, и
   // сколько дней-строк пропущено из-за не-USD кабинета (в КТ льём только доллары).
   let matchedAds = 0;
@@ -912,8 +917,10 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
               b.cents += s.cents; b.clicks += s.clicks; b.impressions += s.impressions;
               cost.set(key, b);
               pushRecords.push({ campId: dayCampId, date: s.date, adId, cents: s.cents });
+              matchedByHandle.set(token.buyer.handle, (matchedByHandle.get(token.buyer.handle) ?? 0) + s.cents);
             } else {
               unmatchedCents += s.cents;
+              unmatchedByHandle.set(token.buyer.handle, (unmatchedByHandle.get(token.buyer.handle) ?? 0) + s.cents);
             }
           }
         }
@@ -1032,8 +1039,22 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   }
 
   if (unmatchedCents > 0) {
+    // Разбивка «кто течёт»: профили с самым большим непривязанным расходом
+    // вперёд — у них в КТ нет связи объявление→кампания (обычно новая группа,
+    // где ad_id не пишется в Sub ID 4). Так видно, какую группу настроить.
+    const worst = [...unmatchedByHandle.entries()]
+      .filter(([, c]) => c > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([h, c]) => {
+        const total = c + (matchedByHandle.get(h) ?? 0);
+        const pct = total > 0 ? Math.round((c / total) * 100) : 100;
+        return `${h} $${Math.round(c / 100).toLocaleString('ru-RU')} (${pct}%)`;
+      })
+      .join(', ');
     result.problems.push(
-      `ФБ: расход $${Math.round(unmatchedCents / 100).toLocaleString('ru-RU')} без кампании в КТ — объявление не нашлось ни по кликам, ни по токену в ссылке`,
+      `ФБ: расход $${Math.round(unmatchedCents / 100).toLocaleString('ru-RU')} без кампании в КТ — объявление не нашлось ни по кликам, ни по токену в ссылке. ` +
+        `Течёт у: ${worst}. У этих групп в кликах КТ не проставлен ad_id (Sub ID 4) или токен в ссылке не распознан.`,
     );
   }
 
@@ -1065,9 +1086,11 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   // Суммы до центов — расход по объявлению часто копеечный, целые доллары врут.
   const d = (cents: number) => `$${(cents / 100).toFixed(2)}`;
   result.info.push(
-    `Расход ФБ: ${d(totalSpendCents)}. Залито в КТ: ${d(pushed.cents)} на ${pushed.campaigns} кампаний. ` +
+    `Расход ФБ: ${d(totalSpendCents)}. Отправлено в КТ: ${d(pushed.cents)} на ${pushed.campaigns} кампаний. ` +
       (nonUsdDays ? `Пропущено не-USD: ${d(nonUsdCents)}. ` : '') +
-      (unmatchedCents ? `Без кампании в КТ: ${d(unmatchedCents)}.` : ''),
+      (unmatchedCents ? `Без кампании в КТ: ${d(unmatchedCents)}. ` : '') +
+      `Отправлено = сумма, что мы послали в КТ; сколько КТ реально положил на клики — смотри в отчёте трекера (день без кликов у кампании расход не примет).` +
+      (pushed.resp ? ` Ответ КТ: ${pushed.resp}` : ''),
   );
 
   return result;
