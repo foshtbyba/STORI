@@ -65,7 +65,7 @@ export default function SyncAds() {
 
   return (
     <div className="flex flex-wrap items-center gap-2.5">
-      <Tip label="Тянет статистику и расход за последние 3 дня и заливает cost в Keitaro. Идёт в фоне — можно уйти со страницы, догрузится сам.">
+      <Tip label="Тянет статистику и расход за 14 дней и заливает cost в Keitaro. Идёт в фоне — можно уйти со страницы, догрузится сам.">
         <button
           type="button"
           disabled={busy}
