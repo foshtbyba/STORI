@@ -7,7 +7,7 @@ import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, 
 import { isDeadAccount } from './fb-status';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
-import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, adCampaignMap, KeitaroError, type CostEntry } from './keitaro';
+import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, adCampaignMap, clearCostsWindow, KeitaroError, type CostEntry } from './keitaro';
 import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -1090,6 +1090,14 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   // доходом в отчётах трекера и ROI считался уже внутри КТ.
   let pushed = { campaigns: 0, entries: 0, cents: 0, resp: '' };
   if (tracker) {
+    // Сначала обнуляем cost за окно по ВСЕМ кампаниям — снимаем наслоения с
+    // прошлых заходов (сместившаяся привязка оставляет старый cost висеть).
+    // Затем льём свежее: в КТ за окно останется ровно текущий расход.
+    try {
+      await clearCostsWindow(tracker.baseUrl, tracker.apiKey, [...campById.keys()], from, to, SYNC_TZ);
+    } catch (e) {
+      result.problems.push(`Keitaro: не удалось обнулить окно перед заливкой — ${(e as Error).message}`);
+    }
     pushed = await pushCostsToKeitaro(tracker, pushByCamp, from, to, result);
   }
 

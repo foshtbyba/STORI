@@ -340,6 +340,37 @@ export async function updateCostsBulk(
   });
 }
 
+/**
+ * Обнулить cost за окно по списку кампаний (одним-несколькими запросами).
+ *
+ * Нужно ПЕРЕД заливкой свежего расхода: `update_costs` заменяет cost только по
+ * тем дням/кампаниям, что шлём сейчас. Если между заходами привязка объявления
+ * к кампании/дню сместилась (кликов набежало больше), старая запись остаётся
+ * висеть — в КТ копится лишнее. Обнуляем всё окно, затем льём свежее — тогда в
+ * КТ ровно текущий расход.
+ */
+export async function clearCostsWindow(
+  baseUrl: string,
+  apiKey: string,
+  campaignIds: string[],
+  from: string,
+  to: string,
+  timezone = 'UTC',
+) {
+  const ids = campaignIds.map((c) => Number(c)).filter((n) => Number.isFinite(n));
+  if (ids.length === 0) return;
+  const CHUNK = 200;
+  const zero = [{ start_date: `${from} 00:00:00`, end_date: `${to} 23:59:59`, cost: 0, currency: 'USD' }];
+  for (let i = 0; i < ids.length; i += CHUNK) {
+    await call(baseUrl, apiKey, '/clicks/update_costs', {
+      campaign_ids: ids.slice(i, i + CHUNK),
+      currency: 'USD',
+      timezone,
+      costs: zero,
+    });
+  }
+}
+
 /** Проверка связи: сколько кампаний и групп видно под ключом. */
 export async function checkTracker(baseUrl: string, apiKey: string) {
   const campaigns = await listCampaigns(baseUrl, apiKey);
