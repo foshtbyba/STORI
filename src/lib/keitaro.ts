@@ -356,6 +356,32 @@ export async function updateCostsBulk(
   });
 }
 
+/**
+ * Залить расход по ad_id (фильтр sub_id_4 у каждой записи).
+ *
+ * campaign_ids задаёт область (все затронутые кампании), а фильтр внутри записи
+ * (`sub_id_4 EQUALS ad_id`) сужает расход ровно до кликов нужного объявления —
+ * КТ раскладывает его по этим кликам в их реальных кампаниях. Так деньги не
+ * размазываются по чужим кликам кампании (как без фильтра), а ложатся на своё
+ * объявление, где бы его клики ни были. Это способ FBtool.
+ */
+export async function updateCostsByAd(
+  baseUrl: string,
+  apiKey: string,
+  campaignIds: number[],
+  costs: CostEntry[],
+  timezone = 'UTC',
+) {
+  if (costs.length === 0 || campaignIds.length === 0) return {} as unknown;
+  const withCurrency = costs.map((c) => ({ currency: 'USD', ...c }));
+  return await call(baseUrl, apiKey, '/clicks/update_costs', {
+    campaign_ids: campaignIds,
+    currency: 'USD',
+    timezone,
+    costs: withCurrency,
+  });
+}
+
 /** Проверка связи: сколько кампаний и групп видно под ключом. */
 export async function checkTracker(baseUrl: string, apiKey: string) {
   const campaigns = await listCampaigns(baseUrl, apiKey);
