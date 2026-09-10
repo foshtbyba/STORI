@@ -658,7 +658,10 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   // Кампания КТ по id → имя и токен (для витрины расхода) и карта
   // «ad_id → кампания» по самим кликам КТ (главный способ привязать расход).
   const campById = new Map<string, { name: string; token: string }>();
-  const adByClick = new Map<string, string>();
+  // Привязка объявление→кампания по кликам КТ: по дню (точно) и по всему окну
+  // (запасная). adByClickDay ключ — `${adId}|${YYYY-MM-DD}`.
+  const adByClickDay = new Map<string, string>();
+  const adByClickAd = new Map<string, string>();
   const tracker = await prisma.tracker.findFirst({ where: { enabled: true } });
   if (tracker) {
     try {
@@ -672,7 +675,8 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       // ссылке. Не критично, если не вышло: ниже есть запасной матчинг по ссылке.
       try {
         const m = await adCampaignMap(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
-        for (const [sub, campId] of m) adByClick.set(sub, campId);
+        for (const [k, campId] of m.dayMap) adByClickDay.set(k, campId);
+        for (const [sub, campId] of m.adMap) adByClickAd.set(sub, campId);
       } catch { /* оставим матчинг по ссылке */ }
 
       const adRev = await revenueByAd(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
@@ -789,7 +793,9 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
           // где реально лежат клики — надёжно), иначе запасной матчинг по токену
           // в ссылке. Так cost ложится туда же, где клики, и не пропадает.
           const linkMatch = matchKtCampaign(link, index);
-          const ktCampId = adByClick.get(adId) || linkMatch?.id || '';
+          // Уровень объявления — для токена/отображения и как запас, если по дню
+          // клика не нашлось.
+          const ktCampId = adByClickAd.get(adId) || linkMatch?.id || '';
           const ktCamp = ktCampId ? campById.get(ktCampId) : undefined;
           const ktCampName = ktCamp?.name ?? linkMatch?.name ?? '';
           const ktTokenVal = linkMatch?.token || ktCamp?.token || '';
@@ -857,20 +863,26 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
             });
             result.touched += 1;
 
-            // Расход по кампании КТ и дню (для заливки cost в КТ фоном).
-            if (!ktCampId) {
+            // Расход по кампании КТ и дню. Кампанию берём ТОЧНО за этот день
+            // (где были клики объявления именно в этот день), иначе — оконную
+            // запасную. Так дневной расход ложится туда, где дневные клики.
+            const dayCampId = adByClickDay.get(`${adId}|${s.date}`) || ktCampId;
+            if (!dayCampId) {
               unmatchedCents += s.cents;
               continue;
             }
-            const key = `${ktCampId}|${s.date}`;
+            const dayCamp = campById.get(dayCampId);
+            const dayCampName = dayCamp?.name ?? ktCampName;
+            const dayToken = dayCamp?.token ?? ktTokenVal;
+            const key = `${dayCampId}|${s.date}`;
             const b = cost.get(key) ?? {
               cents: 0,
               clicks: 0,
               impressions: 0,
               currency: acc.currency,
-              campId: ktCampId,
-              campName: ktCampName,
-              token: ktTokenVal,
+              campId: dayCampId,
+              campName: dayCampName,
+              token: dayToken,
             };
             b.cents += s.cents;
             b.clicks += s.clicks;
@@ -880,7 +892,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
             // В КТ льём только доллары (агентские кабинеты всегда USD; курс тут
             // не считаем). Копим по кампании+дню — заливаем на уровень кампании.
             if (acc.currency === 'USD') {
-              pushRecords.push({ campId: ktCampId, date: s.date, adId, cents: s.cents });
+              pushRecords.push({ campId: dayCampId, date: s.date, adId, cents: s.cents });
             } else {
               nonUsdDays += 1;
               nonUsdCents += s.cents;

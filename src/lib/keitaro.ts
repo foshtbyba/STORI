@@ -231,28 +231,39 @@ export async function adCampaignMap(
   from: string,
   to: string,
   timezone = 'UTC',
-): Promise<Map<string, string>> {
+): Promise<{ dayMap: Map<string, string>; adMap: Map<string, string> }> {
   const raw = await call(baseUrl, apiKey, '/report/build', {
     range: { from, to, timezone },
-    grouping: ['sub_id_4', 'campaign_id'],
+    grouping: ['sub_id_4', 'campaign_id', 'day'],
     metrics: ['clicks'],
     filters: [],
-    limit: 50000,
+    limit: 100000,
   });
 
   const rows = ((raw as { rows?: unknown }).rows ?? []) as Record<string, unknown>[];
-  const best = new Map<string, { campId: string; clicks: number }>();
+  // Лучшая кампания по кликам за КОНКРЕТНЫЙ день (точная привязка расхода дня)
+  // и за всё окно (запасная, если по дню клика не нашлось).
+  const bestDay = new Map<string, { campId: string; clicks: number }>();
+  const bestAd = new Map<string, { campId: string; clicks: number }>();
   for (const row of rows) {
     const sub = String(row.sub_id_4 ?? '').trim();
     const campId = String(row.campaign_id ?? '').trim();
+    const day = String(row.day ?? row.date ?? '').slice(0, 10);
     if (!sub || !campId) continue;
     const clicks = Math.round(Number(row.clicks ?? 0)) || 0;
-    const cur = best.get(sub);
-    if (!cur || clicks > cur.clicks) best.set(sub, { campId, clicks });
+    if (day) {
+      const dk = `${sub}|${day}`;
+      const cd = bestDay.get(dk);
+      if (!cd || clicks > cd.clicks) bestDay.set(dk, { campId, clicks });
+    }
+    const ca = bestAd.get(sub);
+    if (!ca || clicks > ca.clicks) bestAd.set(sub, { campId, clicks });
   }
-  const out = new Map<string, string>();
-  for (const [sub, v] of best) out.set(sub, v.campId);
-  return out;
+  const dayMap = new Map<string, string>();
+  for (const [k, v] of bestDay) dayMap.set(k, v.campId);
+  const adMap = new Map<string, string>();
+  for (const [k, v] of bestAd) adMap.set(k, v.campId);
+  return { dayMap, adMap };
 }
 
 /**
