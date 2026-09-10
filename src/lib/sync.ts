@@ -1048,7 +1048,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       (prunedAds ? `Удалено пропавших из ФБ: ${prunedAds}. ` : '') +
       (pushed.resp ? `Ответ КТ: ${pushed.resp}. ` : '') +
       (nonUsdDays ? `Пропущено не-USD: ${d(nonUsdCents)}. ` : '') +
-      (unmatchedCents ? `Без потока в ссылке: ${d(unmatchedCents)}.` : ''),
+      (unmatchedCents ? `Не привязано к кампании КТ (нет кликов): ${d(unmatchedCents)} — это и есть расхождение с дашбордом.` : ''),
   );
 
   return result;
