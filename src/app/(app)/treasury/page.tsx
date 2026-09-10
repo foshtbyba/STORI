@@ -5,6 +5,7 @@ import { usd } from '@/lib/money';
 import { periodTitle } from '@/lib/period';
 import { Panel, PanelHead, Sub, Empty, Avatar, Big } from '@/components/ui';
 import { IconWallet } from '@/components/icons';
+import SubmitButton from '@/components/SubmitButton';
 import { addFundWithdrawal, deleteFundWithdrawal } from '@/app/actions/fund';
 import {
   addOwnerWithdrawal,
@@ -140,7 +141,7 @@ export default async function TreasuryPage() {
                 <input type="hidden" name="buyerId" value={o.buyerId} />
                 <input name="amount" inputMode="decimal" placeholder="вывести, $" className="n h-9 w-28 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
                 <input name="note" placeholder="комментарий" className="h-9 min-w-0 flex-1 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
-                <button type="submit" className="h-9 shrink-0 rounded-full bg-rust px-4 text-[12px] font-semibold text-bg">Вывести</button>
+                <SubmitButton pendingLabel="Вывожу…" className="h-9 shrink-0 rounded-full bg-rust px-4 text-[12px] font-semibold text-bg">Вывести</SubmitButton>
               </form>
 
               <div className="mt-3">
@@ -178,7 +179,7 @@ export default async function TreasuryPage() {
                   </select>
                   <input name="amount" inputMode="decimal" placeholder="сумма, $" className="n h-9 w-24 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
                   <input name="note" placeholder="что за движение" className="h-9 min-w-0 flex-1 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
-                  <button type="submit" className="h-9 shrink-0 rounded-full bg-raise px-4 text-[12px] font-semibold">Добавить</button>
+                  <SubmitButton pendingLabel="Добавляю…" className="h-9 shrink-0 rounded-full bg-raise px-4 text-[12px] font-semibold">Добавить</SubmitButton>
                 </form>
                 {o.adjustments.length > 0 ? (
                   <div className="mt-2">
@@ -243,7 +244,7 @@ export default async function TreasuryPage() {
             <form action={addFundWithdrawal} className="mt-4 flex flex-wrap items-center gap-2">
               <input name="amount" inputMode="decimal" placeholder="вывести, $" className="n h-9 w-28 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
               <input name="note" placeholder="комментарий (50/50 овнерам)" className="h-9 min-w-0 flex-1 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
-              <button type="submit" className="h-9 shrink-0 rounded-full bg-rust px-4 text-[12px] font-semibold text-bg">Вывести</button>
+              <SubmitButton pendingLabel="Вывожу…" className="h-9 shrink-0 rounded-full bg-rust px-4 text-[12px] font-semibold text-bg">Вывести</SubmitButton>
             </form>
 
             {/* Пополнения по неделям с накопительным итогом — свёрнуто */}
@@ -304,7 +305,7 @@ export default async function TreasuryPage() {
                 </select>
                 <input name="amount" inputMode="decimal" placeholder="сумма, $" className="n h-9 w-24 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
                 <input name="note" placeholder="что за движение" className="h-9 min-w-0 flex-1 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
-                <button type="submit" className="h-9 shrink-0 rounded-full bg-raise px-4 text-[12px] font-semibold">Добавить</button>
+                <SubmitButton pendingLabel="Добавляю…" className="h-9 shrink-0 rounded-full bg-raise px-4 text-[12px] font-semibold">Добавить</SubmitButton>
               </form>
               {t.buyersAdjustments.length > 0 ? (
                 <div className="mt-2">
@@ -355,7 +356,7 @@ export default async function TreasuryPage() {
             <input name="date" type="date" defaultValue={snapDate} className="n h-9 rounded-lg border border-line2 bg-sub px-3 text-[12.5px] text-text outline-none focus:border-sage" />
           </label>
           <div className="flex items-end">
-            <button type="submit" className="h-9 w-full rounded-full bg-sage px-4 text-[12px] font-semibold text-bg">Внести снимок</button>
+            <SubmitButton pendingLabel="Вношу…" className="h-9 w-full rounded-full bg-sage px-4 text-[12px] font-semibold text-bg">Внести снимок</SubmitButton>
           </div>
         </form>
 
