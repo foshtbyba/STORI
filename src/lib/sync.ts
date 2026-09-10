@@ -238,10 +238,10 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
       );
 
       for (const acc of accounts) {
-        // Забаненные/закрытые кабинеты пропускаем: свежей статы там не будет, а
-        // лишний запрос только жжёт лимит и приближает чекпоинт. Статус кабинета
-        // уже освежили выше через listAccounts, так что бан виден сразу.
-        if (isDeadAccount(acc.accountStatus, acc.disableReason)) continue;
+        // Забаненные кабы НЕ пропускаем: если каб открутил деньги в окне и потом
+        // забанился, этот расход реальный (он есть в ФБ) — и его надо тянуть,
+        // иначе расход занижается. Окно всего 14 дней, так что «древнюю» историю
+        // мёртвого каба мы и не подтянем — тянем только недавний реальный открут.
         // Пауза перед каждым запросом расхода: главный рычаг против чекпоинта.
         await humanPause();
         const spend = await accountSpend(access, acc.externalId, from, to, net);
@@ -751,9 +751,9 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       });
 
       for (const acc of shuffle(token.accounts)) {
-        // Забаненные/закрытые кабинеты не трогаем: свежей статы нет, расход не
-        // растёт — «тянем только с живых». Что уже насчитано, остаётся в базе.
-        if (isDeadAccount(acc.accountStatus, acc.disableReason)) continue;
+        // Забаненные кабы тянем тоже: их недавний открут в окне реальный (есть в
+        // ФБ) и обязан долететь в КТ, иначе расход недобирает. Окно 14 дней —
+        // старьё мёртвого каба всё равно не подтянется, только свежий открут.
         await humanPause();
         const stats = await adStats(access, acc.externalId, from, to, net);
         const statIds = new Set(stats.map((s) => s.adId));

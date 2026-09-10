@@ -5,7 +5,6 @@ import { fmtWhen } from '@/lib/period';
 import { Panel } from '@/components/ui';
 import CampaignsTable, { type AdRow } from '@/components/CampaignsTable';
 import Tip from '@/components/Tip';
-import { isDeadAccount } from '@/lib/fb-status';
 
 /**
  * Кампании — таблица статистики по объявлениям из Facebook (референс — FBTOOL).
@@ -139,10 +138,6 @@ export default async function CampaignsPage({
   const rows: AdRow[] = [];
   let lastSync: Date | null = null;
   for (const a of ads) {
-    // Забаненные/закрытые кабы не показываем: их расход заморожен на моменте до
-    // бана (свежего нет), а ФБ по бану открут часто откатывает — иначе дашборд
-    // завышается на эту заморозку. «Показываем только живые», как и тянем.
-    if (isDeadAccount(a.adAccount.accountStatus, a.adAccount.disableReason)) continue;
     const t = a.adAccount.adToken.lastSyncAt;
     if (t && (!lastSync || t > lastSync)) lastSync = t;
 
