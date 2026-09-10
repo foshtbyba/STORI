@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db';
 import { fmtWhen } from '@/lib/period';
 import { Panel } from '@/components/ui';
 import CampaignsTable, { type AdRow } from '@/components/CampaignsTable';
+import Tip from '@/components/Tip';
 
 /**
  * Кампании — таблица статистики по объявлениям из Facebook (референс — FBTOOL).
@@ -180,17 +181,30 @@ export default async function CampaignsPage({
       {stale.length ? (
         <div className="rounded-[18px] border px-4 py-3 text-[12.5px]" style={{ borderColor: '#5a3a2a', background: '#2c1f1a', color: '#ce6e58' }}>
           <div className="font-semibold">⚠ Не обновляются {stale.length} проф.: статистика и расход по ним заморожены</div>
-          <ul className="mt-1.5 flex flex-col gap-1">
+          {/* Компактные плитки в строку — по одной на профиль. Подробности
+              (когда обновляли + что делать) — в подсказке при наведении. */}
+          <div className="mt-2 flex flex-wrap gap-1.5">
             {stale.map((s, i) => (
-              <li key={i} className="text-[11.5px] leading-snug">
-                <span className="font-medium">{s.who}</span>
-                {s.when ? <span className="text-mute"> · последнее обновление {s.when}</span> : null}
-                <span className="block text-[11px] text-mute">токен слетел — обнови профиль (кнопка «подкинуть токен») или переоткрой сессию в антидетекте</span>
-              </li>
+              <Tip
+                key={i}
+                label={
+                  <span className="flex flex-col gap-0.5">
+                    <span className="font-medium text-text">{s.who}</span>
+                    {s.when ? <span className="text-mute">последнее обновление {s.when}</span> : null}
+                    <span>Токен слетел — обнови профиль (кнопка «подкинуть токен» в кабинетах) или переоткрой сессию в антидетекте. После — жми «Обновить стату»: пропущенные дни (до 14) догрузятся.</span>
+                  </span>
+                }
+              >
+                <span
+                  className="inline-flex cursor-help items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] leading-none"
+                  style={{ borderColor: '#5a3a2a', background: '#241712' }}
+                >
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: '#ce6e58' }} />
+                  <span className="font-medium">{s.who}</span>
+                  <span className="text-mute">· токен слетел</span>
+                </span>
+              </Tip>
             ))}
-          </ul>
-          <div className="mt-1.5 text-[11px] text-mute">
-            Обнови токен профиля (кнопка «подкинуть токен» в кабинетах) или переоткрой его сессию в антидетекте. После — жми «Обновить стату»: пропущенные дни (до 14) догрузятся, дыр в расходе не будет.
           </div>
         </div>
       ) : null}
