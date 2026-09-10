@@ -8,7 +8,7 @@ import Tip from './Tip';
 import SyncAds from './SyncAds';
 import AdActions from './AdActions';
 import { campaignBadge, type StatusTone } from '@/lib/fb-status';
-import { setAdBudget } from '@/app/actions/integrations';
+import { setAdBudget, setAdRunning, remoderateAd } from '@/app/actions/integrations';
 
 export type AdRow = {
   id: string;
@@ -123,6 +123,9 @@ export default function CampaignsTable({
   const [budgets, setBudgets] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  // Массовые действия: отмеченные объявления и прогресс.
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulk, bulkStart] = useTransition();
   // Группировка: по объявлениям или свёрнуто по кампаниям. И показывать ли
   // объявления без открута. Оба выбора запоминаем в браузере.
   const [group, setGroupState] = useState<'ad' | 'campaign'>('ad');
@@ -247,6 +250,45 @@ export default function CampaignsTable({
     if (k === sortKey) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
     else { setSortKey(k); setSortDir('desc'); }
   };
+
+  // Итоги по тому, что сейчас в таблице (после фильтров/поиска) — строка снизу.
+  const totals = useMemo(() => {
+    let spend = 0, clicks = 0, leads = 0, revenue = 0, impressions = 0;
+    for (const r of view) {
+      clicks += r.clicks; leads += r.leads; impressions += r.impressions;
+      if (r.currency === 'USD') { spend += r.spendCents; revenue += r.revenueCents; }
+    }
+    return { spend, clicks, leads, revenue, impressions, ...derive({ spendCents: spend, impressions, clicks, leads, revenueCents: revenue }) };
+  }, [view]);
+
+  // Выбор объявлений для массовых действий (только реальные строки-объявления).
+  const selectableIds = useMemo(() => view.filter((r) => !r.isCampaign).map((r) => r.id), [view]);
+  const allChecked = selectableIds.length > 0 && selectableIds.every((id) => selected.has(id));
+  const toggleOne = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const toggleAll = () => setSelected((s) => (selectableIds.every((id) => s.has(id)) ? new Set() : new Set(selectableIds)));
+  const clearSel = () => setSelected(new Set());
+
+  /** Прогнать действие по всем выбранным объявлениям (последовательно). */
+  const runBulk = (label: string, fn: (id: string) => Promise<{ ok: boolean; error?: string } | null>) => {
+    const ids = [...selected];
+    if (ids.length === 0) return;
+    setMsg(null); setNotice(null);
+    bulkStart(async () => {
+      let ok = 0; const errs: string[] = [];
+      for (const id of ids) {
+        try { const res = await fn(id); if (res && !res.ok) errs.push(res.error ?? 'ошибка'); else ok += 1; }
+        catch (e) { errs.push((e as Error).message); }
+      }
+      if (errs.length) setMsg(`${label}: готово ${ok}/${ids.length}. Ошибки: ${errs.slice(0, 3).join('; ')}`);
+      else setNotice(`${label}: готово ${ok}/${ids.length}.`);
+      clearSel();
+      router.refresh();
+    });
+  };
+  const bulkSet = (status: 'ACTIVE' | 'PAUSED', label: string) =>
+    runBulk(label, (id) => { const fd = new FormData(); fd.set('id', id); fd.set('status', status); return setAdRunning(null, fd); });
+  const bulkRemoderate = () =>
+    runBulk('Перемодерация', (id) => { const fd = new FormData(); fd.set('id', id); return remoderateAd(null, fd); });
 
   const saveBudget = (id: string) => {
     const v = budgets[id];
@@ -395,11 +437,29 @@ export default function CampaignsTable({
       {msg ?<div className="rounded-xl px-3.5 py-2.5 text-[12px]" style={{ background: '#2c1f1a', color: '#ce6e58' }}>{msg}</div> : null}
       {notice ? <div className="flex items-center justify-between gap-3 rounded-xl bg-sage-t px-3.5 py-2.5 text-[12px] text-sage"><span>{notice}</span><button type="button" onClick={() => setNotice(null)} className="text-[13px] opacity-70 hover:opacity-100">✕</button></div> : null}
 
+      {/* Панель массовых действий — когда отмечено хоть одно объявление. */}
+      {selected.size > 0 ? (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-line2 bg-sub px-3 py-2 text-[12px]">
+          <span className="font-semibold text-text">Выбрано: {selected.size}</span>
+          <span className="h-4 w-px bg-line2" />
+          <button type="button" disabled={bulk} onClick={() => bulkSet('ACTIVE', 'Запуск')} className="rounded-full bg-sage-t px-3 py-1 text-[11.5px] font-semibold text-sage transition hover:opacity-80 disabled:opacity-50">▶ Запустить</button>
+          <button type="button" disabled={bulk} onClick={() => bulkSet('PAUSED', 'Пауза')} className="rounded-full bg-amber-t px-3 py-1 text-[11.5px] font-semibold text-amber transition hover:opacity-80 disabled:opacity-50">⏸ Пауза</button>
+          <button type="button" disabled={bulk} onClick={bulkRemoderate} className="rounded-full bg-raise px-3 py-1 text-[11.5px] font-semibold text-soft transition hover:text-text disabled:opacity-50">🔁 Перемодерация</button>
+          <button type="button" disabled={bulk} onClick={clearSel} className="ml-auto text-[11.5px] text-mute transition hover:text-soft disabled:opacity-50">снять выбор</button>
+          {bulk ? <span className="text-[11.5px] text-mute">выполняю…</span> : null}
+        </div>
+      ) : null}
+
       {/* Таблица */}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1180px] border-collapse text-[12px]">
           <thead>
             <tr className="text-left text-[10.5px] uppercase tracking-wide text-mute">
+              <th className="w-8 py-2 pl-1 pr-1 text-center">
+                {group === 'ad' && selectableIds.length > 0 ? (
+                  <input type="checkbox" checked={allChecked} onChange={toggleAll} className="cursor-pointer accent-sage" title="Выбрать все" />
+                ) : null}
+              </th>
               <th className="cursor-pointer whitespace-nowrap py-2 pr-3 font-medium" onClick={() => sortBy('name')}>{group === 'campaign' ? 'Кампания' : 'Объявление'}{arrow('name')}</th>
               {COLS.map((c) => (
                 <th
@@ -422,7 +482,12 @@ export default function CampaignsTable({
               const active = r.status === 'ACTIVE';
               const editing = budgets[r.id] !== undefined;
               return (
-                <tr key={r.id} className="border-t border-line align-middle">
+                <tr key={r.id} className={`border-t border-line align-middle ${selected.has(r.id) ? 'bg-sage-t/30' : ''}`}>
+                  <td className="py-2.5 pl-1 pr-1 text-center">
+                    {r.isCampaign ? null : (
+                      <input type="checkbox" checked={selected.has(r.id)} onChange={() => toggleOne(r.id)} className="cursor-pointer accent-sage" />
+                    )}
+                  </td>
                   {/* Кампания (агрегат) или объявление */}
                   <td className="py-2.5 pr-3">
                     {r.isCampaign ? (
@@ -504,9 +569,32 @@ export default function CampaignsTable({
               );
             })}
           </tbody>
+          {/* Итог по видимым строкам: суммы и средние. */}
+          {view.length > 0 ? (
+            <tfoot>
+              <tr className="border-t-2 border-line2 bg-sub/40 text-[12px] font-semibold">
+                <td className="px-1" />
+                <td className="py-2.5 pr-3 text-soft">Итого · {view.length}</td>
+                <td className="n px-3 py-2.5 text-center text-mute">{int(totals.impressions)}</td>
+                <td className="n px-3 py-2.5 text-center text-mute">{int(totals.clicks)}</td>
+                <td className="n px-3 py-2.5 text-center text-mute">{totals.clicks ? money(totals.cpc) : '—'}</td>
+                <td className="n px-3 py-2.5 text-center text-mute">{pct(totals.clicks, totals.impressions)}</td>
+                <td className="n px-3 py-2.5 text-center text-mute">{totals.impressions ? money(totals.cpm) : '—'}</td>
+                <td className="n px-3 py-2.5 text-center text-soft">{int(totals.leads)}</td>
+                <td className="n px-3 py-2.5 text-center text-mute">{totals.leads ? money(totals.cpl) : '—'}</td>
+                <td className="n px-3 py-2.5 text-center text-mute">{pct(totals.leads, totals.clicks)}</td>
+                <td className="n px-3 py-2.5 text-center text-soft">{money(totals.spend)}</td>
+                <td className="n px-3 py-2.5 text-center text-soft">{money(totals.revenue)}</td>
+                <td className={`n px-3 py-2.5 text-center ${totals.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{money(totals.profitCents)}</td>
+                <td className={`n px-3 py-2.5 text-center ${totals.profitCents >= 0 ? 'text-sage' : 'text-rust'}`}>{totals.spend ? pct(totals.profitCents, totals.spend, 1) : '—'}</td>
+                <td className="px-3 py-2.5" />
+                <td className="px-2 py-2.5" />
+              </tr>
+            </tfoot>
+          ) : null}
         </table>
       </div>
-      <div className="text-[11px] text-dim">{group === 'campaign' ? 'Кампаний' : 'Объявлений'}: {view.length}. Клик по заголовку — сортировка{group === 'campaign' ? '' : ', клик по бюджету — правка'}.</div>
+      <div className="text-[11px] text-dim">{group === 'campaign' ? 'Кампаний' : 'Объявлений'}: {view.length}. Клик по заголовку — сортировка{group === 'campaign' ? '' : ', клик по бюджету — правка, галочки слева — массовые действия'}.</div>
     </div>
   );
 }
