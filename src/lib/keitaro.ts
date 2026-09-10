@@ -300,11 +300,13 @@ export async function updateCostsBulk(
   costs: CostEntry[],
   timezone = 'UTC',
 ) {
-  if (costs.length === 0) return;
+  if (costs.length === 0) return {} as unknown;
   // Keitaro для этой ручки требует currency и timezone. Ставим на верхнем уровне
   // и currency дублируем в каждой записи (по умолчанию USD).
   const withCurrency = costs.map((c) => ({ currency: 'USD', ...c }));
-  await call(baseUrl, apiKey, '/clicks/update_costs', {
+  // Возвращаем ответ КТ — по нему видно, к скольким кликам реально применился
+  // расход (иначе «залито» значит лишь «запрос принят», а не «cost встал»).
+  return await call(baseUrl, apiKey, '/clicks/update_costs', {
     campaign_ids: [Number(campaignId)],
     currency: 'USD',
     timezone,

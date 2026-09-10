@@ -303,7 +303,13 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
         ? `${why} — токен на паузе до ${pausedUntil?.toLocaleString('ru-RU')}, чтобы не словить чекпоинт`
         : why;
 
-      result.problems.push(`${token.buyer.handle}: ${note}`);
+      // Пользователю — коротко и без технических деталей FB: подробности всё
+      // равно лежат в lastError токена (для админа в настройках).
+      result.problems.push(
+        scary
+          ? `${token.buyer.handle}: профиль притормозили, чтоб не словить чекпоинт`
+          : `${token.buyer.handle}: токен слетел — нужно обновить профиль`,
+      );
       await prisma.adToken.update({
         where: { id: token.id },
         data: { lastError: note, lastSyncAt: new Date(), pausedUntil },
@@ -594,7 +600,13 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
       const scary = kind === 'throttle' || kind === 'blocked';
       const pausedUntil = scary ? new Date(now.getTime() + FB_COOLDOWN_HOURS * 3600_000) : token.pausedUntil ?? null;
       const note = scary ? `${why} — токен на паузе до ${pausedUntil?.toLocaleString('ru-RU')}` : why;
-      result.problems.push(`${token.buyer.handle}: ${note}`);
+      // Пользователю — коротко и без технических деталей FB: подробности всё
+      // равно лежат в lastError токена (для админа в настройках).
+      result.problems.push(
+        scary
+          ? `${token.buyer.handle}: профиль притормозили, чтоб не словить чекпоинт`
+          : `${token.buyer.handle}: токен слетел — нужно обновить профиль`,
+      );
       await prisma.adToken.update({
         where: { id: token.id },
         data: { lastError: note, lastSyncAt: new Date(), pausedUntil },
@@ -930,7 +942,13 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       const scary = kind === 'throttle' || kind === 'blocked';
       const pausedUntil = scary ? new Date(now.getTime() + FB_COOLDOWN_HOURS * 3600_000) : token.pausedUntil ?? null;
       const note = scary ? `${why} — токен на паузе до ${pausedUntil?.toLocaleString('ru-RU')}` : why;
-      result.problems.push(`${token.buyer.handle}: ${note}`);
+      // Пользователю — коротко и без технических деталей FB: подробности всё
+      // равно лежат в lastError токена (для админа в настройках).
+      result.problems.push(
+        scary
+          ? `${token.buyer.handle}: профиль притормозили, чтоб не словить чекпоинт`
+          : `${token.buyer.handle}: токен слетел — нужно обновить профиль`,
+      );
       await prisma.adToken.update({
         where: { id: token.id },
         data: { lastError: note, lastSyncAt: new Date(), pausedUntil },
@@ -995,7 +1013,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
 
   // Заливаем посчитанный расход в сам Keitaro — чтобы cost встал рядом с
   // доходом в отчётах трекера и ROI считался уже внутри КТ.
-  let pushed = { campaigns: 0, entries: 0, cents: 0 };
+  let pushed = { campaigns: 0, entries: 0, cents: 0, resp: '' };
   if (tracker) {
     pushed = await pushCostsToKeitaro(tracker, pushByCamp, from, to, result);
   }
@@ -1010,6 +1028,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       `Заливка cost на уровень кампании (по всем кликам за день). ` +
       (allAds ? `Объявлений без открута заведено: ${zeroAds}. ` : '') +
       (prunedAds ? `Удалено пропавших из ФБ: ${prunedAds}. ` : '') +
+      (pushed.resp ? `Ответ КТ: ${pushed.resp}. ` : '') +
       (nonUsdDays ? `Пропущено не-USD: ${d(nonUsdCents)}. ` : '') +
       (unmatchedCents ? `Без потока в ссылке: ${d(unmatchedCents)}.` : ''),
   );
@@ -1031,14 +1050,18 @@ async function pushCostsToKeitaro(
   from: string,
   to: string,
   result: SyncResult,
-): Promise<{ campaigns: number; entries: number; cents: number }> {
+): Promise<{ campaigns: number; entries: number; cents: number; resp: string }> {
   const CHUNK = 200; // не шлём тысячи записей одним запросом
   let campaigns = 0, entriesCount = 0, cents = 0;
+  let sampleResp = ''; // ответ КТ с первой кампании — для диагностики «cost=0»
   for (const [campaignId, entries] of entriesByCamp) {
     if (entries.length === 0) continue;
     try {
       for (let i = 0; i < entries.length; i += CHUNK) {
-        await updateCostsBulk(tracker.baseUrl, tracker.apiKey, campaignId, entries.slice(i, i + CHUNK), SYNC_TZ);
+        const resp = await updateCostsBulk(tracker.baseUrl, tracker.apiKey, campaignId, entries.slice(i, i + CHUNK), SYNC_TZ);
+        if (!sampleResp) {
+          try { sampleResp = JSON.stringify(resp).slice(0, 160); } catch { sampleResp = String(resp).slice(0, 160); }
+        }
       }
       await prisma.ktCostDay.updateMany({
         where: {
@@ -1055,7 +1078,7 @@ async function pushCostsToKeitaro(
       result.problems.push(`Keitaro cost (кампания ${campaignId}): ${why}`);
     }
   }
-  return { campaigns, entries: entriesCount, cents };
+  return { campaigns, entries: entriesCount, cents, resp: sampleResp };
 }
 
 export async function syncAll(days = SYNC_DAYS) {

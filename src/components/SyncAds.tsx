@@ -65,19 +65,19 @@ export default function SyncAds() {
 
   return (
     <div className="flex flex-wrap items-center gap-2.5">
-      <button
-        type="button"
-        disabled={busy}
-        onClick={onClick}
-        className={`rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage ${
-          busy ? 'cursor-progress opacity-60' : ''
-        }`}
-      >
-        {busy ? 'Тяну стату… (в фоне)' : 'Обновить стату'}
-      </button>
-      {busy ? (
-        <span className="text-[11.5px] text-mute">идёт в фоне — можно уйти со страницы, догрузится сам</span>
-      ) : finished ? (
+      <Tip label="Тянет статистику и расход за 14 дней и заливает cost в Keitaro. Идёт в фоне — можно уйти со страницы, догрузится сам.">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={onClick}
+          className={`rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage ${
+            busy ? 'cursor-progress opacity-60' : ''
+          }`}
+        >
+          {busy ? 'Тяну стату…' : 'Обновить стату'}
+        </button>
+      </Tip>
+      {busy ? null : finished ? (
         <span className="text-[11.5px] text-mute">
           обновлено {status!.touched}
           {status!.info.length ? (

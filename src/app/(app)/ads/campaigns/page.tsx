@@ -185,7 +185,7 @@ export default async function CampaignsPage({
               <li key={i} className="text-[11.5px] leading-snug">
                 <span className="font-medium">{s.who}</span>
                 {s.when ? <span className="text-mute"> · последнее обновление {s.when}</span> : null}
-                <span className="block text-[11px] text-mute">{s.error}</span>
+                <span className="block text-[11px] text-mute">токен слетел — обнови профиль (кнопка «подкинуть токен») или переоткрой сессию в антидетекте</span>
               </li>
             ))}
           </ul>
