@@ -630,6 +630,35 @@ function matchKtCampaign(link: string, index: Map<string, MatchedCampaign>): Mat
 }
 
 /**
+ * Разложить центы по кампаниям пропорционально кликам, не потеряв ни цента.
+ *
+ * Объявление за день могло крутиться на несколько потоков КТ — его клики
+ * разошлись по разным кампаниям. Расход делим в той же пропорции: сначала
+ * целую часть (floor), потом остаток раздаём по одному центу кампаниям с самой
+ * большой дробной частью. Сумма кусков всегда равна исходной — общий расход не
+ * едет. Если кликов нет вовсе (страховка) — всё в первую кампанию.
+ */
+function allocateByClicks(
+  cents: number,
+  parts: { campId: string; clicks: number }[],
+): { campId: string; cents: number }[] {
+  if (parts.length === 0) return [];
+  if (parts.length === 1) return [{ campId: parts[0].campId, cents }];
+  const totalClicks = parts.reduce((s, p) => s + p.clicks, 0);
+  if (totalClicks <= 0) return [{ campId: parts[0].campId, cents }];
+  const raw = parts.map((p) => {
+    const exact = (cents * p.clicks) / totalClicks;
+    const floor = Math.floor(exact);
+    return { campId: p.campId, cents: floor, frac: exact - floor };
+  });
+  let left = cents - raw.reduce((s, r) => s + r.cents, 0);
+  // Остаток — кампаниям с наибольшей дробной частью, по одному центу.
+  raw.sort((a, b) => b.frac - a.frac);
+  for (let i = 0; left > 0 && i < raw.length; i++, left--) raw[i].cents += 1;
+  return raw.filter((r) => r.cents > 0).map((r) => ({ campId: r.campId, cents: r.cents }));
+}
+
+/**
  * Расход из Facebook НА УРОВНЕ ОБЪЯВЛЕНИЙ, привязанный к потокам Keitaro.
  *
  * Зачем отдельно от расхода кабинета: в ссылке каждого объявления стоит токен
@@ -658,10 +687,12 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   // Кампания КТ по id → имя и токен (для витрины расхода) и карта
   // «ad_id → кампания» по самим кликам КТ (главный способ привязать расход).
   const campById = new Map<string, { name: string; token: string }>();
-  // Привязка объявление→кампания по кликам КТ: по дню (точно) и по всему окну
-  // (запасная). adByClickDay ключ — `${adId}|${YYYY-MM-DD}`.
-  const adByClickDay = new Map<string, string>();
+  // Привязка объявление→кампания по кликам КТ за всё окно (запасная, если по
+  // дню кликов не нашлось). Ключ — ad_id.
   const adByClickAd = new Map<string, string>();
+  // Полное распределение кликов объявления за день по кампаниям (главный способ
+  // разложить расход между потоками пропорционально кликам). Ключ `${adId}|${date}`.
+  const adDaySplit = new Map<string, { campId: string; clicks: number }[]>();
   const tracker = await prisma.tracker.findFirst({ where: { enabled: true } });
   if (tracker) {
     try {
@@ -675,8 +706,8 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       // ссылке. Не критично, если не вышло: ниже есть запасной матчинг по ссылке.
       try {
         const m = await adCampaignMap(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
-        for (const [k, campId] of m.dayMap) adByClickDay.set(k, campId);
         for (const [sub, campId] of m.adMap) adByClickAd.set(sub, campId);
+        for (const [k, split] of m.daySplit) adDaySplit.set(k, split);
       } catch { /* оставим матчинг по ссылке */ }
 
       const adRev = await revenueByAd(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
@@ -901,22 +932,35 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
               continue;
             }
 
-            // Расход дня → на кампанию ЭТОГО дня (где клики объявления именно в
-            // этот день), иначе на кампанию объявления (по кликам за окно / по
-            // адсету / по ссылке). Заливаем ПО ДНЮ — деньги остаются на своём
-            // дне (и «сегодня» не уезжает на прошлые). Если у кампании за день
-            // 0 кликов — этот кусок не прилипнет (неустранимый потолок КТ).
-            const dayCampId = adByClickDay.get(`${adId}|${s.date}`) || ktCampId;
-            if (dayCampId) {
-              const dayCamp = campById.get(dayCampId);
-              const key = `${dayCampId}|${s.date}`;
-              const b = cost.get(key) ?? {
-                cents: 0, clicks: 0, impressions: 0, currency: acc.currency,
-                campId: dayCampId, campName: dayCamp?.name ?? ktCampName, token: dayCamp?.token ?? ktTokenVal,
-              };
-              b.cents += s.cents; b.clicks += s.clicks; b.impressions += s.impressions;
-              cost.set(key, b);
-              pushRecords.push({ campId: dayCampId, date: s.date, adId, cents: s.cents });
+            // Расход дня делим МЕЖДУ кампаниями пропорционально кликам этого
+            // объявления в каждой (объявление могло крутиться на несколько
+            // потоков — тогда и деньги, и метрики надо разнести честно, а не
+            // сваливать всё в одну кампанию). Если по дню кликов не нашлось —
+            // берём кампанию объявления (по кликам за окно / адсету / ссылке).
+            // Заливаем ПО ДНЮ — деньги остаются на своём дне. День без кликов у
+            // кампании расход не примет (неустранимый потолок КТ).
+            const split = adDaySplit.get(`${adId}|${s.date}`) ?? [];
+            const alloc = split.length
+              ? allocateByClicks(s.cents, split)
+              : ktCampId
+                ? [{ campId: ktCampId, cents: s.cents }]
+                : [];
+            if (alloc.length) {
+              for (const a of alloc) {
+                const dayCamp = campById.get(a.campId);
+                const key = `${a.campId}|${s.date}`;
+                const b = cost.get(key) ?? {
+                  cents: 0, clicks: 0, impressions: 0, currency: acc.currency,
+                  campId: a.campId, campName: dayCamp?.name ?? ktCampName, token: dayCamp?.token ?? ktTokenVal,
+                };
+                // Клики/показы объявления разносим в той же пропорции, что и цент.
+                const w = s.cents > 0 ? a.cents / s.cents : 1 / alloc.length;
+                b.cents += a.cents;
+                b.clicks += Math.round(s.clicks * w);
+                b.impressions += Math.round(s.impressions * w);
+                cost.set(key, b);
+                pushRecords.push({ campId: a.campId, date: s.date, adId, cents: a.cents });
+              }
               matchedByHandle.set(token.buyer.handle, (matchedByHandle.get(token.buyer.handle) ?? 0) + s.cents);
             } else {
               unmatchedCents += s.cents;

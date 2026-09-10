@@ -231,7 +231,11 @@ export async function adCampaignMap(
   from: string,
   to: string,
   timezone = 'UTC',
-): Promise<{ dayMap: Map<string, string>; adMap: Map<string, string> }> {
+): Promise<{
+  dayMap: Map<string, string>;
+  adMap: Map<string, string>;
+  daySplit: Map<string, { campId: string; clicks: number }[]>;
+}> {
   const raw = await call(baseUrl, apiKey, '/report/build', {
     range: { from, to, timezone },
     grouping: ['sub_id_4', 'campaign_id', 'day'],
@@ -245,6 +249,11 @@ export async function adCampaignMap(
   // и за всё окно (запасная, если по дню клика не нашлось).
   const bestDay = new Map<string, { campId: string; clicks: number }>();
   const bestAd = new Map<string, { campId: string; clicks: number }>();
+  // ПОЛНОЕ распределение кликов объявления за день по кампаниям: если объявление
+  // крутилось на несколько потоков, его клики (а значит и расход) надо делить
+  // между кампаниями пропорционально, а не сваливать всё в одну. Ключ `sub|day`
+  // → map кампания→клики.
+  const splitDay = new Map<string, Map<string, number>>();
   for (const row of rows) {
     const sub = String(row.sub_id_4 ?? '').trim();
     const campId = String(row.campaign_id ?? '').trim();
@@ -255,6 +264,9 @@ export async function adCampaignMap(
       const dk = `${sub}|${day}`;
       const cd = bestDay.get(dk);
       if (!cd || clicks > cd.clicks) bestDay.set(dk, { campId, clicks });
+      const sd = splitDay.get(dk) ?? new Map<string, number>();
+      sd.set(campId, (sd.get(campId) ?? 0) + clicks);
+      splitDay.set(dk, sd);
     }
     const ca = bestAd.get(sub);
     if (!ca || clicks > ca.clicks) bestAd.set(sub, { campId, clicks });
@@ -263,7 +275,11 @@ export async function adCampaignMap(
   for (const [k, v] of bestDay) dayMap.set(k, v.campId);
   const adMap = new Map<string, string>();
   for (const [k, v] of bestAd) adMap.set(k, v.campId);
-  return { dayMap, adMap };
+  const daySplit = new Map<string, { campId: string; clicks: number }[]>();
+  for (const [k, m] of splitDay) {
+    daySplit.set(k, [...m].map(([campId, clicks]) => ({ campId, clicks })));
+  }
+  return { dayMap, adMap, daySplit };
 }
 
 /**
