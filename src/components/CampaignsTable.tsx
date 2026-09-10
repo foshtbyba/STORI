@@ -34,8 +34,6 @@ export type AdRow = {
   clicks: number;
   leads: number;
   revenueCents: number;
-  /** Разбивка расхода по дням окна — для подсказки/диагностики. */
-  days?: { date: string; spendCents: number }[];
 };
 
 const TONE: Record<StatusTone, string> = {
@@ -447,9 +445,9 @@ export default function CampaignsTable({
                             <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${TONE[badge.tone]}`}>{badge.label}</span>
                             {r.ktToken ? null : <span className="shrink-0 rounded-full bg-sub px-2 py-0.5 text-[10px] text-dim" title="Токен КТ в ссылке не распознан">нет потока</span>}
                           </div>
-                          <div className="mt-1 flex items-center gap-x-2 text-[10.5px] text-dim">
+                          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10.5px] text-dim">
                             <Tip label="act_ID кабинета в Facebook"><span className="n cursor-help">{r.act}</span></Tip>
-                            <Tip label="ID объявления в Facebook. Два объявления с одним именем — это РАЗНЫЕ объявления (разный ad_id), а не дубль."><span className="n cursor-help">· ad {r.adId}</span></Tip>
+                            <span className="n text-faint" title={`ID объявления в Facebook: ${r.adId}`}>#{r.adId}</span>
                             {r.targeting ? <span className="n">· {r.targeting}</span> : null}
                             {r.linkUrl ? <a href={r.linkUrl} target="_blank" rel="noreferrer" className="text-steel hover:underline">· ссылка</a> : null}
                           </div>
@@ -466,22 +464,7 @@ export default function CampaignsTable({
                   <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{r.leads ? money(r.cpl) : '—'}</td>
                   <td className="n px-3 py-2.5 text-center text-[12px] text-mute">{pct(r.leads, r.clicks)}</td>
                   <td className="n px-3 py-2.5 text-center text-[13px] text-soft">
-                    {!r.isCampaign && r.days && r.days.length ? (
-                      <Tip
-                        label={
-                          <span className="flex flex-col gap-0.5">
-                            <span className="text-mute">Расход по дням ({r.days.length}):</span>
-                            {r.days.map((d) => (
-                              <span key={d.date}>{d.date.slice(8, 10)}.{d.date.slice(5, 7)} — {money(d.spendCents)}</span>
-                            ))}
-                          </span>
-                        }
-                      >
-                        <span className="cursor-help underline decoration-dotted decoration-line2">{money(r.spendCents)}</span>
-                      </Tip>
-                    ) : (
-                      money(r.spendCents)
-                    )}
+                    {money(r.spendCents)}
                     {r.currency !== 'USD' ? <span className="ml-1 text-[10px] text-rust">{r.currency}</span> : null}
                   </td>
                   <td className="n px-3 py-2.5 text-center text-[13px] text-soft">{money(r.revenueCents)}</td>

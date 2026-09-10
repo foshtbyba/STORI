@@ -1104,17 +1104,10 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   // Диагностика: одной строкой видно, дошёл ли расход до КТ и где он теряется.
   // Суммы до центов — расход по объявлению часто копеечный, целые доллары врут.
   const d = (cents: number) => `$${(cents / 100).toFixed(2)}`;
-  const residualCents = [...residualByCamp.values()].reduce((s, r) => s + r.cents, 0);
   result.info.push(
-    `Расход ФБ за окно: ${d(totalSpendCents)}. ` +
-      `Залито в КТ: ${d(pushed.cents)} (${pushed.entries} записей на ${pushed.campaigns} кампаний). ` +
-      `Объявлений с потоком: ${matchedAds}. ` +
-      `Заливка: чистые кампании — по дням; кампании с остатком (${d(residualCents)}, ${residualByCamp.size} шт.) — одним окном по всем кликам. ` +
-      (allAds ? `Объявлений без открута заведено: ${zeroAds}. ` : '') +
-      (prunedAds ? `Удалено пропавших из ФБ: ${prunedAds}. ` : '') +
-      (pushed.resp ? `Ответ КТ: ${pushed.resp}. ` : '') +
+    `Расход ФБ: ${d(totalSpendCents)}. Залито в КТ: ${d(pushed.cents)} на ${pushed.campaigns} кампаний. ` +
       (nonUsdDays ? `Пропущено не-USD: ${d(nonUsdCents)}. ` : '') +
-      (unmatchedCents ? `Совсем без кампании: ${d(unmatchedCents)}.` : ''),
+      (unmatchedCents ? `Без кампании в КТ: ${d(unmatchedCents)}.` : ''),
   );
 
   return result;
