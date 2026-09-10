@@ -136,10 +136,12 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
 
   return (
     <div className="mt-3 border-t border-line pt-3">
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full flex-wrap items-center gap-3 text-left"
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen((v) => !v); } }}
+        className="flex w-full cursor-pointer flex-wrap items-center gap-3 text-left"
       >
         <Avatar initials={group.initials} color={group.color} />
         <span className="min-w-0 flex-1">
@@ -175,7 +177,7 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
           {warn ? <span className="rounded-full bg-amber-t px-2 py-0.5 text-amber">риск {warn}</span> : null}
           <span className="text-dim">{open ? '▲' : '▼'}</span>
         </span>
-      </button>
+      </div>
 
       {open ? (
         <>

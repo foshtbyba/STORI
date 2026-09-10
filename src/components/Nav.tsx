@@ -30,8 +30,8 @@ export default function Nav({ items }: { items: NavItem[] }) {
             */
             prefetch={false}
             aria-current={active ? 'page' : undefined}
-            className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[12.5px] transition ${
-              active ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
+            className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[12.5px] transition duration-100 active:scale-[0.96] ${
+              active ? 'bg-raise font-semibold text-text' : 'text-mute hover:bg-raise/50 hover:text-soft active:bg-raise active:text-text'
             }`}
           >
             {item.icon}

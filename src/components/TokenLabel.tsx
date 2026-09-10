@@ -16,7 +16,7 @@ export default function TokenLabel({ id, label }: { id: string; label: string })
     return (
       <button
         type="button"
-        onClick={() => setEditing(true)}
+        onClick={(e) => { e.stopPropagation(); setEditing(true); }}
         title="Переименовать"
         className="text-left text-[12px] font-normal text-mute transition hover:text-soft"
       >

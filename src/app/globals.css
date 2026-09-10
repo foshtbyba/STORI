@@ -53,7 +53,7 @@ body {
 */
 button:not(:disabled):active,
 [role='button']:not([aria-disabled='true']):active {
-  transform: scale(0.97);
+  transform: scale(0.985);
 }
 button[aria-busy='true'] {
   opacity: 0.6;
