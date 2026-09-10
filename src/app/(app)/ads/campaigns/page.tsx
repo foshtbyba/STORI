@@ -52,14 +52,52 @@ export default async function CampaignsPage({
     : { adAccount: { adToken: { buyerId: scoped ?? '__none__' } } };
 
   // Овнеры для переключателя — берём отдельно, чтобы SKO/MPR были в списке даже
-  // если у одного из них за выбранный период нет объявлений.
-  const owners = admin
+  // если у одного из них за выбранный период нет объявлений. Заодно это набор
+  // баеров, чей КТ-доход считаем авторитетным для сводки (см. ниже).
+  const relevantBuyers = admin
     ? await prisma.buyer.findMany({
         where: { archived: false, owner: true },
-        select: { handle: true, initials: true, color: true },
+        select: { id: true, handle: true, initials: true, color: true },
         orderBy: { handle: 'asc' },
       })
+    : scoped
+      ? await prisma.buyer.findMany({
+          where: { id: scoped },
+          select: { id: true, handle: true, initials: true, color: true },
+        })
+      : [];
+  const owners = relevantBuyers.map((b) => ({ handle: b.handle, initials: b.initials, color: b.color }));
+
+  // АВТОРИТЕТНЫЙ доход для сводки — из подтверждённого дохода по кампаниям КТ
+  // (KtCampaignDay, поле sale_revenue), а НЕ из суммы по объявлениям. Привязка
+  // дохода к объявлению идёт по sub_id_4 (ad_id): конверсии без него (или на
+  // объявлении без открута за день) в поад-разрез не попадают и занижают сумму.
+  // Здесь берём ту же цифру, что показывает сам Keitaro: доход групп баера за
+  // окно. Строки таблицы по-прежнему носят привязанный доход — для ROI по
+  // объявлению; расхождение показываем отдельной подписью «без привязки».
+  const buyerGroups = relevantBuyers.length
+    ? await prisma.trackerGroup.findMany({
+        where: { buyerId: { in: relevantBuyers.map((b) => b.id) } },
+        select: { externalId: true, buyerId: true },
+      })
     : [];
+  const groupToBuyer = new Map(buyerGroups.map((g) => [g.externalId, g.buyerId!]));
+  const idToHandle = new Map(relevantBuyers.map((b) => [b.id, b.handle]));
+  const ktRevenue: Record<string, { revenueCents: number; conversions: number }> = {};
+  if (buyerGroups.length) {
+    const kcd = await prisma.ktCampaignDay.findMany({
+      where: { date: { gte: fromMid, lte: toMid }, groupId: { in: buyerGroups.map((g) => g.externalId) } },
+      select: { groupId: true, revenueCents: true, conversions: true },
+    });
+    for (const r of kcd) {
+      const handle = idToHandle.get(groupToBuyer.get(r.groupId) ?? '');
+      if (!handle) continue;
+      const e = ktRevenue[handle] ?? { revenueCents: 0, conversions: 0 };
+      e.revenueCents += r.revenueCents;
+      e.conversions += r.conversions;
+      ktRevenue[handle] = e;
+    }
+  }
 
   // Профили, которые сейчас НЕ обновляются: у токена стоит lastError (сессия
   // слетела и даже авто-подхват из кук не помог, либо кабинет забанен). Их
@@ -158,11 +196,13 @@ export default async function CampaignsPage({
       ) : null}
 
       <Panel className="p-4 sm:p-6">
-        <CampaignsTable rows={rows} win={win} day={dayValid ? day! : ''} owners={owners} admin={admin} updated={lastSync ? fmtWhen(lastSync) : null} />
+        <CampaignsTable rows={rows} win={win} day={dayValid ? day! : ''} owners={owners} ktRevenue={ktRevenue} admin={admin} updated={lastSync ? fmtWhen(lastSync) : null} />
 
         <p className="mt-4 text-[11px] leading-relaxed text-dim">
-          Расход/клики/показы/лиды — из Facebook по объявлениям. Доход и профит — из Keitaro по
-          ad_id (Sub ID 4), для ориентира. Расход по кампаниям параллельно уходит в сам Keitaro.
+          Расход/клики/показы/лиды — из Facebook по объявлениям. Доход в сводке — подтверждённый
+          из Keitaro (как в самом трекере). В строках доход привязан к объявлению по ad_id (Sub ID
+          4); что не привязалось (конверсии без ad_id) видно в подписи «без привязки». Расход по
+          кампаниям параллельно уходит в сам Keitaro.
         </p>
       </Panel>
     </div>

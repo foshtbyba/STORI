@@ -102,6 +102,7 @@ export default function CampaignsTable({
   win,
   day,
   owners,
+  ktRevenue,
   admin,
   updated,
 }: {
@@ -109,6 +110,8 @@ export default function CampaignsTable({
   win: number;
   day: string;
   owners: { handle: string; initials: string; color: string }[];
+  /** Авторитетный подтверждённый доход из Keitaro по баерам (handle → суммы). */
+  ktRevenue: Record<string, { revenueCents: number; conversions: number }>;
   admin: boolean;
   updated: string | null;
 }) {
@@ -167,15 +170,22 @@ export default function CampaignsTable({
   );
 
   const summary = useMemo(() => {
-    let spend = 0, clicks = 0, leads = 0, revenue = 0, impressions = 0;
+    let spend = 0, clicks = 0, leads = 0, attributed = 0, impressions = 0;
     let foreign = false;
     for (const r of byBuyer) {
       clicks += r.clicks; leads += r.leads; impressions += r.impressions;
-      if (r.currency === 'USD') { spend += r.spendCents; revenue += r.revenueCents; }
+      if (r.currency === 'USD') { spend += r.spendCents; attributed += r.revenueCents; }
       else foreign = true;
     }
-    return { spend, clicks, leads, revenue, impressions, profit: revenue - spend, foreign };
-  }, [byBuyer]);
+    // Доход — авторитетный из Keitaro (подтверждённый по кампаниям), а не сумма
+    // привязанного к объявлениям. Для 'all' складываем по всем баерам списка.
+    const kt = (h: string) => ktRevenue[h]?.revenueCents ?? 0;
+    const revenue =
+      buyer === 'all' ? buyers.reduce((s, b) => s + kt(b.handle), 0) : kt(buyer);
+    // Сколько дохода не привязалось к объявлению (нет sub_id_4 / нет открута).
+    const unattributed = Math.max(0, revenue - attributed);
+    return { spend, clicks, leads, revenue, attributed, unattributed, impressions, profit: revenue - spend, foreign };
+  }, [byBuyer, ktRevenue, buyer, buyers]);
 
   const view = useMemo(() => {
     // Фильтр открута: по умолчанию только то, что реально крутилось в окне.
@@ -316,7 +326,7 @@ export default function CampaignsTable({
         {tile('Расход', money(summary.spend))}
         {tile('Клики', int(summary.clicks), `CPC ${summary.clicks ? money(Math.round(summary.spend / summary.clicks)) : '—'}`)}
         {tile('Лиды', int(summary.leads), `CPL ${summary.leads ? money(Math.round(summary.spend / summary.leads)) : '—'}`)}
-        {tile('Доход', money(summary.revenue))}
+        {tile('Доход', money(summary.revenue), summary.unattributed > 0 ? `${money(summary.unattributed)} без привязки к объявл.` : 'подтв. из Keitaro')}
         {tile('Профит', money(summary.profit), undefined, summary.profit >= 0 ? 'sage' : 'rust')}
         {tile('ROI', summary.spend ? pct(summary.profit, summary.spend, 1) : '—', undefined, summary.profit >= 0 ? 'sage' : 'rust')}
       </div>
