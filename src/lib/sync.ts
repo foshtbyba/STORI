@@ -786,16 +786,42 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
           byAd.set(s.adId, arr);
         }
 
+        // Пре-проход: у каждого объявления определяем кампанию КТ (по кликам,
+        // иначе по токену в ссылке) и голосуем по адсету. У объявлений, где
+        // кампанию так и не нашли, ниже возьмём доминирующую по их адсету — в
+        // одном адсете обычно один лендинг = один поток, так что расход дольётся
+        // в правильную кампанию, а не потеряется.
+        const adCampOf = new Map<string, string>();
+        const adsetVotes = new Map<string, Map<string, number>>();
+        for (const [adId] of byAd) {
+          const m = metaOf.get(adId);
+          const cid = adByClickAd.get(adId) || matchKtCampaign(m?.link ?? '', index)?.id || '';
+          adCampOf.set(adId, cid);
+          const adset = m?.adsetId ?? '';
+          if (cid && adset) {
+            const v = adsetVotes.get(adset) ?? new Map<string, number>();
+            v.set(cid, (v.get(cid) ?? 0) + 1);
+            adsetVotes.set(adset, v);
+          }
+        }
+        const adsetDominant = new Map<string, string>();
+        for (const [adset, v] of adsetVotes) {
+          let best = '', bestN = 0;
+          for (const [cid, n] of v) if (n > bestN) { best = cid; bestN = n; }
+          adsetDominant.set(adset, best);
+        }
+
         for (const [adId, rows] of byAd) {
           const m = metaOf.get(adId);
           const link = m?.link ?? '';
           // Кампания КТ для расхода: сперва по САМИМ кликам (ad_id → кампания,
-          // где реально лежат клики — надёжно), иначе запасной матчинг по токену
-          // в ссылке. Так cost ложится туда же, где клики, и не пропадает.
+          // где реально лежат клики — надёжно), иначе по токену в ссылке, иначе
+          // — доминирующая кампания адсета (сосед по группе). Так cost ложится
+          // туда же, где клики, и не теряется у объявлений без своего сигнала.
           const linkMatch = matchKtCampaign(link, index);
           // Уровень объявления — для токена/отображения и как запас, если по дню
           // клика не нашлось.
-          const ktCampId = adByClickAd.get(adId) || linkMatch?.id || '';
+          const ktCampId = adCampOf.get(adId) || adsetDominant.get(m?.adsetId ?? '') || '';
           const ktCamp = ktCampId ? campById.get(ktCampId) : undefined;
           const ktCampName = ktCamp?.name ?? linkMatch?.name ?? '';
           const ktTokenVal = linkMatch?.token || ktCamp?.token || '';
