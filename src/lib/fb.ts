@@ -1000,3 +1000,189 @@ export async function checkToken(
     accounts,
   };
 }
+
+// ============================================================================
+// АВТОЗАЛИВ — create-примитивы. Всё создаётся под конкретный кабинет
+// (externalId уже с префиксом act_). Токен сессионный, поэтому net
+// (ua/cookie/proxy) обязателен — как и в чтении. Всё создаём по умолчанию на
+// ПАУЗЕ: реальный запуск отдельным действием.
+// ВНИМАНИЕ: форматы параметров ФБ капризны — обкатываем на живом кабинете.
+// ============================================================================
+
+/** Пиксели кабинета — выбрать существующий при заливе ({pixel}). */
+export async function listPixels(token: string, externalId: string, net: FbNet = {}) {
+  const body = await call(`/${externalId}/adspixels`, token, { fields: 'id,name', limit: '100' }, net);
+  const data = (body.data ?? []) as { id?: string; name?: string }[];
+  return data.filter((p) => p.id).map((p) => ({ id: p.id as string, name: p.name || (p.id as string) }));
+}
+
+/** Создать новый пиксель в кабинете. Возвращает id. */
+export async function createPixel(token: string, externalId: string, name: string, net: FbNet = {}) {
+  const body = await call(`/${externalId}/adspixels`, token, { name }, net, 'POST');
+  const id = body.id as string | undefined;
+  if (!id) throw new FbError('Пиксель не создан: FB не вернул id');
+  return id;
+}
+
+/** Страницы (ФП), от имени которых публикуется реклама. */
+export async function listPages(token: string, net: FbNet = {}) {
+  const body = await call('/me/accounts', token, { fields: 'id,name', limit: '200' }, net);
+  const data = (body.data ?? []) as { id?: string; name?: string }[];
+  return data.filter((p) => p.id).map((p) => ({ id: p.id as string, name: p.name || (p.id as string) }));
+}
+
+export type CreateCampaignInput = {
+  name: string;
+  /** Конверсии = OUTCOME_SALES (современная цель). */
+  objective?: string;
+  status?: 'PAUSED' | 'ACTIVE';
+  specialCategories?: string[];
+};
+
+export async function createCampaign(token: string, externalId: string, i: CreateCampaignInput, net: FbNet = {}) {
+  const body = await call(`/${externalId}/campaigns`, token, {
+    name: i.name,
+    objective: i.objective || 'OUTCOME_SALES',
+    status: i.status || 'PAUSED',
+    special_ad_categories: JSON.stringify(i.specialCategories ?? []),
+  }, net, 'POST');
+  const id = body.id as string | undefined;
+  if (!id) throw new FbError('Кампания не создана: нет id');
+  return id;
+}
+
+export type CreateAdsetInput = {
+  name: string;
+  campaignId: string;
+  /** Конверсии: пиксель + событие. */
+  pixelId: string;
+  event?: string; // PURCHASE по умолчанию
+  countries: string[]; // ['US']
+  /** Бюджет на адсете, в центах. Если бюджет на кампании — не передаём. */
+  dailyBudgetCents?: number;
+  bidStrategy?: string; // LOWEST_COST_WITHOUT_CAP
+  billingEvent?: string; // IMPRESSIONS
+  ageMin?: number;
+  ageMax?: number;
+  genders?: number[]; // []/undefined = все, [1]=муж, [2]=жен
+  status?: 'PAUSED' | 'ACTIVE';
+  /** ISO-время планового старта (для запланированного запуска). */
+  startTime?: string;
+};
+
+export async function createAdset(token: string, externalId: string, i: CreateAdsetInput, net: FbNet = {}) {
+  const targeting: Record<string, unknown> = {
+    geo_locations: { countries: i.countries },
+    age_min: i.ageMin ?? 18,
+    age_max: i.ageMax ?? 65,
+  };
+  if (i.genders && i.genders.length) targeting.genders = i.genders;
+
+  const params: Record<string, string> = {
+    name: i.name,
+    campaign_id: i.campaignId,
+    optimization_goal: 'OFFSITE_CONVERSIONS',
+    billing_event: i.billingEvent || 'IMPRESSIONS',
+    bid_strategy: i.bidStrategy || 'LOWEST_COST_WITHOUT_CAP',
+    promoted_object: JSON.stringify({ pixel_id: i.pixelId, custom_event_type: i.event || 'PURCHASE' }),
+    targeting: JSON.stringify(targeting),
+    status: i.status || 'PAUSED',
+  };
+  if (i.dailyBudgetCents) params.daily_budget = String(i.dailyBudgetCents);
+  if (i.startTime) params.start_time = i.startTime;
+
+  const body = await call(`/${externalId}/adsets`, token, params, net, 'POST');
+  const id = body.id as string | undefined;
+  if (!id) throw new FbError('Адсет не создан: нет id');
+  return id;
+}
+
+/**
+ * Загрузка картинки в кабинет → image_hash. FB принимает base64 в параметре
+ * `bytes`, но он большой, поэтому шлём его ТЕЛОМ POST (form-urlencoded), а не в
+ * query. Возвращаем hash для креатива.
+ */
+export async function uploadAdImage(token: string, externalId: string, bytes: Buffer, net: FbNet = {}) {
+  const form = new URLSearchParams();
+  form.set('access_token', token);
+  form.set('bytes', bytes.toString('base64'));
+
+  const url = `${API}/${externalId}/adimages`;
+  const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+  if (net.ua) headers['User-Agent'] = net.ua;
+  if (net.cookie) headers['Cookie'] = net.cookie;
+
+  let status: number;
+  let text: string;
+  try {
+    if (net.proxyUrl) {
+      const agent = proxyAgent(net.proxyUrl);
+      const res = await axios.request({
+        method: 'POST', url, headers, data: form.toString(),
+        httpAgent: agent, httpsAgent: agent,
+        maxContentLength: 5_000_000, timeout: 30000,
+        responseType: 'text', transformResponse: [(d) => d], validateStatus: () => true,
+      });
+      status = res.status; text = String(res.data ?? '');
+    } else {
+      const res = await fetch(url, { method: 'POST', headers, body: form.toString(), cache: 'no-store' });
+      status = res.status; text = await res.text();
+    }
+  } catch (e) {
+    throw new FbError(`Не загрузили картинку в FB: ${(e as Error).message}`);
+  }
+
+  let body: unknown;
+  try { body = JSON.parse(text); } catch { throw new FbError(`FB ответил не по-json (${status}) на загрузку картинки`); }
+  const err = (body as { error?: { message?: string; code?: number } }).error;
+  if (err) throw new FbError(fbErrorMessage(err, status));
+  const images = ((body as Record<string, unknown>).images ?? {}) as Record<string, { hash?: string }>;
+  const first = Object.values(images)[0];
+  if (!first?.hash) throw new FbError('Картинка загружена, но FB не вернул hash');
+  return first.hash;
+}
+
+export type CreateCreativeInput = {
+  name: string;
+  pageId: string;
+  message: string; // текст объявления
+  imageHash: string;
+  link: string; // лендинг
+  cta?: string; // LEARN_MORE / SHOP_NOW ...
+};
+
+export async function createAdCreative(token: string, externalId: string, i: CreateCreativeInput, net: FbNet = {}) {
+  const objectStorySpec = {
+    page_id: i.pageId,
+    link_data: {
+      message: i.message,
+      link: i.link,
+      image_hash: i.imageHash,
+      call_to_action: { type: i.cta || 'LEARN_MORE' },
+    },
+  };
+  const body = await call(`/${externalId}/adcreatives`, token, {
+    name: i.name,
+    object_story_spec: JSON.stringify(objectStorySpec),
+  }, net, 'POST');
+  const id = body.id as string | undefined;
+  if (!id) throw new FbError('Креатив не создан: нет id');
+  return id;
+}
+
+export async function createAd(
+  token: string,
+  externalId: string,
+  i: { name: string; adsetId: string; creativeId: string; status?: 'PAUSED' | 'ACTIVE' },
+  net: FbNet = {},
+) {
+  const body = await call(`/${externalId}/ads`, token, {
+    name: i.name,
+    adset_id: i.adsetId,
+    creative: JSON.stringify({ creative_id: i.creativeId }),
+    status: i.status || 'PAUSED',
+  }, net, 'POST');
+  const id = body.id as string | undefined;
+  if (!id) throw new FbError('Объявление не создано: нет id');
+  return id;
+}
