@@ -114,7 +114,7 @@ export default async function AdsOverviewPage() {
             <Empty>Кабинеты ещё не подключены — добавь первый ниже.</Empty>
           </div>
         ) : (
-          teamTokens.map((t, i) => <AccountGroup key={t.id} group={toGroup(t)} defaultOpen={teamTokens.length <= 2 || i === 0} />)
+          teamTokens.map((t) => <AccountGroup key={t.id} group={toGroup(t)} defaultOpen={false} />)
         )}
         <p className="mt-4 text-[11px] leading-relaxed text-dim">
           Цифра рядом с кабинетом — расход из ФБ за текущую неделю, для справки. В зарплату идёт
