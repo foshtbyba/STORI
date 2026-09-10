@@ -517,7 +517,23 @@ export async function runAdsSync() {
   // cost), так что дыр по дням не остаётся.
   // allAds: подтягиваем и объявления без открута (чтобы дубли/паузы были видны
   // под фильтром «без открута»). Ручное обновление нечастое — лишние запросы ок.
-  const result = await syncFacebookAds(SYNC_DAYS, { allAds: true });
+  //
+  // Любой сбой ловим здесь и возвращаем как «проблему», а НЕ бросаем наружу:
+  // непойманная ошибка server action роняет весь клиент (у кнопки нет своего
+  // error-boundary) — вместо страницы пустой чёрный экран. Пусть лучше кнопка
+  // покажет «проблемы: 1» с текстом, а страница останется живой.
+  let result;
+  try {
+    result = await syncFacebookAds(SYNC_DAYS, { allAds: true });
+  } catch (e) {
+    result = {
+      touched: 0,
+      skipped: 0,
+      problems: [`Сбой обновления статы: ${(e as Error).message}`],
+      info: [],
+      orphanCents: 0,
+    };
+  }
   revalidatePath('/ads/campaigns');
   return result;
 }

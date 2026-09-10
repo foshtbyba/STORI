@@ -4,6 +4,7 @@ import { dayKey } from './period';
 import { grossUp, ceilDollars, DEFAULT_COMMISSION_BPS } from './money';
 import { mergeDay } from './sync-rule';
 import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, adMeta, listAdIds, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
+import { isDeadAccount } from './fb-status';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
 import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, campaignsWithSubId4, KeitaroError, type CostEntry } from './keitaro';
@@ -237,6 +238,10 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
       );
 
       for (const acc of accounts) {
+        // Забаненные/закрытые кабинеты пропускаем: свежей статы там не будет, а
+        // лишний запрос только жжёт лимит и приближает чекпоинт. Статус кабинета
+        // уже освежили выше через listAccounts, так что бан виден сразу.
+        if (isDeadAccount(acc.accountStatus, acc.disableReason)) continue;
         // Пауза перед каждым запросом расхода: главный рычаг против чекпоинта.
         await humanPause();
         const spend = await accountSpend(access, acc.externalId, from, to, net);
@@ -538,6 +543,9 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
         proxyUrl: token.proxyUrl,
       });
       for (const acc of shuffle(token.accounts)) {
+        // Мёртвый кабинет (бан/закрыт) — кампании оттуда не тянем: они все
+        // стоят, толку ноль, а запрос лишний.
+        if (isDeadAccount(acc.accountStatus, acc.disableReason)) continue;
         await humanPause();
         const camps = await listFbCampaigns(access, acc.externalId, net);
         const liveIds: string[] = [];
@@ -723,6 +731,9 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       });
 
       for (const acc of shuffle(token.accounts)) {
+        // Забаненные/закрытые кабинеты не трогаем: свежей статы нет, расход не
+        // растёт — «тянем только с живых». Что уже насчитано, остаётся в базе.
+        if (isDeadAccount(acc.accountStatus, acc.disableReason)) continue;
         await humanPause();
         const stats = await adStats(access, acc.externalId, from, to, net);
         const statIds = new Set(stats.map((s) => s.adId));
@@ -936,24 +947,30 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   });
 
   // Перезаписываем окно целиком: чистим дни отрезка и кладём свежие суммы, чтобы
-  // исчезнувший расход не оставался висеть за прошлые дни.
-  const fromDate = atMidnight(from);
-  const toDate = atMidnight(to);
-  await prisma.ktCostDay.deleteMany({ where: { date: { gte: fromDate, lte: toDate } } });
-  for (const [key, b] of cost) {
-    const iso = key.split('|')[1];
-    await prisma.ktCostDay.create({
-      data: {
-        date: atMidnight(iso),
-        ktToken: b.token,
-        ktCampaignId: b.campId,
-        ktCampaignName: b.campName,
-        spendCents: b.cents,
-        clicks: b.clicks,
-        impressions: b.impressions,
-        currency: b.currency,
-      },
-    });
+  // исчезнувший расход не оставался висеть за прошлые дни. В своём try, чтобы
+  // сбой записи витрины KtCostDay не сорвал главное — заливку расхода в сам КТ
+  // ниже (её админ и ждёт от кнопки «Обновить стату»).
+  try {
+    const fromDate = atMidnight(from);
+    const toDate = atMidnight(to);
+    await prisma.ktCostDay.deleteMany({ where: { date: { gte: fromDate, lte: toDate } } });
+    for (const [key, b] of cost) {
+      const iso = key.split('|')[1];
+      await prisma.ktCostDay.create({
+        data: {
+          date: atMidnight(iso),
+          ktToken: b.token,
+          ktCampaignId: b.campId,
+          ktCampaignName: b.campName,
+          spendCents: b.cents,
+          clicks: b.clicks,
+          impressions: b.impressions,
+          currency: b.currency,
+        },
+      });
+    }
+  } catch (e) {
+    result.problems.push(`Витрина расхода KtCostDay: ${(e as Error).message}`);
   }
 
   if (unmatchedCents > 0) {

@@ -49,6 +49,20 @@ export function accountBadge(accountStatus: number, disableReason: number): Acco
 }
 
 /**
+ * «Мёртвый» кабинет: забанен или закрыт — тянуть с него статистику уже
+ * бессмысленно, только жжём запросы и рискуем чекпоинтом. Отключён (2),
+ * закрывается/закрыт (100/101/202), либо причина отключения — перманентный бан
+ * (1/8 нарушение правил, 9 навсегда). Кабинеты на проверке/в грейсе (3,7,8) —
+ * живые: они ещё крутят или могут ожить, их не пропускаем.
+ */
+export function isDeadAccount(accountStatus: number, disableReason = 0): boolean {
+  if (accountStatus === 2 || accountStatus === 100 || accountStatus === 101 || accountStatus === 202) {
+    return true;
+  }
+  return disableReason === 1 || disableReason === 8 || disableReason === 9;
+}
+
+/**
  * Состояние кампании (effective_status) человеческим ярлыком. «Запущена» —
  * зелёным, всё остальное приглушённее: на паузе, на модерации, отклонена.
  */
@@ -71,5 +85,6 @@ const CAMPAIGN: Record<string, AccountBadge> = {
 };
 
 export function campaignBadge(status: string): AccountBadge {
+  if (!status) return { label: '—', tone: 'mute' };
   return CAMPAIGN[status] ?? { label: status.toLowerCase(), tone: 'mute' };
 }
