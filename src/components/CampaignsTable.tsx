@@ -432,8 +432,9 @@ export default function CampaignsTable({
                     ) : (
                       <div className="flex items-start gap-2.5">
                         {r.thumbnailUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={r.thumbnailUrl} alt="" className="mt-0.5 h-9 w-9 shrink-0 rounded-md object-cover" />
+                          // Через наш прокси: прямые thumbnail_url с fbcdn протухают и
+                          // отдают 403. eslint-disable-next-line @next/next/no-img-element
+                          <img src={`/api/ad-image/${r.id}`} loading="lazy" alt="" className="mt-0.5 h-9 w-9 shrink-0 rounded-md object-cover" />
                         ) : (
                           <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-sub text-dim">—</span>
                         )}

@@ -1142,6 +1142,48 @@ export async function uploadAdImage(token: string, externalId: string, bytes: Bu
   return first.hash;
 }
 
+/**
+ * Свежая ссылка-превью объявления. thumbnail_url из Graph короткоживущий —
+ * если сохранённый протух, дёргаем актуальный одним лёгким запросом.
+ */
+export async function adThumbnailUrl(token: string, adId: string, net: FbNet = {}) {
+  const body = await call(`/${adId}`, token, { fields: 'creative{thumbnail_url}' }, net);
+  const c = (body as { creative?: { thumbnail_url?: string } }).creative;
+  return c?.thumbnail_url ?? '';
+}
+
+/**
+ * Скачать картинку с fbcdn через прокси/UA кабинета и вернуть байты. Прямые
+ * thumbnail_url по хотлинку из <img> отдают 403 и протухают — поэтому тянем их
+ * на сервере (как FB Tool) и раздаём уже со своего домена. null — не удалось.
+ */
+export async function fetchImageBytes(
+  url: string,
+  net: FbNet = {},
+): Promise<{ buffer: Buffer; contentType: string } | null> {
+  if (!url) return null;
+  const headers: Record<string, string> = {};
+  if (net.ua) headers['User-Agent'] = net.ua;
+  try {
+    if (net.proxyUrl) {
+      const agent = proxyAgent(net.proxyUrl);
+      const res = await axios.request({
+        method: 'GET', url, headers,
+        httpAgent: agent, httpsAgent: agent,
+        responseType: 'arraybuffer', timeout: 20000,
+        maxContentLength: 8_000_000, validateStatus: () => true,
+      });
+      if (res.status < 200 || res.status >= 300) return null;
+      return { buffer: Buffer.from(res.data as ArrayBuffer), contentType: String(res.headers['content-type'] ?? 'image/jpeg') };
+    }
+    const res = await fetch(url, { headers, cache: 'no-store' });
+    if (!res.ok) return null;
+    return { buffer: Buffer.from(await res.arrayBuffer()), contentType: res.headers.get('content-type') ?? 'image/jpeg' };
+  } catch {
+    return null;
+  }
+}
+
 export type CreateCreativeInput = {
   name: string;
   pageId: string;

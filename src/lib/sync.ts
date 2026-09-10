@@ -7,7 +7,7 @@ import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, 
 import { isDeadAccount } from './fb-status';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
-import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, campaignsWithSubId4, KeitaroError, type CostEntry } from './keitaro';
+import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, KeitaroError, type CostEntry } from './keitaro';
 import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -605,14 +605,6 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
   return result;
 }
 
-/**
- * Sub ID, в котором в кликах Keitaro лежит ID объявления Facebook. Стандартный
- * шаблон Facebook в Keitaro (и FBtool) кладёт `ad.id` в Sub ID 4 — по нему
- * расход и привязывается к кликам конкретного объявления. Если в трекере
- * маппинг иной — поменять здесь одно значение.
- */
-const KT_AD_SUBID = 'sub_id_4';
-
 /** Кампания КТ, найденная по токену из ссылки объявления. */
 type MatchedCampaign = { id: string; name: string; token: string };
 
@@ -979,47 +971,26 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
     );
   }
 
-  // Определяем, у каких кампаний в кликах реально заполнен Sub ID 4 — только там
-  // имеет смысл точечная привязка по ad_id. Если запрос не удался — множество
-  // пустое, и всё уйдёт на уровень кампании (расход не потеряем).
-  let subIdCampaigns = new Set<string>();
-  if (tracker && pushRecords.length) {
-    try {
-      subIdCampaigns = await campaignsWithSubId4(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
-    } catch {
-      /* не смогли определить — льём на уровень кампании, расход не пропадёт */
-    }
-  }
-
-  // Собираем записи расхода: где Sub ID 4 есть — точечно по ad_id (фильтр), где
-  // нет — суммой на кампанию за день (одна запись на кампанию+день).
+  // Льём cost НА УРОВЕНЬ КАМПАНИИ (сумма за день), без фильтра по sub_id_4.
+  //
+  // Раньше для кампаний с заполненным sub_id_4 расход привязывался точечно —
+  // фильтром `sub_id_4 EQUALS <ad_id>`. Но у этой команды sub_id_4 в кликах КТ
+  // не совпадает с FB ad_id: фильтр находил 0 кликов, Keitaro принимал запрос
+  // (в ответе «ок»), а cost ложился в никуда — в отчёте расход оставался 0.
+  // На уровне кампании трекер сам размажет сумму по всем её кликам за день
+  // (CPC = сумма/клики), и cost наконец встаёт рядом с доходом. ID кампаний
+  // валидные — по ним же корректно приходит доход.
   const pushByCamp = new Map<string, CostEntry[]>();
   const campLevel = new Map<string, number>(); // `campId|YYYY-MM-DD` → центы
-  const addEntry = (campId: string, e: CostEntry) => {
-    const arr = pushByCamp.get(campId) ?? [];
-    arr.push(e);
-    pushByCamp.set(campId, arr);
-  };
   for (const r of pushRecords) {
-    if (subIdCampaigns.has(r.campId)) {
-      addEntry(r.campId, {
-        start_date: `${r.date} 00:00:00`,
-        end_date: `${r.date} 23:59:59`,
-        cost: r.cents / 100,
-        filters: [{ name: KT_AD_SUBID, operator: 'EQUALS', expression: r.adId }],
-      });
-    } else {
-      const k = `${r.campId}|${r.date}`;
-      campLevel.set(k, (campLevel.get(k) ?? 0) + r.cents);
-    }
+    const k = `${r.campId}|${r.date}`;
+    campLevel.set(k, (campLevel.get(k) ?? 0) + r.cents);
   }
   for (const [k, cents] of campLevel) {
     const [campId, date] = k.split('|');
-    addEntry(campId, {
-      start_date: `${date} 00:00:00`,
-      end_date: `${date} 23:59:59`,
-      cost: cents / 100,
-    });
+    const arr = pushByCamp.get(campId) ?? [];
+    arr.push({ start_date: `${date} 00:00:00`, end_date: `${date} 23:59:59`, cost: cents / 100 });
+    pushByCamp.set(campId, arr);
   }
 
   // Заливаем посчитанный расход в сам Keitaro — чтобы cost встал рядом с
@@ -1036,7 +1007,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
     `Расход ФБ за окно: ${d(totalSpendCents)}. ` +
       `Залито в КТ: ${d(pushed.cents)} (${pushed.entries} записей на ${pushed.campaigns} кампаний). ` +
       `Объявлений с потоком: ${matchedAds}. ` +
-      `Кампаний с Sub ID 4 (точечно по ad_id): ${subIdCampaigns.size}, остальные — на кампанию. ` +
+      `Заливка cost на уровень кампании (по всем кликам за день). ` +
       (allAds ? `Объявлений без открута заведено: ${zeroAds}. ` : '') +
       (prunedAds ? `Удалено пропавших из ФБ: ${prunedAds}. ` : '') +
       (nonUsdDays ? `Пропущено не-USD: ${d(nonUsdCents)}. ` : '') +
