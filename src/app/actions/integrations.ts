@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { after } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireAdmin, requireUser } from '@/lib/auth';
@@ -509,33 +510,106 @@ export async function runCampaignSync() {
  * Обновить расход по объявлениям и привязку к потокам Keitaro — для экрана ROI.
  * Лишние запросы к ФБ, поэтому это отдельная кнопка, а не часть общего синка.
  */
-export async function runAdsSync() {
-  await requireAdmin();
-  // Ручное обновление тянем на всю глубину (14 дней), а не за пару дней: если
-  // токен слетал и его починили не сразу, за это окно догрузятся пропущенные
-  // дни — и статистика, и расход в КТ (синк перечитывает окно и перезаписывает
-  // cost), так что дыр по дням не остаётся.
-  // allAds: подтягиваем и объявления без открута (чтобы дубли/паузы были видны
-  // под фильтром «без открута»). Ручное обновление нечастое — лишние запросы ок.
-  //
-  // Любой сбой ловим здесь и возвращаем как «проблему», а НЕ бросаем наружу:
-  // непойманная ошибка server action роняет весь клиент (у кнопки нет своего
-  // error-boundary) — вместо страницы пустой чёрный экран. Пусть лучше кнопка
-  // покажет «проблемы: 1» с текстом, а страница останется живой.
-  let result;
+/**
+ * Статус фонового обновления статы. Лежит в Setting одной JSON-строкой, чтобы
+ * кнопка на экране могла опрашивать прогресс, а сам заход шёл в фоне и не держал
+ * http-запрос (иначе браузер рвёт соединение по таймауту — «NetworkError»).
+ */
+const ADS_SYNC_KEY = 'ads_sync_status';
+// Заход завис/сервер перезапустился — через это время считаем «running» протухшим
+// и разрешаем новый запуск, иначе кнопка залипнет навсегда.
+const ADS_SYNC_STALE_MS = 20 * 60 * 1000;
+
+export type AdsSyncStatus = {
+  running: boolean;
+  startedAt: number | null;
+  finishedAt: number | null;
+  touched: number;
+  skipped: number;
+  problems: string[];
+  info: string[];
+};
+
+const emptyAdsStatus = (): AdsSyncStatus => ({
+  running: false, startedAt: null, finishedAt: null, touched: 0, skipped: 0, problems: [], info: [],
+});
+
+async function readAdsStatus(): Promise<AdsSyncStatus> {
+  const row = await prisma.setting.findUnique({ where: { key: ADS_SYNC_KEY } });
+  if (!row) return emptyAdsStatus();
   try {
-    result = await syncFacebookAds(SYNC_DAYS, { allAds: true });
-  } catch (e) {
-    result = {
-      touched: 0,
-      skipped: 0,
-      problems: [`Сбой обновления статы: ${(e as Error).message}`],
-      info: [],
-      orphanCents: 0,
-    };
+    return { ...emptyAdsStatus(), ...(JSON.parse(row.value) as AdsSyncStatus) };
+  } catch {
+    return emptyAdsStatus();
   }
-  revalidatePath('/ads/campaigns');
-  return result;
+}
+
+async function writeAdsStatus(s: AdsSyncStatus) {
+  await prisma.setting.upsert({
+    where: { key: ADS_SYNC_KEY },
+    create: { key: ADS_SYNC_KEY, value: JSON.stringify(s) },
+    update: { value: JSON.stringify(s) },
+  });
+}
+
+/** Текущий статус для опроса кнопкой. */
+export async function adsSyncStatus(): Promise<AdsSyncStatus> {
+  await requireAdmin();
+  const s = await readAdsStatus();
+  // Протухший «running» (сервер падал во время захода) показываем как не идущий.
+  if (s.running && s.startedAt && Date.now() - s.startedAt > ADS_SYNC_STALE_MS) {
+    return { ...s, running: false };
+  }
+  return s;
+}
+
+/**
+ * Запустить обновление статы В ФОНЕ и сразу отпустить браузер.
+ *
+ * Раньше это был синхронный server action: клиент ждал ответа минуты, а полный
+ * заход (14 дней × десятки кабинетов с паузами против чекпоинта) не укладывался
+ * в таймаут соединения — браузер рвал запрос с «NetworkError», а сам заход
+ * прерывался на полпути (оттого и расход не долетал до Keitaro). Теперь запуск
+ * мгновенный: работу уносим в `after()` (выполнится после ответа, на живом
+ * Node-сервере доходит до конца), а прогресс и итог кладём в Setting — кнопка
+ * их опрашивает через `adsSyncStatus()`.
+ *
+ * Ручное обновление тянем на всю глубину (14 дней) и с `allAds` (и объявления
+ * без открута): если токен слетал и его чинили не сразу — за окно догрузятся
+ * пропущенные дни и статистики, и расхода в КТ.
+ */
+export async function runAdsSync(): Promise<{ started: boolean; running: boolean }> {
+  await requireAdmin();
+
+  const prev = await readAdsStatus();
+  const stale = prev.startedAt ? Date.now() - prev.startedAt > ADS_SYNC_STALE_MS : true;
+  if (prev.running && !stale) {
+    // Уже идёт — второй заход не плодим (два синка на одни кабинеты = чекпоинт).
+    return { started: false, running: true };
+  }
+
+  await writeAdsStatus({ ...emptyAdsStatus(), running: true, startedAt: Date.now() });
+
+  after(async () => {
+    let result;
+    try {
+      result = await syncFacebookAds(SYNC_DAYS, { allAds: true });
+    } catch (e) {
+      result = { touched: 0, skipped: 0, problems: [`Сбой обновления статы: ${(e as Error).message}`], info: [], orphanCents: 0 };
+    }
+    await writeAdsStatus({
+      running: false,
+      startedAt: prev.startedAt ?? Date.now(),
+      finishedAt: Date.now(),
+      touched: result.touched,
+      skipped: result.skipped,
+      problems: result.problems,
+      info: result.info,
+    });
+    revalidatePath('/ads/campaigns');
+  });
+
+  return { started: true, running: true };
 }
 
 /**
