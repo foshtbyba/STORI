@@ -754,23 +754,6 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
         const stats = await adStats(access, acc.externalId, from, to, net);
         const statIds = new Set(stats.map((s) => s.adId));
 
-        // Заодно тянем расход кабинета на уровне АККАУНТА — это авторитетная
-        // цифра (ровно как в Ads Manager). Сумма по объявлениям (level=ad) у ФБ
-        // регулярно чуть расходится с ней, поэтому сводку «Расход» на экране
-        // считаем по account-level, а не суммой строк. Пишем в AdAccountDay.
-        try {
-          await humanPause();
-          const accSpend = await accountSpend(access, acc.externalId, from, to, net);
-          for (const dd of accSpend) {
-            await prisma.adAccountDay.upsert({
-              where: { accountId_date: { accountId: acc.id, date: atMidnight(dd.date) } },
-              update: { spendCents: dd.cents, currency: acc.currency },
-              create: { accountId: acc.id, date: atMidnight(dd.date), spendCents: dd.cents, currency: acc.currency },
-            });
-          }
-          await prisma.adAccount.update({ where: { id: acc.id }, data: { lastSpendAt: new Date() } });
-        } catch { /* account-level не тянется — не критично для ad-level ниже */ }
-
         // Набор объявлений для меты: те, что с открутом, плюс (для ручного
         // обновления) все живые объявления кабинета — так в таблицу попадут и
         // те, что без открута (свежие дубли на паузе и т.п.).
