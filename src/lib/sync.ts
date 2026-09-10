@@ -7,7 +7,7 @@ import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, 
 import { isDeadAccount } from './fb-status';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
-import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, KeitaroError, type CostEntry } from './keitaro';
+import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, adCampaignMap, KeitaroError, type CostEntry } from './keitaro';
 import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -655,6 +655,10 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   const index = new Map<string, MatchedCampaign>();
   // Доход по объявлению из КТ (sub_id_4 = ad_id) — для профита в таблице.
   const revByAd = new Map<string, number>();
+  // Кампания КТ по id → имя и токен (для витрины расхода) и карта
+  // «ad_id → кампания» по самим кликам КТ (главный способ привязать расход).
+  const campById = new Map<string, { name: string; token: string }>();
+  const adByClick = new Map<string, string>();
   const tracker = await prisma.tracker.findFirst({ where: { enabled: true } });
   if (tracker) {
     try {
@@ -662,6 +666,14 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       for (const [key, c] of indexByToken(camps)) {
         index.set(key, { id: c.id, name: c.name, token: c.token || c.alias });
       }
+      for (const c of camps) campById.set(c.id, { name: c.name, token: c.token || c.alias });
+
+      // Привязка объявление→кампания по кликам КТ — покрывает и то, чего нет в
+      // ссылке. Не критично, если не вышло: ниже есть запасной матчинг по ссылке.
+      try {
+        const m = await adCampaignMap(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
+        for (const [sub, campId] of m) adByClick.set(sub, campId);
+      } catch { /* оставим матчинг по ссылке */ }
 
       const adRev = await revenueByAd(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
       for (const r of adRev) revByAd.set(`${r.subId4}|${r.date}`, r.revenueCents);
@@ -773,8 +785,15 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
         for (const [adId, rows] of byAd) {
           const m = metaOf.get(adId);
           const link = m?.link ?? '';
-          const matched = matchKtCampaign(link, index);
-          if (matched) matchedAds += 1;
+          // Кампания КТ для расхода: сперва по САМИМ кликам (ad_id → кампания,
+          // где реально лежат клики — надёжно), иначе запасной матчинг по токену
+          // в ссылке. Так cost ложится туда же, где клики, и не пропадает.
+          const linkMatch = matchKtCampaign(link, index);
+          const ktCampId = adByClick.get(adId) || linkMatch?.id || '';
+          const ktCamp = ktCampId ? campById.get(ktCampId) : undefined;
+          const ktCampName = ktCamp?.name ?? linkMatch?.name ?? '';
+          const ktTokenVal = linkMatch?.token || ktCamp?.token || '';
+          if (ktCampId) matchedAds += 1;
 
           const fbAd = await prisma.fbAd.upsert({
             where: { adId },
@@ -791,7 +810,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
               targeting: m?.targeting ?? '',
               thumbnailUrl: m?.thumbnailUrl ?? '',
               linkUrl: link,
-              ktToken: matched?.token ?? '',
+              ktToken: ktTokenVal,
               lastSpendAt: new Date(),
             },
             create: {
@@ -806,7 +825,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
               targeting: m?.targeting ?? '',
               thumbnailUrl: m?.thumbnailUrl ?? '',
               linkUrl: link,
-              ktToken: matched?.token ?? '',
+              ktToken: ktTokenVal,
               lastSpendAt: new Date(),
             },
           });
@@ -838,20 +857,20 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
             });
             result.touched += 1;
 
-            // Расход по потоку и дню (для заливки cost в КТ фоном).
-            if (!matched) {
+            // Расход по кампании КТ и дню (для заливки cost в КТ фоном).
+            if (!ktCampId) {
               unmatchedCents += s.cents;
               continue;
             }
-            const key = `${matched.token}|${s.date}`;
+            const key = `${ktCampId}|${s.date}`;
             const b = cost.get(key) ?? {
               cents: 0,
               clicks: 0,
               impressions: 0,
               currency: acc.currency,
-              campId: matched.id,
-              campName: matched.name,
-              token: matched.token,
+              campId: ktCampId,
+              campName: ktCampName,
+              token: ktTokenVal,
             };
             b.cents += s.cents;
             b.clicks += s.clicks;
@@ -859,10 +878,9 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
             cost.set(key, b);
 
             // В КТ льём только доллары (агентские кабинеты всегда USD; курс тут
-            // не считаем). Копим подробно по объявлению — уровень заливки
-            // (по ad_id или на кампанию) выберем после обхода.
+            // не считаем). Копим по кампании+дню — заливаем на уровень кампании.
             if (acc.currency === 'USD') {
-              pushRecords.push({ campId: matched.id, date: s.date, adId, cents: s.cents });
+              pushRecords.push({ campId: ktCampId, date: s.date, adId, cents: s.cents });
             } else {
               nonUsdDays += 1;
               nonUsdCents += s.cents;
@@ -985,7 +1003,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
 
   if (unmatchedCents > 0) {
     result.problems.push(
-      `ФБ: расход $${Math.round(unmatchedCents / 100).toLocaleString('ru-RU')} без потока в КТ — у объявлений не распознан токен в ссылке`,
+      `ФБ: расход $${Math.round(unmatchedCents / 100).toLocaleString('ru-RU')} без кампании в КТ — объявление не нашлось ни по кликам, ни по токену в ссылке`,
     );
   }
 

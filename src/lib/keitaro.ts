@@ -215,28 +215,43 @@ export async function revenueByAd(
  * встречается хоть одна строка с непустым Sub ID 4 — значит в её кликах он
  * проставляется, и точечная привязка сработает.
  */
-export async function campaignsWithSubId4(
+/**
+ * Карта «ad_id (sub_id_4) → кампания КТ», построенная по САМИМ кликам Keitaro.
+ *
+ * Надёжнее матчинга по ссылке объявления: не зависит от того, какой токен в
+ * ссылке и распознали ли мы его — берём кампанию, под которой Keitaro реально
+ * залогировал клики этого объявления. По ней и льём расход, чтобы он лёг туда
+ * же, где клики (иначе cost ложится в пустую кампанию и в отчёте остаётся 0).
+ *
+ * Если у одного sub_id_4 клики в нескольких кампаниях — берём ту, где их больше.
+ */
+export async function adCampaignMap(
   baseUrl: string,
   apiKey: string,
   from: string,
   to: string,
   timezone = 'UTC',
-) {
+): Promise<Map<string, string>> {
   const raw = await call(baseUrl, apiKey, '/report/build', {
     range: { from, to, timezone },
-    grouping: ['campaign_id', 'sub_id_4'],
+    grouping: ['sub_id_4', 'campaign_id'],
     metrics: ['clicks'],
     filters: [],
     limit: 50000,
   });
 
   const rows = ((raw as { rows?: unknown }).rows ?? []) as Record<string, unknown>[];
-  const out = new Set<string>();
+  const best = new Map<string, { campId: string; clicks: number }>();
   for (const row of rows) {
-    const campaignId = String(row.campaign_id ?? '').trim();
-    const subId4 = String(row.sub_id_4 ?? '').trim();
-    if (campaignId && subId4) out.add(campaignId);
+    const sub = String(row.sub_id_4 ?? '').trim();
+    const campId = String(row.campaign_id ?? '').trim();
+    if (!sub || !campId) continue;
+    const clicks = Math.round(Number(row.clicks ?? 0)) || 0;
+    const cur = best.get(sub);
+    if (!cur || clicks > cur.clicks) best.set(sub, { campId, clicks });
   }
+  const out = new Map<string, string>();
+  for (const [sub, v] of best) out.set(sub, v.campId);
   return out;
 }
 
