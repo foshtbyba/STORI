@@ -7,7 +7,7 @@ import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, 
 import { isDeadAccount } from './fb-status';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
-import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, adCampaignMap, clearCostsWindow, KeitaroError, type CostEntry } from './keitaro';
+import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, adCampaignMap, KeitaroError, type CostEntry } from './keitaro';
 import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -720,11 +720,6 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   // KtCostDay уже после обхода.
   type Bucket = { cents: number; clicks: number; impressions: number; currency: string; campId: string; campName: string; token: string };
   const cost = new Map<string, Bucket>();
-  // «Остаток» по кампании: спенд объявлений, у которых в этот день не было
-  // кликов в КТ. Его нельзя положить на конкретный день (нет клика), поэтому
-  // копим по кампании и зальём одним оконным диапазоном — размажется по её
-  // реальным кликам, сумма в КТ сойдётся с открутом ФБ.
-  const residualByCamp = new Map<string, { cents: number; name: string; token: string }>();
   let unmatchedCents = 0;
   // Диагностика заливки: сколько объявлений с расходом сматчилось с потоком, и
   // сколько дней-строк пропущено из-за не-USD кабинета (в КТ льём только доллары).
@@ -901,12 +896,12 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
               continue;
             }
 
-            // Есть ли у объявления клики в КТ ИМЕННО в этот день?
-            //  • да → расход дня ложится точно на кампанию этого дня (по дню);
-            //  • нет → «остаток» кампании (открут был, клика в этот день нет):
-            //    копим по кампании и зальём одним оконным диапазоном — Keitaro
-            //    размажет его по реальным кликам кампании, сумма сойдётся.
-            const dayCampId = adByClickDay.get(`${adId}|${s.date}`);
+            // Расход дня → на кампанию ЭТОГО дня (где клики объявления именно в
+            // этот день), иначе на кампанию объявления (по кликам за окно / по
+            // адсету / по ссылке). Заливаем ПО ДНЮ — деньги остаются на своём
+            // дне (и «сегодня» не уезжает на прошлые). Если у кампании за день
+            // 0 кликов — этот кусок не прилипнет (неустранимый потолок КТ).
+            const dayCampId = adByClickDay.get(`${adId}|${s.date}`) || ktCampId;
             if (dayCampId) {
               const dayCamp = campById.get(dayCampId);
               const key = `${dayCampId}|${s.date}`;
@@ -917,10 +912,6 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
               b.cents += s.cents; b.clicks += s.clicks; b.impressions += s.impressions;
               cost.set(key, b);
               pushRecords.push({ campId: dayCampId, date: s.date, adId, cents: s.cents });
-            } else if (ktCampId) {
-              const r = residualByCamp.get(ktCampId) ?? { cents: 0, name: ktCampName, token: ktTokenVal };
-              r.cents += s.cents;
-              residualByCamp.set(ktCampId, r);
             } else {
               unmatchedCents += s.cents;
             }
@@ -1046,58 +1037,27 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
     );
   }
 
-  // Как заливаем cost в КТ (на уровень кампании, без фильтра sub_id_4 — он у
-  // этой команды не совпадает с ad_id):
-  //   • «чистые» кампании (весь спенд лёг на дни с кликами) — ПО ДНЯМ: точно,
-  //     день-в-день с открутом ФБ;
-  //   • кампании с «остатком» (был спенд в день без кликов) — ОДНИМ ОКОННЫМ
-  //     диапазоном на всю сумму кампании: Keitaro размажет по её реальным
-  //     кликам, и сумма сойдётся с открутом ФБ. Смешивать день+окно по одной
-  //     кампании нельзя — оконная запись перекрыла бы дневные по тем же кликам,
-  //     поэтому у кампании с остатком ВСЁ идёт одним окном.
-  const dayByCampDay = new Map<string, number>(); // `campId|date` → центы (дневные)
-  const dayTotalByCamp = new Map<string, number>(); // campId → сумма дневных
+  // Заливаем cost НА УРОВЕНЬ КАМПАНИИ, ПО ДНЯМ. update_costs заменяет cost
+  // именно у (кампания, день), которые шлём, — поэтому повторные заходы просто
+  // перезаписывают тот же день той же суммой (идемпотентно), а дни, которые не
+  // трогаем, остаются как были. Никакого «обнулить всё окно» — оно стирало
+  // старые дни, а один заход не мог восстановить их целиком.
+  const dayByCampDay = new Map<string, number>(); // `campId|date` → центы
   for (const r of pushRecords) {
     dayByCampDay.set(`${r.campId}|${r.date}`, (dayByCampDay.get(`${r.campId}|${r.date}`) ?? 0) + r.cents);
-    dayTotalByCamp.set(r.campId, (dayTotalByCamp.get(r.campId) ?? 0) + r.cents);
   }
-
   const pushByCamp = new Map<string, CostEntry[]>();
-  const addEntry = (campId: string, e: CostEntry) => {
-    const arr = pushByCamp.get(campId) ?? [];
-    arr.push(e);
-    pushByCamp.set(campId, arr);
-  };
-  const winStart = `${from} 00:00:00`;
-  const winEnd = `${to} 23:59:59`;
-  const smeared = new Set<string>(); // кампании, залитые одним окном
-
-  // Кампании с остатком — вся их сумма (дневное + остаток) одним оконным диапазоном.
-  for (const [campId, r] of residualByCamp) {
-    const total = (dayTotalByCamp.get(campId) ?? 0) + r.cents;
-    if (total <= 0) continue;
-    addEntry(campId, { start_date: winStart, end_date: winEnd, cost: total / 100 });
-    smeared.add(campId);
-  }
-  // Остальные — по дням.
   for (const [k, cents] of dayByCampDay) {
     const [campId, date] = k.split('|');
-    if (smeared.has(campId)) continue; // уже залили одним окном
-    addEntry(campId, { start_date: `${date} 00:00:00`, end_date: `${date} 23:59:59`, cost: cents / 100 });
+    const arr = pushByCamp.get(campId) ?? [];
+    arr.push({ start_date: `${date} 00:00:00`, end_date: `${date} 23:59:59`, cost: cents / 100 });
+    pushByCamp.set(campId, arr);
   }
 
   // Заливаем посчитанный расход в сам Keitaro — чтобы cost встал рядом с
   // доходом в отчётах трекера и ROI считался уже внутри КТ.
   let pushed = { campaigns: 0, entries: 0, cents: 0, resp: '' };
   if (tracker) {
-    // Сначала обнуляем cost за окно по ВСЕМ кампаниям — снимаем наслоения с
-    // прошлых заходов (сместившаяся привязка оставляет старый cost висеть).
-    // Затем льём свежее: в КТ за окно останется ровно текущий расход.
-    try {
-      await clearCostsWindow(tracker.baseUrl, tracker.apiKey, [...campById.keys()], from, to, SYNC_TZ);
-    } catch (e) {
-      result.problems.push(`Keitaro: не удалось обнулить окно перед заливкой — ${(e as Error).message}`);
-    }
     pushed = await pushCostsToKeitaro(tracker, pushByCamp, from, to, result);
   }
 

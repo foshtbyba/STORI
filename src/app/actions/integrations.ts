@@ -11,7 +11,7 @@ import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
 import { checkBrocard, BrocardError } from '@/lib/brocard';
 import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
-import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies, SYNC_DAYS } from '@/lib/sync';
+import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies } from '@/lib/sync';
 
 /**
  * Настройка интеграций. Всё здесь — только для админа: под этими ключами
@@ -574,10 +574,14 @@ export async function adsSyncStatus(): Promise<AdsSyncStatus> {
  * Node-сервере доходит до конца), а прогресс и итог кладём в Setting — кнопка
  * их опрашивает через `adsSyncStatus()`.
  *
- * Ручное обновление тянем на всю глубину (14 дней) и с `allAds` (и объявления
- * без открута): если токен слетал и его чинили не сразу — за окно догрузятся
- * пропущенные дни и статистики, и расхода в КТ.
+ * Регулярное обновление тянем на последние 3 дня и с `allAds` (и объявления
+ * без открута): свежий расход меняется только в этом хвосте, а глубже дни уже
+ * залиты и перезаписывать их каждый раз незачем — так заход быстрый и не рвётся.
+ * Разовую полную догрузку за 14 дней (после чистой базы) делаем кроном
+ * `/api/sync?only=ads&days=14`.
  */
+const ADS_REFRESH_DAYS = 3;
+
 export async function runAdsSync(): Promise<{ started: boolean; running: boolean }> {
   await requireAdmin();
 
@@ -593,7 +597,7 @@ export async function runAdsSync(): Promise<{ started: boolean; running: boolean
   after(async () => {
     let result;
     try {
-      result = await syncFacebookAds(SYNC_DAYS, { allAds: true });
+      result = await syncFacebookAds(ADS_REFRESH_DAYS, { allAds: true });
     } catch (e) {
       result = { touched: 0, skipped: 0, problems: [`Сбой обновления статы: ${(e as Error).message}`], info: [], orphanCents: 0 };
     }
