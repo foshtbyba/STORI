@@ -103,6 +103,7 @@ export default function CampaignsTable({
   day,
   owners,
   ktRevenue,
+  fbSpend,
   admin,
   updated,
 }: {
@@ -112,6 +113,8 @@ export default function CampaignsTable({
   owners: { handle: string; initials: string; color: string }[];
   /** Авторитетный подтверждённый доход из Keitaro по баерам (handle → суммы). */
   ktRevenue: Record<string, { revenueCents: number; conversions: number }>;
+  /** Авторитетный расход (account-level, как в Ads Manager) по баерам (handle → центы). */
+  fbSpend: Record<string, number>;
   admin: boolean;
   updated: string | null;
 }) {
@@ -170,22 +173,24 @@ export default function CampaignsTable({
   );
 
   const summary = useMemo(() => {
-    let spend = 0, clicks = 0, leads = 0, attributed = 0, impressions = 0;
+    let spendRows = 0, clicks = 0, leads = 0, attributed = 0, impressions = 0;
     let foreign = false;
     for (const r of byBuyer) {
       clicks += r.clicks; leads += r.leads; impressions += r.impressions;
-      if (r.currency === 'USD') { spend += r.spendCents; attributed += r.revenueCents; }
+      if (r.currency === 'USD') { spendRows += r.spendCents; attributed += r.revenueCents; }
       else foreign = true;
     }
-    // Доход — авторитетный из Keitaro (подтверждённый по кампаниям), а не сумма
-    // привязанного к объявлениям. Для 'all' складываем по всем баерам списка.
+    // Доход и расход в сводке — АВТОРИТЕТНЫЕ: доход из Keitaro (подтверждённый по
+    // кампаниям), расход — account-level из ФБ (как в Ads Manager). Сумма по
+    // объявлениям (level=ad) у ФБ регулярно дрейфует от аккаунта, поэтому в
+    // шапке не она. Для 'all' складываем по всем баерам списка.
     const kt = (h: string) => ktRevenue[h]?.revenueCents ?? 0;
-    const revenue =
-      buyer === 'all' ? buyers.reduce((s, b) => s + kt(b.handle), 0) : kt(buyer);
-    // Сколько дохода не привязалось к объявлению (нет sub_id_4 / нет открута).
+    const fb = (h: string) => fbSpend[h] ?? 0;
+    const revenue = buyer === 'all' ? buyers.reduce((s, b) => s + kt(b.handle), 0) : kt(buyer);
+    const spend = buyer === 'all' ? buyers.reduce((s, b) => s + fb(b.handle), 0) : fb(buyer);
     const unattributed = Math.max(0, revenue - attributed);
-    return { spend, clicks, leads, revenue, attributed, unattributed, impressions, profit: revenue - spend, foreign };
-  }, [byBuyer, ktRevenue, buyer, buyers]);
+    return { spend, spendRows, clicks, leads, revenue, attributed, unattributed, impressions, profit: revenue - spend, foreign };
+  }, [byBuyer, ktRevenue, fbSpend, buyer, buyers]);
 
   const view = useMemo(() => {
     // Фильтр открута: по умолчанию только то, что реально крутилось в окне.
@@ -323,7 +328,7 @@ export default function CampaignsTable({
 
       {/* Сводка */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-        {tile('Расход', money(summary.spend))}
+        {tile('Расход', money(summary.spend), 'по кабинету (как в ФБ)')}
         {tile('Клики', int(summary.clicks), `CPC ${summary.clicks ? money(Math.round(summary.spend / summary.clicks)) : '—'}`)}
         {tile('Лиды', int(summary.leads), `CPL ${summary.leads ? money(Math.round(summary.spend / summary.leads)) : '—'}`)}
         {tile('Доход', money(summary.revenue), summary.unattributed > 0 ? `${money(summary.unattributed)} без привязки к объявл.` : 'подтв. из Keitaro')}

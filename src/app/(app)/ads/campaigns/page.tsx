@@ -84,6 +84,26 @@ export default async function CampaignsPage({
     : [];
   const groupToBuyer = new Map(buyerGroups.map((g) => [g.externalId, g.buyerId!]));
   const idToHandle = new Map(relevantBuyers.map((b) => [b.id, b.handle]));
+
+  // АВТОРИТЕТНЫЙ расход для сводки — account-level (ровно как в Ads Manager), а
+  // не сумма по объявлениям (level=ad у ФБ регулярно чуть дрейфует от аккаунта).
+  // Берём AdAccountDay (его освежает и ads-синк) по кабинетам баера за окно.
+  const fbSpend: Record<string, number> = {};
+  if (relevantBuyers.length) {
+    const spendRows = await prisma.adAccountDay.findMany({
+      where: {
+        date: { gte: fromMid, lte: toMid },
+        currency: 'USD',
+        account: { enabled: true, adToken: { buyerId: { in: relevantBuyers.map((b) => b.id) } } },
+      },
+      select: { spendCents: true, account: { select: { adToken: { select: { buyerId: true } } } } },
+    });
+    for (const r of spendRows) {
+      const handle = idToHandle.get(r.account.adToken.buyerId ?? '');
+      if (!handle) continue;
+      fbSpend[handle] = (fbSpend[handle] ?? 0) + r.spendCents;
+    }
+  }
   const ktRevenue: Record<string, { revenueCents: number; conversions: number }> = {};
   if (buyerGroups.length) {
     const kcd = await prisma.ktCampaignDay.findMany({
@@ -210,7 +230,7 @@ export default async function CampaignsPage({
       ) : null}
 
       <Panel className="p-4 sm:p-6">
-        <CampaignsTable rows={rows} win={win} day={dayValid ? day! : ''} owners={owners} ktRevenue={ktRevenue} admin={admin} updated={lastSync ? fmtWhen(lastSync) : null} />
+        <CampaignsTable rows={rows} win={win} day={dayValid ? day! : ''} owners={owners} ktRevenue={ktRevenue} fbSpend={fbSpend} admin={admin} updated={lastSync ? fmtWhen(lastSync) : null} />
 
         <p className="mt-4 text-[11px] leading-relaxed text-dim">
           Расход/клики/показы/лиды — из Facebook по объявлениям. Доход в сводке — подтверждённый
