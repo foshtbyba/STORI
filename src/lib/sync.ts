@@ -7,7 +7,7 @@ import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, 
 import { isDeadAccount } from './fb-status';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
-import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, adCampaignMap, dailyCost, KeitaroError, type CostEntry } from './keitaro';
+import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, clearCostsWindow, adCampaignMap, KeitaroError, type CostEntry } from './keitaro';
 import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -1077,43 +1077,11 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   // Диагностика: одной строкой видно, дошёл ли расход до КТ и где он теряется.
   // Суммы до центов — расход по объявлению часто копеечный, целые доллары врут.
   const d = (cents: number) => `$${(cents / 100).toFixed(2)}`;
-
-  // Сверка: читаем ФАКТИЧЕСКИЙ cost обратно из КТ и сравниваем с отправленным.
-  // Если КТ держит меньше, чем мы залили — значит не на что было положить
-  // (дни без кликов у кампаний). Так сразу видно, это потолок КТ или наша
-  // недоотправка, и на какие дни приходится расхождение.
-  let ktHeldLine = '';
-  if (tracker) {
-    try {
-      const ktCost = await dailyCost(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
-      let heldCents = 0;
-      for (const c of ktCost.values()) heldCents += c;
-      // Топ дней по расхождению «залито этому дню − держит КТ».
-      const sentByDay = new Map<string, number>();
-      for (const [key, b] of cost) {
-        const day = key.split('|')[1];
-        sentByDay.set(day, (sentByDay.get(day) ?? 0) + b.cents);
-      }
-      const gaps = [...sentByDay.entries()]
-        .map(([day, sent]) => ({ day, gap: sent - (ktCost.get(day) ?? 0) }))
-        .filter((g) => Math.abs(g.gap) >= 100)
-        .sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap))
-        .slice(0, 6)
-        .map((g) => `${g.day.slice(5)}: ${g.gap > 0 ? '−' : '+'}${d(Math.abs(g.gap))}`)
-        .join(', ');
-      ktHeldLine =
-        ` КТ сейчас держит расход: ${d(heldCents)} (отправили ${d(pushed.cents)}).` +
-        (gaps ? ` Дни с расхождением (залито−держит КТ): ${gaps}.` : '');
-    } catch (e) {
-      ktHeldLine = ` (сверку cost из КТ не прочитать: ${(e as Error).message})`;
-    }
-  }
-
   result.info.push(
     `Расход ФБ: ${d(totalSpendCents)}. Залито в КТ: ${d(pushed.cents)} на ${pushed.campaigns} кампаний. ` +
       (nonUsdDays ? `Пропущено не-USD: ${d(nonUsdCents)}. ` : '') +
       (unmatchedCents ? `Без кампании в КТ: ${d(unmatchedCents)}. ` : '') +
-      ktHeldLine +
+      `Обнуляем окно покампанийно перед заливкой (чистим хвосты, без провала отчёта).` +
       (pushed.resp ? ` Ответ КТ: ${pushed.resp}` : ''),
   );
 
@@ -1121,16 +1089,16 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
 }
 
 /**
- * Отдаём расход в Keitaro — на campaign_id, без предварительного обнуления.
+ * Отдаём расход в Keitaro — на campaign_id, обнуляя окно ПОКАМПАНИЙНО.
  *
- * Льём НА КАМПАНИЮ (campaign_id), без фильтра по кликам: на каждую кампанию её
- * записи расхода по дням. `update_costs` ПЕРЕЗАПИСЫВАЕТ расход у той пары
- * (кампания, день), что шлём, — поэтому каждый заход просто обновляет текущие
- * суммы, старое затирается само. Никакого «обнулить окно» перед заливкой: оно
- * создавало «дыру» на минуты (стёрли — ещё не долили), в которую попадал отчёт
- * КТ и показывал провал расхода. Фильтр по кликам (sub_id_4) в этом КТ недобирает
- * (кладёт лишь часть), поэтому льём на кампанию целиком.
- * Успех метим `pushedAt` у строк KtCostDay окна.
+ * Для каждой кампании: сперва обнуляем её cost за окно, потом сразу заливаем её
+ * дни. Обнуление нужно, потому что заливка перезаписывает только дни С расходом,
+ * а дни кампании БЕЗ открута сохраняют старую сумму (хвосты прошлых заходов) —
+ * оттого в отчёте КТ набегает лишнее. Делаем обнуление+заливку кампании подряд,
+ * а не «обнулить всё окно → потом заливать всё»: так кампания «пустая» лишь
+ * миллисекунды между своими двумя запросами, и отчёт КТ не проваливается, даже
+ * если открыть его в процессе. Фильтр по кликам (sub_id_4) в этом КТ недобирает,
+ * поэтому льём на кампанию целиком. Успех метим `pushedAt` у строк KtCostDay.
  */
 async function pushCostsToKeitaro(
   tracker: { baseUrl: string; apiKey: string },
@@ -1143,10 +1111,11 @@ async function pushCostsToKeitaro(
   let campaigns = 0, entriesCount = 0, cents = 0;
   let sampleResp = '';
 
-  // Заливка на campaign_id, без фильтра — каждой кампании её расход по дням.
+  // По каждой кампании: обнулить её окно → тут же залить её дни.
   for (const [campaignId, entries] of entriesByCamp) {
     if (entries.length === 0) continue;
     try {
+      await clearCostsWindow(tracker.baseUrl, tracker.apiKey, [campaignId], from, to, SYNC_TZ);
       for (let i = 0; i < entries.length; i += CHUNK) {
         const resp = await updateCostsBulk(tracker.baseUrl, tracker.apiKey, campaignId, entries.slice(i, i + CHUNK), SYNC_TZ);
         if (!sampleResp) {
