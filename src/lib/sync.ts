@@ -75,6 +75,46 @@ function atMidnight(iso: string) {
 }
 
 /**
+ * Один и тот же кабинет (act_ID) бывает виден сразу под несколькими профилями —
+ * это ДУБЛИ. Если тянуть расход с обоих, он задвоится. Поэтому на каждый
+ * externalId выбираем ОДИН «канонический» кабинет и синкаем только его, а дубли
+ * пропускаем. Выбираем под самым живым токеном: не на паузе и без ошибки, при
+ * равенстве — где синк был позже. Возвращаем id выбранных AdAccount.
+ */
+type AccForDedup = {
+  id: string;
+  externalId: string;
+  adToken: { pausedUntil: Date | null; lastError: string | null; lastSyncAt: Date | null };
+};
+function pickCanonicalAccountIds(accs: AccForDedup[], now: Date): Set<string> {
+  const best = new Map<string, { id: string; score: number; sync: number }>();
+  for (const a of accs) {
+    const t = a.adToken;
+    const paused = t.pausedUntil && t.pausedUntil > now;
+    const score = (paused ? 0 : 2) + (t.lastError ? 0 : 1);
+    const sync = t.lastSyncAt ? t.lastSyncAt.getTime() : 0;
+    const cur = best.get(a.externalId);
+    if (!cur || score > cur.score || (score === cur.score && sync > cur.sync)) {
+      best.set(a.externalId, { id: a.id, score, sync });
+    }
+  }
+  return new Set([...best.values()].map((v) => v.id));
+}
+
+/** Читает все включённые кабинеты со здоровьем их токена и выбирает канонические. */
+async function canonicalAccountIds(now: Date): Promise<Set<string>> {
+  const accs = await prisma.adAccount.findMany({
+    where: { enabled: true },
+    select: {
+      id: true,
+      externalId: true,
+      adToken: { select: { pausedUntil: true, lastError: true, lastSyncAt: true } },
+    },
+  });
+  return pickCanonicalAccountIds(accs, now);
+}
+
+/**
  * Запись одного дня. Обновляем только то, что пришло: расход и доход приезжают
  * из разных мест и в разное время, и синхронизация Facebook не должна занулять
  * доход, которого она не видела.
@@ -195,6 +235,10 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
   });
   const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
 
+  // Дубли кабинетов (один act_ID под несколькими профилями): синкаем только
+  // канонический, иначе расход задвоится.
+  const canonical = await canonicalAccountIds(now);
+
   // Разные токены — разные аккаунты и прокси, поэтому ведём их ПАРАЛЛЕЛЬНО, до
   // FB_CONCURRENCY сразу: главный рычаг скорости. Серийность с паузами нужна
   // только ВНУТРИ одного аккаунта (ниже), чтобы не выглядеть роботом с его IP.
@@ -238,6 +282,15 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
       );
 
       for (const acc of accounts) {
+        // Дубль (тот же act_ID уже синкается под другим профилем) — пропускаем и
+        // ЧИСТИМ его старые дневные строки за окно, чтобы задвоенный расход,
+        // записанный раньше, ушёл сам (иначе сумма на странице остаётся вдвое).
+        if (!canonical.has(acc.id)) {
+          await prisma.adAccountDay.deleteMany({
+            where: { accountId: acc.id, date: { gte: atMidnight(from), lte: atMidnight(to) } },
+          });
+          continue;
+        }
         // Забаненные кабы НЕ пропускаем: если каб открутил деньги в окне и потом
         // забанился, этот расход реальный (он есть в ФБ) — и его надо тянуть,
         // иначе расход занижается. Окно всего 14 дней, так что «древнюю» историю
@@ -747,6 +800,10 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   });
   const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
 
+  // Дубли кабинетов (один act_ID под несколькими профилями): расход тянем только
+  // с канонического, иначе он задвоится в заливке КТ.
+  const canonical = await canonicalAccountIds(now);
+
   await pool(tokens, FB_CONCURRENCY, async (token) => {
     const work = async () => {
       const { token: access, net } = fbAccess(token.token, {
@@ -755,6 +812,9 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       });
 
       for (const acc of shuffle(token.accounts)) {
+        // Дубль (тот же act_ID уже тянется под другим профилем) — пропускаем,
+        // чтобы расход не задвоился.
+        if (!canonical.has(acc.id)) continue;
         // Забаненные кабы тянем тоже: их недавний открут в окне реальный (есть в
         // ФБ) и обязан долететь в КТ, иначе расход недобирает. Окно 14 дней —
         // старьё мёртвого каба всё равно не подтянется, только свежий открут.
