@@ -382,6 +382,37 @@ export async function updateCostsByAd(
   });
 }
 
+/**
+ * Обнулить cost за окно по списку кампаний (перед свежей заливкой).
+ *
+ * `update_costs` меняет стоимость только у тех кликов, куда шлём сейчас. Если
+ * прошлый заход клал cost на клики, которых новый способ уже не трогает (сменили
+ * привязку/способ заливки), старая стоимость на них зависает — в отчёте КТ копится
+ * винегрет из старого и нового. Обнуляем всё окно у этих кампаний, затем льём
+ * свежее по ad_id — тогда в КТ ровно текущий расход, без хвостов.
+ */
+export async function clearCostsWindow(
+  baseUrl: string,
+  apiKey: string,
+  campaignIds: string[],
+  from: string,
+  to: string,
+  timezone = 'UTC',
+) {
+  const ids = campaignIds.map((c) => Number(c)).filter((n) => Number.isFinite(n));
+  if (ids.length === 0) return;
+  const CHUNK = 200;
+  const zero = [{ start_date: `${from} 00:00:00`, end_date: `${to} 23:59:59`, cost: 0, currency: 'USD' }];
+  for (let i = 0; i < ids.length; i += CHUNK) {
+    await call(baseUrl, apiKey, '/clicks/update_costs', {
+      campaign_ids: ids.slice(i, i + CHUNK),
+      currency: 'USD',
+      timezone,
+      costs: zero,
+    });
+  }
+}
+
 /** Проверка связи: сколько кампаний и групп видно под ключом. */
 export async function checkTracker(baseUrl: string, apiKey: string) {
   const campaigns = await listCampaigns(baseUrl, apiKey);

@@ -7,7 +7,7 @@ import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, 
 import { isDeadAccount } from './fb-status';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
-import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, updateCostsByAd, adCampaignMap, KeitaroError, type CostEntry } from './keitaro';
+import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsByAd, clearCostsWindow, adCampaignMap, KeitaroError, type CostEntry } from './keitaro';
 import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -1122,13 +1122,9 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
     );
   }
 
-  // Собираем записи заливки. Заливаем ПО ДНЯМ — update_costs заменяет cost
-  // именно у того, что шлём, поэтому повторные заходы идемпотентно
-  // перезаписывают те же дни, а нетронутые дни остаются как были.
-  //  1) По ad_id (главный путь): одна запись на объявление-день с фильтром
-  //     sub_id_4=ad_id и ПОЛНЫМ расходом объявления. Область — все кампании,
-  //     что затронул расход; КТ сам положит деньги на клики этого объявления.
-  //  2) Fallback (кликов за день не было): на кампанию целиком без фильтра.
+  // Собираем записи заливки ТОЛЬКО по ad_id: одна запись на объявление-день с
+  // фильтром sub_id_4=ad_id и ПОЛНЫМ расходом объявления за день. Область —
+  // все затронутые кампании; КТ сам кладёт деньги на клики этого объявления.
   const adCostEntries: CostEntry[] = [];
   for (const [k, cents] of adEntries) {
     const [adId, date] = k.split('|');
@@ -1139,37 +1135,29 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       filters: [{ name: 'sub_id_4', operator: 'EQUALS', expression: adId }],
     });
   }
-  const fallbackByCamp = new Map<string, CostEntry[]>();
-  for (const [k, cents] of fallbackByCampDay) {
-    const [campId, date] = k.split('|');
-    const arr = fallbackByCamp.get(campId) ?? [];
-    arr.push({ start_date: `${date} 00:00:00`, end_date: `${date} 23:59:59`, cost: cents / 100 });
-    fallbackByCamp.set(campId, arr);
-  }
+  // Объявления, у которых за день не было кликов в КТ (привязка по адсету/ссылке)
+  // — заливать по ad_id некуда (фильтр не найдёт кликов). Раньше валили на
+  // кампанию без фильтра, но это затирало соседей и путало дни. Теперь честно:
+  // считаем такую сумму отдельно как «без кликов» и НЕ размазываем по кампании.
+  let noClickCents = 0;
+  for (const [, cents] of fallbackByCampDay) noClickCents += cents;
 
   // Заливаем посчитанный расход в сам Keitaro — чтобы cost встал рядом с
   // доходом в отчётах трекера и ROI считался уже внутри КТ.
   let pushed = { campaigns: 0, entries: 0, cents: 0, resp: '' };
   if (tracker) {
-    pushed = await pushCostsToKeitaro(
-      tracker,
-      adCostEntries,
-      [...campaignUniverse],
-      fallbackByCamp,
-      from,
-      to,
-      result,
-    );
+    pushed = await pushCostsToKeitaro(tracker, adCostEntries, [...campaignUniverse], from, to, result);
   }
 
   // Диагностика: одной строкой видно, дошёл ли расход до КТ и где он теряется.
   // Суммы до центов — расход по объявлению часто копеечный, целые доллары врут.
   const d = (cents: number) => `$${(cents / 100).toFixed(2)}`;
   result.info.push(
-    `Расход ФБ: ${d(totalSpendCents)}. Отправлено в КТ: ${d(pushed.cents)} на ${pushed.campaigns} кампаний. ` +
+    `Расход ФБ: ${d(totalSpendCents)}. Залито в КТ по ad_id: ${d(pushed.cents)} на ${pushed.campaigns} кампаний. ` +
+      (noClickCents ? `Без кликов в КТ (не залито): ${d(noClickCents)}. ` : '') +
       (nonUsdDays ? `Пропущено не-USD: ${d(nonUsdCents)}. ` : '') +
       (unmatchedCents ? `Без кампании в КТ: ${d(unmatchedCents)}. ` : '') +
-      `Отправлено = сумма, что мы послали в КТ; сколько КТ реально положил на клики — смотри в отчёте трекера (день без кликов у кампании расход не примет).` +
+      `Окно перед заливкой обнуляется, чтобы не копились хвосты старого расхода.` +
       (pushed.resp ? ` Ответ КТ: ${pushed.resp}` : ''),
   );
 
@@ -1177,24 +1165,24 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
 }
 
 /**
- * Отдаём расход в Keitaro (ручка «Update costs in bulk»).
+ * Отдаём расход в Keitaro — чисто по ad_id, с предварительным обнулением окна.
  *
- * Два потока записей:
- *  1) adCostEntries — по ad_id: у каждой записи фильтр sub_id_4=ad_id и полный
- *     расход объявления за день. Шлём их пачками, область — все затронутые
- *     кампании (campaignUniverse); КТ раскладывает расход по кликам объявления
- *     в его реальных кампаниях. Это как делает FBtool — деньги ложатся ровно на
- *     клики объявления, а не размазываются по всем кликам кампании.
- *  2) fallbackByCamp — по кампании без фильтра (у объявления за день не было
- *     кликов в КТ, привязали по адсету/ссылке). Чтобы расход не пропал.
- * Успех метим `pushedAt` у строк KtCostDay окна — на экране «Профит» видно, что
- * расход в трекере.
+ * Порядок:
+ *  1) Обнуляем cost за окно у всех затронутых кампаний. Это стирает хвосты от
+ *     прошлых способов заливки (по кампании, с дележом и т.п.) — иначе старая
+ *     стоимость на кликах, которых новый способ не трогает, зависает и в отчёте
+ *     КТ каша. Заход идёт на полные 14 дней и все объявления, поэтому окно тут
+ *     же заливается целиком — «стёр и не догрузил» тут невозможно.
+ *  2) Льём по ad_id: у каждой записи фильтр sub_id_4=ad_id и ПОЛНЫЙ расход
+ *     объявления за день, область — все затронутые кампании. КТ сам кладёт
+ *     деньги ровно на клики этого объявления в его реальных кампаниях. Никакой
+ *     заливки без фильтра — она размазывает по чужим кликам и затирает соседей.
+ * Успех метим `pushedAt` у строк KtCostDay окна.
  */
 async function pushCostsToKeitaro(
   tracker: { baseUrl: string; apiKey: string },
   adCostEntries: CostEntry[],
   campaignUniverse: string[],
-  fallbackByCamp: Map<string, CostEntry[]>,
   from: string,
   to: string,
   result: SyncResult,
@@ -1203,9 +1191,18 @@ async function pushCostsToKeitaro(
   let entriesCount = 0, cents = 0;
   let sampleResp = '';
   const campIds = campaignUniverse.map((c) => Number(c)).filter((n) => Number.isFinite(n));
+  if (campIds.length === 0) return { campaigns: 0, entries: 0, cents: 0, resp: '' };
 
-  // 1) Заливка по ad_id (фильтр sub_id_4). Область — все затронутые кампании.
-  if (adCostEntries.length && campIds.length) {
+  // 1) Обнуляем окно у затронутых кампаний — стираем хвосты прошлых заливок.
+  try {
+    await clearCostsWindow(tracker.baseUrl, tracker.apiKey, campaignUniverse, from, to, SYNC_TZ);
+  } catch (e) {
+    const why = e instanceof KeitaroError ? e.message : `Сбой: ${(e as Error).message}`;
+    result.problems.push(`Keitaro: не удалось обнулить окно перед заливкой — ${why}`);
+  }
+
+  // 2) Заливка по ad_id (фильтр sub_id_4). Область — все затронутые кампании.
+  if (adCostEntries.length) {
     try {
       for (let i = 0; i < adCostEntries.length; i += CHUNK) {
         const resp = await updateCostsByAd(tracker.baseUrl, tracker.apiKey, campIds, adCostEntries.slice(i, i + CHUNK), SYNC_TZ);
@@ -1221,26 +1218,6 @@ async function pushCostsToKeitaro(
     }
   }
 
-  // 2) Fallback: по кампании целиком, без фильтра.
-  const campaignsTouched = new Set<string>();
-  for (const [campaignId, entries] of fallbackByCamp) {
-    if (entries.length === 0) continue;
-    try {
-      for (let i = 0; i < entries.length; i += CHUNK) {
-        const resp = await updateCostsBulk(tracker.baseUrl, tracker.apiKey, campaignId, entries.slice(i, i + CHUNK), SYNC_TZ);
-        if (!sampleResp) {
-          try { sampleResp = JSON.stringify(resp).slice(0, 160); } catch { sampleResp = String(resp).slice(0, 160); }
-        }
-      }
-      campaignsTouched.add(campaignId);
-      entriesCount += entries.length;
-      cents += entries.reduce((s, e) => s + Math.round(e.cost * 100), 0);
-    } catch (e) {
-      const why = e instanceof KeitaroError ? e.message : `Сбой: ${(e as Error).message}`;
-      result.problems.push(`Keitaro cost (кампания ${campaignId}): ${why}`);
-    }
-  }
-
   // Метим витрину как залитую по всему окну (расход отправлен в КТ).
   try {
     await prisma.ktCostDay.updateMany({
@@ -1249,8 +1226,7 @@ async function pushCostsToKeitaro(
     });
   } catch { /* витрина не критична для самой заливки */ }
 
-  const campaigns = new Set([...campaignUniverse, ...campaignsTouched]).size;
-  return { campaigns, entries: entriesCount, cents, resp: sampleResp };
+  return { campaigns: campIds.length, entries: entriesCount, cents, resp: sampleResp };
 }
 
 export async function syncAll(days = SYNC_DAYS) {
