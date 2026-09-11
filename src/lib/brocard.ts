@@ -85,8 +85,10 @@ export async function dailySpend(
   from: string,
   to: string,
   tz = 'UTC',
-): Promise<BrocardSpendRow[]> {
+): Promise<{ rows: BrocardSpendRow[]; voidedCents: number; voidedCount: number }> {
   const out: BrocardSpendRow[] = [];
+  let voidedCents = 0;
+  let voidedCount = 0;
 
   for (let page = 1; page <= 200; page += 1) {
     const raw = await call(apiKey, '/payments', {
@@ -102,15 +104,27 @@ export async function dailySpend(
       // Микро — это центовая проверка карты, не трата: пропускаем целиком.
       if (p.is_micro === true) continue;
 
-      // Void (сторно/отмена) — платёж отменён, деньги вернулись на карту. Это НЕ
-      // расход: пропускаем целиком, включая его комиссию (её Brocard тоже
+      // Void (сторно/отмена/возврат) — платёж отменён, деньги вернулись на карту.
+      // Это НЕ расход: пропускаем целиком, включая его комиссию (её Brocard тоже
       // сторнирует). Иначе спенд завышается на сумму отменённых платежей.
-      const status = String(p.status ?? '').toLowerCase();
-      if (
-        status === 'void' || status === 'voided' || status === 'reversed' ||
-        status === 'canceled' || status === 'cancelled' || status === 'refunded' ||
-        p.is_void === true || p.void === true
-      ) continue;
+      // Имя поля статуса в API заранее не знаем — проверяем несколько вариантов
+      // и по подстроке, плюс возможные флаги/таймстемпы отмены.
+      const statusStr = String(
+        p.status ?? p.state ?? p.payment_status ?? p.transaction_status ?? '',
+      ).toLowerCase();
+      const voidWords = ['void', 'revers', 'cancel', 'refund', 'chargeback'];
+      const isVoid =
+        voidWords.some((w) => statusStr.includes(w)) ||
+        p.is_void === true || p.void === true || p.is_voided === true || p.voided === true ||
+        (p.voided_at != null && p.voided_at !== '') ||
+        (p.refunded_at != null && p.refunded_at !== '') ||
+        (p.canceled_at != null && p.canceled_at !== '') ||
+        (p.cancelled_at != null && p.cancelled_at !== '');
+      if (isVoid) {
+        const vc = Math.round(Number(p.amount ?? 0) * 100);
+        if (Number.isFinite(vc) && vc > 0) { voidedCents += vc; voidedCount += 1; }
+        continue;
+      }
 
       const day = String(p.date ?? '').slice(0, 10);
       if (!day) continue;
@@ -162,7 +176,7 @@ export async function dailySpend(
     if (!Number.isFinite(lastPage) || page >= lastPage) break;
   }
 
-  return out;
+  return { rows: out, voidedCents, voidedCount };
 }
 
 /** Проверка ключа: сколько команд видно под ним. */

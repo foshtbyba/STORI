@@ -380,6 +380,14 @@ export function SyncNow() {
         <span className="text-[11.5px] text-mute">
           обновлено {status!.touched}
           {status!.skipped ? <>{' · '}не тронуто {status!.skipped}</> : null}
+          {status!.info.length ? (
+            <>
+              {' · '}
+              <Tip label={<span className="flex flex-col gap-1">{status!.info.map((p) => <span key={p}>{p}</span>)}</span>}>
+                <span className="cursor-help text-soft underline decoration-dotted">детали</span>
+              </Tip>
+            </>
+          ) : null}
           {status!.problems.length ? (
             <>
               {' · '}
