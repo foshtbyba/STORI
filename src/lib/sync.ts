@@ -2,6 +2,7 @@ import 'server-only';
 import { prisma } from './db';
 import { dayKey } from './period';
 import { grossUp, ceilDollars, DEFAULT_COMMISSION_BPS } from './money';
+import { AGENCY_SOURCE, AGENCY_COMMISSION_BPS } from './extra-spend';
 import { mergeDay } from './sync-rule';
 import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, adMeta, listAdIds, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
 import { isDeadAccount } from './fb-status';
@@ -122,6 +123,70 @@ async function canonicalAccountIds(now: Date): Promise<Set<string>> {
  * Само правило «не спорить с человеком» живёт в sync-rule.ts — отдельно от
  * базы и чужих API, чтобы его можно было прогнать проверкой.
  */
+/**
+ * Автозапись агентского расхода в отчёт дня (строка «Агентка»).
+ *
+ * Расход агентских кабинетов (флаг agency, оплата мимо карт Brocard) кладём в
+ * тот же вид строки, что и ручной ввод: источник «Агентка», комиссия 6%,
+ * доход 0 (он на основной строке из Keitaro). Уважаем правки руками: если
+ * строку трогали (её spendNetCents ≠ тому, что синк писал в прошлый раз, либо
+ * строка вообще ручная — synced пусто, а сумма стоит), не перезаписываем.
+ */
+async function writeAgencyDay(buyerId: string, iso: string, netCents: number, result: SyncResult) {
+  const date = atMidnight(iso);
+  const net = ceilDollars(netCents);
+  const existing = await prisma.dayReport.findFirst({
+    where: { buyerId, date, offerId: null, source: AGENCY_SOURCE },
+  });
+
+  if (!existing) {
+    if (net <= 0) return;
+    await prisma.dayReport.create({
+      data: {
+        buyerId,
+        date,
+        offerId: null,
+        source: AGENCY_SOURCE,
+        revenueCents: 0,
+        spendNetCents: net,
+        commissionBps: AGENCY_COMMISSION_BPS,
+        spendGrossCents: grossUp(net, AGENCY_COMMISSION_BPS),
+        spendSyncedCents: net,
+        revenueSyncedCents: null,
+        syncedAt: new Date(),
+        note: 'агентка автоматически',
+      },
+    });
+    result.touched += 1;
+    return;
+  }
+
+  // Правили руками — не спорим (как и с обычными строками).
+  const touched =
+    existing.spendSyncedCents === null
+      ? existing.spendNetCents !== 0
+      : existing.spendNetCents !== existing.spendSyncedCents;
+  if (touched) {
+    result.skipped += 1;
+    return;
+  }
+  if (net <= 0) {
+    await prisma.dayReport.delete({ where: { id: existing.id } });
+    return;
+  }
+  await prisma.dayReport.update({
+    where: { id: existing.id },
+    data: {
+      spendNetCents: net,
+      commissionBps: AGENCY_COMMISSION_BPS,
+      spendGrossCents: grossUp(net, AGENCY_COMMISSION_BPS),
+      spendSyncedCents: net,
+      syncedAt: new Date(),
+    },
+  });
+  result.touched += 1;
+}
+
 async function writeDay(row: Report, result: SyncResult) {
   const existing = await prisma.dayReport.findFirst({
     where: { buyerId: row.buyerId, date: row.date, offerId: null, source: 'Facebook' },
@@ -239,6 +304,11 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
   // канонический, иначе расход задвоится.
   const canonical = await canonicalAccountIds(now);
 
+  // Агентские кабинеты (флаг agency): их расход из ФБ авто-кладём в отчёт дня
+  // строкой «Агентка». Копим по «баер + день» за весь заход (у баера может быть
+  // несколько агентских кабов), пишем после обхода.
+  const agencyByBuyerDay = new Map<string, number>();
+
   // Разные токены — разные аккаунты и прокси, поэтому ведём их ПАРАЛЛЕЛЬНО, до
   // FB_CONCURRENCY сразу: главный рычаг скорости. Серийность с паузами нужна
   // только ВНУТРИ одного аккаунта (ниже), чтобы не выглядеть роботом с его IP.
@@ -310,6 +380,13 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
             },
           });
           result.touched += 1;
+
+          // Агентский кабинет (USD): его дневной расход копим на баера токена,
+          // чтобы после обхода положить в отчёт дня строкой «Агентка».
+          if (acc.agency && acc.currency === 'USD') {
+            const key = `${token.buyerId}|${d.date}`;
+            agencyByBuyerDay.set(key, (agencyByBuyerDay.get(key) ?? 0) + d.cents);
+          }
         }
         await prisma.adAccount.update({
           where: { id: acc.id },
@@ -369,6 +446,13 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
       });
     }
   });
+
+  // Агентский расход из ФБ — в отчёт дня строкой «Агентка» (после обхода, чтобы
+  // сложить все агентские кабы баера в одну цифру за день).
+  for (const [key, cents] of agencyByBuyerDay) {
+    const [buyerId, iso] = key.split('|');
+    await writeAgencyDay(buyerId, iso, cents, result);
+  }
 
   return result;
 }
