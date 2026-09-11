@@ -85,6 +85,7 @@ function atMidnight(iso: string) {
 type AccForDedup = {
   id: string;
   externalId: string;
+  agency: boolean;
   adToken: { pausedUntil: Date | null; lastError: string | null; lastSyncAt: Date | null };
 };
 function pickCanonicalAccountIds(accs: AccForDedup[], now: Date): Set<string> {
@@ -92,7 +93,10 @@ function pickCanonicalAccountIds(accs: AccForDedup[], now: Date): Set<string> {
   for (const a of accs) {
     const t = a.adToken;
     const paused = t.pausedUntil && t.pausedUntil > now;
-    const score = (paused ? 0 : 2) + (t.lastError ? 0 : 1);
+    // Агентский каб выбираем каноническим приоритетно: его пометил человек, и
+    // именно с него расход должен уйти в «Агентку». Иначе среди дублей мог
+    // выбраться не тот, и агентский расход бы не подтянулся.
+    const score = (a.agency ? 100 : 0) + (paused ? 0 : 2) + (t.lastError ? 0 : 1);
     const sync = t.lastSyncAt ? t.lastSyncAt.getTime() : 0;
     const cur = best.get(a.externalId);
     if (!cur || score > cur.score || (score === cur.score && sync > cur.sync)) {
@@ -109,6 +113,7 @@ async function canonicalAccountIds(now: Date): Promise<Set<string>> {
     select: {
       id: true,
       externalId: true,
+      agency: true,
       adToken: { select: { pausedUntil: true, lastError: true, lastSyncAt: true } },
     },
   });
