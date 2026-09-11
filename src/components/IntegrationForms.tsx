@@ -363,7 +363,7 @@ export function SyncNow() {
   const finished = status && !status.running && status.finishedAt;
 
   return (
-    <div className="flex flex-wrap items-center gap-2.5">
+    <div className="flex w-full flex-wrap items-center justify-between gap-2.5">
       <Tip label="Тянет доход (Keitaro), расход (Brocard) и стату Facebook за 14 дней. Идёт в фоне — можно уйти со страницы, догрузится сам.">
         <button
           type="button"
@@ -377,7 +377,7 @@ export function SyncNow() {
         </button>
       </Tip>
       {busy ? null : finished ? (
-        <span className="text-[11.5px] text-mute">
+        <span className="ml-auto text-right text-[11.5px] text-mute">
           обновлено {status!.touched}
           {status!.skipped ? <>{' · '}не тронуто {status!.skipped}</> : null}
           {status!.info.length ? (
