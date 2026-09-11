@@ -119,90 +119,105 @@ export async function deleteDomain(formData: FormData) {
 }
 
 /**
- * Покупка домена баером. Помечаем проданным, снимаем цену зоны, пишем расход в
- * расходники и переносим домен в группу баера в Keitaro.
+ * КТ-перенос купленного домена в доменную группу баера. Мягкий: покупка уже
+ * прошла, поэтому не бросаем — причину кладём в ktError домена и возвращаем
+ * текстом. Возвращает '' при успехе.
  */
-export async function buyDomain(formData: FormData) {
+async function ktMoveToBuyer(domainId: string, name: string, buyerId: string): Promise<string> {
+  try {
+    const buyer = await prisma.buyer.findUnique({ where: { id: buyerId }, select: { ktDomainGroupId: true } });
+    const groupId = buyer?.ktDomainGroupId ?? '';
+    if (!groupId) {
+      const note = 'КТ-перенос пропущен: у баера не задана доменная группа.';
+      await prisma.domain.update({ where: { id: domainId }, data: { ktError: note } });
+      return note;
+    }
+    const tracker = await prisma.tracker.findFirst({ where: { enabled: true } });
+    if (!tracker) {
+      const note = 'КТ-перенос пропущен: нет активного трекера.';
+      await prisma.domain.update({ where: { id: domainId }, data: { ktError: note } });
+      return note;
+    }
+    const ktId = await moveDomainToGroup(tracker.baseUrl, tracker.apiKey, name, groupId);
+    await prisma.domain.update({ where: { id: domainId }, data: { ktId, ktMoved: true, ktError: '' } });
+    return '';
+  } catch (e) {
+    const note = e instanceof KeitaroError ? e.message : `КТ-перенос не удался: ${(e as Error).message}`;
+    await prisma.domain.update({ where: { id: domainId }, data: { ktError: note } });
+    return note;
+  }
+}
+
+/**
+ * Покупка доменов по ЗОНЕ: баер берёт сколько нужно, не видя имён — они из
+ * склада (первые по загрузке). Каждый домен: расход в расходники (категория
+ * «Домены») + перенос в группу баера. Имена появляются у баера уже в
+ * «Купленных».
+ */
+export async function buyDomains(formData: FormData) {
   const user = await requireUser();
   const admin = user.role === 'ADMIN';
-  const id = String(formData.get('id') ?? '');
+  const zone = String(formData.get('zone') ?? '').trim().toLowerCase().replace(/^\./, '');
+  const qty = Math.min(100, Math.max(1, Math.floor(Number(formData.get('qty') ?? 1)) || 1));
 
   // Кто покупает: баер — только себе; админ может купить на конкретного баера.
   const buyerId = admin ? String(formData.get('buyerId') ?? '') : user.buyer?.id ?? '';
   if (!buyerId) return { ok: false, error: 'Не указан баер.' };
+  if (!zone) return { ok: false, error: 'Не указана зона.' };
 
-  const domain = await prisma.domain.findUnique({ where: { id } });
-  if (!domain) return { ok: false, error: 'Домен не найден.' };
-  if (domain.status !== 'available') return { ok: false, error: 'Домен уже продан.' };
+  const price = await prisma.domainZonePrice.findUnique({ where: { zone } });
+  if (!price) return { ok: false, error: `Не задана цена зоны .${zone}.` };
 
-  const price = await prisma.domainZonePrice.findUnique({ where: { zone: domain.zone } });
-  if (!price) return { ok: false, error: `Не задана цена зоны .${domain.zone}.` };
+  // Берём первые свободные домены зоны (FIFO по загрузке) — сколько просят или
+  // сколько есть.
+  const picked = await prisma.domain.findMany({
+    where: { status: 'available', zone },
+    orderBy: { createdAt: 'asc' },
+    take: qty,
+  });
+  if (picked.length === 0) return { ok: false, error: `В зоне .${zone} нет свободных доменов.` };
 
-  // Категория расходников «Домены» — заводим один раз.
   const type = await prisma.consumableType.upsert({
     where: { name: DOMAIN_CONSUMABLE },
     update: {},
     create: { name: DOMAIN_CONSUMABLE, color: '#6E8FA5' },
   });
 
-  // Расход + отметка продажи одной транзакцией — чтобы не осталось «продан без
-  // расхода» или наоборот.
   const today = new Date();
   const date = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-  const entry = await prisma.consumableEntry.create({
-    data: {
-      date,
-      typeId: type.id,
-      buyerId,
-      qty: 1,
-      totalCents: price.priceCents,
-      note: `домен ${domain.name}`,
-    },
-  });
-  await prisma.domain.update({
-    where: { id },
-    data: { status: 'sold', buyerId, soldAt: new Date(), priceCents: price.priceCents, consumableId: entry.id },
-  });
 
-  await prisma.auditLog.create({
-    data: {
-      actorId: user.id,
-      actorName: user.name,
-      entity: 'Domain',
-      entityId: domain.id,
-      action: 'buy',
-      diffJson: JSON.stringify({ name: domain.name, buyerId, priceCents: price.priceCents }),
-    },
-  });
-
-  // КТ-перенос — мягкий: покупка уже прошла. Если группа баера не задана или
-  // трекер упал — оставляем причину на домене, но покупку не рушим.
-  let ktNote = '';
-  try {
-    const buyer = await prisma.buyer.findUnique({ where: { id: buyerId }, select: { ktDomainGroupId: true } });
-    const groupId = buyer?.ktDomainGroupId ?? '';
-    if (!groupId) {
-      ktNote = 'КТ-перенос пропущен: у баера не задана доменная группа.';
-      await prisma.domain.update({ where: { id }, data: { ktError: ktNote } });
-    } else {
-      const tracker = await prisma.tracker.findFirst({ where: { enabled: true } });
-      if (!tracker) {
-        ktNote = 'КТ-перенос пропущен: нет активного трекера.';
-        await prisma.domain.update({ where: { id }, data: { ktError: ktNote } });
-      } else {
-        const ktId = await moveDomainToGroup(tracker.baseUrl, tracker.apiKey, domain.name, groupId);
-        await prisma.domain.update({ where: { id }, data: { ktId, ktMoved: true, ktError: '' } });
-      }
-    }
-  } catch (e) {
-    ktNote = e instanceof KeitaroError ? e.message : `КТ-перенос не удался: ${(e as Error).message}`;
-    await prisma.domain.update({ where: { id }, data: { ktError: ktNote } });
+  const ktProblems: string[] = [];
+  for (const domain of picked) {
+    // Расход (по домену) + отметка продажи. Отдельная запись на домен — чтобы
+    // возврат одного домена снимал ровно его расход.
+    const entry = await prisma.consumableEntry.create({
+      data: { date, typeId: type.id, buyerId, qty: 1, totalCents: price.priceCents, note: `домен ${domain.name}` },
+    });
+    await prisma.domain.update({
+      where: { id: domain.id },
+      data: { status: 'sold', buyerId, soldAt: new Date(), priceCents: price.priceCents, consumableId: entry.id },
+    });
+    await prisma.auditLog.create({
+      data: {
+        actorId: user.id,
+        actorName: user.name,
+        entity: 'Domain',
+        entityId: domain.id,
+        action: 'buy',
+        diffJson: JSON.stringify({ name: domain.name, buyerId, priceCents: price.priceCents }),
+      },
+    });
+    const note = await ktMoveToBuyer(domain.id, domain.name, buyerId);
+    if (note) ktProblems.push(`${domain.name}: ${note}`);
   }
 
   revalidatePath('/ads/domains');
   revalidatePath('/consumables');
   revalidatePath('/');
-  return { ok: true, ktNote };
+
+  const short = picked.length < qty ? ` (просили ${qty}, в зоне было столько)` : '';
+  const ktNote = ktProblems.length ? `КТ: ${ktProblems.length} не перенесено — см. столбец «КТ».` : '';
+  return { ok: true, bought: picked.length, requested: qty, note: `Куплено ${picked.length} шт.${short}`, ktNote };
 }
 
 /** Вернуть проданный домен на склад: снять расход и обнулить продажу. */

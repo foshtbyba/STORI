@@ -41,11 +41,12 @@ export default async function DomainsPage() {
 
   const priceByZone = new Map(prices.map((p) => [p.zone, p.priceCents]));
 
-  // Свободные — по зонам, с ценой зоны.
+  // Свободные — по зонам, ТОЛЬКО наличие и цена. Имена доменов до покупки не
+  // отдаём в браузер вовсе.
   const byZone = new Map<string, ZoneGroup>();
   for (const d of available) {
-    const g = byZone.get(d.zone) ?? { zone: d.zone, priceCents: priceByZone.get(d.zone) ?? null, domains: [] };
-    g.domains.push({ id: d.id, name: d.name });
+    const g = byZone.get(d.zone) ?? { zone: d.zone, priceCents: priceByZone.get(d.zone) ?? null, count: 0 };
+    g.count += 1;
     byZone.set(d.zone, g);
   }
   const zones = [...byZone.values()].sort((a, b) => a.zone.localeCompare(b.zone));

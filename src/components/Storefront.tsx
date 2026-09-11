@@ -2,13 +2,13 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { buyDomain, returnDomain } from '@/app/actions/domains';
+import { buyDomains, returnDomain } from '@/app/actions/domains';
 import Tip from './Tip';
 
 export type ZoneGroup = {
   zone: string;
   priceCents: number | null;
-  domains: { id: string; name: string }[];
+  count: number;
 };
 
 export type SoldRow = {
@@ -47,21 +47,24 @@ export default function Storefront({
   const [busyId, setBusyId] = useState<string | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [actingBuyer, setActingBuyer] = useState(admin && buyers[0] ? buyers[0].id : '');
+  const [qtyByZone, setQtyByZone] = useState<Record<string, number>>({});
 
-  const buy = (id: string) => {
+  const buy = (zone: string) => {
     if (pending) return;
-    setBusyId(id);
+    setBusyId(zone);
     setMsg(null);
+    const qty = qtyByZone[zone] ?? 1;
     start(async () => {
       const fd = new FormData();
-      fd.set('id', id);
+      fd.set('zone', zone);
+      fd.set('qty', String(qty));
       if (admin) fd.set('buyerId', actingBuyer);
-      const r = await buyDomain(fd);
+      const r = await buyDomains(fd);
       setBusyId(null);
       if (!r?.ok) {
         setMsg({ ok: false, text: r?.error ?? 'Не вышло купить.' });
       } else {
-        setMsg({ ok: true, text: r.ktNote ? `Куплено. ${r.ktNote}` : 'Куплено — домен в твоей группе КТ.' });
+        setMsg({ ok: true, text: [r.note, r.ktNote].filter(Boolean).join(' ') || 'Куплено.' });
       }
       router.refresh();
     });
@@ -79,7 +82,7 @@ export default function Storefront({
     });
   };
 
-  const totalFree = zones.reduce((n, z) => n + z.domains.length, 0);
+  const totalFree = zones.reduce((n, z) => n + z.count, 0);
 
   return (
     <div className="flex flex-col gap-4">
@@ -111,50 +114,59 @@ export default function Storefront({
         </label>
       ) : null}
 
-      {/* Витрина: свободные домены по зонам, у каждой зоны своя цена. */}
+      {/* Витрина: только зона, наличие и цена — имена доменов до покупки не
+          показываем (и не грузим в браузер). Берёшь нужное число из зоны. */}
       {totalFree === 0 ? (
         <p className="text-[12.5px] text-mute">Свободных доменов на складе нет.</p>
       ) : (
-        <div className="flex flex-col gap-3.5">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {zones
-            .filter((z) => z.domains.length)
-            .map((z) => (
-              <div key={z.zone} className="rounded-[16px] border border-line px-3.5 py-3">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="text-[13px] font-semibold">
-                    .{z.zone}
-                    <span className="ml-2 text-[11.5px] font-normal text-mute">{z.domains.length} шт.</span>
-                  </span>
-                  <span className="text-[12.5px]">
-                    {z.priceCents != null ? (
-                      <span className="text-sage">${(z.priceCents / 100).toFixed(2)}</span>
-                    ) : (
-                      <span className="text-rust">цена зоны не задана</span>
-                    )}
-                  </span>
+            .filter((z) => z.count > 0)
+            .map((z) => {
+              const qty = Math.min(qtyByZone[z.zone] ?? 1, z.count);
+              const blocked = !canBuy || z.priceCents == null;
+              const busy = pending && busyId === z.zone;
+              return (
+                <div key={z.zone} className="flex flex-col gap-2.5 rounded-[16px] border border-line px-3.5 py-3">
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-[15px] font-semibold">.{z.zone}</span>
+                    <span className="text-[12.5px]">
+                      {z.priceCents != null ? (
+                        <span className="text-sage">${(z.priceCents / 100).toFixed(2)}</span>
+                      ) : (
+                        <span className="text-rust">цена не задана</span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="text-[11.5px] text-mute">в наличии: {z.count} шт.</div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min={1}
+                      max={z.count}
+                      value={qty}
+                      disabled={blocked}
+                      onChange={(e) => {
+                        const v = Math.min(z.count, Math.max(1, Math.floor(Number(e.target.value) || 1)));
+                        setQtyByZone((m) => ({ ...m, [z.zone]: v }));
+                      }}
+                      className="w-16 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-[12.5px] text-soft"
+                    />
+                    <button
+                      type="button"
+                      disabled={blocked || busy}
+                      onClick={() => buy(z.zone)}
+                      title={z.priceCents == null ? 'Сначала задай цену зоны' : !canBuy ? 'Нет профиля баера' : 'Купить'}
+                      className={`flex-1 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage ${
+                        blocked || busy ? 'cursor-not-allowed opacity-50 hover:border-line2 hover:text-soft' : ''
+                      }`}
+                    >
+                      {busy ? 'Покупаю…' : `Купить ${qty} шт.`}
+                    </button>
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {z.domains.map((d) => {
-                    const disabled = !canBuy || z.priceCents == null || (pending && busyId === d.id);
-                    return (
-                      <button
-                        key={d.id}
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => buy(d.id)}
-                        title={z.priceCents == null ? 'Сначала задай цену зоны' : !canBuy ? 'Нет профиля баера' : 'Купить домен'}
-                        className={`inline-flex items-center gap-1.5 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage ${
-                          disabled ? 'cursor-not-allowed opacity-50 hover:border-line2 hover:text-soft' : ''
-                        }`}
-                      >
-                        <span className="font-medium">{d.name}</span>
-                        {pending && busyId === d.id ? <span className="text-mute">…</span> : <span className="text-mute">купить</span>}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+              );
+            })}
         </div>
       )}
 
