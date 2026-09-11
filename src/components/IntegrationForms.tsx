@@ -363,21 +363,9 @@ export function SyncNow() {
   const finished = status && !status.running && status.finishedAt;
 
   return (
-    <div className="flex w-full flex-wrap items-center justify-between gap-2.5">
-      <Tip label="Тянет доход (Keitaro), расход (Brocard) и стату Facebook за 14 дней. Идёт в фоне — можно уйти со страницы, догрузится сам.">
-        <button
-          type="button"
-          disabled={busy}
-          onClick={onClick}
-          className={`rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage ${
-            busy ? 'cursor-progress opacity-60' : ''
-          }`}
-        >
-          {busy ? 'Тяну цифры…' : 'Синхронизировать сейчас'}
-        </button>
-      </Tip>
+    <div className="flex w-full flex-wrap items-center justify-end gap-2.5">
       {busy ? null : finished ? (
-        <span className="ml-auto text-right text-[11.5px] text-mute">
+        <span className="text-right text-[11.5px] text-mute">
           обновлено {status!.touched}
           {status!.skipped ? <>{' · '}не тронуто {status!.skipped}</> : null}
           {status!.info.length ? (
@@ -400,6 +388,18 @@ export function SyncNow() {
           )}
         </span>
       ) : null}
+      <Tip label="Тянет доход (Keitaro), расход (Brocard) и стату Facebook за 14 дней. Идёт в фоне — можно уйти со страницы, догрузится сам.">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={onClick}
+          className={`rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage ${
+            busy ? 'cursor-progress opacity-60' : ''
+          }`}
+        >
+          {busy ? 'Тяну цифры…' : 'Синхронизировать сейчас'}
+        </button>
+      </Tip>
     </div>
   );
 }
