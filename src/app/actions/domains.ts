@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db';
 import { requireUser, requireAdmin } from '@/lib/auth';
 import { moneyInputToCents } from '@/lib/format';
 import { moveDomainToGroup, KeitaroError } from '@/lib/keitaro';
-import { syncStockFromKeitaro } from '@/lib/domain-stock';
+import { syncStockFromKeitaro, DEFAULT_ZONE_PRICE_CENTS } from '@/lib/domain-stock';
 
 /** Название категории расходников, куда падает покупка домена. */
 const DOMAIN_CONSUMABLE = 'Домены';
@@ -173,8 +173,9 @@ export async function buyDomains(formData: FormData) {
   if (!buyerId) return { ok: false, error: 'Не указан баер.' };
   if (!zone) return { ok: false, error: 'Не указана зона.' };
 
-  const price = await prisma.domainZonePrice.findUnique({ where: { zone } });
-  if (!price) return { ok: false, error: `Не задана цена зоны .${zone}.` };
+  // Цена зоны: своя, если задана; иначе — по умолчанию $7.
+  const zonePrice = await prisma.domainZonePrice.findUnique({ where: { zone } });
+  const priceCents = zonePrice?.priceCents ?? DEFAULT_ZONE_PRICE_CENTS;
 
   // Берём первые свободные домены зоны (FIFO по загрузке) — сколько просят или
   // сколько есть.
@@ -199,11 +200,11 @@ export async function buyDomains(formData: FormData) {
     // Расход (по домену) + отметка продажи. Отдельная запись на домен — чтобы
     // возврат одного домена снимал ровно его расход.
     const entry = await prisma.consumableEntry.create({
-      data: { date, typeId: type.id, buyerId, qty: 1, totalCents: price.priceCents, note: `домен ${domain.name}` },
+      data: { date, typeId: type.id, buyerId, qty: 1, totalCents: priceCents, note: `домен ${domain.name}` },
     });
     await prisma.domain.update({
       where: { id: domain.id },
-      data: { status: 'sold', buyerId, soldAt: new Date(), priceCents: price.priceCents, consumableId: entry.id },
+      data: { status: 'sold', buyerId, soldAt: new Date(), priceCents, consumableId: entry.id },
     });
     await prisma.auditLog.create({
       data: {
@@ -212,7 +213,7 @@ export async function buyDomains(formData: FormData) {
         entity: 'Domain',
         entityId: domain.id,
         action: 'buy',
-        diffJson: JSON.stringify({ name: domain.name, buyerId, priceCents: price.priceCents }),
+        diffJson: JSON.stringify({ name: domain.name, buyerId, priceCents }),
       },
     });
     const note = await ktMoveToBuyer(domain.id, domain.name, buyerId);

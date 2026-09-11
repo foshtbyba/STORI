@@ -8,7 +8,7 @@ import { IconLink, IconTag } from '@/components/icons';
 import Storefront, { type ZoneGroup, type SoldRow, type BuyerOpt } from '@/components/Storefront';
 import PullStock from '@/components/PullStock';
 import { setZonePrice, setBuyerDomainGroup, setStockGroup } from '@/app/actions/domains';
-import { syncStockFromKeitaro } from '@/lib/domain-stock';
+import { syncStockFromKeitaro, DEFAULT_ZONE_PRICE_CENTS } from '@/lib/domain-stock';
 
 /**
  * Магазин доменов. Админ грузит зарегистрированные домены на склад и задаёт
@@ -54,7 +54,8 @@ export default async function DomainsPage() {
   // отдаём в браузер вовсе.
   const byZone = new Map<string, ZoneGroup>();
   for (const d of available) {
-    const g = byZone.get(d.zone) ?? { zone: d.zone, priceCents: priceByZone.get(d.zone) ?? null, count: 0 };
+    // Нет своей цены — продаём по умолчанию за $7, а не блокируем зону.
+    const g = byZone.get(d.zone) ?? { zone: d.zone, priceCents: priceByZone.get(d.zone) ?? DEFAULT_ZONE_PRICE_CENTS, count: 0 };
     g.count += 1;
     byZone.set(d.zone, g);
   }
@@ -123,30 +124,31 @@ export default async function DomainsPage() {
           <Panel className="p-4 sm:p-6">
             <PanelHead icon={<IconTag color="#d2a06a" />} tint="bg-amber-t" title="Цены по зонам" />
             <p className="mt-2 text-[11.5px] leading-relaxed text-mute">
-              Цена задаётся на доменную зону (TLD). Пустая цена — убрать зону из прайса.
+              Цена задаётся на доменную зону (TLD). Без своей цены зона продаётся по умолчанию за
+              ${(DEFAULT_ZONE_PRICE_CENTS / 100).toFixed(0)}.
             </p>
             <div className="mt-3 flex flex-col gap-2">
               {[...new Set([...zonesInStock, ...prices.map((p) => p.zone)])].sort().map((zone) => {
                 const cur = priceByZone.get(zone);
-                const missing = zonesInStock.includes(zone) && cur == null;
+                const usingDefault = cur == null;
                 return (
                   <form key={zone} action={setZonePrice} className="flex flex-wrap items-center gap-2 text-[12.5px]">
                     <input type="hidden" name="zone" value={zone} />
-                    <span className={`w-16 font-medium ${missing ? 'text-rust' : ''}`}>.{zone}</span>
+                    <span className="w-16 font-medium">.{zone}</span>
                     <div className="flex items-center gap-1">
                       <span className="text-mute">$</span>
                       <input
                         name="price"
                         defaultValue={cur != null ? (cur / 100).toFixed(2) : ''}
                         inputMode="decimal"
-                        placeholder="5.00"
+                        placeholder={(DEFAULT_ZONE_PRICE_CENTS / 100).toFixed(2)}
                         className="w-20 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-soft"
                       />
                     </div>
                     <button type="submit" className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage">
                       сохранить
                     </button>
-                    {missing ? <span className="text-[11px] text-rust">без цены</span> : null}
+                    {usingDefault ? <span className="text-[11px] text-mute">по умолч. ${(DEFAULT_ZONE_PRICE_CENTS / 100).toFixed(0)}</span> : null}
                   </form>
                 );
               })}

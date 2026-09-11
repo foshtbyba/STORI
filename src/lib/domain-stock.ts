@@ -3,6 +3,9 @@ import 'server-only';
 import { prisma } from './db';
 import { listDomains, KeitaroError } from './keitaro';
 
+/** Цена зоны по умолчанию, если для неё не задана своя, — $7. */
+export const DEFAULT_ZONE_PRICE_CENTS = 700;
+
 const STOCK_GROUP_KEY = 'kt_domain_stock_group';
 const SYNCED_AT_KEY = 'kt_domain_stock_synced_at';
 /** Не дёргаем КТ чаще, чем раз в столько мс при авто-заходе (кнопка — форсит). */
