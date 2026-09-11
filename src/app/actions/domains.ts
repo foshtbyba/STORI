@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { requireUser, requireAdmin } from '@/lib/auth';
 import { moneyInputToCents } from '@/lib/format';
 import { moveDomainToGroup, KeitaroError } from '@/lib/keitaro';
+import { syncStockFromKeitaro } from '@/lib/domain-stock';
 
 /** Название категории расходников, куда падает покупка домена. */
 const DOMAIN_CONSUMABLE = 'Домены';
@@ -105,6 +106,14 @@ export async function uploadDomains(formData: FormData) {
     });
   }
   revalidatePath('/ads/domains');
+}
+
+/** Форс-подтянуть домены со склада Keitaro (кнопка). Авто-заход — на странице. */
+export async function pullStockFromKeitaro() {
+  await requireAdmin();
+  const r = await syncStockFromKeitaro(true);
+  revalidatePath('/ads/domains');
+  return r;
 }
 
 /** Убрать домен со склада (только свободный). */

@@ -6,7 +6,9 @@ import { usd } from '@/lib/money';
 import { Panel, PanelHead, Empty } from '@/components/ui';
 import { IconLink, IconTag } from '@/components/icons';
 import Storefront, { type ZoneGroup, type SoldRow, type BuyerOpt } from '@/components/Storefront';
-import { setZonePrice, uploadDomains, setBuyerDomainGroup, setStockGroup } from '@/app/actions/domains';
+import PullStock from '@/components/PullStock';
+import { setZonePrice, setBuyerDomainGroup, setStockGroup } from '@/app/actions/domains';
+import { syncStockFromKeitaro } from '@/lib/domain-stock';
 
 /**
  * Магазин доменов. Админ грузит зарегистрированные домены на склад и задаёт
@@ -20,6 +22,11 @@ export default async function DomainsPage() {
   const team = canSeeTeam(role);
   const scoped = scopeBuyerId(user);
 
+  // Авто-подтяжка склада из Keitaro при заходе на витрину: домены появляются
+  // в товарах сами (с троттлингом внутри, чтобы не долбить КТ). Мягко — на
+  // сбое КТ страница всё равно откроется.
+  await syncStockFromKeitaro(false);
+
   const [available, prices, soldRaw, buyers] = await Promise.all([
     prisma.domain.findMany({ where: { status: 'available' }, orderBy: { name: 'asc' } }),
     prisma.domainZonePrice.findMany(),
@@ -29,9 +36,11 @@ export default async function DomainsPage() {
       orderBy: { soldAt: 'desc' },
     }),
     prisma.buyer.findMany({
-      where: { archived: false, owner: false },
+      // И баеры, и овнеры (SKO/MPR): у каждого своя доменная группа в КТ и на
+      // них тоже можно покупать домены.
+      where: { archived: false },
       select: { id: true, handle: true, ktDomainGroupId: true },
-      orderBy: { handle: 'asc' },
+      orderBy: [{ owner: 'desc' }, { handle: 'asc' }],
     }),
   ]);
 
@@ -141,25 +150,17 @@ export default async function DomainsPage() {
       {admin ? (
         <>
           <Panel className="p-4 sm:p-6">
-            <PanelHead icon={<IconLink color="#d2a06a" />} tint="bg-amber-t" title="Загрузить домены на склад" />
-            <form action={uploadDomains} className="mt-3 flex flex-col gap-2.5">
-              <textarea
-                name="domains"
-                rows={5}
-                placeholder={'по одному в строке или через запятую:\nexample.com\nmy-site.net'}
-                className="w-full rounded-xl border border-line2 bg-sub px-3 py-2.5 text-[12.5px] text-soft"
-              />
-              <div>
-                <button type="submit" className="rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage">
-                  Добавить на склад
-                </button>
-              </div>
-              <p className="text-[11px] leading-relaxed text-dim">
-                Схему (https://), www и путь уберём сами; дубли и уже проданные не тронем. Домены
-                должны быть заранее заведены в самом Keitaro (в группе-складе) — при покупке мы их
-                там находим по имени и переносим в группу баера.
-              </p>
-            </form>
+            <PanelHead
+              icon={<IconLink color="#d2a06a" />}
+              tint="bg-amber-t"
+              title="Склад доменов"
+              right={<PullStock />}
+            />
+            <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
+              Домены берём прямо из группы-склада Keitaro (по заданному ниже id склада). Заводишь
+              домены в КТ в группе-складе, жмёшь «Подтянуть со склада КТ» — они появляются на
+              витрине свободными. Дубли и уже проданные не трогаем.
+            </p>
           </Panel>
 
           <Panel className="p-4 sm:p-6">
