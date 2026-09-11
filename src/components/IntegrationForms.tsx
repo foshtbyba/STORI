@@ -1,12 +1,15 @@
 'use client';
 
-import { useActionState, useState, useTransition } from 'react';
+import { useActionState, useState, useCallback, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   addToken,
   addMyToken,
   saveTracker,
   saveBrocard,
   runSync,
+  fullSyncStatus,
+  type AdsSyncStatus,
   type ActionState,
 } from '@/app/actions/integrations';
 import SubmitButton from './SubmitButton';
@@ -305,51 +308,94 @@ export function BrocardForm({ hasKey }: { hasKey: boolean }) {
 
 /**
  * Ручной запуск. Крон ходит сам, но после настройки хочется увидеть результат
- * сразу, а не через час.
+ * сразу, а не через час. Заход тяжёлый (Brocard + Keitaro + все кабинеты ФБ,
+ * минуты), поэтому НЕ держим http-запрос — иначе браузер рвёт соединение по
+ * таймауту и страница падает с «ошибкой отрисовки». Запускаем в фоне и
+ * опрашиваем статус; по завершении обновляем страницу.
  */
 export function SyncNow() {
-  const [pending, start] = useTransition();
-  const [result, setResult] = useState<Awaited<ReturnType<typeof runSync>> | null>(null);
+  const router = useRouter();
+  const [status, setStatus] = useState<AdsSyncStatus | null>(null);
+  const [busy, setBusy] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wasRunning = useRef(false);
+
+  const poll = useCallback(async () => {
+    try {
+      const s = await fullSyncStatus();
+      setStatus(s);
+      if (s.running) {
+        wasRunning.current = true;
+        setBusy(true);
+        timer.current = setTimeout(poll, 4000);
+      } else {
+        setBusy(false);
+        if (wasRunning.current) {
+          wasRunning.current = false;
+          router.refresh();
+        }
+      }
+    } catch {
+      timer.current = setTimeout(poll, 5000);
+    }
+  }, [router]);
+
+  useEffect(() => {
+    poll();
+    return () => { if (timer.current) clearTimeout(timer.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onClick = async () => {
+    if (busy) return;
+    setBusy(true);
+    wasRunning.current = true;
+    try {
+      await runSync();
+    } catch {
+      /* запуск лёгкий; если не долетел — статус ниже покажет, что не идёт */
+    }
+    if (timer.current) clearTimeout(timer.current);
+    poll();
+  };
+
+  const finished = status && !status.running && status.finishedAt;
 
   return (
     <div>
       <button
         type="button"
-        disabled={pending}
-        onClick={() => start(async () => setResult(await runSync()))}
+        disabled={busy}
+        onClick={onClick}
         className={`rounded-full border border-line2 bg-sub px-5 py-2 text-[12.5px] text-soft transition hover:border-sage hover:text-sage ${
-          pending ? 'cursor-progress opacity-60' : ''
+          busy ? 'cursor-progress opacity-60' : ''
         }`}
       >
-        {pending ? 'Тяну цифры…' : 'Синхронизировать сейчас'}
+        {busy ? 'Тяну цифры…' : 'Синхронизировать сейчас'}
       </button>
 
-      {result ? (
+      {!busy && finished ? (
         <div className="mt-3 text-[12px] leading-relaxed">
           <div className="text-soft">
-            Обновлено дней: <span className="n text-text">{result.touched}</span>
-            {result.skipped ? (
+            Обновлено дней: <span className="n text-text">{status!.touched}</span>
+            {status!.skipped ? (
               <>
                 {' · '}не тронуто (правили руками):{' '}
-                <span className="n text-text">{result.skipped}</span>
+                <span className="n text-text">{status!.skipped}</span>
               </>
             ) : null}
           </div>
-          {result.orphanCents > 0 ? (
-            <div className="mt-1 text-rust">
-              Доход без баера: ${Math.round(result.orphanCents / 100).toLocaleString('ru-RU')} —
-              привяжи группы ниже.
-            </div>
-          ) : null}
-          {result.problems.map((p) => (
+          {status!.problems.map((p) => (
             <div key={p} className="mt-1 text-rust">
               {p}
             </div>
           ))}
-          {!result.problems.length && !result.orphanCents ? (
+          {!status!.problems.length ? (
             <div className="mt-1 text-sage">Всё прошло чисто.</div>
           ) : null}
         </div>
+      ) : busy ? (
+        <div className="mt-3 text-[12px] text-mute">Идёт в фоне — можно уйти со страницы, догрузится сам.</div>
       ) : null}
     </div>
   );

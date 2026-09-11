@@ -563,6 +563,39 @@ export async function adsSyncStatus(): Promise<AdsSyncStatus> {
   return s;
 }
 
+// Полная синхронизация (Brocard + Keitaro + Facebook) — тот же приём, что и у
+// статы: работу уносим в фон, статус кладём в Setting, кнопка опрашивает. Иначе
+// синхронный заход на минуты рвёт соединение и роняет страницу («ошибка
+// отрисовки»).
+const FULL_SYNC_KEY = 'full_sync_status';
+
+async function readFullStatus(): Promise<AdsSyncStatus> {
+  const row = await prisma.setting.findUnique({ where: { key: FULL_SYNC_KEY } });
+  if (!row) return emptyAdsStatus();
+  try {
+    return { ...emptyAdsStatus(), ...(JSON.parse(row.value) as AdsSyncStatus) };
+  } catch {
+    return emptyAdsStatus();
+  }
+}
+
+async function writeFullStatus(s: AdsSyncStatus) {
+  await prisma.setting.upsert({
+    where: { key: FULL_SYNC_KEY },
+    create: { key: FULL_SYNC_KEY, value: JSON.stringify(s) },
+    update: { value: JSON.stringify(s) },
+  });
+}
+
+export async function fullSyncStatus(): Promise<AdsSyncStatus> {
+  await requireAdmin();
+  const s = await readFullStatus();
+  if (s.running && s.startedAt && Date.now() - s.startedAt > ADS_SYNC_STALE_MS) {
+    return { ...s, running: false };
+  }
+  return s;
+}
+
 /**
  * Запустить обновление статы В ФОНЕ и сразу отпустить браузер.
  *
@@ -823,12 +856,38 @@ export async function setAdText(_prev: AdActionState, form: FormData): Promise<A
   return { ok: true };
 }
 
-export async function runSync() {
+export async function runSync(): Promise<{ started: boolean; running: boolean }> {
   await requireAdmin();
-  const result = await syncAll();
-  revalidatePath('/admin');
-  revalidatePath('/ads');
-  revalidatePath('/days');
-  revalidatePath('/');
-  return result;
+
+  const prev = await readFullStatus();
+  const stale = prev.startedAt ? Date.now() - prev.startedAt > ADS_SYNC_STALE_MS : true;
+  if (prev.running && !stale) {
+    return { started: false, running: true };
+  }
+
+  await writeFullStatus({ ...emptyAdsStatus(), running: true, startedAt: Date.now() });
+
+  after(async () => {
+    let result;
+    try {
+      result = await syncAll();
+    } catch (e) {
+      result = { touched: 0, skipped: 0, problems: [`Сбой синхронизации: ${(e as Error).message}`], info: [], orphanCents: 0 };
+    }
+    await writeFullStatus({
+      running: false,
+      startedAt: prev.startedAt ?? Date.now(),
+      finishedAt: Date.now(),
+      touched: result.touched,
+      skipped: result.skipped,
+      problems: result.problems,
+      info: result.info,
+    });
+    revalidatePath('/admin');
+    revalidatePath('/ads');
+    revalidatePath('/days');
+    revalidatePath('/');
+  });
+
+  return { started: true, running: true };
 }

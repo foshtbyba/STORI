@@ -102,6 +102,16 @@ export async function dailySpend(
       // Микро — это центовая проверка карты, не трата: пропускаем целиком.
       if (p.is_micro === true) continue;
 
+      // Void (сторно/отмена) — платёж отменён, деньги вернулись на карту. Это НЕ
+      // расход: пропускаем целиком, включая его комиссию (её Brocard тоже
+      // сторнирует). Иначе спенд завышается на сумму отменённых платежей.
+      const status = String(p.status ?? '').toLowerCase();
+      if (
+        status === 'void' || status === 'voided' || status === 'reversed' ||
+        status === 'canceled' || status === 'cancelled' || status === 'refunded' ||
+        p.is_void === true || p.void === true
+      ) continue;
+
       const day = String(p.date ?? '').slice(0, 10);
       if (!day) continue;
 
