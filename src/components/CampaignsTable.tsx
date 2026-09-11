@@ -126,6 +126,8 @@ export default function CampaignsTable({
   // Массовые действия: отмеченные объявления и прогресс.
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulk, bulkStart] = useTransition();
+  // Сумма бюджета для массовой установки на все выбранные объявления.
+  const [bulkBudget, setBulkBudget] = useState('');
   // Группировка: по объявлениям или свёрнуто по кампаниям. И показывать ли
   // объявления без открута. Оба выбора запоминаем в браузере.
   const [group, setGroupState] = useState<'ad' | 'campaign'>('ad');
@@ -289,6 +291,12 @@ export default function CampaignsTable({
     runBulk(label, (id) => { const fd = new FormData(); fd.set('id', id); fd.set('status', status); return setAdRunning(null, fd); });
   const bulkRemoderate = () =>
     runBulk('Перемодерация', (id) => { const fd = new FormData(); fd.set('id', id); return remoderateAd(null, fd); });
+  const bulkSetBudget = () => {
+    const v = bulkBudget.trim();
+    if (!v) return;
+    runBulk(`Бюджет $${v}`, (id) => { const fd = new FormData(); fd.set('id', id); fd.set('budget', v); return setAdBudget(null, fd); });
+    setBulkBudget('');
+  };
 
   const saveBudget = (id: string) => {
     const v = budgets[id];
@@ -445,6 +453,24 @@ export default function CampaignsTable({
           <button type="button" disabled={bulk} onClick={() => bulkSet('ACTIVE', 'Запуск')} className="rounded-full bg-sage-t px-3 py-1 text-[11.5px] font-semibold text-sage transition hover:opacity-80 disabled:opacity-50">▶ Запустить</button>
           <button type="button" disabled={bulk} onClick={() => bulkSet('PAUSED', 'Пауза')} className="rounded-full bg-amber-t px-3 py-1 text-[11.5px] font-semibold text-amber transition hover:opacity-80 disabled:opacity-50">⏸ Пауза</button>
           <button type="button" disabled={bulk} onClick={bulkRemoderate} className="rounded-full bg-raise px-3 py-1 text-[11.5px] font-semibold text-soft transition hover:text-text disabled:opacity-50">🔁 Перемодерация</button>
+          <span className="flex items-center gap-1">
+            <input
+              value={bulkBudget}
+              onChange={(e) => setBulkBudget(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') bulkSetBudget(); }}
+              inputMode="decimal"
+              placeholder="$ бюджет"
+              className="h-7 w-24 rounded-full border border-line2 bg-raise px-3 text-[11.5px] text-text outline-none transition focus:border-steel"
+            />
+            <button
+              type="button"
+              disabled={bulk || !bulkBudget.trim()}
+              onClick={bulkSetBudget}
+              className="rounded-full bg-steel-t px-3 py-1 text-[11.5px] font-semibold text-steel transition hover:opacity-80 disabled:opacity-50"
+            >
+              💲 Бюджет
+            </button>
+          </span>
           <button type="button" disabled={bulk} onClick={clearSel} className="ml-auto text-[11.5px] text-mute transition hover:text-soft disabled:opacity-50">снять выбор</button>
           {bulk ? <span className="text-[11.5px] text-mute">выполняю…</span> : null}
         </div>
