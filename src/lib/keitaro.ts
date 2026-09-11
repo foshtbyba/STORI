@@ -351,3 +351,58 @@ export async function checkTracker(baseUrl: string, apiKey: string) {
   for (const c of campaigns) groups.set(c.groupId, c.groupName);
   return { campaigns: campaigns.length, groups: [...groups].map(([id, name]) => ({ id, name })) };
 }
+
+// ─── Домены ────────────────────────────────────────────────────────────────
+// Keitaro сортирует домены своими группами. Для магазина доменов нам нужно
+// найти домен по имени и переставить его group_id (склад → группа баера). Это
+// обычный PUT, которого нет в call() (он умеет только GET/POST), поэтому здесь
+// свой низкоуровневый запрос с произвольным методом.
+
+async function callMethod(baseUrl: string, apiKey: string, method: string, path: string, body?: unknown) {
+  const url = `${root(baseUrl)}/admin_api/v1${path}`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method,
+      headers: { 'Api-Key': apiKey, 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: body ? JSON.stringify(body) : undefined,
+      cache: 'no-store',
+    });
+  } catch (e) {
+    throw new KeitaroError(`Не достучались до трекера: ${(e as Error).message}`);
+  }
+  const text = await res.text();
+  if (res.status === 401 || res.status === 403) throw new KeitaroError('Трекер не принял ключ — проверь Api-Key и права.');
+  if (!res.ok) throw new KeitaroError(`Трекер ответил ${res.status}: ${text.slice(0, 200)}`);
+  if (!text.trim()) return {};
+  try { return JSON.parse(text); } catch { throw new KeitaroError(`Трекер ответил не по-json: ${text.slice(0, 160)}`); }
+}
+
+export type KeitaroDomain = { id: string; name: string; groupId: string };
+
+/** Список доменов трекера (id, имя, id группы). Имя приводим к нижнему регистру. */
+export async function listDomains(baseUrl: string, apiKey: string): Promise<KeitaroDomain[]> {
+  const raw = await call(baseUrl, apiKey, '/domains');
+  const arr = Array.isArray(raw) ? raw : [];
+  return arr.map((d: Record<string, unknown>) => ({
+    id: String(d.id ?? ''),
+    name: String(d.name ?? '').trim().toLowerCase(),
+    groupId: String(d.group_id ?? ''),
+  }));
+}
+
+/**
+ * Перенести домен в группу баера: находим его в трекере по имени и меняем
+ * group_id. Возвращаем id домена в КТ. Если домена в трекере нет — бросаем
+ * ошибку с понятным текстом (домен надо сперва завести в КТ на складе).
+ */
+export async function moveDomainToGroup(baseUrl: string, apiKey: string, name: string, groupId: string): Promise<string> {
+  const target = Number(groupId);
+  if (!Number.isFinite(target)) throw new KeitaroError('Не задан id доменной группы баера в Keitaro.');
+  const wanted = name.trim().toLowerCase();
+  const domains = await listDomains(baseUrl, apiKey);
+  const found = domains.find((d) => d.name === wanted);
+  if (!found) throw new KeitaroError(`Домена ${wanted} нет в трекере — заведи его в КТ (группа-склад).`);
+  await callMethod(baseUrl, apiKey, 'PUT', `/domains/${found.id}`, { group_id: target });
+  return found.id;
+}

@@ -74,6 +74,12 @@ model Buyer {
 
   ownerCapital     OwnerCapital?
   ownerWithdrawals OwnerWithdrawal[]
+  domains          Domain[]
+
+  /// id ДОМЕННОЙ группы баера в Keitaro. Отдельно от группы кампаний
+  /// (TrackerGroup): КТ сортирует домены своими группами. При покупке домен
+  /// переносим из группы-склада в эту. Пусто — КТ-перенос пропускаем.
+  ktDomainGroupId String @default("")
 }
 
 model Team {
@@ -557,6 +563,45 @@ model TrackerGroup {
 
   lastSeenAt DateTime?
   createdAt  DateTime  @default(now())
+}
+
+/// Магазин доменов. Админ грузит зарегистрированные домены на склад, баер
+/// покупает свободный — расход автоматом падает ему в расходники (категория
+/// «Домены»), а домен в Keitaro переезжает из группы-склада в группу баера.
+model Domain {
+  id     String @id @default(cuid())
+  /// example.com — в нижнем регистре, без схемы и путей.
+  name   String @unique
+  /// Доменная зона (TLD), напр. «com», «xyz». Цену держим по зоне.
+  zone   String
+  /// available — на витрине; sold — куплен баером.
+  status String @default("available")
+
+  buyerId String?
+  buyer   Buyer?  @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+  soldAt  DateTime?
+  /// Цена на момент продажи (снимок цены зоны), в центах. Пусто до продажи.
+  priceCents Int?
+  /// Расходник, который создали при покупке — чтобы откатить при возврате.
+  consumableId String?
+
+  /// Keitaro: id домена в трекере (находим по имени при переносе) и признак,
+  /// что перенос в группу баера удался. lastError — текст последней ошибки КТ.
+  ktId      String @default("")
+  ktMoved   Boolean @default(false)
+  ktError   String @default("")
+
+  note      String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([status, zone])
+  @@index([buyerId])
+}
+
+/// Цена доменной зоны (TLD). Одна строка на зону, задаёт админ.
+model DomainZonePrice {
+  zone       String @id
+  priceCents Int
 }
 
 /// Brocard — источник РЕАЛЬНОГО расхода: фактические списания с карт. Инстанс
