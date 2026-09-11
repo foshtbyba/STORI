@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { syncAll, syncFacebook, syncFacebookCampaigns, syncFacebookAds, SYNC_DAYS, FB_SPEND_DAYS } from '@/lib/sync';
+import { syncAll, syncFacebookCampaigns, syncFacebookAds, SYNC_DAYS } from '@/lib/sync';
 
 // Синхронизация нарочно неспешная — с паузами между запросами к Facebook,
 // чтобы не словить чекпоинт. Полный заход длится минуты, поэтому маршрут
@@ -59,15 +59,6 @@ export async function GET(req: Request) {
   if (url.searchParams.get('only') === 'campaigns') {
     const result = await syncFacebookCampaigns();
     return NextResponse.json({ ok: true, only: 'campaigns', ...result });
-  }
-
-  // Только расход с ФБ (расход кабинетов): ?only=facebook[&days=N]. По умолчанию
-  // 3 дня, как в обычном заходе; для разовой глубокой догрузки — ?days=14.
-  if (url.searchParams.get('only') === 'facebook') {
-    const askedFb = Number(url.searchParams.get('days'));
-    const fbDays = Number.isFinite(askedFb) && askedFb > 0 ? Math.min(31, Math.max(1, Math.round(askedFb))) : FB_SPEND_DAYS;
-    const result = await syncFacebook(fbDays);
-    return NextResponse.json({ ok: true, only: 'facebook', days: fbDays, ...result });
   }
 
   // Расход по объявлениям с привязкой к потокам Keitaro: ?only=ads[&days=N].

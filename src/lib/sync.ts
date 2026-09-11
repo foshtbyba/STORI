@@ -31,12 +31,6 @@ import { dailySpend, listTeams, BrocardError } from './brocard';
  *  тянуть глубже смысла нет — старое уже не меняется. */
 export const SYNC_DAYS = 14;
 
-/** Глубина подтяжки РАСХОДА С ФБ (расход кабинетов) при обычном заходе. Меньше,
- *  чем окно дохода: открут в ФБ за прошедшие дни уже не меняется, а частый заход
- *  на 3 дня быстрее и не мучает кабинеты запросами. Разовую глубокую догрузку
- *  делаем кроном `/api/sync?only=facebook&days=14`. */
-export const FB_SPEND_DAYS = 3;
-
 /**
  * Часовой пояс, в котором трекер и кабинеты считают «сутки». Все кабинеты
  * команды в Москве, поэтому и доход, и расход просим в московском времени —
@@ -1293,9 +1287,7 @@ export async function syncAll(days = SYNC_DAYS) {
   // Brocard, а доход из Keitaro потом лишь дописывает revenue.
   const brocard = await syncBrocard(days);
   const kt = await syncKeitaro(days);
-  // Расход с ФБ тянем только за последние FB_SPEND_DAYS (3): открут за прошлые
-  // дни уже не меняется, а доход/Brocard остаются на полном окне (days).
-  const fb = await syncFacebook(FB_SPEND_DAYS);
+  const fb = await syncFacebook(days);
   return {
     touched: brocard.touched + kt.touched + fb.touched,
     skipped: brocard.skipped + kt.skipped + fb.skipped,
