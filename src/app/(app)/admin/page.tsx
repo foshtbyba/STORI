@@ -13,6 +13,7 @@ import BuyerLadder, { type BuyerLadderRow } from '@/components/BuyerLadder';
 import CollapsiblePanel from '@/components/CollapsiblePanel';
 import { parseTiers } from '@/lib/salary';
 import { SYNC_DAYS } from '@/lib/sync';
+import { BUILD_INFO } from '@/lib/build-info';
 import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
 import { linkGroup, linkBrocardTeam } from '@/app/actions/integrations';
 import { TrackerForm, BrocardForm, SyncNow } from '@/components/IntegrationForms';
@@ -157,6 +158,9 @@ export default async function AdminPage({
           aside={
             <span className="hidden text-[12.5px] text-mute sm:inline">
               каждые полчаса — сегодня, раз в сутки — все {SYNC_DAYS} дней
+              <span className="ml-2 rounded-full bg-sub px-2 py-0.5 text-[10.5px] text-dim" title="Какая сборка сейчас развёрнута">
+                сборка {BUILD_INFO}
+              </span>
             </span>
           }
           right={<SyncNow />}
