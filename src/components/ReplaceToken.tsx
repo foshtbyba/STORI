@@ -33,7 +33,7 @@ export default function ReplaceToken({ tokenId, own = false }: { tokenId: string
   }
 
   return (
-    <form action={action} className="mt-1 w-full max-w-2xl rounded-[18px] bg-sub p-3.5">
+    <form action={action} className="mt-1 w-full max-w-2xl basis-full rounded-[18px] bg-sub p-3.5">
       <input type="hidden" name="id" value={tokenId} />
       <div className="mb-1.5 flex items-center justify-between">
         <span className="text-[12px] font-semibold">Новый токен профиля</span>
