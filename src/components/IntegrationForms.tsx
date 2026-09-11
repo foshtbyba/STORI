@@ -13,6 +13,7 @@ import {
   type ActionState,
 } from '@/app/actions/integrations';
 import SubmitButton from './SubmitButton';
+import Tip from './Tip';
 
 /**
  * Формы настройки интеграций.
@@ -362,40 +363,34 @@ export function SyncNow() {
   const finished = status && !status.running && status.finishedAt;
 
   return (
-    <div>
-      <button
-        type="button"
-        disabled={busy}
-        onClick={onClick}
-        className={`rounded-full border border-line2 bg-sub px-5 py-2 text-[12.5px] text-soft transition hover:border-sage hover:text-sage ${
-          busy ? 'cursor-progress opacity-60' : ''
-        }`}
-      >
-        {busy ? 'Тяну цифры…' : 'Синхронизировать сейчас'}
-      </button>
-
-      {!busy && finished ? (
-        <div className="mt-3 text-[12px] leading-relaxed">
-          <div className="text-soft">
-            Обновлено дней: <span className="n text-text">{status!.touched}</span>
-            {status!.skipped ? (
-              <>
-                {' · '}не тронуто (правили руками):{' '}
-                <span className="n text-text">{status!.skipped}</span>
-              </>
-            ) : null}
-          </div>
-          {status!.problems.map((p) => (
-            <div key={p} className="mt-1 text-rust">
-              {p}
-            </div>
-          ))}
-          {!status!.problems.length ? (
-            <div className="mt-1 text-sage">Всё прошло чисто.</div>
-          ) : null}
-        </div>
-      ) : busy ? (
-        <div className="mt-3 text-[12px] text-mute">Идёт в фоне — можно уйти со страницы, догрузится сам.</div>
+    <div className="flex flex-wrap items-center gap-2.5">
+      <Tip label="Тянет доход (Keitaro), расход (Brocard) и стату Facebook за 14 дней. Идёт в фоне — можно уйти со страницы, догрузится сам.">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={onClick}
+          className={`rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage ${
+            busy ? 'cursor-progress opacity-60' : ''
+          }`}
+        >
+          {busy ? 'Тяну цифры…' : 'Синхронизировать сейчас'}
+        </button>
+      </Tip>
+      {busy ? null : finished ? (
+        <span className="text-[11.5px] text-mute">
+          обновлено {status!.touched}
+          {status!.skipped ? <>{' · '}не тронуто {status!.skipped}</> : null}
+          {status!.problems.length ? (
+            <>
+              {' · '}
+              <Tip label={<span className="flex flex-col gap-1">{status!.problems.map((p) => <span key={p}>{p}</span>)}</span>}>
+                <span className="cursor-help text-rust underline decoration-dotted">проблемы: {status!.problems.length}</span>
+              </Tip>
+            </>
+          ) : (
+            <>{' · '}<span className="text-sage">чисто</span></>
+          )}
+        </span>
       ) : null}
     </div>
   );
