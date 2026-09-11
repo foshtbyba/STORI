@@ -119,7 +119,7 @@ export default function Storefront({
       {totalFree === 0 ? (
         <p className="text-[12.5px] text-mute">Свободных доменов на складе нет.</p>
       ) : (
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
           {zones
             .filter((z) => z.count > 0)
             .map((z) => {

@@ -89,7 +89,7 @@ export default async function DomainsPage() {
         />
         <div className="mt-4">
           {freeCount === 0 && sold.length === 0 ? (
-            <Empty>{admin ? 'Склад пуст — загрузи домены ниже.' : 'Свободных доменов пока нет.'}</Empty>
+            <Empty>{admin ? 'Склад пуст — жми «Подтянуть со склада КТ» ниже.' : 'Свободных доменов пока нет.'}</Empty>
           ) : (
             <Storefront zones={zones} sold={sold} buyers={buyerOpts} admin={admin} canBuy={canBuy} />
           )}
@@ -101,106 +101,108 @@ export default async function DomainsPage() {
         </p>
       </Panel>
 
+      {/* Настройки магазина — тремя компактными плашками в одну строку. */}
       {team ? (
-        <Panel className="p-4 sm:p-6">
-          <PanelHead icon={<IconTag color="#d2a06a" />} tint="bg-amber-t" title="Цены по зонам" />
-          <p className="mt-2 text-[11.5px] leading-relaxed text-mute">
-            Цена задаётся на доменную зону (TLD). Пустая цена — убрать зону из прайса.
-          </p>
-          <div className="mt-3 flex flex-col gap-2">
-            {[...new Set([...zonesInStock, ...prices.map((p) => p.zone)])].sort().map((zone) => {
-              const cur = priceByZone.get(zone);
-              const missing = zonesInStock.includes(zone) && cur == null;
-              return (
-                <form key={zone} action={setZonePrice} className="flex flex-wrap items-center gap-2 text-[12.5px]">
-                  <input type="hidden" name="zone" value={zone} />
-                  <span className={`w-20 font-medium ${missing ? 'text-rust' : ''}`}>.{zone}</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-mute">$</span>
-                    <input
-                      name="price"
-                      defaultValue={cur != null ? (cur / 100).toFixed(2) : ''}
-                      inputMode="decimal"
-                      placeholder="5.00"
-                      className="w-24 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-soft"
-                    />
-                  </div>
-                  <button type="submit" className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage">
-                    сохранить
-                  </button>
-                  {missing ? <span className="text-[11px] text-rust">есть домены без цены</span> : null}
-                </form>
-              );
-            })}
-            {/* Добавить зону, которой ещё нет на складе. */}
-            <form action={setZonePrice} className="mt-1 flex flex-wrap items-center gap-2 border-t border-line pt-3 text-[12.5px]">
-              <input name="zone" placeholder="напр. com" className="w-24 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-soft" />
-              <div className="flex items-center gap-1">
-                <span className="text-mute">$</span>
-                <input name="price" inputMode="decimal" placeholder="5.00" className="w-24 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-soft" />
-              </div>
-              <button type="submit" className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage">
-                добавить зону
-              </button>
-            </form>
-          </div>
-        </Panel>
-      ) : null}
-
-      {admin ? (
-        <>
-          <Panel className="p-4 sm:p-6">
-            <PanelHead
-              icon={<IconLink color="#d2a06a" />}
-              tint="bg-amber-t"
-              title="Склад доменов"
-              right={<PullStock />}
-            />
-            <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
-              Домены берём прямо из группы-склада Keitaro (по заданному ниже id склада). Заводишь
-              домены в КТ в группе-складе, жмёшь «Подтянуть со склада КТ» — они появляются на
-              витрине свободными. Дубли и уже проданные не трогаем.
-            </p>
-          </Panel>
-
-          <Panel className="p-4 sm:p-6">
-            <PanelHead icon={<IconTag color="#b4c68c" />} tint="bg-sage-t" title="Доменные группы в Keitaro" />
-            <p className="mt-2 text-[11.5px] leading-relaxed text-mute">
-              id группы-склада (откуда берём и куда возвращаем) и id доменной группы каждого баера
-              (куда переносим купленный домен). Смотри их в Keitaro: Домены → группы, колонка ID.
-              Пусто у баера — перенос пропускаем (покупка и расход всё равно проходят).
-            </p>
-            <form action={setStockGroup} className="mt-3 flex flex-wrap items-center gap-2 rounded-[14px] border border-line px-3 py-2.5 text-[12.5px]">
-              <span className="w-28 font-medium text-amber">Склад (источник)</span>
-              <input
-                name="groupId"
-                defaultValue={stockGroup}
-                placeholder="напр. 17"
-                className="w-40 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-soft"
+        <div className="grid grid-cols-1 items-start gap-2.5 lg:grid-cols-3 lg:gap-3.5">
+          {admin ? (
+            <Panel className="p-4 sm:p-6">
+              <PanelHead
+                icon={<IconLink color="#d2a06a" />}
+                tint="bg-amber-t"
+                title="Склад доменов"
+                right={<PullStock />}
               />
-              <button type="submit" className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage">
-                сохранить
-              </button>
-            </form>
+              <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
+                Домены берём прямо из группы-склада Keitaro (id склада — в плитке «Доменные
+                группы»). Заводишь домены в КТ в группе-складе, жмёшь «Подтянуть со склада КТ» —
+                появляются на витрине свободными. Дубли и уже проданные не трогаем.
+              </p>
+            </Panel>
+          ) : null}
+
+          <Panel className="p-4 sm:p-6">
+            <PanelHead icon={<IconTag color="#d2a06a" />} tint="bg-amber-t" title="Цены по зонам" />
+            <p className="mt-2 text-[11.5px] leading-relaxed text-mute">
+              Цена задаётся на доменную зону (TLD). Пустая цена — убрать зону из прайса.
+            </p>
             <div className="mt-3 flex flex-col gap-2">
-              {buyers.map((b) => (
-                <form key={b.id} action={setBuyerDomainGroup} className="flex flex-wrap items-center gap-2 text-[12.5px]">
-                  <input type="hidden" name="buyerId" value={b.id} />
-                  <span className="w-28 font-medium">{b.handle}</span>
-                  <input
-                    name="groupId"
-                    defaultValue={b.ktDomainGroupId}
-                    placeholder="id группы в КТ"
-                    className="w-40 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-soft"
-                  />
-                  <button type="submit" className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage">
-                    сохранить
-                  </button>
-                </form>
-              ))}
+              {[...new Set([...zonesInStock, ...prices.map((p) => p.zone)])].sort().map((zone) => {
+                const cur = priceByZone.get(zone);
+                const missing = zonesInStock.includes(zone) && cur == null;
+                return (
+                  <form key={zone} action={setZonePrice} className="flex flex-wrap items-center gap-2 text-[12.5px]">
+                    <input type="hidden" name="zone" value={zone} />
+                    <span className={`w-16 font-medium ${missing ? 'text-rust' : ''}`}>.{zone}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-mute">$</span>
+                      <input
+                        name="price"
+                        defaultValue={cur != null ? (cur / 100).toFixed(2) : ''}
+                        inputMode="decimal"
+                        placeholder="5.00"
+                        className="w-20 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-soft"
+                      />
+                    </div>
+                    <button type="submit" className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage">
+                      сохранить
+                    </button>
+                    {missing ? <span className="text-[11px] text-rust">без цены</span> : null}
+                  </form>
+                );
+              })}
+              {/* Добавить зону, которой ещё нет на складе. */}
+              <form action={setZonePrice} className="mt-1 flex flex-wrap items-center gap-2 border-t border-line pt-3 text-[12.5px]">
+                <input name="zone" placeholder="напр. com" className="w-20 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-soft" />
+                <div className="flex items-center gap-1">
+                  <span className="text-mute">$</span>
+                  <input name="price" inputMode="decimal" placeholder="5.00" className="w-20 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-soft" />
+                </div>
+                <button type="submit" className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage">
+                  добавить
+                </button>
+              </form>
             </div>
           </Panel>
-        </>
+
+          {admin ? (
+            <Panel className="p-4 sm:p-6">
+              <PanelHead icon={<IconTag color="#b4c68c" />} tint="bg-sage-t" title="Доменные группы в Keitaro" />
+              <p className="mt-2 text-[11.5px] leading-relaxed text-mute">
+                id группы-склада и доменной группы каждого баера. Смотри в Keitaro: Домены →
+                группы, колонка ID. Пусто у баера — перенос пропускаем.
+              </p>
+              <form action={setStockGroup} className="mt-3 flex flex-wrap items-center gap-2 rounded-[14px] border border-line px-3 py-2.5 text-[12.5px]">
+                <span className="w-24 font-medium text-amber">Склад</span>
+                <input
+                  name="groupId"
+                  defaultValue={stockGroup}
+                  placeholder="напр. 17"
+                  className="w-24 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-soft"
+                />
+                <button type="submit" className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage">
+                  сохранить
+                </button>
+              </form>
+              <div className="mt-3 flex flex-col gap-2">
+                {buyers.map((b) => (
+                  <form key={b.id} action={setBuyerDomainGroup} className="flex flex-wrap items-center gap-2 text-[12.5px]">
+                    <input type="hidden" name="buyerId" value={b.id} />
+                    <span className="w-24 font-medium">{b.handle}</span>
+                    <input
+                      name="groupId"
+                      defaultValue={b.ktDomainGroupId}
+                      placeholder="id в КТ"
+                      className="w-24 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-soft"
+                    />
+                    <button type="submit" className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage">
+                      сохранить
+                    </button>
+                  </form>
+                ))}
+              </div>
+            </Panel>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );
