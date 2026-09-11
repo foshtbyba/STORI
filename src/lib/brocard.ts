@@ -85,10 +85,16 @@ export async function dailySpend(
   from: string,
   to: string,
   tz = 'UTC',
-): Promise<{ rows: BrocardSpendRow[]; voidedCents: number; voidedCount: number }> {
+): Promise<{ rows: BrocardSpendRow[]; voidedCents: number; voidedCount: number; debug: string[] }> {
   const out: BrocardSpendRow[] = [];
   let voidedCents = 0;
   let voidedCount = 0;
+  // Диагностика void: имя поля статуса у Brocard заранее неизвестно. Собираем
+  // список полей первого платежа (схему) и сырые поля платежей с суммой ~$12.15
+  // (тот самый void), чтобы точно увидеть, где отмечается отмена.
+  const debug: string[] = [];
+  const statusVals = new Set<string>();
+  let schemaDumped = false;
 
   for (let page = 1; page <= 200; page += 1) {
     const raw = await call(apiKey, '/payments', {
@@ -101,6 +107,20 @@ export async function dailySpend(
 
     const data = ((raw as { data?: unknown }).data ?? []) as Record<string, unknown>[];
     for (const p of data) {
+      // --- ДИАГНОСТИКА (временная) ---
+      if (!schemaDumped) {
+        debug.push(`поля платежа: ${Object.keys(p).join(', ')}`);
+        schemaDumped = true;
+      }
+      for (const f of ['status', 'state', 'payment_status', 'transaction_status', 'type', 'kind', 'result']) {
+        if (p[f] != null && p[f] !== '') statusVals.add(`${f}=${String(p[f])}`);
+      }
+      const amt = Number(p.amount ?? 0);
+      if (amt >= 12.1 && amt <= 12.2) {
+        try { debug.push(`платёж $${amt}: ${JSON.stringify(p).slice(0, 600)}`); } catch { /* ignore */ }
+      }
+      // --- /ДИАГНОСТИКА ---
+
       // Микро — это центовая проверка карты, не трата: пропускаем целиком.
       if (p.is_micro === true) continue;
 
@@ -176,7 +196,8 @@ export async function dailySpend(
     if (!Number.isFinite(lastPage) || page >= lastPage) break;
   }
 
-  return { rows: out, voidedCents, voidedCount };
+  if (statusVals.size) debug.unshift(`статусы: ${[...statusVals].slice(0, 40).join(' | ')}`);
+  return { rows: out, voidedCents, voidedCount, debug };
 }
 
 /** Проверка ключа: сколько команд видно под ним. */
