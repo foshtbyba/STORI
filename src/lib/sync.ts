@@ -7,7 +7,7 @@ import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, 
 import { isDeadAccount } from './fb-status';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
-import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, clearCostsWindow, adCampaignMap, KeitaroError, type CostEntry } from './keitaro';
+import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, clearCostsWindow, adCampaignMap, dailyCost, KeitaroError, type CostEntry } from './keitaro';
 import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -1080,11 +1080,43 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   // Диагностика: одной строкой видно, дошёл ли расход до КТ и где он теряется.
   // Суммы до центов — расход по объявлению часто копеечный, целые доллары врут.
   const d = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+
+  // Сверка: читаем ФАКТИЧЕСКИЙ cost обратно из КТ и сравниваем с отправленным.
+  // Если КТ держит меньше, чем мы залили — значит не на что было положить
+  // (дни без кликов у кампаний). Так сразу видно, это потолок КТ или наша
+  // недоотправка, и на какие дни приходится расхождение.
+  let ktHeldLine = '';
+  if (tracker) {
+    try {
+      const ktCost = await dailyCost(tracker.baseUrl, tracker.apiKey, from, to, SYNC_TZ);
+      let heldCents = 0;
+      for (const c of ktCost.values()) heldCents += c;
+      // Топ дней по расхождению «залито этому дню − держит КТ».
+      const sentByDay = new Map<string, number>();
+      for (const [key, b] of cost) {
+        const day = key.split('|')[1];
+        sentByDay.set(day, (sentByDay.get(day) ?? 0) + b.cents);
+      }
+      const gaps = [...sentByDay.entries()]
+        .map(([day, sent]) => ({ day, gap: sent - (ktCost.get(day) ?? 0) }))
+        .filter((g) => Math.abs(g.gap) >= 100)
+        .sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap))
+        .slice(0, 6)
+        .map((g) => `${g.day.slice(5)}: ${g.gap > 0 ? '−' : '+'}${d(Math.abs(g.gap))}`)
+        .join(', ');
+      ktHeldLine =
+        ` КТ сейчас держит расход: ${d(heldCents)} (отправили ${d(pushed.cents)}).` +
+        (gaps ? ` Дни с расхождением (залито−держит КТ): ${gaps}.` : '');
+    } catch (e) {
+      ktHeldLine = ` (сверку cost из КТ не прочитать: ${(e as Error).message})`;
+    }
+  }
+
   result.info.push(
     `Расход ФБ: ${d(totalSpendCents)}. Залито в КТ: ${d(pushed.cents)} на ${pushed.campaigns} кампаний. ` +
       (nonUsdDays ? `Пропущено не-USD: ${d(nonUsdCents)}. ` : '') +
       (unmatchedCents ? `Без кампании в КТ: ${d(unmatchedCents)}. ` : '') +
-      `Заливаем на campaign_id (вся сумма кампании за день, как в дешборде); окно перед заливкой обнуляется, чтобы не копились хвосты.` +
+      ktHeldLine +
       (pushed.resp ? ` Ответ КТ: ${pushed.resp}` : ''),
   );
 

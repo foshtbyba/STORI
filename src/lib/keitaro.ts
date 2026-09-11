@@ -160,6 +160,36 @@ export async function dailyRevenue(
   return out;
 }
 
+/**
+ * Фактический РАСХОД (cost) по дням, как его сейчас видит Keitaro. Нужно, чтобы
+ * сверить: сколько мы отправили заливкой против того, что КТ реально положил на
+ * клики. Метрика `cost` — суммарный расход, что лёг на клики за период.
+ */
+export async function dailyCost(
+  baseUrl: string,
+  apiKey: string,
+  from: string,
+  to: string,
+  timezone = 'UTC',
+): Promise<Map<string, number>> {
+  const raw = await call(baseUrl, apiKey, '/report/build', {
+    range: { from, to, timezone },
+    grouping: ['day'],
+    metrics: ['cost'],
+    filters: [],
+    limit: 10000,
+  });
+  const rows = ((raw as { rows?: unknown }).rows ?? []) as Record<string, unknown>[];
+  const out = new Map<string, number>();
+  for (const row of rows) {
+    const day = String(row.day ?? row.date ?? '').slice(0, 10);
+    if (!day) continue;
+    const c = Number(row.cost ?? 0);
+    out.set(day, Number.isFinite(c) ? Math.round(c * 100) : 0);
+  }
+  return out;
+}
+
 export type KeitaroAdDay = {
   date: string;
   /** Значение sub_id_4 — это ad_id объявления Facebook. */
