@@ -7,6 +7,24 @@ import CampaignsTable, { type AdRow } from '@/components/CampaignsTable';
 import Tip from '@/components/Tip';
 
 /**
+ * Короткая причина слёта из текста ошибки FB (она лежит в lastError токена).
+ * Полный текст остаётся в подсказке; тут — ярлык в 1-2 слова, чтобы сразу было
+ * видно, это прокси/сессия, истёк ключ, сменили пароль, бан или троттлинг.
+ */
+function dropReason(err: string): string {
+  const e = (err || '').toLowerCase();
+  if (/притормоз|пауз|throttle|чекпоинт|#4\b|код 4\b|код 17|код 32|код 613/.test(e)) return 'троттлинг (на паузе)';
+  if (/460|парол|password/.test(e)) return 'сменили пароль';
+  if (/463|истёк|истек|expired|срок/.test(e)) return 'ключ истёк';
+  if (/467|отозв|revoked/.test(e)) return 'ключ отозван';
+  if (/бан|blocked|заблок|disable|368/.test(e)) return 'бан/блок';
+  if (/190|session|сесси|oauth|error loading/.test(e)) return 'сессия/IP (прокси)';
+  if (/код 1\b|код 2\b|invalid request|антидетект/.test(e)) return 'сессия профиля кончилась';
+  if (/10\b|200|803|прав|permission/.test(e)) return 'нет прав на кабинеты';
+  return 'токен слетел';
+}
+
+/**
  * Кампании — таблица статистики по объявлениям из Facebook (референс — FBTOOL).
  *
  * Данные тянет заход `syncFacebookAds` (кнопка «Обновить стату» и крон
@@ -114,7 +132,8 @@ export default async function CampaignsPage({
   });
   const stale = staleTokens.map((t) => ({
     who: [t.buyer?.handle, t.label].filter(Boolean).join(' · ') || 'профиль',
-    error: t.lastError,
+    error: t.lastError ?? '',
+    reason: dropReason(t.lastError ?? ''),
     when: t.lastSyncAt ? fmtWhen(t.lastSyncAt) : null,
   }));
 
@@ -192,7 +211,9 @@ export default async function CampaignsPage({
                 label={
                   <span className="flex flex-col gap-0.5">
                     <span className="font-medium text-text">{s.who}</span>
+                    <span className="text-rust">Причина: {s.reason}</span>
                     {s.when ? <span className="text-mute">последнее обновление {s.when}</span> : null}
+                    {s.error ? <span className="text-mute">FB: {s.error}</span> : null}
                     <span>Токен слетел — обнови профиль (кнопка «подкинуть токен» в кабинетах) или переоткрой сессию в антидетекте. После — жми «Обновить стату»: пропущенные дни (до 14) догрузятся.</span>
                   </span>
                 }
@@ -203,7 +224,7 @@ export default async function CampaignsPage({
                 >
                   <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: '#ce6e58' }} />
                   <span className="font-medium">{s.who}</span>
-                  <span className="text-mute">· токен слетел</span>
+                  <span className="text-mute">· {s.reason}</span>
                 </span>
               </Tip>
             ))}

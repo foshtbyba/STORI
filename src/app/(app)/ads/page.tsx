@@ -7,7 +7,7 @@ import { accountBadge } from '@/lib/fb-status';
 import { Panel, PanelHead, Empty } from '@/components/ui';
 import { MyTokenForm, TokenForm } from '@/components/IntegrationForms';
 import AccountGroup, { type Group } from '@/components/AccountGroup';
-import { IconWallet, IconTag, IconChart } from '@/components/icons';
+import { IconWallet } from '@/components/icons';
 
 /**
  * Обзор рекламного пространства — техничка ФБ.
@@ -175,22 +175,6 @@ export default async function AdsOverviewPage() {
           </div>
         </Panel>
       ) : null}
-
-      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 lg:gap-3.5">
-        <Panel className="p-4 sm:p-6">
-          <PanelHead icon={<IconChart color="#b4c68c" />} tint="bg-sage-t" title="Кампании" />
-          <p className="mt-3 text-[12px] leading-relaxed text-mute">
-            Таблица кампаний с метриками — лиды, клики, CTR, расход — и кнопками пауза/запуск. На
-            подключении.
-          </p>
-        </Panel>
-        <Panel className="p-4 sm:p-6">
-          <PanelHead icon={<IconTag color="#b4c68c" />} tint="bg-sage-t" title="Автозалив" />
-          <p className="mt-3 text-[12px] leading-relaxed text-mute">
-            Заливка кампаний по шаблонам из карточек офферов. Следующий большой шаг после мониторинга.
-          </p>
-        </Panel>
-      </div>
     </div>
   );
 }
