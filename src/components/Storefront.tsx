@@ -205,7 +205,7 @@ export default function Storefront({
                     </td>
                     <td className="py-1.5 pr-3 text-mute">{s.soldAt ?? '—'}</td>
                     <td className="py-1.5 text-right">
-                      {s.mine || admin ? (
+                      {admin ? (
                         <button
                           type="button"
                           disabled={pending && busyId === s.id}

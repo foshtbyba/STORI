@@ -3,7 +3,6 @@
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { requireUser, requireAdmin } from '@/lib/auth';
-import { canSeeTeam, type Role } from '@/lib/roles';
 import { moneyInputToCents } from '@/lib/format';
 import { moveDomainToGroup, KeitaroError } from '@/lib/keitaro';
 
@@ -220,16 +219,12 @@ export async function buyDomains(formData: FormData) {
   return { ok: true, bought: picked.length, requested: qty, note: `Куплено ${picked.length} шт.${short}`, ktNote };
 }
 
-/** Вернуть проданный домен на склад: снять расход и обнулить продажу. */
+/** Вернуть проданный домен на склад: снять расход и обнулить продажу. Только админ. */
 export async function returnDomain(formData: FormData) {
-  const user = await requireUser();
+  await requireAdmin();
   const id = String(formData.get('id') ?? '');
   const domain = await prisma.domain.findUnique({ where: { id } });
   if (!domain || domain.status !== 'sold') return;
-
-  // Баер может вернуть только свой домен; вся команда/админ — любой.
-  const scoped = !canSeeTeam(user.role as Role);
-  if (scoped && domain.buyerId !== user.buyer?.id) return;
 
   if (domain.consumableId) {
     await prisma.consumableEntry.delete({ where: { id: domain.consumableId } }).catch(() => {});
