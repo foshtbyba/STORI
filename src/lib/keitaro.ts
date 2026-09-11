@@ -160,35 +160,6 @@ export async function dailyRevenue(
   return out;
 }
 
-/**
- * Фактический РАСХОД (cost) по дням, как его сейчас видит Keitaro. Нужно, чтобы
- * сверить: сколько мы отправили заливкой против того, что КТ реально положил на
- * клики. Метрика `cost` — суммарный расход, что лёг на клики за период.
- */
-export async function dailyCost(
-  baseUrl: string,
-  apiKey: string,
-  from: string,
-  to: string,
-  timezone = 'UTC',
-): Promise<Map<string, number>> {
-  const raw = await call(baseUrl, apiKey, '/report/build', {
-    range: { from, to, timezone },
-    grouping: ['day'],
-    metrics: ['cost'],
-    filters: [],
-    limit: 10000,
-  });
-  const rows = ((raw as { rows?: unknown }).rows ?? []) as Record<string, unknown>[];
-  const out = new Map<string, number>();
-  for (const row of rows) {
-    const day = String(row.day ?? row.date ?? '').slice(0, 10);
-    if (!day) continue;
-    const c = Number(row.cost ?? 0);
-    out.set(day, Number.isFinite(c) ? Math.round(c * 100) : 0);
-  }
-  return out;
-}
 
 export type KeitaroAdDay = {
   date: string;
@@ -261,11 +232,7 @@ export async function adCampaignMap(
   from: string,
   to: string,
   timezone = 'UTC',
-): Promise<{
-  dayMap: Map<string, string>;
-  adMap: Map<string, string>;
-  daySplit: Map<string, { campId: string; clicks: number }[]>;
-}> {
+): Promise<{ adMap: Map<string, string> }> {
   const raw = await call(baseUrl, apiKey, '/report/build', {
     range: { from, to, timezone },
     grouping: ['sub_id_4', 'campaign_id', 'day'],
@@ -275,41 +242,20 @@ export async function adCampaignMap(
   });
 
   const rows = ((raw as { rows?: unknown }).rows ?? []) as Record<string, unknown>[];
-  // Лучшая кампания по кликам за КОНКРЕТНЫЙ день (точная привязка расхода дня)
-  // и за всё окно (запасная, если по дню клика не нашлось).
-  const bestDay = new Map<string, { campId: string; clicks: number }>();
+  // Лучшая кампания по кликам за всё окно: под ней Keitaro залогировал больше
+  // всего кликов этого объявления — туда и льём его расход.
   const bestAd = new Map<string, { campId: string; clicks: number }>();
-  // ПОЛНОЕ распределение кликов объявления за день по кампаниям: если объявление
-  // крутилось на несколько потоков, его клики (а значит и расход) надо делить
-  // между кампаниями пропорционально, а не сваливать всё в одну. Ключ `sub|day`
-  // → map кампания→клики.
-  const splitDay = new Map<string, Map<string, number>>();
   for (const row of rows) {
     const sub = String(row.sub_id_4 ?? '').trim();
     const campId = String(row.campaign_id ?? '').trim();
-    const day = String(row.day ?? row.date ?? '').slice(0, 10);
     if (!sub || !campId) continue;
     const clicks = Math.round(Number(row.clicks ?? 0)) || 0;
-    if (day) {
-      const dk = `${sub}|${day}`;
-      const cd = bestDay.get(dk);
-      if (!cd || clicks > cd.clicks) bestDay.set(dk, { campId, clicks });
-      const sd = splitDay.get(dk) ?? new Map<string, number>();
-      sd.set(campId, (sd.get(campId) ?? 0) + clicks);
-      splitDay.set(dk, sd);
-    }
     const ca = bestAd.get(sub);
     if (!ca || clicks > ca.clicks) bestAd.set(sub, { campId, clicks });
   }
-  const dayMap = new Map<string, string>();
-  for (const [k, v] of bestDay) dayMap.set(k, v.campId);
   const adMap = new Map<string, string>();
   for (const [k, v] of bestAd) adMap.set(k, v.campId);
-  const daySplit = new Map<string, { campId: string; clicks: number }[]>();
-  for (const [k, m] of splitDay) {
-    daySplit.set(k, [...m].map(([campId, clicks]) => ({ campId, clicks })));
-  }
-  return { dayMap, adMap, daySplit };
+  return { adMap };
 }
 
 /**
@@ -327,16 +273,7 @@ function pickNumber(row: Record<string, unknown>, keys: string[]) {
   return 0;
 }
 
-/** Один фильтр кликов Keitaro: имя поля, оператор, значение. Такой же формат,
- *  как в отчётах (`/report/build`) — массив таких объектов. */
-export type CostFilter = {
-  name: string;
-  /** Оператор сравнения Keitaro. Для точного совпадения — `EQUALS`. */
-  operator: string;
-  expression: string;
-};
-
-/** Одна запись расхода для заливки в Keitaro: отрезок времени, сумма и фильтр. */
+/** Одна запись расхода для заливки в Keitaro: отрезок времени и сумма. */
 export type CostEntry = {
   /** «YYYY-MM-DD HH:MM:SS» в поясе трекера. */
   start_date: string;
@@ -345,15 +282,6 @@ export type CostEntry = {
   cost: number;
   /** Валюта расхода — Keitaro требует её обязательно. */
   currency?: string;
-  /**
-   * Фильтры кликов — МАССИВ объектов `{ name, operator, expression }`, как в
-   * отчётах Keitaro. Напр. `[{ name: 'sub_id_4', operator: 'EQUALS',
-   * expression: '123' }]`: расход ложится ровно на клики нужного объявления
-   * (ad_id в Sub ID 4), как это делает FBtool. Без фильтра — на все клики
-   * кампании за период. Key-value (`{ sub_id_4: '123' }`) Keitaro молча
-   * игнорирует, и расход никуда не пишется.
-   */
-  filters?: CostFilter[];
 };
 
 /**
@@ -387,39 +315,12 @@ export async function updateCostsBulk(
 }
 
 /**
- * Залить расход по ad_id (фильтр sub_id_4 у каждой записи).
- *
- * campaign_ids задаёт область (все затронутые кампании), а фильтр внутри записи
- * (`sub_id_4 EQUALS ad_id`) сужает расход ровно до кликов нужного объявления —
- * КТ раскладывает его по этим кликам в их реальных кампаниях. Так деньги не
- * размазываются по чужим кликам кампании (как без фильтра), а ложатся на своё
- * объявление, где бы его клики ни были. Это способ FBtool.
- */
-export async function updateCostsByAd(
-  baseUrl: string,
-  apiKey: string,
-  campaignIds: number[],
-  costs: CostEntry[],
-  timezone = 'UTC',
-) {
-  if (costs.length === 0 || campaignIds.length === 0) return {} as unknown;
-  const withCurrency = costs.map((c) => ({ currency: 'USD', ...c }));
-  return await call(baseUrl, apiKey, '/clicks/update_costs', {
-    campaign_ids: campaignIds,
-    currency: 'USD',
-    timezone,
-    costs: withCurrency,
-  });
-}
-
-/**
  * Обнулить cost за окно по списку кампаний (перед свежей заливкой).
  *
- * `update_costs` меняет стоимость только у тех кликов, куда шлём сейчас. Если
- * прошлый заход клал cost на клики, которых новый способ уже не трогает (сменили
- * привязку/способ заливки), старая стоимость на них зависает — в отчёте КТ копится
- * винегрет из старого и нового. Обнуляем всё окно у этих кампаний, затем льём
- * свежее по ad_id — тогда в КТ ровно текущий расход, без хвостов.
+ * `update_costs` меняет стоимость только у тех дней, куда шлём сейчас. День
+ * кампании без открута сохраняет старую сумму с прошлых заходов — в отчёте КТ
+ * копится лишнее. Обнуляем окно кампании, затем льём свежее по дням — тогда в
+ * КТ ровно текущий расход, без хвостов.
  */
 export async function clearCostsWindow(
   baseUrl: string,
