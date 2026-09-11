@@ -10,6 +10,14 @@ import { moveDomainToGroup, KeitaroError } from '@/lib/keitaro';
 /** Название категории расходников, куда падает покупка домена. */
 const DOMAIN_CONSUMABLE = 'Домены';
 
+/** Setting-ключ с id группы-склада доменов в Keitaro (напр. «17»). */
+const STOCK_GROUP_KEY = 'kt_domain_stock_group';
+
+async function stockGroupId(): Promise<string> {
+  const s = await prisma.setting.findUnique({ where: { key: STOCK_GROUP_KEY } });
+  return s?.value?.trim() ?? '';
+}
+
 /**
  * Магазин доменов. Админ грузит зарегистрированные домены на склад и задаёт
  * цену по зонам; баер покупает свободный домен — расход автоматом падает ему в
@@ -49,6 +57,18 @@ export async function setZonePrice(formData: FormData) {
       create: { zone, priceCents: cents },
     });
   }
+  revalidatePath('/ads/domains');
+}
+
+/** id группы-склада доменов в Keitaro — откуда берём и куда возвращаем. */
+export async function setStockGroup(formData: FormData) {
+  await requireAdmin();
+  const value = String(formData.get('groupId') ?? '').trim();
+  await prisma.setting.upsert({
+    where: { key: STOCK_GROUP_KEY },
+    update: { value },
+    create: { key: STOCK_GROUP_KEY, value },
+  });
   revalidatePath('/ads/domains');
 }
 
@@ -203,6 +223,22 @@ export async function returnDomain(formData: FormData) {
     where: { id },
     data: { status: 'available', buyerId: null, soldAt: null, priceCents: null, consumableId: null, ktMoved: false, ktError: '' },
   });
+
+  // Симметрия с покупкой: домен уезжает обратно в группу-склад в Keitaro.
+  // Мягко — если склад не настроен или трекер недоступен, локально уже вернули.
+  try {
+    const stock = await stockGroupId();
+    if (stock) {
+      const tracker = await prisma.tracker.findFirst({ where: { enabled: true } });
+      if (tracker) {
+        await moveDomainToGroup(tracker.baseUrl, tracker.apiKey, domain.name, stock);
+      }
+    }
+  } catch (e) {
+    const note = e instanceof KeitaroError ? e.message : `Возврат в склад КТ не удался: ${(e as Error).message}`;
+    await prisma.domain.update({ where: { id }, data: { ktError: note } });
+  }
+
   revalidatePath('/ads/domains');
   revalidatePath('/consumables');
   revalidatePath('/');

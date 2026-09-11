@@ -6,7 +6,7 @@ import { usd } from '@/lib/money';
 import { Panel, PanelHead, Empty } from '@/components/ui';
 import { IconLink, IconTag } from '@/components/icons';
 import Storefront, { type ZoneGroup, type SoldRow, type BuyerOpt } from '@/components/Storefront';
-import { setZonePrice, uploadDomains, setBuyerDomainGroup } from '@/app/actions/domains';
+import { setZonePrice, uploadDomains, setBuyerDomainGroup, setStockGroup } from '@/app/actions/domains';
 
 /**
  * Магазин доменов. Админ грузит зарегистрированные домены на склад и задаёт
@@ -34,6 +34,10 @@ export default async function DomainsPage() {
       orderBy: { handle: 'asc' },
     }),
   ]);
+
+  const stockGroup = admin
+    ? (await prisma.setting.findUnique({ where: { key: 'kt_domain_stock_group' } }))?.value ?? ''
+    : '';
 
   const priceByZone = new Map(prices.map((p) => [p.zone, p.priceCents]));
 
@@ -158,11 +162,24 @@ export default async function DomainsPage() {
           </Panel>
 
           <Panel className="p-4 sm:p-6">
-            <PanelHead icon={<IconTag color="#b4c68c" />} tint="bg-sage-t" title="Доменные группы баеров в Keitaro" />
+            <PanelHead icon={<IconTag color="#b4c68c" />} tint="bg-sage-t" title="Доменные группы в Keitaro" />
             <p className="mt-2 text-[11.5px] leading-relaxed text-mute">
-              id доменной группы баера в КТ — куда переносим купленный домен со склада. Пусто —
-              перенос пропускаем (покупка и расход всё равно проходят).
+              id группы-склада (откуда берём и куда возвращаем) и id доменной группы каждого баера
+              (куда переносим купленный домен). Смотри их в Keitaro: Домены → группы, колонка ID.
+              Пусто у баера — перенос пропускаем (покупка и расход всё равно проходят).
             </p>
+            <form action={setStockGroup} className="mt-3 flex flex-wrap items-center gap-2 rounded-[14px] border border-line px-3 py-2.5 text-[12.5px]">
+              <span className="w-28 font-medium text-amber">Склад (источник)</span>
+              <input
+                name="groupId"
+                defaultValue={stockGroup}
+                placeholder="напр. 17"
+                className="w-40 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-soft"
+              />
+              <button type="submit" className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage">
+                сохранить
+              </button>
+            </form>
             <div className="mt-3 flex flex-col gap-2">
               {buyers.map((b) => (
                 <form key={b.id} action={setBuyerDomainGroup} className="flex flex-wrap items-center gap-2 text-[12.5px]">
