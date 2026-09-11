@@ -179,8 +179,14 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
         </span>
       </div>
 
-      {open ? (
-        <>
+      {/* Плавное раскрытие: сетка 0fr→1fr анимирует высоту без «прыжка», а
+          внутренний overflow-hidden прячет содержимое, пока свёрнуто. */}
+      <div
+        className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+          open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+        }`}
+      >
+        <div className="overflow-hidden">
           {group.admin ? (
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <form action={toggleToken}>
@@ -226,15 +232,21 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
               >
                 {showBanned ? `Скрыть забаненные (${banned.length})` : `Показать забаненные (${banned.length})`}
               </button>
-              {showBanned ? (
-                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                  {banned.map((acc) => renderAcc(acc))}
+              <div
+                className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+                  showBanned ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {banned.map((acc) => renderAcc(acc))}
+                  </div>
                 </div>
-              ) : null}
+              </div>
             </div>
           ) : null}
-        </>
-      ) : null}
+        </div>
+      </div>
     </div>
   );
 }
