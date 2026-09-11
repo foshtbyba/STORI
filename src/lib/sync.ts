@@ -7,7 +7,7 @@ import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, 
 import { isDeadAccount } from './fb-status';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
-import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, clearCostsWindow, adCampaignMap, dailyCost, KeitaroError, type CostEntry } from './keitaro';
+import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, adCampaignMap, dailyCost, KeitaroError, type CostEntry } from './keitaro';
 import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
@@ -739,9 +739,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   let prunedAds = 0; // удалённые из базы объявления, которых больше нет в ФБ
 
   // Расход копим по (кампания КТ, день) в `cost` выше — весь дневной расход
-  // объявления идёт в его кампанию целиком (как в дешборде). Здесь — список всех
-  // кампаний, что затронул расход: их окно обнуляем перед заливкой.
-  const campaignUniverse = new Set<string>();
+  // объявления идёт в его кампанию целиком (как в дешборде).
 
   const all = await prisma.adToken.findMany({
     where: { enabled: true },
@@ -909,7 +907,6 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
             // не только доля, что КТ смог посадить на клики фильтром sub_id_4.
             // Так совпадает и по дням, и по группам, даже когда групп много.
             if (ktCampId) {
-              campaignUniverse.add(ktCampId);
               const dayCamp = campById.get(ktCampId);
               const key = `${ktCampId}|${s.date}`;
               const b = cost.get(key) ?? {
@@ -1074,7 +1071,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   // доходом в отчётах трекера и ROI считался уже внутри КТ.
   let pushed = { campaigns: 0, entries: 0, cents: 0, resp: '' };
   if (tracker) {
-    pushed = await pushCostsToKeitaro(tracker, pushByCamp, [...campaignUniverse], from, to, result);
+    pushed = await pushCostsToKeitaro(tracker, pushByCamp, from, to, result);
   }
 
   // Диагностика: одной строкой видно, дошёл ли расход до КТ и где он теряется.
@@ -1124,24 +1121,20 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
 }
 
 /**
- * Отдаём расход в Keitaro — на campaign_id, с предварительным обнулением окна.
+ * Отдаём расход в Keitaro — на campaign_id, без предварительного обнуления.
  *
- * Порядок:
- *  1) Обнуляем cost за окно у всех затронутых кампаний. Это стирает хвосты от
- *     прошлых способов заливки — иначе старая стоимость на кликах, которых новый
- *     способ не трогает, зависает и в отчёте КТ каша. Заход идёт на полные 14
- *     дней и все объявления, поэтому окно тут же заливается целиком — «стёр и не
- *     догрузил» тут невозможно.
- *  2) Льём НА КАМПАНИЮ (campaign_id), без фильтра по кликам: на каждую кампанию
- *     её записи расхода по дням. КТ проставит кампании этот расход за день —
- *     как в дешборде. Фильтр по кликам (sub_id_4) в этом КТ недобирает (кладёт
- *     лишь часть), поэтому льём на кампанию целиком.
+ * Льём НА КАМПАНИЮ (campaign_id), без фильтра по кликам: на каждую кампанию её
+ * записи расхода по дням. `update_costs` ПЕРЕЗАПИСЫВАЕТ расход у той пары
+ * (кампания, день), что шлём, — поэтому каждый заход просто обновляет текущие
+ * суммы, старое затирается само. Никакого «обнулить окно» перед заливкой: оно
+ * создавало «дыру» на минуты (стёрли — ещё не долили), в которую попадал отчёт
+ * КТ и показывал провал расхода. Фильтр по кликам (sub_id_4) в этом КТ недобирает
+ * (кладёт лишь часть), поэтому льём на кампанию целиком.
  * Успех метим `pushedAt` у строк KtCostDay окна.
  */
 async function pushCostsToKeitaro(
   tracker: { baseUrl: string; apiKey: string },
   entriesByCamp: Map<string, CostEntry[]>,
-  campaignUniverse: string[],
   from: string,
   to: string,
   result: SyncResult,
@@ -1150,15 +1143,7 @@ async function pushCostsToKeitaro(
   let campaigns = 0, entriesCount = 0, cents = 0;
   let sampleResp = '';
 
-  // 1) Обнуляем окно у затронутых кампаний — стираем хвосты прошлых заливок.
-  try {
-    await clearCostsWindow(tracker.baseUrl, tracker.apiKey, campaignUniverse, from, to, SYNC_TZ);
-  } catch (e) {
-    const why = e instanceof KeitaroError ? e.message : `Сбой: ${(e as Error).message}`;
-    result.problems.push(`Keitaro: не удалось обнулить окно перед заливкой — ${why}`);
-  }
-
-  // 2) Заливка на campaign_id, без фильтра — каждой кампании её расход по дням.
+  // Заливка на campaign_id, без фильтра — каждой кампании её расход по дням.
   for (const [campaignId, entries] of entriesByCamp) {
     if (entries.length === 0) continue;
     try {
