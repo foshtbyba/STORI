@@ -447,15 +447,12 @@ export async function syncBrocard(days = SYNC_DAYS): Promise<SyncResult> {
     const overheadTeams = await prisma.brocardTeam.findMany({ where: { overhead: true } });
     const overheadIds = new Set(overheadTeams.map((t) => t.externalId));
 
-    const { rows, voidedCents, voidedCount, debug } = await dailySpend(config.apiKey, from, to, SYNC_TZ);
+    const { rows, voidedCents, voidedCount } = await dailySpend(config.apiKey, from, to, SYNC_TZ);
     if (voidedCount > 0) {
       result.info.push(
         `Brocard: исключено ${voidedCount} void/возврат на $${(voidedCents / 100).toFixed(2)} (в расход не пошли).`,
       );
     }
-    // Временная диагностика: показываем реальные поля/статусы платежей Brocard,
-    // чтобы точно найти, где отмечается void.
-    for (const d of debug) result.info.push(`Brocard debug — ${d}`);
 
     /**
      * Расход по «баер + день» = вся сумма с Brocard (тело платежа + внутренние

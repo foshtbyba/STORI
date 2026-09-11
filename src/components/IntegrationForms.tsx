@@ -363,7 +363,7 @@ export function SyncNow() {
   const finished = status && !status.running && status.finishedAt;
 
   return (
-    <div className="flex w-full flex-wrap items-center justify-end gap-2.5">
+    <div className="flex flex-wrap items-center justify-end gap-2.5">
       {busy ? null : finished ? (
         <span className="text-right text-[11.5px] text-mute">
           обновлено {status!.touched}
