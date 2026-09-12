@@ -7,6 +7,7 @@ import { Panel, PanelHead, Empty } from '@/components/ui';
 import { IconLink, IconTag } from '@/components/icons';
 import Storefront, { type ZoneGroup, type SoldRow, type BuyerOpt } from '@/components/Storefront';
 import PullStock from '@/components/PullStock';
+import Collapsible from '@/components/Collapsible';
 import { setZonePrice, setBuyerDomainGroup, setStockGroup } from '@/app/actions/domains';
 import { syncStockFromKeitaro, DEFAULT_ZONE_PRICE_CENTS } from '@/lib/domain-stock';
 
@@ -105,25 +106,9 @@ export default async function DomainsPage() {
       {/* Настройки магазина — тремя компактными плашками в одну строку. */}
       {team ? (
         <div className="grid grid-cols-1 items-start gap-2.5 lg:grid-cols-3 lg:gap-3.5">
-          {admin ? (
-            <Panel className="p-4 sm:p-6">
-              <PanelHead
-                icon={<IconLink color="#d2a06a" />}
-                tint="bg-amber-t"
-                title="Склад доменов"
-                right={<PullStock />}
-              />
-              <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
-                Домены берём прямо из группы-склада Keitaro (id склада — в плитке «Доменные
-                группы»). Заводишь домены в КТ в группе-складе, жмёшь «Подтянуть со склада КТ» —
-                появляются на витрине свободными. Дубли и уже проданные не трогаем.
-              </p>
-            </Panel>
-          ) : null}
-
-          <Panel className="p-4 sm:p-6">
-            <PanelHead icon={<IconTag color="#d2a06a" />} tint="bg-amber-t" title="Цены по зонам" />
-            <p className="mt-2 text-[11.5px] leading-relaxed text-mute">
+          {/* Цены по зонам — сворачиваемая. */}
+          <Collapsible title="Цены по зонам" icon={<IconTag color="#d2a06a" />} tint="bg-amber-t">
+            <p className="text-[11.5px] leading-relaxed text-mute">
               Цена задаётся на доменную зону (TLD). Без своей цены зона продаётся по умолчанию за
               ${(DEFAULT_ZONE_PRICE_CENTS / 100).toFixed(0)}.
             </p>
@@ -164,12 +149,12 @@ export default async function DomainsPage() {
                 </button>
               </form>
             </div>
-          </Panel>
+          </Collapsible>
 
+          {/* Доменные группы — сворачиваемая. */}
           {admin ? (
-            <Panel className="p-4 sm:p-6">
-              <PanelHead icon={<IconTag color="#b4c68c" />} tint="bg-sage-t" title="Доменные группы в Keitaro" />
-              <p className="mt-2 text-[11.5px] leading-relaxed text-mute">
+            <Collapsible title="Доменные группы в Keitaro" icon={<IconTag color="#b4c68c" />} tint="bg-sage-t">
+              <p className="text-[11.5px] leading-relaxed text-mute">
                 id группы-склада и доменной группы каждого баера. Смотри в Keitaro: Домены →
                 группы, колонка ID. Пусто у баера — перенос пропускаем.
               </p>
@@ -202,6 +187,23 @@ export default async function DomainsPage() {
                   </form>
                 ))}
               </div>
+            </Collapsible>
+          ) : null}
+
+          {/* Склад доменов — крайняя правая плитка. */}
+          {admin ? (
+            <Panel className="p-4 sm:p-6">
+              <PanelHead
+                icon={<IconLink color="#d2a06a" />}
+                tint="bg-amber-t"
+                title="Склад доменов"
+                right={<PullStock />}
+              />
+              <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
+                Домены берём прямо из группы-склада Keitaro (id склада — в плитке «Доменные
+                группы»). Заводишь домены в КТ в группе-складе, жмёшь «Подтянуть со склада КТ» —
+                появляются на витрине свободными. Дубли и уже проданные не трогаем.
+              </p>
             </Panel>
           ) : null}
         </div>
