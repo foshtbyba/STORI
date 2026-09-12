@@ -13,6 +13,7 @@ export default function Collapsible({
   icon,
   tint,
   aside,
+  summary,
   defaultOpen = false,
   children,
 }: {
@@ -20,6 +21,8 @@ export default function Collapsible({
   icon: ReactNode;
   tint?: string;
   aside?: ReactNode;
+  /** Всегда видимое описание — показываем и в закрытом виде (под шапкой). */
+  summary?: ReactNode;
   defaultOpen?: boolean;
   children: ReactNode;
 }) {
@@ -48,6 +51,7 @@ export default function Collapsible({
           <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
+      {summary ? <div className="mt-3">{summary}</div> : null}
       <div className={`grid transition-all duration-300 ${open ? 'mt-3 grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
         <div className="overflow-hidden">{children}</div>
       </div>

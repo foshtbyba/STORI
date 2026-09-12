@@ -107,12 +107,18 @@ export default async function DomainsPage() {
       {team ? (
         <div className="grid grid-cols-1 items-start gap-2.5 lg:grid-cols-3 lg:gap-3.5">
           {/* Цены по зонам — сворачиваемая. */}
-          <Collapsible title="Цены по зонам" icon={<IconTag color="#d2a06a" />} tint="bg-amber-t">
-            <p className="text-[11.5px] leading-relaxed text-mute">
-              Цена задаётся на доменную зону (TLD). Без своей цены зона продаётся по умолчанию за
-              ${(DEFAULT_ZONE_PRICE_CENTS / 100).toFixed(0)}.
-            </p>
-            <div className="mt-3 flex flex-col gap-2">
+          <Collapsible
+            title="Цены по зонам"
+            icon={<IconTag color="#d2a06a" />}
+            tint="bg-amber-t"
+            summary={
+              <p className="text-[11.5px] leading-relaxed text-mute">
+                Цена задаётся на доменную зону (TLD). Без своей цены зона продаётся по умолчанию за
+                ${(DEFAULT_ZONE_PRICE_CENTS / 100).toFixed(0)}.
+              </p>
+            }
+          >
+            <div className="flex flex-col gap-2">
               {[...new Set([...zonesInStock, ...prices.map((p) => p.zone)])].sort().map((zone) => {
                 const cur = priceByZone.get(zone);
                 const usingDefault = cur == null;
@@ -153,11 +159,17 @@ export default async function DomainsPage() {
 
           {/* Доменные группы — сворачиваемая. */}
           {admin ? (
-            <Collapsible title="Доменные группы в Keitaro" icon={<IconTag color="#b4c68c" />} tint="bg-sage-t">
-              <p className="text-[11.5px] leading-relaxed text-mute">
-                id группы-склада и доменной группы каждого баера. Смотри в Keitaro: Домены →
-                группы, колонка ID. Пусто у баера — перенос пропускаем.
-              </p>
+            <Collapsible
+              title="Доменные группы в Keitaro"
+              icon={<IconTag color="#b4c68c" />}
+              tint="bg-sage-t"
+              summary={
+                <p className="text-[11.5px] leading-relaxed text-mute">
+                  id группы-склада и доменной группы каждого баера. Смотри в Keitaro: Домены →
+                  группы, колонка ID. Пусто у баера — перенос пропускаем.
+                </p>
+              }
+            >
               <form action={setStockGroup} className="mt-3 flex flex-wrap items-center gap-2 rounded-[14px] border border-line px-3 py-2.5 text-[12.5px]">
                 <span className="w-24 font-medium text-amber">Склад</span>
                 <input
