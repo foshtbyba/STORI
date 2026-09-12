@@ -177,3 +177,28 @@ export async function checkBrocard(apiKey: string) {
   const teams = await listTeams(apiKey);
   return { teams };
 }
+
+/**
+ * Диагностика для админа: сырой ответ Brocard по счетам/балансу/картам, чтобы
+ * увидеть точные поля (баланс команды, сумма на картах, номер счёта) и собрать
+ * плитки остатка баера правильно, без угадывания. Возвращаем усечённый JSON:
+ * первый элемент списков + сам баланс. Ничего не пишем — только читаем.
+ */
+export async function probeBalances(apiKey: string) {
+  const out: Record<string, string> = {};
+  const grab = async (label: string, path: string, params: Record<string, string> = {}) => {
+    try {
+      const raw = await call(apiKey, path, params);
+      // Списки усекаем до первого элемента, чтобы не тащить всё и не светить номера.
+      const data = (raw as { data?: unknown }).data;
+      const sample = Array.isArray(data) ? { count: data.length, first: data[0] } : raw;
+      out[label] = JSON.stringify(sample, null, 2).slice(0, 2000);
+    } catch (e) {
+      out[label] = `ошибка: ${(e as Error).message}`;
+    }
+  };
+  await grab('GET /balance', '/balance');
+  await grab('GET /teams (первая)', '/teams', { per_page: '1' });
+  await grab('GET /cards (первая)', '/cards', { per_page: '1' });
+  return out;
+}

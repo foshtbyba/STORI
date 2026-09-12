@@ -9,7 +9,7 @@ import { checkToken, setAdStatus, setAdsetBudget, duplicateAd, duplicateAdset, d
 import { extractTokenFromCookies, readCookieBlob, cookieHeaderOf } from '@/lib/fb-engine';
 import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
-import { checkBrocard, BrocardError } from '@/lib/brocard';
+import { checkBrocard, probeBalances, BrocardError } from '@/lib/brocard';
 import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
 import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies } from '@/lib/sync';
 
@@ -349,6 +349,19 @@ export async function replaceMyToken(_prev: ActionState, form: FormData): Promis
   const proxy = parseProxy(String(form.get('proxyUrl') ?? ''), (form.get('proxyKind') as ProxyKind) ?? 'http');
   if (proxy && 'error' in proxy) return { ok: false, error: proxy.error };
   return applyNewToken(id, token, proxy ?? null);
+}
+
+/** Админ-диагностика Brocard: сырой ответ по балансу/счетам/картам. */
+export async function brocardProbe(): Promise<{ ok: boolean; error?: string; data?: Record<string, string> }> {
+  await requireAdmin();
+  const cfg = await prisma.brocardConfig.findFirst();
+  if (!cfg?.apiKey) return { ok: false, error: 'Ключ Brocard не задан.' };
+  try {
+    const data = await probeBalances(cfg.apiKey);
+    return { ok: true, data };
+  } catch (e) {
+    return { ok: false, error: e instanceof BrocardError ? e.message : `Сбой: ${(e as Error).message}` };
+  }
 }
 
 export async function toggleAccount(form: FormData) {
