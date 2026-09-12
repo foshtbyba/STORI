@@ -9,7 +9,7 @@ import { checkToken, setAdStatus, setAdsetBudget, duplicateAd, duplicateAdset, d
 import { extractTokenFromCookies, readCookieBlob, cookieHeaderOf } from '@/lib/fb-engine';
 import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
-import { checkBrocard, probeBalances, BrocardError } from '@/lib/brocard';
+import { checkBrocard, probeBalances, listAccounts, createTransfer, BrocardError, type BrocardAccount } from '@/lib/brocard';
 import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
 import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies } from '@/lib/sync';
 
@@ -361,6 +361,92 @@ export async function brocardProbe(): Promise<{ ok: boolean; error?: string; dat
     return { ok: true, data };
   } catch (e) {
     return { ok: false, error: e instanceof BrocardError ? e.message : `Сбой: ${(e as Error).message}` };
+  }
+}
+
+/** Счета Brocard с балансами (для админской панели переводов). */
+export async function brocardAccounts(): Promise<{ ok: boolean; error?: string; accounts?: BrocardAccount[] }> {
+  await requireAdmin();
+  const cfg = await prisma.brocardConfig.findFirst();
+  if (!cfg?.apiKey) return { ok: false, error: 'Ключ Brocard не задан.' };
+  try {
+    const accounts = await listAccounts(cfg.apiKey);
+    return { ok: true, accounts };
+  } catch (e) {
+    return { ok: false, error: e instanceof BrocardError ? e.message : `Сбой: ${(e as Error).message}` };
+  }
+}
+
+/**
+ * Перевод денег Brocard: Общак → счёт баера. Живые деньги, поэтому:
+ * тянем свежие счета, проверяем что источник = общий (team), сумма > 0 и не
+ * больше доступного на Общаке, пишем лог. Возвращаем результат для UI.
+ */
+export async function brocardTransfer(form: FormData): Promise<{ ok: boolean; error?: string; message?: string }> {
+  const user = await requireAdmin();
+  const toAcc = String(form.get('toAcc') ?? '').trim();
+  const amount = Math.round(Number(form.get('amount') ?? 0) * 100) / 100;
+  const comment = String(form.get('comment') ?? '').trim();
+  if (!toAcc) return { ok: false, error: 'Не выбран счёт получателя.' };
+  if (!Number.isFinite(amount) || amount < 0.01) return { ok: false, error: 'Сумма должна быть от $0.01.' };
+
+  const cfg = await prisma.brocardConfig.findFirst();
+  if (!cfg?.apiKey) return { ok: false, error: 'Ключ Brocard не задан.' };
+
+  // Свежие счета — чтобы проверять по реальному балансу, а не по кэшу.
+  let accounts: BrocardAccount[];
+  try {
+    accounts = await listAccounts(cfg.apiKey);
+  } catch (e) {
+    return { ok: false, error: e instanceof BrocardError ? e.message : `Сбой чтения счетов: ${(e as Error).message}` };
+  }
+
+  // Источник — общий счёт команды (Общак). Берём первый team-счёт.
+  const source = accounts.find((a) => a.purposeType === 'team');
+  if (!source) return { ok: false, error: 'Не нашёлся общий счёт (Общак) — счёт с purpose_type=team.' };
+  const target = accounts.find((a) => a.id === toAcc);
+  if (!target) return { ok: false, error: 'Счёт получателя не найден.' };
+  if (target.id === source.id) return { ok: false, error: 'Нельзя переводить Общаку самому себе.' };
+
+  const amountCents = Math.round(amount * 100);
+  if (amountCents > source.availableCents) {
+    return { ok: false, error: `На Общаке только $${(source.availableCents / 100).toFixed(2)} — меньше запрошенного.` };
+  }
+
+  // Сопоставим получателя с баером по команде — для лога и будущей плитки.
+  const teamLink = target.teamId
+    ? await prisma.brocardTeam.findUnique({ where: { externalId: target.teamId }, select: { buyerId: true } })
+    : null;
+
+  try {
+    const { raw } = await createTransfer(cfg.apiKey, {
+      from: source.id,
+      to: target.id,
+      amount,
+      currency: target.currency || 'USD',
+      comment: comment || 'Пополнение с общего счёта',
+    });
+    await prisma.brocardTransfer.create({
+      data: {
+        fromAcc: source.id, toAcc: target.id, buyerId: teamLink?.buyerId ?? null,
+        amountCents, currency: target.currency || 'USD', comment,
+        status: 'ok', respJson: raw, actorId: user.id, actorName: user.name,
+      },
+    });
+    revalidatePath('/admin');
+    revalidatePath('/');
+    const who = target.teamName || target.ownerEmail || target.id;
+    return { ok: true, message: `Переведено $${amount.toFixed(2)} → ${who}.` };
+  } catch (e) {
+    const err = e instanceof BrocardError ? e.message : `Сбой перевода: ${(e as Error).message}`;
+    await prisma.brocardTransfer.create({
+      data: {
+        fromAcc: source.id, toAcc: target.id, buyerId: teamLink?.buyerId ?? null,
+        amountCents, currency: target.currency || 'USD', comment,
+        status: 'error', error: err, actorId: user.id, actorName: user.name,
+      },
+    });
+    return { ok: false, error: err };
   }
 }
 

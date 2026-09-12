@@ -75,6 +75,7 @@ model Buyer {
   ownerCapital     OwnerCapital?
   ownerWithdrawals OwnerWithdrawal[]
   domains          Domain[]
+  brocardTransfers BrocardTransfer[]
 
   /// id ДОМЕННОЙ группы баера в Keitaro. Отдельно от группы кампаний
   /// (TrackerGroup): КТ сортирует домены своими группами. При покупке домен
@@ -563,6 +564,32 @@ model TrackerGroup {
 
   lastSeenAt DateTime?
   createdAt  DateTime  @default(now())
+}
+
+/// Лог переводов Brocard (пополнение счёта баера с общего счёта). Каждая
+/// операция — живые деньги, поэтому пишем кто/кому/сколько/ответ Brocard.
+model BrocardTransfer {
+  id         String   @id @default(cuid())
+  /// uuid счетов Brocard (acc_...).
+  fromAcc    String
+  toAcc      String
+  /// Баер-получатель, если счёт удалось сопоставить с командой.
+  buyerId    String?
+  buyer      Buyer?   @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+  amountCents Int
+  currency   String   @default("USD")
+  comment    String   @default("")
+  /// ok — Brocard принял; error — отказал (текст в error).
+  status     String   @default("ok")
+  error      String   @default("")
+  /// Усечённый ответ Brocard — для разбора.
+  respJson   String   @default("")
+  actorId    String?
+  actorName  String   @default("")
+  createdAt  DateTime @default(now())
+
+  @@index([buyerId, createdAt])
+  @@index([createdAt])
 }
 
 /// Магазин доменов. Админ грузит зарегистрированные домены на склад, баер

@@ -172,6 +172,93 @@ export async function dailySpend(
   return { rows: out, voidedCents, voidedCount };
 }
 
+const toCents = (v: unknown) => Math.round(Number(v ?? 0) * 100) || 0;
+
+export type BrocardAccount = {
+  /** uuid счёта с префиксом acc_ — им и делаем перевод. */
+  id: string;
+  state: string;
+  balanceCents: number;
+  reservedCents: number;
+  availableCents: number;
+  /** team — общий счёт команды (Общак), common — личный счёт баера, и т.д. */
+  purposeType: string;
+  teamId: string;
+  teamName: string;
+  ownerEmail: string;
+  ownerName: string;
+  currency: string;
+};
+
+/** Счета Brocard с балансами: GET /api/v2/accounts (постранично). */
+export async function listAccounts(apiKey: string): Promise<BrocardAccount[]> {
+  const out: BrocardAccount[] = [];
+  for (let page = 1; page <= 20; page += 1) {
+    const raw = await call(apiKey, '/accounts', { per_page: '200', page: String(page), scope: 'company' });
+    const data = ((raw as { data?: unknown }).data ?? []) as Record<string, unknown>[];
+    for (const a of data) {
+      const team = (a.team ?? {}) as Record<string, unknown>;
+      const owner = (a.owner ?? {}) as Record<string, unknown>;
+      out.push({
+        id: String(a.id ?? ''),
+        state: String(a.state ?? ''),
+        balanceCents: toCents(a.balance),
+        reservedCents: toCents(a.reserved),
+        availableCents: toCents(a.available),
+        purposeType: String(a.purpose_type ?? ''),
+        teamId: String(team.id ?? ''),
+        teamName: String(team.name ?? ''),
+        ownerEmail: String(owner.email ?? ''),
+        ownerName: String(owner.name ?? ''),
+        currency: String(a.currency ?? 'USD'),
+      });
+    }
+    if (data.length < 200) break;
+  }
+  return out;
+}
+
+export type TransferInput = { from: string; to: string; amount: number; currency?: string; comment?: string };
+
+/**
+ * Перевод денег между счетами Brocard: POST /api/v2/transfers.
+ * from/to — uuid счёта (acc_...) или email. Двигает живые деньги — вызывать
+ * только после проверки суммы и прав. Возвращает сырой ответ (усечённый).
+ */
+export async function createTransfer(apiKey: string, t: TransferInput): Promise<{ raw: string }> {
+  const url = `${BASE}/transfers`;
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        from: t.from,
+        to: t.to,
+        amount: t.amount,
+        currency: t.currency ?? 'USD',
+        ...(t.comment ? { comment: t.comment.slice(0, 255) } : {}),
+      }),
+      cache: 'no-store',
+    });
+  } catch (e) {
+    throw new BrocardError(`Не достучались до Brocard: ${(e as Error).message}`);
+  }
+  const text = await res.text();
+  if (res.status === 401 || res.status === 403) {
+    throw new BrocardError('Brocard не принял ключ или нет прав на переводы (включи «Пополнения»).');
+  }
+  if (!res.ok) {
+    // 422 — валидация: вытащим понятную причину.
+    throw new BrocardError(`Brocard отказал (${res.status}): ${text.slice(0, 240)}`);
+  }
+  return { raw: text.slice(0, 400) };
+}
+
 /** Проверка ключа: сколько команд видно под ним. */
 export async function checkBrocard(apiKey: string) {
   const teams = await listTeams(apiKey);

@@ -17,7 +17,7 @@ import { BUILD_INFO } from '@/lib/build-info';
 import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
 import { linkGroup, linkBrocardTeam } from '@/app/actions/integrations';
 import { TrackerForm, BrocardForm, SyncNow } from '@/components/IntegrationForms';
-import BrocardProbe from '@/components/BrocardProbe';
+import BrocardAccounts from '@/components/BrocardAccounts';
 import { IconUsers, IconChart, IconWallet, IconLink, IconWarn } from '@/components/icons';
 
 /** tiersJson → строки для ввода (доллары/проценты). */
@@ -195,7 +195,7 @@ export default async function AdminPage({
           в отчёты и зарплату. Отклонённые и центовые проверки карты в расход не считаем.
         </p>
         <BrocardForm hasKey={Boolean(brocard?.apiKey)} />
-        {brocard?.apiKey ? <BrocardProbe /> : null}
+        {brocard?.apiKey ? <BrocardAccounts /> : null}
 
         <div className="mt-5 border-t border-line pt-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
