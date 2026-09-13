@@ -108,6 +108,7 @@ export default async function DaysPage({
     const p = new URLSearchParams();
     if (week) p.set('week', week);
     if (on) p.set('owners', '1');
+    if (isAdmin && buyer) p.set('buyer', buyer);
     const q = p.toString();
     return q ? `/days?${q}` : '/days';
   };
@@ -141,7 +142,12 @@ export default async function DaysPage({
             {isAdmin ? (
               <DayBuyerFilter buyers={filterBuyers} selected={buyer ?? ''} week={week} owners={showOwners} />
             ) : null}
-            <WeekNav week={key} label={weekLabel(key)} isCurrent={isCurrent} />
+            <WeekNav
+              week={key}
+              label={weekLabel(key)}
+              isCurrent={isCurrent}
+              keep={{ ...(showOwners ? { owners: '1' } : {}), ...(isAdmin && buyer ? { buyer } : {}) }}
+            />
             {canEdit ? (
               <Link
                 href="/days/new"

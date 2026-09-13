@@ -13,14 +13,21 @@ import DateField from './DateField';
 export default function WeekNav({
   week,
   label,
+  keep,
 }: {
   week: string;
   label: string;
   /** Оставлено для совместимости с вызовами; больше не используется. */
   isCurrent?: boolean;
+  /** Параметры, которые надо сохранять при смене недели (фильтр баера, овнеры). */
+  keep?: Record<string, string>;
 }) {
   const router = useRouter();
-  const go = (key: string) => router.push(`/days?week=${key}`);
+  const go = (key: string) => {
+    const p = new URLSearchParams({ week: key });
+    for (const [k, v] of Object.entries(keep ?? {})) if (v) p.set(k, v);
+    router.push(`/days?${p.toString()}`);
+  };
 
   const shift = (weeks: number) => {
     const [y, m, d] = week.split('-').map(Number);
