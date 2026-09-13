@@ -384,10 +384,13 @@ export async function brocardAccounts(): Promise<{ ok: boolean; error?: string; 
  */
 export async function brocardTransfer(form: FormData): Promise<{ ok: boolean; error?: string; message?: string }> {
   const user = await requireAdmin();
+  const fromAcc = String(form.get('fromAcc') ?? '').trim();
   const toAcc = String(form.get('toAcc') ?? '').trim();
   const amount = Math.round(Number(form.get('amount') ?? 0) * 100) / 100;
   const comment = String(form.get('comment') ?? '').trim();
+  if (!fromAcc) return { ok: false, error: 'Не выбран счёт-источник.' };
   if (!toAcc) return { ok: false, error: 'Не выбран счёт получателя.' };
+  if (fromAcc === toAcc) return { ok: false, error: 'Счета источника и получателя совпадают.' };
   if (!Number.isFinite(amount) || amount < 0.01) return { ok: false, error: 'Сумма должна быть от $0.01.' };
 
   const cfg = await prisma.brocardConfig.findFirst();
@@ -401,12 +404,11 @@ export async function brocardTransfer(form: FormData): Promise<{ ok: boolean; er
     return { ok: false, error: e instanceof BrocardError ? e.message : `Сбой чтения счетов: ${(e as Error).message}` };
   }
 
-  // Источник — общий счёт команды (Общак). Берём первый team-счёт.
-  const source = accounts.find((a) => a.purposeType === 'team');
-  if (!source) return { ok: false, error: 'Не нашёлся общий счёт (Общак) — счёт с purpose_type=team.' };
+  // Источник и получатель — любые выбранные счета.
+  const source = accounts.find((a) => a.id === fromAcc);
+  if (!source) return { ok: false, error: 'Счёт-источник не найден.' };
   const target = accounts.find((a) => a.id === toAcc);
   if (!target) return { ok: false, error: 'Счёт получателя не найден.' };
-  if (target.id === source.id) return { ok: false, error: 'Нельзя переводить Общаку самому себе.' };
 
   const amountCents = Math.round(amount * 100);
   if (amountCents > source.availableCents) {

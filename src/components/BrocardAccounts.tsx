@@ -18,6 +18,8 @@ type Account = {
 };
 
 const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
+/** Общак — общий счёт: определяем по имени (у баеров тоже purpose_type=team). */
+const isObshchak = (a: Account) => (a.teamName || '').trim().toLowerCase() === 'общак';
 
 /**
  * Админ: счета Brocard с балансами и перевод Общак → счёт баера. Живые деньги,
@@ -28,6 +30,7 @@ export default function BrocardAccounts() {
   const [pending, start] = useTransition();
   const [accounts, setAccounts] = useState<Account[] | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [fromAcc, setFromAcc] = useState('');
   const [toAcc, setToAcc] = useState('');
   const [amount, setAmount] = useState('');
 
@@ -41,20 +44,26 @@ export default function BrocardAccounts() {
     });
   };
 
-  const source = accounts?.find((a) => a.purposeType === 'team') ?? null;
-  const targets = (accounts ?? []).filter((a) => a.purposeType !== 'team');
+  const all = accounts ?? [];
+  const label = (a?: Account) => (a ? (a.teamName || a.ownerName || a.ownerEmail || a.id) : '');
+  // Источник — Общак (по имени). Получатели — все остальные счета (баеры).
+  const obshchak = all.find(isObshchak) ?? null;
+  const srcId = obshchak?.id ?? fromAcc;
+  const targets = all.filter((a) => a.id !== srcId);
 
   const transfer = () => {
     if (pending) return;
     const amt = Number(amount);
-    if (!toAcc) { setMsg({ ok: false, text: 'Выбери счёт получателя.' }); return; }
+    if (!srcId) { setMsg({ ok: false, text: 'Не нашёлся Общак — переименуй общий счёт в «Общак» или выбери источник.' }); return; }
+    if (!toAcc) { setMsg({ ok: false, text: 'Выбери счёт баера.' }); return; }
+    if (srcId === toAcc) { setMsg({ ok: false, text: 'Источник и получатель совпадают.' }); return; }
     if (!Number.isFinite(amt) || amt < 0.01) { setMsg({ ok: false, text: 'Сумма от $0.01.' }); return; }
-    const who = targets.find((t) => t.id === toAcc);
-    const label = who?.teamName || who?.ownerEmail || toAcc;
-    if (!window.confirm(`Перевести $${amt.toFixed(2)} с Общака на счёт «${label}»? Это реальные деньги.`)) return;
+    const dst = all.find((a) => a.id === toAcc);
+    if (!window.confirm(`Перевести $${amt.toFixed(2)} с Общака на счёт «${label(dst)}»? Это реальные деньги.`)) return;
     setMsg(null);
     start(async () => {
       const fd = new FormData();
+      fd.set('fromAcc', srcId);
       fd.set('toAcc', toAcc);
       fd.set('amount', String(amt));
       const r = await brocardTransfer(fd);
@@ -76,7 +85,7 @@ export default function BrocardAccounts() {
         >
           {pending ? 'Читаю счета…' : accounts ? 'Обновить счета' : 'Показать счета Brocard'}
         </button>
-        {source ? <span className="text-[12px] text-mute">Общак: <span className="text-sage">{usd(source.availableCents)}</span></span> : null}
+        {obshchak ? <span className="text-[12px] text-mute">Общак: <span className="text-sage">{usd(obshchak.availableCents)}</span></span> : accounts ? <span className="text-[12px] text-mute">счетов: {accounts.length}</span> : null}
       </div>
 
       {msg ? (
@@ -96,7 +105,7 @@ export default function BrocardAccounts() {
                 <div className="flex items-baseline justify-between">
                   <span className="text-[13px] font-medium">
                     {a.teamName || a.ownerName || a.ownerEmail || '—'}
-                    {a.purposeType === 'team' ? <span className="ml-2 rounded-full bg-amber-t px-2 py-0.5 text-[10px] text-amber">Общак</span> : null}
+                    {isObshchak(a) ? <span className="ml-2 rounded-full bg-amber-t px-2 py-0.5 text-[10px] text-amber">Общак</span> : null}
                   </span>
                   <span className="text-[13px] font-semibold text-sage">{usd(a.availableCents)}</span>
                 </div>
@@ -105,18 +114,33 @@ export default function BrocardAccounts() {
             ))}
           </div>
 
-          {/* Перевод Общак → счёт баера. */}
+          {/* Пополнить счёт баера с Общака. */}
           <div className="mt-4 rounded-[14px] border border-line px-3.5 py-3">
             <div className="text-[12.5px] font-semibold">Пополнить счёт баера с Общака</div>
             <div className="mt-2.5 flex flex-wrap items-center gap-2 text-[12.5px]">
+              {obshchak ? (
+                <span className="rounded-xl border border-line2 bg-sub px-3 py-1.5 text-mute">Общак <span className="text-sage">{usd(obshchak.availableCents)}</span></span>
+              ) : (
+                <select
+                  value={fromAcc}
+                  onChange={(e) => setFromAcc(e.target.value)}
+                  className="h-9 rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft"
+                >
+                  <option value="">— источник (Общак) —</option>
+                  {all.map((a) => (
+                    <option key={a.id} value={a.id}>{label(a)} · {usd(a.availableCents)}</option>
+                  ))}
+                </select>
+              )}
+              <span className="text-mute">→</span>
               <select
                 value={toAcc}
                 onChange={(e) => setToAcc(e.target.value)}
                 className="h-9 rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft"
               >
-                <option value="">— кому —</option>
+                <option value="">— баеру —</option>
                 {targets.map((t) => (
-                  <option key={t.id} value={t.id}>{(t.teamName || t.ownerEmail || t.id)} · {usd(t.availableCents)}</option>
+                  <option key={t.id} value={t.id}>{label(t)} · {usd(t.availableCents)}</option>
                 ))}
               </select>
               <div className="flex items-center gap-1">
