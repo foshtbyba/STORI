@@ -140,18 +140,28 @@ export default function Storefront({
                   </div>
                   <div className="text-[11.5px] text-mute">в наличии: {z.count} шт.</div>
                   <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min={1}
-                      max={z.count}
-                      value={qty}
-                      disabled={blocked}
-                      onChange={(e) => {
-                        const v = Math.min(z.count, Math.max(1, Math.floor(Number(e.target.value) || 1)));
-                        setQtyByZone((m) => ({ ...m, [z.zone]: v }));
-                      }}
-                      className="w-16 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-[12.5px] text-soft"
-                    />
+                    {/* Степпер количества: −/+ вместо родных стрелок. */}
+                    <div className="flex items-center rounded-lg border border-line2 bg-sub">
+                      <button
+                        type="button"
+                        disabled={blocked || qty <= 1}
+                        onClick={() => setQtyByZone((m) => ({ ...m, [z.zone]: Math.max(1, qty - 1) }))}
+                        className="flex h-8 w-8 items-center justify-center text-[16px] text-mute transition hover:text-soft disabled:opacity-40"
+                        aria-label="Меньше"
+                      >
+                        −
+                      </button>
+                      <span className="n w-7 text-center text-[13px] text-soft">{qty}</span>
+                      <button
+                        type="button"
+                        disabled={blocked || qty >= z.count}
+                        onClick={() => setQtyByZone((m) => ({ ...m, [z.zone]: Math.min(z.count, qty + 1) }))}
+                        className="flex h-8 w-8 items-center justify-center text-[16px] text-mute transition hover:text-soft disabled:opacity-40"
+                        aria-label="Больше"
+                      >
+                        +
+                      </button>
+                    </div>
                     <button
                       type="button"
                       disabled={blocked || busy}
@@ -174,7 +184,7 @@ export default function Storefront({
       {sold.length ? (
         <div className="mt-1">
           <div className="mb-2 text-[13px] font-semibold">Купленные · {sold.length}</div>
-          <div className="max-h-[320px] overflow-auto rounded-[12px] border border-line">
+          <div className="max-h-[320px] overflow-auto">
             <table className="w-full min-w-[520px] text-[12.5px]">
               <thead>
                 <tr className="sticky top-0 z-10 bg-panel text-left text-[11px] uppercase tracking-wide text-dim">
