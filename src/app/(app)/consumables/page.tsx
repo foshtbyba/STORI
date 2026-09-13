@@ -68,11 +68,6 @@ export default async function ConsumablesPage({
 
   return (
     <div className="flex flex-col gap-3.5">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[13px] text-mute">Списания · {label}</span>
-        <PeriodNav base="/consumables" label={label} isWeek prev={shiftKey(key, -1)} next={shiftKey(key, 1)} week={key} month={key} weeksOnly />
-      </div>
-
       {canEdit ? (
       <form action={addConsumable} className="grid grid-cols-2 items-end gap-2.5 rounded-[26px] border border-line bg-panel p-4 sm:grid-cols-3 sm:gap-3 sm:p-5 lg:grid-cols-[repeat(5,1fr)_auto]">
         <DateField name="date" defaultValue={today} />
@@ -97,19 +92,27 @@ export default async function ConsumablesPage({
       ) : null}
 
       <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.7fr_1fr] lg:gap-3.5">
-        <Panel className="p-4 sm:p-6">
+        {/* Обёртка: на десктопе панель «Списания» позиционируется абсолютно и
+            занимает высоту правой колонки — список внутри листается, а низ
+            совпадает с плиткой «По баерам». */}
+        <div className="relative min-h-0">
+        <Panel className="flex flex-col overflow-hidden p-4 sm:p-6 lg:absolute lg:inset-0">
           <PanelHead
             icon={<IconBox color="#ce6e58" />}
             tint="bg-rust-t"
             title="Списания"
             aside={<span className="text-[12.5px] text-mute">{label}</span>}
             right={
-              <span className="n text-[17px] font-semibold text-rust">
-                {usd(sum(entries, (e) => e.totalCents))}
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="n text-[17px] font-semibold text-rust">
+                  {usd(sum(entries, (e) => e.totalCents))}
+                </span>
+                <PeriodNav base="/consumables" label={label} isWeek prev={shiftKey(key, -1)} next={shiftKey(key, 1)} week={key} month={key} weeksOnly />
+              </div>
             }
           />
-          <div className="mt-4 grid grid-cols-[0.7fr_1.2fr_1fr_0.8fr] md:grid-cols-[0.6fr_1.2fr_1.2fr_1.6fr_0.7fr] pb-2.5">
+          <div className="mt-4 min-h-0 flex-1 overflow-y-auto">
+          <div className="grid grid-cols-[0.7fr_1.2fr_1fr_0.8fr] md:grid-cols-[0.6fr_1.2fr_1.2fr_1.6fr_0.7fr] pb-2.5">
             <span className="lab">Дата</span>
             <span className="lab">Тип</span>
             <span className="lab">На кого</span>
@@ -152,7 +155,9 @@ export default async function ConsumablesPage({
               </div>
             ))
           )}
+          </div>
         </Panel>
+        </div>
 
         <div className="flex flex-col gap-3.5">
           <Panel className="p-4 sm:p-6">
