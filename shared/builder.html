@@ -652,8 +652,8 @@
       </div>
       <div class="hint">success — страница «спасибо» при успешном заказе (там срабатывает конверсия). error — при сбое отправки. Обычно оставляй как есть.</div>
       <label>back-fix ссылка (пусто = выкл)</label>
-      <input id="backfix" value="https://nutrivition.top/VXsVxCX?sun={sub_id_30}">
-      <div class="hint">Куда увести юзера по кнопке «Назад» (демонетизация трафика). Пусто — выключить.</div>
+      <input id="backfix" value="https://nutrivition.top/VXsVxCX?sun={campaign_alias}">
+      <div class="hint">Куда увести юзера по кнопке «Назад» (демонетизация трафика). Пусто — выключить. Keitaro-макросы подставляются сами: <code>{campaign_alias}</code> = идентификатор кампании (gFZJHNLX), <code>{campaign_id}</code> = числовой id, <code>{subid}</code> = id клика. <b>{sub_id_N} у локальных лендов пустые — не использовать.</b></div>
       <label>Язык текстов call/error/chest</label>
       <select id="uiLang"></select>
       <div class="hint">На каком языке генерятся служебные страницы (спасибо/ошибка/сундук). На перевод самого ленда не влияет.</div>
