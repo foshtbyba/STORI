@@ -12,17 +12,18 @@ import OfferFiles from '@/components/OfferFiles';
 import DeleteOffer from '@/components/DeleteOffer';
 import Link from 'next/link';
 import OfferSearch from '@/components/OfferSearch';
+import OfferVerticalFilter from '@/components/OfferVerticalFilter';
 import Clamp from '@/components/Clamp';
 import CopyExclusions, { type ExclusionGroup } from '@/components/CopyExclusions';
 
 export default async function OffersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; new?: string; edit?: string; q?: string }>;
+  searchParams: Promise<{ status?: string; new?: string; edit?: string; q?: string; vertical?: string }>;
 }) {
   const user = await requireUser();
   const team = canSeeTeam(user.role as Role);
-  const { status, new: creating, edit, q } = await searchParams;
+  const { status, new: creating, edit, q, vertical } = await searchParams;
   const query = (q ?? '').trim();
 
   const all = await prisma.offer.findMany({
@@ -48,7 +49,11 @@ export default async function OffersPage({
     parseGeos(offer.geosJson).some((g) => g.toLowerCase().includes(needle)) ||
     offer.geos.some((g) => g.langCode.toLowerCase().includes(needle));
 
-  const found = all.filter(matches);
+  // Доступные вертикали — из всех офферов (список не зависит от поиска/статуса).
+  const verticals = [...new Set(all.map((o) => (o.vertical ?? '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const vert = vertical && verticals.includes(vertical) ? vertical : '';
+
+  const found = all.filter(matches).filter((o) => (vert ? o.vertical === vert : true));
   const offers = status && OFFER_STATUS[status] ? found.filter((o) => o.status === status) : found;
 
   const editing = edit
@@ -73,17 +78,26 @@ export default async function OffersPage({
     const p = new URLSearchParams();
     if (status) p.set('status', status);
     if (query) p.set('q', query);
+    if (vert) p.set('vertical', vert);
     for (const [k, v] of Object.entries(extra)) v ? p.set(k, v) : p.delete(k);
     const s = p.toString();
     return s ? `/offers?${s}` : '/offers';
   };
+  // «Все» сбрасывает статус, но сохраняет поиск и вертикаль.
+  const allHref = (() => {
+    const p = new URLSearchParams();
+    if (query) p.set('q', query);
+    if (vert) p.set('vertical', vert);
+    const s = p.toString();
+    return s ? `/offers?${s}` : '/offers';
+  })();
 
   return (
     <div className="flex flex-col gap-3.5">
       <Panel className="flex flex-wrap items-center gap-3 px-4 py-3 sm:h-[68px] sm:flex-nowrap sm:gap-6 sm:px-5 sm:py-0">
         <div className="no-scrollbar flex basis-full items-center gap-2 overflow-x-auto sm:min-w-0 sm:basis-auto sm:flex-1 sm:gap-2.5">
           <Link
-            href={query ? `/offers?q=${encodeURIComponent(query)}` : '/offers'}
+            href={allHref}
             className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[13px] ${!status ? 'bg-raise font-semibold' : 'bg-sub text-mute'}`}
           >
             Все · {total}
@@ -101,6 +115,10 @@ export default async function OffersPage({
             );
           })}
         </div>
+
+        {verticals.length ? (
+          <OfferVerticalFilter verticals={verticals} selected={vert} status={status} query={query} />
+        ) : null}
         <div className="hidden flex-1 sm:block" />
 
         {/*
@@ -111,6 +129,7 @@ export default async function OffersPage({
         <OfferSearch
           query={query ?? ''}
           status={status}
+          vertical={vert}
           canAdd={team}
           newHref={keep({ new: '1' })}
           resetHref={status ? `/offers?status=${status}` : '/offers'}

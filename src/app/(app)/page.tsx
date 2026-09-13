@@ -1,15 +1,14 @@
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { currentPeriodKey, teamSummary, buyerSummary, allTimeProfit, payoutAcross, overheadMonths } from '@/lib/queries';
-import { usd, rub, sum, profitOf } from '@/lib/money';
+import { usd, rub } from '@/lib/money';
 import {
-  periodRange, periodTitle, daysOfRange, dayKey,
+  periodRange, periodTitle,
   isWeekKey, rangeOf, titleOf, shiftKey, switchMode,
 } from '@/lib/period';
 import PeriodNav from '@/components/PeriodNav';
 import { Panel, PanelHead, Sub, Avatar, Empty, Big } from '@/components/ui';
-import { ProfitBars, Meter } from '@/components/Charts';
-import CollapsiblePanel from '@/components/CollapsiblePanel';
+import { Meter } from '@/components/Charts';
 import { IconChart, IconWallet, IconBox, IconWarn, IconUsers } from '@/components/icons';
 import BuyerCabinet from '@/components/BuyerCabinet';
 
@@ -67,30 +66,7 @@ export default async function HomePage({
         allTimeProfit({ owners: true }),
       ])
     : [[], [], new Map<string, number>()];
-  /*
-    График рисуем чистыми — профит дня минус расходники, списанные этим днём.
-    Раньше столбики складывались в «профит с рекламы», а крупная цифра над
-    ними была уже за вычетом расходников: две суммы на одном экране не
-    сходились. Расходники того, у кого они не влияют на зарплату, не трогаем —
-    ровно как в строке баера.
-  */
-  const charged = new Set(
-    summary.buyers.filter((r) => r.buyer.consumablesAffectSalary).map((r) => r.buyer.id),
-  );
-  const spentByDay = new Map<string, number>();
-  for (const c of summary.consumables) {
-    if (c.buyerId && !charged.has(c.buyerId)) continue;
-    const k = dayKey(c.date);
-    spentByDay.set(k, (spentByDay.get(k) ?? 0) + c.totalCents);
-  }
-  const series = daysOfRange(week).map((date) => {
-    const k = dayKey(date);
-    const byDay = summary.days.filter((d) => dayKey(d.date) === k);
-    return { date, profitCents: sum(byDay, (d) => profitOf(d)) - (spentByDay.get(k) ?? 0) };
-  });
   const rate = summary.period.rubPerUsd;
-  const best = series.reduce((a, b) => (b.profitCents > a.profitCents ? b : a), series[0]);
-  const positiveDays = series.filter((d) => d.profitCents > 0).length;
 
   const byType = new Map<string, { name: string; color: string; cents: number }>();
   for (const c of summary.consumables) {
@@ -436,27 +412,6 @@ export default async function HomePage({
         </div>
       ) : null}
 
-      {/* Профит по дням — тяжёлый график, поэтому внизу и свёрнут по умолчанию. */}
-      <CollapsiblePanel
-        icon={<IconChart color="#b4c68c" />}
-        tint="bg-sage-t"
-        title="Профит по дням"
-        aside={
-          <span className="text-[12.5px] text-mute">
-            в плюсе {positiveDays} из {series.length} · чистыми
-          </span>
-        }
-        summary={
-          <span className="rounded-full bg-sub px-3.5 py-1.5">
-            <span className="n text-[12.5px] text-soft">
-              пик {String(best.date.getUTCDate()).padStart(2, '0')}.
-              {String(best.date.getUTCMonth() + 1).padStart(2, '0')} · {usd(best.profitCents)}
-            </span>
-          </span>
-        }
-      >
-        <ProfitBars data={series} />
-      </CollapsiblePanel>
     </div>
   );
 }

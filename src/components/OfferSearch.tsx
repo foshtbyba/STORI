@@ -16,12 +16,14 @@ import { IconSearch, IconPlus } from './icons';
 export default function OfferSearch({
   query,
   status,
+  vertical,
   canAdd,
   newHref,
   resetHref,
 }: {
   query: string;
   status?: string;
+  vertical?: string;
   canAdd: boolean;
   newHref: string;
   resetHref: string;
@@ -48,6 +50,7 @@ export default function OfferSearch({
   return (
     <form action="/offers" className="flex basis-full items-center gap-2 sm:basis-auto">
       {status ? <input type="hidden" name="status" value={status} /> : null}
+      {vertical ? <input type="hidden" name="vertical" value={vertical} /> : null}
       <label className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-full border border-line2 bg-sub px-3.5 transition focus-within:border-sage focus-within:ring-2 focus-within:ring-sage/25 sm:w-[230px] sm:flex-none">
         <IconSearch color="#8a8a8a" size={14} />
         <input
