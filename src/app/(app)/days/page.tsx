@@ -133,10 +133,10 @@ export default async function DaysPage({
                 href={ownersHref(!showOwners)}
                 prefetch={false}
                 className={`rounded-full px-3.5 py-2 text-[12.5px] transition ${
-                  showOwners ? 'bg-raise font-semibold text-text' : 'bg-sub text-mute hover:text-soft'
+                  showOwners ? 'bg-sage-t font-semibold text-sage' : 'bg-sub text-mute hover:text-soft'
                 }`}
               >
-                {showOwners ? 'овнеры: видны' : 'овнеры'}
+                овнеры
               </Link>
             ) : null}
             {isAdmin ? (
