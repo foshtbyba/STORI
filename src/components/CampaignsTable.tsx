@@ -347,7 +347,7 @@ export default function CampaignsTable({
                   type="button"
                   onClick={() => setBuyer(b.handle)}
                   className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] transition ${
-                    buyer === b.handle ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
+                    buyer === b.handle ? 'bg-raise text-text' : 'text-mute hover:text-soft'
                   }`}
                 >
                   <Avatar initials={b.initials} color={b.color} size={16} />
@@ -398,7 +398,7 @@ export default function CampaignsTable({
               type="button"
               onClick={() => setGroup(v)}
               className={`rounded-full px-3 py-1 text-[11.5px] transition ${
-                group === v ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
+                group === v ? 'bg-raise text-text' : 'text-mute hover:text-soft'
               }`}
             >
               {t}
@@ -409,7 +409,7 @@ export default function CampaignsTable({
         <button
           type="button"
           onClick={() => setShowZero(!showZero)}
-          className={`h-9 rounded-full border px-3 text-[11.5px] transition ${
+          className={`inline-flex h-9 w-[104px] items-center justify-center rounded-full border px-3 text-[11.5px] transition ${
             showZero ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-mute hover:text-soft'
           }`}
           title="Показывать объявления без открута за период"
@@ -422,7 +422,7 @@ export default function CampaignsTable({
               key={v}
               href={`/ads/campaigns${v === '1' ? '' : `?d=${v}`}`}
               className={`rounded-full px-3 py-1 text-[11.5px] transition ${
-                !day && String(win) === v ? 'bg-raise font-semibold text-text' : 'text-mute hover:text-soft'
+                !day && String(win) === v ? 'bg-raise text-text' : 'text-mute hover:text-soft'
               }`}
             >
               {t}

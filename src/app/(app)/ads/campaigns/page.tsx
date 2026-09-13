@@ -122,8 +122,10 @@ export default async function CampaignsPage({
   // слетела и даже авто-подхват из кук не помог, либо кабинет забанен). Их
   // статистика и расход заморожены на моменте до сбоя — это надо явно показать,
   // иначе легко не заметить и лить вслепую.
+  // Замороженные профили показываем ВСЕ (не только овнерские): любой слетевший
+  // профиль морозит стату/расход, и это надо видеть. Баер — только свои.
   const staleWhere = admin
-    ? { enabled: true, lastError: { not: '' }, buyer: { owner: true } }
+    ? { enabled: true, lastError: { not: '' } }
     : { enabled: true, lastError: { not: '' }, buyerId: scoped ?? '__none__' };
   const staleTokens = await prisma.adToken.findMany({
     where: staleWhere,
