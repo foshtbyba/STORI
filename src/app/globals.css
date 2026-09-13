@@ -158,5 +158,8 @@ select:focus-visible,
 button:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--color-sage);
-  outline-offset: 3px;
+  /* Кольцо фокуса ВНУТРЬ элемента: снаружи его срезает overflow-hidden у
+     сворачиваемых блоков (поле в ширину блока), и получалось «криво» —
+     видны только верх и низ. Инсет никогда не обрезается. */
+  outline-offset: -2px;
 }

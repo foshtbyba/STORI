@@ -200,7 +200,14 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   if (!message) return { ok: false, error: 'Текст объявления пустой' };
   const headline = String(form.get('headline') ?? '').trim();
   const description = String(form.get('description') ?? '').trim();
-  const urlTags = String(form.get('urlTags') ?? '').trim();
+  // Метки к ссылке. Плейсхолдер пикселя подставляем сами (у ФБ нет макроса для
+  // pixel_id): {{pixel}} / ПИКСЕЛЬ / PIXEL_ID → id выбранного пикселя. Остальные
+  // ({{ad.id}}, {{campaign.id}}, {{account.id}}) ФБ подставит сам при откруте.
+  const urlTags = String(form.get('urlTags') ?? '')
+    .trim()
+    .replace(/\{\{\s*pixel(_id)?\s*\}\}/gi, pixelId)
+    .replace(/ПИКСЕЛЬ/g, pixelId)
+    .replace(/\bPIXEL_ID\b/gi, pixelId);
 
   // Бюджет: из формы (доллары) либо из шаблона.
   const budgetRaw = String(form.get('budget') ?? '').replace(',', '.');
@@ -272,7 +279,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
     // 2. Адсет с бюджетом и таргетом.
     const adsetId = await createAdset(token, ext, {
-      name: `${campaignName} · adset ${rand()}`,
+      name: campaignName,
       campaignId,
       pixelId,
       event: tpl.event,
@@ -302,7 +309,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       }
       await sleep(500);
       const creativeId = await createAdCreative(token, ext, {
-        name: `${campaignName} · cr ${idx + 1} ${rand()}`,
+        name: files.length > 1 ? `${campaignName} · cr ${idx + 1}` : campaignName,
         pageId,
         message,
         imageHash,
@@ -314,7 +321,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       }, net);
       await sleep(500);
       const adId = await createAd(token, ext, {
-        name: `${campaignName} · ad ${idx + 1} ${rand()}`,
+        name: files.length > 1 ? `${campaignName} · ${idx + 1}` : campaignName,
         adsetId,
         creativeId,
         status: objectStatus,

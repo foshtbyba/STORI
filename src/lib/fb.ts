@@ -1219,6 +1219,13 @@ export async function createAdCreative(token: string, externalId: string, i: Cre
   const params: Record<string, string> = {
     name: i.name,
     object_story_spec: JSON.stringify(objectStorySpec),
+    // Отключаем ВСЕ авто-улучшения креатива Меты (Advantage+/Essential:
+    // оверлеи, музыка, «яркость и контраст», релевантные комментарии, замена
+    // CTA и т.п.). Умолчания ФБ включают их сами — OPT_OUT по зонтичному
+    // standard_enhancements гасит весь набор, чтобы объявление ушло как есть.
+    degrees_of_freedom_spec: JSON.stringify({
+      creative_features_spec: { standard_enhancements: { enroll_status: 'OPT_OUT' } },
+    }),
   };
   if (i.urlTags && i.urlTags.trim()) params.url_tags = i.urlTags.trim();
   const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST');
