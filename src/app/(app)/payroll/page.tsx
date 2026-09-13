@@ -388,8 +388,8 @@ export default async function PayrollPage({
             <div>
               <div className="n mb-2 text-[12px] text-mute">до {usd(minTier)}</div>
               <div
-                className="flex items-start justify-center rounded-[16px] pt-3.5"
-                style={{ height: 69, background: '#2c1f1a' }}
+                className="flex items-center justify-center rounded-[16px]"
+                style={{ height: 72, background: '#2c1f1a' }}
               >
                 <span className="n text-[15px] font-bold text-rust">оклад</span>
               </div>
@@ -404,9 +404,9 @@ export default async function PayrollPage({
               <div key={tier.fromCents}>
                 <div className="n mb-2 text-[12px] text-mute">от {usd(tier.fromCents)}</div>
                 <div
-                  className="flex items-start justify-center rounded-[16px] pt-3.5"
+                  className="flex items-center justify-center rounded-[16px]"
                   style={{
-                    height: tier.ratePct * 2.3,
+                    height: 72,
                     background: tier.ratePct >= 50 ? '#3a452e' : tier.ratePct >= 40 ? '#31382a' : '#282c24',
                   }}
                 >
