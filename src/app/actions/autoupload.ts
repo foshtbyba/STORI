@@ -1,0 +1,329 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+import { prisma } from '@/lib/db';
+import { requireUser, requireAdmin } from '@/lib/auth';
+import {
+  fbAccess,
+  listPages,
+  listPixels,
+  createPixel,
+  createCampaign,
+  createAdset,
+  uploadAdImage,
+  createAdCreative,
+  createAd,
+  FbError,
+  type FbNet,
+} from '@/lib/fb';
+
+/**
+ * Автозалив — оркестрация создания кампании в Facebook по шаблону гео.
+ *
+ * Собирает всю цепочку из примитивов fb.ts: кампания → адсет → (для каждого
+ * креатива) картинка → креатив → объявление. По умолчанию всё создаётся НА
+ * ПАУЗЕ; «сразу в актив» и «по расписанию» — осознанный выбор в форме, деньги
+ * трогает только он.
+ *
+ * Право: админ — на любой кабинет, баер — только на свои (токен его). Шаблоны
+ * гео заводит и правит админ.
+ */
+
+const CTA_OPTIONS = [
+  'LEARN_MORE', 'SHOP_NOW', 'SIGN_UP', 'SUBSCRIBE', 'GET_OFFER', 'DOWNLOAD',
+  'BOOK_TRAVEL', 'CONTACT_US', 'APPLY_NOW', 'ORDER_NOW', 'GET_QUOTE',
+];
+const EVENT_OPTIONS = [
+  'LEAD', 'PURCHASE', 'COMPLETE_REGISTRATION', 'SUBSCRIBE', 'ADD_TO_CART',
+  'INITIATE_CHECKOUT', 'SUBMIT_APPLICATION', 'CONTACT',
+];
+
+/** Короткий случайный суффикс: уникализирует имена, чтобы ФБ не считал заливки
+ *  дублями и не резал их. */
+function rand(n = 4) {
+  return Math.random().toString(36).slice(2, 2 + n);
+}
+
+/** CSV «US, DE ,fr» → ['US','DE','FR']. Пусто/мусор — []. */
+function csvUpper(s: string): string[] {
+  return s
+    .split(/[,\s]+/)
+    .map((x) => x.trim().toUpperCase())
+    .filter(Boolean);
+}
+
+// ── Шаблоны гео (админ) ───────────────────────────────────────────────────
+
+export type TemplateState = { ok: boolean; error?: string } | null;
+
+export async function saveTemplate(_prev: TemplateState, form: FormData): Promise<TemplateState> {
+  await requireAdmin();
+  const id = String(form.get('id') ?? '').trim();
+  const name = String(form.get('name') ?? '').trim();
+  if (!name) return { ok: false, error: 'Название шаблона пустое' };
+  const countries = csvUpper(String(form.get('countries') ?? '')).join(',');
+  if (!countries) return { ok: false, error: 'Укажи хотя бы одну страну (напр. US)' };
+  const excluded = csvUpper(String(form.get('excluded') ?? '')).join(',');
+  const ageMin = Math.max(13, Math.min(65, Math.round(Number(form.get('ageMin')) || 18)));
+  const ageMax = Math.max(ageMin, Math.min(65, Math.round(Number(form.get('ageMax')) || 65)));
+  const genderRaw = String(form.get('genders') ?? ''); // ''|'1'|'2'
+  const genders = genderRaw === '1' ? '1' : genderRaw === '2' ? '2' : '';
+  const budget = Math.max(1, Number(String(form.get('budget') ?? '').replace(',', '.')) || 20);
+  const dailyBudgetCents = Math.round(budget * 100);
+  const event = EVENT_OPTIONS.includes(String(form.get('event'))) ? String(form.get('event')) : 'LEAD';
+  const cta = CTA_OPTIONS.includes(String(form.get('cta'))) ? String(form.get('cta')) : 'LEARN_MORE';
+
+  const data = { name, countries, excluded, ageMin, ageMax, genders, dailyBudgetCents, event, cta };
+  try {
+    if (id) await prisma.uploadTemplate.update({ where: { id }, data });
+    else await prisma.uploadTemplate.create({ data });
+  } catch {
+    return { ok: false, error: 'Не удалось сохранить шаблон' };
+  }
+  revalidatePath('/ads/upload');
+  return { ok: true };
+}
+
+export async function deleteTemplate(_prev: TemplateState, form: FormData): Promise<TemplateState> {
+  await requireAdmin();
+  const id = String(form.get('id') ?? '').trim();
+  if (!id) return { ok: false, error: 'Нет id' };
+  await prisma.uploadTemplate.update({ where: { id }, data: { archived: true } });
+  revalidatePath('/ads/upload');
+  return { ok: true };
+}
+
+// ── Живой доступ к кабинету: страницы и пиксели ────────────────────────────
+
+/** Найти кабинет с проверкой права и поднять доступ его токена. */
+async function accountAccessFor(accountId: string) {
+  const user = await requireUser();
+  const acc = await prisma.adAccount.findUnique({
+    where: { id: accountId },
+    include: { adToken: { include: { buyer: true } } },
+  });
+  if (!acc) return { error: 'Кабинет не найден' as const };
+  const tok = acc.adToken;
+  const admin = (user.role as string) === 'ADMIN';
+  const own = user.buyer && tok.buyerId === user.buyer.id;
+  if (!admin && !own) return { error: 'Это не твой кабинет' as const };
+  const { token, net } = fbAccess(tok.token, { cookiesJson: tok.cookiesJson, proxyUrl: tok.proxyUrl });
+  return { acc, tok, token, net, buyerId: user.buyer?.id ?? null };
+}
+
+export type CabinetAssets = {
+  ok: boolean;
+  error?: string;
+  pages?: { id: string; name: string }[];
+  pixels?: { id: string; name: string }[];
+};
+
+/** Подтянуть живьём страницы (ФП) и пиксели кабинета — для выпадашек формы. */
+export async function loadCabinetAssets(accountId: string): Promise<CabinetAssets> {
+  const ctx = await accountAccessFor(accountId);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+  try {
+    const [pages, pixels] = await Promise.all([
+      listPages(ctx.token, ctx.net),
+      listPixels(ctx.token, ctx.acc.externalId, ctx.net),
+    ]);
+    return { ok: true, pages, pixels };
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+}
+
+/** Создать новый пиксель в кабинете и вернуть обновлённый список. */
+export async function makePixel(accountId: string, name: string): Promise<CabinetAssets> {
+  const ctx = await accountAccessFor(accountId);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+  const clean = name.trim() || `pixel ${rand()}`;
+  try {
+    await createPixel(ctx.token, ctx.acc.externalId, clean, ctx.net);
+    const pixels = await listPixels(ctx.token, ctx.acc.externalId, ctx.net);
+    return { ok: true, pixels };
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+}
+
+// ── Оркестратор ────────────────────────────────────────────────────────────
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export type UploadResult = {
+  ok: boolean;
+  error?: string;
+  jobId?: string;
+  log?: string[];
+  campaignFbId?: string;
+  adsCreated?: number;
+};
+
+/**
+ * Запустить автозалив. Читает форму, собирает цепочку под кабинет и пишет
+ * журнал (UploadJob). Пейсинг между вызовами — чтобы не словить троттлинг ФБ на
+ * серии создающих запросов.
+ */
+export async function runAutoupload(form: FormData): Promise<UploadResult> {
+  const accountId = String(form.get('accountId') ?? '');
+  const ctx = await accountAccessFor(accountId);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+
+  // Шаблон гео (обязателен — из него таргет).
+  const templateId = String(form.get('templateId') ?? '');
+  const tpl = templateId ? await prisma.uploadTemplate.findUnique({ where: { id: templateId } }) : null;
+  if (!tpl) return { ok: false, error: 'Выбери шаблон гео' };
+
+  const pageId = String(form.get('pageId') ?? '').trim();
+  const pixelId = String(form.get('pixelId') ?? '').trim();
+  if (!pageId) return { ok: false, error: 'Выбери страницу (ФП)' };
+  if (!pixelId) return { ok: false, error: 'Выбери или создай пиксель' };
+
+  const campaignName = String(form.get('campaignName') ?? '').trim() || `auto ${rand(5)}`;
+  const link = String(form.get('link') ?? '').trim();
+  if (!/^https?:\/\//i.test(link)) return { ok: false, error: 'Ссылка на лендинг должна начинаться с http(s)://' };
+  const message = String(form.get('message') ?? '').trim();
+  if (!message) return { ok: false, error: 'Текст объявления пустой' };
+  const headline = String(form.get('headline') ?? '').trim();
+  const description = String(form.get('description') ?? '').trim();
+  const urlTags = String(form.get('urlTags') ?? '').trim();
+
+  // Бюджет: из формы (доллары) либо из шаблона.
+  const budgetRaw = String(form.get('budget') ?? '').replace(',', '.');
+  const dailyBudgetCents = budgetRaw ? Math.round((Number(budgetRaw) || 0) * 100) : tpl.dailyBudgetCents;
+  if (!dailyBudgetCents || dailyBudgetCents < 100) return { ok: false, error: 'Дневной бюджет слишком мал' };
+
+  // Режим запуска.
+  const mode = String(form.get('mode') ?? 'paused'); // paused | active | scheduled
+  let startTime: string | undefined;
+  if (mode === 'scheduled') {
+    const at = String(form.get('startAt') ?? '');
+    const d = at ? new Date(at) : null;
+    if (!d || Number.isNaN(d.getTime())) return { ok: false, error: 'Укажи дату и время планового старта' };
+    if (d.getTime() < Date.now() + 60_000) return { ok: false, error: 'Время старта должно быть в будущем' };
+    startTime = d.toISOString();
+  }
+  const objectStatus: 'ACTIVE' | 'PAUSED' = mode === 'paused' ? 'PAUSED' : 'ACTIVE';
+
+  // Картинки: каждая — отдельное объявление (уникализация креативов).
+  const files = form.getAll('images').filter((f): f is File => f instanceof File && f.size > 0);
+  if (files.length === 0) return { ok: false, error: 'Добавь хотя бы одну картинку' };
+  if (files.length > 20) return { ok: false, error: 'За раз не больше 20 картинок' };
+
+  const genders = tpl.genders === '1' ? [1] : tpl.genders === '2' ? [2] : undefined;
+  const countries = csvUpper(tpl.countries);
+  const excludedCountries = csvUpper(tpl.excluded);
+  const cta = tpl.cta;
+
+  const log: string[] = [];
+  const append = (line: string) => log.push(line);
+
+  const job = await prisma.uploadJob.create({
+    data: {
+      buyerId: ctx.buyerId,
+      accountId: ctx.acc.id,
+      accountName: ctx.acc.name,
+      campaignName,
+      mode,
+      status: 'running',
+      adsPlanned: files.length,
+    },
+  });
+
+  const finish = async (patch: { status: string; error?: string; campaignFbId?: string; adsCreated?: number }) => {
+    await prisma.uploadJob.update({
+      where: { id: job.id },
+      data: { ...patch, log: log.join('\n') },
+    });
+  };
+
+  const ext = ctx.acc.externalId;
+  const token = ctx.token;
+  const net: FbNet = ctx.net;
+
+  try {
+    append(`Кабинет: ${ctx.acc.name || ext}`);
+    append(`Гео: ${countries.join(', ')}${excludedCountries.length ? ` (искл. ${excludedCountries.join(', ')})` : ''} · возраст ${tpl.ageMin}-${tpl.ageMax}`);
+
+    // 1. Кампания.
+    const campaignId = await createCampaign(token, ext, {
+      name: campaignName,
+      objective: 'OUTCOME_SALES',
+      status: objectStatus,
+    }, net);
+    append(`✓ Кампания создана: ${campaignId}`);
+    await sleep(700);
+
+    // 2. Адсет с бюджетом и таргетом.
+    const adsetId = await createAdset(token, ext, {
+      name: `${campaignName} · adset ${rand()}`,
+      campaignId,
+      pixelId,
+      event: tpl.event,
+      countries,
+      excludedCountries,
+      dailyBudgetCents,
+      ageMin: tpl.ageMin,
+      ageMax: tpl.ageMax,
+      genders,
+      status: objectStatus,
+      startTime,
+    }, net);
+    append(`✓ Адсет создан: ${adsetId} · бюджет $${(dailyBudgetCents / 100).toFixed(2)}/день · событие ${tpl.event}`);
+    await sleep(700);
+
+    // 3. Для каждой картинки — креатив и объявление.
+    let created = 0;
+    for (let idx = 0; idx < files.length; idx += 1) {
+      const file = files[idx];
+      const buf = Buffer.from(await file.arrayBuffer());
+      let imageHash: string;
+      try {
+        imageHash = await uploadAdImage(token, ext, buf, net);
+      } catch (e) {
+        append(`✗ Картинка ${idx + 1}: не загрузилась — ${(e as Error).message}`);
+        continue;
+      }
+      await sleep(500);
+      const creativeId = await createAdCreative(token, ext, {
+        name: `${campaignName} · cr ${idx + 1} ${rand()}`,
+        pageId,
+        message,
+        imageHash,
+        link,
+        cta,
+        urlTags: urlTags || undefined,
+        headline: headline || undefined,
+        description: description || undefined,
+      }, net);
+      await sleep(500);
+      const adId = await createAd(token, ext, {
+        name: `${campaignName} · ad ${idx + 1} ${rand()}`,
+        adsetId,
+        creativeId,
+        status: objectStatus,
+      }, net);
+      created += 1;
+      append(`✓ Объявление ${idx + 1}/${files.length}: ${adId}`);
+      await sleep(600);
+    }
+
+    if (created === 0) {
+      await finish({ status: 'error', error: 'Ни одно объявление не создано', campaignFbId: campaignId });
+      return { ok: false, error: 'Ни одно объявление не создано (см. журнал)', jobId: job.id, log, campaignFbId: campaignId };
+    }
+
+    const modeLabel = mode === 'active' ? 'В АКТИВЕ' : mode === 'scheduled' ? `ПО РАСПИСАНИЮ (${startTime})` : 'НА ПАУЗЕ';
+    append(`Готово: ${created} объявлений · режим ${modeLabel}`);
+    await finish({ status: 'done', campaignFbId: campaignId, adsCreated: created });
+    revalidatePath('/ads/upload');
+    revalidatePath('/ads/campaigns');
+    return { ok: true, jobId: job.id, log, campaignFbId: campaignId, adsCreated: created };
+  } catch (e) {
+    const msg = e instanceof FbError ? e.message : (e as Error).message;
+    append(`✗ Ошибка: ${msg}`);
+    await finish({ status: 'error', error: msg });
+    return { ok: false, error: msg, jobId: job.id, log };
+  }
+}

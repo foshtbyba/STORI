@@ -758,3 +758,53 @@ model CapitalAdjustment {
 
   @@index([scope, buyerId])
 }
+
+/// Шаблон гео для автозалива: набор стран (+исключения), возраст, пол, дневной
+/// бюджет и событие пикселя. Заводит и правит админ — баер при заливе просто
+/// выбирает готовый шаблон, чтобы не собирать таргет руками каждый раз.
+/// Строки со списками (countries/excluded/genders) — CSV, чтобы схема осталась
+/// одинаковой на SQLite и Postgres.
+model UploadTemplate {
+  id               String   @id @default(cuid())
+  name             String
+  /// ISO-коды стран через запятую: «US,DE,FR».
+  countries        String   @default("")
+  /// Исключаемые страны (excluded_geo_locations), через запятую. Пусто — нет.
+  excluded         String   @default("")
+  ageMin           Int      @default(18)
+  ageMax           Int      @default(65)
+  /// Пол: пусто — все; «1» муж; «2» жен; «1,2» — оба явно.
+  genders          String   @default("")
+  /// Дневной бюджет по умолчанию, в центах. Можно переопределить при заливе.
+  dailyBudgetCents Int      @default(2000)
+  /// Событие оптимизации пикселя: LEAD/PURCHASE/COMPLETE_REGISTRATION…
+  event            String   @default("LEAD")
+  /// Кнопка-призыв: LEARN_MORE/SHOP_NOW/SIGN_UP…
+  cta              String   @default("LEARN_MORE")
+  archived         Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+/// Запись о запуске автозалива — для истории и разбора, что именно ушло в ФБ.
+/// Пишется по факту оркестрации: сколько объявлений создано, в каком режиме,
+/// и лог по шагам (текстом). Денег не двигает — это просто журнал.
+model UploadJob {
+  id           String   @id @default(cuid())
+  buyerId      String?
+  accountId    String   // AdAccount.id
+  accountName  String   @default("")
+  campaignName String   @default("")
+  /// paused | active | scheduled
+  mode         String   @default("paused")
+  status       String   @default("running") // running | done | error
+  adsPlanned   Int      @default(0)
+  adsCreated   Int      @default(0)
+  campaignFbId String   @default("")
+  log          String   @default("") // построчный журнал шагов
+  error        String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([accountId])
+}

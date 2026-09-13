@@ -1058,6 +1058,8 @@ export type CreateAdsetInput = {
   pixelId: string;
   event?: string; // PURCHASE по умолчанию
   countries: string[]; // ['US']
+  /** Исключаемые страны (excluded_geo_locations). Пусто — не передаём. */
+  excludedCountries?: string[];
   /** Бюджет на адсете, в центах. Если бюджет на кампании — не передаём. */
   dailyBudgetCents?: number;
   bidStrategy?: string; // LOWEST_COST_WITHOUT_CAP
@@ -1076,6 +1078,9 @@ export async function createAdset(token: string, externalId: string, i: CreateAd
     age_min: i.ageMin ?? 18,
     age_max: i.ageMax ?? 65,
   };
+  if (i.excludedCountries && i.excludedCountries.length) {
+    targeting.excluded_geo_locations = { countries: i.excludedCountries };
+  }
   if (i.genders && i.genders.length) targeting.genders = i.genders;
 
   const params: Record<string, string> = {
@@ -1191,22 +1196,29 @@ export type CreateCreativeInput = {
   imageHash: string;
   link: string; // лендинг
   cta?: string; // LEARN_MORE / SHOP_NOW ...
+  /** Метки к ссылке (url_tags): «sub_id4={{ad.id}}&...». Пусто — не шлём. */
+  urlTags?: string;
+  /** Заголовок и описание под ссылкой (необязательны). */
+  headline?: string;
+  description?: string;
 };
 
 export async function createAdCreative(token: string, externalId: string, i: CreateCreativeInput, net: FbNet = {}) {
-  const objectStorySpec = {
-    page_id: i.pageId,
-    link_data: {
-      message: i.message,
-      link: i.link,
-      image_hash: i.imageHash,
-      call_to_action: { type: i.cta || 'LEARN_MORE' },
-    },
+  const linkData: Record<string, unknown> = {
+    message: i.message,
+    link: i.link,
+    image_hash: i.imageHash,
+    call_to_action: { type: i.cta || 'LEARN_MORE' },
   };
-  const body = await call(`/${externalId}/adcreatives`, token, {
+  if (i.headline) linkData.name = i.headline;
+  if (i.description) linkData.description = i.description;
+  const objectStorySpec = { page_id: i.pageId, link_data: linkData };
+  const params: Record<string, string> = {
     name: i.name,
     object_story_spec: JSON.stringify(objectStorySpec),
-  }, net, 'POST');
+  };
+  if (i.urlTags && i.urlTags.trim()) params.url_tags = i.urlTags.trim();
+  const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST');
   const id = body.id as string | undefined;
   if (!id) throw new FbError('Креатив не создан: нет id');
   return id;
