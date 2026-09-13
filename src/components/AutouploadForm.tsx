@@ -4,10 +4,10 @@ import { useRef, useState, useTransition } from 'react';
 import { loadCabinetAssets, makePixel, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
 import type { Template } from './TemplateManager';
 
-type Cabinet = { id: string; name: string; externalId: string; currency: string; owner: string };
+type Cabinet = { id: string; name: string; externalId: string; currency: string; group: string };
 
 const inp = 'h-9 w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft';
-const box = 'rounded-[14px] border border-line px-3.5 py-3';
+const box = 'rounded-[14px] border border-line px-4 py-3.5 sm:px-5';
 
 /**
  * Автозалив: форма сборки кампании и запуск оркестратора. Страницы и пиксели
@@ -32,6 +32,18 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
   const filesRef = useRef<HTMLInputElement>(null);
 
   const tpl = templates.find((t) => t.id === templateId) ?? null;
+
+  // Кабинеты в выпадашке группируем по владельцу/профилю — длинный список так
+  // читается куда легче плоского.
+  const grouped = (() => {
+    const map = new Map<string, Cabinet[]>();
+    for (const c of cabinets) {
+      const arr = map.get(c.group) ?? [];
+      arr.push(c);
+      map.set(c.group, arr);
+    }
+    return [...map.entries()];
+  })();
 
   const load = () => {
     if (!accountId || pending) return;
@@ -112,10 +124,14 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
         <div className={box}>
           <div className="text-[12.5px] font-semibold">1 · Кабинет</div>
           <div className="mt-2.5 flex flex-wrap items-center gap-2">
-            <select value={accountId} onChange={(e) => { setAccountId(e.target.value); setAssets(null); setPageId(''); setPixelId(''); }} className={`${inp} max-w-[340px]`}>
-              <option value="">— выбери кабинет —</option>
-              {cabinets.map((c) => (
-                <option key={c.id} value={c.id}>{c.owner ? `${c.owner} · ` : ''}{c.name || c.externalId} · {c.currency}</option>
+            <select value={accountId} onChange={(e) => { setAccountId(e.target.value); setAssets(null); setPageId(''); setPixelId(''); }} className={`${inp} max-w-[360px]`}>
+              <option value="">— выбери кабинет ({cabinets.length}) —</option>
+              {grouped.map(([group, list]) => (
+                <optgroup key={group} label={group}>
+                  {list.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name || c.externalId} · {c.currency}</option>
+                  ))}
+                </optgroup>
               ))}
             </select>
             <button type="button" onClick={load} disabled={!accountId || pending} className={`rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage ${pending ? 'cursor-progress opacity-60' : ''} ${!accountId ? 'opacity-50' : ''}`}>

@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { requireUser, requireAdmin } from '@/lib/auth';
+import { canSeeTeam, type Role } from '@/lib/roles';
 import {
   fbAccess,
   listPages,
@@ -37,6 +38,16 @@ const EVENT_OPTIONS = [
   'LEAD', 'PURCHASE', 'COMPLETE_REGISTRATION', 'SUBSCRIBE', 'ADD_TO_CART',
   'INITIATE_CHECKOUT', 'SUBMIT_APPLICATION', 'CONTACT',
 ];
+
+/**
+ * Цель кампании под событие пикселя. ФБ не даёт оптимизироваться на LEAD внутри
+ * OUTCOME_SALES (код 100/2446814) — лид-события живут в OUTCOME_LEADS, покупки
+ * и корзина — в OUTCOME_SALES. Всё остальное по умолчанию — лиды.
+ */
+function objectiveForEvent(event: string): string {
+  const sales = ['PURCHASE', 'ADD_TO_CART', 'INITIATE_CHECKOUT', 'ADD_PAYMENT_INFO', 'SUBSCRIBE', 'START_TRIAL'];
+  return sales.includes(event) ? 'OUTCOME_SALES' : 'OUTCOME_LEADS';
+}
 
 /** Короткий случайный суффикс: уникализирует имена, чтобы ФБ не считал заливки
  *  дублями и не резал их. */
@@ -104,9 +115,11 @@ async function accountAccessFor(accountId: string) {
   });
   if (!acc) return { error: 'Кабинет не найден' as const };
   const tok = acc.adToken;
-  const admin = (user.role as string) === 'ADMIN';
-  const own = user.buyer && tok.buyerId === user.buyer.id;
-  if (!admin && !own) return { error: 'Это не твой кабинет' as const };
+  const own = Boolean(user.buyer && tok.buyerId === user.buyer.id);
+  const team = canSeeTeam(user.role as Role);
+  // Свой кабинет — всегда можно. Овнеры/менеджеры — только на овнерские
+  // (SKO/MPR); на кабинеты баеров заливать нельзя даже админу.
+  if (!own && !(team && tok.buyer.owner)) return { error: 'На этот кабинет заливать нельзя' as const };
   const { token, net } = fbAccess(tok.token, { cookiesJson: tok.cookiesJson, proxyUrl: tok.proxyUrl });
   return { acc, tok, token, net, buyerId: user.buyer?.id ?? null };
 }
@@ -246,13 +259,15 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     append(`Кабинет: ${ctx.acc.name || ext}`);
     append(`Гео: ${countries.join(', ')}${excludedCountries.length ? ` (искл. ${excludedCountries.join(', ')})` : ''} · возраст ${tpl.ageMin}-${tpl.ageMax}`);
 
-    // 1. Кампания.
+    // 1. Кампания. Цель — под событие пикселя (лиды/продажи), иначе ФБ не даёт
+    //    оптимизироваться на выбранное событие.
+    const objective = objectiveForEvent(tpl.event);
     const campaignId = await createCampaign(token, ext, {
       name: campaignName,
-      objective: 'OUTCOME_SALES',
+      objective,
       status: objectStatus,
     }, net);
-    append(`✓ Кампания создана: ${campaignId}`);
+    append(`✓ Кампания создана: ${campaignId} · цель ${objective}`);
     await sleep(700);
 
     // 2. Адсет с бюджетом и таргетом.

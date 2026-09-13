@@ -21,7 +21,10 @@ export default async function AdsUploadPage() {
 
   const [tokens, templatesRaw] = await Promise.all([
     prisma.adToken.findMany({
-      where: team ? {} : { buyerId },
+      // Заливать можно только на СВОИ кабинеты. Овнеры/менеджеры (team) —
+      // исключительно на овнерские (SKO/MPR); на кабинеты баеров они заливать
+      // не должны. Баер — только на свои.
+      where: team ? { buyer: { owner: true } } : { buyerId },
       include: {
         buyer: { select: { handle: true, owner: true } },
         accounts: { where: { enabled: true }, orderBy: { name: 'asc' } },
@@ -37,7 +40,8 @@ export default async function AdsUploadPage() {
       name: a.name,
       externalId: a.externalId,
       currency: a.currency,
-      owner: t.buyer.owner ? t.buyer.handle : team ? t.buyer.handle : '',
+      // Группа в выпадашке — по владельцу/профилю, чтобы длинный список читался.
+      group: team ? t.buyer.handle : t.label || t.buyer.handle,
     })),
   );
 
