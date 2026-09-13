@@ -242,7 +242,9 @@ export async function createTransfer(apiKey: string, t: TransferInput): Promise<
         from: t.from,
         to: t.to,
         amount: t.amount,
-        currency: t.currency ?? 'USD',
+        // currency НЕ шлём: Brocard отвергал "USD" (422 invalid currency) и
+        // определяет валюту сам по счетам. Шлём только если явно задана.
+        ...(t.currency ? { currency: t.currency } : {}),
         ...(t.comment ? { comment: t.comment.slice(0, 255) } : {}),
       }),
       cache: 'no-store',

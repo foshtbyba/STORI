@@ -425,7 +425,7 @@ export async function brocardTransfer(form: FormData): Promise<{ ok: boolean; er
       from: source.id,
       to: target.id,
       amount,
-      currency: target.currency || 'USD',
+      // currency не передаём — Brocard определяет по счетам (см. createTransfer).
       comment: comment || 'Пополнение с общего счёта',
     });
     await prisma.brocardTransfer.create({

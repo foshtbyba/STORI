@@ -33,6 +33,7 @@ export default function BrocardAccounts() {
   const [fromAcc, setFromAcc] = useState('');
   const [toAcc, setToAcc] = useState('');
   const [amount, setAmount] = useState('');
+  const [confirm, setConfirm] = useState<{ amt: number; toLabel: string } | null>(null);
 
   const load = () => {
     if (pending) return;
@@ -46,21 +47,31 @@ export default function BrocardAccounts() {
 
   const all = accounts ?? [];
   const label = (a?: Account) => (a ? (a.teamName || a.ownerName || a.ownerEmail || a.id) : '');
-  // Источник — Общак (по имени). Получатели — все остальные счета (баеры).
+  // Показываем только именованные счета (Общак + баеры). Безымянные «—» и
+  // карточные счета — мусор, их прячем.
+  const visible = all.filter((a) => (a.teamName || '').trim() !== '');
+  // Источник — Общак (по имени). Получатели — остальные именованные счета (баеры).
   const obshchak = all.find(isObshchak) ?? null;
   const srcId = obshchak?.id ?? fromAcc;
-  const targets = all.filter((a) => a.id !== srcId);
+  const targets = visible.filter((a) => a.id !== srcId);
 
-  const transfer = () => {
+  // Шаг 1 — проверить и показать подтверждение (без системного окна).
+  const ask = () => {
     if (pending) return;
     const amt = Number(amount);
     if (!srcId) { setMsg({ ok: false, text: 'Не нашёлся Общак — переименуй общий счёт в «Общак» или выбери источник.' }); return; }
     if (!toAcc) { setMsg({ ok: false, text: 'Выбери счёт баера.' }); return; }
     if (srcId === toAcc) { setMsg({ ok: false, text: 'Источник и получатель совпадают.' }); return; }
     if (!Number.isFinite(amt) || amt < 0.01) { setMsg({ ok: false, text: 'Сумма от $0.01.' }); return; }
-    const dst = all.find((a) => a.id === toAcc);
-    if (!window.confirm(`Перевести $${amt.toFixed(2)} с Общака на счёт «${label(dst)}»? Это реальные деньги.`)) return;
     setMsg(null);
+    setConfirm({ amt, toLabel: label(all.find((a) => a.id === toAcc)) });
+  };
+
+  // Шаг 2 — подтверждено: выполняем перевод.
+  const run = () => {
+    if (pending || !confirm) return;
+    const amt = confirm.amt;
+    setConfirm(null);
     start(async () => {
       const fd = new FormData();
       fd.set('fromAcc', srcId);
@@ -85,7 +96,7 @@ export default function BrocardAccounts() {
         >
           {pending ? 'Читаю счета…' : accounts ? 'Обновить счета' : 'Показать счета Brocard'}
         </button>
-        {obshchak ? <span className="text-[12px] text-mute">Общак: <span className="text-sage">{usd(obshchak.availableCents)}</span></span> : accounts ? <span className="text-[12px] text-mute">счетов: {accounts.length}</span> : null}
+        {obshchak ? <span className="text-[12px] text-mute">Общак: <span className="text-sage">{usd(obshchak.availableCents)}</span></span> : accounts ? <span className="text-[12px] text-mute">счетов: {visible.length}</span> : null}
       </div>
 
       {msg ? (
@@ -100,7 +111,7 @@ export default function BrocardAccounts() {
       {accounts ? (
         <>
           <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {accounts.map((a) => (
+            {visible.map((a) => (
               <div key={a.id} className="rounded-[14px] border border-line px-3 py-2.5">
                 <div className="flex items-baseline justify-between">
                   <span className="text-[13px] font-medium">
@@ -127,7 +138,7 @@ export default function BrocardAccounts() {
                   className="h-9 rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft"
                 >
                   <option value="">— источник (Общак) —</option>
-                  {all.map((a) => (
+                  {visible.map((a) => (
                     <option key={a.id} value={a.id}>{label(a)} · {usd(a.availableCents)}</option>
                   ))}
                 </select>
@@ -155,13 +166,31 @@ export default function BrocardAccounts() {
               </div>
               <button
                 type="button"
-                onClick={transfer}
+                onClick={ask}
                 disabled={pending}
                 className={`rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage ${pending ? 'cursor-progress opacity-60' : ''}`}
               >
                 {pending ? 'Перевожу…' : 'Пополнить'}
               </button>
             </div>
+
+            {/* Подтверждение в стиле дешборда — вместо системного окна. */}
+            {confirm ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-[12.5px]" style={{ borderColor: '#5a3a2a', background: '#241712' }}>
+                <span className="text-soft">
+                  Перевести <span className="font-semibold text-sage">${confirm.amt.toFixed(2)}</span> с Общака на «{confirm.toLabel}»? Это реальные деньги.
+                </span>
+                <div className="ml-auto flex items-center gap-2">
+                  <button type="button" onClick={run} disabled={pending} className="rounded-full border border-sage px-3.5 py-1.5 text-[12px] text-sage transition hover:bg-sage-t">
+                    Подтвердить
+                  </button>
+                  <button type="button" onClick={() => setConfirm(null)} className="rounded-full border border-line2 px-3.5 py-1.5 text-[12px] text-mute transition hover:text-text">
+                    Отмена
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
             <p className="mt-2 text-[11px] text-dim">Источник — Общак. Сумма не больше его остатка. Каждый перевод пишется в лог.</p>
           </div>
         </>
