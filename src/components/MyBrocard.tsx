@@ -81,9 +81,9 @@ export default function MyBrocard() {
           </div>
 
           {confirm ? (
-            <div className="mt-3 flex flex-wrap items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-[12.5px]" style={{ borderColor: '#3c4d33', background: '#1c241a' }}>
-              <span className="text-soft">Пополнить свой счёт на <span className="font-semibold text-sage">${confirm}</span> с Общака?</span>
-              <div className="ml-auto flex items-center gap-2">
+            <div className="mt-3 flex items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-[12.5px]" style={{ borderColor: '#3c4d33', background: '#1c241a' }}>
+              <span className="text-soft">Пополнить свой счёт на <span className="font-semibold text-sage">${confirm}</span>?</span>
+              <div className="ml-auto flex shrink-0 items-center gap-2">
                 <button type="button" onClick={() => run(confirm)} disabled={pending} className="rounded-full border border-sage px-3.5 py-1.5 text-[12px] text-sage transition hover:bg-sage-t">Подтвердить</button>
                 <button type="button" onClick={() => setConfirm(null)} className="rounded-full border border-line2 px-3.5 py-1.5 text-[12px] text-mute transition hover:text-text">Отмена</button>
               </div>
