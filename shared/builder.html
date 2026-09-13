@@ -656,6 +656,9 @@
         <label>back-fix ссылка (пусто = выкл)</label>
         <input id="backfix" value="https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}">
         <div class="hint">Куда увести юзера по кнопке «Назад» (демонетизация трафика). Пусто — выключить. Домен/путь берём из Keitaro: в кампании задай <code>sub_id_29</code> = домен (напр. <code>nutrivition.top</code>), <code>sub_id_30</code> = путь без слэша (напр. <code>VXsVxCX</code>) — только буквы/цифры, БЕЗ <code>/ : ?</code> (иначе Keitaro закодирует). <code>{campaign_alias}</code> = идентификатор кампании — подставляется сам. Протокол, слэши и <code>?sun=</code> держим в коде.</div>
+        <label style="margin-top:8px">URL скрипта ywbackfix (пусто = класть локально js/ywbackfix.js)</label>
+        <input id="ywUrl" placeholder="напр. https://msteam.top/js/ywbackfix.js — если хостишь скрипт централизованно">
+        <div class="hint">Если заполнено — в ленд встанет <code>&lt;script src="этот URL"&gt;</code>, а локальный <code>js/ywbackfix.js</code> в архив НЕ кладётся (обновляешь скрипт в одном месте на сервере). Пусто — как раньше, скрипт кладётся в архив.</div>
       </div>
       <label>Язык текстов call/error/chest</label>
       <select id="uiLang"></select>
@@ -1550,7 +1553,7 @@ function T(lang){return Object.assign({},TXT.en,ERR.en,CHESTX.en,TXT[lang]||{},E
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function offerObject(cfg){return {endpoint:cfg.endpoint,okField:cfg.okField,okValue:cfg.okValue,idField:cfg.idField,product_id:cfg.product_id,ref:cfg.ref,api_key:cfg.api_key,langCode:cfg.langCode,success:cfg.success,error:cfg.error,out:true,msgName:cfg.t.an,msgPhone:cfg.t.ap};}
 // back-fix (демонетизация «назад») — общий для всех режимов. В сундуке не нужен (cfg.noBackfix)
-function backfixBlock(cfg){ return (cfg.backfix && !cfg.noBackfix) ? '<script src="js/ywbackfix.js"\n        data-redirect="true"\n        data-links=\'["'+cfg.backfix+'"]\'>\n<\/script>' : ""; }
+function backfixBlock(cfg){ return (cfg.backfix && !cfg.noBackfix) ? '<script src="'+(cfg.ywUrl||"js/ywbackfix.js")+'"\n        data-redirect="true"\n        data-links=\'["'+cfg.backfix+'"]\'>\n<\/script>' : ""; }
 function orderBlock(cfg){
   var l=[];
   if(cfg.keepComments) l.push("<!-- ===== DROP-IN блок заказа (конструктор) ===== -->");
@@ -2595,7 +2598,7 @@ function readCfg(){
     endpoint:pk.endpoint||"https://m1.top/send_order/",okField:pk.okField,okValue:pk.okValue,idField:pk.idField,
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
     slKey:(function(){try{return atob(SKYLEAD_KEY_B64);}catch(e){return"";}})(),slFlow:val("sl_flow"),
-    success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),
+    success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),ywUrl:val("ywUrl"),
     brand:val("brand")||"Product",image:val("image")||"images/product.png",price:val("price")||"—",
     successImg:PAGE_IMG.page,errorImg:PAGE_IMG.page,
     pxOn:document.getElementById("pxOn").checked,pxid:val("pxid"),pxev:val("pxev")||"Lead",pxval:val("pxval"),pxcur:val("pxcur"),
@@ -2893,7 +2896,7 @@ function downloadZip(){
     // KMA (native) — свои success/error, не генерим/не добавляем.
     if(!cfg.native && !had.call)  out.push({name:cfg.successName,str:FILES.call});
     if(!cfg.native && !had.error) out.push({name:cfg.errorName,str:FILES.error});
-    if(!had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});
+    if(!cfg.ywUrl && !had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});   // при центральном URL локальный скрипт не кладём
     if(genPhp&&!had.php) out.push({name:"order.php",str:FILES.orderphp});
     if(cfg.needFile&&handlerLoaded()&&!had.handler) out.push(handlerEntry(cfg.needFile));
     // KMA: кладём папку api из архива КАК ЕСТЬ (config.php/KmaLead.php/custom.min.js/шрифты не трогаем!),
@@ -2908,7 +2911,8 @@ function downloadZip(){
     }
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
-    var files=[{name:cfg.mainExt==="php"?"index.php":"index.html",str:FILES.index},{name:cfg.successName,str:FILES.call},{name:cfg.errorName,str:FILES.error},{name:"js/ywbackfix.js",str:YWBACKFIX_JS}];
+    var files=[{name:cfg.mainExt==="php"?"index.php":"index.html",str:FILES.index},{name:cfg.successName,str:FILES.call},{name:cfg.errorName,str:FILES.error}];
+    if(!cfg.ywUrl) files.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});   // при центральном URL локальный скрипт не кладём
     if(genPhp) files.push({name:"order.php",str:FILES.orderphp});
     if(cfg.needFile&&handlerLoaded()) files.push(handlerEntry(cfg.needFile));
     dl(zipName(cfg),makeZip(files),"application/zip");
