@@ -116,10 +116,10 @@ export default async function OffersPage({
           })}
         </div>
 
+        <div className="hidden flex-1 sm:block" />
         {verticals.length ? (
           <OfferVerticalFilter verticals={verticals} selected={vert} status={status} query={query} />
         ) : null}
-        <div className="hidden flex-1 sm:block" />
 
         {/*
           Поиск GET-ом (ссылку с запросом видно в адресе), но правая кнопка
