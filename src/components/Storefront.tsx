@@ -173,11 +173,11 @@ export default function Storefront({
       {/* Купленные домены. Баер видит свои, команда/админ — все. */}
       {sold.length ? (
         <div className="mt-1">
-          <div className="mb-2 text-[13px] font-semibold">Купленные</div>
-          <div className="overflow-x-auto">
+          <div className="mb-2 text-[13px] font-semibold">Купленные · {sold.length}</div>
+          <div className="max-h-[320px] overflow-auto rounded-[12px] border border-line">
             <table className="w-full min-w-[520px] text-[12.5px]">
               <thead>
-                <tr className="text-left text-[11px] uppercase tracking-wide text-dim">
+                <tr className="sticky top-0 z-10 bg-panel text-left text-[11px] uppercase tracking-wide text-dim">
                   <th className="py-1.5 pr-3 font-medium">Домен</th>
                   <th className="py-1.5 pr-3 font-medium">Баер</th>
                   <th className="py-1.5 pr-3 font-medium">Цена</th>

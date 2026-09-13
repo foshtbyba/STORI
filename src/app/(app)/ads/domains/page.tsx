@@ -105,7 +105,7 @@ export default async function DomainsPage() {
 
       {/* Настройки магазина — тремя компактными плашками в одну строку. */}
       {team ? (
-        <div className="grid grid-cols-1 items-start gap-2.5 lg:grid-cols-3 lg:gap-3.5">
+        <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-3 lg:gap-3.5">
           {/* Цены по зонам — сворачиваемая. */}
           <Collapsible
             title="Цены по зонам"
