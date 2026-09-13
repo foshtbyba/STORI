@@ -194,7 +194,9 @@ export type BrocardAccount = {
 export async function listAccounts(apiKey: string): Promise<BrocardAccount[]> {
   const out: BrocardAccount[] = [];
   for (let page = 1; page <= 20; page += 1) {
-    const raw = await call(apiKey, '/accounts', { per_page: '200', page: String(page), scope: 'company' });
+    // Без принудительного scope: 'company' требует прав на всю компанию (403 у
+    // обычного ключа). Дефолт = my: свои счета + общий счёт команды.
+    const raw = await call(apiKey, '/accounts', { per_page: '200', page: String(page) });
     const data = ((raw as { data?: unknown }).data ?? []) as Record<string, unknown>[];
     for (const a of data) {
       const team = (a.team ?? {}) as Record<string, unknown>;
