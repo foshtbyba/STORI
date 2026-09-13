@@ -31,7 +31,7 @@ export default function OfferVerticalFilter({
     <select
       value={selected}
       onChange={(e) => go(e.target.value)}
-      className="h-9 shrink-0 rounded-full border border-line2 bg-sub px-3.5 text-[12.5px] text-soft outline-none focus:border-sage"
+      className="h-9 w-[150px] shrink-0 rounded-full border border-line2 bg-sub px-3.5 text-[12.5px] text-soft outline-none focus:border-sage"
       title="Фильтр по вертикали"
     >
       <option value="">все вертикали</option>
