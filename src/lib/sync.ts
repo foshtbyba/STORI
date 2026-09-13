@@ -309,10 +309,9 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
   // канонический, иначе расход задвоится.
   const canonical = await canonicalAccountIds(now);
 
-  // Агентские кабинеты (флаг agency): их расход из ФБ авто-кладём в отчёт дня
-  // строкой «Агентка». Копим по «баер + день» за весь заход (у баера может быть
-  // несколько агентских кабов), пишем после обхода.
-  const agencyByBuyerDay = new Map<string, number>();
+  // Агентка в отчёт дня пишется НЕ здесь: её считаем в syncFacebookAds из
+  // ad-level (как Кампании и КТ), иначе строка «Агентка» расходилась с
+  // дашбордом на пару долларов (account-level ≠ ad-level).
 
   // Разные токены — разные аккаунты и прокси, поэтому ведём их ПАРАЛЛЕЛЬНО, до
   // FB_CONCURRENCY сразу: главный рычаг скорости. Серийность с паузами нужна
@@ -385,13 +384,6 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
             },
           });
           result.touched += 1;
-
-          // Агентский кабинет (USD): его дневной расход копим на баера токена,
-          // чтобы после обхода положить в отчёт дня строкой «Агентка».
-          if (acc.agency && acc.currency === 'USD') {
-            const key = `${token.buyerId}|${d.date}`;
-            agencyByBuyerDay.set(key, (agencyByBuyerDay.get(key) ?? 0) + d.cents);
-          }
         }
         await prisma.adAccount.update({
           where: { id: acc.id },
@@ -451,13 +443,6 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
       });
     }
   });
-
-  // Агентский расход из ФБ — в отчёт дня строкой «Агентка» (после обхода, чтобы
-  // сложить все агентские кабы баера в одну цифру за день).
-  for (const [key, cents] of agencyByBuyerDay) {
-    const [buyerId, iso] = key.split('|');
-    await writeAgencyDay(buyerId, iso, cents, result);
-  }
 
   return result;
 }
@@ -865,6 +850,10 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   // KtCostDay уже после обхода.
   type Bucket = { cents: number; clicks: number; impressions: number; currency: string; campId: string; campName: string; token: string };
   const cost = new Map<string, Bucket>();
+  // Агентский расход по (баер, день) — из ad-level (как Кампании и КТ), чтобы
+  // строка «Агентка» в «Дни» сходилась со всем дашбордом (раньше бралась из
+  // account-level и расходилась на пару долларов).
+  const agencyByBuyerDay = new Map<string, number>();
   let unmatchedCents = 0;
   // Куда «утекает» расход — по профилю (соцу). Так в отчёте видно, у какой
   // группы открут не привязался к кампании КТ: обычно это новые группы, где в
@@ -1042,6 +1031,14 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
             });
             result.touched += 1;
 
+            // Агентский кабинет (USD): копим его дневной ad-level расход на баера
+            // токена — потом строкой «Агентка» в отчёт дня (тот же источник, что
+            // Кампании и КТ, поэтому цифры сходятся).
+            if (acc.agency && acc.currency === 'USD') {
+              const k = `${token.buyerId}|${s.date}`;
+              agencyByBuyerDay.set(k, (agencyByBuyerDay.get(k) ?? 0) + s.cents);
+            }
+
             // В КТ льём только доллары (агентские кабинеты всегда USD).
             if (acc.currency !== 'USD') {
               nonUsdDays += 1;
@@ -1157,6 +1154,12 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       });
     }
   });
+
+  // Строка «Агентка» в отчёт дня — из ad-level (совпадает с Кампаниями и КТ).
+  for (const [key, cents] of agencyByBuyerDay) {
+    const [buyerId, iso] = key.split('|');
+    await writeAgencyDay(buyerId, iso, cents, result);
+  }
 
   // Перезаписываем окно целиком: чистим дни отрезка и кладём свежие суммы, чтобы
   // исчезнувший расход не оставался висеть за прошлые дни. В своём try, чтобы
