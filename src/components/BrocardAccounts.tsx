@@ -154,15 +154,19 @@ export default function BrocardAccounts() {
                   <option key={t.id} value={t.id}>{label(t)} · {usd(t.availableCents)}</option>
                 ))}
               </select>
-              <div className="flex items-center gap-1">
-                <span className="text-mute">$</span>
-                <input
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  inputMode="decimal"
-                  placeholder="1.00"
-                  className="w-24 rounded-lg border border-line2 bg-sub px-2.5 py-1.5 text-soft"
-                />
+              <div className="flex items-center gap-1.5">
+                {[300, 500].map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => setAmount(String(v))}
+                    className={`rounded-full border px-3.5 py-1.5 text-[12px] transition ${
+                      amount === String(v) ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-soft hover:border-sage'
+                    }`}
+                  >
+                    ${v}
+                  </button>
+                ))}
               </div>
               <button
                 type="button"
