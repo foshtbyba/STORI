@@ -78,7 +78,7 @@ export default function OfferSearch({
               router.push(newHref);
             }
           }}
-          className={`flex h-9 shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-full px-4 text-[12.5px] font-semibold transition-all duration-200 ${
+          className={`flex h-9 w-[104px] shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-full px-4 text-[12.5px] font-semibold transition-colors duration-200 ${
             mode === 'reset' ? muted : green
           }`}
         >
