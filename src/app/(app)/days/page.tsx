@@ -5,9 +5,11 @@ import { prisma } from '@/lib/db';
 import { weekBounds, weekKey, weekLabel, fmtDay, weekdayShort, isEditable } from '@/lib/period';
 import { Panel, PanelHead, Empty } from '@/components/ui';
 import DayRow, { type DayRowData } from '@/components/DayRow';
+import DayBuyerFilter from '@/components/DayBuyerFilter';
 import WeekNav from '@/components/WeekNav';
 import { IconCalendar, IconPlus } from '@/components/icons';
 import { AGENCY_SOURCE } from '@/lib/extra-spend';
+import { usd } from '@/lib/money';
 
 /**
  * Отчёты по дням.
@@ -20,10 +22,10 @@ import { AGENCY_SOURCE } from '@/lib/extra-spend';
 export default async function DaysPage({
   searchParams,
 }: {
-  searchParams: Promise<{ week?: string; owners?: string }>;
+  searchParams: Promise<{ week?: string; owners?: string; buyer?: string }>;
 }) {
   const user = await requireUser();
-  const { week, owners } = await searchParams;
+  const { week, owners, buyer } = await searchParams;
   const today = weekKey(new Date());
   const key = week ? weekKey(new Date(`${week}T00:00:00.000Z`)) : today;
   const isCurrent = key === today;
@@ -38,15 +40,28 @@ export default async function DaysPage({
   // Овнеры в списке дней по умолчанию скрыты — их цифры отдельные. Кнопка их
   // показывает (только админу).
   const showOwners = isAdmin && owners === '1';
+  // Фильтр по баеру: баер видит только себя (buyerId), админ может выбрать
+  // одного через селектор (?buyer=id).
+  const selBuyer = buyerId ?? (isAdmin && buyer ? buyer : undefined);
 
   const days = await prisma.dayReport.findMany({
     where: {
       date: { gte: from, lt: to },
-      ...(buyerId ? { buyerId } : showOwners ? {} : { buyer: { owner: false } }),
+      ...(selBuyer ? { buyerId: selBuyer } : showOwners ? {} : { buyer: { owner: false } }),
     },
     include: { buyer: true, paymentMethod: true },
     orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
   });
+
+  // Список баеров для фильтра (только админу). Овнеров добавляем, когда они
+  // показаны.
+  const filterBuyers = isAdmin
+    ? await prisma.buyer.findMany({
+        where: { archived: false, ...(showOwners ? {} : { owner: false }) },
+        select: { id: true, handle: true },
+        orderBy: { handle: 'asc' },
+      })
+    : [];
 
   /*
     Агентка — не отдельный день, а приписка к дню баера: тот же человек, та же
@@ -75,6 +90,19 @@ export default async function DaysPage({
     ...merged,
     ...agency.filter((a) => !taken.has(a.id)).map((a) => ({ main: a, extra: undefined })),
   ].sort((x, y) => y.main.date.getTime() - x.main.date.getTime());
+
+  // Итог за неделю (по показанным строкам): доход, спенд, с комиссией, профит,
+  // и разбивка плюс/минус. Профит дня = доход − расход-с-комиссией (ФБ+агентка).
+  let tRev = 0, tNet = 0, tGross = 0, tPlus = 0, tMinus = 0;
+  for (const { main: d, extra } of rows) {
+    const rev = d.revenueCents;
+    const net = d.spendNetCents + (extra?.spendNetCents ?? 0);
+    const gross = d.spendGrossCents + (extra?.spendGrossCents ?? 0);
+    const profit = rev - gross;
+    tRev += rev; tNet += net; tGross += gross;
+    if (profit >= 0) tPlus += profit; else tMinus += profit;
+  }
+  const tProfit = tRev - tGross;
 
   const ownersHref = (on: boolean) => {
     const p = new URLSearchParams();
@@ -109,6 +137,9 @@ export default async function DaysPage({
               >
                 {showOwners ? 'овнеры: видны' : 'овнеры'}
               </Link>
+            ) : null}
+            {isAdmin ? (
+              <DayBuyerFilter buyers={filterBuyers} selected={buyer ?? ''} week={week} owners={showOwners} />
             ) : null}
             <WeekNav week={key} label={weekLabel(key)} isCurrent={isCurrent} />
             {canEdit ? (
@@ -172,6 +203,29 @@ export default async function DaysPage({
           return <DayRow key={d.id} row={row} canEdit={canEdit} />;
         })
       )}
+
+      {rows.length > 0 ? (
+        <>
+          {/* Итоговая строка — суммы колонок, выровнены под шапку. */}
+          <div className="mt-1 grid grid-cols-[0.8fr_1.1fr_1fr_auto] border-t border-line pt-3 text-[13px] font-semibold md:grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)_auto]">
+            <span>Итого</span>
+            <span />
+            <span className="hidden md:block" />
+            <span className="hidden text-right md:block">{usd(tRev)}</span>
+            <span className="hidden text-right md:block">{usd(tNet)}</span>
+            <span className="hidden text-right md:block">{usd(tGross)}</span>
+            <span className={`text-right ${tProfit >= 0 ? 'text-sage' : 'text-rust'}`}>{usd(tProfit, { sign: true })}</span>
+            <span className="pl-2 md:pl-3" />
+          </div>
+
+          {/* Плюс / минус / итог — общий результат за неделю. */}
+          <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 text-[12.5px] text-mute">
+            <span>в плюсе <span className="font-semibold text-sage">{usd(tPlus, { sign: true })}</span></span>
+            <span>в минусе <span className="font-semibold text-rust">{usd(tMinus, { sign: true })}</span></span>
+            <span>итог <span className={`font-semibold ${tProfit >= 0 ? 'text-sage' : 'text-rust'}`}>{usd(tProfit, { sign: true })}</span></span>
+          </div>
+        </>
+      ) : null}
     </Panel>
   );
 }
