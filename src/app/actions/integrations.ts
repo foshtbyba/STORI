@@ -452,6 +452,83 @@ export async function brocardTransfer(form: FormData): Promise<{ ok: boolean; er
   }
 }
 
+/** Общак — общий счёт по имени (у баеров тоже purpose_type=team). */
+const isObshchakAcc = (a: BrocardAccount) => (a.teamName || '').trim().toLowerCase() === 'общак';
+
+/** Найти счёт баера (по его команде Brocard) и Общак среди счетов. */
+async function buyerAndObshchak(buyerId: string, accounts: BrocardAccount[]) {
+  const team = await prisma.brocardTeam.findFirst({ where: { buyerId }, select: { externalId: true } });
+  const obshchak = accounts.find(isObshchakAcc) ?? null;
+  const mine = team
+    ? accounts.find((a) => a.teamId === team.externalId && !isObshchakAcc(a)) ?? null
+    : null;
+  return { mine, obshchak };
+}
+
+/** Баер: свой остаток на Brocard + остаток Общака (для плитки на главной). */
+export async function myBrocardBalance(): Promise<{ ok: boolean; error?: string; availableCents?: number; reservedCents?: number; obshchakCents?: number }> {
+  const user = await requireUser();
+  if (!user.buyer) return { ok: false, error: 'Нет профиля баера.' };
+  const cfg = await prisma.brocardConfig.findFirst();
+  if (!cfg?.apiKey) return { ok: false, error: 'Brocard не подключён.' };
+  try {
+    const accounts = await listAccounts(cfg.apiKey);
+    const { mine, obshchak } = await buyerAndObshchak(user.buyer.id, accounts);
+    if (!mine) return { ok: false, error: 'Твой счёт Brocard не найден — попроси овнера привязать команду.' };
+    return { ok: true, availableCents: mine.availableCents, reservedCents: mine.reservedCents, obshchakCents: obshchak?.availableCents ?? 0 };
+  } catch (e) {
+    return { ok: false, error: e instanceof BrocardError ? e.message : `Сбой: ${(e as Error).message}` };
+  }
+}
+
+/** Баер: пополнить СВОЙ счёт с Общака (пресеты 300/500). */
+export async function myBrocardTopUp(form: FormData): Promise<{ ok: boolean; error?: string; message?: string }> {
+  const user = await requireUser();
+  if (!user.buyer) return { ok: false, error: 'Нет профиля баера.' };
+  const amount = Math.round(Number(form.get('amount') ?? 0));
+  if (amount !== 300 && amount !== 500) return { ok: false, error: 'Сумма только $300 или $500.' };
+
+  const cfg = await prisma.brocardConfig.findFirst();
+  if (!cfg?.apiKey) return { ok: false, error: 'Brocard не подключён.' };
+
+  let accounts: BrocardAccount[];
+  try {
+    accounts = await listAccounts(cfg.apiKey);
+  } catch (e) {
+    return { ok: false, error: e instanceof BrocardError ? e.message : `Сбой чтения счетов: ${(e as Error).message}` };
+  }
+
+  const { mine, obshchak } = await buyerAndObshchak(user.buyer.id, accounts);
+  if (!mine) return { ok: false, error: 'Твой счёт Brocard не найден — попроси овнера привязать команду.' };
+  if (!obshchak) return { ok: false, error: 'Общий счёт не найден — обратитесь к овнеру.' };
+  if (amount * 100 > obshchak.availableCents) {
+    return { ok: false, error: 'На общем счёте недостаточно средств — обратитесь к овнеру.' };
+  }
+
+  try {
+    const { raw } = await createTransfer(cfg.apiKey, { from: obshchak.id, to: mine.id, amount, comment: 'Пополнение своего счёта' });
+    await prisma.brocardTransfer.create({
+      data: {
+        fromAcc: obshchak.id, toAcc: mine.id, buyerId: user.buyer.id,
+        amountCents: amount * 100, currency: mine.currency || 'USD', comment: 'самопополнение',
+        status: 'ok', respJson: raw, actorId: user.id, actorName: user.name,
+      },
+    });
+    revalidatePath('/');
+    return { ok: true, message: `Пополнено на $${amount}.` };
+  } catch (e) {
+    const err = e instanceof BrocardError ? e.message : `Сбой перевода: ${(e as Error).message}`;
+    await prisma.brocardTransfer.create({
+      data: {
+        fromAcc: obshchak.id, toAcc: mine.id, buyerId: user.buyer.id,
+        amountCents: amount * 100, currency: mine.currency || 'USD', comment: 'самопополнение',
+        status: 'error', error: err, actorId: user.id, actorName: user.name,
+      },
+    });
+    return { ok: false, error: err };
+  }
+}
+
 export async function toggleAccount(form: FormData) {
   await requireAdmin();
   const id = String(form.get('id') ?? '');

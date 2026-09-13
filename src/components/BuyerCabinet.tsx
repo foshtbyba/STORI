@@ -2,6 +2,7 @@ import { usd, rub, profitOf } from '@/lib/money';
 import { fmtDay, weekdayShort } from '@/lib/period';
 import { Panel, PanelHead, Sub, Empty } from './ui';
 import { IconWallet, IconPeak, IconCalendar, IconBox } from './icons';
+import MyBrocard from './MyBrocard';
 import type { buyerSummary } from '@/lib/queries';
 
 type Data = NonNullable<Awaited<ReturnType<typeof buyerSummary>>>;
@@ -206,6 +207,7 @@ export default function BuyerCabinet({ data, label }: { data: Data; label: strin
         </Panel>
 
         <div className="flex flex-col gap-3.5">
+          <MyBrocard />
           <Panel className="flex-1 p-4 sm:p-5">
             <div className="mb-3.5 flex items-center justify-between">
               <span className="flex items-center gap-3">
