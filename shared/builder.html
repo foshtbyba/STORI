@@ -651,9 +651,12 @@
         <div><label>error</label><input id="error" value="error.html"></div>
       </div>
       <div class="hint">success — страница «спасибо» при успешном заказе (там срабатывает конверсия). error — при сбое отправки. Обычно оставляй как есть.</div>
-      <label>back-fix ссылка (пусто = выкл)</label>
-      <input id="backfix" value="https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}">
-      <div class="hint">Куда увести юзера по кнопке «Назад» (демонетизация трафика). Пусто — выключить. Домен/путь берём из Keitaro: в кампании задай <code>sub_id_29</code> = домен (напр. <code>nutrivition.top</code>), <code>sub_id_30</code> = путь без слэша (напр. <code>VXsVxCX</code>) — только буквы/цифры, БЕЗ <code>/ : ?</code> (иначе Keitaro закодирует). <code>{campaign_alias}</code> = идентификатор кампании — подставляется сам. Протокол, слэши и <code>?sun=</code> держим в коде.</div>
+      <div class="subtoggle" data-target="backfixAdv"><span class="chev">▸</span> back-fix ссылка (обычно не трогаем)</div>
+      <div id="backfixAdv" style="display:none">
+        <label>back-fix ссылка (пусто = выкл)</label>
+        <input id="backfix" value="https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}">
+        <div class="hint">Куда увести юзера по кнопке «Назад» (демонетизация трафика). Пусто — выключить. Домен/путь берём из Keitaro: в кампании задай <code>sub_id_29</code> = домен (напр. <code>nutrivition.top</code>), <code>sub_id_30</code> = путь без слэша (напр. <code>VXsVxCX</code>) — только буквы/цифры, БЕЗ <code>/ : ?</code> (иначе Keitaro закодирует). <code>{campaign_alias}</code> = идентификатор кампании — подставляется сам. Протокол, слэши и <code>?sun=</code> держим в коде.</div>
+      </div>
       <label>Язык текстов call/error/chest</label>
       <select id="uiLang"></select>
       <div class="hint">На каком языке генерятся служебные страницы (спасибо/ошибка/сундук). На перевод самого ленда не влияет.</div>
