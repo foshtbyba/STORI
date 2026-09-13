@@ -214,7 +214,7 @@ export default async function CampaignsPage({
                     <span className="text-rust">Причина: {s.reason}</span>
                     {s.when ? <span className="text-mute">последнее обновление {s.when}</span> : null}
                     {s.error ? <span className="text-mute">FB: {s.error}</span> : null}
-                    <span>Токен слетел — обнови профиль (кнопка «подкинуть токен» в кабинетах) или переоткрой сессию в антидетекте. После — жми «Обновить стату»: пропущенные дни (до 14) догрузятся.</span>
+                    <span>Токен слетел — обнови профиль (кнопка «подкинуть токен» в кабинетах) или переоткрой сессию в антидетекте. После — жми «Обновить стату»: пропущенные дни (до 3) догрузятся.</span>
                   </span>
                 }
               >

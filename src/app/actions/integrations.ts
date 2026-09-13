@@ -11,7 +11,7 @@ import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
 import { checkBrocard, probeBalances, listAccounts, createTransfer, BrocardError, type BrocardAccount } from '@/lib/brocard';
 import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
-import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies } from '@/lib/sync';
+import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies, SYNC_DAYS } from '@/lib/sync';
 
 /**
  * Настройка интеграций. Всё здесь — только для админа: под этими ключами
@@ -972,6 +972,21 @@ export async function runSync(): Promise<{ started: boolean; running: boolean }>
     let result;
     try {
       result = await syncAll();
+      // Полный синк добирает и ad-level: расход по объявлениям, cost в КТ и
+      // строку «Агентка» (она считается из ad-level). Иначе «Синхронизировать
+      // сейчас» не обновляет агентку и cost — их гонит только «Обновить стату».
+      try {
+        const ads = await syncFacebookAds(SYNC_DAYS);
+        result = {
+          ...result,
+          touched: result.touched + ads.touched,
+          skipped: result.skipped + ads.skipped,
+          problems: [...result.problems, ...ads.problems],
+          info: [...result.info, ...ads.info],
+        };
+      } catch (e) {
+        result.problems = [...result.problems, `Ad-level: ${(e as Error).message}`];
+      }
     } catch (e) {
       result = { touched: 0, skipped: 0, problems: [`Сбой синхронизации: ${(e as Error).message}`], info: [], orphanCents: 0 };
     }
