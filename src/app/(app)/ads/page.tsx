@@ -7,6 +7,7 @@ import { accountBadge } from '@/lib/fb-status';
 import { Panel, PanelHead, Empty } from '@/components/ui';
 import { MyTokenForm, TokenForm } from '@/components/IntegrationForms';
 import AccountGroup, { type Group } from '@/components/AccountGroup';
+import Reveal from '@/components/Reveal';
 import { IconWallet } from '@/components/icons';
 
 /**
@@ -102,46 +103,7 @@ export default async function AdsOverviewPage() {
 
   return (
     <div className="flex flex-col gap-3.5">
-      <Panel className="p-4 sm:p-6">
-        <PanelHead
-          icon={<IconWallet color="#b4c68c" />}
-          tint="bg-sage-t"
-          title="Подключённые кабинеты"
-          aside={<span className="text-[12.5px] text-mute">{cabinets} кабинетов · {teamTokens.length} профилей</span>}
-        />
-        {teamTokens.length === 0 ? (
-          <div className="mt-4">
-            <Empty>Кабинеты ещё не подключены — добавь первый ниже.</Empty>
-          </div>
-        ) : (
-          teamTokens.map((t) => <AccountGroup key={t.id} group={toGroup(t)} defaultOpen={false} />)
-        )}
-        <p className="mt-4 text-[11px] leading-relaxed text-dim">
-          Цифра рядом с кабинетом — расход из ФБ за текущую неделю, для справки. В зарплату идёт
-          расход с Brocard.
-        </p>
-
-        {admin ? (
-          <p className="mt-5 border-t border-line pt-4 text-[11.5px] leading-relaxed text-mute">
-            Командные кабинеты баеры подключают у себя сами. Овнерские — в разделе ниже.
-          </p>
-        ) : user.buyer ? (
-          <div className="mt-5 border-t border-line pt-4">
-            <div className="text-[12.5px] font-semibold">Подключить свой кабинет</div>
-            <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
-              Мультитокен из антидетекта и прокси аккаунта. Всё, что видно под ним, — твои
-              кабинеты.
-            </p>
-            <MyTokenForm />
-          </div>
-        ) : (
-          <p className="mt-5 border-t border-line pt-4 text-[11.5px] text-mute">
-            У аккаунта нет профиля баера — подключать кабинеты не с чем.
-          </p>
-        )}
-      </Panel>
-
-      {/* Овнеры — отдельно, у каждого свой блок. Только под админом. Здесь же
+      {/* Овнеры — сверху, отдельным блоком. Только под админом. Здесь же
           админ и добавляет овнерские кабинеты — обычные баеры подключают свои
           у себя. */}
       {admin ? (
@@ -166,15 +128,55 @@ export default async function AdsOverviewPage() {
           )}
 
           <div className="mt-5 border-t border-line pt-4">
-            <div className="text-[12.5px] font-semibold">Добавить овнерский кабинет</div>
-            <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
-              На овнера (SKO/MPR). Мультитокен из антидетекта целиком плюс прокси аккаунта, или
-              System-User токен — тому прокси не нужен.
-            </p>
-            <TokenForm buyers={buyers} />
+            <Reveal title="Добавить овнерский кабинет">
+              <p className="text-[11.5px] leading-relaxed text-mute">
+                На овнера (SKO/MPR). Мультитокен из антидетекта целиком плюс прокси аккаунта, или
+                System-User токен — тому прокси не нужен.
+              </p>
+              <TokenForm buyers={buyers} />
+            </Reveal>
           </div>
         </Panel>
       ) : null}
+
+      <Panel className="p-4 sm:p-6">
+        <PanelHead
+          icon={<IconWallet color="#b4c68c" />}
+          tint="bg-sage-t"
+          title="Подключённые кабинеты"
+          aside={<span className="text-[12.5px] text-mute">{cabinets} кабинетов · {teamTokens.length} профилей</span>}
+        />
+        {teamTokens.length === 0 ? (
+          <div className="mt-4">
+            <Empty>Кабинеты ещё не подключены — добавь первый ниже.</Empty>
+          </div>
+        ) : (
+          teamTokens.map((t) => <AccountGroup key={t.id} group={toGroup(t)} defaultOpen={false} />)
+        )}
+        <p className="mt-4 text-[11px] leading-relaxed text-dim">
+          Цифра рядом с кабинетом — расход из ФБ за текущую неделю, для справки. В зарплату идёт
+          расход с Brocard.
+        </p>
+
+        {admin ? (
+          <p className="mt-5 border-t border-line pt-4 text-[11.5px] leading-relaxed text-mute">
+            Командные кабинеты баеры подключают у себя сами. Овнерские — в разделе выше.
+          </p>
+        ) : user.buyer ? (
+          <div className="mt-5 border-t border-line pt-4">
+            <div className="text-[12.5px] font-semibold">Подключить свой кабинет</div>
+            <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
+              Мультитокен из антидетекта и прокси аккаунта. Всё, что видно под ним, — твои
+              кабинеты.
+            </p>
+            <MyTokenForm />
+          </div>
+        ) : (
+          <p className="mt-5 border-t border-line pt-4 text-[11.5px] text-mute">
+            У аккаунта нет профиля баера — подключать кабинеты не с чем.
+          </p>
+        )}
+      </Panel>
     </div>
   );
 }
