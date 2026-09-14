@@ -371,7 +371,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
     setMsg(null); setResults({}); setConfirm(false);
     start(async () => {
       setProgress({ done: 0, total: totalTargets });
-      let ok = 0, done = 0;
+      let success = 0, warned = 0, failed = 0, done = 0;
       for (const d of queue) {
         for (const cabId of d.cabinetIds) {
           const cab = byId.get(cabId);
@@ -393,7 +393,9 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           if (d.startAt) fd.set('startAt', d.startAt);
           for (const f of d.files) fd.append('images', f);
           const r = await runAutoupload(fd);
-          if (r.ok) ok += 1;
+          if (!r.ok) failed += 1;
+          else if (r.phoneRequired) warned += 1;
+          else success += 1;
           done += 1;
           const label = `${cab?.name || cabId} · ${d.campaignName || 'без имени'}`;
           setResults((prev) => ({ ...prev, [`${d.id}:${cabId}`]: { ...r, label } }));
@@ -401,7 +403,10 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
         }
       }
       setProgress(null);
-      setMsg({ ok: ok === totalTargets, text: `Залито: ${ok}/${totalTargets} кабинетов.` });
+      const parts = [`✓ Успешно: ${success}/${totalTargets}`];
+      if (warned) parts.push(`⚠ С проблемой (нужен телефон): ${warned}`);
+      if (failed) parts.push(`✗ Ошибки: ${failed}`);
+      setMsg({ ok: failed === 0, text: parts.join(' · ') });
     });
   };
 
@@ -746,12 +751,17 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           <div className="mt-3 flex flex-col gap-1.5">
             {Object.entries(results).map(([key, r]) => {
               const open = openLog === key;
+              const warn = r.ok && r.phoneRequired;
+              const mark = !r.ok ? '✗' : warn ? '⚠' : '✓';
+              const markColor = !r.ok ? 'text-rust' : warn ? 'text-amber' : 'text-sage';
               return (
-                <div key={key} className="rounded-[12px] border border-line bg-sub px-3.5 py-2.5">
+                <div key={key} className={`rounded-[12px] border bg-sub px-3.5 py-2.5 ${warn ? 'border-amber/40' : !r.ok ? 'border-rust/40' : 'border-line'}`}>
                   <div className="flex items-center gap-2 text-[12.5px]">
-                    <span className={r.ok ? 'text-sage' : 'text-rust'}>{r.ok ? '✓' : '✗'}</span>
+                    <span className={markColor}>{mark}</span>
                     <span className="min-w-0 flex-1 truncate text-soft">{r.label}</span>
-                    <span className="shrink-0 text-[11.5px] text-mute">{r.ok ? `${r.adsCreated} объявл.` : (r.error ?? 'ошибка')}</span>
+                    <span className={`shrink-0 text-[11.5px] ${warn ? 'text-amber' : 'text-mute'}`}>
+                      {!r.ok ? (r.error ?? 'ошибка') : warn ? `${r.adsCreated} объявл. · на паузе, нужен телефон` : `${r.adsCreated} объявл.`}
+                    </span>
                     {r.log?.length ? <button type="button" onClick={() => setOpenLog(open ? '' : key)} className="shrink-0 text-[11px] text-mute transition hover:text-sage">{open ? 'скрыть' : 'журнал'}</button> : null}
                   </div>
                   {open && r.log?.length ? <pre className="scroll-slim mt-2 max-h-[220px] overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-dim">{r.log.join('\n')}</pre> : null}

@@ -283,6 +283,9 @@ export type UploadResult = {
   log?: string[];
   campaignFbId?: string;
   adsCreated?: number;
+  /** Создано, но НА ПАУЗЕ из-за неподтверждённого телефона кабинета — «запущен
+   *  с проблемой»: структура есть, но в актив надо включить вручную. */
+  phoneRequired?: boolean;
 };
 
 /**
@@ -578,7 +581,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     await finish({ status: 'done', campaignFbId: campaignId, adsCreated: created });
     revalidatePath('/ads/upload');
     revalidatePath('/ads/campaigns');
-    return { ok: true, jobId: job.id, log, campaignFbId: campaignId, adsCreated: created };
+    return { ok: true, jobId: job.id, log, campaignFbId: campaignId, adsCreated: created, phoneRequired: phoneForced };
   } catch (e) {
     const msg = e instanceof FbError ? e.message : (e as Error).message;
     append(`✗ Ошибка: ${msg}`);
