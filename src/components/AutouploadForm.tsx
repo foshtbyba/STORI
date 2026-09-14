@@ -615,6 +615,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           </div>
           <p className="mt-1.5 text-[11px] text-mute">Каждая картинка — отдельное объявление. До 20 штук. Авто-улучшения Меты отключаем.</p>
           <input ref={fileInput} type="file" accept="image/*" multiple onChange={(e) => addFiles(e.target.files)} className="mt-2 block w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
+          {files.length === 0 ? <p className="mt-1.5 text-[11px] text-rust">Без картинки сторик не зальётся — добавь хотя бы одну.</p> : null}
           {files.length > 0 ? (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {files.map((f, i) => (
@@ -653,10 +654,18 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
         </div>
 
         <div className="flex items-center gap-2">
-          <button type="button" onClick={addToQueue} className="rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-medium text-sage transition hover:brightness-110">
+          <button
+            type="button"
+            onClick={addToQueue}
+            disabled={files.length === 0}
+            title={files.length === 0 ? 'Сначала добавь картинку' : undefined}
+            className={`rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-medium text-sage transition ${files.length === 0 ? 'cursor-not-allowed opacity-50' : 'hover:brightness-110'}`}
+          >
             {editingId ? 'Сохранить черновик' : '+ Добавить в очередь'}
           </button>
-          {msg ? (
+          {files.length === 0 ? (
+            <span className="text-[11.5px] text-rust">Нужна картинка</span>
+          ) : msg ? (
             <span className="text-[11.5px]" style={{ color: msg.ok ? '#b4c68c' : '#ce6e58' }}>{msg.text}</span>
           ) : null}
         </div>
