@@ -739,24 +739,44 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         // Язык основного ролика — резолвим его locale ID (если задан).
         const mainLocaleId = mainLocale ? await resolveLocaleId(token, localeName(mainLocale), net) : 0;
         if (mainLocale && mainLocaleId) append(`Основной ролик — язык ${mainLocale} (locale ${mainLocaleId})`);
-        creativeId = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
-          name: campaignName,
-          pageId,
-          cta,
-          urlTags: urlTags || undefined,
-          optOutKeys: optOut,
-          countries,
-          main: { videoId, thumb: thumb || undefined, message, headline: headline || undefined, description: description || undefined, link },
-          mainLocaleId: mainLocaleId || undefined,
-          langs: langVariants,
-        }, net));
-        if (!creativeId) throw new FbError('Мультиязычный креатив не создан (после подрезки ключей улучшений)');
-        await sleep(200);
-        const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
-        created = 1;
-        append(`✓ Мультиязычное видео-объявление: ${adId} · языков ${langVariants.length}`);
-      } else {
-        if (withLanguages) append('⚠ Ни один язык не подключился — делаю обычное видео-объявление');
+        // Самолечение мультиязычного креатива: подрезаем неподдержанные ключи
+        // улучшений И слишком узкие языки (сегмент «гео+язык» без аудитории,
+        // код 1885952) — убираем язык и повторяем. Останется 0 языков → обычное
+        // видео-объявление ниже.
+        for (let attempt = 0; attempt < optOut.length + langVariants.length + 3; attempt += 1) {
+          if (langVariants.length === 0) break;
+          try {
+            creativeId = await createMultiLangVideoCreative(token, ext, {
+              name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
+              main: { videoId, thumb: thumb || undefined, message, headline: headline || undefined, description: description || undefined, link },
+              mainLocaleId: mainLocaleId || undefined,
+              langs: langVariants,
+            }, net);
+            break;
+          } catch (e) {
+            const msg = (e as Error).message;
+            const mk = msg.match(/Param key '([^']+)' in degrees_of_freedom_spec/i);
+            if (mk && optOut.includes(mk[1])) { optOut = optOut.filter((k) => k !== mk[1]); append(`⚠ ключ улучшения «${mk[1]}» не поддержан — убрал`); await sleep(200); continue; }
+            if (/1885952|too narrow|reduce the overlap/i.test(msg) && langVariants.length) {
+              const mn = msg.match(/rule no\.?\s*(\d+)/i);
+              const idx = mn ? Math.min(langVariants.length - 1, Math.max(0, parseInt(mn[1], 10) - 1)) : 0;
+              const dropped = langVariants.splice(idx, 1)[0];
+              append(`⚠ язык locale ${dropped?.localeId}: аудитория «гео+язык» пустая — убрал и повторяю`);
+              await sleep(200);
+              continue;
+            }
+            throw e;
+          }
+        }
+        if (creativeId) {
+          await sleep(200);
+          const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
+          created = 1;
+          append(`✓ Мультиязычное видео-объявление: ${adId} · языков ${langVariants.length}`);
+        }
+      }
+      if (!creativeId) {
+        if (withLanguages) append('⚠ Языки не подключились (пустая аудитория гео+язык) — делаю обычное видео-объявление');
         creativeId = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
           name: campaignName, pageId, videoId, message, link, cta,
           urlTags: urlTags || undefined, headline: headline || undefined,
