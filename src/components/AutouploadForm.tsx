@@ -116,6 +116,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
   // Метод залива. Сейчас сторис/статика; видео с языками — отдельным методом позже.
   const [method, setMethod] = useState<'static' | 'video' | 'templates' | 'languages'>('static');
   const [qTpl, setQTpl] = useState('');
+  const [qCab, setQCab] = useState('');
   const tab = (on: boolean) =>
     `rounded-full border px-4 py-1.5 text-[12px] transition ${on ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-mute hover:border-sage'}`;
 
@@ -143,17 +144,30 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
   const tpl = templates.find((t) => t.id === templateId) ?? null;
   const ownerCabs = cabinets.filter((c) => c.group === owner);
   const selectedList = ownerCabs.filter((c) => selected.has(c.id));
+  // Поиск по кабинетам — по имени И по ID (externalId), чтобы можно было найти
+  // кабинет, вбив кусок номера.
+  const cabNeedle = qCab.trim().toLowerCase();
+  const visibleCabs = cabNeedle
+    ? ownerCabs.filter((c) => c.name.toLowerCase().includes(cabNeedle) || c.externalId.toLowerCase().includes(cabNeedle))
+    : ownerCabs;
 
   const switchOwner = (o: string) => {
     if (o === owner) return;
     setOwner(o);
     setSelected(new Set());
+    setQCab('');
   };
 
   const toggle = (id: string) =>
     setSelected((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  // «Выбрать/снять все» действует на то, что сейчас видно (с учётом поиска),
+  // не трогая выбор скрытых фильтром кабинетов.
   const toggleAll = (on: boolean) =>
-    setSelected(() => (on ? new Set(ownerCabs.map((c) => c.id)) : new Set()));
+    setSelected((prev) => {
+      const n = new Set(prev);
+      for (const c of visibleCabs) { if (on) n.add(c.id); else n.delete(c.id); }
+      return n;
+    });
 
   const loadAssets = () => {
     if (pending || selectedList.length === 0) return;
@@ -424,13 +438,19 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           </div>
 
           <div className="scroll-slim mt-3 max-h-[240px] overflow-auto rounded-[12px] border border-line">
-            <div className="sticky top-0 flex items-center justify-between bg-sub px-3 py-1.5">
-              <span className="text-[11.5px] font-semibold text-amber">{owner} · кабинеты</span>
-              <button type="button" onClick={() => toggleAll(!ownerCabs.every((c) => selected.has(c.id)))} className="text-[11px] text-mute transition hover:text-sage">
-                {ownerCabs.every((c) => selected.has(c.id)) ? 'снять все' : 'выбрать все'}
+            <div className="sticky top-0 z-10 flex items-center gap-2 bg-sub px-3 py-1.5">
+              <span className="shrink-0 text-[11.5px] font-semibold text-amber">{owner} · кабинеты</span>
+              <input
+                value={qCab}
+                onChange={(e) => setQCab(e.target.value)}
+                placeholder="Поиск по имени или ID…"
+                className="ml-auto h-7 w-[46%] min-w-[140px] rounded-lg border border-line2 bg-bg px-2.5 text-[11.5px] text-soft placeholder:text-dim"
+              />
+              <button type="button" onClick={() => toggleAll(!(visibleCabs.length > 0 && visibleCabs.every((c) => selected.has(c.id))))} className="shrink-0 text-[11px] text-mute transition hover:text-sage">
+                {visibleCabs.length > 0 && visibleCabs.every((c) => selected.has(c.id)) ? 'снять все' : 'выбрать все'}
               </button>
             </div>
-            {ownerCabs.map((c) => (
+            {visibleCabs.map((c) => (
               <label key={c.id} className="flex cursor-pointer items-center gap-2.5 border-t border-line px-3 py-1.5 text-[12.5px] transition hover:bg-sub/60">
                 <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggle(c.id)} className="accent-[#b4c68c]" />
                 <span className="min-w-0 flex-1 truncate text-soft">{c.name || c.externalId}</span>
@@ -440,7 +460,11 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
                 <span className="shrink-0 text-[11px] text-dim">{c.currency}</span>
               </label>
             ))}
-            {ownerCabs.length === 0 ? <div className="px-3 py-3 text-[12px] text-mute">У этого овнера нет кабинетов.</div> : null}
+            {ownerCabs.length === 0 ? (
+              <div className="px-3 py-3 text-[12px] text-mute">У этого овнера нет кабинетов.</div>
+            ) : visibleCabs.length === 0 ? (
+              <div className="px-3 py-3 text-[12px] text-mute">Ничего не найдено по «{qCab.trim()}».</div>
+            ) : null}
           </div>
 
           {selectedList.length > 0 ? (

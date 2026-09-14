@@ -78,7 +78,7 @@ export default function TemplateManager({ templates, query = '' }: { templates: 
         <input name="name" defaultValue={edit?.name ?? ''} placeholder="Название (напр. «Европа лид»)" className={inp} />
         <div className="grid grid-cols-2 gap-2">
           <input name="countries" defaultValue={edit?.countries ?? ''} placeholder="Страны: US,DE,FR" className={inp} />
-          <input name="excluded" defaultValue={edit?.excluded ?? ''} placeholder="Исключить (опц.)" className={inp} />
+          <input name="excluded" defaultValue={edit?.excluded ?? ''} placeholder="Исключить: PL,RO (опц.)" className={inp} />
         </div>
         <div className="grid grid-cols-4 gap-2">
           <input name="ageMin" type="number" min={13} max={65} defaultValue={edit?.ageMin ?? 18} placeholder="возр. от" className={inp} />
