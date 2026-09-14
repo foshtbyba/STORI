@@ -160,31 +160,28 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
           <button type="button" onClick={pull} disabled={pending || !cabId} className={`rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage ${pending || !cabId ? 'opacity-50' : ''}`}>Подтянуть ФП и пиксели</button>
         </div>
         {asset ? (
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            <div>
-              <div className="lab mb-1">Страница (ФП)</div>
+          <>
+            {/* 4 колонки в строку: выбрать ФП · создать ФП · выбрать пиксель · создать пиксель. */}
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               <select value={pageId} onChange={(e) => setPageId(e.target.value)} className={inp}>
-                <option value="">—</option>
+                <option value="">— страница (ФП) —</option>
                 {asset.pages.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
-              <div className="mt-1.5 flex items-center gap-2">
-                <input value={newPage} onChange={(e) => setNewPage(e.target.value)} placeholder="имя новой ФП" className={`${inp} max-w-[190px]`} />
-                <button type="button" onClick={addPage} disabled={pending} className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ ФП</button>
+              <div className="flex items-center gap-2">
+                <input value={newPage} onChange={(e) => setNewPage(e.target.value)} placeholder="имя новой ФП" className={`${inp} min-w-0 flex-1`} />
+                <button type="button" onClick={addPage} disabled={pending} className="shrink-0 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ ФП</button>
               </div>
-              {asset.pages.length === 0 ? <p className="mt-1 text-[11px] text-rust">Нет страниц под токеном — создай выше</p> : null}
-            </div>
-            <div>
-              <div className="lab mb-1">Пиксель</div>
               <select value={pixelId} onChange={(e) => setPixelId(e.target.value)} className={inp}>
-                <option value="">—</option>
+                <option value="">— пиксель —</option>
                 {asset.pixels.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
-              <div className="mt-1.5 flex items-center gap-2">
-                <input value={newPixel} onChange={(e) => setNewPixel(e.target.value)} placeholder="имя нового пикселя" className={`${inp} max-w-[190px]`} />
-                <button type="button" onClick={addPixel} disabled={pending} className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ пиксель</button>
+              <div className="flex items-center gap-2">
+                <input value={newPixel} onChange={(e) => setNewPixel(e.target.value)} placeholder="имя нового пикселя" className={`${inp} min-w-0 flex-1`} />
+                <button type="button" onClick={addPixel} disabled={pending} className="shrink-0 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ пиксель</button>
               </div>
             </div>
-          </div>
+            {asset.pages.length === 0 ? <p className="mt-1.5 text-[11px] text-rust">Нет страниц под токеном — создай ФП слева</p> : null}
+          </>
         ) : null}
       </div>
 

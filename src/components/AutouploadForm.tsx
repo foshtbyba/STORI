@@ -525,23 +525,26 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
                 return (
                   <div key={c.id} className="rounded-[12px] border border-line px-3 py-2.5">
                     <div className="text-[12px] font-medium text-soft">{c.name || c.externalId}</div>
-                    <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    {/* 4 колонки в строку: выбрать ФП · создать ФП · выбрать пиксель · создать пиксель. */}
+                    <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                       <select value={pageByAcc[c.id] ?? ''} onChange={(e) => setPageByAcc((p) => ({ ...p, [c.id]: e.target.value }))} className={inp}>
                         <option value="">— страница (ФП) —</option>
                         {a.pages.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                       </select>
+                      <div className="flex items-center gap-2">
+                        <input value={newPageByAcc[c.id] ?? ''} onChange={(e) => setNewPageByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя новой ФП" className={`${inp} min-w-0 flex-1`} />
+                        <button type="button" onClick={() => addPage(c.id)} disabled={pending} className="shrink-0 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ ФП</button>
+                      </div>
                       <select value={pixelByAcc[c.id] ?? ''} onChange={(e) => setPixelByAcc((p) => ({ ...p, [c.id]: e.target.value }))} className={inp}>
                         <option value="">— пиксель —</option>
                         {a.pixels.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                       </select>
+                      <div className="flex items-center gap-2">
+                        <input value={newPixelByAcc[c.id] ?? ''} onChange={(e) => setNewPixelByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя нового пикселя" className={`${inp} min-w-0 flex-1`} />
+                        <button type="button" onClick={() => addPixel(c.id)} disabled={pending} className="shrink-0 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ пиксель</button>
+                      </div>
                     </div>
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <input value={newPageByAcc[c.id] ?? ''} onChange={(e) => setNewPageByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя новой ФП" className={`${inp} max-w-[190px]`} />
-                      <button type="button" onClick={() => addPage(c.id)} disabled={pending} className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ ФП</button>
-                      <input value={newPixelByAcc[c.id] ?? ''} onChange={(e) => setNewPixelByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя нового пикселя" className={`${inp} max-w-[190px]`} />
-                      <button type="button" onClick={() => addPixel(c.id)} disabled={pending} className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ пиксель</button>
-                      {a.pages.length === 0 ? <span className="text-[11px] text-rust">нет страниц под токеном</span> : null}
-                    </div>
+                    {a.pages.length === 0 ? <p className="mt-1.5 text-[11px] text-rust">нет страниц под токеном — создай ФП слева</p> : null}
                   </div>
                 );
               })}
