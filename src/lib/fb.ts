@@ -1085,6 +1085,38 @@ export async function createCampaign(token: string, externalId: string, i: Creat
   return id;
 }
 
+/** Регион FB для исключения: ключ + человекочитаемое имя со страной. */
+export type FbRegion = { key: string; name: string; cc: string };
+
+/**
+ * Поиск регионов (областей/штатов) у Facebook по названию. Регионы FB принимает
+ * только по внутреннему ключу (region key), не по имени — поэтому сперва ищем.
+ * Отдаём до 20 совпадений: ключ + имя + код страны для показа.
+ */
+export async function searchRegions(token: string, q: string, net: FbNet = {}): Promise<FbRegion[]> {
+  const query = q.trim();
+  if (!query) return [];
+  const body = await call(
+    '/search',
+    token,
+    {
+      type: 'adgeolocation',
+      location_types: JSON.stringify(['region']),
+      q: query,
+      limit: '20',
+    },
+    net,
+  );
+  const data = (body.data as Array<Record<string, unknown>> | undefined) ?? [];
+  return data
+    .map((r) => ({
+      key: String(r.key ?? ''),
+      name: String(r.name ?? ''),
+      cc: String(r.country_code ?? ''),
+    }))
+    .filter((r) => r.key && r.name);
+}
+
 export type CreateAdsetInput = {
   name: string;
   campaignId: string;
@@ -1094,6 +1126,8 @@ export type CreateAdsetInput = {
   countries: string[]; // ['US']
   /** Исключаемые страны (excluded_geo_locations). Пусто — не передаём. */
   excludedCountries?: string[];
+  /** Исключаемые регионы (области/штаты) — ключи FB (region key). Пусто — не передаём. */
+  excludedRegions?: string[];
   /** Бюджет на адсете, в центах. Если бюджет на кампании — не передаём. */
   dailyBudgetCents?: number;
   bidStrategy?: string; // LOWEST_COST_WITHOUT_CAP
@@ -1114,8 +1148,11 @@ export async function createAdset(token: string, externalId: string, i: CreateAd
     age_min: i.ageMin ?? 18,
     age_max: i.ageMax ?? 65,
   };
-  if (i.excludedCountries && i.excludedCountries.length) {
-    targeting.excluded_geo_locations = { countries: i.excludedCountries };
+  if ((i.excludedCountries && i.excludedCountries.length) || (i.excludedRegions && i.excludedRegions.length)) {
+    const ex: Record<string, unknown> = {};
+    if (i.excludedCountries && i.excludedCountries.length) ex.countries = i.excludedCountries;
+    if (i.excludedRegions && i.excludedRegions.length) ex.regions = i.excludedRegions.map((key) => ({ key }));
+    targeting.excluded_geo_locations = ex;
   }
   if (i.genders && i.genders.length) targeting.genders = i.genders;
   // Плейсменты: если в шаблоне выбраны — задаём вручную, иначе авто (Advantage+).

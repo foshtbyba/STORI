@@ -774,6 +774,9 @@ model UploadTemplate {
   countries        String   @default("")
   /// Исключаемые страны (excluded_geo_locations), через запятую. Пусто — нет.
   excluded         String   @default("")
+  /// Исключаемые регионы (области/штаты): JSON-массив [{key,name,cc}] с ключами
+  /// FB. Регионы задаются ключом, не именем, поэтому храним и имя для показа.
+  excludedRegions  String   @default("")
   ageMin           Int      @default(18)
   ageMax           Int      @default(65)
   /// Пол: пусто — все; «1» муж; «2» жен; «1,2» — оба явно.

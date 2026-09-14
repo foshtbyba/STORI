@@ -18,8 +18,10 @@ import {
   createAdCreative,
   ENHANCEMENT_OPTOUT_KEYS,
   createAd,
+  searchRegions,
   FbError,
   type FbNet,
+  type FbRegion,
 } from '@/lib/fb';
 
 /**
@@ -67,6 +69,53 @@ function csvUpper(s: string): string[] {
     .filter(Boolean);
 }
 
+/** JSON-строка исключаемых регионов → массив. Кривой JSON — []. */
+function parseRegions(s: string): FbRegion[] {
+  if (!s || !s.trim()) return [];
+  try {
+    const arr = JSON.parse(s);
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .map((r) => ({ key: String(r?.key ?? ''), name: String(r?.name ?? ''), cc: String(r?.cc ?? '') }))
+      .filter((r) => r.key && r.name)
+      .slice(0, 50);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Поиск регионов для формы шаблона. Регионы FB задаются ключом, не именем —
+ * ищем по названию через любой доступный пользователю токен (сам поиск гео от
+ * кабинета не зависит, нужен лишь валидный токен).
+ */
+export type RegionSearchState = { ok: boolean; error?: string; regions?: FbRegion[] };
+
+export async function searchRegionsForTemplate(q: string): Promise<RegionSearchState> {
+  const query = (q ?? '').trim();
+  if (query.length < 2) return { ok: true, regions: [] };
+  const user = await requireUser();
+  const team = canSeeTeam(user.role as Role);
+  const buyerId = user.buyer?.id ?? '__none__';
+  // Берём первый живой кабинет, до которого у пользователя есть доступ.
+  const acc = await prisma.adAccount.findFirst({
+    where: {
+      enabled: true,
+      adToken: team ? { buyer: { owner: true } } : { buyerId },
+    },
+    include: { adToken: true },
+    orderBy: { createdAt: 'asc' },
+  });
+  if (!acc) return { ok: false, error: 'Нет доступного кабинета для поиска регионов' };
+  const { token, net } = fbAccess(acc.adToken.token, { cookiesJson: acc.adToken.cookiesJson, proxyUrl: acc.adToken.proxyUrl });
+  try {
+    const regions = await searchRegions(token, query, net);
+    return { ok: true, regions };
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : 'Не удалось найти регионы' };
+  }
+}
+
 // ── Шаблоны гео (личные — у каждого свои) ──────────────────────────────────
 
 export type TemplateState = { ok: boolean; error?: string } | null;
@@ -79,6 +128,8 @@ export async function saveTemplate(_prev: TemplateState, form: FormData): Promis
   const countries = csvUpper(String(form.get('countries') ?? '')).join(',');
   if (!countries) return { ok: false, error: 'Укажи хотя бы одну страну (напр. US)' };
   const excluded = csvUpper(String(form.get('excluded') ?? '')).join(',');
+  // Регионы приходят JSON-строкой из скрытого поля (искали и выбирали на клиенте).
+  const excludedRegions = JSON.stringify(parseRegions(String(form.get('excludedRegions') ?? '')));
   const ageMin = Math.max(13, Math.min(65, Math.round(Number(form.get('ageMin')) || 18)));
   const ageMax = Math.max(ageMin, Math.min(65, Math.round(Number(form.get('ageMax')) || 65)));
   const genderRaw = String(form.get('genders') ?? ''); // ''|'1'|'2'
@@ -89,7 +140,7 @@ export async function saveTemplate(_prev: TemplateState, form: FormData): Promis
   const cta = CTA_OPTIONS.includes(String(form.get('cta'))) ? String(form.get('cta')) : 'LEARN_MORE';
   const placements = validPlacementKeys(form.getAll('placements').map(String)).join(',');
 
-  const data = { name, countries, excluded, ageMin, ageMax, genders, dailyBudgetCents, event, cta, placements };
+  const data = { name, countries, excluded, excludedRegions, ageMin, ageMax, genders, dailyBudgetCents, event, cta, placements };
   try {
     if (id) {
       // Правим только свой шаблон — updateMany с фильтром по владельцу.
@@ -322,6 +373,8 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   const genders = tpl.genders === '1' ? [1] : tpl.genders === '2' ? [2] : undefined;
   const countries = csvUpper(tpl.countries);
   const excludedCountries = csvUpper(tpl.excluded);
+  const excludedRegionList = parseRegions(tpl.excludedRegions ?? '');
+  const excludedRegions = excludedRegionList.map((r) => r.key);
   const cta = tpl.cta;
 
   const log: string[] = [];
@@ -352,7 +405,8 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
   try {
     append(`Кабинет: ${ctx.acc.name || ext}`);
-    append(`Гео: ${countries.join(', ')}${excludedCountries.length ? ` (искл. ${excludedCountries.join(', ')})` : ''} · возраст ${tpl.ageMin}-${tpl.ageMax}`);
+    const exBits = [...excludedCountries, ...excludedRegionList.map((r) => r.name)];
+    append(`Гео: ${countries.join(', ')}${exBits.length ? ` (искл. ${exBits.join(', ')})` : ''} · возраст ${tpl.ageMin}-${tpl.ageMax}`);
 
     // 1. Кампания. Цель — под событие пикселя (лиды/продажи), иначе ФБ не даёт
     //    оптимизироваться на выбранное событие.
@@ -379,6 +433,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           event: tpl.event,
           countries,
           excludedCountries,
+          excludedRegions,
           dailyBudgetCents,
           ageMin: tpl.ageMin,
           ageMax: tpl.ageMax,
