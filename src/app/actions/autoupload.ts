@@ -339,6 +339,62 @@ export async function linkCards(input: {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * Фоновый запуск залива: файлы читаем в память СЕЙЧАС (иначе после ответа они
+ * пропадут), затем запускаем оркестратор без ожидания и сразу отвечаем. Прогресс
+ * и результат — в UploadJob (см. loadRecentJobs / «Журнал заливов»). Так можно
+ * уйти со страницы, залив продолжит крутиться на сервере.
+ */
+export async function startUpload(form: FormData): Promise<{ ok: boolean; error?: string }> {
+  await requireUser();
+  // Копия формы с файлами, вычитанными в буфер (переживёт ответ сервера).
+  const cloned = new FormData();
+  for (const [k, v] of form.entries()) {
+    if (v instanceof File) {
+      const buf = await v.arrayBuffer();
+      cloned.append(k, new File([buf], v.name, { type: v.type }));
+    } else {
+      cloned.append(k, v);
+    }
+  }
+  // Не ждём: пусть крутится в фоне. Ошибки уедут в журнал самого залива.
+  void runAutoupload(cloned).catch(() => {});
+  return { ok: true };
+}
+
+export type JobRow = {
+  id: string;
+  accountName: string;
+  campaignName: string;
+  mode: string;
+  status: string; // running | done | error
+  adsPlanned: number;
+  adsCreated: number;
+  error: string;
+  log: string;
+  createdAt: string;
+};
+
+/** Недавние заливы для «Журнала»: баер — свои, команда — все свежие. */
+export async function loadRecentJobs(): Promise<JobRow[]> {
+  const user = await requireUser();
+  const team = canSeeTeam(user.role as Role);
+  const where = team ? {} : { buyerId: user.buyer?.id ?? '__none__' };
+  const rows = await prisma.uploadJob.findMany({ where, orderBy: { createdAt: 'desc' }, take: 20 });
+  return rows.map((r) => ({
+    id: r.id,
+    accountName: r.accountName,
+    campaignName: r.campaignName,
+    mode: r.mode,
+    status: r.status,
+    adsPlanned: r.adsPlanned,
+    adsCreated: r.adsCreated,
+    error: r.error,
+    log: r.log,
+    createdAt: r.createdAt.toISOString(),
+  }));
+}
+
 export type UploadResult = {
   ok: boolean;
   error?: string;

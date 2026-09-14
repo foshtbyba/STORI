@@ -1,8 +1,9 @@
 'use client';
 
 import { useMemo, useRef, useState, useTransition } from 'react';
-import { loadCabinetAssets, makePixel, makePage, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
+import { loadCabinetAssets, makePixel, makePage, startUpload } from '@/app/actions/autoupload';
 import TemplatePicker from './TemplatePicker';
+import JobsJournal from './JobsJournal';
 import type { Template } from './TemplateManager';
 import type { Language } from './LanguagePack';
 import ComboSelect from './ComboSelect';
@@ -53,9 +54,8 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
   const [withLanguages, setWithLanguages] = useState(languages.length > 0);
   const [mainLocale, setMainLocale] = useState('');
   const [video, setVideo] = useState<File | null>(null);
-  const [result, setResult] = useState<(UploadResult & { label: string }) | null>(null);
   const [msg, setMsg] = useState('');
-  const [openLog, setOpenLog] = useState(false);
+  const [journalKey, setJournalKey] = useState(0);
   const [pending, start] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -96,7 +96,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
   };
 
   const fire = () => {
-    setMsg(''); setResult(null);
+    setMsg('');
     if (!cab) return setMsg('Выбери кабинет');
     if (!templateId) return setMsg('Выбери шаблон гео');
     if (!pageId) return setMsg('Выбери страницу (ФП)');
@@ -130,9 +130,13 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
       if (mode === 'midnight') fd.set('startAt', nextMoscowMidnight());
       if (mode === 'scheduled' && startLocal) fd.set('startAt', new Date(startLocal).toISOString());
       fd.set('video', video);
-      const r = await runAutoupload(fd);
-      setResult({ ...r, label: `${cab.name || cab.externalId} · ${campaignName || 'без имени'}` });
-      setMsg(r.ok ? 'Готово.' : (r.error ?? 'Ошибка'));
+      const r = await startUpload(fd);
+      if (!r.ok) { setMsg(r.error ?? 'Не удалось запустить'); return; }
+      // Ушло в фон — можно уйти со страницы, результат появится в Журнале ниже.
+      setMsg('🚀 Запущено в фоне — результат появится в «Журнале заливов» ниже. Можно уйти со страницы.');
+      setVideo(null);
+      if (fileRef.current) fileRef.current.value = '';
+      setJournalKey((k) => k + 1);
     });
   };
 
@@ -266,22 +270,12 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
           <input value={startLocal} onChange={(e) => setStartLocal(e.target.value)} type="datetime-local" className="h-9 w-[210px] rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage" />
         ) : null}
         <button type="button" onClick={fire} disabled={pending} className={`ml-auto rounded-full border border-sage bg-sage-t px-6 py-2.5 text-[13px] font-semibold text-sage transition ${pending ? 'opacity-50' : 'hover:brightness-110'}`}>
-          {pending ? 'Заливаю…' : 'Залить видео'}
+          {pending ? 'Запускаю…' : 'Залить видео (в фоне)'}
         </button>
       </div>
-      {msg ? <div className="text-[12px] text-mute">{msg}</div> : null}
+      {msg ? <div className="text-[12px] text-sage">{msg}</div> : null}
 
-      {result ? (
-        <div className={`rounded-[12px] border bg-sub px-3.5 py-2.5 ${result.ok ? (result.phoneRequired ? 'border-amber/40' : 'border-line') : 'border-rust/40'}`}>
-          <div className="flex items-center gap-2 text-[12.5px]">
-            <span className={result.ok ? (result.phoneRequired ? 'text-amber' : 'text-sage') : 'text-rust'}>{result.ok ? (result.phoneRequired ? '⚠' : '✓') : '✗'}</span>
-            <span className="min-w-0 flex-1 truncate text-soft">{result.label}</span>
-            <span className="shrink-0 text-[11.5px] text-mute">{result.ok ? (result.phoneRequired ? 'создано, но на паузе (нужен телефон)' : `${result.adsCreated} объявл.`) : (result.error ?? 'ошибка')}</span>
-            {result.log?.length ? <button type="button" onClick={() => setOpenLog((v) => !v)} className="shrink-0 text-[11px] text-mute transition hover:text-sage">{openLog ? 'скрыть' : 'журнал'}</button> : null}
-          </div>
-          {openLog && result.log?.length ? <pre className="scroll-slim mt-2 max-h-[240px] overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-dim">{result.log.join('\n')}</pre> : null}
-        </div>
-      ) : null}
+      <JobsJournal key={journalKey} />
     </div>
   );
 }
