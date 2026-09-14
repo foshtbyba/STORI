@@ -19,16 +19,7 @@ export type Template = {
   placements: string;
 };
 
-// Порядок и подписи площадок для группировки плейсментов.
-const PLATFORM_GROUPS = [
-  { platform: 'facebook', label: 'Facebook' },
-  { platform: 'instagram', label: 'Instagram' },
-  { platform: 'threads', label: 'Threads' },
-  { platform: 'audience_network', label: 'Audience Network' },
-  { platform: 'messenger', label: 'Messenger' },
-] as const;
-
-const EVENTS = ['LEAD', 'PURCHASE', 'COMPLETE_REGISTRATION', 'SUBSCRIBE', 'ADD_TO_CART', 'INITIATE_CHECKOUT', 'SUBMIT_APPLICATION', 'CONTACT'];
+const EVENTS =['LEAD', 'PURCHASE', 'COMPLETE_REGISTRATION', 'SUBSCRIBE', 'ADD_TO_CART', 'INITIATE_CHECKOUT', 'SUBMIT_APPLICATION', 'CONTACT'];
 const CTAS = ['LEARN_MORE', 'SHOP_NOW', 'SIGN_UP', 'SUBSCRIBE', 'GET_OFFER', 'DOWNLOAD', 'CONTACT_US', 'APPLY_NOW', 'ORDER_NOW', 'GET_QUOTE'];
 
 const inp = 'h-9 w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft';
@@ -102,31 +93,43 @@ export default function TemplateManager({ templates }: { templates: Template[] }
           </select>
         </div>
 
-        {/* Плейсменты сгруппированы по площадке (FB/IG/Threads/AN/Messenger),
-            каждая — своей колонкой. Ничего не отмечено = авто (Advantage+). */}
+        {/* Плейсменты: FB и IG — своими колонками; мелкие площадки (Threads,
+            Audience Network, Messenger) сложены в одну колонку друг под другом,
+            чтобы не пустовало. Ничего не отмечено = авто (Advantage+). */}
         <div>
           <div className="mb-2 text-[11.5px] text-mute">Плейсменты <span className="text-dim">(ничего не отмечено = авто/Advantage+)</span></div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3 lg:grid-cols-5">
-            {PLATFORM_GROUPS.map(({ platform, label }) => {
-              const items = PLACEMENTS.filter((p) => p.platform === platform);
-              if (items.length === 0) return null;
-              return (
-                <div key={platform}>
-                  <div className="mb-1 text-[10.5px] font-semibold uppercase tracking-wide text-amber">{label}</div>
-                  <div className="flex flex-col gap-1">
-                    {items.map((p) => {
-                      const on = validPlacementKeys((edit?.placements ?? '').split(',')).includes(p.key);
-                      return (
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
+            {(() => {
+              const marked = validPlacementKeys((edit?.placements ?? '').split(','));
+              const groupBlock = (platform: string, label: string) => {
+                const items = PLACEMENTS.filter((p) => p.platform === platform);
+                if (items.length === 0) return null;
+                return (
+                  <div key={platform}>
+                    <div className="mb-1 text-[10.5px] font-semibold uppercase tracking-wide text-amber">{label}</div>
+                    <div className="flex flex-col gap-1">
+                      {items.map((p) => (
                         <label key={p.key} className="flex cursor-pointer items-center gap-2 text-[12px] text-soft">
-                          <input type="checkbox" name="placements" value={p.key} defaultChecked={on} className="accent-[#b4c68c]" />
+                          <input type="checkbox" name="placements" value={p.key} defaultChecked={marked.includes(p.key)} className="accent-[#b4c68c]" />
                           <span className="truncate">{p.label}</span>
                         </label>
-                      );
-                    })}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                );
+              };
+              return (
+                <>
+                  {groupBlock('facebook', 'Facebook')}
+                  {groupBlock('instagram', 'Instagram')}
+                  <div className="flex flex-col gap-3">
+                    {groupBlock('threads', 'Threads')}
+                    {groupBlock('audience_network', 'Audience Network')}
+                    {groupBlock('messenger', 'Messenger')}
+                  </div>
+                </>
               );
-            })}
+            })()}
           </div>
         </div>
 
