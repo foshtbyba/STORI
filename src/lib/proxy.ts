@@ -18,6 +18,26 @@ export type ProxyParse = { url: string } | { error: string };
 /** Что выбрано в форме рядом с полем прокси. */
 export type ProxyKind = 'http' | 'socks5';
 
+/**
+ * Обратно из хранимого URL (`схема://логин:пароль@хост:порт`) в вид для поля
+ * формы `хост:порт:логин:пароль` и выбранную схему. Нужно, чтобы при обновлении
+ * токена показать прежний прокси профиля вписанным. Логин/пароль раскодируем —
+ * тогда повторный parseProxy закодирует их снова без задвоения. Пусто/не
+ * разобрали — пустая строка.
+ */
+export function proxyUrlToInput(url: string | null | undefined): { text: string; kind: ProxyKind } {
+  const s = (url ?? '').trim();
+  if (!s) return { text: '', kind: 'http' };
+  const m = s.match(/^([a-z0-9]+):\/\/(?:([^:@]*):([^@]*)@)?([^:/]+):(\d+)/i);
+  if (!m) return { text: '', kind: 'http' };
+  const kind: ProxyKind = /^socks/i.test(m[1]) ? 'socks5' : 'http';
+  const dec = (v?: string) => { try { return decodeURIComponent(v ?? ''); } catch { return v ?? ''; } };
+  const user = dec(m[2]);
+  const pass = dec(m[3]);
+  const text = user || pass ? `${m[4]}:${m[5]}:${user}:${pass}` : `${m[4]}:${m[5]}`;
+  return { text, kind };
+}
+
 const isPort = (s: string) => /^\d{1,5}$/.test(s) && Number(s) >= 1 && Number(s) <= 65535;
 
 /** Хост — это домен или IP: буквы, цифры, точки и дефисы, без пробелов. */

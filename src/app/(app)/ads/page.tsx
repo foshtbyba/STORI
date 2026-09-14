@@ -67,6 +67,7 @@ export default async function AdsOverviewPage() {
     color: t.buyer.color,
     label: t.label,
     proxied: Boolean(t.proxyUrl),
+    proxy: t.proxyUrl ?? '',
     paused: Boolean(t.pausedUntil && t.pausedUntil > now),
     error: t.lastError ?? '',
     updated: t.lastSyncAt ? fmtWhen(t.lastSyncAt) : null,

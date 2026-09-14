@@ -27,6 +27,8 @@ export type Group = {
   color: string;
   label: string;
   proxied: boolean;
+  /** Хранимый URL прокси профиля — чтобы подставить его при обновлении токена. */
+  proxy?: string;
   paused: boolean;
   /** Последняя ошибка токена (сессия слетела/бан). Пусто — токен здоров. */
   error: string;
@@ -196,13 +198,13 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
         <div className="overflow-hidden">
           {group.admin ? (
             <div className="mt-3 flex flex-wrap items-center gap-2">
+              <ReplaceToken tokenId={group.tokenId} proxy={group.proxy} />
               <form action={toggleToken}>
                 <input type="hidden" name="id" value={group.tokenId} />
                 <button type="submit" className="rounded-full bg-sub px-3.5 py-1.5 text-[12px] text-soft transition hover:text-text">
                   вкл/выкл токен
                 </button>
               </form>
-              <ReplaceToken tokenId={group.tokenId} />
               <form action={deleteToken}>
                 <input type="hidden" name="id" value={group.tokenId} />
                 <ConfirmSubmit
@@ -216,7 +218,7 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
             </div>
           ) : group.own ? (
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              <ReplaceToken tokenId={group.tokenId} own />
+              <ReplaceToken tokenId={group.tokenId} own proxy={group.proxy} />
               <form action={deleteMyToken}>
                 <input type="hidden" name="id" value={group.tokenId} />
                 <button type="submit" className="px-1 text-[12px] text-dim transition hover:text-rust" title="Отвязать">

@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react';
 import { replaceToken, replaceMyToken, type ActionState } from '@/app/actions/integrations';
+import { proxyUrlToInput } from '@/lib/proxy';
 import SubmitButton from './SubmitButton';
 
 /**
@@ -14,27 +15,30 @@ import SubmitButton from './SubmitButton';
 const field =
   'h-10 w-full rounded-xl border border-line2 bg-sub px-3.5 text-[13px] text-text outline-none transition focus:border-sage';
 
-export default function ReplaceToken({ tokenId, own = false }: { tokenId: string; own?: boolean }) {
+export default function ReplaceToken({ tokenId, own = false, proxy = '' }: { tokenId: string; own?: boolean; proxy?: string }) {
   const [open, setOpen] = useState(false);
   const [state, action] = useActionState(own ? replaceMyToken : replaceToken, null as ActionState);
-  const [proxyKind, setProxyKind] = useState<'http' | 'socks5'>('http');
+  // Прежний прокси профиля подставляем как есть: токен меняем — прокси остаётся.
+  const prevProxy = proxyUrlToInput(proxy);
+  const [proxyKind, setProxyKind] = useState<'http' | 'socks5'>(prevProxy.kind);
 
-  if (!open) {
-    return (
+  return (
+    <>
+      {/* Кнопка-триггер всегда на месте (первой в ряду), форма раскрывается
+          плавно под ней (grid-rows 0fr→1fr). */}
       <button
         type="button"
-        onClick={() => setOpen(true)}
-        className="rounded-full bg-sub px-3.5 py-1.5 text-[12px] text-soft transition hover:text-text"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className={`order-first rounded-full px-3.5 py-1.5 text-[12px] transition ${open ? 'bg-sage-t text-sage' : 'bg-sub text-soft hover:text-text'}`}
         title="Слетел токен — вставь новый мультитокен, профиль и кабинеты сохранятся"
       >
         ↻ обновить токен
       </button>
-    );
-  }
-
-  return (
-    <form action={action} className="mt-1 w-full max-w-2xl basis-full rounded-[18px] bg-sub p-3.5">
-      <input type="hidden" name="id" value={tokenId} />
+      <div className={`order-last grid basis-full transition-[grid-template-rows] duration-300 ease-out ${open ? 'mt-1 grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+        <div className="overflow-hidden">
+          <form action={action} className="w-full max-w-2xl rounded-[18px] bg-sub p-3.5">
+            <input type="hidden" name="id" value={tokenId} />
       <div className="mb-1.5 flex items-center justify-between">
         <span className="text-[12px] font-semibold">Новый токен профиля</span>
         <button type="button" onClick={() => setOpen(false)} className="text-[11.5px] text-dim transition hover:text-soft">
@@ -49,7 +53,7 @@ export default function ReplaceToken({ tokenId, own = false }: { tokenId: string
         required
       />
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-        <span className="text-[11px] text-mute">Прокси · пусто оставит прежний</span>
+        <span className="text-[11px] text-mute">Прокси профиля · остаётся прежним</span>
         <div className="flex items-center gap-1 rounded-full bg-raise p-1">
           {([
             ['http', 'HTTP'],
@@ -70,7 +74,7 @@ export default function ReplaceToken({ tokenId, own = false }: { tokenId: string
         </div>
       </div>
       <input type="hidden" name="proxyKind" value={proxyKind} />
-      <input name="proxyUrl" placeholder="1.2.3.4:8000:логин:пароль" className={`${field} n mt-1.5`} />
+      <input name="proxyUrl" defaultValue={prevProxy.text} placeholder="1.2.3.4:8000:логин:пароль" className={`${field} n mt-1.5`} />
 
       <div className="mt-2.5 flex justify-end">
         <SubmitButton
@@ -91,6 +95,9 @@ export default function ReplaceToken({ tokenId, own = false }: { tokenId: string
           {state.ok ? state.message : state.error}
         </div>
       ) : null}
-    </form>
+          </form>
+        </div>
+      </div>
+    </>
   );
 }
