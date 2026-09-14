@@ -12,6 +12,7 @@ import LanguagePack, { type Language } from './LanguagePack';
  */
 export default function UploadSettings({ templates, languages }: { templates: Template[]; languages: Language[] }) {
   const [tab, setTab] = useState<'templates' | 'languages'>('templates');
+  const [q, setQ] = useState('');
   const pill = (on: boolean) =>
     `rounded-full border px-4 py-1.5 text-[12px] transition ${on ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-mute hover:border-sage'}`;
 
@@ -22,18 +23,27 @@ export default function UploadSettings({ templates, languages }: { templates: Te
         <span className="text-[17px] font-semibold tracking-[-0.015em]">Мои настройки залива</span>
       </div>
 
-      {/* Вкладки как метод-переключатель: отдельным рядом под заголовком, слева. */}
-      <div className="mt-3 flex flex-wrap items-center gap-1.5">
+      {/* Вкладки как метод-переключатель: отдельным рядом под заголовком, слева.
+          Поиск по шаблонам — справа в этом же ряду. */}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         <button type="button" onClick={() => setTab('templates')} className={pill(tab === 'templates')}>
           Шаблоны гео <span className="opacity-70">· {templates.length}</span>
         </button>
         <button type="button" onClick={() => setTab('languages')} className={pill(tab === 'languages')}>
           Языки для видео <span className="opacity-70">· {languages.length}</span>
         </button>
+        {tab === 'templates' && templates.length > 0 ? (
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Поиск по названию…"
+            className="ml-auto h-9 w-[240px] rounded-full border border-line2 bg-sub px-4 text-[12.5px] text-soft outline-none focus:border-sage"
+          />
+        ) : null}
       </div>
 
       <div className="mt-4">
-        {tab === 'templates' ? <TemplateManager templates={templates} /> : <LanguagePack languages={languages} />}
+        {tab === 'templates' ? <TemplateManager templates={templates} query={q} /> : <LanguagePack languages={languages} />}
       </div>
     </Panel>
   );

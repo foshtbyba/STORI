@@ -29,15 +29,15 @@ const genderLabel = (g: string) => (g === '1' ? 'муж' : g === '2' ? 'жен' 
  * Админ: шаблоны гео для автозалива. Список готовых + форма добавления/правки.
  * Баер при заливе выбирает шаблон и не собирает таргет руками.
  */
-export default function TemplateManager({ templates }: { templates: Template[] }) {
+export default function TemplateManager({ templates, query = '' }: { templates: Template[]; query?: string }) {
   const [edit, setEdit] = useState<Template | null>(null);
-  const [q, setQ] = useState('');
   const [saveState, save] = useActionState<TemplateState, FormData>(saveTemplate, null);
   const [, del] = useActionState<TemplateState, FormData>(deleteTemplate, null);
 
   // Ключом сбрасываем поля формы при переключении «новый ↔ правка».
   const key = edit?.id ?? 'new';
-  const filtered = templates.filter((t) => t.name.toLowerCase().includes(q.trim().toLowerCase()));
+  // Поиск живёт в шапке (UploadSettings) и приходит пропом.
+  const filtered = templates.filter((t) => t.name.toLowerCase().includes(query.trim().toLowerCase()));
 
   return (
     <div>
@@ -45,10 +45,7 @@ export default function TemplateManager({ templates }: { templates: Template[] }
         <p className="text-[12px] text-mute">Шаблонов пока нет — заведи первый ниже.</p>
       ) : (
         <>
-          <div className="mb-2 flex items-center gap-2">
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск по названию…" className={`${inp} max-w-[280px]`} />
-            <span className="text-[11.5px] text-mute">{filtered.length} из {templates.length}</span>
-          </div>
+          <div className="mb-2 text-[11.5px] text-mute">{filtered.length} из {templates.length}</div>
           <div className="scroll-slim flex max-h-[300px] flex-col gap-1.5 overflow-auto pr-1">
             {filtered.length === 0 ? <p className="text-[12px] text-mute">Ничего не найдено.</p> : null}
             {filtered.map((t) => (

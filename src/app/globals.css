@@ -144,6 +144,17 @@ select {
   color-scheme: dark;
 }
 
+/* Единый шеврон у всех select: прячем системную стрелку и рисуем свою — не
+   прижата к краю, одного вида везде. Место справа под неё резервируем. */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8a8a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 34px;
+}
+
 /* Базовое скругление полей. Специфичность нулевая, поэтому rounded-xl и
    прочие утилиты Tailwind её перебивают — а поля без своего радиуса перестают
    ловить угловатую рамку фокуса. */
