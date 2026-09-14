@@ -1520,7 +1520,9 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
     params.degrees_of_freedom_spec = JSON.stringify({ creative_features_spec: spec });
   }
   if (i.urlTags && i.urlTags.trim()) params.url_tags = i.urlTags.trim();
-  const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST', CREATE_API_VERSION);
+  // Сегментная кастомизация (по языку/гео) удалена из v22+ (код 2715), но жива
+  // на v21 — мультиязычный креатив создаём именно на ней.
+  const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST', 'v21.0');
   const id = body.id as string | undefined;
   if (!id) throw new FbError('Мультиязычный креатив не создан: нет id');
   return id;
