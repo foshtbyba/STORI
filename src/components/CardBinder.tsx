@@ -74,10 +74,6 @@ export default function CardBinder({ cabinets }: { cabinets: Cabinet[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-[12px] border border-amber/40 bg-amber-t/30 px-3.5 py-2.5 text-[11.5px] text-amber">
-        Автопривязка карт не реализована: отправлять номер карты и CVC на платёжный эндпоинт FB и массово это повторять — паттерн платёжного абьюза (нарушает правила FB и обращения с картами). Карту добавляй вручную в Ads Manager. Эта вкладка может вести <b>учёт</b> — какая карта (по последним 4 цифрам) на каком кабинете; скажи — переделаю её под это.
-      </div>
-
       {/* Кабинеты */}
       <div className="rounded-[16px] border border-line bg-panel/40 px-4 py-4 sm:px-5">
         <div className="flex flex-wrap items-center gap-2">
