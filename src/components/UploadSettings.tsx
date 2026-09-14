@@ -20,14 +20,16 @@ export default function UploadSettings({ templates, languages }: { templates: Te
       <div className="flex flex-wrap items-center gap-2.5">
         <Badge tint="bg-amber-t"><IconTag color="#d2a06a" /></Badge>
         <span className="text-[17px] font-semibold tracking-[-0.015em]">Мои настройки залива</span>
-        <div className="ml-auto flex flex-wrap items-center gap-1.5">
-          <button type="button" onClick={() => setTab('templates')} className={pill(tab === 'templates')}>
-            Шаблоны гео <span className="opacity-70">· {templates.length}</span>
-          </button>
-          <button type="button" onClick={() => setTab('languages')} className={pill(tab === 'languages')}>
-            Языки для видео <span className="opacity-70">· {languages.length}</span>
-          </button>
-        </div>
+      </div>
+
+      {/* Вкладки как метод-переключатель: отдельным рядом под заголовком, слева. */}
+      <div className="mt-3 flex flex-wrap items-center gap-1.5">
+        <button type="button" onClick={() => setTab('templates')} className={pill(tab === 'templates')}>
+          Шаблоны гео <span className="opacity-70">· {templates.length}</span>
+        </button>
+        <button type="button" onClick={() => setTab('languages')} className={pill(tab === 'languages')}>
+          Языки для видео <span className="opacity-70">· {languages.length}</span>
+        </button>
       </div>
 
       <div className="mt-4">
