@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState, useTransition } from 'react';
-import { loadCabinetAssets, makePixel, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
+import { loadCabinetAssets, makePixel, makePage, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
 import TemplatePicker from './TemplatePicker';
 import type { Template } from './TemplateManager';
 
@@ -25,13 +25,18 @@ function nextMoscowMidnight(): string {
  * подключаются вторым этапом. Пиксель fb_pixel вводится вручную (метка в ссылке).
  */
 export default function VideoUpload({ cabinets, templates }: { cabinets: Cabinet[]; templates: Template[] }) {
-  const owners = useMemo(() => [...new Set(cabinets.map((c) => c.group))], [cabinets]);
+  // SKO первым, остальные по алфавиту — как в основном заливе.
+  const owners = useMemo(() => {
+    const uniq = [...new Set(cabinets.map((c) => c.group))];
+    return uniq.sort((a, b) => (a === 'SKO' ? -1 : b === 'SKO' ? 1 : a.localeCompare(b)));
+  }, [cabinets]);
   const [owner, setOwner] = useState(owners[0] ?? '');
   const [cabId, setCabId] = useState('');
   const [asset, setAsset] = useState<Asset | null>(null);
   const [pageId, setPageId] = useState('');
   const [pixelId, setPixelId] = useState('');
   const [newPixel, setNewPixel] = useState('');
+  const [newPage, setNewPage] = useState('');
   const [templateId, setTemplateId] = useState('');
   const [campaignName, setCampaignName] = useState('');
   const [link, setLink] = useState('');
@@ -71,6 +76,16 @@ export default function VideoUpload({ cabinets, templates }: { cabinets: Cabinet
       if (!r.ok) { setMsg(r.error || 'Пиксель не создан'); return; }
       setAsset((a) => ({ pages: a?.pages ?? [], pixels: r.pixels ?? [] }));
       setNewPixel('');
+    });
+  };
+
+  const addPage = () => {
+    if (!cabId || !newPage.trim()) return;
+    start(async () => {
+      const r = await makePage(cabId, newPage.trim());
+      if (!r.ok) { setMsg(r.error || 'Страница не создана'); return; }
+      setAsset((a) => ({ pages: r.pages ?? [], pixels: a?.pixels ?? [] }));
+      setNewPage('');
     });
   };
 
@@ -138,7 +153,11 @@ export default function VideoUpload({ cabinets, templates }: { cabinets: Cabinet
                 <option value="">—</option>
                 {asset.pages.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
-              {asset.pages.length === 0 ? <p className="mt-1 text-[11px] text-rust">Нет страниц под токеном</p> : null}
+              <div className="mt-1.5 flex items-center gap-2">
+                <input value={newPage} onChange={(e) => setNewPage(e.target.value)} placeholder="имя новой ФП" className={`${inp} max-w-[190px]`} />
+                <button type="button" onClick={addPage} disabled={pending} className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ ФП</button>
+              </div>
+              {asset.pages.length === 0 ? <p className="mt-1 text-[11px] text-rust">Нет страниц под токеном — создай выше</p> : null}
             </div>
             <div>
               <div className="lab mb-1">Пиксель</div>
