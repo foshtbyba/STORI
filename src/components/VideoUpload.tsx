@@ -13,6 +13,20 @@ type Cabinet = { id: string; name: string; externalId: string; currency: string;
 type Asset = { pages: { id: string; name: string }[]; pixels: { id: string; name: string }[] };
 type Mode = 'paused' | 'active' | 'midnight' | 'scheduled';
 
+type VideoDraft = {
+  id: string;
+  cabId: string; cabLabel: string;
+  pageId: string; pixelId: string;
+  templateId: string; tplName: string;
+  campaignName: string; link: string; budget: string;
+  message: string; headline: string; description: string;
+  fbPixel: string; mode: Mode; startLocal: string;
+  withLanguages: boolean; mainLocale: string;
+  video: File;
+};
+
+const uid = () => Math.random().toString(36).slice(2, 9);
+
 const inp = 'h-9 w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage';
 const box = 'rounded-[16px] border border-line bg-panel/40 px-4 py-4 sm:px-5';
 const DEFAULT_TAGS_VIDEO = 'ad_id={{ad.id}}&fbpx={{pixel}}&fb_pixel={{fbpixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
@@ -56,6 +70,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
   const [video, setVideo] = useState<File | null>(null);
   const [msg, setMsg] = useState('');
   const [journalKey, setJournalKey] = useState(0);
+  const [queue, setQueue] = useState<VideoDraft[]>([]);
   const [pending, start] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
   // Последнее авто-имя (гео-префикс) — чтобы подменять при смене шаблона, но не
@@ -98,47 +113,77 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
     });
   };
 
-  const fire = () => {
-    setMsg('');
-    if (!cab) return setMsg('Выбери кабинет');
-    if (!templateId) return setMsg('Выбери шаблон гео');
-    if (!pageId) return setMsg('Выбери страницу (ФП)');
-    if (!pixelId) return setMsg('Выбери/создай пиксель');
-    if (!video) return setMsg('Добавь ролик (видеофайл)');
-    if (!/^https?:\/\//i.test(link.trim())) return setMsg('Ссылка должна начинаться с http(s)://');
-    if (!message.trim()) return setMsg('Текст объявления пустой');
-    if (!fbPixel.trim()) return setMsg('Впиши номер fb_pixel');
+  const validate = (): string | null => {
+    if (!cab) return 'Выбери кабинет';
+    if (!templateId) return 'Выбери шаблон гео';
+    if (!pageId) return 'Выбери страницу (ФП)';
+    if (!pixelId) return 'Выбери/создай пиксель';
+    if (!video) return 'Добавь ролик (видеофайл)';
+    if (!/^https?:\/\//i.test(link.trim())) return 'Ссылка должна начинаться с http(s)://';
+    if (!message.trim()) return 'Текст объявления пустой';
+    if (!fbPixel.trim()) return 'Впиши номер fb_pixel';
     if (mode === 'scheduled') {
       const d = startLocal ? new Date(startLocal) : null;
-      if (!d || Number.isNaN(d.getTime())) return setMsg('Укажи дату и время планового старта');
-      if (d.getTime() < Date.now() + 60_000) return setMsg('Время старта должно быть в будущем');
+      if (!d || Number.isNaN(d.getTime())) return 'Укажи дату и время планового старта';
+      if (d.getTime() < Date.now() + 60_000) return 'Время старта должно быть в будущем';
     }
+    return null;
+  };
+
+  // Собрать текущую форму в черновик и добавить в очередь. Креатив-поля чистим,
+  // кабинет/ФП/пиксель оставляем — удобно добавить ещё один на тот же кабинет.
+  const addToQueue = () => {
+    setMsg('');
+    const err = validate();
+    if (err) { setMsg(err); return; }
+    const draft: VideoDraft = {
+      id: uid(),
+      cabId, cabLabel: cab!.name || cab!.externalId,
+      pageId, pixelId,
+      templateId, tplName: tpl?.name ?? '',
+      campaignName: campaignName.trim(), link: link.trim(), budget: budget.trim(),
+      message: message.trim(), headline: headline.trim(), description: description.trim(),
+      fbPixel: fbPixel.trim(), mode, startLocal,
+      withLanguages, mainLocale,
+      video: video!,
+    };
+    setQueue((q) => [...q, draft]);
+    setVideo(null);
+    if (fileRef.current) fileRef.current.value = '';
+    setCampaignName(''); setLink(''); setMessage(''); setHeadline(''); setDescription('');
+    autoName.current = '';
+    setMsg('Добавлено в очередь. Собери ещё или жми «Залить всё».');
+  };
+
+  const fireAll = () => {
+    setMsg('');
+    if (queue.length === 0) { setMsg('Очередь пуста — собери хотя бы один залив'); return; }
     start(async () => {
-      const fd = new FormData();
-      fd.set('accountId', cabId);
-      fd.set('templateId', templateId);
-      fd.set('pageId', pageId);
-      fd.set('pixelId', pixelId);
-      fd.set('campaignName', campaignName.trim());
-      fd.set('link', link.trim());
-      fd.set('budget', budget.trim());
-      fd.set('message', message.trim());
-      fd.set('headline', headline.trim());
-      fd.set('description', description.trim());
-      fd.set('urlTags', DEFAULT_TAGS_VIDEO);
-      fd.set('manualPixel', fbPixel.trim());
-      fd.set('mode', mode);
-      if (withLanguages) fd.set('withLanguages', '1');
-      if (mainLocale) fd.set('mainLocale', mainLocale);
-      if (mode === 'midnight') fd.set('startAt', nextMoscowMidnight());
-      if (mode === 'scheduled' && startLocal) fd.set('startAt', new Date(startLocal).toISOString());
-      fd.set('video', video);
-      const r = await startUpload(fd);
-      if (!r.ok) { setMsg(r.error ?? 'Не удалось запустить'); return; }
-      // Ушло в фон — можно уйти со страницы, результат появится в Журнале ниже.
-      setMsg('🚀 Запущено в фоне — результат появится в «Журнале заливов» ниже. Можно уйти со страницы.');
-      setVideo(null);
-      if (fileRef.current) fileRef.current.value = '';
+      for (const d of queue) {
+        const fd = new FormData();
+        fd.set('accountId', d.cabId);
+        fd.set('templateId', d.templateId);
+        fd.set('pageId', d.pageId);
+        fd.set('pixelId', d.pixelId);
+        fd.set('campaignName', d.campaignName);
+        fd.set('link', d.link);
+        fd.set('budget', d.budget);
+        fd.set('message', d.message);
+        fd.set('headline', d.headline);
+        fd.set('description', d.description);
+        fd.set('urlTags', DEFAULT_TAGS_VIDEO);
+        fd.set('manualPixel', d.fbPixel);
+        fd.set('mode', d.mode);
+        if (d.withLanguages) fd.set('withLanguages', '1');
+        if (d.mainLocale) fd.set('mainLocale', d.mainLocale);
+        if (d.mode === 'midnight') fd.set('startAt', nextMoscowMidnight());
+        if (d.mode === 'scheduled' && d.startLocal) fd.set('startAt', new Date(d.startLocal).toISOString());
+        fd.set('video', d.video);
+        await startUpload(fd);
+      }
+      const n = queue.length;
+      setQueue([]);
+      setMsg(`🚀 Запущено в фоне: ${n}. Результат — в «Журнале заливов» ниже (один кабинет по очереди, разные — параллельно). Можно уйти со страницы.`);
       setJournalKey((k) => k + 1);
     });
   };
@@ -281,11 +326,38 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         {mode === 'scheduled' ? (
           <input value={startLocal} onChange={(e) => setStartLocal(e.target.value)} type="datetime-local" className="h-9 w-[210px] rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage" />
         ) : null}
-        <button type="button" onClick={fire} disabled={pending} className={`ml-auto rounded-full border border-sage bg-sage-t px-6 py-2.5 text-[13px] font-semibold text-sage transition ${pending ? 'opacity-50' : 'hover:brightness-110'}`}>
-          {pending ? 'Запускаю…' : 'Залить видео (в фоне)'}
+        <button type="button" onClick={addToQueue} className="ml-auto rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-medium text-sage transition hover:brightness-110">
+          + В очередь
         </button>
       </div>
       {msg ? <div className="text-[12px] text-sage">{msg}</div> : null}
+
+      {/* Очередь видео-заливов */}
+      <div className="rounded-[16px] border border-line2 bg-panel/60 p-4 sm:p-5">
+        <div className="flex items-center gap-2.5">
+          <span className="text-[14px] font-semibold">Очередь видео</span>
+          <span className="text-[12px] text-mute">{queue.length} заливов</span>
+        </div>
+        {queue.length === 0 ? (
+          <p className="mt-3 text-[12px] text-mute">Пусто. Собери залив выше и добавь в очередь — можно подготовить несколько и запустить всё разом.</p>
+        ) : (
+          <div className="mt-3 flex flex-col gap-2">
+            {queue.map((d) => (
+              <div key={d.id} className="rounded-[12px] border border-line px-3.5 py-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-soft">{d.campaignName || 'без имени'} <span className="text-mute">· {d.cabLabel}</span></span>
+                  <span className="shrink-0 text-[11px] text-mute">{d.mode === 'paused' ? 'на паузе' : d.mode === 'active' ? 'в актив' : d.mode === 'midnight' ? 'с 00:00' : 'по расписанию'}</span>
+                  <button type="button" onClick={() => setQueue((q) => q.filter((x) => x.id !== d.id))} className="shrink-0 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute transition hover:border-rust hover:text-rust">убрать</button>
+                </div>
+                <div className="mt-1.5 text-[11px] text-dim">{d.tplName || 'шаблон?'} · 🎬 {d.video.name} · {(d.video.size / 1024 / 1024).toFixed(1)} МБ{d.withLanguages ? ` · +языки` : ''}{d.budget ? ` · $${d.budget}/д` : ''}</div>
+              </div>
+            ))}
+          </div>
+        )}
+        <button type="button" onClick={fireAll} disabled={pending || queue.length === 0} className={`mt-3 rounded-full border border-sage bg-sage-t px-6 py-2.5 text-[13px] font-semibold text-sage transition ${pending || queue.length === 0 ? 'opacity-50' : 'hover:brightness-110'}`}>
+          {pending ? 'Запускаю…' : `Залить всё${queue.length ? ` (${queue.length})` : ''}`}
+        </button>
+      </div>
 
       <JobsJournal key={journalKey} />
     </div>

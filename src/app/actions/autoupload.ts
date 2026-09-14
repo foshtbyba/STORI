@@ -745,6 +745,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           cta,
           urlTags: urlTags || undefined,
           optOutKeys: optOut,
+          countries,
           main: { videoId, thumb: thumb || undefined, message, headline: headline || undefined, description: description || undefined, link },
           mainLocaleId: mainLocaleId || undefined,
           langs: langVariants,

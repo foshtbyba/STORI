@@ -1415,6 +1415,9 @@ export type CreateMultiLangVideoInput = {
   cta?: string;
   urlTags?: string;
   optOutKeys?: string[];
+  /** Целевые страны (ISO-2) — ФБ требует geolocation в каждом не-дефолтном
+   *  правиле (код 100/2446501). */
+  countries: string[];
   // Основной (гео) вариант — дефолтный фолбэк.
   main: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string };
   /** locale ID языка основного ролика — если задан, основной привязывается и к
@@ -1457,7 +1460,7 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
   i.langs.forEach((l, idx) => {
     pushVariant(`l${idx}`, { videoId: l.videoId, thumb: l.thumb, message: l.message, headline: l.headline, description: l.description, link: l.link || i.main.link });
     const rule: Record<string, unknown> = {
-      customization_spec: { locales: [l.localeId] },
+      customization_spec: { geo_locations: { countries: i.countries }, locales: [l.localeId] },
       video_label: { name: `vid_l${idx}` },
       body_label: { name: `body_l${idx}` },
       link_url_label: { name: l.link ? `link_l${idx}` : 'link_def' },
@@ -1470,7 +1473,7 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
   // Основной ролик под своим языком (если задан) — явное правило по его locale.
   if (i.mainLocaleId) {
     const mr: Record<string, unknown> = {
-      customization_spec: { locales: [i.mainLocaleId] },
+      customization_spec: { geo_locations: { countries: i.countries }, locales: [i.mainLocaleId] },
       video_label: { name: 'vid_def' },
       body_label: { name: 'body_def' },
       link_url_label: { name: 'link_def' },
