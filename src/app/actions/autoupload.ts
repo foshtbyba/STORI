@@ -19,9 +19,18 @@ import {
   ENHANCEMENT_OPTOUT_KEYS,
   createAd,
   searchRegions,
+  getPageName,
   FbError,
   type FbNet,
 } from '@/lib/fb';
+
+/** Страны ЕС/ЕЭЗ — при таргете на них ФБ требует DSA-декларацию (кто продвигается
+ *  и кто платит), иначе код 100/3858081. */
+const EEA = new Set([
+  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU',
+  'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES',
+  'SE', 'IS', 'LI', 'NO',
+]);
 
 /**
  * Автозалив — оркестрация создания кампании в Facebook по шаблону гео.
@@ -404,6 +413,18 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     append(`✓ Кампания создана: ${campaignId} · цель ${objective}`);
     await sleep(700);
 
+    // DSA (ЕС): если среди целевых стран есть ЕС/ЕЭЗ, нужно объявить, кого
+    // продвигаем и кто платит. По умолчанию берём имя выбранной страницы (ФП) —
+    // ФБ принимает его как имя рекламодателя. Без страны ЕС — не трогаем.
+    let dsaBeneficiary = '';
+    let dsaPayer = '';
+    if (countries.some((c) => EEA.has(c))) {
+      const pageName = await getPageName(token, pageId, net);
+      dsaBeneficiary = pageName || ctx.acc.name || 'Advertiser';
+      dsaPayer = dsaBeneficiary;
+      append(`DSA (ЕС): продвигается/платит — ${dsaBeneficiary}`);
+    }
+
     // 2. Адсет с бюджетом и таргетом. Плейсменты, которые кабинет/цель не
     //    принимают (ФБ: «Invalid value X for the placement field …»), сами
     //    выкидываем и повторяем — залив не должен падать из-за одной галки.
@@ -419,6 +440,8 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           countries,
           excludedCountries,
           excludedRegions,
+          dsaBeneficiary: dsaBeneficiary || undefined,
+          dsaPayer: dsaPayer || undefined,
           dailyBudgetCents,
           ageMin: tpl.ageMin,
           ageMax: tpl.ageMax,

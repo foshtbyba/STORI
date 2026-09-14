@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { loadCabinetAssets, makePixel, makePage, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
 import TemplateManager, { type Template } from './TemplateManager';
+import TemplatePicker from './TemplatePicker';
 import LanguagePack, { type Language } from './LanguagePack';
 import { placementSummary } from '@/lib/placements';
 import { localeName } from '@/lib/locales';
@@ -525,10 +526,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
             <span className="text-[13px] font-semibold">Шаблон гео и объявление</span>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <select value={templateId} onChange={(e) => onPickTemplate(e.target.value)} className={`${inp} max-w-[280px]`}>
-              <option value="">— шаблон гео —</option>
-              {templates.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
+            <TemplatePicker templates={templates} value={templateId} onPick={onPickTemplate} />
             {tpl ? <span className="rounded-full border border-line bg-sub px-3 py-1 text-[11.5px] text-mute">{tpl.countries}{tpl.excluded ? ` (−${tpl.excluded})` : ''} · {tpl.ageMin}-{tpl.ageMax} · {tpl.event} · {placementSummary(tpl.placements)}</span> : null}
           </div>
           <div className="mt-2.5 grid gap-2">

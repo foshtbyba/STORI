@@ -1085,6 +1085,16 @@ export async function createCampaign(token: string, externalId: string, i: Creat
   return id;
 }
 
+/** Имя страницы по её id (для DSA-бенефициара). Ошибка/пусто — ''. */
+export async function getPageName(token: string, pageId: string, net: FbNet = {}): Promise<string> {
+  try {
+    const body = await call(`/${pageId}`, token, { fields: 'name' }, net);
+    return String((body as { name?: unknown }).name ?? '');
+  } catch {
+    return '';
+  }
+}
+
 /** Регион FB для исключения: ключ + человекочитаемое имя со страной. */
 export type FbRegion = { key: string; name: string; cc: string };
 
@@ -1128,6 +1138,10 @@ export type CreateAdsetInput = {
   excludedCountries?: string[];
   /** Исключаемые регионы (области/штаты) — ключи FB (region key). Пусто — не передаём. */
   excludedRegions?: string[];
+  /** DSA (ЕС): кто продвигается и кто платит. Требуется при таргете на ЕС/ЕЭЗ,
+   *  иначе ФБ: код 100/3858081 «Укажите человека или организацию…». */
+  dsaBeneficiary?: string;
+  dsaPayer?: string;
   /** Бюджет на адсете, в центах. Если бюджет на кампании — не передаём. */
   dailyBudgetCents?: number;
   bidStrategy?: string; // LOWEST_COST_WITHOUT_CAP
@@ -1183,6 +1197,12 @@ export async function createAdset(token: string, externalId: string, i: CreateAd
   };
   if (i.dailyBudgetCents) params.daily_budget = String(i.dailyBudgetCents);
   if (i.startTime) params.start_time = i.startTime;
+  // DSA-декларация (ЕС): бенефициар и плательщик рекламы. Ставим только когда
+  // заданы (для не-ЕС гео не нужны и могут мешать).
+  if (i.dsaBeneficiary && i.dsaPayer) {
+    params.dsa_beneficiary = i.dsaBeneficiary;
+    params.dsa_payer = i.dsaPayer;
+  }
 
   const body = await call(`/${externalId}/adsets`, token, params, net, 'POST', CREATE_API_VERSION);
   const id = body.id as string | undefined;
