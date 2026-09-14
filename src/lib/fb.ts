@@ -1200,8 +1200,10 @@ export async function createAdset(token: string, externalId: string, i: CreateAd
   // DSA-декларация (ЕС): бенефициар и плательщик рекламы. Ставим только когда
   // заданы (для не-ЕС гео не нужны и могут мешать).
   if (i.dsaBeneficiary && i.dsaPayer) {
+    // Внимание: у Меты поле называется dsa_payor (амер. написание), НЕ dsa_payer —
+    // с неверным ключом ФБ молча игнорировал плательщика и ругался на DSA.
     params.dsa_beneficiary = i.dsaBeneficiary;
-    params.dsa_payer = i.dsaPayer;
+    params.dsa_payor = i.dsaPayer;
   }
 
   const body = await call(`/${externalId}/adsets`, token, params, net, 'POST', CREATE_API_VERSION);
