@@ -10,8 +10,8 @@
 export type Placement = {
   key: string;
   label: string;
-  platform: 'facebook' | 'instagram' | 'audience_network' | 'messenger';
-  field: 'facebook_positions' | 'instagram_positions' | 'audience_network_positions' | 'messenger_positions';
+  platform: 'facebook' | 'instagram' | 'audience_network' | 'messenger' | 'threads';
+  field: 'facebook_positions' | 'instagram_positions' | 'audience_network_positions' | 'messenger_positions' | 'threads_positions';
   value: string;
 };
 
@@ -28,6 +28,7 @@ export const PLACEMENTS: Placement[] = [
   { key: 'ig_explore', label: 'IG Интересное', platform: 'instagram', field: 'instagram_positions', value: 'explore' },
   { key: 'ig_reels', label: 'IG Reels', platform: 'instagram', field: 'instagram_positions', value: 'reels' },
   { key: 'ig_search', label: 'IG Поиск', platform: 'instagram', field: 'instagram_positions', value: 'ig_search' },
+  { key: 'threads_home', label: 'Threads', platform: 'threads', field: 'threads_positions', value: 'threads_home' },
   { key: 'an_classic', label: 'Audience Network', platform: 'audience_network', field: 'audience_network_positions', value: 'classic' },
   { key: 'msg_home', label: 'Messenger', platform: 'messenger', field: 'messenger_positions', value: 'messenger_home' },
   { key: 'msg_story', label: 'Messenger Истории', platform: 'messenger', field: 'messenger_positions', value: 'story' },
