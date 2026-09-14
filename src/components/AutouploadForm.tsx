@@ -239,8 +239,10 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
       urlTags: urlTags.trim(), mode, startAt, startLocal, files,
     };
     setQueue((q) => (editingId ? q.map((d) => (d.id === editingId ? draft : d)) : [...q, draft]));
-    setMsg({ ok: true, text: editingId ? 'Черновик обновлён.' : 'Залив добавлен в очередь.' });
-    resetConstructor();
+    setMsg({ ok: true, text: editingId ? 'Черновик обновлён.' : 'Залив добавлен в очередь. Настройки оставил — поправь имя/креатив и добавь ещё.' });
+    // Настройки НЕ сбрасываем: кабинеты, ФП/пиксель, шаблон и креатив остаются,
+    // чтобы быстро добавить следующий похожий залив. Выходим только из режима правки.
+    setEditingId(null);
   };
 
   // Загрузить черновик обратно в конструктор для правки.
@@ -531,7 +533,7 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
 
         {confirm && hasLive ? (
           <div className="mt-3 flex flex-wrap items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-[12.5px]" style={{ borderColor: '#5a3a2a', background: '#241712' }}>
-            <span className="text-soft">Запустить всю очередь? Часть заливов не на паузе — реальные деньги на {totalTargets} кабинетах.</span>
+            <span className="text-soft">Запустить всю очередь?</span>
             <div className="ml-auto flex items-center gap-2">
               <button type="button" onClick={fireAll} disabled={pending} className="rounded-full border border-sage px-3.5 py-1.5 text-[12px] text-sage transition hover:bg-sage-t">Подтвердить</button>
               <button type="button" onClick={() => setConfirm(false)} className="rounded-full border border-line2 px-3.5 py-1.5 text-[12px] text-mute transition hover:text-text">Отмена</button>
