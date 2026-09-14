@@ -322,9 +322,9 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   if (!dailyBudgetCents || dailyBudgetCents < 100) return { ok: false, error: 'Дневной бюджет слишком мал' };
 
   // Режим запуска.
-  const mode = String(form.get('mode') ?? 'paused'); // paused | active | scheduled
+  const mode = String(form.get('mode') ?? 'paused'); // paused | active | scheduled | midnight
   let startTime: string | undefined;
-  if (mode === 'scheduled') {
+  if (mode === 'scheduled' || mode === 'midnight') {
     const at = String(form.get('startAt') ?? '');
     const d = at ? new Date(at) : null;
     if (!d || Number.isNaN(d.getTime())) return { ok: false, error: 'Укажи дату и время планового старта' };
@@ -536,7 +536,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       return { ok: false, error: 'Ни одно объявление не создано (см. журнал)', jobId: job.id, log, campaignFbId: campaignId };
     }
 
-    const modeLabel = mode === 'active' ? 'В АКТИВЕ' : mode === 'scheduled' ? `ПО РАСПИСАНИЮ (${startTime})` : 'НА ПАУЗЕ';
+    const modeLabel = mode === 'active' ? 'В АКТИВЕ' : mode === 'midnight' ? `С 00:00 МСК (${startTime})` : mode === 'scheduled' ? `ПО РАСПИСАНИЮ (${startTime})` : 'НА ПАУЗЕ';
     append(`Готово: ${created} объявлений · режим ${modeLabel}`);
     await finish({ status: 'done', campaignFbId: campaignId, adsCreated: created });
     revalidatePath('/ads/upload');

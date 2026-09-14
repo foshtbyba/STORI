@@ -10,7 +10,24 @@ import { localeName } from '@/lib/locales';
 
 type Cabinet = { id: string; name: string; externalId: string; currency: string; group: string };
 type Asset = { pages: { id: string; name: string }[]; pixels: { id: string; name: string }[] };
-type Mode = 'paused' | 'active' | 'scheduled';
+type Mode = 'paused' | 'active' | 'scheduled' | 'midnight';
+
+/** Ближайшая полночь по Москве (UTC+3, без перехода на летнее время) → ISO в UTC
+ *  и удобная строка для показа. Запуск «с нулей»: реклама стартует в 00:00 МСК. */
+function nextMoscowMidnight(): { iso: string; local: string } {
+  const now = new Date();
+  const msk = new Date(now.getTime() + 3 * 3600_000); // сдвиг к московскому «настенному» времени
+  const y = msk.getUTCFullYear();
+  const m = msk.getUTCMonth();
+  const d = msk.getUTCDate();
+  // Следующая полночь МСК = (сегодня+1) 00:00 по МСК; в UTC это на 3 часа раньше.
+  // Date.UTC сам переносит день через край месяца/года.
+  const iso = new Date(Date.UTC(y, m, d + 1, 0, 0, 0) - 3 * 3600_000).toISOString();
+  const mskTarget = new Date(new Date(iso).getTime() + 3 * 3600_000);
+  const p = (n: number) => String(n).padStart(2, '0');
+  const local = `${mskTarget.getUTCFullYear()}-${p(mskTarget.getUTCMonth() + 1)}-${p(mskTarget.getUTCDate())}T00:00`;
+  return { iso, local };
+}
 type Pick = { pageId: string; pixelId: string };
 
 /** Готовый залив в очереди. Один овнер, свои кабинеты (у каждого своя ФП+пиксель),
@@ -44,7 +61,7 @@ const DEFAULT_TAGS = 'ad_id={{ad.id}}&fbpx={{pixel}}&account_id={{account.id}}&c
 const DEFAULT_TAGS_VIDEO = 'ad_id={{ad.id}}&fbpx={{pixel}}&fb_pixel={{fbpixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
 const uid = () => Math.random().toString(36).slice(2, 9);
 
-const modeLabel = (m: Mode) => (m === 'active' ? 'в актив' : m === 'scheduled' ? 'по расписанию' : 'на паузе');
+const modeLabel = (m: Mode) => (m === 'active' ? 'в актив' : m === 'scheduled' ? 'по расписанию' : m === 'midnight' ? 'с 00:00 МСК' : 'на паузе');
 
 /**
  * Человеческая причина, почему кабинет не подтянулся. Ошибки токена/сессии
@@ -307,13 +324,16 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
     if (err) { setMsg({ ok: false, text: err }); return; }
     const pick: Record<string, Pick> = {};
     for (const c of selectedList) pick[c.id] = { pageId: pageByAcc[c.id], pixelId: pixelByAcc[c.id] };
-    const startAt = mode === 'scheduled' && startLocal ? new Date(startLocal).toISOString() : '';
+    // «С 00:00 МСК»: считаем ближайшую московскую полночь сами; «по расписанию» —
+    // из введённой даты.
+    const mid = mode === 'midnight' ? nextMoscowMidnight() : null;
+    const startAt = mid ? mid.iso : mode === 'scheduled' && startLocal ? new Date(startLocal).toISOString() : '';
     const draft: Draft = {
       id: editingId ?? uid(),
       owner, cabinetIds: selectedList.map((c) => c.id), pick,
       templateId, campaignName: campaignName.trim(), link: link.trim(), budget: budget.trim(),
       message: message.trim(), headline: headline.trim(), description: description.trim(),
-      urlTags: urlTags.trim(), manualPixel: manualPixel.trim(), mode, startAt, startLocal, files,
+      urlTags: urlTags.trim(), manualPixel: manualPixel.trim(), mode, startAt, startLocal: mid ? mid.local : startLocal, files,
     };
     setQueue((q) => (editingId ? q.map((d) => (d.id === editingId ? draft : d)) : [...q, draft]));
     setMsg({ ok: true, text: editingId ? 'Черновик обновлён.' : 'Залив добавлен в очередь. Ссылку/текст/заголовок очистил — вставляй новые.' });
@@ -635,11 +655,14 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
             <span className="text-[13px] font-semibold">Режим запуска</span>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            {(['paused', 'active', 'scheduled'] as const).map((v) => (
+            {(['paused', 'active', 'midnight', 'scheduled'] as const).map((v) => (
               <button key={v} type="button" onClick={() => setMode(v)} className={`rounded-full border px-3.5 py-1.5 text-[12px] transition ${mode === v ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-soft hover:border-sage'}`}>
-                {v === 'paused' ? 'На паузе' : v === 'active' ? 'Сразу в актив' : 'По расписанию'}
+                {v === 'paused' ? 'На паузе' : v === 'active' ? 'Сразу в актив' : v === 'midnight' ? 'С 00:00 МСК' : 'По расписанию'}
               </button>
             ))}
+            {mode === 'midnight' ? (
+              <span className="text-[11.5px] text-mute">старт в 00:00 по Москве — {nextMoscowMidnight().local.replace('T', ' ').slice(5)} (через ночь реклама пойдёт с нулей)</span>
+            ) : null}
             {/* Дата держит место (invisible), чтобы ряд кнопок не дёргался; при
                 «по расписанию» проявляется справа. */}
             <input
@@ -694,7 +717,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
                     <button type="button" onClick={() => removeDraft(d.id)} className="shrink-0 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute transition hover:border-rust hover:text-rust">убрать</button>
                   </div>
                   <div className="mt-1.5 text-[11px] text-dim">
-                    {d.cabinetIds.length} каб. · {t?.name ?? 'шаблон?'} · {d.files.length} карт.{d.budget ? ` · $${d.budget}/д` : ''}{d.mode === 'scheduled' && d.startLocal ? ` · старт ${d.startLocal.replace('T', ' ')}` : ''}
+                    {d.cabinetIds.length} каб. · {t?.name ?? 'шаблон?'} · {d.files.length} карт.{d.budget ? ` · $${d.budget}/д` : ''}{(d.mode === 'scheduled' || d.mode === 'midnight') && d.startLocal ? ` · старт ${d.startLocal.replace('T', ' ')}${d.mode === 'midnight' ? ' МСК' : ''}` : ''}
                   </div>
                 </div>
               );
