@@ -2,11 +2,9 @@ import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
 import { Panel, PanelHead, Empty } from '@/components/ui';
-import { IconTag, IconRocket } from '@/components/icons';
+import { IconRocket } from '@/components/icons';
 import AutouploadForm from '@/components/AutouploadForm';
-import TemplateManager from '@/components/TemplateManager';
-import LanguagePack from '@/components/LanguagePack';
-import Collapsible from '@/components/Collapsible';
+import UploadSettings from '@/components/UploadSettings';
 
 /**
  * Автозалив — общий инструмент, но у каждого свои заливы и свои шаблоны гео
@@ -95,30 +93,9 @@ export default async function AdsUploadPage() {
         )}
       </Panel>
 
-      {/* Личные шаблоны гео — доступны каждому, у каждого свои. */}
-      <Collapsible
-        icon={<IconTag color="#d2a06a" />}
-        tint="bg-amber-t"
-        title="Мои шаблоны гео"
-        defaultOpen={templates.length === 0}
-        summary={<span className="text-[12.5px] text-mute">{templates.length} шт. · только твои</span>}
-      >
-        <div className="mt-1">
-          <TemplateManager templates={templates} />
-        </div>
-      </Collapsible>
-
-      {/* Личный пак языков — для метода «Видео + языки». */}
-      <Collapsible
-        icon={<IconTag color="#d2a06a" />}
-        tint="bg-amber-t"
-        title="Мои языки (для видео)"
-        summary={<span className="text-[12.5px] text-mute">{languages.length} шт. · добавляются к каждому видео-заливу</span>}
-      >
-        <div className="mt-1">
-          <LanguagePack languages={languages} />
-        </div>
-      </Collapsible>
+      {/* Настройки залива одной панелью: вкладка «Шаблоны гео» первой, «Языки
+          для видео» второй. У каждого личные. */}
+      <UploadSettings templates={templates} languages={languages} />
     </div>
   );
 }
