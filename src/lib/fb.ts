@@ -1373,6 +1373,138 @@ export async function videoThumbnailUrl(token: string, videoId: string, net: FbN
   }
 }
 
+/** FB locale ID по названию языка. customization_spec.locales требует числовой
+ *  ID (не код), берём его поиском /search?type=adlocale. Не нашли — 0. */
+export async function resolveLocaleId(token: string, name: string, net: FbNet = {}): Promise<number> {
+  const q = (name || '').trim();
+  if (!q) return 0;
+  try {
+    const body = await call('/search', token, { type: 'adlocale', q, limit: '20' }, net);
+    const data = ((body as { data?: { key?: number; name?: string }[] }).data) ?? [];
+    const exact = data.find((d) => (d.name ?? '').toLowerCase() === q.toLowerCase());
+    const pick = exact ?? data[0];
+    return Number(pick?.key ?? 0) || 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Загрузка ролика по прямой ссылке (file_url) — для языков, у которых видео
+ *  задано ссылкой, а не файлом. Возвращает video_id. */
+export async function uploadVideoByUrl(token: string, externalId: string, fileUrl: string, net: FbNet = {}): Promise<string> {
+  const body = await call(`/${externalId}/advideos`, token, { file_url: fileUrl }, net, 'POST');
+  const id = (body as { id?: string }).id;
+  if (!id) throw new FbError('Видео по ссылке не принято FB (нет id)');
+  return id;
+}
+
+/** Один языковой вариант для мультиязычного видео-креатива. */
+export type LangVariant = {
+  localeId: number;
+  videoId: string;
+  thumb?: string;
+  message: string;
+  headline?: string;
+  description?: string;
+  link?: string;
+};
+
+export type CreateMultiLangVideoInput = {
+  name: string;
+  pageId: string;
+  cta?: string;
+  urlTags?: string;
+  optOutKeys?: string[];
+  // Основной (гео) вариант — дефолтный фолбэк.
+  main: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string };
+  langs: LangVariant[];
+};
+
+/**
+ * Мультиязычный видео-креатив: основной ролик + доп-языки в ОДНОМ объявлении
+ * через asset_feed_spec + asset_customization_rules (по locale). Каждый ассет
+ * помечаем adlabels, правило связывает язык (customization_spec.locales) с его
+ * роликом/текстом. Дефолтное правило (is_default) отдаёт основной вариант.
+ *
+ * ВНИМАНИЕ: точная форма правил у Меты капризна и плохо документирована —
+ * это лучшая реконструкция, доводим по тексту ошибок при тесте на паузе.
+ */
+export async function createMultiLangVideoCreative(token: string, externalId: string, i: CreateMultiLangVideoInput, net: FbNet = {}) {
+  const videos: Record<string, unknown>[] = [];
+  const bodies: Record<string, unknown>[] = [];
+  const titles: Record<string, unknown>[] = [];
+  const descriptions: Record<string, unknown>[] = [];
+  const linkUrls: Record<string, unknown>[] = [];
+  const rules: Record<string, unknown>[] = [];
+
+  const pushVariant = (tag: string, v: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link?: string }) => {
+    const vid: Record<string, unknown> = { video_id: v.videoId, adlabels: [{ name: `vid_${tag}` }] };
+    if (v.thumb) vid.thumbnail_url = v.thumb;
+    videos.push(vid);
+    bodies.push({ text: v.message, adlabels: [{ name: `body_${tag}` }] });
+    if (v.headline) titles.push({ text: v.headline, adlabels: [{ name: `title_${tag}` }] });
+    if (v.description) descriptions.push({ text: v.description, adlabels: [{ name: `desc_${tag}` }] });
+    if (v.link) linkUrls.push({ website_url: v.link, adlabels: [{ name: `link_${tag}` }] });
+  };
+
+  // Основной вариант.
+  pushVariant('def', i.main);
+  // Языковые варианты.
+  i.langs.forEach((l, idx) => {
+    pushVariant(`l${idx}`, { videoId: l.videoId, thumb: l.thumb, message: l.message, headline: l.headline, description: l.description, link: l.link || i.main.link });
+    const rule: Record<string, unknown> = {
+      customization_spec: { locales: [l.localeId] },
+      video_label: { name: `vid_l${idx}` },
+      body_label: { name: `body_l${idx}` },
+      link_url_label: { name: l.link ? `link_l${idx}` : 'link_def' },
+      priority: idx,
+    };
+    if (l.headline) rule.title_label = { name: `title_l${idx}` };
+    if (l.description) rule.description_label = { name: `desc_l${idx}` };
+    rules.push(rule);
+  });
+  // Дефолтное правило — основной вариант для всех прочих языков.
+  const defRule: Record<string, unknown> = {
+    is_default: true,
+    customization_spec: { locales: [] },
+    video_label: { name: 'vid_def' },
+    body_label: { name: 'body_def' },
+    link_url_label: { name: 'link_def' },
+    priority: i.langs.length,
+  };
+  if (i.main.headline) defRule.title_label = { name: 'title_def' };
+  if (i.main.description) defRule.description_label = { name: 'desc_def' };
+  rules.push(defRule);
+
+  const assetFeedSpec: Record<string, unknown> = {
+    ad_formats: ['SINGLE_VIDEO'],
+    videos,
+    bodies,
+    link_urls: linkUrls,
+    call_to_action_types: [i.cta || 'LEARN_MORE'],
+    asset_customization_rules: rules,
+  };
+  if (titles.length) assetFeedSpec.titles = titles;
+  if (descriptions.length) assetFeedSpec.descriptions = descriptions;
+
+  const params: Record<string, string> = {
+    name: i.name,
+    object_story_spec: JSON.stringify({ page_id: i.pageId }),
+    asset_feed_spec: JSON.stringify(assetFeedSpec),
+  };
+  const optOut = i.optOutKeys ?? ['standard_enhancements'];
+  if (optOut.length) {
+    const spec: Record<string, { enroll_status: 'OPT_OUT' }> = {};
+    for (const k of optOut) spec[k] = { enroll_status: 'OPT_OUT' };
+    params.degrees_of_freedom_spec = JSON.stringify({ creative_features_spec: spec });
+  }
+  if (i.urlTags && i.urlTags.trim()) params.url_tags = i.urlTags.trim();
+  const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST', CREATE_API_VERSION);
+  const id = body.id as string | undefined;
+  if (!id) throw new FbError('Мультиязычный креатив не создан: нет id');
+  return id;
+}
+
 export type CreateVideoCreativeInput = {
   name: string;
   pageId: string;

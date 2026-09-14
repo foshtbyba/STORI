@@ -443,7 +443,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
       ) : method === 'languages' ? (
         <LanguagePack languages={languages} />
       ) : method === 'video' ? (
-        <VideoUpload cabinets={cabinets} templates={templates} />
+        <VideoUpload cabinets={cabinets} templates={templates} languages={languages} />
       ) : (
       <>
       {/* КОНСТРУКТОР */}

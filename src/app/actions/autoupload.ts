@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { validPlacementKeys, placementSummary, stripPlacementValue } from '@/lib/placements';
-import { isLocale } from '@/lib/locales';
+import { isLocale, localeName } from '@/lib/locales';
 import {
   fbAccess,
   listPages,
@@ -22,11 +22,15 @@ import {
   getPageName,
   bindCardToAccount,
   uploadVideo,
+  uploadVideoByUrl,
   waitVideoReady,
   videoThumbnailUrl,
   createVideoAdCreative,
+  createMultiLangVideoCreative,
+  resolveLocaleId,
   VIDEO_ENHANCEMENT_OPTOUT_KEYS,
   FbError,
+  type LangVariant,
   type FbNet,
   type CardInput,
   type CardBindMethod,
@@ -416,6 +420,8 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   // Видео-метод: вместо картинок — один основной ролик файлом.
   const videoFile = form.get('video');
   const video = videoFile instanceof File && videoFile.size > 0 ? videoFile : null;
+  // Видео + языки: добавить доп-языки из личного пака в одно объявление.
+  const withLanguages = String(form.get('withLanguages') ?? '') === '1';
   if (!video && files.length === 0) return { ok: false, error: 'Добавь картинку (сторис) или ролик (видео)' };
   if (files.length > 20) return { ok: false, error: 'За раз не больше 20 картинок' };
 
@@ -581,52 +587,105 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     let optOut = [...ENHANCEMENT_OPTOUT_KEYS];
     let created = 0;
 
-    // Видео-метод (этап 1): один основной ролик. Грузим в кабинет, ждём
-    // обработки, берём кадр-превью, собираем видео-креатив и объявление.
+    // Видео-метод. Грузим основной ролик, ждём обработки, берём кадр-превью.
+    // Если включены языки — собираем мультиязычное объявление (основной + пак),
+    // иначе обычное видео-объявление.
     if (video) {
-      // К видео-креативу добавляем видео-специфичные ключи авто-улучшений
-      // (Video touch-ups / Add video effects). Неверные самолечение отсеет.
+      // Видео-специфичные ключи авто-улучшений (Video touch-ups / Add video
+      // effects). Неверные самолечение отсеет.
       optOut = [...optOut, ...VIDEO_ENHANCEMENT_OPTOUT_KEYS];
-      append('Загружаю ролик в кабинет…');
+
+      // Создание креатива с подрезкой неподдержанных ключей улучшений.
+      const buildCreativeWithRetry = async (build: () => Promise<string>): Promise<string> => {
+        for (let a = 0; a < optOut.length + 3; a += 1) {
+          try { return await build(); }
+          catch (e) {
+            const m = (e as Error).message.match(/Param key '([^']+)' in degrees_of_freedom_spec/i);
+            if (m && optOut.includes(m[1])) {
+              optOut = optOut.filter((k) => k !== m[1]);
+              append(`⚠ ключ улучшения «${m[1]}» не поддержан — убрал`);
+              await sleep(300);
+              continue;
+            }
+            throw e;
+          }
+        }
+        return '';
+      };
+
+      append('Загружаю основной ролик в кабинет…');
       const vbuf = Buffer.from(await video.arrayBuffer());
       const videoId = await uploadVideo(token, ext, vbuf, video.name || 'video.mp4', net);
       append(`✓ Ролик загружен: ${videoId} — жду обработки…`);
       await waitVideoReady(token, videoId, net);
       append('✓ Ролик обработан');
       const thumb = await videoThumbnailUrl(token, videoId, net);
-      let creativeId = '';
-      for (let a = 0; a < optOut.length + 2; a += 1) {
-        try {
-          creativeId = await createVideoAdCreative(token, ext, {
-            name: campaignName,
-            pageId,
-            videoId,
-            message,
-            link,
-            cta,
-            urlTags: urlTags || undefined,
-            headline: headline || undefined,
-            description: description || undefined,
-            imageUrl: thumb || undefined,
-            optOutKeys: optOut,
-          }, net);
-          break;
-        } catch (e) {
-          const m = (e as Error).message.match(/Param key '([^']+)' in degrees_of_freedom_spec/i);
-          if (m && optOut.includes(m[1])) {
-            optOut = optOut.filter((k) => k !== m[1]);
-            append(`⚠ ключ улучшения «${m[1]}» не поддержан — убрал`);
-            await sleep(300);
-            continue;
+
+      // Языки из личного пака — грузим их ролики, резолвим locale ID.
+      const langVariants: LangVariant[] = [];
+      if (withLanguages) {
+        const pack = await prisma.uploadLanguage.findMany({ where: { userId: ctx.userId, archived: false }, orderBy: { sort: 'asc' } });
+        append(`Языки: в паке ${pack.length} — подключаю…`);
+        for (const lp of pack) {
+          try {
+            let lvid = '';
+            if (lp.videoData && lp.videoData.length) {
+              lvid = await uploadVideo(token, ext, Buffer.from(lp.videoData), lp.videoName || 'lang.mp4', net);
+            } else if (lp.videoUrl) {
+              lvid = await uploadVideoByUrl(token, ext, lp.videoUrl, net);
+            } else {
+              append(`⚠ ${lp.locale}: нет видео — пропускаю`);
+              continue;
+            }
+            await waitVideoReady(token, lvid, net);
+            const localeId = await resolveLocaleId(token, localeName(lp.locale), net);
+            if (!localeId) { append(`⚠ ${lp.locale}: не нашёл locale ID у FB — пропускаю`); continue; }
+            const lthumb = await videoThumbnailUrl(token, lvid, net);
+            langVariants.push({
+              localeId,
+              videoId: lvid,
+              thumb: lthumb || undefined,
+              message: lp.primaryText || message,
+              headline: lp.headline || undefined,
+              description: lp.description || undefined,
+              link: lp.link || undefined,
+            });
+            append(`✓ Язык ${lp.locale} (locale ${localeId})`);
+          } catch (e) {
+            append(`⚠ ${lp.locale}: не подключился — пропускаю (${(e as Error).message})`);
           }
-          throw e;
         }
       }
-      if (!creativeId) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
-      await sleep(500);
-      const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
-      created = 1;
-      append(`✓ Видео-объявление: ${adId}`);
+
+      let creativeId = '';
+      if (langVariants.length) {
+        creativeId = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
+          name: campaignName,
+          pageId,
+          cta,
+          urlTags: urlTags || undefined,
+          optOutKeys: optOut,
+          main: { videoId, thumb: thumb || undefined, message, headline: headline || undefined, description: description || undefined, link },
+          langs: langVariants,
+        }, net));
+        if (!creativeId) throw new FbError('Мультиязычный креатив не создан (после подрезки ключей улучшений)');
+        await sleep(500);
+        const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
+        created = 1;
+        append(`✓ Мультиязычное видео-объявление: ${adId} · языков ${langVariants.length}`);
+      } else {
+        if (withLanguages) append('⚠ Ни один язык не подключился — делаю обычное видео-объявление');
+        creativeId = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
+          name: campaignName, pageId, videoId, message, link, cta,
+          urlTags: urlTags || undefined, headline: headline || undefined,
+          description: description || undefined, imageUrl: thumb || undefined, optOutKeys: optOut,
+        }, net));
+        if (!creativeId) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
+        await sleep(500);
+        const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
+        created = 1;
+        append(`✓ Видео-объявление: ${adId}`);
+      }
     } else
     for (let idx = 0; idx < files.length; idx += 1) {
       const file = files[idx];

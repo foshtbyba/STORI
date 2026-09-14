@@ -4,6 +4,8 @@ import { useMemo, useRef, useState, useTransition } from 'react';
 import { loadCabinetAssets, makePixel, makePage, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
 import TemplatePicker from './TemplatePicker';
 import type { Template } from './TemplateManager';
+import type { Language } from './LanguagePack';
+import { localeName } from '@/lib/locales';
 
 type Cabinet = { id: string; name: string; externalId: string; currency: string; group: string };
 type Asset = { pages: { id: string; name: string }[]; pixels: { id: string; name: string }[] };
@@ -24,7 +26,7 @@ function nextMoscowMidnight(): string {
  * По умолчанию НА ПАУЗЕ — для проверки в Ads Manager. Языки (доп-ролики из пака)
  * подключаются вторым этапом. Пиксель fb_pixel вводится вручную (метка в ссылке).
  */
-export default function VideoUpload({ cabinets, templates }: { cabinets: Cabinet[]; templates: Template[] }) {
+export default function VideoUpload({ cabinets, templates, languages = [] }: { cabinets: Cabinet[]; templates: Template[]; languages?: Language[] }) {
   // SKO первым, остальные по алфавиту — как в основном заливе.
   const owners = useMemo(() => {
     const uniq = [...new Set(cabinets.map((c) => c.group))];
@@ -47,6 +49,7 @@ export default function VideoUpload({ cabinets, templates }: { cabinets: Cabinet
   const [fbPixel, setFbPixel] = useState('');
   const [mode, setMode] = useState<Mode>('paused');
   const [startLocal, setStartLocal] = useState('');
+  const [withLanguages, setWithLanguages] = useState(languages.length > 0);
   const [video, setVideo] = useState<File | null>(null);
   const [result, setResult] = useState<(UploadResult & { label: string }) | null>(null);
   const [msg, setMsg] = useState('');
@@ -120,6 +123,7 @@ export default function VideoUpload({ cabinets, templates }: { cabinets: Cabinet
       fd.set('urlTags', DEFAULT_TAGS_VIDEO);
       fd.set('manualPixel', fbPixel.trim());
       fd.set('mode', mode);
+      if (withLanguages) fd.set('withLanguages', '1');
       if (mode === 'midnight') fd.set('startAt', nextMoscowMidnight());
       if (mode === 'scheduled' && startLocal) fd.set('startAt', new Date(startLocal).toISOString());
       fd.set('video', video);
@@ -214,6 +218,30 @@ export default function VideoUpload({ cabinets, templates }: { cabinets: Cabinet
             <input value={fbPixel} onChange={(e) => setFbPixel(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder="напр. 5645645435" className={`n ${inp}`} />
           </div>
         </div>
+      </div>
+
+      {/* Языки из пака */}
+      <div className={box}>
+        <label className="flex cursor-pointer items-center gap-2 text-[13px] font-semibold text-soft">
+          <input type="checkbox" checked={withLanguages} onChange={(e) => setWithLanguages(e.target.checked)} disabled={languages.length === 0} className="accent-[#b4c68c]" />
+          Добавить языки из пака <span className="text-mute">· {languages.length}</span>
+        </label>
+        {languages.length === 0 ? (
+          <p className="mt-1.5 text-[11px] text-mute">Пак пуст — заполни языки во вкладке «Языки». Тогда они добавятся в одно видео-объявление (у каждого свой ролик и тексты).</p>
+        ) : withLanguages ? (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {languages.map((l) => (
+              <span key={l.id} className={`rounded-full border px-2.5 py-1 text-[11.5px] ${l.hasVideo || l.videoUrl ? 'border-line bg-sub text-soft' : 'border-rust/40 text-rust'}`}>
+                {localeName(l.locale)}{l.hasVideo || l.videoUrl ? '' : ' · без видео'}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-1.5 text-[11px] text-mute">Выключено — зальётся только основной ролик.</p>
+        )}
+        {withLanguages && languages.length ? (
+          <p className="mt-2 text-[11px] text-dim">Основной ролик — дефолт (гео-язык), а эти языки FB покажет по языку пользователя. Языки без видео пропустятся.</p>
+        ) : null}
       </div>
 
       {/* Режим + запуск */}
