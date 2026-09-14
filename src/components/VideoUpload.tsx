@@ -58,6 +58,9 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
   const [journalKey, setJournalKey] = useState(0);
   const [pending, start] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
+  // Последнее авто-имя (гео-префикс) — чтобы подменять при смене шаблона, но не
+  // затирать введённое руками.
+  const autoName = useRef('');
 
   const ownerCabs = cabinets.filter((c) => c.group === owner);
   const cab = cabinets.find((c) => c.id === cabId) ?? null;
@@ -196,8 +199,17 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
           <TemplatePicker templates={templates} value={templateId} onPick={(id) => {
             setTemplateId(id);
             const t = templates.find((x) => x.id === id);
+            if (!t) return;
             // Бюджет из шаблона — только если поле пустое (руками введённое не трогаем).
-            if (t && !budget.trim()) setBudget((t.dailyBudgetCents / 100).toString());
+            if (!budget.trim()) setBudget((t.dailyBudgetCents / 100).toString());
+            // Имя кампании стартует с гео из шаблона (напр. «RO »); подменяем пустое
+            // или прошлый авто-префикс, руками введённое не трогаем.
+            const geo = t.countries.split(',').map((s) => s.trim()).filter(Boolean).join(' ');
+            if (geo && (campaignName.trim() === '' || campaignName === autoName.current)) {
+              const v = `${geo} `;
+              setCampaignName(v);
+              autoName.current = v;
+            }
           }} />
           {tpl ? <span className="rounded-full border border-line bg-sub px-3 py-1 text-[11.5px] text-mute">{tpl.countries} · {tpl.event}</span> : null}
         </div>
