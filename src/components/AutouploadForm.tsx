@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { loadCabinetAssets, makePixel, makePage, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
-import type { Template } from './TemplateManager';
-import type { Language } from './LanguagePack';
+import TemplateManager, { type Template } from './TemplateManager';
+import LanguagePack, { type Language } from './LanguagePack';
 import { placementSummary } from '@/lib/placements';
 import { localeName } from '@/lib/locales';
 
@@ -114,7 +114,8 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [confirm, setConfirm] = useState(false);
   // Метод залива. Сейчас сторис/статика; видео с языками — отдельным методом позже.
-  const [method, setMethod] = useState<'static' | 'video'>('static');
+  const [method, setMethod] = useState<'static' | 'video' | 'templates' | 'languages'>('static');
+  const [qTpl, setQTpl] = useState('');
   const tab = (on: boolean) =>
     `rounded-full border px-4 py-1.5 text-[12px] transition ${on ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-mute hover:border-sage'}`;
 
@@ -220,14 +221,18 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
   };
 
   const addFiles = (list: FileList | null) => {
-    if (!list) return;
+    if (!list || list.length === 0) return;
+    // ВАЖНО: снимаем файлы в массив СЕЙЧАС. Очистка input.value ниже опустошает
+    // тот же живой FileList, и если читать его внутри setFiles (позже) — там уже
+    // пусто, картинка «не выбирается».
+    const picked = Array.from(list);
+    if (fileInput.current) fileInput.current.value = '';
     setFiles((prev) => {
       const key = (f: File) => `${f.name}:${f.size}`;
       const have = new Set(prev.map(key));
-      const add = Array.from(list).filter((f) => !have.has(key(f)));
+      const add = picked.filter((f) => !have.has(key(f)));
       return [...prev, ...add].slice(0, 20);
     });
-    if (fileInput.current) fileInput.current.value = '';
   };
 
   const resetConstructor = () => {
@@ -355,13 +360,23 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Метод залива: сейчас сторис/статика; видео с языками — позже. */}
+      {/* Метод залива + отдельные вкладки настроек (шаблоны/языки) в этом же ряду. */}
       <div className="flex flex-wrap items-center gap-1.5">
         <button type="button" onClick={() => setMethod('static')} className={tab(method === 'static')}>Сторис / статика</button>
         <button type="button" onClick={() => setMethod('video')} className={tab(method === 'video')}>Видео + языки</button>
+        <span className="mx-1 h-5 w-px bg-line2" />
+        <button type="button" onClick={() => setMethod('templates')} className={tab(method === 'templates')}>Шаблоны гео <span className="opacity-70">· {templates.length}</span></button>
+        <button type="button" onClick={() => setMethod('languages')} className={tab(method === 'languages')}>Языки <span className="opacity-70">· {languages.length}</span></button>
+        {method === 'templates' && templates.length > 0 ? (
+          <input value={qTpl} onChange={(e) => setQTpl(e.target.value)} placeholder="Поиск по названию…" className="ml-auto h-9 w-[240px] rounded-full border border-line2 bg-sub px-4 text-[12.5px] text-soft outline-none focus:border-sage" />
+        ) : null}
       </div>
 
-      {method === 'video' ? (
+      {method === 'templates' ? (
+        <TemplateManager templates={templates} query={qTpl} />
+      ) : method === 'languages' ? (
+        <LanguagePack languages={languages} />
+      ) : method === 'video' ? (
         <div className="rounded-[16px] border border-line bg-panel/40 px-4 py-6 text-[12.5px] text-mute">
           <div className="text-[13px] font-semibold text-soft">Видео + языки — на подключении</div>
           <p className="mt-2 leading-relaxed">

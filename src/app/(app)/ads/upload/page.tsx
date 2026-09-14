@@ -1,10 +1,9 @@
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
-import { Panel, PanelHead, Empty } from '@/components/ui';
+import { Panel, PanelHead } from '@/components/ui';
 import { IconRocket } from '@/components/icons';
 import AutouploadForm from '@/components/AutouploadForm';
-import UploadSettings from '@/components/UploadSettings';
 
 /**
  * Автозалив — общий инструмент, но у каждого свои заливы и свои шаблоны гео
@@ -82,20 +81,13 @@ export default async function AdsUploadPage() {
           title="Автозалив"
           aside={<span className="text-[12.5px] text-mute">{cabinets.length} кабинетов · {templates.length} шаблонов</span>}
         />
-        {cabinets.length === 0 ? (
-          <div className="mt-4"><Empty>Нет подключённых кабинетов — сначала подключи токен в «Аккаунтах».</Empty></div>
-        ) : templates.length === 0 ? (
-          <div className="mt-4"><Empty>Заведи свой первый шаблон гео ниже — без него заливать не из чего.</Empty></div>
-        ) : (
-          <div className="mt-4">
-            <AutouploadForm cabinets={cabinets} templates={templates} languages={languages} />
-          </div>
-        )}
+        {/* Форма всегда: вкладки «Шаблоны гео»/«Языки» доступны даже без кабинетов
+            и без шаблонов — там их и заводят. */}
+        <div className="mt-4">
+          <AutouploadForm cabinets={cabinets} templates={templates} languages={languages} />
+        </div>
       </Panel>
 
-      {/* Настройки залива одной панелью: вкладка «Шаблоны гео» первой, «Языки
-          для видео» второй. У каждого личные. */}
-      <UploadSettings templates={templates} languages={languages} />
     </div>
   );
 }

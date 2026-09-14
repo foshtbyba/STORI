@@ -36,7 +36,7 @@ export default function TemplateManager({ templates, query = '' }: { templates: 
 
   // Ключом сбрасываем поля формы при переключении «новый ↔ правка».
   const key = edit?.id ?? 'new';
-  // Поиск живёт в шапке (UploadSettings) и приходит пропом.
+  // Поиск живёт в шапке (таб-бар автозалива) и приходит пропом.
   const filtered = templates.filter((t) => t.name.toLowerCase().includes(query.trim().toLowerCase()));
 
   return (
