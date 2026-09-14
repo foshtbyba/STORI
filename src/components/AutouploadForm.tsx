@@ -382,10 +382,6 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           ) : (
             <p className="mt-3 text-amber">Сначала заполни пак языков в разделе «Мои языки (для видео)» ниже.</p>
           )}
-          <div className="mt-3 rounded-xl border border-line bg-sub px-3 py-2">
-            <div className="text-[11px] text-mute">Метки видео-метода (свои, с ручным fb_pixel):</div>
-            <code className="mt-1 block break-all text-[11px] text-soft">{DEFAULT_TAGS_VIDEO}</code>
-          </div>
           <p className="mt-3 text-[11.5px] text-dim">Само создание видео-объявления с языками подключаю следующим шагом (нужен тестовый прогон на паузе).</p>
         </div>
       ) : (
