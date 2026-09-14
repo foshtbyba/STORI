@@ -21,7 +21,6 @@ import {
   searchRegions,
   FbError,
   type FbNet,
-  type FbRegion,
 } from '@/lib/fb';
 
 /**
@@ -69,51 +68,17 @@ function csvUpper(s: string): string[] {
     .filter(Boolean);
 }
 
-/** JSON-строка исключаемых регионов → массив. Кривой JSON — []. */
-function parseRegions(s: string): FbRegion[] {
-  if (!s || !s.trim()) return [];
-  try {
-    const arr = JSON.parse(s);
-    if (!Array.isArray(arr)) return [];
-    return arr
-      .map((r) => ({ key: String(r?.key ?? ''), name: String(r?.name ?? ''), cc: String(r?.cc ?? '') }))
-      .filter((r) => r.key && r.name)
-      .slice(0, 50);
-  } catch {
-    return [];
-  }
-}
-
 /**
- * Поиск регионов для формы шаблона. Регионы FB задаются ключом, не именем —
- * ищем по названию через любой доступный пользователю токен (сам поиск гео от
- * кабинета не зависит, нужен лишь валидный токен).
+ * Названия регионов из текста «Madeira, Azores» → ['Madeira', 'Azores'].
+ * Только по запятой (в названии региона бывают пробелы: «Community of Madrid»),
+ * регистр сохраняем. Пусто/мусор — [].
  */
-export type RegionSearchState = { ok: boolean; error?: string; regions?: FbRegion[] };
-
-export async function searchRegionsForTemplate(q: string): Promise<RegionSearchState> {
-  const query = (q ?? '').trim();
-  if (query.length < 2) return { ok: true, regions: [] };
-  const user = await requireUser();
-  const team = canSeeTeam(user.role as Role);
-  const buyerId = user.buyer?.id ?? '__none__';
-  // Берём первый живой кабинет, до которого у пользователя есть доступ.
-  const acc = await prisma.adAccount.findFirst({
-    where: {
-      enabled: true,
-      adToken: team ? { buyer: { owner: true } } : { buyerId },
-    },
-    include: { adToken: true },
-    orderBy: { createdAt: 'asc' },
-  });
-  if (!acc) return { ok: false, error: 'Нет доступного кабинета для поиска регионов' };
-  const { token, net } = fbAccess(acc.adToken.token, { cookiesJson: acc.adToken.cookiesJson, proxyUrl: acc.adToken.proxyUrl });
-  try {
-    const regions = await searchRegions(token, query, net);
-    return { ok: true, regions };
-  } catch (e) {
-    return { ok: false, error: e instanceof FbError ? e.message : 'Не удалось найти регионы' };
-  }
+function regionNames(s: string): string[] {
+  return s
+    .split(',')
+    .map((x) => x.trim())
+    .filter(Boolean)
+    .slice(0, 50);
 }
 
 // ── Шаблоны гео (личные — у каждого свои) ──────────────────────────────────
@@ -128,8 +93,10 @@ export async function saveTemplate(_prev: TemplateState, form: FormData): Promis
   const countries = csvUpper(String(form.get('countries') ?? '')).join(',');
   if (!countries) return { ok: false, error: 'Укажи хотя бы одну страну (напр. US)' };
   const excluded = csvUpper(String(form.get('excluded') ?? '')).join(',');
-  // Регионы приходят JSON-строкой из скрытого поля (искали и выбирали на клиенте).
-  const excludedRegions = JSON.stringify(parseRegions(String(form.get('excludedRegions') ?? '')));
+  // Регионы вписывают названиями («Madeira, Azores») — не коды. Ключи FB
+  // подставим при заливе (резолвим имя → region key токеном кабинета). Регистр
+  // не трогаем: имена регионов регистрозависимы для поиска.
+  const excludedRegions = regionNames(String(form.get('excludedRegions') ?? '')).join(', ');
   const ageMin = Math.max(13, Math.min(65, Math.round(Number(form.get('ageMin')) || 18)));
   const ageMax = Math.max(ageMin, Math.min(65, Math.round(Number(form.get('ageMax')) || 65)));
   const genderRaw = String(form.get('genders') ?? ''); // ''|'1'|'2'
@@ -373,8 +340,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   const genders = tpl.genders === '1' ? [1] : tpl.genders === '2' ? [2] : undefined;
   const countries = csvUpper(tpl.countries);
   const excludedCountries = csvUpper(tpl.excluded);
-  const excludedRegionList = parseRegions(tpl.excludedRegions ?? '');
-  const excludedRegions = excludedRegionList.map((r) => r.key);
+  const excludedRegionNames = regionNames(tpl.excludedRegions ?? '');
   const cta = tpl.cta;
 
   const log: string[] = [];
@@ -405,8 +371,27 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
   try {
     append(`Кабинет: ${ctx.acc.name || ext}`);
-    const exBits = [...excludedCountries, ...excludedRegionList.map((r) => r.name)];
-    append(`Гео: ${countries.join(', ')}${exBits.length ? ` (искл. ${exBits.join(', ')})` : ''} · возраст ${tpl.ageMin}-${tpl.ageMax}`);
+    append(`Гео: ${countries.join(', ')}${excludedCountries.length ? ` (искл. страны ${excludedCountries.join(', ')})` : ''} · возраст ${tpl.ageMin}-${tpl.ageMax}`);
+
+    // Регионы исключаем по названиям: FB принимает только region key, поэтому
+    // резолвим каждое имя поиском (токеном этого же кабинета — он точно достаёт
+    // до FB). При совпадении имени в нескольких странах берём регион в одной из
+    // целевых стран шаблона. Что не нашлось — пишем в журнал и пропускаем.
+    const excludedRegions: string[] = [];
+    for (const nm of excludedRegionNames) {
+      try {
+        const hits = await searchRegions(token, nm, net);
+        const pick = hits.find((h) => countries.includes(h.cc)) ?? hits[0];
+        if (pick) {
+          excludedRegions.push(pick.key);
+          append(`Исключён регион: ${pick.name}${pick.cc ? ` (${pick.cc})` : ''}`);
+        } else {
+          append(`Регион не найден, пропущен: ${nm}`);
+        }
+      } catch {
+        append(`Не удалось найти регион «${nm}» — пропущен`);
+      }
+    }
 
     // 1. Кампания. Цель — под событие пикселя (лиды/продажи), иначе ФБ не даёт
     //    оптимизироваться на выбранное событие.

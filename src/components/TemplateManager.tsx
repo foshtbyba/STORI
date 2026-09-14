@@ -1,114 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useActionState } from 'react';
-import { saveTemplate, deleteTemplate, searchRegionsForTemplate, type TemplateState } from '@/app/actions/autoupload';
+import { saveTemplate, deleteTemplate, type TemplateState } from '@/app/actions/autoupload';
 import { PLACEMENTS, validPlacementKeys, placementSummary } from '@/lib/placements';
-
-type Region = { key: string; name: string; cc: string };
-
-/** JSON-строка (из шаблона) → массив регионов. Кривой JSON — []. */
-function parseRegions(s: string | undefined): Region[] {
-  if (!s || !s.trim()) return [];
-  try {
-    const arr = JSON.parse(s);
-    if (!Array.isArray(arr)) return [];
-    return arr
-      .map((r) => ({ key: String(r?.key ?? ''), name: String(r?.name ?? ''), cc: String(r?.cc ?? '') }))
-      .filter((r) => r.key && r.name);
-  } catch {
-    return [];
-  }
-}
-
-/**
- * Исключаемые регионы: поиск по названию у FB (регионы задаются ключом, не
- * именем) → выбор в чипы. Значение уходит в форму скрытым JSON-полем.
- */
-function RegionExclude({ initial }: { initial: Region[] }) {
-  const [selected, setSelected] = useState<Region[]>(initial);
-  const [q, setQ] = useState('');
-  const [results, setResults] = useState<Region[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState('');
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    const query = q.trim();
-    if (query.length < 2) { setResults([]); setErr(''); setLoading(false); return; }
-    let alive = true;
-    setLoading(true);
-    const t = setTimeout(async () => {
-      const r = await searchRegionsForTemplate(query);
-      if (!alive) return;
-      setLoading(false);
-      if (!r.ok) { setErr(r.error ?? 'Ошибка поиска'); setResults([]); return; }
-      setErr('');
-      setResults(r.regions ?? []);
-      setOpen(true);
-    }, 350);
-    return () => { alive = false; clearTimeout(t); };
-  }, [q]);
-
-  const add = (r: Region) => {
-    setSelected((prev) => (prev.some((x) => x.key === r.key) ? prev : [...prev, r]));
-    setQ('');
-    setResults([]);
-    setOpen(false);
-  };
-  const remove = (key: string) => setSelected((prev) => prev.filter((x) => x.key !== key));
-
-  return (
-    <div>
-      <div className="mb-2 text-[11.5px] text-mute">
-        Исключить регионы <span className="text-dim">(области/штаты — напр. Madeira, Azores)</span>
-      </div>
-      <input type="hidden" name="excludedRegions" value={JSON.stringify(selected)} />
-      {selected.length > 0 ? (
-        <div className="mb-2 flex flex-wrap gap-1.5">
-          {selected.map((r) => (
-            <span key={r.key} className="flex items-center gap-1.5 rounded-full border border-line bg-sub px-2.5 py-1 text-[11px] text-soft">
-              {r.name}
-              {r.cc ? <span className="text-dim">{r.cc}</span> : null}
-              <button type="button" onClick={() => remove(r.key)} className="text-mute transition hover:text-rust">×</button>
-            </span>
-          ))}
-        </div>
-      ) : null}
-      <div className="relative">
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          onFocus={() => results.length > 0 && setOpen(true)}
-          placeholder="Найти регион…"
-          className={inp}
-        />
-        {open && (loading || results.length > 0) ? (
-          <div className="scroll-slim absolute z-20 mt-1 max-h-[200px] w-full overflow-auto rounded-xl border border-line2 bg-panel py-1 shadow-lg">
-            {loading ? <div className="px-3 py-2 text-[11.5px] text-mute">Ищу…</div> : null}
-            {!loading && results.length === 0 ? <div className="px-3 py-2 text-[11.5px] text-mute">Ничего не найдено.</div> : null}
-            {!loading && results.map((r) => {
-              const chosen = selected.some((x) => x.key === r.key);
-              return (
-                <button
-                  key={r.key}
-                  type="button"
-                  onClick={() => add(r)}
-                  disabled={chosen}
-                  className={`flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[12px] transition hover:bg-sub ${chosen ? 'text-dim' : 'text-soft'}`}
-                >
-                  <span className="truncate">{r.name}{chosen ? ' ✓' : ''}</span>
-                  <span className="shrink-0 text-[11px] text-dim">{r.cc}</span>
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
-      </div>
-      {err ? <div className="mt-1 text-[11px] text-rust">{err}</div> : null}
-    </div>
-  );
-}
 
 export type Template = {
   id: string;
@@ -161,7 +56,7 @@ export default function TemplateManager({ templates, query = '' }: { templates: 
                 <span className="ml-2 text-mute">
                   {t.countries || '—'}
                   {t.excluded ? ` (−${t.excluded})` : ''}
-                  {(() => { const n = parseRegions(t.excludedRegions).length; return n ? ` (−${n} рег.)` : ''; })()} · {t.ageMin}-{t.ageMax} · {genderLabel(t.genders)} · ${(t.dailyBudgetCents / 100).toFixed(0)}/д · {t.event} · {placementSummary(t.placements)}
+                  {t.excludedRegions ? ` (−рег.: ${t.excludedRegions})` : ''} · {t.ageMin}-{t.ageMax} · {genderLabel(t.genders)} · ${(t.dailyBudgetCents / 100).toFixed(0)}/д · {t.event} · {placementSummary(t.placements)}
                 </span>
               </span>
               <button type="button" onClick={() => setEdit(t)} className="shrink-0 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute transition hover:border-sage hover:text-sage">
@@ -187,7 +82,10 @@ export default function TemplateManager({ templates, query = '' }: { templates: 
           <input name="countries" defaultValue={edit?.countries ?? ''} placeholder="Страны: US,DE,FR" className={inp} />
           <input name="excluded" defaultValue={edit?.excluded ?? ''} placeholder="Исключить страны: PL,RO (опц.)" className={inp} />
         </div>
-        <RegionExclude initial={parseRegions(edit?.excludedRegions)} />
+        <div>
+          <input name="excludedRegions" defaultValue={edit?.excludedRegions ?? ''} placeholder="Исключить регионы: Madeira, Azores (опц.)" className={inp} />
+          <p className="mt-1 text-[11px] text-dim">Названия регионов через запятую (области/штаты). Ключи FB подставим при заливе; что не найдётся — попадёт в журнал.</p>
+        </div>
         <div className="grid grid-cols-4 gap-2">
           <input name="ageMin" type="number" min={13} max={65} defaultValue={edit?.ageMin ?? 18} placeholder="возр. от" className={inp} />
           <input name="ageMax" type="number" min={13} max={65} defaultValue={edit?.ageMax ?? 65} placeholder="возр. до" className={inp} />

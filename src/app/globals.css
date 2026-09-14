@@ -42,12 +42,8 @@ body {
   color: var(--color-text);
 }
 
-/* Сглаживание оставляем системным (subpixel), а не antialiased: grayscale-режим
-   делал буквы заметно тоньше и бледнее. На обычных экранах текст теперь плотнее
-   и контрастнее — читаемость выше. */
 body {
-  -webkit-font-smoothing: auto;
-  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 /*
