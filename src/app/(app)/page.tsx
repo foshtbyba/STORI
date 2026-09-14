@@ -259,7 +259,9 @@ export default async function HomePage({
             </div>
           ))}
           <div className="flex-1" />
-          <Sub className="mt-2.5 grid grid-cols-[1.3fr_1fr_1fr] gap-x-3 md:grid-cols-[1.5fr_repeat(5,1fr)_1fr] items-center px-4 py-3.5">
+          {/* Без горизонтального паддинга: колонки «Итого» совпадают по вертикали
+              со строками выше (px сдвигал бы их внутрь и ломал столбик). */}
+          <Sub className="mt-2.5 grid grid-cols-[1.3fr_1fr_1fr] gap-x-3 md:grid-cols-[1.5fr_repeat(5,1fr)_1fr] items-center py-3.5">
             <span className="lab text-text">Итого</span>
             <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.revenueCents)}</span>
             <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.spendGrossCents)}</span>
