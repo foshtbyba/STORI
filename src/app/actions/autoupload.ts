@@ -21,6 +21,10 @@ import {
   searchRegions,
   getPageName,
   bindCardToAccount,
+  uploadVideo,
+  waitVideoReady,
+  videoThumbnailUrl,
+  createVideoAdCreative,
   FbError,
   type FbNet,
   type CardInput,
@@ -408,7 +412,10 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
   // Картинки: каждая — отдельное объявление (уникализация креативов).
   const files = form.getAll('images').filter((f): f is File => f instanceof File && f.size > 0);
-  if (files.length === 0) return { ok: false, error: 'Добавь хотя бы одну картинку' };
+  // Видео-метод: вместо картинок — один основной ролик файлом.
+  const videoFile = form.get('video');
+  const video = videoFile instanceof File && videoFile.size > 0 ? videoFile : null;
+  if (!video && files.length === 0) return { ok: false, error: 'Добавь картинку (сторис) или ролик (видео)' };
   if (files.length > 20) return { ok: false, error: 'За раз не больше 20 картинок' };
 
   const genders = tpl.genders === '1' ? [1] : tpl.genders === '2' ? [2] : undefined;
@@ -572,6 +579,51 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     //    выкидываем его и повторяем. Подрезанный список переиспользуем дальше.
     let optOut = [...ENHANCEMENT_OPTOUT_KEYS];
     let created = 0;
+
+    // Видео-метод (этап 1): один основной ролик. Грузим в кабинет, ждём
+    // обработки, берём кадр-превью, собираем видео-креатив и объявление.
+    if (video) {
+      append('Загружаю ролик в кабинет…');
+      const vbuf = Buffer.from(await video.arrayBuffer());
+      const videoId = await uploadVideo(token, ext, vbuf, video.name || 'video.mp4', net);
+      append(`✓ Ролик загружен: ${videoId} — жду обработки…`);
+      await waitVideoReady(token, videoId, net);
+      append('✓ Ролик обработан');
+      const thumb = await videoThumbnailUrl(token, videoId, net);
+      let creativeId = '';
+      for (let a = 0; a < optOut.length + 2; a += 1) {
+        try {
+          creativeId = await createVideoAdCreative(token, ext, {
+            name: campaignName,
+            pageId,
+            videoId,
+            message,
+            link,
+            cta,
+            urlTags: urlTags || undefined,
+            headline: headline || undefined,
+            description: description || undefined,
+            imageUrl: thumb || undefined,
+            optOutKeys: optOut,
+          }, net);
+          break;
+        } catch (e) {
+          const m = (e as Error).message.match(/Param key '([^']+)' in degrees_of_freedom_spec/i);
+          if (m && optOut.includes(m[1])) {
+            optOut = optOut.filter((k) => k !== m[1]);
+            append(`⚠ ключ улучшения «${m[1]}» не поддержан — убрал`);
+            await sleep(300);
+            continue;
+          }
+          throw e;
+        }
+      }
+      if (!creativeId) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
+      await sleep(500);
+      const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
+      created = 1;
+      append(`✓ Видео-объявление: ${adId}`);
+    } else
     for (let idx = 0; idx < files.length; idx += 1) {
       const file = files[idx];
       const buf = Buffer.from(await file.arrayBuffer());

@@ -5,9 +5,9 @@ import { loadCabinetAssets, makePixel, makePage, runAutoupload, type UploadResul
 import TemplateManager, { type Template } from './TemplateManager';
 import TemplatePicker from './TemplatePicker';
 import CardBinder from './CardBinder';
+import VideoUpload from './VideoUpload';
 import LanguagePack, { type Language } from './LanguagePack';
 import { placementSummary } from '@/lib/placements';
-import { localeName } from '@/lib/locales';
 
 type Cabinet = { id: string; name: string; externalId: string; currency: string; group: string };
 type Asset = { pages: { id: string; name: string }[]; pixels: { id: string; name: string }[] };
@@ -443,28 +443,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
       ) : method === 'languages' ? (
         <LanguagePack languages={languages} />
       ) : method === 'video' ? (
-        <div className="rounded-[16px] border border-line bg-panel/40 px-4 py-6 text-[12.5px] text-mute">
-          <div className="text-[13px] font-semibold text-soft">Видео + языки — на подключении</div>
-          <p className="mt-2 leading-relaxed">
-            Основной ролик грузишь файлом под гео-язык, а фиксированные доп. языки берутся из твоего
-            пака ниже — у каждого своё видео и тексты, задаются один раз.
-          </p>
-          {languages.length ? (
-            <div className="mt-3">
-              <div className="text-[11.5px] text-dim">Твои языки в паке ({languages.length}):</div>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                {languages.map((l) => (
-                  <span key={l.id} className="rounded-full border border-line bg-sub px-2.5 py-1 text-[11.5px] text-soft">
-                    {localeName(l.locale)}{l.hasVideo || l.videoUrl ? '' : ' · без видео'}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <p className="mt-3 text-amber">Сначала заполни пак языков в разделе «Мои языки (для видео)» ниже.</p>
-          )}
-          <p className="mt-3 text-[11.5px] text-dim">Само создание видео-объявления с языками подключаю следующим шагом (нужен тестовый прогон на паузе).</p>
-        </div>
+        <VideoUpload cabinets={cabinets} templates={templates} />
       ) : (
       <>
       {/* КОНСТРУКТОР */}

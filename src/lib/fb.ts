@@ -1,6 +1,7 @@
 import 'server-only';
 
 import axios from 'axios';
+import FormDataNode from 'form-data';
 
 import { proxyAgent } from './proxy-agent';
 import { cookieHeaderOf, readCookieBlob } from './fb-engine';
@@ -1300,6 +1301,119 @@ export async function uploadAdImage(token: string, externalId: string, bytes: Bu
   const first = Object.values(images)[0];
   if (!first?.hash) throw new FbError('Картинка загружена, но FB не вернул hash');
   return first.hash;
+}
+
+/**
+ * Загрузка ролика в кабинет → video_id. Видео FB принимает только multipart-ом
+ * (поле `source`), base64 в body не годится (это для картинок). Тело большое,
+ * поэтому лимиты axios снимаем и таймаут увеличиваем. Возвращаем id видео;
+ * дальше его нужно дождаться в обработке (waitVideoReady).
+ */
+export async function uploadVideo(token: string, externalId: string, bytes: Buffer, filename: string, net: FbNet = {}): Promise<string> {
+  const form = new FormDataNode();
+  form.append('access_token', token);
+  form.append('source', bytes, { filename: filename || 'video.mp4' });
+
+  const url = `${API}/${externalId}/advideos`;
+  const headers: Record<string, string> = { ...form.getHeaders() };
+  if (net.ua) headers['User-Agent'] = net.ua;
+  if (net.cookie) headers['Cookie'] = net.cookie;
+  const agent = net.proxyUrl ? proxyAgent(net.proxyUrl) : undefined;
+
+  let status: number;
+  let text: string;
+  try {
+    const res = await axios.request({
+      method: 'POST', url, headers, data: form,
+      ...(agent ? { httpAgent: agent, httpsAgent: agent } : {}),
+      maxContentLength: Infinity, maxBodyLength: Infinity, timeout: 180000,
+      responseType: 'text', transformResponse: [(d) => d], validateStatus: () => true,
+    });
+    status = res.status; text = String(res.data ?? '');
+  } catch (e) {
+    throw new FbError(`Не загрузили видео в FB: ${(e as Error).message}`);
+  }
+  let body: unknown;
+  try { body = JSON.parse(text); } catch { throw new FbError(`FB ответил не по-json (${status}) на загрузку видео`); }
+  const err = (body as { error?: { message?: string; code?: number } }).error;
+  if (err) throw new FbError(fbErrorMessage(err, status));
+  const id = (body as { id?: string }).id;
+  if (!id) throw new FbError('Видео загружено, но FB не вернул id');
+  return id;
+}
+
+/**
+ * Ждём, пока FB обработает ролик (video_status = ready). Без этого креатив с
+ * video_id падает. Опрашиваем со сдержанным интервалом; по таймауту — понятная
+ * ошибка (можно повторить залив позже, видео уже загружено).
+ */
+export async function waitVideoReady(token: string, videoId: string, net: FbNet = {}, opts: { tries?: number; intervalMs?: number } = {}): Promise<void> {
+  const tries = opts.tries ?? 40;
+  const intervalMs = opts.intervalMs ?? 4000;
+  for (let i = 0; i < tries; i += 1) {
+    const body = await call(`/${videoId}`, token, { fields: 'status' }, net);
+    const st = ((body as { status?: { video_status?: string } }).status) ?? {};
+    if (st.video_status === 'ready') return;
+    if (st.video_status === 'error') throw new FbError('FB не смог обработать видео (ошибка кодирования)');
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+  throw new FbError('Видео не обработалось вовремя (таймаут). Ролик уже загружен — повтори залив чуть позже.');
+}
+
+/** Кадр-превью обработанного ролика (video_data требует image_url/hash). Берём
+ *  предпочтительный (is_preferred) или первый доступный. Пусто — не нашли. */
+export async function videoThumbnailUrl(token: string, videoId: string, net: FbNet = {}): Promise<string> {
+  try {
+    const body = await call(`/${videoId}/thumbnails`, token, { fields: 'uri,is_preferred' }, net);
+    const data = ((body as { data?: { uri?: string; is_preferred?: boolean }[] }).data) ?? [];
+    const preferred = data.find((t) => t.is_preferred) ?? data[0];
+    return preferred?.uri ?? '';
+  } catch {
+    return '';
+  }
+}
+
+export type CreateVideoCreativeInput = {
+  name: string;
+  pageId: string;
+  videoId: string;
+  message: string; // основной текст
+  link: string;
+  cta?: string;
+  urlTags?: string;
+  headline?: string;
+  description?: string;
+  imageUrl?: string; // кадр-превью ролика
+  optOutKeys?: string[];
+};
+
+/** Видео-креатив (object_story_spec.video_data). Аналог createAdCreative, но с
+ *  роликом вместо картинки. Превью обязательно — иначе FB отбивает креатив. */
+export async function createVideoAdCreative(token: string, externalId: string, i: CreateVideoCreativeInput, net: FbNet = {}) {
+  const videoData: Record<string, unknown> = {
+    video_id: i.videoId,
+    message: i.message,
+    call_to_action: { type: i.cta || 'LEARN_MORE', value: { link: i.link } },
+  };
+  if (i.imageUrl) videoData.image_url = i.imageUrl;
+  if (i.headline) videoData.title = i.headline;
+  if (i.description) videoData.link_description = i.description;
+  const objectStorySpec = { page_id: i.pageId, video_data: videoData };
+  const params: Record<string, string> = {
+    name: i.name,
+    object_story_spec: JSON.stringify(objectStorySpec),
+  };
+  const optOut = i.optOutKeys ?? ['standard_enhancements'];
+  if (optOut.length) {
+    const spec: Record<string, { enroll_status: 'OPT_OUT' }> = {};
+    for (const k of optOut) spec[k] = { enroll_status: 'OPT_OUT' };
+    params.degrees_of_freedom_spec = JSON.stringify({ creative_features_spec: spec });
+  }
+  if (i.urlTags && i.urlTags.trim()) params.url_tags = i.urlTags.trim();
+  const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST', CREATE_API_VERSION);
+  const id = body.id as string | undefined;
+  if (!id) throw new FbError('Видео-креатив не создан: нет id');
+  return id;
 }
 
 /**
