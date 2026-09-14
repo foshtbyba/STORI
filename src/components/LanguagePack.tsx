@@ -3,6 +3,7 @@
 import { useState, useActionState } from 'react';
 import { saveLanguage, deleteLanguage, type TemplateState } from '@/app/actions/autoupload';
 import { LOCALES, localeName } from '@/lib/locales';
+import ComboSelect from './ComboSelect';
 
 export type Language = {
   id: string;
@@ -58,10 +59,15 @@ export default function LanguagePack({ languages }: { languages: Language[] }) {
       <form key={key} action={save} className="mt-3 flex flex-col gap-2 border-t border-line pt-3">
         <div className="text-[12px] font-semibold text-soft">{edit ? `Правка: ${localeName(edit.locale)}` : 'Новый язык'}</div>
         {edit ? <input type="hidden" name="id" value={edit.id} /> : null}
-        <select name="locale" defaultValue={edit?.locale ?? ''} className={`${inp} max-w-[240px]`}>
-          <option value="">— язык —</option>
-          {LOCALES.map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
-        </select>
+        <ComboSelect
+          name="locale"
+          options={LOCALES.map((l) => ({ id: l.code, name: l.name }))}
+          defaultValue={edit?.locale ?? ''}
+          placeholder="— язык —"
+          searchPlaceholder="Найди язык…"
+          allowClear={false}
+          className="w-[240px] max-w-full"
+        />
         <div>
           <div className="mb-1 text-[11px] text-mute">Видео этого языка — файлом с компа</div>
           <input type="file" name="video" accept="video/*" className="block w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
