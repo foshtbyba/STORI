@@ -1490,6 +1490,22 @@ export const ENHANCEMENT_OPTOUT_KEYS = [
   'multi_advertiser',
 ];
 
+/**
+ * Видео-специфичные авто-улучшения (в UI: «Video touch-ups», «Add video effects»).
+ * Для картинок эти ключи не подходят, поэтому держим отдельно и добавляем только
+ * к видео-креативу. Часть имён — кандидаты; неверные самолечение отсеет.
+ */
+export const VIDEO_ENHANCEMENT_OPTOUT_KEYS = [
+  'video_auto_crop',
+  'video_touchups',
+  'video_touch_ups',
+  'video_uncrop',
+  'add_video_effects',
+  'video_effects',
+  'video_filtering',
+  'video_highlight',
+];
+
 export type CreateCreativeInput = {
   name: string;
   pageId: string;

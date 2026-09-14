@@ -25,6 +25,7 @@ import {
   waitVideoReady,
   videoThumbnailUrl,
   createVideoAdCreative,
+  VIDEO_ENHANCEMENT_OPTOUT_KEYS,
   FbError,
   type FbNet,
   type CardInput,
@@ -583,6 +584,9 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // Видео-метод (этап 1): один основной ролик. Грузим в кабинет, ждём
     // обработки, берём кадр-превью, собираем видео-креатив и объявление.
     if (video) {
+      // К видео-креативу добавляем видео-специфичные ключи авто-улучшений
+      // (Video touch-ups / Add video effects). Неверные самолечение отсеет.
+      optOut = [...optOut, ...VIDEO_ENHANCEMENT_OPTOUT_KEYS];
       append('Загружаю ролик в кабинет…');
       const vbuf = Buffer.from(await video.arrayBuffer());
       const videoId = await uploadVideo(token, ext, vbuf, video.name || 'video.mp4', net);
