@@ -156,6 +156,17 @@ input[type='number'] {
   appearance: textfield;
 }
 
+/* Иконка выбора у date/datetime-полей — приглушаем и делаем кликабельной, чтобы
+   не выбивалась ярким системным пятном. */
+::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
 /* Единый шеврон у всех select: прячем системную стрелку и рисуем свою — не
    прижата к краю, одного вида везде. Место справа под неё резервируем. */
 select {
