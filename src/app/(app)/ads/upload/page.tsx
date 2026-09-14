@@ -5,6 +5,7 @@ import { Panel, PanelHead, Empty } from '@/components/ui';
 import { IconTag, IconRocket } from '@/components/icons';
 import AutouploadForm from '@/components/AutouploadForm';
 import TemplateManager from '@/components/TemplateManager';
+import LanguagePack from '@/components/LanguagePack';
 import Collapsible from '@/components/Collapsible';
 
 /**
@@ -31,6 +32,21 @@ export default async function AdsUploadPage() {
     // Личные шаблоны — только свои.
     prisma.uploadTemplate.findMany({ where: { archived: false, userId: user.id }, orderBy: { name: 'asc' } }),
   ]);
+
+  // Личный пак языков для видео-залива.
+  const languagesRaw = await prisma.uploadLanguage.findMany({
+    where: { archived: false, userId: user.id },
+    orderBy: { sort: 'asc' },
+  });
+  const languages = languagesRaw.map((l) => ({
+    id: l.id,
+    locale: l.locale,
+    videoUrl: l.videoUrl,
+    headline: l.headline,
+    primaryText: l.primaryText,
+    description: l.description,
+    link: l.link,
+  }));
 
   const cabinets = tokens.flatMap((t) =>
     t.accounts.map((a) => ({
@@ -71,7 +87,7 @@ export default async function AdsUploadPage() {
           <div className="mt-4"><Empty>Заведи свой первый шаблон гео ниже — без него заливать не из чего.</Empty></div>
         ) : (
           <div className="mt-4">
-            <AutouploadForm cabinets={cabinets} templates={templates} />
+            <AutouploadForm cabinets={cabinets} templates={templates} languages={languages} />
           </div>
         )}
       </Panel>
@@ -86,6 +102,18 @@ export default async function AdsUploadPage() {
       >
         <div className="mt-1">
           <TemplateManager templates={templates} />
+        </div>
+      </Collapsible>
+
+      {/* Личный пак языков — для метода «Видео + языки». */}
+      <Collapsible
+        icon={<IconTag color="#d2a06a" />}
+        tint="bg-amber-t"
+        title="Мои языки (для видео)"
+        summary={<span className="text-[12.5px] text-mute">{languages.length} шт. · добавляются к каждому видео-заливу</span>}
+      >
+        <div className="mt-1">
+          <LanguagePack languages={languages} />
         </div>
       </Collapsible>
     </div>

@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { loadCabinetAssets, makePixel, makePage, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
 import type { Template } from './TemplateManager';
+import type { Language } from './LanguagePack';
 import { placementSummary } from '@/lib/placements';
+import { localeName } from '@/lib/locales';
 
 type Cabinet = { id: string; name: string; externalId: string; currency: string; group: string };
 type Asset = { pages: { id: string; name: string }[]; pixels: { id: string; name: string }[] };
@@ -25,6 +27,7 @@ type Draft = {
   headline: string;
   description: string;
   urlTags: string;
+  manualPixel: string;
   mode: Mode;
   startAt: string; // ISO или ''
   startLocal: string; // для префилла при правке
@@ -34,7 +37,7 @@ type Draft = {
 const inp = 'h-9 w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage';
 const box = 'rounded-[16px] border border-line bg-panel/40 px-4 py-4 sm:px-5';
 const stepBadge = 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-t text-[12px] font-semibold text-sage';
-const DEFAULT_TAGS = 'ad_id={{ad.id}}&fbpx={{pixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
+const DEFAULT_TAGS = 'ad_id={{ad.id}}&fbpx={{pixel}}&fb_pixel={{fbpixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
 const uid = () => Math.random().toString(36).slice(2, 9);
 
 const modeLabel = (m: Mode) => (m === 'active' ? 'в актив' : m === 'scheduled' ? 'по расписанию' : 'на паузе');
@@ -62,7 +65,7 @@ function friendlyReason(err?: string): string {
  * подготовить хоть десять разных заливов и запустить всё одной кнопкой.
  * Заливаем по кабинетам по очереди, чтобы не ловить троттлинг Меты.
  */
-export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabinet[]; templates: Template[] }) {
+export default function AutouploadForm({ cabinets, templates, languages = [] }: { cabinets: Cabinet[]; templates: Template[]; languages?: Language[] }) {
   const [pending, start] = useTransition();
 
   // Овнеров сортируем так, чтобы SKO был первым, остальные по алфавиту.
@@ -88,6 +91,8 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
   const [headline, setHeadline] = useState('');
   const [description, setDescription] = useState('');
   const [urlTags, setUrlTags] = useState(DEFAULT_TAGS);
+  // fb_pixel вводится вручную каждый залив (из другого места) — не запоминаем.
+  const [manualPixel, setManualPixel] = useState('');
   const [mode, setMode] = useState<Mode>('paused');
   const [startLocal, setStartLocal] = useState('');
   const [files, setFiles] = useState<File[]>([]);
@@ -241,6 +246,9 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
       if (!pageByAcc[c.id]) return `Выбери страницу: ${c.name || c.externalId}`;
       if (!pixelByAcc[c.id]) return `Выбери/создай пиксель: ${c.name || c.externalId}`;
     }
+    if ((urlTags.includes('{{fbpixel}}') || urlTags.includes('{{fb_pixel}}')) && !manualPixel.trim()) {
+      return 'Впиши номер fb_pixel (метка fb_pixel в ссылке)';
+    }
     if (mode === 'scheduled') {
       const d = startLocal ? new Date(startLocal) : null;
       if (!d || Number.isNaN(d.getTime())) return 'Укажи дату и время планового старта';
@@ -260,7 +268,7 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
       owner, cabinetIds: selectedList.map((c) => c.id), pick,
       templateId, campaignName: campaignName.trim(), link: link.trim(), budget: budget.trim(),
       message: message.trim(), headline: headline.trim(), description: description.trim(),
-      urlTags: urlTags.trim(), mode, startAt, startLocal, files,
+      urlTags: urlTags.trim(), manualPixel: manualPixel.trim(), mode, startAt, startLocal, files,
     };
     setQueue((q) => (editingId ? q.map((d) => (d.id === editingId ? draft : d)) : [...q, draft]));
     setMsg({ ok: true, text: editingId ? 'Черновик обновлён.' : 'Залив добавлен в очередь. Ссылку/текст/заголовок очистил — вставляй новые.' });
@@ -280,7 +288,7 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
     setPageByAcc((p) => ({ ...p, ...Object.fromEntries(d.cabinetIds.map((id) => [id, d.pick[id]?.pageId ?? ''])) }));
     setPixelByAcc((p) => ({ ...p, ...Object.fromEntries(d.cabinetIds.map((id) => [id, d.pick[id]?.pixelId ?? ''])) }));
     setTemplateId(d.templateId); setCampaignName(d.campaignName); setLink(d.link); setBudget(d.budget);
-    setMessage(d.message); setHeadline(d.headline); setDescription(d.description); setUrlTags(d.urlTags);
+    setMessage(d.message); setHeadline(d.headline); setDescription(d.description); setUrlTags(d.urlTags); setManualPixel(d.manualPixel ?? '');
     setMode(d.mode); setStartLocal(d.startLocal); setFiles(d.files); setEditingId(d.id);
     autoName.current = ''; // имя из черновика — руками, авто-подмена его не трогает
     setMsg(null);
@@ -315,6 +323,7 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
           fd.set('headline', d.headline);
           fd.set('description', d.description);
           fd.set('urlTags', d.urlTags);
+          fd.set('manualPixel', d.manualPixel ?? '');
           fd.set('mode', d.mode);
           if (d.startAt) fd.set('startAt', d.startAt);
           for (const f of d.files) fd.append('images', f);
@@ -350,8 +359,27 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
       </div>
 
       {method === 'video' ? (
-        <div className="rounded-[16px] border border-line bg-panel/40 px-4 py-10 text-center text-[12.5px] text-mute">
-          Видео-метод с добавлением языков — скоро. Пока доступна сторис/статика.
+        <div className="rounded-[16px] border border-line bg-panel/40 px-4 py-6 text-[12.5px] text-mute">
+          <div className="text-[13px] font-semibold text-soft">Видео + языки — на подключении</div>
+          <p className="mt-2 leading-relaxed">
+            Основной ролик грузишь файлом под гео-язык, а фиксированные доп. языки берутся из твоего
+            пака ниже — у каждого своё видео и тексты, задаются один раз.
+          </p>
+          {languages.length ? (
+            <div className="mt-3">
+              <div className="text-[11.5px] text-dim">Твои языки в паке ({languages.length}):</div>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {languages.map((l) => (
+                  <span key={l.id} className="rounded-full border border-line bg-sub px-2.5 py-1 text-[11.5px] text-soft">
+                    {localeName(l.locale)}{l.videoUrl ? '' : ' · без видео'}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="mt-3 text-amber">Сначала заполни пак языков в разделе «Мои языки (для видео)» ниже.</p>
+          )}
+          <p className="mt-3 text-[11.5px] text-dim">Само создание видео-объявления с языками подключаю следующим шагом (нужен тестовый прогон на паузе).</p>
         </div>
       ) : (
       <>
@@ -469,9 +497,18 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
               <input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Заголовок (опц.)" className={inp} />
               <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Описание под ссылкой (опц.)" className={inp} />
             </div>
+            {/* Ручной fb_pixel — вводится каждый залив (легко забыть), поэтому
+                на видном месте и не запоминается. */}
+            {urlTags.includes('{{fbpixel}}') || urlTags.includes('{{fb_pixel}}') ? (
+              <div className="rounded-xl border border-amber/40 bg-amber-t/40 px-3 py-2">
+                <div className="mb-1 text-[11.5px] font-semibold text-amber">fb_pixel — впиши вручную</div>
+                <input value={manualPixel} onChange={(e) => setManualPixel(e.target.value)} inputMode="numeric" placeholder="напр. 5645645435" className={inp} />
+                <p className="mt-1 text-[11px] text-dim">Подставится в метку <code className="text-mute">fb_pixel=…</code>. Вводишь при каждом заливе — не запоминаем.</p>
+              </div>
+            ) : null}
             <div>
               <input value={urlTags} onChange={(e) => setUrlTags(e.target.value)} className={inp} />
-              <p className="mt-1 text-[11px] text-dim">Метки к ссылке. <code className="text-mute">{'{{pixel}}'}</code> заменится на пиксель кабинета; <code className="text-mute">{'{{ad.id}}'}</code>, <code className="text-mute">{'{{campaign.id}}'}</code>, <code className="text-mute">{'{{account.id}}'}</code> подставит ФБ.</p>
+              <p className="mt-1 text-[11px] text-dim">Метки к ссылке. <code className="text-mute">{'{{pixel}}'}</code> → пиксель кабинета, <code className="text-mute">{'{{fbpixel}}'}</code> → номер fb_pixel выше; <code className="text-mute">{'{{ad.id}}'}</code>, <code className="text-mute">{'{{campaign.id}}'}</code>, <code className="text-mute">{'{{account.id}}'}</code> подставит ФБ.</p>
             </div>
           </div>
         </div>

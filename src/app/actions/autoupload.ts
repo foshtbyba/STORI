@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { validPlacementKeys, placementSummary, stripPlacementValue } from '@/lib/placements';
+import { isLocale } from '@/lib/locales';
 import {
   fbAccess,
   listPages,
@@ -109,6 +110,47 @@ export async function deleteTemplate(_prev: TemplateState, form: FormData): Prom
   const id = String(form.get('id') ?? '').trim();
   if (!id) return { ok: false, error: 'Нет id' };
   await prisma.uploadTemplate.updateMany({ where: { id, userId: user.id }, data: { archived: true } });
+  revalidatePath('/ads/upload');
+  return { ok: true };
+}
+
+// ── Языки для видео-залива (личные, по пользователю) ───────────────────────
+
+export async function saveLanguage(_prev: TemplateState, form: FormData): Promise<TemplateState> {
+  const user = await requireUser();
+  const id = String(form.get('id') ?? '').trim();
+  const locale = String(form.get('locale') ?? '').trim();
+  if (!isLocale(locale)) return { ok: false, error: 'Выбери язык из списка' };
+  const videoUrl = String(form.get('videoUrl') ?? '').trim();
+  if (videoUrl && !/^https?:\/\//i.test(videoUrl)) return { ok: false, error: 'Ссылка на видео должна начинаться с http(s)://' };
+  const data = {
+    locale,
+    videoUrl,
+    headline: String(form.get('headline') ?? '').trim(),
+    primaryText: String(form.get('primaryText') ?? '').trim(),
+    description: String(form.get('description') ?? '').trim(),
+    link: String(form.get('link') ?? '').trim(),
+  };
+  try {
+    if (id) {
+      const r = await prisma.uploadLanguage.updateMany({ where: { id, userId: user.id }, data });
+      if (r.count === 0) return { ok: false, error: 'Это не твой язык' };
+    } else {
+      const count = await prisma.uploadLanguage.count({ where: { userId: user.id, archived: false } });
+      await prisma.uploadLanguage.create({ data: { ...data, userId: user.id, sort: count } });
+    }
+  } catch {
+    return { ok: false, error: 'Не удалось сохранить язык' };
+  }
+  revalidatePath('/ads/upload');
+  return { ok: true };
+}
+
+export async function deleteLanguage(_prev: TemplateState, form: FormData): Promise<TemplateState> {
+  const user = await requireUser();
+  const id = String(form.get('id') ?? '').trim();
+  if (!id) return { ok: false, error: 'Нет id' };
+  await prisma.uploadLanguage.updateMany({ where: { id, userId: user.id }, data: { archived: true } });
   revalidatePath('/ads/upload');
   return { ok: true };
 }
@@ -233,11 +275,15 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   // Метки к ссылке. Плейсхолдер пикселя подставляем сами (у ФБ нет макроса для
   // pixel_id): {{pixel}} / ПИКСЕЛЬ / PIXEL_ID → id выбранного пикселя. Остальные
   // ({{ad.id}}, {{campaign.id}}, {{account.id}}) ФБ подставит сам при откруте.
+  // Ручной номер fb_pixel — баер вводит его при заливе (из другого места),
+  // подставляем в плейсхолдер {{fbpixel}}.
+  const manualPixel = String(form.get('manualPixel') ?? '').trim();
   const urlTags = String(form.get('urlTags') ?? '')
     .trim()
     .replace(/\{\{\s*pixel(_id)?\s*\}\}/gi, pixelId)
     .replace(/ПИКСЕЛЬ/g, pixelId)
-    .replace(/\bPIXEL_ID\b/gi, pixelId);
+    .replace(/\bPIXEL_ID\b/gi, pixelId)
+    .replace(/\{\{\s*fb_?pixel\s*\}\}/gi, manualPixel);
 
   // Бюджет: из формы (доллары) либо из шаблона.
   const budgetRaw = String(form.get('budget') ?? '').replace(',', '.');

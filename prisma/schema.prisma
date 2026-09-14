@@ -793,6 +793,31 @@ model UploadTemplate {
   @@index([userId])
 }
 
+/// Фиксированный доп. язык для видео-автозалива. У каждого пользователя свой
+/// набор (3-4 языка), закреплён за ним и не меняется от залива к заливу: своё
+/// видео (ссылкой, чтобы переиспользовать на всех кабах) и свои тексты. При
+/// заливе видео эти языки добавляются к основному языку гео как в «Manage
+/// languages» Меты.
+model UploadLanguage {
+  id          String   @id @default(cuid())
+  userId      String   @default("")
+  /// Локаль Меты: 'af','sq','ar','ro'… (см. lib/locales).
+  locale      String
+  /// Прямая ссылка на видеофайл этого языка (Meta забирает по file_url).
+  videoUrl    String   @default("")
+  headline    String   @default("")
+  primaryText String   @default("")
+  description String   @default("")
+  /// Ссылка лендинга для этого языка (пусто — берём основную).
+  link        String   @default("")
+  sort        Int      @default(0)
+  archived    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
 /// Запись о запуске автозалива — для истории и разбора, что именно ушло в ФБ.
 /// Пишется по факту оркестрации: сколько объявлений создано, в каком режиме,
 /// и лог по шагам (текстом). Денег не двигает — это просто журнал.
