@@ -5,7 +5,8 @@ import { loadCabinetAssets, makePixel, makePage, runAutoupload, type UploadResul
 import TemplatePicker from './TemplatePicker';
 import type { Template } from './TemplateManager';
 import type { Language } from './LanguagePack';
-import { localeName } from '@/lib/locales';
+import ComboSelect from './ComboSelect';
+import { LOCALES, localeName } from '@/lib/locales';
 
 type Cabinet = { id: string; name: string; externalId: string; currency: string; group: string };
 type Asset = { pages: { id: string; name: string }[]; pixels: { id: string; name: string }[] };
@@ -50,6 +51,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
   const [mode, setMode] = useState<Mode>('paused');
   const [startLocal, setStartLocal] = useState('');
   const [withLanguages, setWithLanguages] = useState(languages.length > 0);
+  const [mainLocale, setMainLocale] = useState('');
   const [video, setVideo] = useState<File | null>(null);
   const [result, setResult] = useState<(UploadResult & { label: string }) | null>(null);
   const [msg, setMsg] = useState('');
@@ -124,6 +126,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
       fd.set('manualPixel', fbPixel.trim());
       fd.set('mode', mode);
       if (withLanguages) fd.set('withLanguages', '1');
+      if (mainLocale) fd.set('mainLocale', mainLocale);
       if (mode === 'midnight') fd.set('startAt', nextMoscowMidnight());
       if (mode === 'scheduled' && startLocal) fd.set('startAt', new Date(startLocal).toISOString());
       fd.set('video', video);
@@ -207,6 +210,17 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
             <div className="lab mb-1">Ролик (видеофайл)</div>
             <input ref={fileRef} type="file" accept="video/*" onChange={(e) => setVideo(e.target.files?.[0] ?? null)} className="block w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
             {video ? <p className="mt-1 text-[11px] text-sage">{video.name} · {(video.size / 1024 / 1024).toFixed(1)} МБ</p> : null}
+          </div>
+          <div>
+            <div className="lab mb-1">Язык основного ролика <span className="text-dim">(опц. — привяжет основной к своему языку)</span></div>
+            <ComboSelect
+              options={LOCALES.map((l) => ({ id: l.code, name: l.name }))}
+              value={mainLocale}
+              onChange={setMainLocale}
+              placeholder="— язык основного —"
+              searchPlaceholder="Найди язык…"
+              className="w-[240px] max-w-full"
+            />
           </div>
           <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Текст объявления" rows={3} className="w-full rounded-xl border border-line2 bg-sub px-3 py-2 text-[12.5px] text-soft outline-none focus:border-sage" />
           <div className="grid gap-2 sm:grid-cols-2">

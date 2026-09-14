@@ -1417,6 +1417,9 @@ export type CreateMultiLangVideoInput = {
   optOutKeys?: string[];
   // Основной (гео) вариант — дефолтный фолбэк.
   main: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string };
+  /** locale ID языка основного ролика — если задан, основной привязывается и к
+   *  своему языку (правило), и остаётся дефолтом. 0/undefined — только дефолт. */
+  mainLocaleId?: number;
   langs: LangVariant[];
 };
 
@@ -1463,6 +1466,20 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
     if (l.description) rule.description_label = { name: `desc_l${idx}` };
     rules.push(rule);
   });
+  // Основной ролик под своим языком (если задан) — явное правило по его locale,
+  // помимо дефолта.
+  if (i.mainLocaleId) {
+    const mr: Record<string, unknown> = {
+      customization_spec: { locales: [i.mainLocaleId] },
+      video_label: { name: 'vid_def' },
+      body_label: { name: 'body_def' },
+      link_url_label: { name: 'link_def' },
+      priority: i.langs.length + 1,
+    };
+    if (i.main.headline) mr.title_label = { name: 'title_def' };
+    if (i.main.description) mr.description_label = { name: 'desc_def' };
+    rules.push(mr);
+  }
   // Дефолтное правило — основной вариант для всех прочих языков.
   const defRule: Record<string, unknown> = {
     is_default: true,

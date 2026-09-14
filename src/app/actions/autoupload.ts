@@ -422,6 +422,8 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   const video = videoFile instanceof File && videoFile.size > 0 ? videoFile : null;
   // Видео + языки: добавить доп-языки из личного пака в одно объявление.
   const withLanguages = String(form.get('withLanguages') ?? '') === '1';
+  // Язык основного ролика — привязываем основной и к своему языку (не только дефолт).
+  const mainLocale = String(form.get('mainLocale') ?? '').trim();
   if (!video && files.length === 0) return { ok: false, error: 'Добавь картинку (сторис) или ролик (видео)' };
   if (files.length > 20) return { ok: false, error: 'За раз не больше 20 картинок' };
 
@@ -659,6 +661,9 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
       let creativeId = '';
       if (langVariants.length) {
+        // Язык основного ролика — резолвим его locale ID (если задан).
+        const mainLocaleId = mainLocale ? await resolveLocaleId(token, localeName(mainLocale), net) : 0;
+        if (mainLocale && mainLocaleId) append(`Основной ролик — язык ${mainLocale} (locale ${mainLocaleId})`);
         creativeId = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
           name: campaignName,
           pageId,
@@ -666,6 +671,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           urlTags: urlTags || undefined,
           optOutKeys: optOut,
           main: { videoId, thumb: thumb || undefined, message, headline: headline || undefined, description: description || undefined, link },
+          mainLocaleId: mainLocaleId || undefined,
           langs: langVariants,
         }, net));
         if (!creativeId) throw new FbError('Мультиязычный креатив не создан (после подрезки ключей улучшений)');
