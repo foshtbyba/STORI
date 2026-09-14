@@ -7,7 +7,7 @@ import type { Template } from './TemplateManager';
 
 type Cabinet = { id: string; name: string; externalId: string; currency: string; group: string };
 type Asset = { pages: { id: string; name: string }[]; pixels: { id: string; name: string }[] };
-type Mode = 'paused' | 'active' | 'midnight';
+type Mode = 'paused' | 'active' | 'midnight' | 'scheduled';
 
 const inp = 'h-9 w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage';
 const box = 'rounded-[16px] border border-line bg-panel/40 px-4 py-4 sm:px-5';
@@ -46,6 +46,7 @@ export default function VideoUpload({ cabinets, templates }: { cabinets: Cabinet
   const [description, setDescription] = useState('');
   const [fbPixel, setFbPixel] = useState('');
   const [mode, setMode] = useState<Mode>('paused');
+  const [startLocal, setStartLocal] = useState('');
   const [video, setVideo] = useState<File | null>(null);
   const [result, setResult] = useState<(UploadResult & { label: string }) | null>(null);
   const [msg, setMsg] = useState('');
@@ -99,6 +100,11 @@ export default function VideoUpload({ cabinets, templates }: { cabinets: Cabinet
     if (!/^https?:\/\//i.test(link.trim())) return setMsg('Ссылка должна начинаться с http(s)://');
     if (!message.trim()) return setMsg('Текст объявления пустой');
     if (!fbPixel.trim()) return setMsg('Впиши номер fb_pixel');
+    if (mode === 'scheduled') {
+      const d = startLocal ? new Date(startLocal) : null;
+      if (!d || Number.isNaN(d.getTime())) return setMsg('Укажи дату и время планового старта');
+      if (d.getTime() < Date.now() + 60_000) return setMsg('Время старта должно быть в будущем');
+    }
     start(async () => {
       const fd = new FormData();
       fd.set('accountId', cabId);
@@ -115,6 +121,7 @@ export default function VideoUpload({ cabinets, templates }: { cabinets: Cabinet
       fd.set('manualPixel', fbPixel.trim());
       fd.set('mode', mode);
       if (mode === 'midnight') fd.set('startAt', nextMoscowMidnight());
+      if (mode === 'scheduled' && startLocal) fd.set('startAt', new Date(startLocal).toISOString());
       fd.set('video', video);
       const r = await runAutoupload(fd);
       setResult({ ...r, label: `${cab.name || cab.externalId} · ${campaignName || 'без имени'}` });
@@ -178,7 +185,12 @@ export default function VideoUpload({ cabinets, templates }: { cabinets: Cabinet
       <div className={box}>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[13px] font-semibold">Шаблон и объявление</span>
-          <TemplatePicker templates={templates} value={templateId} onPick={setTemplateId} />
+          <TemplatePicker templates={templates} value={templateId} onPick={(id) => {
+            setTemplateId(id);
+            const t = templates.find((x) => x.id === id);
+            // Бюджет из шаблона — только если поле пустое (руками введённое не трогаем).
+            if (t && !budget.trim()) setBudget((t.dailyBudgetCents / 100).toString());
+          }} />
           {tpl ? <span className="rounded-full border border-line bg-sub px-3 py-1 text-[11.5px] text-mute">{tpl.countries} · {tpl.event}</span> : null}
         </div>
         <div className="mt-3 grid gap-2">
@@ -206,11 +218,14 @@ export default function VideoUpload({ cabinets, templates }: { cabinets: Cabinet
 
       {/* Режим + запуск */}
       <div className="flex flex-wrap items-center gap-2">
-        {(['paused', 'active', 'midnight'] as const).map((m) => (
+        {(['paused', 'active', 'midnight', 'scheduled'] as const).map((m) => (
           <button key={m} type="button" onClick={() => setMode(m)} className={`rounded-full border px-3.5 py-1.5 text-[12px] transition ${mode === m ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-soft hover:border-sage'}`}>
-            {m === 'paused' ? 'На паузе' : m === 'active' ? 'Сразу в актив' : 'С 00:00 МСК'}
+            {m === 'paused' ? 'На паузе' : m === 'active' ? 'Сразу в актив' : m === 'midnight' ? 'С 00:00 МСК' : 'По расписанию'}
           </button>
         ))}
+        {mode === 'scheduled' ? (
+          <input value={startLocal} onChange={(e) => setStartLocal(e.target.value)} type="datetime-local" className="h-9 w-[210px] rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage" />
+        ) : null}
         <button type="button" onClick={fire} disabled={pending} className={`ml-auto rounded-full border border-sage bg-sage-t px-6 py-2.5 text-[13px] font-semibold text-sage transition ${pending ? 'opacity-50' : 'hover:brightness-110'}`}>
           {pending ? 'Заливаю…' : 'Залить видео'}
         </button>
