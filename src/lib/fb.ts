@@ -1480,14 +1480,15 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
     if (i.main.description) mr.description_label = { name: 'desc_def' };
     rules.push(mr);
   }
-  // Дефолтное правило: ПУСТОЙ customization_spec и САМЫЙ НИЗКИЙ priority (0) —
-  // ФБ требует именно так (код 100/1885923). Это фолбэк для всех прочих языков.
+  // Дефолтное правило: ПУСТОЙ customization_spec и «самый низкий приоритет» —
+  // у ФБ это НАИБОЛЬШИЙ номер priority (правило-фолбэк оценивается последним),
+  // иначе код 100/1885923. Даём дефолту номер больше всех остальных.
   const defRule: Record<string, unknown> = {
     customization_spec: {},
     video_label: { name: 'vid_def' },
     body_label: { name: 'body_def' },
     link_url_label: { name: 'link_def' },
-    priority: 0,
+    priority: prio++,
   };
   if (i.main.headline) defRule.title_label = { name: 'title_def' };
   if (i.main.description) defRule.description_label = { name: 'desc_def' };

@@ -558,7 +558,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       }
     }
     append(`✓ Кампания создана: ${campaignId} · цель ${objective}`);
-    await sleep(700);
+    await sleep(300);
 
     // DSA (ЕС): если среди целевых стран есть ЕС/ЕЭЗ, нужно объявить, кого
     // продвигаем и кто платит. По умолчанию берём имя выбранной страницы (ФП) —
@@ -637,7 +637,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     }
     if (!adsetId) throw new FbError('Адсет не создан после снятия неподдержанных плейсментов');
     append(`✓ Адсет создан: ${adsetId} · бюджет $${(dailyBudgetCents / 100).toFixed(2)}/день · событие ${tpl.event} · ${placements.length ? placementSummary(placements.join(',')) : 'плейсменты: авто'}`);
-    await sleep(700);
+    await sleep(300);
 
     // 3. Для каждой картинки — креатив и объявление. Список ключей авто-улучшений
     //    подрезаем самолечением: неизвестный ключ ФБ отбивает весь креатив, тогда
@@ -731,7 +731,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           langs: langVariants,
         }, net));
         if (!creativeId) throw new FbError('Мультиязычный креатив не создан (после подрезки ключей улучшений)');
-        await sleep(500);
+        await sleep(200);
         const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
         created = 1;
         append(`✓ Мультиязычное видео-объявление: ${adId} · языков ${langVariants.length}`);
@@ -743,7 +743,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           description: description || undefined, imageUrl: thumb || undefined, optOutKeys: optOut,
         }, net));
         if (!creativeId) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
-        await sleep(500);
+        await sleep(200);
         const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
         created = 1;
         append(`✓ Видео-объявление: ${adId}`);
@@ -759,7 +759,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         append(`✗ Картинка ${idx + 1}: не загрузилась — ${(e as Error).message}`);
         continue;
       }
-      await sleep(500);
+      await sleep(200);
       let creativeId = '';
       for (let a = 0; a < optOut.length + 2; a += 1) {
         try {
@@ -788,7 +788,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         }
       }
       if (!creativeId) throw new FbError('Креатив не создан (после подрезки ключей улучшений)');
-      await sleep(500);
+      await sleep(200);
       const adId = await createAd(token, ext, {
         name: files.length > 1 ? `${campaignName} · ${idx + 1}` : campaignName,
         adsetId,
@@ -797,7 +797,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       }, net);
       created += 1;
       append(`✓ Объявление ${idx + 1}/${files.length}: ${adId}`);
-      await sleep(600);
+      await sleep(300);
     }
 
     if (created === 0) {
