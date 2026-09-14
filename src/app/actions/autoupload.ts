@@ -123,7 +123,7 @@ export async function saveLanguage(_prev: TemplateState, form: FormData): Promis
   if (!isLocale(locale)) return { ok: false, error: 'Выбери язык из списка' };
   const videoUrl = String(form.get('videoUrl') ?? '').trim();
   if (videoUrl && !/^https?:\/\//i.test(videoUrl)) return { ok: false, error: 'Ссылка на видео должна начинаться с http(s)://' };
-  const data = {
+  const data: Record<string, unknown> = {
     locale,
     videoUrl,
     headline: String(form.get('headline') ?? '').trim(),
@@ -131,13 +131,23 @@ export async function saveLanguage(_prev: TemplateState, form: FormData): Promis
     description: String(form.get('description') ?? '').trim(),
     link: String(form.get('link') ?? '').trim(),
   };
+  // Видео файлом: если приложили — сохраняем байты. Без файла на правке старое
+  // видео не трогаем.
+  const file = form.get('video');
+  if (file instanceof File && file.size > 0) {
+    if (!/^video\//i.test(file.type)) return { ok: false, error: 'Это не видеофайл' };
+    if (file.size > 75 * 1024 * 1024) return { ok: false, error: 'Видео больше 75 МБ — сожми ролик' };
+    data.videoData = Buffer.from(await file.arrayBuffer());
+    data.videoMime = file.type;
+    data.videoName = file.name;
+  }
   try {
     if (id) {
       const r = await prisma.uploadLanguage.updateMany({ where: { id, userId: user.id }, data });
       if (r.count === 0) return { ok: false, error: 'Это не твой язык' };
     } else {
       const count = await prisma.uploadLanguage.count({ where: { userId: user.id, archived: false } });
-      await prisma.uploadLanguage.create({ data: { ...data, userId: user.id, sort: count } });
+      await prisma.uploadLanguage.create({ data: { ...(data as object), userId: user.id, sort: count } as never });
     }
   } catch {
     return { ok: false, error: 'Не удалось сохранить язык' };
@@ -150,7 +160,9 @@ export async function deleteLanguage(_prev: TemplateState, form: FormData): Prom
   const user = await requireUser();
   const id = String(form.get('id') ?? '').trim();
   if (!id) return { ok: false, error: 'Нет id' };
-  await prisma.uploadLanguage.updateMany({ where: { id, userId: user.id }, data: { archived: true } });
+  // Жёсткое удаление: видео лежит у нас на сервере, поэтому вместе со строкой
+  // уходят и байты — ничего не остаётся висеть.
+  await prisma.uploadLanguage.deleteMany({ where: { id, userId: user.id } });
   revalidatePath('/ads/upload');
   return { ok: true };
 }

@@ -42,6 +42,9 @@ export default async function AdsUploadPage() {
     id: l.id,
     locale: l.locale,
     videoUrl: l.videoUrl,
+    // Байты видео на клиент НЕ шлём — только факт наличия и имя файла.
+    hasVideo: Boolean(l.videoData && l.videoData.length),
+    videoName: l.videoName,
     headline: l.headline,
     primaryText: l.primaryText,
     description: l.description,

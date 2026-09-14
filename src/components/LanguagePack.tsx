@@ -8,6 +8,8 @@ export type Language = {
   id: string;
   locale: string;
   videoUrl: string;
+  hasVideo: boolean;
+  videoName: string;
   headline: string;
   primaryText: string;
   description: string;
@@ -37,7 +39,7 @@ export default function LanguagePack({ languages }: { languages: Language[] }) {
             <div key={l.id} className="flex items-center gap-2 rounded-[12px] border border-line px-3 py-2 text-[12px]">
               <span className="min-w-0 flex-1 truncate">
                 <span className="font-medium text-soft">{localeName(l.locale)}</span>
-                <span className="ml-2 text-mute">{l.videoUrl ? 'видео есть' : 'без видео'}{l.headline ? ` · ${l.headline}` : ''}</span>
+                <span className="ml-2 text-mute">{l.hasVideo || l.videoUrl ? 'видео есть' : 'без видео'}{l.headline ? ` · ${l.headline}` : ''}</span>
               </span>
               <button type="button" onClick={() => setEdit(l)} className="shrink-0 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute transition hover:border-sage hover:text-sage">
                 Править
@@ -56,12 +58,17 @@ export default function LanguagePack({ languages }: { languages: Language[] }) {
       <form key={key} action={save} className="mt-3 flex flex-col gap-2 border-t border-line pt-3">
         <div className="text-[12px] font-semibold text-soft">{edit ? `Правка: ${localeName(edit.locale)}` : 'Новый язык'}</div>
         {edit ? <input type="hidden" name="id" value={edit.id} /> : null}
-        <div className="grid gap-2 sm:grid-cols-[220px_1fr]">
-          <select name="locale" defaultValue={edit?.locale ?? ''} className={inp}>
-            <option value="">— язык —</option>
-            {LOCALES.map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
-          </select>
-          <input name="videoUrl" defaultValue={edit?.videoUrl ?? ''} placeholder="Ссылка на видео этого языка (https://…)" className={inp} />
+        <select name="locale" defaultValue={edit?.locale ?? ''} className={`${inp} max-w-[240px]`}>
+          <option value="">— язык —</option>
+          {LOCALES.map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
+        </select>
+        <div>
+          <div className="mb-1 text-[11px] text-mute">Видео этого языка — файлом с компа</div>
+          <input type="file" name="video" accept="video/*" className="block w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
+          {edit && (edit.hasVideo || edit.videoUrl) ? (
+            <div className="mt-1 text-[11px] text-sage">Сейчас загружено: {edit.videoName || edit.videoUrl || 'видео есть'} · новый файл заменит</div>
+          ) : null}
+          <input name="videoUrl" defaultValue={edit?.videoUrl ?? ''} placeholder="или прямая ссылка на .mp4 (если есть готовая)" className={`${inp} mt-2`} />
         </div>
         <input name="headline" defaultValue={edit?.headline ?? ''} placeholder="Заголовок (headline)" className={inp} />
         <textarea name="primaryText" defaultValue={edit?.primaryText ?? ''} placeholder="Основной текст (primary text)" rows={2} className="w-full rounded-xl border border-line2 bg-sub px-3 py-2 text-[12.5px] text-soft outline-none focus:border-sage" />

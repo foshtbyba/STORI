@@ -371,7 +371,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {languages.map((l) => (
                   <span key={l.id} className="rounded-full border border-line bg-sub px-2.5 py-1 text-[11.5px] text-soft">
-                    {localeName(l.locale)}{l.videoUrl ? '' : ' · без видео'}
+                    {localeName(l.locale)}{l.hasVideo || l.videoUrl ? '' : ' · без видео'}
                   </span>
                 ))}
               </div>

@@ -803,8 +803,13 @@ model UploadLanguage {
   userId      String   @default("")
   /// Локаль Меты: 'af','sq','ar','ro'… (см. lib/locales).
   locale      String
-  /// Прямая ссылка на видеофайл этого языка (Meta забирает по file_url).
+  /// Прямая ссылка на видеофайл этого языка (Meta забирает по file_url) — если
+  /// не грузили файлом. Обычно пусто: видео хранится файлом ниже.
   videoUrl    String   @default("")
+  /// Видео файлом: байты хранятся у нас, при заливе грузим в каб напрямую.
+  videoData   Bytes?
+  videoMime   String   @default("")
+  videoName   String   @default("")
   headline    String   @default("")
   primaryText String   @default("")
   description String   @default("")
