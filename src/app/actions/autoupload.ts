@@ -55,6 +55,18 @@ function objectiveForEvent(event: string): string {
   return sales.includes(event) ? 'OUTCOME_SALES' : 'OUTCOME_LEADS';
 }
 
+/**
+ * «Кабинету нужно подтвердить телефон» (код 31/3858013). ФБ блокирует не создание,
+ * а запуск в актив. Ловим по субкоду и по тексту, чтобы создать на паузе и не
+ * ронять залив — телефон подтверждают в кабинете один раз, потом включают.
+ */
+function isPhoneError(e: unknown): boolean {
+  const sub = e instanceof FbError ? e.subcode : undefined;
+  if (sub === 3858013) return true;
+  const msg = (e as Error)?.message ?? '';
+  return /подтверд\w*\s+(номер\s+)?телефон|confirm\s+\w*\s*phone|phone number for this ad account/i.test(msg);
+}
+
 /** Короткий случайный суффикс: уникализирует имена, чтобы ФБ не считал заливки
  *  дублями и не резал их. */
 function rand(n = 4) {
@@ -332,6 +344,10 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     startTime = d.toISOString();
   }
   const objectStatus: 'ACTIVE' | 'PAUSED' = mode === 'paused' ? 'PAUSED' : 'ACTIVE';
+  // Может смениться на PAUSED, если кабинет требует подтверждения телефона —
+  // тогда создаём на паузе, а не роняем весь залив.
+  let effectiveStatus: 'ACTIVE' | 'PAUSED' = objectStatus;
+  let phoneForced = false;
 
   // Картинки: каждая — отдельное объявление (уникализация креативов).
   const files = form.getAll('images').filter((f): f is File => f instanceof File && f.size > 0);
@@ -397,11 +413,21 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // 1. Кампания. Цель — под событие пикселя (лиды/продажи), иначе ФБ не даёт
     //    оптимизироваться на выбранное событие.
     const objective = objectiveForEvent(tpl.event);
-    const campaignId = await createCampaign(token, ext, {
-      name: campaignName,
-      objective,
-      status: objectStatus,
-    }, net);
+    let campaignId = '';
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        campaignId = await createCampaign(token, ext, { name: campaignName, objective, status: effectiveStatus }, net);
+        break;
+      } catch (e) {
+        if (isPhoneError(e) && effectiveStatus === 'ACTIVE') {
+          effectiveStatus = 'PAUSED';
+          phoneForced = true;
+          append('⚠ Кабинету нужен подтверждённый телефон — создаю НА ПАУЗЕ (подтверди телефон и включи вручную)');
+          continue;
+        }
+        throw e;
+      }
+    }
     append(`✓ Кампания создана: ${campaignId} · цель ${objective}`);
     await sleep(700);
 
@@ -438,7 +464,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           ageMax: tpl.ageMax,
           genders,
           placements,
-          status: objectStatus,
+          status: effectiveStatus,
           startTime,
         }, net);
         break;
@@ -466,6 +492,15 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           dsaPayer = dsaBeneficiary;
           append(`DSA (ЕС): ФБ запросил бенефициара — подставил «${dsaBeneficiary}» и повторяю`);
           await sleep(400);
+          continue;
+        }
+        // Телефон кабинета не подтверждён — активная доставка запрещена. Создаём
+        // на паузе и продолжаем, чтобы не потерять весь залив.
+        if (isPhoneError(e) && effectiveStatus === 'ACTIVE') {
+          effectiveStatus = 'PAUSED';
+          phoneForced = true;
+          append('⚠ Кабинету нужен подтверждённый телефон — адсет создаю НА ПАУЗЕ');
+          await sleep(300);
           continue;
         }
         throw e;
@@ -524,7 +559,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         name: files.length > 1 ? `${campaignName} · ${idx + 1}` : campaignName,
         adsetId,
         creativeId,
-        status: objectStatus,
+        status: effectiveStatus,
       }, net);
       created += 1;
       append(`✓ Объявление ${idx + 1}/${files.length}: ${adId}`);
@@ -536,7 +571,9 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       return { ok: false, error: 'Ни одно объявление не создано (см. журнал)', jobId: job.id, log, campaignFbId: campaignId };
     }
 
-    const modeLabel = mode === 'active' ? 'В АКТИВЕ' : mode === 'midnight' ? `С 00:00 МСК (${startTime})` : mode === 'scheduled' ? `ПО РАСПИСАНИЮ (${startTime})` : 'НА ПАУЗЕ';
+    const modeLabel = phoneForced
+      ? 'НА ПАУЗЕ — кабинету нужен подтверждённый телефон, подтверди и включи вручную'
+      : mode === 'active' ? 'В АКТИВЕ' : mode === 'midnight' ? `С 00:00 МСК (${startTime})` : mode === 'scheduled' ? `ПО РАСПИСАНИЮ (${startTime})` : 'НА ПАУЗЕ';
     append(`Готово: ${created} объявлений · режим ${modeLabel}`);
     await finish({ status: 'done', campaignFbId: campaignId, adsCreated: created });
     revalidatePath('/ads/upload');
