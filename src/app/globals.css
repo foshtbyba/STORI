@@ -144,6 +144,18 @@ select {
   color-scheme: dark;
 }
 
+/* Убираем нативные стрелки-спиннеры у числовых полей — они разные в браузерах
+   и выбиваются из дизайна; число вводится с клавиатуры. */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 /* Единый шеврон у всех select: прячем системную стрелку и рисуем свою — не
    прижата к краю, одного вида везде. Место справа под неё резервируем. */
 select {
