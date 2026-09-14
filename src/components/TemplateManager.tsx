@@ -31,19 +31,27 @@ const genderLabel = (g: string) => (g === '1' ? 'муж' : g === '2' ? 'жен' 
  */
 export default function TemplateManager({ templates }: { templates: Template[] }) {
   const [edit, setEdit] = useState<Template | null>(null);
+  const [q, setQ] = useState('');
   const [saveState, save] = useActionState<TemplateState, FormData>(saveTemplate, null);
   const [, del] = useActionState<TemplateState, FormData>(deleteTemplate, null);
 
   // Ключом сбрасываем поля формы при переключении «новый ↔ правка».
   const key = edit?.id ?? 'new';
+  const filtered = templates.filter((t) => t.name.toLowerCase().includes(q.trim().toLowerCase()));
 
   return (
     <div>
       {templates.length === 0 ? (
         <p className="text-[12px] text-mute">Шаблонов пока нет — заведи первый ниже.</p>
       ) : (
-        <div className="flex flex-col gap-1.5">
-          {templates.map((t) => (
+        <>
+          <div className="mb-2 flex items-center gap-2">
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск по названию…" className={`${inp} max-w-[280px]`} />
+            <span className="text-[11.5px] text-mute">{filtered.length} из {templates.length}</span>
+          </div>
+          <div className="scroll-slim flex max-h-[300px] flex-col gap-1.5 overflow-auto pr-1">
+            {filtered.length === 0 ? <p className="text-[12px] text-mute">Ничего не найдено.</p> : null}
+            {filtered.map((t) => (
             <div key={t.id} className="flex items-center gap-2 rounded-[12px] border border-line px-3 py-2 text-[12px]">
               <span className="min-w-0 flex-1 truncate">
                 <span className="font-medium text-soft">{t.name}</span>
@@ -62,8 +70,9 @@ export default function TemplateManager({ templates }: { templates: Template[] }
                 </button>
               </form>
             </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
 
       <form key={key} action={save} className="mt-3 flex flex-col gap-2 border-t border-line pt-3">

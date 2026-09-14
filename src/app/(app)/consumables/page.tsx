@@ -98,7 +98,7 @@ export default async function ConsumablesPage({
         {/* Обёртка: на десктопе панель «Списания» позиционируется абсолютно и
             занимает высоту правой колонки — список внутри листается, а низ
             совпадает с плиткой «По баерам». */}
-        <div className="relative min-h-0">
+        <div className="relative min-h-0 lg:min-h-[600px]">
         <Panel className="flex flex-col overflow-hidden p-4 sm:p-6 lg:absolute lg:inset-0">
           <PanelHead
             icon={<IconBox color="#ce6e58" />}
