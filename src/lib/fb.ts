@@ -1136,6 +1136,13 @@ export async function createAdset(token: string, externalId: string, i: CreateAd
     // Multi-advertiser ads — выключаем всегда: объявление не должно показываться
     // в общей ленте с чужими и не должно быть перекадрировано.
     contextual_multi_ads: JSON.stringify({ enroll_status: 'OPT_OUT' }),
+    // Окно атрибуции 7-1-1: 7 дней по клику, 1 день по просмотру и 1 день по
+    // просмотру видео — как ставим руками.
+    attribution_spec: JSON.stringify([
+      { event_type: 'CLICK_THROUGH', window_days: 7 },
+      { event_type: 'VIEW_THROUGH', window_days: 1 },
+      { event_type: 'ENGAGED_VIDEO_VIEW', window_days: 1 },
+    ]),
   };
   if (i.dailyBudgetCents) params.daily_budget = String(i.dailyBudgetCents);
   if (i.startTime) params.start_time = i.startTime;
@@ -1233,6 +1240,34 @@ export async function fetchImageBytes(
   }
 }
 
+/**
+ * Ключи авто-улучшений креатива для OPT_OUT. v22 их ВАЛИДИРУЕТ и отбивает весь
+ * креатив на неизвестном ключе — поэтому оркестратор шлёт этот список, ловит
+ * «Param key 'X' … must be one of …», выкидывает X и повторяет (самолечение).
+ * Часть имён — предположения (комментарии/спотлайты); неверные отсеются сами.
+ */
+export const ENHANCEMENT_OPTOUT_KEYS = [
+  'standard_enhancements',
+  'enhance_cta',
+  'image_brightness_and_contrast',
+  'text_optimizations',
+  'text_improvements',
+  'image_templates',
+  'image_touchups',
+  'image_animation',
+  'profile_card',
+  'text_overlay_translation',
+  'product_metadata_automation',
+  'product_browsing',
+  'relevant_audience_comments',
+  'pinned_relevant_comment',
+  'inline_comment',
+  'catalog_feed_tags',
+  'description_automation',
+  'adapt_to_placement',
+  'media_type_automation',
+];
+
 export type CreateCreativeInput = {
   name: string;
   pageId: string;
@@ -1245,6 +1280,8 @@ export type CreateCreativeInput = {
   /** Заголовок и описание под ссылкой (необязательны). */
   headline?: string;
   description?: string;
+  /** Ключи авто-улучшений в OPT_OUT. Пусто — degrees_of_freedom_spec не шлём. */
+  optOutKeys?: string[];
 };
 
 export async function createAdCreative(token: string, externalId: string, i: CreateCreativeInput, net: FbNet = {}) {
@@ -1260,15 +1297,15 @@ export async function createAdCreative(token: string, externalId: string, i: Cre
   const params: Record<string, string> = {
     name: i.name,
     object_story_spec: JSON.stringify(objectStorySpec),
-    // Отключаем авто-улучшения креатива Меты. На v22 действует модель opt-in:
-    // что не включили — не применяется, поэтому достаточно зонтичного
-    // standard_enhancements=OPT_OUT. ВАЖНО: v22 ВАЛИДИРУЕТ ключи и отбивает весь
-    // креатив (код 100) на неизвестном ключе — поэтому шлём только этот один
-    // документированный ключ, без «широкого» списка догадок.
-    degrees_of_freedom_spec: JSON.stringify({
-      creative_features_spec: { standard_enhancements: { enroll_status: 'OPT_OUT' } },
-    }),
   };
+  // Отключаем авто-улучшения по списку ключей. v22 валидирует ключи и отбивает
+  // весь креатив на неизвестном — оркестратор ловит это и подрезает список.
+  const optOut = i.optOutKeys ?? ['standard_enhancements'];
+  if (optOut.length) {
+    const spec: Record<string, { enroll_status: 'OPT_OUT' }> = {};
+    for (const k of optOut) spec[k] = { enroll_status: 'OPT_OUT' };
+    params.degrees_of_freedom_spec = JSON.stringify({ creative_features_spec: spec });
+  }
   if (i.urlTags && i.urlTags.trim()) params.url_tags = i.urlTags.trim();
   const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST', CREATE_API_VERSION);
   const id = body.id as string | undefined;

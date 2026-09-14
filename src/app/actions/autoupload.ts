@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { validPlacementKeys, placementSummary } from '@/lib/placements';
+import { validPlacementKeys, placementSummary, stripPlacementValue } from '@/lib/placements';
 import {
   fbAccess,
   listPages,
@@ -15,6 +15,7 @@ import {
   createAdset,
   uploadAdImage,
   createAdCreative,
+  ENHANCEMENT_OPTOUT_KEYS,
   createAd,
   FbError,
   type FbNet,
@@ -306,26 +307,52 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     append(`✓ Кампания создана: ${campaignId} · цель ${objective}`);
     await sleep(700);
 
-    // 2. Адсет с бюджетом и таргетом.
-    const adsetId = await createAdset(token, ext, {
-      name: campaignName,
-      campaignId,
-      pixelId,
-      event: tpl.event,
-      countries,
-      excludedCountries,
-      dailyBudgetCents,
-      ageMin: tpl.ageMin,
-      ageMax: tpl.ageMax,
-      genders,
-      placements: tpl.placements ? tpl.placements.split(',') : [],
-      status: objectStatus,
-      startTime,
-    }, net);
-    append(`✓ Адсет создан: ${adsetId} · бюджет $${(dailyBudgetCents / 100).toFixed(2)}/день · событие ${tpl.event} · ${placementSummary(tpl.placements)}`);
+    // 2. Адсет с бюджетом и таргетом. Плейсменты, которые кабинет/цель не
+    //    принимают (ФБ: «Invalid value X for the placement field …»), сами
+    //    выкидываем и повторяем — залив не должен падать из-за одной галки.
+    let placements = tpl.placements ? tpl.placements.split(',') : [];
+    let adsetId = '';
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      try {
+        adsetId = await createAdset(token, ext, {
+          name: campaignName,
+          campaignId,
+          pixelId,
+          event: tpl.event,
+          countries,
+          excludedCountries,
+          dailyBudgetCents,
+          ageMin: tpl.ageMin,
+          ageMax: tpl.ageMax,
+          genders,
+          placements,
+          status: objectStatus,
+          startTime,
+        }, net);
+        break;
+      } catch (e) {
+        const m = (e as Error).message.match(/Invalid value (\S+?)[.,\s]*for the placement field/i);
+        if (m && placements.length) {
+          const badVal = m[1];
+          const next = stripPlacementValue(placements, badVal);
+          if (next.length < placements.length) {
+            append(`⚠ Плейсмент «${badVal}» кабинет не принял — убрал и повторяю`);
+            placements = next;
+            await sleep(400);
+            continue;
+          }
+        }
+        throw e;
+      }
+    }
+    if (!adsetId) throw new FbError('Адсет не создан после снятия неподдержанных плейсментов');
+    append(`✓ Адсет создан: ${adsetId} · бюджет $${(dailyBudgetCents / 100).toFixed(2)}/день · событие ${tpl.event} · ${placements.length ? placementSummary(placements.join(',')) : 'плейсменты: авто'}`);
     await sleep(700);
 
-    // 3. Для каждой картинки — креатив и объявление.
+    // 3. Для каждой картинки — креатив и объявление. Список ключей авто-улучшений
+    //    подрезаем самолечением: неизвестный ключ ФБ отбивает весь креатив, тогда
+    //    выкидываем его и повторяем. Подрезанный список переиспользуем дальше.
+    let optOut = [...ENHANCEMENT_OPTOUT_KEYS];
     let created = 0;
     for (let idx = 0; idx < files.length; idx += 1) {
       const file = files[idx];
@@ -338,17 +365,34 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         continue;
       }
       await sleep(500);
-      const creativeId = await createAdCreative(token, ext, {
-        name: files.length > 1 ? `${campaignName} · cr ${idx + 1}` : campaignName,
-        pageId,
-        message,
-        imageHash,
-        link,
-        cta,
-        urlTags: urlTags || undefined,
-        headline: headline || undefined,
-        description: description || undefined,
-      }, net);
+      let creativeId = '';
+      for (let a = 0; a < optOut.length + 2; a += 1) {
+        try {
+          creativeId = await createAdCreative(token, ext, {
+            name: files.length > 1 ? `${campaignName} · cr ${idx + 1}` : campaignName,
+            pageId,
+            message,
+            imageHash,
+            link,
+            cta,
+            urlTags: urlTags || undefined,
+            headline: headline || undefined,
+            description: description || undefined,
+            optOutKeys: optOut,
+          }, net);
+          break;
+        } catch (e) {
+          const m = (e as Error).message.match(/Param key '([^']+)' in degrees_of_freedom_spec/i);
+          if (m && optOut.includes(m[1])) {
+            optOut = optOut.filter((k) => k !== m[1]);
+            if (idx === 0) append(`⚠ ключ улучшения «${m[1]}» не поддержан — убрал`);
+            await sleep(300);
+            continue;
+          }
+          throw e;
+        }
+      }
+      if (!creativeId) throw new FbError('Креатив не создан (после подрезки ключей улучшений)');
       await sleep(500);
       const adId = await createAd(token, ext, {
         name: files.length > 1 ? `${campaignName} · ${idx + 1}` : campaignName,

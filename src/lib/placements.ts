@@ -41,6 +41,14 @@ export function validPlacementKeys(keys: string[]): string[] {
   return [...new Set(keys.map((k) => k.trim()).filter((k) => BY_KEY.has(k)))];
 }
 
+/**
+ * Убрать из выбора плейсмент по ЗНАЧЕНИЮ поля ФБ (напр. «threads_feed»), когда
+ * кабинет/цель его не приняли. Возвращает оставшиеся ключи.
+ */
+export function stripPlacementValue(keys: string[], fbValue: string): string[] {
+  return validPlacementKeys(keys).filter((k) => BY_KEY.get(k)?.value !== fbValue);
+}
+
 /** Короткая подпись выбранных плейсментов для сводки шаблона. */
 export function placementSummary(csv: string): string {
   const keys = validPlacementKeys(csv.split(','));
