@@ -17,11 +17,14 @@ const label = (s: string) => (s === 'done' ? '✓ готово' : s === 'error' 
  * Журнал заливов — недавние UploadJob с автообновлением. Залив уходит в фон, а
  * тут видно статус/журнал: можно уйти со страницы и вернуться за результатом.
  */
-export default function JobsJournal({ pollMs = 5000 }: { pollMs?: number }) {
+export default function JobsJournal({ pollMs = 5000, defaultExpanded = false }: { pollMs?: number; defaultExpanded?: boolean }) {
   const [jobs, setJobs] = useState<JobRow[]>([]);
   const [open, setOpen] = useState('');
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const [loading, setLoading] = useState(true);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const running = jobs.filter((j) => j.status === 'running').length;
 
   const refresh = async () => {
     try { setJobs(await loadRecentJobs()); } catch { /* тихо */ }
@@ -38,11 +41,17 @@ export default function JobsJournal({ pollMs = 5000 }: { pollMs?: number }) {
   return (
     <div className="rounded-[16px] border border-line2 bg-panel/60 p-4 sm:p-5">
       <div className="flex items-center gap-2.5">
-        <span className="text-[14px] font-semibold">Журнал заливов</span>
-        <span className="text-[12px] text-mute">обновляется сам</span>
-        <button type="button" onClick={refresh} className="ml-auto text-[11.5px] text-mute transition hover:text-sage">обновить</button>
+        <button type="button" onClick={() => setExpanded((v) => !v)} className="flex min-w-0 flex-1 items-center gap-2.5 text-left">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={`shrink-0 text-mute transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}>
+            <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span className="text-[14px] font-semibold">Журнал заливов</span>
+          {jobs.length ? <span className="text-[12px] text-mute">{jobs.length}{running ? ` · ⏳ ${running}` : ''}</span> : null}
+          <span className="text-[11.5px] text-dim">{expanded ? 'обновляется сам' : 'раскрыть'}</span>
+        </button>
+        {expanded ? <button type="button" onClick={refresh} className="shrink-0 text-[11.5px] text-mute transition hover:text-sage">обновить</button> : null}
       </div>
-      {loading && jobs.length === 0 ? (
+      {!expanded ? null : loading && jobs.length === 0 ? (
         <p className="mt-3 text-[12px] text-mute">Загружаю…</p>
       ) : jobs.length === 0 ? (
         <p className="mt-3 text-[12px] text-mute">Пока пусто. Запусти залив — он появится здесь.</p>

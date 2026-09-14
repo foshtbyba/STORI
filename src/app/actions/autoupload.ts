@@ -340,10 +340,28 @@ export async function linkCards(input: {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /**
+ * Очередь заливов ПО КАБИНЕТУ: на один кабинет — строго по очереди (чтобы не
+ * бомбить один аккаунт параллельными заливами), на разные кабинеты — параллельно.
+ * Цепочка промисов на каждый accountId живёт в памяти процесса (self-hosted —
+ * один процесс, этого достаточно).
+ */
+const accountChains = new Map<string, Promise<unknown>>();
+function runPerAccount(accountId: string, task: () => Promise<unknown>): Promise<unknown> {
+  const prev = accountChains.get(accountId) ?? Promise.resolve();
+  const next = prev.catch(() => {}).then(() => task());
+  accountChains.set(accountId, next);
+  // Подчистка, когда это последний в цепочке.
+  next.finally(() => { if (accountChains.get(accountId) === next) accountChains.delete(accountId); }).catch(() => {});
+  return next;
+}
+
+/**
  * Фоновый запуск залива: файлы читаем в память СЕЙЧАС (иначе после ответа они
  * пропадут), затем запускаем оркестратор без ожидания и сразу отвечаем. Прогресс
  * и результат — в UploadJob (см. loadRecentJobs / «Журнал заливов»). Так можно
  * уйти со страницы, залив продолжит крутиться на сервере.
+ *
+ * Несколько заливов на ОДИН кабинет идут по очереди, на разные — параллельно.
  */
 export async function startUpload(form: FormData): Promise<{ ok: boolean; error?: string }> {
   await requireUser();
@@ -357,8 +375,9 @@ export async function startUpload(form: FormData): Promise<{ ok: boolean; error?
       cloned.append(k, v);
     }
   }
+  const accountId = String(cloned.get('accountId') ?? '') || 'unknown';
   // Не ждём: пусть крутится в фоне. Ошибки уедут в журнал самого залива.
-  void runAutoupload(cloned).catch(() => {});
+  void runPerAccount(accountId, () => runAutoupload(cloned).catch(() => {}));
   return { ok: true };
 }
 
