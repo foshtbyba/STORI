@@ -163,3 +163,28 @@ a:focus-visible {
      видны только верх и низ. Инсет никогда не обрезается. */
   outline-offset: -2px;
 }
+
+/* Тонкий аккуратный скролл — вместо жирного системного. Firefox через
+   scrollbar-*, Chrome/Safari через ::-webkit-scrollbar. */
+.scroll-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line2) transparent;
+}
+.scroll-slim::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scroll-slim::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-slim::-webkit-scrollbar-thumb {
+  background: var(--color-line2);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.scroll-slim::-webkit-scrollbar-thumb:hover {
+  background: var(--color-mute);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}

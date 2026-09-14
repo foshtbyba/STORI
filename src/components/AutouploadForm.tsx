@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState, useTransition } from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { loadCabinetAssets, makePixel, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
 import type { Template } from './TemplateManager';
 
@@ -47,7 +47,11 @@ const modeLabel = (m: Mode) => (m === 'active' ? 'в актив' : m === 'schedu
 export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabinet[]; templates: Template[] }) {
   const [pending, start] = useTransition();
 
-  const owners = useMemo(() => [...new Set(cabinets.map((c) => c.group))], [cabinets]);
+  // Овнеров сортируем так, чтобы SKO был первым, остальные по алфавиту.
+  const owners = useMemo(() => {
+    const uniq = [...new Set(cabinets.map((c) => c.group))];
+    return uniq.sort((a, b) => (a === 'SKO' ? -1 : b === 'SKO' ? 1 : a.localeCompare(b)));
+  }, [cabinets]);
   const byId = useMemo(() => new Map(cabinets.map((c) => [c.id, c])), [cabinets]);
 
   // ── Конструктор одного залива ──
@@ -70,6 +74,9 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
   const [files, setFiles] = useState<File[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  // Последнее авто-имя (префикс гео) — чтобы подменять его при смене шаблона, но
+  // не затирать то, что человек уже вписал руками.
+  const autoName = useRef('');
 
   // ── Очередь и запуск ──
   const [queue, setQueue] = useState<Draft[]>([]);
@@ -81,6 +88,27 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
   const [method, setMethod] = useState<'static' | 'video'>('static');
   const tab = (on: boolean) =>
     `rounded-full border px-4 py-1.5 text-[12px] transition ${on ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-mute hover:border-sage'}`;
+
+  // Запоминаем выбор овнера и кабинетов в браузере (localStorage), чтобы при
+  // возврате не выбирать заново. Читаем один раз после монтирования.
+  useEffect(() => {
+    try {
+      const o = localStorage.getItem('autoupload:owner');
+      if (o && owners.includes(o)) setOwner(o);
+      const s = localStorage.getItem('autoupload:selected');
+      if (s) {
+        const ids = JSON.parse(s) as string[];
+        if (Array.isArray(ids)) setSelected(new Set(ids.filter((id) => byId.has(id))));
+      }
+    } catch { /* приватный режим / заблокированное хранилище — просто без памяти */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    try { localStorage.setItem('autoupload:owner', owner); } catch { /* игнор */ }
+  }, [owner]);
+  useEffect(() => {
+    try { localStorage.setItem('autoupload:selected', JSON.stringify([...selected])); } catch { /* игнор */ }
+  }, [selected]);
 
   const tpl = templates.find((t) => t.id === templateId) ?? null;
   const ownerCabs = cabinets.filter((c) => c.group === owner);
@@ -132,7 +160,16 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
   const onPickTemplate = (id: string) => {
     setTemplateId(id);
     const t = templates.find((x) => x.id === id);
-    if (t && !budget) setBudget((t.dailyBudgetCents / 100).toString());
+    if (!t) return;
+    if (!budget) setBudget((t.dailyBudgetCents / 100).toString());
+    // Название стартует с гео (напр. «RO »), дальше человек дописывает сам.
+    // Подменяем только пустое поле или прошлый авто-префикс, руками введённое не трогаем.
+    const geo = t.countries.split(',').map((s) => s.trim()).filter(Boolean).join(' ');
+    if (geo && (campaignName.trim() === '' || campaignName === autoName.current)) {
+      const v = `${geo} `;
+      setCampaignName(v);
+      autoName.current = v;
+    }
   };
 
   const addFiles = (list: FileList | null) => {
@@ -151,6 +188,7 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
     setTemplateId(''); setCampaignName(''); setLink(''); setBudget('');
     setMessage(''); setHeadline(''); setDescription(''); setUrlTags(DEFAULT_TAGS);
     setMode('paused'); setStartLocal(''); setFiles([]); setEditingId(null);
+    autoName.current = '';
   };
 
   const validateConstructor = (): string | null => {
@@ -199,6 +237,7 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
     setTemplateId(d.templateId); setCampaignName(d.campaignName); setLink(d.link); setBudget(d.budget);
     setMessage(d.message); setHeadline(d.headline); setDescription(d.description); setUrlTags(d.urlTags);
     setMode(d.mode); setStartLocal(d.startLocal); setFiles(d.files); setEditingId(d.id);
+    autoName.current = ''; // имя из черновика — руками, авто-подмена его не трогает
     setMsg(null);
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -293,7 +332,7 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
             <span className="ml-auto text-[12px] text-mute">выбрано {selectedList.length} из {ownerCabs.length}</span>
           </div>
 
-          <div className="mt-3 max-h-[240px] overflow-auto rounded-[12px] border border-line">
+          <div className="scroll-slim mt-3 max-h-[240px] overflow-auto rounded-[12px] border border-line">
             <div className="sticky top-0 flex items-center justify-between bg-sub px-3 py-1.5">
               <span className="text-[11.5px] font-semibold text-amber">{owner} · кабинеты</span>
               <button type="button" onClick={() => toggleAll(!ownerCabs.every((c) => selected.has(c.id)))} className="text-[11px] text-mute transition hover:text-sage">
@@ -500,7 +539,7 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
                     <span className="shrink-0 text-[11.5px] text-mute">{r.ok ? `${r.adsCreated} объявл.` : (r.error ?? 'ошибка')}</span>
                     {r.log?.length ? <button type="button" onClick={() => setOpenLog(open ? '' : key)} className="shrink-0 text-[11px] text-mute transition hover:text-sage">{open ? 'скрыть' : 'журнал'}</button> : null}
                   </div>
-                  {open && r.log?.length ? <pre className="mt-2 max-h-[220px] overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-dim">{r.log.join('\n')}</pre> : null}
+                  {open && r.log?.length ? <pre className="scroll-slim mt-2 max-h-[220px] overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-dim">{r.log.join('\n')}</pre> : null}
                 </div>
               );
             })}
