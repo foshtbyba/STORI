@@ -784,6 +784,8 @@ model UploadTemplate {
   event            String   @default("LEAD")
   /// Кнопка-призыв: LEARN_MORE/SHOP_NOW/SIGN_UP…
   cta              String   @default("LEARN_MORE")
+  /// Плейсменты через запятую (ключи из lib/placements). Пусто — авто (Advantage+).
+  placements       String   @default("")
   archived         Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

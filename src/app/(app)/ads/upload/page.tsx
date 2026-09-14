@@ -53,6 +53,7 @@ export default async function AdsUploadPage() {
     dailyBudgetCents: t.dailyBudgetCents,
     event: t.event,
     cta: t.cta,
+    placements: t.placements,
   }));
 
   return (

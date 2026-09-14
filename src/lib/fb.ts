@@ -4,6 +4,7 @@ import axios from 'axios';
 
 import { proxyAgent } from './proxy-agent';
 import { cookieHeaderOf, readCookieBlob } from './fb-engine';
+import { buildPlacementTargeting } from './placements';
 
 /**
  * Тонкий клиент к Marketing API Facebook. Нужны ровно две вещи: список
@@ -16,6 +17,15 @@ import { cookieHeaderOf, readCookieBlob } from './fb-engine';
 
 /** Версию держим в одном месте: Мета выпускает новую раз в квартал. */
 const API = 'https://graph.facebook.com/v21.0';
+
+/**
+ * Версия для СОЗДАЮЩИХ вызовов автозалива (кампания/адсет/креатив/объявление).
+ * С v22.0 у Меты модель «opt-in»: авто-улучшения креатива (Advantage+/Essential
+ * — enhance CTA, яркость/контраст, релевантные комментарии, спотлайты) НЕ
+ * применяются, если их явно не включили. На старой v21 они включались сами и
+ * standard_enhancements OPT_OUT их не гасил. Чтение/синк оставляем на v21.
+ */
+const CREATE_API_VERSION = 'v22.0';
 
 export type FbAccount = {
   externalId: string;
@@ -218,8 +228,10 @@ async function call(
   params: Record<string, string> = {},
   net: FbNet = {},
   method: 'GET' | 'POST' = 'GET',
+  version?: string,
 ) {
-  const url = new URL(`${API}${path}`);
+  const base = version ? `https://graph.facebook.com/${version}` : API;
+  const url = new URL(`${base}${path}`);
   url.searchParams.set('access_token', token);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
 
@@ -1065,7 +1077,7 @@ export async function createCampaign(token: string, externalId: string, i: Creat
     objective: i.objective || 'OUTCOME_SALES',
     status: i.status || 'PAUSED',
     special_ad_categories: JSON.stringify(i.specialCategories ?? []),
-  }, net, 'POST');
+  }, net, 'POST', CREATE_API_VERSION);
   const id = body.id as string | undefined;
   if (!id) throw new FbError('Кампания не создана: нет id');
   return id;
@@ -1090,6 +1102,8 @@ export type CreateAdsetInput = {
   status?: 'PAUSED' | 'ACTIVE';
   /** ISO-время планового старта (для запланированного запуска). */
   startTime?: string;
+  /** Ключи плейсментов (см. lib/placements). Пусто — авто-плейсменты. */
+  placements?: string[];
 };
 
 export async function createAdset(token: string, externalId: string, i: CreateAdsetInput, net: FbNet = {}) {
@@ -1102,6 +1116,11 @@ export async function createAdset(token: string, externalId: string, i: CreateAd
     targeting.excluded_geo_locations = { countries: i.excludedCountries };
   }
   if (i.genders && i.genders.length) targeting.genders = i.genders;
+  // Плейсменты: если в шаблоне выбраны — задаём вручную, иначе авто (Advantage+).
+  if (i.placements && i.placements.length) {
+    const pt = buildPlacementTargeting(i.placements);
+    if (pt) Object.assign(targeting, pt);
+  }
 
   const params: Record<string, string> = {
     name: i.name,
@@ -1112,11 +1131,14 @@ export async function createAdset(token: string, externalId: string, i: CreateAd
     promoted_object: JSON.stringify({ pixel_id: i.pixelId, custom_event_type: i.event || 'PURCHASE' }),
     targeting: JSON.stringify(targeting),
     status: i.status || 'PAUSED',
+    // Multi-advertiser ads — выключаем всегда: объявление не должно показываться
+    // в общей ленте с чужими и не должно быть перекадрировано.
+    contextual_multi_ads: JSON.stringify({ enroll_status: 'OPT_OUT' }),
   };
   if (i.dailyBudgetCents) params.daily_budget = String(i.dailyBudgetCents);
   if (i.startTime) params.start_time = i.startTime;
 
-  const body = await call(`/${externalId}/adsets`, token, params, net, 'POST');
+  const body = await call(`/${externalId}/adsets`, token, params, net, 'POST', CREATE_API_VERSION);
   const id = body.id as string | undefined;
   if (!id) throw new FbError('Адсет не создан: нет id');
   return id;
@@ -1223,6 +1245,41 @@ export type CreateCreativeInput = {
   description?: string;
 };
 
+/**
+ * creative_features_spec со всеми известными авто-улучшениями в OPT_OUT.
+ * Неизвестные ключи Мета из спека просто отбрасывает, поэтому список можно
+ * держать широким — лишнее не ломает создание креатива.
+ */
+function noEnhancements(): Record<string, { enroll_status: 'OPT_OUT' }> {
+  const KEYS = [
+    'standard_enhancements',
+    'enhance_cta',
+    'image_brightness_and_contrast',
+    'text_optimizations',
+    'image_templates',
+    'image_touchups',
+    'video_auto_crop',
+    'image_uncrop',
+    'add_text_overlay',
+    'overlay',
+    'music',
+    '3d_animation',
+    'image_animation',
+    'translate_text',
+    'catalog_feed_tags',
+    'site_extensions',
+    'product_extensions',
+    'description_automation',
+    'adapt_to_placement',
+    'media_type_automation',
+    'relevant_audience_comments',
+    'profile_card',
+  ];
+  const spec: Record<string, { enroll_status: 'OPT_OUT' }> = {};
+  for (const k of KEYS) spec[k] = { enroll_status: 'OPT_OUT' };
+  return spec;
+}
+
 export async function createAdCreative(token: string, externalId: string, i: CreateCreativeInput, net: FbNet = {}) {
   const linkData: Record<string, unknown> = {
     message: i.message,
@@ -1236,16 +1293,15 @@ export async function createAdCreative(token: string, externalId: string, i: Cre
   const params: Record<string, string> = {
     name: i.name,
     object_story_spec: JSON.stringify(objectStorySpec),
-    // Отключаем ВСЕ авто-улучшения креатива Меты (Advantage+/Essential:
-    // оверлеи, музыка, «яркость и контраст», релевантные комментарии, замена
-    // CTA и т.п.). Умолчания ФБ включают их сами — OPT_OUT по зонтичному
-    // standard_enhancements гасит весь набор, чтобы объявление ушло как есть.
-    degrees_of_freedom_spec: JSON.stringify({
-      creative_features_spec: { standard_enhancements: { enroll_status: 'OPT_OUT' } },
-    }),
+    // Отключаем авто-улучшения креатива Меты (Advantage+/Essential). На v22+
+    // модель opt-in: не включённое не применяется, но «essential» ФБ иногда
+    // тащит сам — поэтому вдобавок явно OPT_OUT по каждому известному ключу
+    // (в т.ч. enhance CTA, яркость/контраст, тексты, шаблоны, комментарии,
+    // спотлайты, оверлеи, музыка, туч-апы).
+    degrees_of_freedom_spec: JSON.stringify({ creative_features_spec: noEnhancements() }),
   };
   if (i.urlTags && i.urlTags.trim()) params.url_tags = i.urlTags.trim();
-  const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST');
+  const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST', CREATE_API_VERSION);
   const id = body.id as string | undefined;
   if (!id) throw new FbError('Креатив не создан: нет id');
   return id;
@@ -1262,7 +1318,7 @@ export async function createAd(
     adset_id: i.adsetId,
     creative: JSON.stringify({ creative_id: i.creativeId }),
     status: i.status || 'PAUSED',
-  }, net, 'POST');
+  }, net, 'POST', CREATE_API_VERSION);
   const id = body.id as string | undefined;
   if (!id) throw new FbError('Объявление не создано: нет id');
   return id;

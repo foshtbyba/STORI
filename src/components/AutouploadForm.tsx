@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { loadCabinetAssets, makePixel, makePage, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
 import type { Template } from './TemplateManager';
+import { placementSummary } from '@/lib/placements';
 
 type Cabinet = { id: string; name: string; externalId: string; currency: string; group: string };
 type Asset = { pages: { id: string; name: string }[]; pixels: { id: string; name: string }[] };
@@ -422,7 +423,7 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
               <option value="">— шаблон гео —</option>
               {templates.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
             </select>
-            {tpl ? <span className="rounded-full border border-line bg-sub px-3 py-1 text-[11.5px] text-mute">{tpl.countries}{tpl.excluded ? ` (−${tpl.excluded})` : ''} · {tpl.ageMin}-{tpl.ageMax} · {tpl.event} · {tpl.cta}</span> : null}
+            {tpl ? <span className="rounded-full border border-line bg-sub px-3 py-1 text-[11.5px] text-mute">{tpl.countries}{tpl.excluded ? ` (−${tpl.excluded})` : ''} · {tpl.ageMin}-{tpl.ageMax} · {tpl.event} · {placementSummary(tpl.placements)}</span> : null}
           </div>
           <div className="mt-2.5 grid gap-2">
             <input value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="Название кампании (оно же у адсета и объявлений)" className={inp} />

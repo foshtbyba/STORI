@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useActionState } from 'react';
 import { saveTemplate, deleteTemplate, type TemplateState } from '@/app/actions/autoupload';
+import { PLACEMENTS, validPlacementKeys, placementSummary } from '@/lib/placements';
 
 export type Template = {
   id: string;
@@ -15,6 +16,7 @@ export type Template = {
   dailyBudgetCents: number;
   event: string;
   cta: string;
+  placements: string;
 };
 
 const EVENTS = ['LEAD', 'PURCHASE', 'COMPLETE_REGISTRATION', 'SUBSCRIBE', 'ADD_TO_CART', 'INITIATE_CHECKOUT', 'SUBMIT_APPLICATION', 'CONTACT'];
@@ -47,7 +49,7 @@ export default function TemplateManager({ templates }: { templates: Template[] }
                 <span className="font-medium text-soft">{t.name}</span>
                 <span className="ml-2 text-mute">
                   {t.countries || '—'}
-                  {t.excluded ? ` (−${t.excluded})` : ''} · {t.ageMin}-{t.ageMax} · {genderLabel(t.genders)} · ${(t.dailyBudgetCents / 100).toFixed(0)}/д · {t.event}
+                  {t.excluded ? ` (−${t.excluded})` : ''} · {t.ageMin}-{t.ageMax} · {genderLabel(t.genders)} · ${(t.dailyBudgetCents / 100).toFixed(0)}/д · {t.event} · {placementSummary(t.placements)}
                 </span>
               </span>
               <button type="button" onClick={() => setEdit(t)} className="shrink-0 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute transition hover:border-sage hover:text-sage">
@@ -90,6 +92,24 @@ export default function TemplateManager({ templates }: { templates: Template[] }
             {CTAS.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
+
+        {/* Плейсменты: ничего не отмечено — авто (Advantage+). Отмеченные уходят
+            в ручной таргетинг адсета. */}
+        <div>
+          <div className="mb-1.5 text-[11.5px] text-mute">Плейсменты <span className="text-dim">(ничего не отмечено = авто/Advantage+)</span></div>
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1 sm:grid-cols-3">
+            {PLACEMENTS.map((p) => {
+              const on = validPlacementKeys((edit?.placements ?? '').split(',')).includes(p.key);
+              return (
+                <label key={p.key} className="flex cursor-pointer items-center gap-2 text-[12px] text-soft">
+                  <input type="checkbox" name="placements" value={p.key} defaultChecked={on} className="accent-[#b4c68c]" />
+                  <span className="truncate">{p.label}</span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+
         {saveState && !saveState.ok ? <div className="text-[11.5px] text-rust">{saveState.error}</div> : null}
         {saveState?.ok ? <div className="text-[11.5px] text-sage">Сохранено.</div> : null}
         <div className="flex items-center gap-2">

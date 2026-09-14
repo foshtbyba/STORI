@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
+import { validPlacementKeys, placementSummary } from '@/lib/placements';
 import {
   fbAccess,
   listPages,
@@ -84,8 +85,9 @@ export async function saveTemplate(_prev: TemplateState, form: FormData): Promis
   const dailyBudgetCents = Math.round(budget * 100);
   const event = EVENT_OPTIONS.includes(String(form.get('event'))) ? String(form.get('event')) : 'LEAD';
   const cta = CTA_OPTIONS.includes(String(form.get('cta'))) ? String(form.get('cta')) : 'LEARN_MORE';
+  const placements = validPlacementKeys(form.getAll('placements').map(String)).join(',');
 
-  const data = { name, countries, excluded, ageMin, ageMax, genders, dailyBudgetCents, event, cta };
+  const data = { name, countries, excluded, ageMin, ageMax, genders, dailyBudgetCents, event, cta, placements };
   try {
     if (id) {
       // Правим только свой шаблон — updateMany с фильтром по владельцу.
@@ -316,10 +318,11 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       ageMin: tpl.ageMin,
       ageMax: tpl.ageMax,
       genders,
+      placements: tpl.placements ? tpl.placements.split(',') : [],
       status: objectStatus,
       startTime,
     }, net);
-    append(`✓ Адсет создан: ${adsetId} · бюджет $${(dailyBudgetCents / 100).toFixed(2)}/день · событие ${tpl.event}`);
+    append(`✓ Адсет создан: ${adsetId} · бюджет $${(dailyBudgetCents / 100).toFixed(2)}/день · событие ${tpl.event} · ${placementSummary(tpl.placements)}`);
     await sleep(700);
 
     // 3. Для каждой картинки — креатив и объявление.
