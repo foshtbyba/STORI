@@ -9,6 +9,7 @@ import {
   listPages,
   listPixels,
   createPixel,
+  createPage,
   createCampaign,
   createAdset,
   uploadAdImage,
@@ -160,6 +161,24 @@ export async function makePixel(accountId: string, name: string): Promise<Cabine
     await createPixel(ctx.token, ctx.acc.externalId, clean, ctx.net);
     const pixels = await listPixels(ctx.token, ctx.acc.externalId, ctx.net);
     return { ok: true, pixels };
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+}
+
+/**
+ * Создать новую страницу (ФП) и вернуть обновлённый список страниц. Мета
+ * ограничивает создание ФП через API — на урезанном токене вернётся её ошибка.
+ */
+export async function makePage(accountId: string, name: string): Promise<CabinetAssets> {
+  const ctx = await accountAccessFor(accountId);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+  const clean = name.trim();
+  if (!clean) return { ok: false, error: 'Впиши имя новой страницы' };
+  try {
+    await createPage(ctx.token, clean, 'BRAND', ctx.net);
+    const pages = await listPages(ctx.token, ctx.net);
+    return { ok: true, pages };
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }

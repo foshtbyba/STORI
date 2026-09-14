@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
-import { loadCabinetAssets, makePixel, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
+import { loadCabinetAssets, makePixel, makePage, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
 import type { Template } from './TemplateManager';
 
 type Cabinet = { id: string; name: string; externalId: string; currency: string; group: string };
@@ -61,6 +61,7 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
   const [pageByAcc, setPageByAcc] = useState<Record<string, string>>({});
   const [pixelByAcc, setPixelByAcc] = useState<Record<string, string>>({});
   const [newPixelByAcc, setNewPixelByAcc] = useState<Record<string, string>>({});
+  const [newPageByAcc, setNewPageByAcc] = useState<Record<string, string>>({});
   const [templateId, setTemplateId] = useState('');
   const [campaignName, setCampaignName] = useState('');
   const [link, setLink] = useState('');
@@ -154,6 +155,20 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
       if (r.pixels?.length) setPixelByAcc((p) => ({ ...p, [accId]: r.pixels![r.pixels!.length - 1].id }));
       setNewPixelByAcc((n) => ({ ...n, [accId]: '' }));
       setMsg({ ok: true, text: 'Пиксель создан.' });
+    });
+  };
+
+  const addPage = (accId: string) => {
+    if (pending) return;
+    const name = (newPageByAcc[accId] ?? '').trim();
+    if (!name) { setMsg({ ok: false, text: 'Впиши имя новой страницы' }); return; }
+    start(async () => {
+      const r = await makePage(accId, name);
+      if (!r.ok) { setMsg({ ok: false, text: r.error ?? 'сбой создания страницы' }); return; }
+      setAssets((a) => ({ ...a, [accId]: { pages: r.pages ?? [], pixels: a[accId]?.pixels ?? [] } }));
+      if (r.pages?.length) setPageByAcc((p) => ({ ...p, [accId]: r.pages![r.pages!.length - 1].id }));
+      setNewPageByAcc((n) => ({ ...n, [accId]: '' }));
+      setMsg({ ok: true, text: 'Страница создана.' });
     });
   };
 
@@ -381,7 +396,9 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
                       </select>
                     </div>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <input value={newPixelByAcc[c.id] ?? ''} onChange={(e) => setNewPixelByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя нового пикселя" className={`${inp} max-w-[200px]`} />
+                      <input value={newPageByAcc[c.id] ?? ''} onChange={(e) => setNewPageByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя новой ФП" className={`${inp} max-w-[190px]`} />
+                      <button type="button" onClick={() => addPage(c.id)} disabled={pending} className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ ФП</button>
+                      <input value={newPixelByAcc[c.id] ?? ''} onChange={(e) => setNewPixelByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя нового пикселя" className={`${inp} max-w-[190px]`} />
                       <button type="button" onClick={() => addPixel(c.id)} disabled={pending} className="rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ пиксель</button>
                       {a.pages.length === 0 ? <span className="text-[11px] text-rust">нет страниц под токеном</span> : null}
                     </div>

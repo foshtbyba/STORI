@@ -1034,6 +1034,23 @@ export async function listPages(token: string, net: FbNet = {}) {
   return data.filter((p) => p.id).map((p) => ({ id: p.id as string, name: p.name || (p.id as string) }));
 }
 
+/**
+ * Создать новую страницу (ФП). Мета ограничила создание страниц через Graph
+ * API: официального «create page» нет, но легаси-ручка `POST /me/accounts` на
+ * полноценном пользовательском токене (в т.ч. сессионном из антидетекта) часто
+ * ещё работает. На системном/урезанном токене Facebook откажет — тогда отдаём
+ * его текст как есть. Категория обязательна для части кабинетов; по умолчанию
+ * «страница-блог».
+ */
+export async function createPage(token: string, name: string, category: string, net: FbNet = {}) {
+  const params: Record<string, string> = { name };
+  if (category) params.category = category;
+  const body = await call('/me/accounts', token, params, net, 'POST');
+  const id = (body.id as string | undefined) ?? ((body as { page_id?: string }).page_id);
+  if (!id) throw new FbError('Страница не создана: Facebook не вернул id. Создание ФП через API Мета ограничивает — заведи страницу вручную и обнови список.');
+  return id;
+}
+
 export type CreateCampaignInput = {
   name: string;
   /** Конверсии = OUTCOME_SALES (современная цель). */
