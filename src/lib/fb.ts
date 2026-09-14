@@ -1485,10 +1485,11 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
     if (i.main.description) mr.description_label = { name: 'desc_def' };
     rules.push(mr);
   }
-  // Дефолтное правило: ПУСТОЙ customization_spec и «самый низкий приоритет» —
-  // у ФБ это НАИБОЛЬШИЙ номер priority (правило-фолбэк оценивается последним),
-  // иначе код 100/1885923. Даём дефолту номер больше всех остальных.
+  // Дефолтное правило мультиязычного объявления: маркируется is_default: true.
+  // Именно оно переводит FB в языковой режим — тогда у языковых правил не
+  // требуется гео (иначе код 2446501) и нет проверки на узость аудитории.
   const defRule: Record<string, unknown> = {
+    is_default: true,
     customization_spec: {},
     video_label: { name: 'vid_def' },
     body_label: { name: 'body_def' },
