@@ -147,7 +147,7 @@ export default function BuyerCabinet({ data, label }: { data: Data; label: strin
         ))}
       </div>
 
-      <div className="grid grid-cols-1 items-start gap-2.5 lg:grid-cols-[1.9fr_1fr] lg:gap-3.5">
+      <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-[1.9fr_1fr] lg:gap-3.5">
         <Panel className="flex flex-col p-4 sm:p-6">
           <PanelHead
             icon={<IconCalendar color="#b4c68c" />}

@@ -294,9 +294,8 @@ export default async function OffersPage({
                   <div key={box.key} className="rounded-[18px] bg-sub px-4 py-3.5">
                     <div className="mb-1.5 flex items-center justify-between gap-2">
                       <span className="lab text-rust">{box.title}</span>
-                      {team ? (
-                        <CopyExclusions label={box.label} title={box.title} groups={box.groups} />
-                      ) : null}
+                      {/* Копирование исключений нужно и баерам — они льют. */}
+                      <CopyExclusions label={box.label} title={box.title} groups={box.groups} />
                     </div>
                     {/*
                       Список свёрнут целиком: исключений бывает под сотню, и

@@ -37,7 +37,10 @@ type Draft = {
 const inp = 'h-9 w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage';
 const box = 'rounded-[16px] border border-line bg-panel/40 px-4 py-4 sm:px-5';
 const stepBadge = 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-t text-[12px] font-semibold text-sage';
-const DEFAULT_TAGS = 'ad_id={{ad.id}}&fbpx={{pixel}}&fb_pixel={{fbpixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
+// Метки статики/сториков — без ручного fb_pixel (он для видео-метода).
+const DEFAULT_TAGS = 'ad_id={{ad.id}}&fbpx={{pixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
+// Метки видео-метода — с ручным fb_pixel ({{fbpixel}} проявит поле ввода).
+const DEFAULT_TAGS_VIDEO = 'ad_id={{ad.id}}&fbpx={{pixel}}&fb_pixel={{fbpixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
 const uid = () => Math.random().toString(36).slice(2, 9);
 
 const modeLabel = (m: Mode) => (m === 'active' ? 'в актив' : m === 'scheduled' ? 'по расписанию' : 'на паузе');
@@ -379,6 +382,10 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           ) : (
             <p className="mt-3 text-amber">Сначала заполни пак языков в разделе «Мои языки (для видео)» ниже.</p>
           )}
+          <div className="mt-3 rounded-xl border border-line bg-sub px-3 py-2">
+            <div className="text-[11px] text-mute">Метки видео-метода (свои, с ручным fb_pixel):</div>
+            <code className="mt-1 block break-all text-[11px] text-soft">{DEFAULT_TAGS_VIDEO}</code>
+          </div>
           <p className="mt-3 text-[11.5px] text-dim">Само создание видео-объявления с языками подключаю следующим шагом (нужен тестовый прогон на паузе).</p>
         </div>
       ) : (

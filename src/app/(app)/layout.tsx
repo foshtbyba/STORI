@@ -47,7 +47,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="relative mx-auto flex min-h-screen max-w-[1440px] flex-col gap-2.5 p-2.5 sm:gap-3.5 sm:p-4">
+    <div className="relative mx-auto flex min-h-screen max-w-[1600px] flex-col gap-2.5 p-2.5 sm:gap-3.5 sm:p-4">
       {/*
         Горизонтали живут на всём экране, а не внутри блока: панели чуть
         прозрачны, и рисунок проходит под ними насквозь. Слой держим на нулевом
