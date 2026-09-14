@@ -70,7 +70,7 @@ export default function LanguagePack({ languages }: { languages: Language[] }) {
         />
         <div>
           <div className="mb-1 text-[11px] text-mute">Видео этого языка — файлом с компа</div>
-          <input type="file" name="video" accept="video/*" className="block w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
+          <input type="file" name="video" accept="video/*" className="block w-fit max-w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
           {edit && (edit.hasVideo || edit.videoUrl) ? (
             <div className="mt-1 text-[11px] text-sage">Сейчас загружено: {edit.videoName || edit.videoUrl || 'видео есть'} · новый файл заменит</div>
           ) : null}

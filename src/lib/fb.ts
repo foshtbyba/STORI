@@ -1452,7 +1452,8 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
 
   // Основной вариант.
   pushVariant('def', i.main);
-  // Языковые варианты.
+  // Языковые варианты. Приоритет выше дефолта (конкретный язык побеждает).
+  let prio = 1;
   i.langs.forEach((l, idx) => {
     pushVariant(`l${idx}`, { videoId: l.videoId, thumb: l.thumb, message: l.message, headline: l.headline, description: l.description, link: l.link || i.main.link });
     const rule: Record<string, unknown> = {
@@ -1460,34 +1461,33 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
       video_label: { name: `vid_l${idx}` },
       body_label: { name: `body_l${idx}` },
       link_url_label: { name: l.link ? `link_l${idx}` : 'link_def' },
-      priority: idx,
+      priority: prio++,
     };
     if (l.headline) rule.title_label = { name: `title_l${idx}` };
     if (l.description) rule.description_label = { name: `desc_l${idx}` };
     rules.push(rule);
   });
-  // Основной ролик под своим языком (если задан) — явное правило по его locale,
-  // помимо дефолта.
+  // Основной ролик под своим языком (если задан) — явное правило по его locale.
   if (i.mainLocaleId) {
     const mr: Record<string, unknown> = {
       customization_spec: { locales: [i.mainLocaleId] },
       video_label: { name: 'vid_def' },
       body_label: { name: 'body_def' },
       link_url_label: { name: 'link_def' },
-      priority: i.langs.length + 1,
+      priority: prio++,
     };
     if (i.main.headline) mr.title_label = { name: 'title_def' };
     if (i.main.description) mr.description_label = { name: 'desc_def' };
     rules.push(mr);
   }
-  // Дефолтное правило — основной вариант для всех прочих языков.
+  // Дефолтное правило: ПУСТОЙ customization_spec и САМЫЙ НИЗКИЙ priority (0) —
+  // ФБ требует именно так (код 100/1885923). Это фолбэк для всех прочих языков.
   const defRule: Record<string, unknown> = {
-    is_default: true,
-    customization_spec: { locales: [] },
+    customization_spec: {},
     video_label: { name: 'vid_def' },
     body_label: { name: 'body_def' },
     link_url_label: { name: 'link_def' },
-    priority: i.langs.length,
+    priority: 0,
   };
   if (i.main.headline) defRule.title_label = { name: 'title_def' };
   if (i.main.description) defRule.description_label = { name: 'desc_def' };

@@ -205,7 +205,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
           </div>
           <div>
             <div className="lab mb-1">Ролик (видеофайл)</div>
-            <input ref={fileRef} type="file" accept="video/*" onChange={(e) => setVideo(e.target.files?.[0] ?? null)} className="block w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
+            <input ref={fileRef} type="file" accept="video/*" onChange={(e) => setVideo(e.target.files?.[0] ?? null)} className="block w-fit max-w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
             {video ? <p className="mt-1 text-[11px] text-sage">{video.name} · {(video.size / 1024 / 1024).toFixed(1)} МБ</p> : null}
           </div>
           <div>
