@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { loadCabinetAssets, makePixel, makePage, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
 import TemplateManager, { type Template } from './TemplateManager';
 import TemplatePicker from './TemplatePicker';
+import CardBinder from './CardBinder';
 import LanguagePack, { type Language } from './LanguagePack';
 import { placementSummary } from '@/lib/placements';
 import { localeName } from '@/lib/locales';
@@ -154,7 +155,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [confirm, setConfirm] = useState(false);
   // Метод залива. Сейчас сторис/статика; видео с языками — отдельным методом позже.
-  const [method, setMethod] = useState<'static' | 'video' | 'templates' | 'languages'>('static');
+  const [method, setMethod] = useState<'static' | 'video' | 'templates' | 'languages' | 'cards'>('static');
   const [qTpl, setQTpl] = useState('');
   const [qCab, setQCab] = useState('');
   const tab = (on: boolean) =>
@@ -429,6 +430,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
         <span className="mx-1 h-5 w-px bg-line2" />
         <button type="button" onClick={() => setMethod('templates')} className={tab(method === 'templates')}>Шаблоны гео <span className="opacity-70">· {templates.length}</span></button>
         <button type="button" onClick={() => setMethod('languages')} className={tab(method === 'languages')}>Языки <span className="opacity-70">· {languages.length}</span></button>
+        <button type="button" onClick={() => setMethod('cards')} className={tab(method === 'cards')}>Карты</button>
         {method === 'templates' && templates.length > 0 ? (
           <input value={qTpl} onChange={(e) => setQTpl(e.target.value)} placeholder="Поиск по названию…" className="ml-auto h-9 w-[240px] rounded-full border border-line2 bg-sub px-4 text-[12.5px] text-soft outline-none focus:border-sage" />
         ) : null}
@@ -436,6 +438,8 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
 
       {method === 'templates' ? (
         <TemplateManager templates={templates} query={qTpl} />
+      ) : method === 'cards' ? (
+        <CardBinder cabinets={cabinets} />
       ) : method === 'languages' ? (
         <LanguagePack languages={languages} />
       ) : method === 'video' ? (

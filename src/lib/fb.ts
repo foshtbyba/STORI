@@ -1085,6 +1085,49 @@ export async function createCampaign(token: string, externalId: string, i: Creat
   return id;
 }
 
+// ── Привязка карты к рекламному кабинету ───────────────────────────────────
+// Публичного API для добавления способа оплаты у Меты нет. Это делается через
+// приватный внутренний поток (iOS-приложение / браузерная форма / cookie).
+// Точный запрос берём из захвата (код расширения или HAR) — до этого функция
+// НАМЕРЕННО не отправляет карту в FB.
+
+export type CardInput = {
+  number: string; // PAN без пробелов
+  month: string;  // MM
+  year: string;   // YY или YYYY
+  cvc: string;
+  zip?: string;
+};
+
+/** Способ привязки (как в FBTOOL): iOS-API, повтор Ads Manager, через cookie. */
+export type CardBindMethod = 'ios' | 'ads_manager' | 'cookie';
+
+export type CardBindOptions = {
+  method: CardBindMethod;
+  billingCountry?: string; // ISO-2
+  currency?: string;
+  timezoneId?: number;
+  rebind?: boolean;
+};
+
+export type CardBindResult = { ok: boolean; status: string };
+
+/**
+ * Привязать карту к кабинету. ПОКА НЕ ПОДКЛЮЧЕНО: точный внутренний запрос FB
+ * (iOS payment_methods и пр.) добываем из захвата. До этого кидаем понятную
+ * ошибку и карту в FB НЕ шлём — чтобы не бить вслепую по платёжному эндпоинту
+ * реальными картами (риск бана и зря списанного $1).
+ */
+export async function bindCardToAccount(
+  _token: string,
+  _externalId: string,
+  _card: CardInput,
+  _opts: CardBindOptions,
+  _net: FbNet = {},
+): Promise<CardBindResult> {
+  throw new FbError('Метод привязки карты ещё не подключён (жду точный запрос: код расширения или HAR). Карта в FB НЕ отправлена.');
+}
+
 /** Имя страницы по её id (для DSA-бенефициара). Ошибка/пусто — ''. */
 export async function getPageName(token: string, pageId: string, net: FbNet = {}): Promise<string> {
   try {

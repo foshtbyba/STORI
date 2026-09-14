@@ -20,8 +20,11 @@ import {
   createAd,
   searchRegions,
   getPageName,
+  bindCardToAccount,
   FbError,
   type FbNet,
+  type CardInput,
+  type CardBindMethod,
 } from '@/lib/fb';
 
 /**
@@ -270,6 +273,57 @@ export async function makePage(accountId: string, name: string): Promise<Cabinet
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
+}
+
+// ── Привязка карт к кабинетам ──────────────────────────────────────────────
+
+export type CardLinkResult = { cabinetId: string; label: string; ok: boolean; message: string };
+
+/**
+ * Массовая привязка карт к выбранным кабинетам. Карта берётся по кругу: карта №1 →
+ * кабинет №1, карта №2 → кабинет №2 и т.д. (как в FBTOOL). Данные карт НЕ храним
+ * в базе — прокидываем в FB и забываем. Сам сетевой запрос — в fb.ts
+ * (bindCardToAccount); пока он не подключён, вернём понятный статус по каждому.
+ */
+export async function linkCards(input: {
+  accountIds: string[];
+  cards: CardInput[];
+  method: CardBindMethod;
+  billingCountry?: string;
+  currency?: string;
+  timezoneId?: number;
+  delaySec?: number;
+  rebind?: boolean;
+}): Promise<CardLinkResult[]> {
+  await requireUser();
+  const accountIds = (input.accountIds ?? []).filter(Boolean);
+  const cards = (input.cards ?? []).filter((c) => c && c.number && c.month && c.year && c.cvc);
+  if (accountIds.length === 0) return [];
+  if (cards.length === 0) return accountIds.map((id) => ({ cabinetId: id, label: id, ok: false, message: 'Нет данных карты' }));
+
+  const delayMs = Math.max(0, Math.min(600, Math.round(input.delaySec ?? 0))) * 1000;
+  const out: CardLinkResult[] = [];
+  for (let i = 0; i < accountIds.length; i += 1) {
+    const accountId = accountIds[i];
+    const card = cards[i % cards.length]; // по кругу
+    const ctx = await accountAccessFor(accountId);
+    if ('error' in ctx) { out.push({ cabinetId: accountId, label: accountId, ok: false, message: ctx.error ?? 'нет доступа к кабинету' }); continue; }
+    const label = ctx.acc.name || ctx.acc.externalId;
+    try {
+      const r = await bindCardToAccount(ctx.token, ctx.acc.externalId, card, {
+        method: input.method,
+        billingCountry: input.billingCountry,
+        currency: input.currency,
+        timezoneId: input.timezoneId,
+        rebind: input.rebind,
+      }, ctx.net);
+      out.push({ cabinetId: accountId, label, ok: r.ok, message: r.status });
+    } catch (e) {
+      out.push({ cabinetId: accountId, label, ok: false, message: e instanceof FbError ? e.message : (e as Error).message });
+    }
+    if (delayMs && i < accountIds.length - 1) await sleep(delayMs);
+  }
+  return out;
 }
 
 // ── Оркестратор ────────────────────────────────────────────────────────────
