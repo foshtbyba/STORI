@@ -34,6 +34,19 @@ export const LOCALES: { code: string; name: string }[] = [
   { code: 'nb_NO', name: 'Norwegian' },
   { code: 'da_DK', name: 'Danish' },
   { code: 'fi_FI', name: 'Finnish' },
+  // Языки под сам залив «языками» — в т.ч. редкие, но реально есть в ФБ.
+  { code: 'ko_KR', name: 'Korean' },
+  { code: 'ja_JP', name: 'Japanese' },
+  { code: 'ml_IN', name: 'Malayalam' },
+  { code: 'ta_IN', name: 'Tamil' },
+  { code: 'cy_GB', name: 'Welsh' },
+  { code: 'eu_ES', name: 'Basque' },
+  { code: 'fy_NL', name: 'Frisian' },
+  { code: 'cx_PH', name: 'Cebuano' },
+  { code: 'si_LK', name: 'Sinhala' },
+  { code: 'km_KH', name: 'Khmer' },
+  { code: 'gn_PY', name: 'Guarani' },
+  { code: 'ff_NG', name: 'Fula' },
 ];
 
 const NAMES = new Map(LOCALES.map((l) => [l.code, l.name]));
