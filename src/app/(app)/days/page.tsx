@@ -166,7 +166,7 @@ export default async function DaysPage({
         }
       />
 
-      <div className="mt-4 grid grid-cols-[0.8fr_1.1fr_1fr_auto] pb-2.5 md:grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)_auto]">
+      <div className="mt-4 grid grid-cols-[0.8fr_1.1fr_1fr_92px] pb-2.5 md:grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)_92px]">
         <span className="lab">День</span>
         <span className="lab">Баер</span>
         <span className="lab hidden md:block">Источник</span>
@@ -213,7 +213,7 @@ export default async function DaysPage({
       {rows.length > 0 ? (
         <>
           {/* Итоговая строка — суммы колонок, выровнены под шапку. */}
-          <div className="mt-1 grid grid-cols-[0.8fr_1.1fr_1fr_auto] border-t border-line pt-3 text-[13px] font-semibold md:grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)_auto]">
+          <div className="mt-1 grid grid-cols-[0.8fr_1.1fr_1fr_92px] border-t border-line pt-3 text-[13px] font-semibold md:grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)_92px]">
             <span>Итого</span>
             <span />
             <span className="hidden md:block" />

@@ -37,7 +37,7 @@ export type DayRowData = {
  * Источник и разложение спенда прячем — они есть на широком экране и в правке.
  */
 const GRID =
-  'grid grid-cols-[0.8fr_1.1fr_1fr_auto] items-center md:grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)_auto]';
+  'grid grid-cols-[0.8fr_1.1fr_1fr_92px] items-center md:grid-cols-[0.7fr_1.2fr_1.5fr_repeat(4,1fr)_92px]';
 
 /**
  * Строка отчёта за день. Админ правит её на месте: раскрывается три поля,

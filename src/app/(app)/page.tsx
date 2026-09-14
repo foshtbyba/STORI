@@ -259,9 +259,10 @@ export default async function HomePage({
             </div>
           ))}
           <div className="flex-1" />
-          {/* Без горизонтального паддинга: колонки «Итого» совпадают по вертикали
-              со строками выше (px сдвигал бы их внутрь и ломал столбик). */}
-          <Sub className="mt-2.5 grid grid-cols-[1.3fr_1fr_1fr] gap-x-3 md:grid-cols-[1.5fr_repeat(5,1fr)_1fr] items-center py-3.5">
+          {/* Полоса «Итого» тянется во всю ширину панели, а её внутренний паддинг
+              РАВЕН паддингу панели — так колонки совпадают со строками выше, а
+              текст не липнет к краям. */}
+          <Sub className="mt-2.5 grid grid-cols-[1.3fr_1fr_1fr] gap-x-3 md:grid-cols-[1.5fr_repeat(5,1fr)_1fr] items-center py-3.5 -mx-4 w-[calc(100%+2rem)] px-4 sm:-mx-6 sm:w-[calc(100%+3rem)] sm:px-6">
             <span className="lab text-text">Итого</span>
             <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.revenueCents)}</span>
             <span className="n hidden text-right text-[13.5px] md:block">{usd(summary.totals.spendGrossCents)}</span>

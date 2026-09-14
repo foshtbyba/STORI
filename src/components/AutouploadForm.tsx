@@ -434,6 +434,9 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
               <label key={c.id} className="flex cursor-pointer items-center gap-2.5 border-t border-line px-3 py-1.5 text-[12.5px] transition hover:bg-sub/60">
                 <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggle(c.id)} className="accent-[#b4c68c]" />
                 <span className="min-w-0 flex-1 truncate text-soft">{c.name || c.externalId}</span>
+                {c.name && c.name !== c.externalId ? (
+                  <span className="n shrink-0 text-[11px] text-dim">{c.externalId}</span>
+                ) : null}
                 <span className="shrink-0 text-[11px] text-dim">{c.currency}</span>
               </label>
             ))}
