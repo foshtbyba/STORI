@@ -40,6 +40,23 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 const modeLabel = (m: Mode) => (m === 'active' ? 'в актив' : m === 'scheduled' ? 'по расписанию' : 'на паузе');
 
 /**
+ * Человеческая причина, почему кабинет не подтянулся. Ошибки токена/сессии
+ * (протух, отозван, «сессия кончилась», код 190/1/100) сводим к «токен слетел».
+ */
+function friendlyReason(err?: string): string {
+  const e = (err ?? '').toLowerCase();
+  if (!e) return 'токен слетел (обнови токен кабинета)';
+  if (
+    e.includes('токен') || e.includes('сесси') || e.includes('код 190') || e.includes('(#190') ||
+    e.includes('code 190') || e.includes('код 1)') || e.includes('код 1/') || e.includes('код 100') ||
+    e.includes('invalid') || e.includes('expired') || e.includes('oauth')
+  ) {
+    return 'токен слетел — обнови токен кабинета';
+  }
+  return err ?? '';
+}
+
+/**
  * Автозалив. Сверху выбираешь овнера (SKO/MPR) — показываются только его
  * кабинеты. Конструктор собирает ОДИН залив и кладёт его в очередь; так можно
  * подготовить хоть десять разных заливов и запустить всё одной кнопкой.
@@ -83,6 +100,8 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
   // ── Очередь и запуск ──
   const [queue, setQueue] = useState<Draft[]>([]);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  // Сообщение прямо под кнопкой «Подтянуть» — чтобы сбой был заметен сразу.
+  const [assetMsg, setAssetMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [results, setResults] = useState<Record<string, UploadResult & { label: string }>>({});
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [confirm, setConfirm] = useState(false);
@@ -130,20 +149,24 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
   const loadAssets = () => {
     if (pending || selectedList.length === 0) return;
     setMsg(null);
+    setAssetMsg(null);
     start(async () => {
       const targets = selectedList.filter((c) => !assets[c.id]);
       const list = targets.length ? targets : selectedList;
       const got = await Promise.all(list.map(async (c) => [c.id, await loadCabinetAssets(c.id)] as const));
       const nA = { ...assets }, nP = { ...pageByAcc }, nX = { ...pixelByAcc };
       const fails: string[] = [];
+      let okCount = 0;
       for (const [id, r] of got) {
-        if (!r.ok) { fails.push(byId.get(id)?.name || id); continue; }
+        if (!r.ok) { fails.push(`${byId.get(id)?.name || id} — ${friendlyReason(r.error)}`); continue; }
+        okCount += 1;
         nA[id] = { pages: r.pages ?? [], pixels: r.pixels ?? [] };
         if ((r.pages?.length ?? 0) === 1) nP[id] = r.pages![0].id;
         if ((r.pixels?.length ?? 0) === 1) nX[id] = r.pixels![0].id;
       }
       setAssets(nA); setPageByAcc(nP); setPixelByAcc(nX);
-      if (fails.length) setMsg({ ok: false, text: `Не подтянулись: ${fails.join(', ')}` });
+      if (fails.length) setAssetMsg({ ok: false, text: `Не подтянулось: ${fails.join(' · ')}` });
+      else if (okCount) setAssetMsg({ ok: true, text: 'ФП и пиксели подтянуты.' });
     });
   };
 
@@ -375,6 +398,12 @@ export default function AutouploadForm({ cabinets, templates }: { cabinets: Cabi
             <button type="button" onClick={loadAssets} disabled={pending} className={`mt-3 rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12px] text-soft transition hover:border-sage hover:text-sage ${pending ? 'cursor-progress opacity-60' : ''}`}>
               {pending ? 'Читаю кабинеты…' : selectedList.every((c) => assets[c.id]) ? 'Обновить ФП/пиксели' : `Подтянуть ФП и пиксели (${selectedList.length})`}
             </button>
+          ) : null}
+          {/* Итог подтяжки — прямо под кнопкой, чтобы сбой был сразу заметен. */}
+          {assetMsg ? (
+            <div className="mt-2.5 rounded-[12px] border px-3 py-2 text-[12px]" style={assetMsg.ok ? { borderColor: '#3c4d33', background: '#1c241a', color: '#b4c68c' } : { borderColor: '#5a3a2a', background: '#2c1f1a', color: '#ce6e58' }}>
+              {assetMsg.text}
+            </div>
           ) : null}
         </div>
 
