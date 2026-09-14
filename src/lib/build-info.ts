@@ -1,1 +1,1 @@
-export const BUILD_INFO = '79b18de · 15.09 01:02';
+export const BUILD_INFO = '64bee3f · 15.09 01:06';
