@@ -7,6 +7,7 @@ import { prisma } from '@/lib/db';
 import { requireTeamView } from '@/lib/auth';
 import { moneyInputToCents } from '@/lib/format';
 import { DEFAULT_BACKFIX, partnerOf } from '@/lib/builder';
+import { isWeekEditable } from '@/lib/period';
 
 const list = (raw: FormDataEntryValue | null) =>
   JSON.stringify(
@@ -236,10 +237,14 @@ export async function addConsumable(formData: FormData) {
 }
 
 export async function deleteConsumable(formData: FormData) {
-  const user = await requireTeamView();
+  await requireTeamView();
   const id = String(formData.get('id') ?? '');
   const entry = await prisma.consumableEntry.findUnique({ where: { id } });
   if (!entry) return;
+  // Списания старше прошлой недели закрыты: удалять можно только текущую и
+  // прошлую неделю, позапрошлую и раньше — уже закрытый период (зарплаты
+  // посчитаны), задним числом не трогаем.
+  if (!isWeekEditable(entry.date)) return;
   await prisma.consumableEntry.delete({ where: { id } });
   revalidatePath('/consumables');
   revalidatePath('/');

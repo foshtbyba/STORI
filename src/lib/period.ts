@@ -152,6 +152,17 @@ export function shiftKey(key: string, by: number) {
   return isWeekKey(key) ? shiftWeek(key, by) : shiftPeriod(key, by);
 }
 
+/**
+ * Можно ли ещё трогать запись этой даты: открыты только текущая и прошлая
+ * неделя. Позапрошлая и раньше — закрытый период (зарплаты посчитаны), правкам
+ * и удалению задним числом там не место.
+ */
+export function isWeekEditable(date: Date, now: Date = new Date()): boolean {
+  const w = weekKey(date);
+  const cur = weekKey(now);
+  return w === cur || w === shiftKey(cur, -1);
+}
+
 /** Тот же момент времени, но другим масштабом: неделя ↔ месяц. */
 export function switchMode(key: string, mode: 'week' | 'month') {
   const { from } = rangeOf(key);

@@ -2,7 +2,7 @@ import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
 import { currentPeriodKey } from '@/lib/queries';
-import { periodRange, periodTitle, weekKey, fmtDay, isWeekKey, shiftKey } from '@/lib/period';
+import { periodRange, periodTitle, weekKey, fmtDay, isWeekKey, shiftKey, isWeekEditable } from '@/lib/period';
 import { usd, sum } from '@/lib/money';
 import { addConsumable, deleteConsumable } from '@/app/actions/catalog';
 import PeriodNav from '@/components/PeriodNav';
@@ -27,6 +27,9 @@ export default async function ConsumablesPage({
   const label = periodTitle(key);
   const scoped = scopeBuyerId(user);
   const canEdit = canSeeTeam(user.role as Role);
+  // Удалять списания можно только за текущую и прошлую неделю; позапрошлая и
+  // раньше — закрыто (по дате начала показанной недели).
+  const weekEditable = isWeekEditable(from);
 
   const [entries, types, buyers] = await Promise.all([
     prisma.consumableEntry.findMany({
@@ -111,7 +114,7 @@ export default async function ConsumablesPage({
               </div>
             }
           />
-          <div className="mt-4 min-h-0 flex-1 overflow-y-auto">
+          <div className="scroll-slim mt-4 min-h-0 flex-1 overflow-y-auto">
           <div className="grid grid-cols-[0.7fr_1.2fr_1fr_0.8fr] md:grid-cols-[0.6fr_1.2fr_1.2fr_1.6fr_0.7fr] pb-2.5">
             <span className="lab">Дата</span>
             <span className="lab">Тип</span>
@@ -145,7 +148,7 @@ export default async function ConsumablesPage({
                 </span>
                 <span className="flex items-center justify-end gap-3">
                   <span className="n text-[13.5px]">{usd(e.totalCents)}</span>
-                  {canEdit ? (
+                  {canEdit && weekEditable ? (
                     <form action={deleteConsumable}>
                       <input type="hidden" name="id" value={e.id} />
                       <button type="submit" className="text-[11px] text-dim transition hover:text-rust">✕</button>
