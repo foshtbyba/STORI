@@ -766,6 +766,9 @@ model CapitalAdjustment {
 /// одинаковой на SQLite и Postgres.
 model UploadTemplate {
   id               String   @id @default(cuid())
+  /// Владелец шаблона: у каждого свои. Автозалив — общий инструмент, но
+  /// шаблоны и настройки к ним личные, чужие не показываем.
+  userId           String   @default("")
   name             String
   /// ISO-коды стран через запятую: «US,DE,FR».
   countries        String   @default("")
@@ -784,6 +787,8 @@ model UploadTemplate {
   archived         Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  @@index([userId])
 }
 
 /// Запись о запуске автозалива — для истории и разбора, что именно ушло в ФБ.

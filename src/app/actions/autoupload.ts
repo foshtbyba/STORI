@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
-import { requireUser, requireAdmin } from '@/lib/auth';
+import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import {
   fbAccess,
@@ -63,12 +63,12 @@ function csvUpper(s: string): string[] {
     .filter(Boolean);
 }
 
-// ── Шаблоны гео (админ) ───────────────────────────────────────────────────
+// ── Шаблоны гео (личные — у каждого свои) ──────────────────────────────────
 
 export type TemplateState = { ok: boolean; error?: string } | null;
 
 export async function saveTemplate(_prev: TemplateState, form: FormData): Promise<TemplateState> {
-  await requireAdmin();
+  const user = await requireUser();
   const id = String(form.get('id') ?? '').trim();
   const name = String(form.get('name') ?? '').trim();
   if (!name) return { ok: false, error: 'Название шаблона пустое' };
@@ -86,8 +86,13 @@ export async function saveTemplate(_prev: TemplateState, form: FormData): Promis
 
   const data = { name, countries, excluded, ageMin, ageMax, genders, dailyBudgetCents, event, cta };
   try {
-    if (id) await prisma.uploadTemplate.update({ where: { id }, data });
-    else await prisma.uploadTemplate.create({ data });
+    if (id) {
+      // Правим только свой шаблон — updateMany с фильтром по владельцу.
+      const r = await prisma.uploadTemplate.updateMany({ where: { id, userId: user.id }, data });
+      if (r.count === 0) return { ok: false, error: 'Это не твой шаблон' };
+    } else {
+      await prisma.uploadTemplate.create({ data: { ...data, userId: user.id } });
+    }
   } catch {
     return { ok: false, error: 'Не удалось сохранить шаблон' };
   }
@@ -96,10 +101,10 @@ export async function saveTemplate(_prev: TemplateState, form: FormData): Promis
 }
 
 export async function deleteTemplate(_prev: TemplateState, form: FormData): Promise<TemplateState> {
-  await requireAdmin();
+  const user = await requireUser();
   const id = String(form.get('id') ?? '').trim();
   if (!id) return { ok: false, error: 'Нет id' };
-  await prisma.uploadTemplate.update({ where: { id }, data: { archived: true } });
+  await prisma.uploadTemplate.updateMany({ where: { id, userId: user.id }, data: { archived: true } });
   revalidatePath('/ads/upload');
   return { ok: true };
 }
@@ -121,7 +126,7 @@ async function accountAccessFor(accountId: string) {
   // (SKO/MPR); на кабинеты баеров заливать нельзя даже админу.
   if (!own && !(team && tok.buyer.owner)) return { error: 'На этот кабинет заливать нельзя' as const };
   const { token, net } = fbAccess(tok.token, { cookiesJson: tok.cookiesJson, proxyUrl: tok.proxyUrl });
-  return { acc, tok, token, net, buyerId: user.buyer?.id ?? null };
+  return { acc, tok, token, net, buyerId: user.buyer?.id ?? null, userId: user.id };
 }
 
 export type CabinetAssets = {
@@ -185,8 +190,11 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
   // Шаблон гео (обязателен — из него таргет).
   const templateId = String(form.get('templateId') ?? '');
-  const tpl = templateId ? await prisma.uploadTemplate.findUnique({ where: { id: templateId } }) : null;
-  if (!tpl) return { ok: false, error: 'Выбери шаблон гео' };
+  // Только свой шаблон — чужой id использовать нельзя.
+  const tpl = templateId
+    ? await prisma.uploadTemplate.findFirst({ where: { id: templateId, userId: ctx.userId } })
+    : null;
+  if (!tpl) return { ok: false, error: 'Выбери свой шаблон гео' };
 
   const pageId = String(form.get('pageId') ?? '').trim();
   const pixelId = String(form.get('pixelId') ?? '').trim();
