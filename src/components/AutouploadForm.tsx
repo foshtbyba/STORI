@@ -50,6 +50,27 @@ const modeLabel = (m: Mode) => (m === 'active' ? 'в актив' : m === 'schedu
  * Человеческая причина, почему кабинет не подтянулся. Ошибки токена/сессии
  * (протух, отозван, «сессия кончилась», код 190/1/100) сводим к «токен слетел».
  */
+/** Ссылка валидна: http(s):// + домен с точкой, без пробелов. */
+function isLinkValid(s: string): boolean {
+  return /^https?:\/\/[^\s]+\.[^\s]+$/i.test(s.trim());
+}
+
+/**
+ * В поле ссылки — только ссылка. При вставке достаём из буфера первый http(s)-URL;
+ * если его нет, но вставили голый домен (example.com/path) — дописываем https://.
+ * Иначе вставку не принимаем (вернём '' → вызывающий покажет подсказку).
+ */
+function extractUrl(text: string): string {
+  const t = (text || '').trim();
+  const m = t.match(/https?:\/\/[^\s<>"']+/i);
+  if (m) return m[0];
+  // Голый домен без схемы: буквы/цифры, хотя бы одна точка, опц. путь.
+  if (/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9-]+)+(?:\/[^\s<>"']*)?$/i.test(t)) {
+    return `https://${t}`;
+  }
+  return '';
+}
+
 function friendlyReason(err?: string): string {
   const e = (err ?? '').toLowerCase();
   if (!e) return 'токен слетел (обнови токен кабинета)';
@@ -90,6 +111,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
   const [templateId, setTemplateId] = useState('');
   const [campaignName, setCampaignName] = useState('');
   const [link, setLink] = useState('');
+  const [linkWarn, setLinkWarn] = useState('');
   const [budget, setBudget] = useState('');
   const [message, setMessage] = useState('');
   const [headline, setHeadline] = useState('');
@@ -532,7 +554,35 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           <div className="mt-2.5 grid gap-2">
             <input value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="Название кампании (оно же у адсета и объявлений)" className={inp} />
             <div className="grid gap-2 sm:grid-cols-[1fr_140px]">
-              <input value={link} onChange={(e) => setLink(e.target.value)} placeholder="Ссылка на лендинг (https://…)" className={inp} />
+              <div>
+                <input
+                  value={link}
+                  type="url"
+                  inputMode="url"
+                  spellCheck={false}
+                  autoComplete="off"
+                  onChange={(e) => {
+                    // Пробелы/переносы в URL недопустимы — вырезаем сразу, чтобы
+                    // нельзя было впечатать текст с пробелами.
+                    setLink(e.target.value.replace(/\s+/g, ''));
+                    setLinkWarn('');
+                  }}
+                  onPaste={(e) => {
+                    // Вставляем только ссылку: достаём URL из буфера, прочее не пускаем.
+                    e.preventDefault();
+                    const url = extractUrl(e.clipboardData.getData('text'));
+                    if (url) { setLink(url); setLinkWarn(''); }
+                    else setLinkWarn('Сюда можно вставить только ссылку (http(s)://…)');
+                  }}
+                  placeholder="Ссылка на лендинг (https://…)"
+                  className={`${inp} ${link && !isLinkValid(link) ? 'border-rust focus:border-rust' : ''}`}
+                />
+                {linkWarn ? (
+                  <p className="mt-1 text-[11px] text-rust">{linkWarn}</p>
+                ) : link && !isLinkValid(link) ? (
+                  <p className="mt-1 text-[11px] text-rust">Ссылка должна начинаться с http(s):// и без пробелов.</p>
+                ) : null}
+              </div>
               <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" placeholder="$/день" className={inp} />
             </div>
             <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Текст объявления" rows={3} className="w-full rounded-xl border border-line2 bg-sub px-3 py-2 text-[12.5px] text-soft outline-none focus:border-sage" />

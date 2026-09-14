@@ -24,14 +24,6 @@ import {
   type FbNet,
 } from '@/lib/fb';
 
-/** Страны ЕС/ЕЭЗ — при таргете на них ФБ требует DSA-декларацию (кто продвигается
- *  и кто платит), иначе код 100/3858081. */
-const EEA = new Set([
-  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU',
-  'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES',
-  'SE', 'IS', 'LI', 'NO',
-]);
-
 /**
  * Автозалив — оркестрация создания кампании в Facebook по шаблону гео.
  *
@@ -416,14 +408,13 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // DSA (ЕС): если среди целевых стран есть ЕС/ЕЭЗ, нужно объявить, кого
     // продвигаем и кто платит. По умолчанию берём имя выбранной страницы (ФП) —
     // ФБ принимает его как имя рекламодателя. Без страны ЕС — не трогаем.
-    let dsaBeneficiary = '';
-    let dsaPayer = '';
-    if (countries.some((c) => EEA.has(c))) {
-      const pageName = await getPageName(token, pageId, net);
-      dsaBeneficiary = pageName || ctx.acc.name || 'Advertiser';
-      dsaPayer = dsaBeneficiary;
-      append(`DSA (ЕС): продвигается/платит — ${dsaBeneficiary}`);
-    }
+    // Ставим ВСЕГДА (не только для ЕС): ФБ всё чаще требует это и вне ЕС, а для
+    // не-ЕС гео поля просто метаданные — вреда нет. Так залив не спотыкается о
+    // DSA независимо от гео. Значение — имя выбранной ФП (ФБ берёт как рекламодателя).
+    const pageName = await getPageName(token, pageId, net);
+    let dsaBeneficiary = pageName || ctx.acc.name || 'Advertiser';
+    let dsaPayer = dsaBeneficiary;
+    append(`DSA: продвигается/платит — ${dsaBeneficiary}`);
 
     // 2. Адсет с бюджетом и таргетом. Плейсменты, которые кабинет/цель не
     //    принимают (ФБ: «Invalid value X for the placement field …»), сами
@@ -452,7 +443,8 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         }, net);
         break;
       } catch (e) {
-        const m = (e as Error).message.match(/Invalid value (\S+?)[.,\s]*for the placement field/i);
+        const msg = (e as Error).message;
+        const m = msg.match(/Invalid value (\S+?)[.,\s]*for the placement field/i);
         if (m && placements.length) {
           const badVal = m[1];
           const next = stripPlacementValue(placements, badVal);
@@ -462,6 +454,19 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
             await sleep(400);
             continue;
           }
+        }
+        // DSA (ЕС): ФБ требует указать бенефициара/плательщика (коды 3858079/
+        // 3858081 или текст про «человека или организацию»). Если ещё не задали —
+        // подставляем имя ФП и повторяем. Так пройдёт даже если целевая страна
+        // не попала в наш список ЕЭЗ.
+        const needsDsa = /385807\d|385808\d|человека или организацию|dsa_|beneficiary|payer/i.test(msg);
+        if (needsDsa && !dsaBeneficiary) {
+          const pageName = await getPageName(token, pageId, net);
+          dsaBeneficiary = pageName || ctx.acc.name || 'Advertiser';
+          dsaPayer = dsaBeneficiary;
+          append(`DSA (ЕС): ФБ запросил бенефициара — подставил «${dsaBeneficiary}» и повторяю`);
+          await sleep(400);
+          continue;
         }
         throw e;
       }
