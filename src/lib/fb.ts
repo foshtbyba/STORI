@@ -309,7 +309,9 @@ function fbHint(code: number, subcode: number | undefined, why: string): string 
   // событие не подходит к цели кампании) — тогда честнее оставить текст ФБ, а не
   // валить на токен. Без субкода на нашем /me это обычно битый токен.
   if (code === 100) {
-    if (subcode) return null;
+    // С субкодом или с явным «param … must be one of …» это конкретная ошибка
+    // параметров запроса (не токен) — оставляем текст ФБ как есть.
+    if (subcode || w.includes('param ') || w.includes('must be one of') || w.includes('_spec')) return null;
     return 'Facebook не понял запрос — обычно так отвечает на неполный или испорченный токен.';
   }
   // Троттлинг: частые запросы к API.
@@ -1245,41 +1247,6 @@ export type CreateCreativeInput = {
   description?: string;
 };
 
-/**
- * creative_features_spec со всеми известными авто-улучшениями в OPT_OUT.
- * Неизвестные ключи Мета из спека просто отбрасывает, поэтому список можно
- * держать широким — лишнее не ломает создание креатива.
- */
-function noEnhancements(): Record<string, { enroll_status: 'OPT_OUT' }> {
-  const KEYS = [
-    'standard_enhancements',
-    'enhance_cta',
-    'image_brightness_and_contrast',
-    'text_optimizations',
-    'image_templates',
-    'image_touchups',
-    'video_auto_crop',
-    'image_uncrop',
-    'add_text_overlay',
-    'overlay',
-    'music',
-    '3d_animation',
-    'image_animation',
-    'translate_text',
-    'catalog_feed_tags',
-    'site_extensions',
-    'product_extensions',
-    'description_automation',
-    'adapt_to_placement',
-    'media_type_automation',
-    'relevant_audience_comments',
-    'profile_card',
-  ];
-  const spec: Record<string, { enroll_status: 'OPT_OUT' }> = {};
-  for (const k of KEYS) spec[k] = { enroll_status: 'OPT_OUT' };
-  return spec;
-}
-
 export async function createAdCreative(token: string, externalId: string, i: CreateCreativeInput, net: FbNet = {}) {
   const linkData: Record<string, unknown> = {
     message: i.message,
@@ -1293,12 +1260,14 @@ export async function createAdCreative(token: string, externalId: string, i: Cre
   const params: Record<string, string> = {
     name: i.name,
     object_story_spec: JSON.stringify(objectStorySpec),
-    // Отключаем авто-улучшения креатива Меты (Advantage+/Essential). На v22+
-    // модель opt-in: не включённое не применяется, но «essential» ФБ иногда
-    // тащит сам — поэтому вдобавок явно OPT_OUT по каждому известному ключу
-    // (в т.ч. enhance CTA, яркость/контраст, тексты, шаблоны, комментарии,
-    // спотлайты, оверлеи, музыка, туч-апы).
-    degrees_of_freedom_spec: JSON.stringify({ creative_features_spec: noEnhancements() }),
+    // Отключаем авто-улучшения креатива Меты. На v22 действует модель opt-in:
+    // что не включили — не применяется, поэтому достаточно зонтичного
+    // standard_enhancements=OPT_OUT. ВАЖНО: v22 ВАЛИДИРУЕТ ключи и отбивает весь
+    // креатив (код 100) на неизвестном ключе — поэтому шлём только этот один
+    // документированный ключ, без «широкого» списка догадок.
+    degrees_of_freedom_spec: JSON.stringify({
+      creative_features_spec: { standard_enhancements: { enroll_status: 'OPT_OUT' } },
+    }),
   };
   if (i.urlTags && i.urlTags.trim()) params.url_tags = i.urlTags.trim();
   const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST', CREATE_API_VERSION);
