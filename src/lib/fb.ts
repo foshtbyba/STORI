@@ -1349,9 +1349,6 @@ export async function createAdset(token: string, externalId: string, i: CreateAd
     promoted_object: JSON.stringify({ pixel_id: i.pixelId, custom_event_type: i.event || 'PURCHASE' }),
     targeting: JSON.stringify(targeting),
     status: i.status || 'PAUSED',
-    // Multi-advertiser ads — выключаем всегда: объявление не должно показываться
-    // в общей ленте с чужими и не должно быть перекадрировано.
-    contextual_multi_ads: JSON.stringify({ enroll_status: 'OPT_OUT' }),
     // Окно атрибуции 7-1-1: 7 дней по клику, 1 день по просмотру и 1 день по
     // просмотру видео — как ставим руками.
     attribution_spec: JSON.stringify([
@@ -1663,6 +1660,10 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
     for (const k of optOut) spec[k] = { enroll_status: 'OPT_OUT' };
     params.degrees_of_freedom_spec = JSON.stringify({ creative_features_spec: spec });
   }
+  // Multi-advertiser ads выключаем на КРЕАТИВЕ: contextual_multi_ads — поле
+  // AdCreative (тип EnrollStatus, шлём строкой 'OPT_OUT'), НЕ адсета. Так
+  // объявление не показывается в общей ленте с чужими и не перекадрируется.
+  params.contextual_multi_ads = 'OPT_OUT';
   if (i.urlTags && i.urlTags.trim()) params.url_tags = i.urlTags.trim();
 
   // Языковая кастомизация по locale поддержана в актуальных версиях. Если кабинет
@@ -1722,6 +1723,10 @@ export async function createVideoAdCreative(token: string, externalId: string, i
     for (const k of optOut) spec[k] = { enroll_status: 'OPT_OUT' };
     params.degrees_of_freedom_spec = JSON.stringify({ creative_features_spec: spec });
   }
+  // Multi-advertiser ads выключаем на КРЕАТИВЕ: contextual_multi_ads — поле
+  // AdCreative (тип EnrollStatus, шлём строкой 'OPT_OUT'), НЕ адсета. Так
+  // объявление не показывается в общей ленте с чужими и не перекадрируется.
+  params.contextual_multi_ads = 'OPT_OUT';
   if (i.urlTags && i.urlTags.trim()) params.url_tags = i.urlTags.trim();
   const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST', CREATE_API_VERSION);
   const id = body.id as string | undefined;
@@ -1859,6 +1864,10 @@ export async function createAdCreative(token: string, externalId: string, i: Cre
     for (const k of optOut) spec[k] = { enroll_status: 'OPT_OUT' };
     params.degrees_of_freedom_spec = JSON.stringify({ creative_features_spec: spec });
   }
+  // Multi-advertiser ads выключаем на КРЕАТИВЕ: contextual_multi_ads — поле
+  // AdCreative (тип EnrollStatus, шлём строкой 'OPT_OUT'), НЕ адсета. Так
+  // объявление не показывается в общей ленте с чужими и не перекадрируется.
+  params.contextual_multi_ads = 'OPT_OUT';
   if (i.urlTags && i.urlTags.trim()) params.url_tags = i.urlTags.trim();
   const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST', CREATE_API_VERSION);
   const id = body.id as string | undefined;
