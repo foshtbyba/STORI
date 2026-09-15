@@ -1326,29 +1326,43 @@ export async function uploadAdImage(token: string, externalId: string, bytes: Bu
  * дальше его нужно дождаться в обработке (waitVideoReady).
  */
 export async function uploadVideo(token: string, externalId: string, bytes: Buffer, filename: string, net: FbNet = {}): Promise<string> {
-  const form = new FormDataNode();
-  form.append('access_token', token);
-  form.append('source', bytes, { filename: filename || 'video.mp4' });
-
   const url = `${API}/${externalId}/advideos`;
-  const headers: Record<string, string> = { ...form.getHeaders() };
-  if (net.ua) headers['User-Agent'] = net.ua;
-  if (net.cookie) headers['Cookie'] = net.cookie;
   const agent = net.proxyUrl ? proxyAgent(net.proxyUrl) : undefined;
+  // Ролики бывают тяжёлыми, а через прокси канал узкий — даём щедрый таймаут
+  // (10 мин) и повторяем при обрыве/таймауте сети (не при ошибке самого FB).
+  const TIMEOUT = 600000;
+  const TRIES = 3;
 
-  let status: number;
-  let text: string;
-  try {
-    const res = await axios.request({
-      method: 'POST', url, headers, data: form,
-      ...(agent ? { httpAgent: agent, httpsAgent: agent } : {}),
-      maxContentLength: Infinity, maxBodyLength: Infinity, timeout: 180000,
-      responseType: 'text', transformResponse: [(d) => d], validateStatus: () => true,
-    });
-    status = res.status; text = String(res.data ?? '');
-  } catch (e) {
-    throw new FbError(`Не загрузили видео в FB: ${(e as Error).message}`);
+  let status = 0;
+  let text = '';
+  let lastNetErr = '';
+  let sent = false;
+  for (let attempt = 1; attempt <= TRIES; attempt += 1) {
+    // FormData одноразовая (это поток) — пересобираем на каждую попытку.
+    const form = new FormDataNode();
+    form.append('access_token', token);
+    form.append('source', bytes, { filename: filename || 'video.mp4' });
+    const headers: Record<string, string> = { ...form.getHeaders() };
+    if (net.ua) headers['User-Agent'] = net.ua;
+    if (net.cookie) headers['Cookie'] = net.cookie;
+    try {
+      const res = await axios.request({
+        method: 'POST', url, headers, data: form,
+        ...(agent ? { httpAgent: agent, httpsAgent: agent } : {}),
+        maxContentLength: Infinity, maxBodyLength: Infinity, timeout: TIMEOUT,
+        responseType: 'text', transformResponse: [(d) => d], validateStatus: () => true,
+      });
+      status = res.status; text = String(res.data ?? '');
+      sent = true;
+      break;
+    } catch (e) {
+      // Сетевой сбой/таймаут — повторяем; на последней попытке отдаём ошибку.
+      lastNetErr = (e as Error).message;
+      if (attempt < TRIES) { await new Promise((r) => setTimeout(r, 2000 * attempt)); continue; }
+    }
   }
+  if (!sent) throw new FbError(`Не загрузили видео в FB (после ${TRIES} попыток): ${lastNetErr}`);
+
   let body: unknown;
   try { body = JSON.parse(text); } catch { throw new FbError(`FB ответил не по-json (${status}) на загрузку видео`); }
   const err = (body as { error?: { message?: string; code?: number } }).error;
