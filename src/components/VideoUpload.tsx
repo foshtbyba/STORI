@@ -21,7 +21,7 @@ type VideoDraft = {
   templateId: string; tplName: string;
   campaignName: string; link: string; budget: string;
   message: string; headline: string; description: string;
-  fbPixel: string; mode: Mode; startLocal: string;
+  fbPixel: string; fbpxManual: string; mode: Mode; startLocal: string;
   withLanguages: boolean; mainLocale: string;
   video: File | null;
 };
@@ -33,7 +33,6 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 const inp = 'h-9 w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage';
 const box = 'rounded-[16px] border border-line bg-panel/40 px-4 py-4 sm:px-5';
 const stepBadge = 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-t text-[12px] font-semibold text-sage';
-const DEFAULT_TAGS_VIDEO = 'ad_id={{ad.id}}&fbpx={{pixel}}&fb_pixel={{fbpixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
 
 function nextMoscowMidnight(): string {
   const now = new Date();
@@ -74,6 +73,9 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
   const [message, setMessage] = useState('');
   const [headline, setHeadline] = useState('');
   const [description, setDescription] = useState('');
+  // fbpx — пиксель в метке (меняется часто, не запоминаем; пусто → пиксель кабинета).
+  const [fbpxManual, setFbpxManual] = useState('');
+  // fb_pixel — число в метке (меняется редко, запоминаем за баером / за овнер-именем).
   const [fbPixel, setFbPixel] = useState('');
   const [mode, setMode] = useState<Mode>('paused');
   const [startLocal, setStartLocal] = useState('');
@@ -103,6 +105,18 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
   }, []);
   useEffect(() => { try { localStorage.setItem('videoupload:owner', owner); } catch { /* игнор */ } }, [owner]);
   useEffect(() => { try { localStorage.setItem('videoupload:selected', JSON.stringify([...selected])); } catch { /* игнор */ } }, [selected]);
+
+  // fb_pixel запоминаем ЗА ОВНЕР-ИМЕНЕМ (для баера owner = его хэндл, для овнера —
+  // SKO/MPR). При смене овнера подставляем сохранённое значение этого овнера.
+  useEffect(() => {
+    if (!owner) return;
+    try { setFbPixel(localStorage.getItem(`videoupload:fbpixel:${owner}`) ?? ''); } catch { /* игнор */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [owner]);
+  useEffect(() => {
+    if (!owner) return;
+    try { localStorage.setItem(`videoupload:fbpixel:${owner}`, fbPixel); } catch { /* игнор */ }
+  }, [owner, fbPixel]);
 
   const tpl = templates.find((t) => t.id === templateId) ?? null;
   const ownerCabs = cabinets.filter((c) => c.group === owner);
@@ -228,7 +242,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
       templateId, tplName: tpl?.name ?? '',
       campaignName: campaignName.trim(), link: link.trim(), budget: budget.trim(),
       message: message.trim(), headline: headline.trim(), description: description.trim(),
-      fbPixel: fbPixel.trim(), mode, startLocal,
+      fbPixel: fbPixel.trim(), fbpxManual: fbpxManual.trim(), mode, startLocal,
       withLanguages, mainLocale,
       video,
     }));
@@ -256,7 +270,10 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         fd.set('message', d.message);
         fd.set('headline', d.headline);
         fd.set('description', d.description);
-        fd.set('urlTags', DEFAULT_TAGS_VIDEO);
+        // Метки собираем из двух полей: fbpx (пусто → пиксель кабинета {{pixel}})
+        // и fb_pixel (число). Остальное подставит ФБ/сервер.
+        const tags = `ad_id={{ad.id}}&fbpx=${d.fbpxManual || '{{pixel}}'}&fb_pixel=${d.fbPixel || '{{fbpixel}}'}&account_id={{account.id}}&campaign_id={{campaign.id}}`;
+        fd.set('urlTags', tags);
         fd.set('manualPixel', d.fbPixel);
         fd.set('mode', d.mode);
         if (d.withLanguages) fd.set('withLanguages', '1');
@@ -399,9 +416,17 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
             <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Описание под ссылкой (опц.)" className={inp} />
           </div>
           <div className="rounded-xl border border-amber/40 bg-amber-t/40 px-3 py-2">
-            <div className="mb-1 text-[11.5px] font-semibold text-amber">fb_pixel — впиши вручную</div>
-            <input value={fbPixel} onChange={(e) => setFbPixel(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder="напр. 5645645435" className={`n ${inp}`} />
-            <p className="mt-1 text-[11px] text-dim">Подставится в метку <code className="text-mute">fb_pixel=…</code>. Вводишь при каждом заливе — не запоминаем.</p>
+            <div className="mb-1 text-[11.5px] font-semibold text-amber">Пиксель в метке ссылки</div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div>
+                <input value={fbpxManual} onChange={(e) => setFbpxManual(e.target.value.trim())} placeholder="пиксель (fbpx) — пусто = пиксель кабинета" className={`n ${inp}`} />
+                <p className="mt-1 text-[11px] text-dim"><code className="text-mute">fbpx=</code> · меняется часто, не запоминаем. Пусто — подставим пиксель кабинета.</p>
+              </div>
+              <div>
+                <input value={fbPixel} onChange={(e) => setFbPixel(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder="fb_pixel, напр. 5645645435" className={`n ${inp}`} />
+                <p className="mt-1 text-[11px] text-dim"><code className="text-mute">fb_pixel=</code> · меняется редко, запоминаем за {owner || 'вами'}.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
