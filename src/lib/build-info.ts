@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'two-col-creative · 15.09 14:51';
+export const BUILD_INFO = 'creative-box-equal · 15.09 15:03';

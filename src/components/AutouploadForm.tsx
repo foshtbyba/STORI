@@ -453,7 +453,8 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           {editingId ? <button type="button" onClick={resetConstructor} className="text-[11.5px] text-mute transition hover:text-text">отменить правку</button> : null}
         </div>
 
-        {/* 1 · Кабинеты + 2 · Креативы — в две колонки, чтобы справа не пустовало место. */}
+        {/* 1 · Кабинеты + 2 · Креативы — в две колонки, равной высоты (stretch),
+            чтобы правый бокс совпадал по размеру с видео-заливом. */}
         <div className="grid gap-4 lg:grid-cols-2">
         <div className={box}>
           <div className="flex flex-wrap items-center gap-2.5">
