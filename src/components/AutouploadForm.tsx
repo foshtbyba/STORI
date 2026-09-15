@@ -453,7 +453,8 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           {editingId ? <button type="button" onClick={resetConstructor} className="text-[11.5px] text-mute transition hover:text-text">отменить правку</button> : null}
         </div>
 
-        {/* 1 · Овнер + кабинеты */}
+        {/* 1 · Кабинеты + 2 · Креативы — в две колонки, чтобы справа не пустовало место. */}
+        <div className="grid gap-4 lg:grid-cols-2">
         <div className={box}>
           <div className="flex flex-wrap items-center gap-2.5">
             <span className={stepBadge}>1</span>
@@ -511,11 +512,33 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           ) : null}
         </div>
 
-        {/* 2 · ФП + пиксель по кабинетам */}
+        {/* 2 · Креативы — справа от кабинетов */}
+        <div className={box}>
+          <div className="flex items-center gap-2.5">
+            <span className={stepBadge}>2</span>
+            <span className="text-[13px] font-semibold">Креативы</span>
+            {files.length > 0 ? <span className="ml-auto text-[12px] text-sage">{files.length} шт.</span> : null}
+          </div>
+          <p className="mt-1.5 text-[11px] text-mute">Каждая картинка — отдельное объявление. До 20 штук. Авто-улучшения Меты отключаем.</p>
+          <input ref={fileInput} type="file" accept="image/*" multiple onChange={(e) => addFiles(e.target.files)} className="mt-2 block w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
+          {files.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {files.map((f, i) => (
+                <span key={`${f.name}${i}`} className="flex items-center gap-1.5 rounded-full border border-line bg-sub px-2.5 py-1 text-[11px] text-soft">
+                  <span className="max-w-[140px] truncate">{f.name}</span>
+                  <button type="button" onClick={() => setFiles((prev) => prev.filter((_, j) => j !== i))} className="text-mute transition hover:text-rust">×</button>
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </div>
+        </div>
+
+        {/* 3 · ФП + пиксель по кабинетам */}
         {anyAssets ? (
           <div className={box}>
             <div className="flex items-center gap-2.5">
-              <span className={stepBadge}>2</span>
+              <span className={stepBadge}>3</span>
               <span className="text-[13px] font-semibold">Страница и пиксель по кабинетам</span>
             </div>
             <div className="mt-3 flex flex-col gap-2.5">
@@ -552,10 +575,10 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           </div>
         ) : null}
 
-        {/* 3 · Шаблон + объявление */}
+        {/* 4 · Шаблон + объявление */}
         <div className={box}>
           <div className="flex items-center gap-2.5">
-            <span className={stepBadge}>3</span>
+            <span className={stepBadge}>4</span>
             <span className="text-[13px] font-semibold">Шаблон гео и объявление</span>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -611,26 +634,6 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           </div>
         </div>
 
-        {/* 4 · Креативы */}
-        <div className={box}>
-          <div className="flex items-center gap-2.5">
-            <span className={stepBadge}>4</span>
-            <span className="text-[13px] font-semibold">Креативы</span>
-            {files.length > 0 ? <span className="ml-auto text-[12px] text-sage">{files.length} шт.</span> : null}
-          </div>
-          <p className="mt-1.5 text-[11px] text-mute">Каждая картинка — отдельное объявление. До 20 штук. Авто-улучшения Меты отключаем.</p>
-          <input ref={fileInput} type="file" accept="image/*" multiple onChange={(e) => addFiles(e.target.files)} className="mt-2 block w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
-          {files.length > 0 ? (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {files.map((f, i) => (
-                <span key={`${f.name}${i}`} className="flex items-center gap-1.5 rounded-full border border-line bg-sub px-2.5 py-1 text-[11px] text-soft">
-                  <span className="max-w-[140px] truncate">{f.name}</span>
-                  <button type="button" onClick={() => setFiles((prev) => prev.filter((_, j) => j !== i))} className="text-mute transition hover:text-rust">×</button>
-                </span>
-              ))}
-            </div>
-          ) : null}
-        </div>
 
         {/* 5 · Режим. Кнопка «в очередь» — справа в шапке плашки. */}
         <div className={box}>

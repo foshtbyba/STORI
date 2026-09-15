@@ -299,7 +299,8 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         <span className="text-[13px] font-semibold text-soft">Новый залив</span>
       </div>
 
-      {/* 1 · Овнер + кабинеты */}
+      {/* 1 · Кабинеты + 2 · Ролик и языки — в две колонки, чтобы справа не пустовало место. */}
+      <div className="grid gap-4 lg:grid-cols-2">
       <div className={box}>
         <div className="flex flex-wrap items-center gap-2.5">
           <span className={stepBadge}>1</span>
@@ -356,89 +357,10 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         ) : null}
       </div>
 
-      {/* 2 · ФП + пиксель по кабинетам */}
-      {anyAssets ? (
-        <div className={box}>
-          <div className="flex items-center gap-2.5">
-            <span className={stepBadge}>2</span>
-            <span className="text-[13px] font-semibold">Страница и пиксель по кабинетам</span>
-          </div>
-          <div className="mt-3 flex flex-col gap-2.5">
-            {selectedList.map((c) => {
-              const a = assets[c.id];
-              if (!a) return <div key={c.id} className="rounded-[12px] border border-line px-3 py-2 text-[12px] text-mute">{c.name || c.externalId} — не подтянут.</div>;
-              return (
-                <div key={c.id} className="rounded-[12px] border border-line px-3 py-2.5">
-                  <div className="text-[12px] font-medium text-soft">{c.name || c.externalId}</div>
-                  {/* 4 колонки: выбрать ФП · создать ФП · выбрать пиксель · создать пиксель. */}
-                  <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                    <select value={pageByAcc[c.id] ?? ''} onChange={(e) => setPageByAcc((p) => ({ ...p, [c.id]: e.target.value }))} className={inp}>
-                      <option value="">— страница (ФП) —</option>
-                      {a.pages.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                    </select>
-                    <div className="flex items-center gap-2">
-                      <input value={newPageByAcc[c.id] ?? ''} onChange={(e) => setNewPageByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя новой ФП" className={`${inp} min-w-0 flex-1`} />
-                      <button type="button" onClick={() => addPage(c.id)} disabled={pending} className="shrink-0 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ ФП</button>
-                    </div>
-                    <select value={pixelByAcc[c.id] ?? ''} onChange={(e) => setPixelByAcc((p) => ({ ...p, [c.id]: e.target.value }))} className={inp}>
-                      <option value="">— пиксель —</option>
-                      {a.pixels.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                    </select>
-                    <div className="flex items-center gap-2">
-                      <input value={newPixelByAcc[c.id] ?? ''} onChange={(e) => setNewPixelByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя нового пикселя" className={`${inp} min-w-0 flex-1`} />
-                      <button type="button" onClick={() => addPixel(c.id)} disabled={pending} className="shrink-0 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ пиксель</button>
-                    </div>
-                  </div>
-                  {a.pages.length === 0 ? <p className="mt-1.5 text-[11px] text-rust">нет страниц под токеном — создай ФП слева</p> : null}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ) : null}
-
-      {/* 3 · Шаблон гео и объявление */}
+      {/* 2 · Ролик и языки — справа от кабинетов */}
       <div className={box}>
         <div className="flex items-center gap-2.5">
-          <span className={stepBadge}>3</span>
-          <span className="text-[13px] font-semibold">Шаблон гео и объявление</span>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <TemplatePicker templates={templates} value={templateId} onPick={onPickTemplate} />
-          {tpl ? <span className="rounded-full border border-line bg-sub px-3 py-1 text-[11.5px] text-mute">{tpl.countries} · {tpl.event}</span> : null}
-          {/* Ссылка на объявление и бюджет — справа от поиска шаблона. */}
-          <div className="ml-auto flex items-center gap-2">
-            <input value={link} onChange={(e) => setLink(e.target.value.replace(/\s+/g, ''))} type="url" placeholder="Ссылка на объявление (https://…)" className="h-9 w-[240px] max-w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage" />
-            <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" placeholder="$/день" className="h-9 w-[90px] rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage" />
-          </div>
-        </div>
-        <div className="mt-2.5 grid gap-2">
-          <input value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="Название кампании (оно же у адсета и объявлений)" className={inp} />
-          <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Текст объявления" rows={3} className="w-full rounded-xl border border-line2 bg-sub px-3 py-2 text-[12.5px] text-soft outline-none focus:border-sage" />
-          <div className="grid gap-2 sm:grid-cols-2">
-            <input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Заголовок (опц.)" className={inp} />
-            <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Описание под ссылкой (опц.)" className={inp} />
-          </div>
-          <div className="rounded-xl border border-amber/40 bg-amber-t/40 px-3 py-2">
-            <div className="mb-1 text-[11.5px] font-semibold text-amber">Метка fb_pixel в ссылке <span className="font-normal text-dim">· fbpx подставим автоматически (пиксель кабинета)</span></div>
-            <div className="grid gap-2 sm:grid-cols-[200px_1fr]">
-              <div>
-                <input value={fbPixelKey} onChange={(e) => setFbPixelKey(e.target.value.trim())} placeholder="fb_pixel" className={`n ${inp}`} />
-                <p className="mt-1 text-[11px] text-dim">Ключ (до «=») · меняется редко, запоминаем за {owner || 'вами'}.</p>
-              </div>
-              <div>
-                <input value={fbPixelNum} onChange={(e) => setFbPixelNum(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder="напр. 5645645435" className={`n ${inp}`} />
-                <p className="mt-1 text-[11px] text-dim">Число (после «=») · меняется часто, вставляй каждый залив.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 4 · Ролик и языки */}
-      <div className={box}>
-        <div className="flex items-center gap-2.5">
-          <span className={stepBadge}>4</span>
+          <span className={stepBadge}>2</span>
           <span className="text-[13px] font-semibold">Ролик и языки</span>
           {video ? <span className="ml-auto text-[12px] text-sage">1 ролик</span> : null}
         </div>
@@ -486,6 +408,86 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         {withLanguages && languages.length ? (
           <p className="mt-2 text-[11px] text-dim">Дефолт объявления — язык «по умолчанию» выше (или первый из пака), остальные FB покажет по языку пользователя. Языки без видео пропустятся.</p>
         ) : null}
+      </div>
+      </div>
+
+      {/* 3 · ФП + пиксель по кабинетам */}
+      {anyAssets ? (
+        <div className={box}>
+          <div className="flex items-center gap-2.5">
+            <span className={stepBadge}>3</span>
+            <span className="text-[13px] font-semibold">Страница и пиксель по кабинетам</span>
+          </div>
+          <div className="mt-3 flex flex-col gap-2.5">
+            {selectedList.map((c) => {
+              const a = assets[c.id];
+              if (!a) return <div key={c.id} className="rounded-[12px] border border-line px-3 py-2 text-[12px] text-mute">{c.name || c.externalId} — не подтянут.</div>;
+              return (
+                <div key={c.id} className="rounded-[12px] border border-line px-3 py-2.5">
+                  <div className="text-[12px] font-medium text-soft">{c.name || c.externalId}</div>
+                  {/* 4 колонки: выбрать ФП · создать ФП · выбрать пиксель · создать пиксель. */}
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                    <select value={pageByAcc[c.id] ?? ''} onChange={(e) => setPageByAcc((p) => ({ ...p, [c.id]: e.target.value }))} className={inp}>
+                      <option value="">— страница (ФП) —</option>
+                      {a.pages.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    </select>
+                    <div className="flex items-center gap-2">
+                      <input value={newPageByAcc[c.id] ?? ''} onChange={(e) => setNewPageByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя новой ФП" className={`${inp} min-w-0 flex-1`} />
+                      <button type="button" onClick={() => addPage(c.id)} disabled={pending} className="shrink-0 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ ФП</button>
+                    </div>
+                    <select value={pixelByAcc[c.id] ?? ''} onChange={(e) => setPixelByAcc((p) => ({ ...p, [c.id]: e.target.value }))} className={inp}>
+                      <option value="">— пиксель —</option>
+                      {a.pixels.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    </select>
+                    <div className="flex items-center gap-2">
+                      <input value={newPixelByAcc[c.id] ?? ''} onChange={(e) => setNewPixelByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя нового пикселя" className={`${inp} min-w-0 flex-1`} />
+                      <button type="button" onClick={() => addPixel(c.id)} disabled={pending} className="shrink-0 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ пиксель</button>
+                    </div>
+                  </div>
+                  {a.pages.length === 0 ? <p className="mt-1.5 text-[11px] text-rust">нет страниц под токеном — создай ФП слева</p> : null}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {/* 4 · Шаблон гео и объявление */}
+      <div className={box}>
+        <div className="flex items-center gap-2.5">
+          <span className={stepBadge}>4</span>
+          <span className="text-[13px] font-semibold">Шаблон гео и объявление</span>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <TemplatePicker templates={templates} value={templateId} onPick={onPickTemplate} />
+          {tpl ? <span className="rounded-full border border-line bg-sub px-3 py-1 text-[11.5px] text-mute">{tpl.countries} · {tpl.event}</span> : null}
+          {/* Ссылка на объявление и бюджет — справа от поиска шаблона. */}
+          <div className="ml-auto flex items-center gap-2">
+            <input value={link} onChange={(e) => setLink(e.target.value.replace(/\s+/g, ''))} type="url" placeholder="Ссылка на объявление (https://…)" className="h-9 w-[240px] max-w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage" />
+            <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" placeholder="$/день" className="h-9 w-[90px] rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage" />
+          </div>
+        </div>
+        <div className="mt-2.5 grid gap-2">
+          <input value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="Название кампании (оно же у адсета и объявлений)" className={inp} />
+          <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Текст объявления" rows={3} className="w-full rounded-xl border border-line2 bg-sub px-3 py-2 text-[12.5px] text-soft outline-none focus:border-sage" />
+          <div className="grid gap-2 sm:grid-cols-2">
+            <input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Заголовок (опц.)" className={inp} />
+            <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Описание под ссылкой (опц.)" className={inp} />
+          </div>
+          <div className="rounded-xl border border-amber/40 bg-amber-t/40 px-3 py-2">
+            <div className="mb-1 text-[11.5px] font-semibold text-amber">Метка fb_pixel в ссылке <span className="font-normal text-dim">· fbpx подставим автоматически (пиксель кабинета)</span></div>
+            <div className="grid gap-2 sm:grid-cols-[200px_1fr]">
+              <div>
+                <input value={fbPixelKey} onChange={(e) => setFbPixelKey(e.target.value.trim())} placeholder="fb_pixel" className={`n ${inp}`} />
+                <p className="mt-1 text-[11px] text-dim">Ключ (до «=») · меняется редко, запоминаем за {owner || 'вами'}.</p>
+              </div>
+              <div>
+                <input value={fbPixelNum} onChange={(e) => setFbPixelNum(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder="напр. 5645645435" className={`n ${inp}`} />
+                <p className="mt-1 text-[11px] text-dim">Число (после «=») · меняется часто, вставляй каждый залив.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* 5 · Режим запуска. Кнопка «в очередь» — справа в шапке плашки. */}

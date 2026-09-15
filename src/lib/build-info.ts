@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'split-journals · 15.09 14:43';
+export const BUILD_INFO = 'two-col-creative · 15.09 14:51';
