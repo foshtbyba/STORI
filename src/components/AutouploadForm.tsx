@@ -461,7 +461,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
         {/* 1 · Кабинеты + 2 · Креативы — в две колонки, равной высоты (stretch),
             чтобы правый бокс совпадал по размеру с видео-заливом. */}
         <div className="grid gap-4 lg:grid-cols-2">
-        <div className={box}>
+        <div className={`${box} flex flex-col`}>
           <div className="flex flex-wrap items-center gap-2.5">
             <span className={stepBadge}>1</span>
             <span className="text-[13px] font-semibold">На кого заливаем</span>
@@ -477,7 +477,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
 
           {/* Шапка поиска вынесена ИЗ прокрутки (не sticky) — иначе кабинеты
               просвечивали над ней в скруглённых углах. Скроллятся только строки. */}
-          <div className="mt-3 overflow-hidden rounded-[12px] border border-line">
+          <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[12px] border border-line">
             <div className="flex items-center gap-2 border-b border-line bg-sub px-3 py-1.5">
               <span className="shrink-0 text-[11.5px] font-semibold text-amber">{owner} · кабинеты</span>
               <input
@@ -490,7 +490,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
                 {visibleCabs.length > 0 && visibleCabs.every((c) => selected.has(c.id)) ? 'снять все' : 'выбрать все'}
               </button>
             </div>
-            <div className="scroll-slim max-h-[240px] overflow-auto">
+            <div className="scroll-slim min-h-[220px] flex-1 overflow-auto">
               {visibleCabs.map((c) => (
                 <label key={c.id} className="flex cursor-pointer items-center gap-2.5 border-t border-line px-3 py-1.5 text-[12.5px] transition first:border-t-0 hover:bg-sub/60">
                   <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggle(c.id)} className="accent-[#b4c68c]" />
@@ -706,16 +706,15 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
         </div>
       </div>
 
-      {/* ОЧЕРЕДЬ */}
+      {/* ОЧЕРЕДЬ — показываем только когда есть очередь, идёт залив или уже есть результаты. */}
+      {(queue.length > 0 || progress || Object.keys(results).length > 0) ? (
       <div className="rounded-[16px] border border-line2 bg-panel/60 p-4 sm:p-5">
         <div className="flex items-center gap-2.5">
           <span className="text-[14px] font-semibold">Очередь заливов</span>
           <span className="text-[12px] text-mute">{queue.length} заливов · {totalTargets} кабинетов</span>
         </div>
 
-        {queue.length === 0 ? (
-          <p className="mt-3 text-[12px] text-mute">Пусто. Собери залив выше и добавь в очередь — можно подготовить сразу несколько, а потом запустить всё одной кнопкой.</p>
-        ) : (
+        {queue.length > 0 ? (
           <div className="mt-3 flex flex-col gap-2">
             {queue.map((d) => {
               const t = templates.find((x) => x.id === d.templateId);
@@ -735,23 +734,25 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
               );
             })}
           </div>
-        )}
+        ) : null}
 
         {progress ? <div className="mt-3 text-[12px] text-mute">Заливаю… {progress.done}/{progress.total}</div> : null}
 
-        {confirm && hasLive ? (
-          <div className="mt-3 flex flex-wrap items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-[12.5px]" style={{ borderColor: '#5a3a2a', background: '#241712' }}>
-            <span className="text-soft">Запустить всю очередь?</span>
-            <div className="ml-auto flex items-center gap-2">
-              <button type="button" onClick={fireAll} disabled={pending} className="rounded-full border border-sage px-3.5 py-1.5 text-[12px] text-sage transition hover:bg-sage-t">Подтвердить</button>
-              <button type="button" onClick={() => setConfirm(false)} className="rounded-full border border-line2 px-3.5 py-1.5 text-[12px] text-mute transition hover:text-text">Отмена</button>
+        {queue.length > 0 ? (
+          confirm && hasLive ? (
+            <div className="mt-3 flex flex-wrap items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-[12.5px]" style={{ borderColor: '#5a3a2a', background: '#241712' }}>
+              <span className="text-soft">Запустить всю очередь?</span>
+              <div className="ml-auto flex items-center gap-2">
+                <button type="button" onClick={fireAll} disabled={pending} className="rounded-full border border-sage px-3.5 py-1.5 text-[12px] text-sage transition hover:bg-sage-t">Подтвердить</button>
+                <button type="button" onClick={() => setConfirm(false)} className="rounded-full border border-line2 px-3.5 py-1.5 text-[12px] text-mute transition hover:text-text">Отмена</button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <button type="button" onClick={onFireClick} disabled={pending || queue.length === 0} className={`mt-3 rounded-full border border-sage bg-sage-t px-6 py-2.5 text-[13px] font-semibold text-sage transition hover:brightness-110 ${pending || queue.length === 0 ? 'opacity-50' : ''}`}>
-            {pending ? 'Заливаю…' : `Залить всё${totalTargets ? ` (${totalTargets})` : ''}`}
-          </button>
-        )}
+          ) : (
+            <button type="button" onClick={onFireClick} disabled={pending} className={`mt-3 rounded-full border border-sage bg-sage-t px-6 py-2.5 text-[13px] font-semibold text-sage transition hover:brightness-110 ${pending ? 'opacity-50' : ''}`}>
+              {pending ? 'Заливаю…' : `Залить всё${totalTargets ? ` (${totalTargets})` : ''}`}
+            </button>
+          )
+        ) : null}
 
         {/* Результаты */}
         {Object.keys(results).length ? (
@@ -778,6 +779,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           </div>
         ) : null}
       </div>
+      ) : null}
 
       {/* Журнал сторис/фото-заливов — отдельный от видео. */}
       <JobsJournal kind="static" title="Журнал сторис-заливов" />

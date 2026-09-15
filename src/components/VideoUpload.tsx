@@ -301,7 +301,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
 
       {/* 1 · Кабинеты + 2 · Ролик и языки — в две колонки, чтобы справа не пустовало место. */}
       <div className="grid gap-4 lg:grid-cols-2">
-      <div className={box}>
+      <div className={`${box} flex flex-col`}>
         <div className="flex flex-wrap items-center gap-2.5">
           <span className={stepBadge}>1</span>
           <span className="text-[13px] font-semibold">На кого заливаем</span>
@@ -317,7 +317,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
 
         {/* Шапка поиска вне прокрутки (не sticky) — иначе кабинеты просвечивали
             над ней в скруглённых углах. Скроллятся только строки. */}
-        <div className="mt-3 overflow-hidden rounded-[12px] border border-line">
+        <div className="mt-3 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[12px] border border-line">
           <div className="flex items-center gap-2 border-b border-line bg-sub px-3 py-1.5">
             <span className="shrink-0 text-[11.5px] font-semibold text-amber">{owner} · кабинеты</span>
             <input
@@ -330,7 +330,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
               {visibleCabs.length > 0 && visibleCabs.every((c) => selected.has(c.id)) ? 'снять все' : 'выбрать все'}
             </button>
           </div>
-          <div className="scroll-slim max-h-[240px] overflow-auto">
+          <div className="scroll-slim min-h-[220px] flex-1 overflow-auto">
             {visibleCabs.map((c) => (
               <label key={c.id} className="flex cursor-pointer items-center gap-2.5 border-t border-line px-3 py-1.5 text-[12.5px] transition first:border-t-0 hover:bg-sub/60">
                 <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggle(c.id)} className="accent-[#b4c68c]" />
@@ -524,33 +524,31 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         </div>
       </div>
 
-      {/* ОЧЕРЕДЬ */}
+      {/* ОЧЕРЕДЬ — показываем только когда в ней что-то есть. */}
+      {queue.length > 0 ? (
       <div className="rounded-[16px] border border-line2 bg-panel/60 p-4 sm:p-5">
         <div className="flex items-center gap-2.5">
           <span className="text-[14px] font-semibold">Очередь заливов</span>
           <span className="text-[12px] text-mute">{queue.length} заливов</span>
         </div>
-        {queue.length === 0 ? (
-          <p className="mt-3 text-[12px] text-mute">Пусто. Собери залив выше и добавь в очередь — можно подготовить сразу несколько, а потом запустить всё одной кнопкой.</p>
-        ) : (
-          <div className="mt-3 flex flex-col gap-2">
-            {queue.map((d) => (
-              <div key={d.id} className="rounded-[12px] border border-line px-3.5 py-2.5">
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-amber-t px-2 py-0.5 text-[10.5px] text-amber">{d.owner}</span>
-                  <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-soft">{d.campaignName || 'без имени'} <span className="text-mute">· {d.cabLabel}</span></span>
-                  <span className="shrink-0 text-[11px] text-mute">{d.mode === 'paused' ? 'на паузе' : d.mode === 'active' ? 'в актив' : d.mode === 'midnight' ? 'с 00:00 МСК' : 'по расписанию'}</span>
-                  <button type="button" onClick={() => setQueue((q) => q.filter((x) => x.id !== d.id))} className="shrink-0 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute transition hover:border-rust hover:text-rust">убрать</button>
-                </div>
-                <div className="mt-1.5 text-[11px] text-dim">{d.tplName || 'шаблон?'} · 🎬 {d.video ? `${d.video.name} · ${(d.video.size / 1024 / 1024).toFixed(1)} МБ` : 'ролики из пака языков'}{d.withLanguages ? ' · +языки' : ''}{d.budget ? ` · $${d.budget}/д` : ''}</div>
+        <div className="mt-3 flex flex-col gap-2">
+          {queue.map((d) => (
+            <div key={d.id} className="rounded-[12px] border border-line px-3.5 py-2.5">
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-amber-t px-2 py-0.5 text-[10.5px] text-amber">{d.owner}</span>
+                <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-soft">{d.campaignName || 'без имени'} <span className="text-mute">· {d.cabLabel}</span></span>
+                <span className="shrink-0 text-[11px] text-mute">{d.mode === 'paused' ? 'на паузе' : d.mode === 'active' ? 'в актив' : d.mode === 'midnight' ? 'с 00:00 МСК' : 'по расписанию'}</span>
+                <button type="button" onClick={() => setQueue((q) => q.filter((x) => x.id !== d.id))} className="shrink-0 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute transition hover:border-rust hover:text-rust">убрать</button>
               </div>
-            ))}
-          </div>
-        )}
-        <button type="button" onClick={fireAll} disabled={pending || queue.length === 0} className={`mt-3 rounded-full border border-sage bg-sage-t px-6 py-2.5 text-[13px] font-semibold text-sage transition hover:brightness-110 ${pending || queue.length === 0 ? 'opacity-50' : ''}`}>
-          {pending ? 'Заливаю…' : `Залить всё${queue.length ? ` (${queue.length})` : ''}`}
+              <div className="mt-1.5 text-[11px] text-dim">{d.tplName || 'шаблон?'} · 🎬 {d.video ? `${d.video.name} · ${(d.video.size / 1024 / 1024).toFixed(1)} МБ` : 'ролики из пака языков'}{d.withLanguages ? ' · +языки' : ''}{d.budget ? ` · $${d.budget}/д` : ''}</div>
+            </div>
+          ))}
+        </div>
+        <button type="button" onClick={fireAll} disabled={pending} className={`mt-3 rounded-full border border-sage bg-sage-t px-6 py-2.5 text-[13px] font-semibold text-sage transition hover:brightness-110 ${pending ? 'opacity-50' : ''}`}>
+          {pending ? 'Заливаю…' : `Залить всё (${queue.length})`}
         </button>
       </div>
+      ) : null}
 
       <JobsJournal key={journalKey} kind="video" title="Журнал видео-заливов" />
     </div>

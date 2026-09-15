@@ -42,6 +42,13 @@ body {
   color: var(--color-text);
 }
 
+html {
+  /* Резервируем место под скролл симметрично с ОБЕИХ сторон: страница не
+     дёргается вбок при появлении/исчезновении скроллбара И остаётся по центру
+     (в отличие от одностороннего stable, который смещал влево). */
+  scrollbar-gutter: stable both-edges;
+}
+
 body {
   -webkit-font-smoothing: antialiased;
 }
