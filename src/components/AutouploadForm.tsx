@@ -139,8 +139,9 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
   const [manualPixel, setManualPixel] = useState('');
   const [mode, setMode] = useState<Mode>('paused');
   const [startLocal, setStartLocal] = useState('');
-  // Структура публикации картинок: 1-1-2 (общий бюджет) | 1-2-1 | 1-1-1.
-  const [structure, setStructure] = useState('1-1-2');
+  // Структура публикации картинок: по умолчанию 1-1-1 (на картинку своя
+  // кампания+адсет). Надо иначе — человек переключит на 1-2-1 / 1-1-2.
+  const [structure, setStructure] = useState('1-1-1');
   const [files, setFiles] = useState<File[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
