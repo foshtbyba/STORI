@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'unify-queue-blocks · 15.09 22:31';
+export const BUILD_INFO = 'no-ig-fallback-fb-only · 16.09 00:30';

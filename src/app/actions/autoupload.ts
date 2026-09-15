@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { validPlacementKeys, placementSummary, stripPlacementValue } from '@/lib/placements';
+import { validPlacementKeys, placementSummary, stripPlacementValue, PLACEMENTS } from '@/lib/placements';
 import { isLocale, localeName } from '@/lib/locales';
 import {
   fbAccess,
@@ -671,6 +671,24 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // Кампания и адсет со всем самолечением вынесены в помощники, чтобы звать их
     // по нужной структуре публикации (1-1-1 / 1-2-1 / 1-1-2) и для видео.
     let placements = tpl.placements ? tpl.placements.split(',') : [];
+
+    // Без IG-идентичности Instagram-плейсменты дают код 1772103 и валят весь
+    // залив. Чтобы объявление всё же ушло — убираем IG-плейсменты и льём только
+    // на Facebook. Если выбор был пустой (авто) или в нём были ТОЛЬКО IG —
+    // задаём явный FB-набор, иначе FB сам добавит Instagram и снова упадёт.
+    if (!igActor) {
+      const igKeys = new Set(PLACEMENTS.filter((p) => p.platform === 'instagram').map((p) => p.key));
+      const fbOnlyDefault = ['fb_feed', 'fb_video_feeds', 'fb_story', 'fb_reels', 'fb_marketplace'];
+      const before = validPlacementKeys(placements);
+      const kept = before.filter((k) => !igKeys.has(k));
+      if (before.length === 0 || kept.length === 0) {
+        placements = fbOnlyDefault;
+        append('⚠ IG не привязан — объявление пойдёт только на Facebook (задал FB-плейсменты, IG исключён)');
+      } else if (kept.length !== before.length) {
+        placements = kept;
+        append('⚠ IG не привязан — убрал IG-плейсменты, объявление пойдёт только на Facebook');
+      }
+    }
     let campaignId = ''; // первая созданная кампания — для finish (campaignFbId)
 
     const mkCampaign = async (name: string): Promise<string> => {
