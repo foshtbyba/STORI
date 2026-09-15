@@ -65,16 +65,18 @@ export default function JobsJournal({ pollMs = 5000, defaultExpanded = false }: 
                   <span className={`shrink-0 ${dot(j.status)}`}>{label(j.status)}</span>
                   <span className="min-w-0 flex-1 truncate text-soft">{j.campaignName || 'без имени'} <span className="text-mute">· {j.accountName}</span></span>
                   <span className="shrink-0 text-[11px] text-dim">{fmt(j.createdAt)}</span>
-                  <span className={`shrink-0 text-[11.5px] ${j.status === 'running' ? 'text-amber' : 'text-mute'}`}>
-                    {j.status === 'error'
-                      ? (j.error || 'ошибка')
-                      : j.status === 'running'
-                        ? (j.stage || 'идёт…')
-                        : `${j.adsCreated}/${j.adsPlanned || j.adsCreated} объявл.`}
-                  </span>
+                  {/* Инлайн-статус: этап (идёт) или счётчик объявлений. Длинный текст
+                      обрезаем, чтобы строка не растягивала сайт вправо; ошибку
+                      выносим отдельной строкой ниже (переносится). */}
+                  {j.status === 'error' ? null : (
+                    <span className={`min-w-0 max-w-[45%] shrink truncate text-right text-[11.5px] ${j.status === 'running' ? 'text-amber' : 'text-mute'}`} title={j.status === 'running' ? (j.stage || 'идёт…') : undefined}>
+                      {j.status === 'running' ? (j.stage || 'идёт…') : `${j.adsCreated}/${j.adsPlanned || j.adsCreated} объявл.`}
+                    </span>
+                  )}
                   {j.log ? <button type="button" onClick={() => setOpen(isOpen ? '' : j.id)} className="shrink-0 text-[11px] text-mute transition hover:text-sage">{isOpen ? 'скрыть' : 'журнал'}</button> : null}
                 </div>
-                {isOpen && j.log ? <pre className="scroll-slim mt-2 max-h-[240px] overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-dim">{j.log}</pre> : null}
+                {j.status === 'error' ? <p className="mt-1.5 break-words text-[11.5px] leading-relaxed text-rust">{j.error || 'ошибка'}</p> : null}
+                {isOpen && j.log ? <pre className="scroll-slim mt-2 max-h-[240px] overflow-auto whitespace-pre-wrap break-words text-[11px] leading-relaxed text-dim">{j.log}</pre> : null}
               </div>
             );
           })}

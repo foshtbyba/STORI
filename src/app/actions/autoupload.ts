@@ -726,31 +726,28 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         return '';
       };
 
-      // Основной ролик грузим ТОЛЬКО если он приложен. В режиме языков его можно
-      // не прикладывать — тогда дефолтным станет язык из пака (ниже), а отдельный
-      // «главный» крео мы не навязываем: FB сам соберёт объявление из языков.
+      // Грузим ВСЕ ролики (основной + языки) сразу, а обработки у FB ждём
+      // ПАРАЛЛЕЛЬНО. Раньше ждали на каждый язык по очереди (до ~2-3 мин на ролик),
+      // и это складывалось в долгие минуты «висения» на одном языке. Теперь ждём
+      // столько, сколько занимает самый долгий ролик.
       let mainVideoId = '';
       let mainThumb = '';
       if (video) {
         await stage('Загружаю основной ролик…');
         const vbuf = Buffer.from(await video.arrayBuffer());
         mainVideoId = await uploadVideo(token, ext, vbuf, video.name || 'video.mp4', net);
-        await stage('Ролик загружен — жду обработки FB…');
-        await waitVideoReady(token, mainVideoId, net);
-        append('✓ Ролик обработан');
-        mainThumb = await videoThumbnailUrl(token, mainVideoId, net);
+        append(`✓ Основной ролик загружен: ${mainVideoId}`);
       }
 
-      // Языки из личного пака — грузим ролики, резолвим locale, собираем варианты
-      // для ОДНОГО объявления с языками внутри.
-      const langVariants: LangVariant[] = [];
+      // Заготовки языков: грузим ролик + резолвим locale, БЕЗ ожидания обработки.
+      type LangUp = { locale: string; localeId: number; videoId: string; message: string; headline?: string; description?: string; link?: string };
+      const langUps: LangUp[] = [];
       if (wantLanguages) {
         const pack = await prisma.uploadLanguage.findMany({ where: { userId: ctx.userId, archived: false }, orderBy: { sort: 'asc' } });
-        await stage(`Загружаю языки (0/${pack.length})…`);
         let li = 0;
         for (const lp of pack) {
           li += 1;
-          await stage(`Загружаю языки (${li}/${pack.length}): ${lp.locale}…`);
+          await stage(`Загружаю ролики языков (${li}/${pack.length}): ${lp.locale}…`);
           try {
             let lvid = '';
             if (lp.videoData && lp.videoData.length) {
@@ -763,23 +760,36 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
             }
             const localeId = await resolveLocaleId(token, localeName(lp.locale), net);
             if (!localeId) { append(`⚠ ${lp.locale}: не нашёл locale ID у FB — пропускаю`); continue; }
-            await waitVideoReady(token, lvid, net);
-            const lthumb = await videoThumbnailUrl(token, lvid, net);
-            langVariants.push({
-              localeId,
-              videoId: lvid,
-              thumb: lthumb || undefined,
-              message: lp.primaryText || message,
-              headline: lp.headline || undefined,
-              description: lp.description || undefined,
-              link: lp.link || undefined,
-            });
-            append(`✓ Язык ${lp.locale} (locale ${localeId})`);
+            langUps.push({ locale: lp.locale, localeId, videoId: lvid, message: lp.primaryText || message, headline: lp.headline || undefined, description: lp.description || undefined, link: lp.link || undefined });
           } catch (e) {
-            append(`⚠ ${lp.locale}: не подключился — пропускаю (${(e as Error).message})`);
+            append(`⚠ ${lp.locale}: не загрузился — пропускаю (${(e as Error).message})`);
           }
         }
       }
+
+      // Ждём обработки всех роликов ПАРАЛЛЕЛЬНО.
+      const readyOf = new Map<string, boolean>();
+      const allIds = [...(mainVideoId ? [mainVideoId] : []), ...langUps.map((l) => l.videoId)];
+      if (allIds.length) {
+        await stage(`Обработка роликов на стороне FB (${allIds.length})…`);
+        const waits = await Promise.allSettled(allIds.map((id) => waitVideoReady(token, id, net)));
+        allIds.forEach((id, i) => readyOf.set(id, waits[i].status === 'fulfilled'));
+        if (mainVideoId && !readyOf.get(mainVideoId)) {
+          throw new FbError('FB не обработал основной ролик вовремя — повтори залив позже (ролик уже загружен)');
+        }
+      }
+
+      // Превью и сборка языковых вариантов (только для обработанных роликов).
+      await stage('Собираю превью и объявление…');
+      if (mainVideoId) mainThumb = await videoThumbnailUrl(token, mainVideoId, net);
+      const readyLangs = langUps.filter((l) => readyOf.get(l.videoId));
+      const notReady = langUps.length - readyLangs.length;
+      if (notReady) append(`⚠ ${notReady} язык(ов) FB не успел обработать — пропускаю`);
+      const langThumbs = await Promise.all(readyLangs.map((l) => videoThumbnailUrl(token, l.videoId, net)));
+      const langVariants: LangVariant[] = readyLangs.map((l, i) => {
+        append(`✓ Язык ${l.locale} (locale ${l.localeId})`);
+        return { localeId: l.localeId, videoId: l.videoId, thumb: langThumbs[i] || undefined, message: l.message, headline: l.headline, description: l.description, link: l.link };
+      });
 
       // Определяем ДЕФОЛТНЫЙ вариант и список остальных языков.
       // • Основной ролик приложен → он дефолт, весь пак — доп-языки.

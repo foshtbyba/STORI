@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'ig-actor · 15.09 12:32';
+export const BUILD_INFO = 'parallel-wait · 15.09 13:06';
