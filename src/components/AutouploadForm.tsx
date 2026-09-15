@@ -444,8 +444,9 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
         <VideoUpload cabinets={cabinets} templates={templates} languages={languages} />
       ) : (
       <>
-      {/* КОНСТРУКТОР */}
-      <div className="flex flex-col gap-3">
+      {/* КОНСТРУКТОР. gap-4 — как в видео-заливе, чтобы при переключении вкладок
+          интервалы между блоками не прыгали. */}
+      <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <span className="text-[13px] font-semibold text-soft">{editingId ? 'Правка залива' : 'Новый залив'}</span>
           {editingId ? <button type="button" onClick={resetConstructor} className="text-[11.5px] text-mute transition hover:text-text">отменить правку</button> : null}
