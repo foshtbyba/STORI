@@ -99,7 +99,7 @@ export default function Select({
         </span>
         <svg
           width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          strokeWidth={2.4} className={`shrink-0 text-mute transition ${open ? 'rotate-180' : ''}`}
+          strokeWidth={2.4} className={`pointer-events-none shrink-0 text-mute transition ${open ? 'rotate-180' : ''}`}
           aria-hidden
         >
           <path d="M6 9l6 6 6-6" />

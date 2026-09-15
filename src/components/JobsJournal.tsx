@@ -47,7 +47,7 @@ export default function JobsJournal({ pollMs = 5000, defaultExpanded = false, ki
     <div className="rounded-[16px] border border-line2 bg-panel/60 p-4 sm:p-5">
       <div className="flex items-center gap-2.5">
         <button type="button" onClick={() => setExpanded((v) => !v)} className="flex min-w-0 flex-1 items-center gap-2.5 text-left">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={`shrink-0 text-mute transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={`pointer-events-none shrink-0 text-mute transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}>
             <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <span className="text-[14px] font-semibold">{title}</span>

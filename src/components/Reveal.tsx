@@ -32,7 +32,7 @@ export default function Reveal({
         </span>
         <svg
           width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
-          className={`shrink-0 text-mute transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+          className={`pointer-events-none shrink-0 text-mute transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
         >
           <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>

@@ -183,7 +183,7 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
             onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
             className="flex h-6 w-6 items-center justify-center rounded-full text-dim transition hover:bg-sub hover:text-soft"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`transition-transform duration-300 ${open ? 'rotate-180' : ''}`}><path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`pointer-events-none transition-transform duration-300 ${open ? 'rotate-180' : ''}`}><path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
         </span>
       </div>

@@ -99,7 +99,7 @@ export default function TemplatePicker({
           aria-label={open ? 'Закрыть' : 'Открыть'}
           className="grid h-6 w-6 shrink-0 place-items-center rounded-md text-mute transition hover:text-sage"
         >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={`pointer-events-none transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>
             <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>

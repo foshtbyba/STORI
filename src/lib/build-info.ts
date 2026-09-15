@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'struct-btns-clean · 15.09 15:45';
+export const BUILD_INFO = 'chevron-clicks · 15.09 15:48';
