@@ -6,6 +6,7 @@ import TemplateManager, { type Template } from './TemplateManager';
 import TemplatePicker from './TemplatePicker';
 import CardBinder from './CardBinder';
 import VideoUpload from './VideoUpload';
+import JobsJournal from './JobsJournal';
 import LanguagePack, { type Language } from './LanguagePack';
 import { placementSummary } from '@/lib/placements';
 
@@ -741,6 +742,9 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           </div>
         ) : null}
       </div>
+
+      {/* Журнал сторис/фото-заливов — отдельный от видео. */}
+      <JobsJournal kind="static" title="Журнал сторис-заливов" />
       </>
       )}
     </div>

@@ -543,7 +543,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         </button>
       </div>
 
-      <JobsJournal key={journalKey} />
+      <JobsJournal key={journalKey} kind="video" title="Журнал видео-заливов" />
     </div>
   );
 }

@@ -838,6 +838,8 @@ model UploadJob {
   /// paused | active | scheduled
   mode         String   @default("paused")
   status       String   @default("running") // running | done | error
+  /// static (сторис/фото) | video — чтобы разделить журналы по типу залива
+  kind         String   @default("static")
   adsPlanned   Int      @default(0)
   adsCreated   Int      @default(0)
   campaignFbId String   @default("")

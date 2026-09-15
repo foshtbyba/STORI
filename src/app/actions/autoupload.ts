@@ -396,11 +396,15 @@ export type JobRow = {
   createdAt: string;
 };
 
-/** Недавние заливы для «Журнала»: баер — свои, команда — все свежие. */
-export async function loadRecentJobs(): Promise<JobRow[]> {
+/** Недавние заливы для «Журнала»: баер — свои, команда — все свежие.
+ *  kind ('video'|'static') — раздельные журналы у видео и сторис/фото. */
+export async function loadRecentJobs(kind?: 'video' | 'static'): Promise<JobRow[]> {
   const user = await requireUser();
   const team = canSeeTeam(user.role as Role);
-  const where = team ? {} : { buyerId: user.buyer?.id ?? '__none__' };
+  const where = {
+    ...(team ? {} : { buyerId: user.buyer?.id ?? '__none__' }),
+    ...(kind ? { kind } : {}),
+  };
   const rows = await prisma.uploadJob.findMany({ where, orderBy: { createdAt: 'desc' }, take: 20 });
   return rows.map((r) => ({
     id: r.id,
@@ -537,6 +541,8 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   const log: string[] = [];
   const append = (line: string) => log.push(line);
 
+  // Тип залива — для раздельных журналов: видео (ролик/языки) vs сторис/фото.
+  const jobKind = (video || withLanguages) ? 'video' : 'static';
   const job = await prisma.uploadJob.create({
     data: {
       buyerId: ctx.buyerId,
@@ -545,6 +551,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       campaignName,
       mode,
       status: 'running',
+      kind: jobKind,
       adsPlanned: files.length,
     },
   });

@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'cancel-stuck · 15.09 14:40';
+export const BUILD_INFO = 'split-journals · 15.09 14:43';

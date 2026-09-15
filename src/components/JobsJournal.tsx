@@ -17,7 +17,7 @@ const label = (s: string) => (s === 'done' ? '✓ готово' : s === 'error' 
  * Журнал заливов — недавние UploadJob с автообновлением. Залив уходит в фон, а
  * тут видно статус/журнал: можно уйти со страницы и вернуться за результатом.
  */
-export default function JobsJournal({ pollMs = 5000, defaultExpanded = false }: { pollMs?: number; defaultExpanded?: boolean }) {
+export default function JobsJournal({ pollMs = 5000, defaultExpanded = false, kind, title = 'Журнал заливов' }: { pollMs?: number; defaultExpanded?: boolean; kind?: 'video' | 'static'; title?: string }) {
   const [jobs, setJobs] = useState<JobRow[]>([]);
   const [open, setOpen] = useState('');
   const [expanded, setExpanded] = useState(defaultExpanded);
@@ -27,7 +27,7 @@ export default function JobsJournal({ pollMs = 5000, defaultExpanded = false }: 
   const running = jobs.filter((j) => j.status === 'running').length;
 
   const refresh = async () => {
-    try { setJobs(await loadRecentJobs()); } catch { /* тихо */ }
+    try { setJobs(await loadRecentJobs(kind)); } catch { /* тихо */ }
     setLoading(false);
   };
 
@@ -50,7 +50,7 @@ export default function JobsJournal({ pollMs = 5000, defaultExpanded = false }: 
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={`shrink-0 text-mute transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}>
             <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          <span className="text-[14px] font-semibold">Журнал заливов</span>
+          <span className="text-[14px] font-semibold">{title}</span>
           {jobs.length ? <span className="text-[12px] text-mute">{jobs.length}{running ? ` · ⏳ ${running}` : ''}</span> : null}
           <span className="text-[11.5px] text-dim">{expanded ? 'обновляется сам' : 'раскрыть'}</span>
         </button>
