@@ -14,6 +14,13 @@ type Cabinet = { id: string; name: string; externalId: string; currency: string;
 type Asset = { pages: { id: string; name: string }[]; pixels: { id: string; name: string }[] };
 type Mode = 'paused' | 'active' | 'scheduled' | 'midnight';
 
+// Замок запуска на УРОВНЕ МОДУЛЯ, а не useRef: ref живёт в конкретном
+// экземпляре компонента, и при перемонтировании (или второй копии) появлялся
+// новый ref — так два fireAll уходили одновременно и один и тот же запуск летел
+// дважды (сервер потом отбивал по uploadKey). Модульный флаг общий для всех
+// экземпляров, поэтому второй параллельный запуск не стартует вовсе.
+let fireLock = false;
+
 /** Ближайшая полночь по Москве (UTC+3, без перехода на летнее время) → ISO в UTC
  *  и удобная строка для показа. Запуск «с нулей»: реклама стартует в 00:00 МСК. */
 function nextMoscowMidnight(): { iso: string; local: string } {
@@ -108,7 +115,7 @@ function friendlyReason(err?: string): string {
  * подготовить хоть десять разных заливов и запустить всё одной кнопкой.
  * Заливаем по кабинетам по очереди, чтобы не ловить троттлинг Меты.
  */
-export default function AutouploadForm({ cabinets, templates, languages = [] }: { cabinets: Cabinet[]; templates: Template[]; languages?: Language[] }) {
+export default function AutouploadForm({ cabinets, templates, languages = [], admin = false }: { cabinets: Cabinet[]; templates: Template[]; languages?: Language[]; admin?: boolean }) {
   const [pending, start] = useTransition();
   // Синхронный замок от дабл-клика: `pending` из useTransition обновляется
   // асинхронно, поэтому два быстрых клика оба проскакивали проверку и
@@ -375,7 +382,8 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
   const hasLive = queue.some((d) => d.mode !== 'paused');
 
   const fireAll = () => {
-    if (firing.current || pending || queue.length === 0) return;
+    if (fireLock || firing.current || pending || queue.length === 0) return;
+    fireLock = true;
     firing.current = true;
     setMsg(null); setResults({}); setConfirm(false);
     start(async () => {
@@ -424,6 +432,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
       setMsg({ ok: failed === 0, text: parts.join(' · ') });
       } finally {
         firing.current = false;
+        fireLock = false;
       }
     });
   };
@@ -462,7 +471,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
       ) : method === 'languages' ? (
         <LanguagePack languages={languages} />
       ) : method === 'video' ? (
-        <VideoUpload cabinets={cabinets} templates={templates} languages={languages} />
+        <VideoUpload cabinets={cabinets} templates={templates} languages={languages} admin={admin} />
       ) : (
       <>
       {/* КОНСТРУКТОР. gap-4 — как в видео-заливе, чтобы при переключении вкладок
@@ -802,7 +811,14 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
       ) : null}
 
       {/* Журнал сторис/фото-заливов — отдельный от видео. */}
-      <JobsJournal kind="static" title="Журнал сторис-заливов" />
+      {/* Баеру журнал — это его список выполненных заливов (loadRecentJobs
+          отдаёт только его). Раскрыт по умолчанию, тянется из БД → переживает
+          обновление страницы. Админу — общая стата (все свежие заливы). */}
+      <JobsJournal
+        kind="static"
+        defaultExpanded={!admin}
+        title={admin ? 'Журнал сторис-заливов · общая стата' : 'Мои сторис-заливы'}
+      />
       </>
       )}
     </div>

@@ -86,7 +86,7 @@ export default async function AdsUploadPage() {
         {/* Форма всегда: вкладки «Шаблоны гео»/«Языки» доступны даже без кабинетов
             и без шаблонов — там их и заводят. */}
         <div className="mt-4">
-          <AutouploadForm cabinets={cabinets} templates={templates} languages={languages} />
+          <AutouploadForm cabinets={cabinets} templates={templates} languages={languages} admin={role === 'ADMIN'} />
         </div>
       </Panel>
 

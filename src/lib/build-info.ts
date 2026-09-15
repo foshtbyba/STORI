@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'video-confirm+parallel-langs · 15.09 22:02';
+export const BUILD_INFO = 'fire-lock+buyer-journal · 15.09 22:11';

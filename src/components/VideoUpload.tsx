@@ -34,6 +34,10 @@ const inp = 'h-9 w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px]
 const box = 'rounded-[16px] border border-line bg-panel/40 px-4 py-4 sm:px-5';
 const stepBadge = 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-t text-[12px] font-semibold text-sage';
 
+// Замок запуска на уровне модуля (см. AutouploadForm): защищает от второго
+// параллельного fireAll при перемонтировании — чтобы залив не ушёл дважды.
+let fireLock = false;
+
 function nextMoscowMidnight(): string {
   const now = new Date();
   const msk = new Date(now.getTime() + 3 * 3600_000);
@@ -46,7 +50,7 @@ function nextMoscowMidnight(): string {
  * поиском по имени/ID и мультивыбором, ФП и пиксель по каждому кабинету. По
  * умолчанию всё НА ПАУЗЕ. В очередь кладём по одному заливу на кабинет.
  */
-export default function VideoUpload({ cabinets, templates, languages = [] }: { cabinets: Cabinet[]; templates: Template[]; languages?: Language[] }) {
+export default function VideoUpload({ cabinets, templates, languages = [], admin = false }: { cabinets: Cabinet[]; templates: Template[]; languages?: Language[]; admin?: boolean }) {
   const [pending, start] = useTransition();
   // Синхронный замок от дабл-клика (pending обновляется асинхронно) — иначе два
   // быстрых клика запускают залив дважды и в журнале появляется дубль.
@@ -277,8 +281,9 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
 
   const fireAll = () => {
     setMsg('');
-    if (firing.current || pending) return;
+    if (fireLock || firing.current || pending) return;
     if (queue.length === 0) { setMsg('Очередь пуста — собери хотя бы один залив'); return; }
+    fireLock = true;
     firing.current = true;
     setConfirm(false);
     start(async () => {
@@ -315,6 +320,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
       setJournalKey((k) => k + 1);
       } finally {
         firing.current = false;
+        fireLock = false;
       }
     });
   };
@@ -592,7 +598,14 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
       </div>
       ) : null}
 
-      <JobsJournal key={journalKey} kind="video" title="Журнал видео-заливов" />
+      {/* Баеру — его выполненные видео-заливы (раскрыты, из БД, переживают
+          обновление). Админу — общая стата. */}
+      <JobsJournal
+        key={journalKey}
+        kind="video"
+        defaultExpanded={!admin}
+        title={admin ? 'Журнал видео-заливов · общая стата' : 'Мои видео-заливы'}
+      />
     </div>
   );
 }
