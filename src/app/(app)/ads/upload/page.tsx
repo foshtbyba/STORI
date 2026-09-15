@@ -64,6 +64,7 @@ export default async function AdsUploadPage() {
     countries: t.countries,
     excluded: t.excluded,
     excludedRegions: t.excludedRegions,
+    excludedCities: t.excludedCities,
     ageMin: t.ageMin,
     ageMax: t.ageMax,
     genders: t.genders,

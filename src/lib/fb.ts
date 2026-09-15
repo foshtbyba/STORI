@@ -1236,6 +1236,39 @@ export async function searchRegions(token: string, q: string, net: FbNet = {}): 
     .filter((r) => r.key && r.name);
 }
 
+/** Город FB для исключения: ключ + имя + страна + регион (для показа/разбора). */
+export type FbCity = { key: string; name: string; cc: string; region: string };
+
+/**
+ * Поиск городов (комун/муниципалитетов) у Facebook по названию. Как и регионы,
+ * города FB принимает только по внутреннему ключу (city key), не по имени —
+ * поэтому сперва ищем. Возвращаем регион, чтобы различать одноимённые города.
+ */
+export async function searchCities(token: string, q: string, net: FbNet = {}): Promise<FbCity[]> {
+  const query = q.trim();
+  if (!query) return [];
+  const body = await call(
+    '/search',
+    token,
+    {
+      type: 'adgeolocation',
+      location_types: JSON.stringify(['city']),
+      q: query,
+      limit: '25',
+    },
+    net,
+  );
+  const data = (body.data as Array<Record<string, unknown>> | undefined) ?? [];
+  return data
+    .map((r) => ({
+      key: String(r.key ?? ''),
+      name: String(r.name ?? ''),
+      cc: String(r.country_code ?? ''),
+      region: String(r.region ?? ''),
+    }))
+    .filter((r) => r.key && r.name);
+}
+
 export type CreateAdsetInput = {
   name: string;
   campaignId: string;
@@ -1250,6 +1283,8 @@ export type CreateAdsetInput = {
   excludedCountries?: string[];
   /** Исключаемые регионы (области/штаты) — ключи FB (region key). Пусто — не передаём. */
   excludedRegions?: string[];
+  /** Исключаемые города (комуны) — ключи FB (city key). Пусто — не передаём. */
+  excludedCities?: string[];
   /** DSA (ЕС): кто продвигается и кто платит. Требуется при таргете на ЕС/ЕЭЗ,
    *  иначе ФБ: код 100/3858081 «Укажите человека или организацию…». */
   dsaBeneficiary?: string;
@@ -1274,10 +1309,15 @@ export async function createAdset(token: string, externalId: string, i: CreateAd
     age_min: i.ageMin ?? 18,
     age_max: i.ageMax ?? 65,
   };
-  if ((i.excludedCountries && i.excludedCountries.length) || (i.excludedRegions && i.excludedRegions.length)) {
+  if (
+    (i.excludedCountries && i.excludedCountries.length) ||
+    (i.excludedRegions && i.excludedRegions.length) ||
+    (i.excludedCities && i.excludedCities.length)
+  ) {
     const ex: Record<string, unknown> = {};
     if (i.excludedCountries && i.excludedCountries.length) ex.countries = i.excludedCountries;
     if (i.excludedRegions && i.excludedRegions.length) ex.regions = i.excludedRegions.map((key) => ({ key }));
+    if (i.excludedCities && i.excludedCities.length) ex.cities = i.excludedCities.map((key) => ({ key }));
     targeting.excluded_geo_locations = ex;
   }
   if (i.genders && i.genders.length) targeting.genders = i.genders;

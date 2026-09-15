@@ -19,6 +19,7 @@ import {
   ENHANCEMENT_OPTOUT_KEYS,
   createAd,
   searchRegions,
+  searchCities,
   getPageName,
   resolveInstagramActor,
   bindCardToAccount,
@@ -95,16 +96,17 @@ function csvUpper(s: string): string[] {
 }
 
 /**
- * Названия регионов из текста «Madeira, Azores» → ['Madeira', 'Azores'].
- * Только по запятой (в названии региона бывают пробелы: «Community of Madrid»),
- * регистр сохраняем. Пусто/мусор — [].
+ * Названия мест (регионов/городов) из текста «Madeira, Azores» или
+ * «LAS CONDES; PROVIDENCIA; NUNOA» → массив имён. Разделители — запятая, точка
+ * с запятой и перевод строки (в названии бывают пробелы: «Community of Madrid»,
+ * «Puente Alto»), регистр сохраняем. Пусто/мусор — [].
  */
 function regionNames(s: string): string[] {
   return s
-    .split(',')
+    .split(/[,;\n]+/)
     .map((x) => x.trim())
     .filter(Boolean)
-    .slice(0, 50);
+    .slice(0, 100);
 }
 
 // ── Шаблоны гео (личные — у каждого свои) ──────────────────────────────────
@@ -123,6 +125,9 @@ export async function saveTemplate(_prev: TemplateState, form: FormData): Promis
   // подставим при заливе (резолвим имя → region key токеном кабинета). Регистр
   // не трогаем: имена регионов регистрозависимы для поиска.
   const excludedRegions = regionNames(String(form.get('excludedRegions') ?? '')).join(', ');
+  // Города (комуны) — отдельным полем: FB исключает их иначе, чем регионы. Имена
+  // храним, ключи FB (city key) резолвим при заливе токеном кабинета.
+  const excludedCities = regionNames(String(form.get('excludedCities') ?? '')).join(', ');
   const ageMin = Math.max(13, Math.min(65, Math.round(Number(form.get('ageMin')) || 18)));
   const ageMax = Math.max(ageMin, Math.min(65, Math.round(Number(form.get('ageMax')) || 65)));
   const genderRaw = String(form.get('genders') ?? ''); // ''|'1'|'2'
@@ -133,7 +138,7 @@ export async function saveTemplate(_prev: TemplateState, form: FormData): Promis
   const cta = CTA_OPTIONS.includes(String(form.get('cta'))) ? String(form.get('cta')) : 'LEARN_MORE';
   const placements = validPlacementKeys(form.getAll('placements').map(String)).join(',');
 
-  const data = { name, countries, excluded, excludedRegions, ageMin, ageMax, genders, dailyBudgetCents, event, cta, placements };
+  const data = { name, countries, excluded, excludedRegions, excludedCities, ageMin, ageMax, genders, dailyBudgetCents, event, cta, placements };
   try {
     if (id) {
       // Правим только свой шаблон — updateMany с фильтром по владельцу.
@@ -536,6 +541,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   const countries = csvUpper(tpl.countries);
   const excludedCountries = csvUpper(tpl.excluded);
   const excludedRegionNames = regionNames(tpl.excludedRegions ?? '');
+  const excludedCityNames = regionNames(tpl.excludedCities ?? '');
   const cta = tpl.cta;
 
   const log: string[] = [];
@@ -603,6 +609,27 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       }
     }
 
+    // Города (комуны/муниципалитеты) исключаем так же по названиям: FB принимает
+    // только city key, поэтому резолвим имя → ключ токеном кабинета. Из совпадений
+    // берём город в целевой стране шаблона (иначе одноимённые из других стран).
+    const excludedCities: string[] = [];
+    for (const nm of excludedCityNames) {
+      try {
+        const hits = await searchCities(token, nm, net);
+        const inCountry = hits.filter((h) => countries.includes(h.cc));
+        const pool = inCountry.length ? inCountry : hits;
+        const pick = pool.find((h) => h.name.toLowerCase() === nm.toLowerCase()) ?? pool[0];
+        if (pick) {
+          excludedCities.push(pick.key);
+          append(`Исключён город: ${pick.name}${pick.region ? `, ${pick.region}` : ''}${pick.cc ? ` (${pick.cc})` : ''}`);
+        } else {
+          append(`Город не найден, пропущен: ${nm}`);
+        }
+      } catch {
+        append(`Не удалось найти город «${nm}» — пропущен`);
+      }
+    }
+
     // Мультиязычный видео-залив: одно объявление с языками ВНУТРИ (нативная фича
     // FB «Добавить языки») через asset_feed_spec + asset_customization_rules по
     // locale. Бюджет и таргет — как обычно на адсете; FB сам показывает нужный
@@ -646,7 +673,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       for (let attempt = 0; attempt < 5; attempt += 1) {
         try {
           return await createAdset(token, ext, {
-            name, campaignId: campId, pixelId, event: tpl.event, countries, excludedCountries, excludedRegions,
+            name, campaignId: campId, pixelId, event: tpl.event, countries, excludedCountries, excludedRegions, excludedCities,
             dsaBeneficiary: dsaBeneficiary || undefined, dsaPayer: dsaPayer || undefined, dailyBudgetCents,
             ageMin: tpl.ageMin, ageMax: tpl.ageMax, genders, placements, status: effectiveStatus, startTime,
           }, net);

@@ -11,6 +11,7 @@ export type Template = {
   countries: string;
   excluded: string;
   excludedRegions: string;
+  excludedCities: string;
   ageMin: number;
   ageMax: number;
   genders: string;
@@ -56,7 +57,8 @@ export default function TemplateManager({ templates, query = '' }: { templates: 
                 <span className="ml-2 text-mute">
                   {t.countries || '—'}
                   {t.excluded ? ` (−${t.excluded})` : ''}
-                  {t.excludedRegions ? ` (−рег.: ${t.excludedRegions})` : ''} · {t.ageMin}-{t.ageMax} · {genderLabel(t.genders)} · ${(t.dailyBudgetCents / 100).toFixed(0)}/д · {t.event} · {placementSummary(t.placements)}
+                  {t.excludedRegions ? ` (−рег.: ${t.excludedRegions})` : ''}
+                  {t.excludedCities ? ` (−гор.: ${t.excludedCities})` : ''} · {t.ageMin}-{t.ageMax} · {genderLabel(t.genders)} · ${(t.dailyBudgetCents / 100).toFixed(0)}/д · {t.event} · {placementSummary(t.placements)}
                 </span>
               </span>
               <button type="button" onClick={() => setEdit(t)} className="shrink-0 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute transition hover:border-sage hover:text-sage">
@@ -85,6 +87,10 @@ export default function TemplateManager({ templates, query = '' }: { templates: 
         <div>
           <input name="excludedRegions" defaultValue={edit?.excludedRegions ?? ''} placeholder="Исключить регионы: Madeira, Azores (опц.)" className={inp} />
           <p className="mt-1 text-[11px] text-dim">Названия регионов через запятую (области/штаты). Ключи FB подставим при заливе; что не найдётся — попадёт в журнал.</p>
+        </div>
+        <div>
+          <textarea name="excludedCities" defaultValue={edit?.excludedCities ?? ''} placeholder="Исключить города: LAS CONDES; PROVIDENCIA; NUNOA (опц.)" rows={2} className={`${inp} h-auto min-h-[38px] resize-y py-2 leading-relaxed`} />
+          <p className="mt-1 text-[11px] text-dim">Города/комуны через запятую или «;» (можно с новой строки). FB исключает их отдельно от регионов — ключи подставим при заливе, ненайденные попадут в журнал.</p>
         </div>
         <div className="grid grid-cols-4 gap-2">
           <input name="ageMin" type="number" min={13} max={65} defaultValue={edit?.ageMin ?? 18} placeholder="возр. от" className={inp} />
