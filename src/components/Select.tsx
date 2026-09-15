@@ -19,6 +19,7 @@ export default function Select({
   placeholder = 'Выбрать',
   disabled = false,
   label,
+  triggerClassName,
 }: {
   name?: string;
   options: Option[];
@@ -28,6 +29,9 @@ export default function Select({
   placeholder?: string;
   disabled?: boolean;
   label?: string;
+  /** Классы кнопки-триггера — чтобы вписать селект в локальный стиль полей
+   *  (напр. компактный `field`). Пусто — дефолтный крупный вид. */
+  triggerClassName?: string;
 }) {
   const controlled = value !== undefined;
   const [inner, setInner] = useState(defaultValue ?? '');
@@ -86,13 +90,17 @@ export default function Select({
         aria-controls={`${id}-list`}
         onClick={() => !disabled && setOpen((v) => !v)}
         onKeyDown={onKeyDown}
-        className={`mt-2 flex h-11 w-full items-center justify-between gap-2 rounded-xl border px-3.5 text-left text-[14.5px] transition ${
-          disabled
-            ? 'cursor-default border-line bg-sub text-mute'
-            : open
-              ? 'border-sage bg-sub'
-              : 'border-line bg-sub hover:border-line2'
-        }`}
+        className={
+          triggerClassName
+            ? `flex items-center justify-between gap-2 text-left ${triggerClassName} ${open ? '!border-sage' : ''} ${disabled ? 'cursor-default opacity-60' : ''}`
+            : `${label ? 'mt-2 ' : ''}flex h-11 w-full items-center justify-between gap-2 rounded-xl border px-3.5 text-left text-[14.5px] transition ${
+                disabled
+                  ? 'cursor-default border-line bg-sub text-mute'
+                  : open
+                    ? 'border-sage bg-sub'
+                    : 'border-line bg-sub hover:border-line2'
+              }`
+        }
       >
         <span className={`truncate ${selected ? '' : 'text-mute'}`}>
           {selected?.label ?? placeholder}

@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { createMember } from '@/app/actions/team';
+import Select from './Select';
 
 /**
  * Добавить участника прямо из ростера. Овнеру логин не нужен (сидят с
@@ -65,11 +66,16 @@ export default function AddMember() {
         </label>
         <label className="block">
           <span className="lab mb-1.5 block">Роль</span>
-          <select value={role} onChange={(e) => setRole(e.target.value)} className={field}>
-            <option value="BUYER">баер</option>
-            <option value="LEAD">тимлид</option>
-            <option value="OWNER">овнер</option>
-          </select>
+          <Select
+            value={role}
+            onChange={setRole}
+            triggerClassName={field}
+            options={[
+              { value: 'BUYER', label: 'баер' },
+              { value: 'LEAD', label: 'тимлид' },
+              { value: 'OWNER', label: 'овнер' },
+            ]}
+          />
         </label>
         <div className="flex gap-2">
           <button

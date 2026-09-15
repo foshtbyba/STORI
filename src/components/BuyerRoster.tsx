@@ -4,6 +4,7 @@ import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveBuyerProfile, setBuyerAccess } from '@/app/actions/team';
 import { Avatar } from './ui';
+import Select from './Select';
 
 export type RosterRow = {
   id: string;
@@ -141,16 +142,17 @@ function RosterLine({ row }: { row: RosterRow }) {
 
       <label className="flex flex-col gap-1 md:contents">
         <span className="lab md:hidden">Роль</span>
-        <select
+        <Select
           value={role}
-          onChange={(e) => setRole(e.target.value)}
-          className={`${field} w-full`}
-        >
-          <option value="">—</option>
-          <option value="BUYER">баер</option>
-          <option value="LEAD">тимлид</option>
-          <option value="OWNER">овнер</option>
-        </select>
+          onChange={setRole}
+          triggerClassName={`${field} w-full`}
+          options={[
+            { value: '', label: '—' },
+            { value: 'BUYER', label: 'баер' },
+            { value: 'LEAD', label: 'тимлид' },
+            { value: 'OWNER', label: 'овнер' },
+          ]}
+        />
       </label>
 
       <span className="col-span-2 flex items-center justify-end gap-2 md:col-span-1">
