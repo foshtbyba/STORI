@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'snapshot-parallel-write · 15.09 20:29';
+export const BUILD_INFO = 'snapshot-no-3day-lock · 15.09 20:40';

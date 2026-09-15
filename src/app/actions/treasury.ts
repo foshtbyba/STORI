@@ -119,9 +119,8 @@ export async function deleteSnapshot(form: FormData) {
   if (!id) return;
   const snap = await prisma.treasurySnapshot.findUnique({ where: { id } });
   if (!snap) return;
-  // Снимок можно удалить только первые 3 дня — потом история заморожена.
-  const SNAPSHOT_LOCK_MS = 3 * 24 * 60 * 60 * 1000;
-  if (Date.now() - snap.createdAt.getTime() > SNAPSHOT_LOCK_MS) return;
+  // Ограничение «старше 3 дней удалять нельзя» снято — админ правит историю
+  // снимков в любой момент (перезалить снимок можно и через ту же дату).
   await prisma.treasurySnapshot.delete({ where: { id } });
   revalidatePath('/treasury');
 }
