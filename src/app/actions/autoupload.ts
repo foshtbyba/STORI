@@ -846,8 +846,9 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       : mode === 'active' ? 'В АКТИВЕ' : mode === 'midnight' ? `С 00:00 МСК (${startTime})` : mode === 'scheduled' ? `ПО РАСПИСАНИЮ (${startTime})` : 'НА ПАУЗЕ';
     append(`Готово: ${created} объявлений · режим ${modeLabel}`);
     await finish({ status: 'done', campaignFbId: campaignId, adsCreated: created });
-    revalidatePath('/ads/upload');
-    revalidatePath('/ads/campaigns');
+    // ВНИМАНИЕ: revalidatePath здесь НЕ вызываем — runAutoupload крутится в фоне
+    // (после возврата startUpload), а revalidatePath вне запроса роняет ошибку
+    // «used during render». Журнал сам опрашивает loadRecentJobs, UI обновится.
     return { ok: true, jobId: job.id, log, campaignFbId: campaignId, adsCreated: created, phoneRequired: phoneForced };
   } catch (e) {
     const msg = e instanceof FbError ? e.message : (e as Error).message;

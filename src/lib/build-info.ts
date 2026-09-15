@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'video-multi-cab · 15.09 11:10';
+export const BUILD_INFO = 'fix-revalidate · 15.09 11:14';
