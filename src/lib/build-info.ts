@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'consumables-equal-boxes · 15.09 21:52';
+export const BUILD_INFO = 'video-confirm+parallel-langs · 15.09 22:02';

@@ -51,6 +51,9 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
   // Синхронный замок от дабл-клика (pending обновляется асинхронно) — иначе два
   // быстрых клика запускают залив дважды и в журнале появляется дубль.
   const firing = useRef(false);
+  // Подтверждение запуска — как в сторис-заливе: если хоть один залив идёт не на
+  // паузе, сначала спрашиваем «точно залить?», и только вторым кликом стартуем.
+  const [confirm, setConfirm] = useState(false);
 
   // SKO первым, остальные по алфавиту — как в основном заливе.
   const owners = useMemo(() => {
@@ -261,11 +264,23 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
     setMsg(`Добавлено в очередь: ${drafts.length} (по кабинетам). Собери ещё или жми «Залить всё».`);
   };
 
+  const hasLive = queue.some((d) => d.mode !== 'paused');
+
+  // Клик по «Залить»: пустая очередь — подсказка; есть живой залив — сперва
+  // просим подтверждение (баннер ниже), иначе запускаем сразу.
+  const onFireClick = () => {
+    if (queue.length === 0) { setMsg('Очередь пуста — собери хотя бы один залив'); return; }
+    if (!hasLive) { fireAll(); return; }
+    if (!confirm) { setConfirm(true); return; }
+    fireAll();
+  };
+
   const fireAll = () => {
     setMsg('');
     if (firing.current || pending) return;
     if (queue.length === 0) { setMsg('Очередь пуста — собери хотя бы один залив'); return; }
     firing.current = true;
+    setConfirm(false);
     start(async () => {
       try {
       for (const d of queue) {
@@ -295,9 +310,8 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         if (d.video) fd.set('video', d.video);
         await startUpload(fd);
       }
-      const n = queue.length;
       setQueue([]);
-      setMsg(`🚀 Запущено в фоне: ${n}. Результат — в «Журнале заливов» ниже (один кабинет по очереди, разные — параллельно). Можно уйти со страницы.`);
+      // Без «зависшей» плашки — результат виден в журнале ниже, он раскроется.
       setJournalKey((k) => k + 1);
       } finally {
         firing.current = false;
@@ -562,9 +576,19 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
             </div>
           ))}
         </div>
-        <button type="button" onClick={fireAll} disabled={pending} className={`mt-3 rounded-full border border-sage bg-sage-t px-6 py-2.5 text-[13px] font-semibold text-sage transition hover:brightness-110 ${pending ? 'opacity-50' : ''}`}>
-          {pending ? 'Заливаю…' : `Залить всё (${queue.length})`}
-        </button>
+        {confirm && hasLive ? (
+          <div className="mt-3 flex flex-wrap items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-[12.5px]" style={{ borderColor: '#5a3a2a', background: '#241712' }}>
+            <span className="text-soft">Запустить всю очередь?</span>
+            <div className="ml-auto flex items-center gap-2">
+              <button type="button" onClick={fireAll} disabled={pending} className="rounded-full border border-sage px-3.5 py-1.5 text-[12px] text-sage transition hover:bg-sage-t">Подтвердить</button>
+              <button type="button" onClick={() => setConfirm(false)} className="rounded-full border border-line2 px-3.5 py-1.5 text-[12px] text-mute transition hover:text-text">Отмена</button>
+            </div>
+          </div>
+        ) : (
+          <button type="button" onClick={onFireClick} disabled={pending} className={`mt-3 rounded-full border border-sage bg-sage-t px-6 py-2.5 text-[13px] font-semibold text-sage transition hover:brightness-110 ${pending ? 'opacity-50' : ''}`}>
+            {pending ? 'Заливаю…' : `Залить всё (${queue.length})`}
+          </button>
+        )}
       </div>
       ) : null}
 

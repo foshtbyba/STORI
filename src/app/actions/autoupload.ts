@@ -782,26 +782,30 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       const langUps: LangUp[] = [];
       if (wantLanguages) {
         const pack = await prisma.uploadLanguage.findMany({ where: { userId: ctx.userId, archived: false }, orderBy: { sort: 'asc' } });
-        let li = 0;
-        for (const lp of pack) {
-          li += 1;
-          await stage(`Загружаю ролики языков (${li}/${pack.length}): ${lp.locale}…`);
-          try {
-            let lvid = '';
-            if (lp.videoData && lp.videoData.length) {
-              lvid = await uploadVideo(token, ext, Buffer.from(lp.videoData), lp.videoName || 'lang.mp4', net);
-            } else if (lp.videoUrl) {
-              lvid = await uploadVideoByUrl(token, ext, lp.videoUrl, net);
-            } else {
-              append(`⚠ ${lp.locale}: нет видео — пропускаю`);
-              continue;
-            }
+        const withVideo = pack.filter((lp) => (lp.videoData && lp.videoData.length) || lp.videoUrl);
+        for (const lp of pack) if (!((lp.videoData && lp.videoData.length) || lp.videoUrl)) append(`⚠ ${lp.locale}: нет видео — пропускаю`);
+        if (withVideo.length) {
+          // Ролики языков грузим ВСЕ СРАЗУ (параллельно), а не по одному — это
+          // была основная задержка залива. Разные видео на один каб FB тянет
+          // спокойно; ошибка одного не рушит остальные (allSettled).
+          await stage(`Загружаю ролики языков (${withVideo.length}) параллельно…`);
+          const ups = await Promise.allSettled(withVideo.map(async (lp) => {
+            const lvid = lp.videoData && lp.videoData.length
+              ? await uploadVideo(token, ext, Buffer.from(lp.videoData), lp.videoName || 'lang.mp4', net)
+              : await uploadVideoByUrl(token, ext, String(lp.videoUrl), net);
             const localeId = await resolveLocaleId(token, localeName(lp.locale), net);
-            if (!localeId) { append(`⚠ ${lp.locale}: не нашёл locale ID у FB — пропускаю`); continue; }
-            langUps.push({ locale: lp.locale, localeId, videoId: lvid, message: lp.primaryText || message, headline: lp.headline || undefined, description: lp.description || undefined, link: lp.link || undefined });
-          } catch (e) {
-            append(`⚠ ${lp.locale}: не загрузился — пропускаю (${(e as Error).message})`);
-          }
+            if (!localeId) throw new FbError('нет locale ID у FB');
+            return { lvid, localeId };
+          }));
+          ups.forEach((r, i) => {
+            const lp = withVideo[i];
+            if (r.status === 'fulfilled') {
+              langUps.push({ locale: lp.locale, localeId: r.value.localeId, videoId: r.value.lvid, message: lp.primaryText || message, headline: lp.headline || undefined, description: lp.description || undefined, link: lp.link || undefined });
+              append(`✓ ${lp.locale}: ролик загружен`);
+            } else {
+              append(`⚠ ${lp.locale}: не загрузился — пропускаю (${(r.reason as Error)?.message ?? 'ошибка'})`);
+            }
+          });
         }
       }
 
