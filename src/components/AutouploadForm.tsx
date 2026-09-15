@@ -427,8 +427,10 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Метод залива + отдельные вкладки настроек (шаблоны/языки) в этом же ряду. */}
-      <div className="flex flex-wrap items-center gap-1.5">
+      {/* Метод залива + отдельные вкладки настроек (шаблоны/языки) в этом же ряду.
+          min-h-9 держит высоту ряда постоянной: поле поиска (h-9) появляется
+          только у «Шаблонов», и без резерва ряд подпрыгивал при переключении. */}
+      <div className="flex min-h-9 flex-wrap items-center gap-1.5">
         <button type="button" onClick={() => setMethod('static')} className={tab(method === 'static')}>Сторис / статика</button>
         <button type="button" onClick={() => setMethod('video')} className={tab(method === 'video')}>Видео + языки</button>
         <span className="mx-1 h-5 w-px bg-line2" />

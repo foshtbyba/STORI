@@ -22,6 +22,9 @@ export default function JobsJournal({ pollMs = 5000, defaultExpanded = false, ki
   const [open, setOpen] = useState('');
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [loading, setLoading] = useState(true);
+  // Отмена — в два клика: первый переводит кнопку в «точно?», второй отменяет.
+  // Так случайное нажатие уже не гасит залив. Сбрасываем через пару секунд.
+  const [confirmCancel, setConfirmCancel] = useState('');
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const running = jobs.filter((j) => j.status === 'running').length;
@@ -43,6 +46,13 @@ export default function JobsJournal({ pollMs = 5000, defaultExpanded = false, ki
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pollMs]);
 
+  // Подтверждение отмены само гаснет через 3 с, если второй раз не нажали.
+  useEffect(() => {
+    if (!confirmCancel) return;
+    const t = setTimeout(() => setConfirmCancel(''), 3000);
+    return () => clearTimeout(t);
+  }, [confirmCancel]);
+
   return (
     <div className="rounded-[16px] border border-line2 bg-panel/60 p-4 sm:p-5">
       <div className="flex items-center gap-2.5">
@@ -56,7 +66,13 @@ export default function JobsJournal({ pollMs = 5000, defaultExpanded = false, ki
         </button>
         {expanded ? <button type="button" onClick={refresh} className="shrink-0 text-[11.5px] text-mute transition hover:text-sage">обновить</button> : null}
       </div>
-      {!expanded ? null : loading && jobs.length === 0 ? (
+      {/* Плавное раскрытие через grid-rows 0fr→1fr (как в Reveal): без резкого
+          «провалилось-вывалилось». Контент всегда в разметке — стрелка и весь
+          заголовок это одна кнопка, поэтому клик по стрелке гарантированно
+          раскрывает список, а не только крутит иконку. */}
+      <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+        <div className="overflow-hidden">
+      {loading && jobs.length === 0 ? (
         <p className="mt-3 text-[12px] text-mute">Загружаю…</p>
       ) : jobs.length === 0 ? (
         <p className="mt-3 text-[12px] text-mute">Пока пусто. Запусти залив — он появится здесь.</p>
@@ -79,7 +95,19 @@ export default function JobsJournal({ pollMs = 5000, defaultExpanded = false, ki
                     </span>
                   )}
                   {j.log ? <button type="button" onClick={() => setOpen(isOpen ? '' : j.id)} className="shrink-0 text-[11px] text-mute transition hover:text-sage">{isOpen ? 'скрыть' : 'журнал'}</button> : null}
-                  {j.status === 'running' ? <button type="button" onClick={() => cancel(j.id)} className="shrink-0 text-[11px] text-mute transition hover:text-rust" title="Отменить залипший залив">отменить</button> : null}
+                  {j.status === 'running' ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirmCancel === j.id) { setConfirmCancel(''); cancel(j.id); }
+                        else setConfirmCancel(j.id);
+                      }}
+                      className={`shrink-0 text-[11px] transition ${confirmCancel === j.id ? 'font-semibold text-rust' : 'text-mute hover:text-rust'}`}
+                      title="Отменить залипший залив"
+                    >
+                      {confirmCancel === j.id ? 'точно? отменить' : 'отменить'}
+                    </button>
+                  ) : null}
                 </div>
                 {j.status === 'error' ? <p className="mt-1.5 break-words text-[11.5px] leading-relaxed text-rust">{j.error || 'ошибка'}</p> : null}
                 {isOpen && j.log ? <pre className="scroll-slim mt-2 max-h-[240px] overflow-auto whitespace-pre-wrap break-words text-[11px] leading-relaxed text-dim">{j.log}</pre> : null}
@@ -88,6 +116,8 @@ export default function JobsJournal({ pollMs = 5000, defaultExpanded = false, ki
           })}
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 }
