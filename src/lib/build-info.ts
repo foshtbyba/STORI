@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'custom-select-role+buyer · 15.09 19:30';
+export const BUILD_INFO = 'selects+cards+fullbleed-bg · 15.09 19:35';

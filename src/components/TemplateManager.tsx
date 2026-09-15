@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useActionState } from 'react';
 import { saveTemplate, deleteTemplate, type TemplateState } from '@/app/actions/autoupload';
 import { PLACEMENTS, validPlacementKeys, placementSummary } from '@/lib/placements';
+import Select from './Select';
 
 export type Template = {
   id: string;
@@ -95,20 +96,21 @@ export default function TemplateManager({ templates, query = '' }: { templates: 
         <div className="grid grid-cols-4 gap-2">
           <input name="ageMin" type="number" min={13} max={65} defaultValue={edit?.ageMin ?? 18} placeholder="возр. от" className={inp} />
           <input name="ageMax" type="number" min={13} max={65} defaultValue={edit?.ageMax ?? 65} placeholder="возр. до" className={inp} />
-          <select name="genders" defaultValue={edit?.genders ?? ''} className={inp}>
-            <option value="">все</option>
-            <option value="1">муж</option>
-            <option value="2">жен</option>
-          </select>
+          <Select
+            name="genders"
+            defaultValue={edit?.genders ?? ''}
+            triggerClassName={inp}
+            options={[
+              { value: '', label: 'все' },
+              { value: '1', label: 'муж' },
+              { value: '2', label: 'жен' },
+            ]}
+          />
           <input name="budget" type="text" inputMode="decimal" defaultValue={edit ? (edit.dailyBudgetCents / 100).toString() : '20'} placeholder="$/день" className={inp} />
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <select name="event" defaultValue={edit?.event ?? 'LEAD'} className={inp}>
-            {EVENTS.map((e) => <option key={e} value={e}>{e}</option>)}
-          </select>
-          <select name="cta" defaultValue={edit?.cta ?? 'LEARN_MORE'} className={inp}>
-            {CTAS.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
+          <Select name="event" defaultValue={edit?.event ?? 'LEAD'} triggerClassName={inp} options={EVENTS.map((e) => ({ value: e, label: e }))} />
+          <Select name="cta" defaultValue={edit?.cta ?? 'LEARN_MORE'} triggerClassName={inp} options={CTAS.map((c) => ({ value: c, label: c }))} />
         </div>
 
         {/* Плейсменты: FB и IG — своими колонками; мелкие площадки (Threads,

@@ -23,7 +23,12 @@ const METHODS: { key: CardBindMethod; label: string; hint: string }[] = [
  * захвата точного запроса (расширение/HAR).
  */
 export default function CardBinder({ cabinets }: { cabinets: Cabinet[] }) {
-  const owners = useMemo(() => [...new Set(cabinets.map((c) => c.group))], [cabinets]);
+  // Порядок овнеров фиксируем — SKO первым, потом MPR, как в остальных формах;
+  // прочие (если появятся) — по алфавиту следом.
+  const owners = useMemo(() => {
+    const rank = (o: string) => (o === 'SKO' ? 0 : o === 'MPR' ? 1 : 2);
+    return [...new Set(cabinets.map((c) => c.group))].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+  }, [cabinets]);
   const [owner, setOwner] = useState(owners[0] ?? '');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [q, setQ] = useState('');
