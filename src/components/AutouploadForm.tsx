@@ -110,6 +110,10 @@ function friendlyReason(err?: string): string {
  */
 export default function AutouploadForm({ cabinets, templates, languages = [] }: { cabinets: Cabinet[]; templates: Template[]; languages?: Language[] }) {
   const [pending, start] = useTransition();
+  // Синхронный замок от дабл-клика: `pending` из useTransition обновляется
+  // асинхронно, поэтому два быстрых клика оба проскакивали проверку и
+  // запускали залив ДВАЖДЫ (в журнале дубль). Реф ставим до старта транзиции.
+  const firing = useRef(false);
 
   // Овнеров сортируем так, чтобы SKO был первым, остальные по алфавиту.
   const owners = useMemo(() => {
@@ -371,9 +375,11 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
   const hasLive = queue.some((d) => d.mode !== 'paused');
 
   const fireAll = () => {
-    if (pending || queue.length === 0) return;
+    if (firing.current || pending || queue.length === 0) return;
+    firing.current = true;
     setMsg(null); setResults({}); setConfirm(false);
     start(async () => {
+      try {
       setProgress({ done: 0, total: totalTargets });
       let success = 0, warned = 0, failed = 0, done = 0;
       for (const d of queue) {
@@ -412,6 +418,9 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
       if (warned) parts.push(`⚠ С проблемой (нужен телефон): ${warned}`);
       if (failed) parts.push(`✗ Ошибки: ${failed}`);
       setMsg({ ok: failed === 0, text: parts.join(' · ') });
+      } finally {
+        firing.current = false;
+      }
     });
   };
 

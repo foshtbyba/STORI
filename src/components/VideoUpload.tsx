@@ -48,6 +48,9 @@ function nextMoscowMidnight(): string {
  */
 export default function VideoUpload({ cabinets, templates, languages = [] }: { cabinets: Cabinet[]; templates: Template[]; languages?: Language[] }) {
   const [pending, start] = useTransition();
+  // Синхронный замок от дабл-клика (pending обновляется асинхронно) — иначе два
+  // быстрых клика запускают залив дважды и в журнале появляется дубль.
+  const firing = useRef(false);
 
   // SKO первым, остальные по алфавиту — как в основном заливе.
   const owners = useMemo(() => {
@@ -260,8 +263,11 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
 
   const fireAll = () => {
     setMsg('');
+    if (firing.current || pending) return;
     if (queue.length === 0) { setMsg('Очередь пуста — собери хотя бы один залив'); return; }
+    firing.current = true;
     start(async () => {
+      try {
       for (const d of queue) {
         const fd = new FormData();
         fd.set('accountId', d.cabId);
@@ -290,6 +296,9 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
       setQueue([]);
       setMsg(`🚀 Запущено в фоне: ${n}. Результат — в «Журнале заливов» ниже (один кабинет по очереди, разные — параллельно). Можно уйти со страницы.`);
       setJournalKey((k) => k + 1);
+      } finally {
+        firing.current = false;
+      }
     });
   };
 
