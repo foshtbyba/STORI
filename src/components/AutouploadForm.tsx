@@ -542,9 +542,9 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
             <div className="lab mb-1.5">Как публикуем картинки</div>
             <div className="flex flex-wrap gap-1.5">
               {([
-                ['1-1-2', '1 кампания · 1 адсет', 'по объявлению на картинку, бюджет общий'],
-                ['1-2-1', '1 кампания · адсеты', 'на картинку свой адсет со своим бюджетом'],
                 ['1-1-1', 'кампании', 'на картинку своя кампания+адсет со своим бюджетом'],
+                ['1-2-1', '1 кампания · адсеты', 'на картинку свой адсет со своим бюджетом'],
+                ['1-1-2', '1 кампания · 1 адсет', 'по объявлению на картинку, бюджет общий'],
               ] as const).map(([val, title]) => (
                 <button key={val} type="button" onClick={() => setStructure(val)} className={`rounded-full border px-3 py-1.5 text-[11.5px] transition ${structure === val ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-soft hover:border-sage'}`}>
                   <span className="n font-medium">{val}</span> · {title}

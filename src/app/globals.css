@@ -42,12 +42,6 @@ body {
   color: var(--color-text);
 }
 
-html {
-  /* Резервируем место под скролл всегда — страница не «прыгает» вбок, когда
-     скроллбар появляется/исчезает. */
-  scrollbar-gutter: stable;
-}
-
 body {
   -webkit-font-smoothing: antialiased;
 }

@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'structure+scroll · 15.09 15:14';
+export const BUILD_INFO = 'center+scroll-overlay · 15.09 15:25';
