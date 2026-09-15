@@ -20,6 +20,7 @@ import {
   createAd,
   searchRegions,
   getPageName,
+  resolveInstagramActor,
   bindCardToAccount,
   uploadVideo,
   uploadVideoByUrl,
@@ -615,6 +616,14 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     let dsaPayer = dsaBeneficiary;
     append(`DSA: продвигается/платит — ${dsaBeneficiary}`);
 
+    // Instagram-идентичность: без неё FB отбивает креатив на IG-плейсментах
+    // (код 1772103). Берём привязанный IG или создаём page-backed (ФП
+    // представляет бизнес в Instagram). Не вышло — работаем без неё (могут
+    // отвалиться только IG-плейсменты).
+    const igActor = await resolveInstagramActor(token, pageId, net);
+    if (igActor) append(`Instagram: аккаунт ${igActor} (для IG-плейсментов)`);
+    else append('⚠ IG-аккаунт к ФП не привязан и создать не вышло — Instagram-плейсменты могут не пройти');
+
     // 2. Адсет с бюджетом и таргетом. Плейсменты, которые кабинет/цель не
     //    принимают (ФБ: «Invalid value X for the placement field …»), сами
     //    выкидываем и повторяем — залив не должен падать из-за одной галки.
@@ -807,6 +816,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           main: { videoId: mainVar!.videoId, thumb: mainVar!.thumb, message: mainVar!.message, headline: mainVar!.headline, description: mainVar!.description, link: mainVar!.link },
           mainLocaleId: mainVar.localeId,
           langs: restLangs,
+          instagramActorId: igActor || undefined,
         }, net));
         if (creativeId) {
           await sleep(200);
@@ -824,6 +834,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           name: campaignName, pageId, videoId: mainVar!.videoId, message: mainVar!.message, link: mainVar!.link, cta,
           urlTags: urlTags || undefined, headline: mainVar!.headline,
           description: mainVar!.description, imageUrl: mainVar!.thumb, optOutKeys: optOut,
+          instagramActorId: igActor || undefined,
         }, net));
         if (!creativeId) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
         await sleep(200);
@@ -858,6 +869,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
             headline: headline || undefined,
             description: description || undefined,
             optOutKeys: optOut,
+            instagramActorId: igActor || undefined,
           }, net);
           break;
         } catch (e) {

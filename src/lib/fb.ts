@@ -1152,6 +1152,37 @@ export async function getPageName(token: string, pageId: string, net: FbNet = {}
   }
 }
 
+/**
+ * Instagram-идентичность для объявления. Если реклама попадает в плейсменты
+ * Instagram, а к ФП не привязан IG-аккаунт, ФБ отбивает креатив (код 100/1772103
+ * «Select an Instagram account or Facebook Page…»). Решаем как в Ads Manager
+ * «использовать страницу Facebook в Instagram»:
+ *  1) берём привязанный к ФП IG (business/connected), если есть;
+ *  2) иначе — уже созданный page-backed IG (PBIA);
+ *  3) иначе — создаём PBIA (страница представляет бизнес в Instagram).
+ * Пусто — не удалось (тогда IG-плейсменты могут отвалиться).
+ */
+export async function resolveInstagramActor(token: string, pageId: string, net: FbNet = {}): Promise<string> {
+  try {
+    const b = await call(`/${pageId}`, token, { fields: 'instagram_business_account,connected_instagram_account' }, net) as {
+      instagram_business_account?: { id?: string };
+      connected_instagram_account?: { id?: string };
+    };
+    const id = b.instagram_business_account?.id || b.connected_instagram_account?.id;
+    if (id) return String(id);
+  } catch { /* нет доступа/поля — идём дальше */ }
+  try {
+    const l = await call(`/${pageId}/page_backed_instagram_accounts`, token, { fields: 'id' }, net) as { data?: { id?: string }[] };
+    const id = (l.data ?? [])[0]?.id;
+    if (id) return String(id);
+  } catch { /* ещё нет — создадим */ }
+  try {
+    const c = await call(`/${pageId}/page_backed_instagram_accounts`, token, {}, net, 'POST') as { id?: string };
+    if (c.id) return String(c.id);
+  } catch { /* не дали создать — вернём пусто */ }
+  return '';
+}
+
 /** Регион FB для исключения: ключ + человекочитаемое имя со страной. */
 export type FbRegion = { key: string; name: string; cc: string };
 
@@ -1455,6 +1486,8 @@ export type CreateMultiLangVideoInput = {
    *  плейсментными и требует гео (код 2446501). */
   mainLocaleId: number;
   langs: LangVariant[];
+  /** IG-идентичность для Instagram-плейсментов (см. resolveInstagramActor). */
+  instagramActorId?: string;
 };
 
 /**
@@ -1527,9 +1560,11 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
   if (titles.length) assetFeedSpec.titles = titles;
   if (descriptions.length) assetFeedSpec.descriptions = descriptions;
 
+  const storySpec: Record<string, unknown> = { page_id: i.pageId };
+  if (i.instagramActorId) storySpec.instagram_actor_id = i.instagramActorId;
   const params: Record<string, string> = {
     name: i.name,
-    object_story_spec: JSON.stringify({ page_id: i.pageId }),
+    object_story_spec: JSON.stringify(storySpec),
     asset_feed_spec: JSON.stringify(assetFeedSpec),
   };
   const optOut = i.optOutKeys ?? ['standard_enhancements'];
@@ -1570,6 +1605,8 @@ export type CreateVideoCreativeInput = {
   description?: string;
   imageUrl?: string; // кадр-превью ролика
   optOutKeys?: string[];
+  /** IG-идентичность для Instagram-плейсментов (см. resolveInstagramActor). */
+  instagramActorId?: string;
 };
 
 /** Видео-креатив (object_story_spec.video_data). Аналог createAdCreative, но с
@@ -1583,7 +1620,8 @@ export async function createVideoAdCreative(token: string, externalId: string, i
   if (i.imageUrl) videoData.image_url = i.imageUrl;
   if (i.headline) videoData.title = i.headline;
   if (i.description) videoData.link_description = i.description;
-  const objectStorySpec = { page_id: i.pageId, video_data: videoData };
+  const objectStorySpec: Record<string, unknown> = { page_id: i.pageId, video_data: videoData };
+  if (i.instagramActorId) objectStorySpec.instagram_actor_id = i.instagramActorId;
   const params: Record<string, string> = {
     name: i.name,
     object_story_spec: JSON.stringify(objectStorySpec),
@@ -1705,6 +1743,8 @@ export type CreateCreativeInput = {
   description?: string;
   /** Ключи авто-улучшений в OPT_OUT. Пусто — degrees_of_freedom_spec не шлём. */
   optOutKeys?: string[];
+  /** IG-идентичность для Instagram-плейсментов (см. resolveInstagramActor). */
+  instagramActorId?: string;
 };
 
 export async function createAdCreative(token: string, externalId: string, i: CreateCreativeInput, net: FbNet = {}) {
@@ -1716,7 +1756,8 @@ export async function createAdCreative(token: string, externalId: string, i: Cre
   };
   if (i.headline) linkData.name = i.headline;
   if (i.description) linkData.description = i.description;
-  const objectStorySpec = { page_id: i.pageId, link_data: linkData };
+  const objectStorySpec: Record<string, unknown> = { page_id: i.pageId, link_data: linkData };
+  if (i.instagramActorId) objectStorySpec.instagram_actor_id = i.instagramActorId;
   const params: Record<string, string> = {
     name: i.name,
     object_story_spec: JSON.stringify(objectStorySpec),
