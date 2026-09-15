@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'pixel-two-fields · 15.09 13:45';
+export const BUILD_INFO = 'ui-polish · 15.09 13:57';

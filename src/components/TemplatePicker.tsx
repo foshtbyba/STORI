@@ -106,7 +106,7 @@ export default function TemplatePicker({
       </div>
 
       {open ? (
-        <div className="absolute left-0 z-30 mt-1.5 w-full overflow-hidden rounded-[14px] border border-line bg-panel-glass p-1 shadow-[0_12px_30px_rgba(0,0,0,0.5)] backdrop-blur">
+        <div className="absolute left-0 z-30 mt-1.5 w-full overflow-hidden rounded-[14px] border border-line bg-panel p-1 shadow-[0_12px_30px_rgba(0,0,0,0.5)]">
           <div className="scroll-slim max-h-[280px] overflow-auto">
             {value ? (
               <button type="button" onMouseDown={(e) => { e.preventDefault(); pick(''); }} className="flex w-full items-center gap-2 rounded-[10px] px-3 py-1.5 text-left text-[12px] text-mute transition hover:bg-sub">

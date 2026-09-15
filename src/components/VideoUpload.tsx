@@ -396,9 +396,14 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
 
       {/* 3 · Шаблон гео и объявление */}
       <div className={box}>
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <span className={stepBadge}>3</span>
           <span className="text-[13px] font-semibold">Шаблон гео и объявление</span>
+          {/* Ссылка на объявление и бюджет — справа в шапке шага. */}
+          <div className="ml-auto flex items-center gap-2">
+            <input value={link} onChange={(e) => setLink(e.target.value.replace(/\s+/g, ''))} type="url" placeholder="Ссылка на объявление (https://…)" className="h-9 w-[240px] max-w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage" />
+            <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" placeholder="$/день" className="h-9 w-[90px] rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage" />
+          </div>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <TemplatePicker templates={templates} value={templateId} onPick={onPickTemplate} />
@@ -406,10 +411,6 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         </div>
         <div className="mt-2.5 grid gap-2">
           <input value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="Название кампании (оно же у адсета и объявлений)" className={inp} />
-          <div className="grid gap-2 sm:grid-cols-[1fr_140px]">
-            <input value={link} onChange={(e) => setLink(e.target.value.replace(/\s+/g, ''))} type="url" placeholder="Ссылка на лендинг (https://…)" className={inp} />
-            <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" placeholder="$/день" className={inp} />
-          </div>
           <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Текст объявления" rows={3} className="w-full rounded-xl border border-line2 bg-sub px-3 py-2 text-[12.5px] text-soft outline-none focus:border-sage" />
           <div className="grid gap-2 sm:grid-cols-2">
             <input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Заголовок (опц.)" className={inp} />

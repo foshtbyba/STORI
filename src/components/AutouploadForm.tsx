@@ -554,9 +554,30 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
 
         {/* 3 · Шаблон + объявление */}
         <div className={box}>
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5">
             <span className={stepBadge}>3</span>
             <span className="text-[13px] font-semibold">Шаблон гео и объявление</span>
+            {/* Ссылка на объявление и бюджет — справа в шапке шага. */}
+            <div className="ml-auto flex items-center gap-2">
+              <input
+                value={link}
+                type="url"
+                inputMode="url"
+                spellCheck={false}
+                autoComplete="off"
+                onChange={(e) => { setLink(e.target.value.replace(/\s+/g, '')); setLinkWarn(''); }}
+                onPaste={(e) => {
+                  e.preventDefault();
+                  const url = extractUrl(e.clipboardData.getData('text'));
+                  if (url) { setLink(url); setLinkWarn(''); }
+                  else setLinkWarn('Сюда можно вставить только ссылку (http(s)://…)');
+                }}
+                title={linkWarn || (link && !isLinkValid(link) ? 'Ссылка должна начинаться с http(s):// и без пробелов.' : undefined)}
+                placeholder="Ссылка на объявление (https://…)"
+                className={`h-9 w-[240px] max-w-full rounded-xl border bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage ${link && !isLinkValid(link) ? 'border-rust focus:border-rust' : 'border-line2'}`}
+              />
+              <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" placeholder="$/день" className="h-9 w-[90px] rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage" />
+            </div>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <TemplatePicker templates={templates} value={templateId} onPick={onPickTemplate} />
@@ -564,38 +585,9 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           </div>
           <div className="mt-2.5 grid gap-2">
             <input value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="Название кампании (оно же у адсета и объявлений)" className={inp} />
-            <div className="grid gap-2 sm:grid-cols-[1fr_140px]">
-              <div>
-                <input
-                  value={link}
-                  type="url"
-                  inputMode="url"
-                  spellCheck={false}
-                  autoComplete="off"
-                  onChange={(e) => {
-                    // Пробелы/переносы в URL недопустимы — вырезаем сразу, чтобы
-                    // нельзя было впечатать текст с пробелами.
-                    setLink(e.target.value.replace(/\s+/g, ''));
-                    setLinkWarn('');
-                  }}
-                  onPaste={(e) => {
-                    // Вставляем только ссылку: достаём URL из буфера, прочее не пускаем.
-                    e.preventDefault();
-                    const url = extractUrl(e.clipboardData.getData('text'));
-                    if (url) { setLink(url); setLinkWarn(''); }
-                    else setLinkWarn('Сюда можно вставить только ссылку (http(s)://…)');
-                  }}
-                  placeholder="Ссылка на лендинг (https://…)"
-                  className={`${inp} ${link && !isLinkValid(link) ? 'border-rust focus:border-rust' : ''}`}
-                />
-                {linkWarn ? (
-                  <p className="mt-1 text-[11px] text-rust">{linkWarn}</p>
-                ) : link && !isLinkValid(link) ? (
-                  <p className="mt-1 text-[11px] text-rust">Ссылка должна начинаться с http(s):// и без пробелов.</p>
-                ) : null}
-              </div>
-              <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" placeholder="$/день" className={inp} />
-            </div>
+            {(linkWarn || (link && !isLinkValid(link))) ? (
+              <p className="text-[11px] text-rust">{linkWarn || 'Ссылка должна начинаться с http(s):// и без пробелов.'}</p>
+            ) : null}
             <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Текст объявления" rows={3} className="w-full rounded-xl border border-line2 bg-sub px-3 py-2 text-[12.5px] text-soft outline-none focus:border-sage" />
             <div className="grid gap-2 sm:grid-cols-2">
               <input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Заголовок (опц.)" className={inp} />
