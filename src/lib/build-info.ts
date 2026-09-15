@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'symmetric-bg+press-translate · 15.09 18:41';
+export const BUILD_INFO = 'image-upload-timeout-retry · 15.09 19:06';

@@ -1380,26 +1380,44 @@ export async function uploadAdImage(token: string, externalId: string, bytes: Bu
   const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
   if (net.ua) headers['User-Agent'] = net.ua;
   if (net.cookie) headers['Cookie'] = net.cookie;
+  const payload = form.toString();
 
-  let status: number;
-  let text: string;
-  try {
-    if (net.proxyUrl) {
-      const agent = proxyAgent(net.proxyUrl);
-      const res = await axios.request({
-        method: 'POST', url, headers, data: form.toString(),
-        httpAgent: agent, httpsAgent: agent,
-        maxContentLength: 5_000_000, timeout: 30000,
-        responseType: 'text', transformResponse: [(d) => d], validateStatus: () => true,
-      });
-      status = res.status; text = String(res.data ?? '');
-    } else {
-      const res = await fetch(url, { method: 'POST', headers, body: form.toString(), cache: 'no-store' });
-      status = res.status; text = await res.text();
+  // Через прокси картинка (base64 в теле) грузится медленно — 30с не хватало и
+  // залив падал «timeout of 30000ms exceeded». Даём 2 минуты и 3 попытки с
+  // паузой: сетевой сбой на одном кабе больше не рушит весь залив.
+  const TIMEOUT = 120000;
+  const TRIES = 3;
+  let status = 0;
+  let text = '';
+  let sent = false;
+  let lastNetErr = '';
+  for (let attempt = 1; attempt <= TRIES; attempt += 1) {
+    try {
+      if (net.proxyUrl) {
+        const agent = proxyAgent(net.proxyUrl);
+        const res = await axios.request({
+          method: 'POST', url, headers, data: payload,
+          httpAgent: agent, httpsAgent: agent,
+          maxContentLength: 5_000_000, maxBodyLength: Infinity, timeout: TIMEOUT,
+          responseType: 'text', transformResponse: [(d) => d], validateStatus: () => true,
+        });
+        status = res.status; text = String(res.data ?? '');
+      } else {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), TIMEOUT);
+        try {
+          const res = await fetch(url, { method: 'POST', headers, body: payload, cache: 'no-store', signal: ctrl.signal });
+          status = res.status; text = await res.text();
+        } finally { clearTimeout(t); }
+      }
+      sent = true;
+      break;
+    } catch (e) {
+      lastNetErr = (e as Error).message;
+      if (attempt < TRIES) { await new Promise((r) => setTimeout(r, 2000 * attempt)); continue; }
     }
-  } catch (e) {
-    throw new FbError(`Не загрузили картинку в FB: ${(e as Error).message}`);
   }
+  if (!sent) throw new FbError(`Не загрузили картинку в FB (после ${TRIES} попыток): ${lastNetErr}`);
 
   let body: unknown;
   try { body = JSON.parse(text); } catch { throw new FbError(`FB ответил не по-json (${status}) на загрузку картинки`); }
