@@ -7,6 +7,7 @@ import { accountBadge } from '@/lib/fb-status';
 import { Panel, PanelHead, Empty } from '@/components/ui';
 import { MyTokenForm, TokenForm } from '@/components/IntegrationForms';
 import AccountGroup, { type Group } from '@/components/AccountGroup';
+import BuyerGroup from '@/components/BuyerGroup';
 import Reveal from '@/components/Reveal';
 import { IconWallet } from '@/components/icons';
 
@@ -102,6 +103,19 @@ export default async function AdsOverviewPage() {
     ownersByHandle.set(t.buyer.handle, arr);
   }
 
+  // Командные кабинеты группируем по БАЕРУ: у баера бывает несколько профилей
+  // (соцов), и удобнее раскрыть баера и увидеть его профили с их токенами, чем
+  // листать плоский список. Баеров с проблемными токенами показываем выше.
+  const teamByHandle = new Map<string, Group[]>();
+  for (const t of teamTokens) {
+    const arr = teamByHandle.get(t.buyer.handle) ?? [];
+    arr.push(toGroup(t));
+    teamByHandle.set(t.buyer.handle, arr);
+  }
+  const teamBuyers = [...teamByHandle.entries()]
+    .map(([handle, groups]) => ({ handle, groups, dead: groups.filter((g) => g.error).length }))
+    .sort((a, b) => b.dead - a.dead || a.handle.localeCompare(b.handle, 'ru'));
+
   return (
     <div className="flex flex-col gap-3.5">
       {/* Овнеры — сверху, отдельным блоком. Только под админом. Здесь же
@@ -145,14 +159,14 @@ export default async function AdsOverviewPage() {
           icon={<IconWallet color="#b4c68c" />}
           tint="bg-sage-t"
           title="Подключённые кабинеты"
-          aside={<span className="text-[12.5px] text-mute">{cabinets} кабинетов · {teamTokens.length} профилей</span>}
+          aside={<span className="text-[12.5px] text-mute">{teamBuyers.length} баеров · {cabinets} кабинетов · {teamTokens.length} профилей</span>}
         />
         {teamTokens.length === 0 ? (
           <div className="mt-4">
             <Empty>Кабинеты ещё не подключены — добавь первый ниже.</Empty>
           </div>
         ) : (
-          teamTokens.map((t) => <AccountGroup key={t.id} group={toGroup(t)} defaultOpen={false} />)
+          teamBuyers.map((b) => <BuyerGroup key={b.handle} groups={b.groups} />)
         )}
         <p className="mt-4 text-[11px] leading-relaxed text-dim">
           Цифра рядом с кабинетом — расход из ФБ за текущую неделю, для справки. В зарплату идёт

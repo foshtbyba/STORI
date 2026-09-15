@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'image-upload-timeout-retry · 15.09 19:06';
+export const BUILD_INFO = 'cabinets-by-buyer · 15.09 19:18';
