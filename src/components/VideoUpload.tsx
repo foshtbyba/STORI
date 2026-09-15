@@ -270,10 +270,6 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-[12px] border border-amber/40 bg-amber-t/30 px-3.5 py-2.5 text-[11.5px] text-amber">
-        Видео-метод: основной ролик (+ языки из пака в одно объявление) на выбранные кабинеты. По умолчанию заливается <b>на паузе</b> — проверь в Ads Manager.
-      </div>
-
       {/* 1 · Овнер + кабинеты (как в статичном заливе) */}
       <div className={box}>
         <div className="flex flex-wrap items-center gap-2.5">

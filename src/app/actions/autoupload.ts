@@ -792,27 +792,24 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       });
 
       // Определяем ДЕФОЛТНЫЙ вариант и список остальных языков.
-      // • Основной ролик приложен → он дефолт, весь пак — доп-языки.
-      // • Основного нет (режим «только языки») → дефолтом берём язык из пака,
-      //   совпавший с «Язык основного ролика», иначе первый; остальные — доп.
+      // ВАЖНО (по просьбе): в языковом режиме ДЕФОЛТ берём ИЗ ЯЗЫКОВ, а не из
+      // отдельно введённого основного текста/ролика. Дефолтом идёт язык из пака,
+      // совпавший с «Язык основного ролика», иначе первый; остальные — доп-языки.
+      // Отдельный основной ролик используем только как фолбэк, если языков нет.
       let mainVar: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string; localeId: number } | null = null;
       let restLangs: LangVariant[] = [];
-      if (mainVideoId) {
-        let mainLocaleId = mainLocale ? await resolveLocaleId(token, localeName(mainLocale), net) : 0;
-        if (mainLocaleId) append(`Основной ролик — язык ${mainLocale} (locale ${mainLocaleId})`);
-        else if (wantLanguages) {
-          mainLocaleId = (await resolveLocaleId(token, 'English (US)', net)) || (await resolveLocaleId(token, 'English', net));
-          if (mainLocaleId) append(`Основной язык не выбран — беру английский (locale ${mainLocaleId}) для дефолта`);
-        }
-        mainVar = { videoId: mainVideoId, thumb: mainThumb || undefined, message, headline: headline || undefined, description: description || undefined, link, localeId: mainLocaleId };
-        restLangs = langVariants;
-      } else if (langVariants.length) {
+      if (langVariants.length) {
         const wantId = mainLocale ? await resolveLocaleId(token, localeName(mainLocale), net) : 0;
         const idx = wantId ? Math.max(0, langVariants.findIndex((l) => l.localeId === wantId)) : 0;
         const chosen = langVariants[idx] ?? langVariants[0];
         restLangs = langVariants.filter((_, i) => i !== langVariants.indexOf(chosen));
         mainVar = { videoId: chosen.videoId, thumb: chosen.thumb, message: chosen.message, headline: chosen.headline, description: chosen.description, link: chosen.link || link, localeId: chosen.localeId };
-        append(`Дефолтный язык объявления — locale ${chosen.localeId} (основной ролик не прикладывался)`);
+        append(`Дефолт объявления — язык locale ${chosen.localeId} (данные с языка, не с основного текста)`);
+        if (mainVideoId) append('Основной ролик приложен, но в языковом режиме он не используется — дефолт берётся с языка');
+      } else if (mainVideoId) {
+        // Языков нет — обычное видео из основного ролика/текста.
+        const mainLocaleId = mainLocale ? await resolveLocaleId(token, localeName(mainLocale), net) : 0;
+        mainVar = { videoId: mainVideoId, thumb: mainThumb || undefined, message, headline: headline || undefined, description: description || undefined, link, localeId: mainLocaleId };
       }
 
       if (!mainVar) throw new FbError('Нет ни основного ролика, ни языков с видео — нечего заливать');

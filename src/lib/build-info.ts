@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'parallel-wait · 15.09 13:06';
+export const BUILD_INFO = 'default-from-lang · 15.09 13:30';
