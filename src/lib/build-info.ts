@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'exclude-cities · 15.09 16:35';
+export const BUILD_INFO = 'nav-divider-domains · 15.09 18:24';
