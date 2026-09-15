@@ -1183,36 +1183,43 @@ export async function getPageName(token: string, pageId: string, net: FbNet = {}
  *  3) иначе — создаём PBIA (страница представляет бизнес в Instagram).
  * Пусто — не удалось (тогда IG-плейсменты могут отвалиться).
  */
-export async function resolveInstagramActor(token: string, pageId: string, net: FbNet = {}): Promise<string> {
+export async function resolveInstagramActor(token: string, pageId: string, net: FbNet = {}): Promise<{ id: string; error?: string }> {
   try {
     const b = await call(`/${pageId}`, token, { fields: 'instagram_business_account,connected_instagram_account' }, net) as {
       instagram_business_account?: { id?: string };
       connected_instagram_account?: { id?: string };
     };
     const id = b.instagram_business_account?.id || b.connected_instagram_account?.id;
-    if (id) return String(id);
+    if (id) return { id: String(id) };
   } catch { /* нет доступа/поля — идём дальше */ }
 
-  // Операции с page-backed IG (список/создание) ФБ разрешает только с ТОКЕНОМ
-  // СТРАНИЦЫ, а не пользователя. С пользовательским токеном создание PBIA молча
-  // отваливалось → IG-идентичности нет → код 1772103 на креативе. Берём токен
-  // страницы и дальше ходим им.
+  // Операции с page-backed IG (список/создание) ФБ обычно разрешает с ТОКЕНОМ
+  // СТРАНИЦЫ. Берём его; если не дали — пробуем пользовательским.
   let pageToken = token;
   try {
     const pt = await call(`/${pageId}`, token, { fields: 'access_token' }, net) as { access_token?: string };
     if (pt.access_token) pageToken = String(pt.access_token);
   } catch { /* нет прав на токен страницы — пробуем пользовательским */ }
 
-  try {
-    const l = await call(`/${pageId}/page_backed_instagram_accounts`, pageToken, { fields: 'id' }, net) as { data?: { id?: string }[] };
-    const id = (l.data ?? [])[0]?.id;
-    if (id) return String(id);
-  } catch { /* ещё нет — создадим */ }
-  try {
-    const c = await call(`/${pageId}/page_backed_instagram_accounts`, pageToken, {}, net, 'POST') as { id?: string };
-    if (c.id) return String(c.id);
-  } catch { /* не дали создать — вернём пусто */ }
-  return '';
+  // Сначала уже существующий PBIA (обоими токенами — что сработает).
+  for (const tk of pageToken === token ? [token] : [pageToken, token]) {
+    try {
+      const l = await call(`/${pageId}/page_backed_instagram_accounts`, tk, { fields: 'id' }, net) as { data?: { id?: string }[] };
+      const id = (l.data ?? [])[0]?.id;
+      if (id) return { id: String(id) };
+    } catch { /* пробуем следующий токен / создание */ }
+  }
+  // Создание PBIA — пробуем обоими токенами, на актуальной версии создания.
+  // Реальную причину сбоя возвращаем наружу (в журнал), чтобы было видно, что
+  // именно не даёт создать IG-идентичность (права, версия, статус страницы).
+  let lastErr = '';
+  for (const tk of pageToken === token ? [token] : [pageToken, token]) {
+    try {
+      const c = await call(`/${pageId}/page_backed_instagram_accounts`, tk, {}, net, 'POST', CREATE_API_VERSION) as { id?: string };
+      if (c.id) return { id: String(c.id) };
+    } catch (e) { lastErr = (e as Error).message; }
+  }
+  return { id: '', error: lastErr };
 }
 
 /** Регион FB для исключения: ключ + человекочитаемое имя со страной. */

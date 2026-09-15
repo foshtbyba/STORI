@@ -18,6 +18,7 @@ import {
   createAdCreative,
   ENHANCEMENT_OPTOUT_KEYS,
   createAd,
+  setAdStatus,
   searchRegions,
   searchCities,
   getPageName,
@@ -664,9 +665,10 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     let dsaBeneficiary = pageName || ctx.acc.name || 'Advertiser';
     let dsaPayer = dsaBeneficiary;
     append(`DSA: продвигается/платит — ${dsaBeneficiary}`);
-    const igActor = await resolveInstagramActor(token, pageId, net);
-    if (igActor) append(`Instagram: аккаунт ${igActor} (для IG-плейсментов)`);
-    else append('⚠ IG-аккаунт к ФП не привязан и создать не вышло — Instagram-плейсменты могут не пройти');
+    const igRes = await resolveInstagramActor(token, pageId, net);
+    const igActor = igRes.id;
+    if (igActor) append(`Instagram: «Использовать страницу FB» (page-backed IG ${igActor}) — для IG/Threads-плейсментов`);
+    else append(`⚠ IG-идентичность («Использовать страницу FB») не создалась${igRes.error ? `: ${igRes.error}` : ''} — IG/Threads-плейсменты уберу`);
 
     // Кампания и адсет со всем самолечением вынесены в помощники, чтобы звать их
     // по нужной структуре публикации (1-1-1 / 1-2-1 / 1-1-2) и для видео.
@@ -690,10 +692,15 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       }
     }
     let campaignId = ''; // первая созданная кампания — для finish (campaignFbId)
+    // Все созданные объекты — чтобы после залива при телефон-гейте попробовать
+    // включить их в актив обновлением статуса (как включают руками).
+    const createdCampaigns: string[] = [];
+    const createdAdsets: string[] = [];
+    const createdAds: string[] = [];
 
     const mkCampaign = async (name: string): Promise<string> => {
       for (let attempt = 0; attempt < 2; attempt += 1) {
-        try { return await createCampaign(token, ext, { name, objective, status: effectiveStatus }, net); }
+        try { const cid = await createCampaign(token, ext, { name, objective, status: effectiveStatus }, net); createdCampaigns.push(cid); return cid; }
         catch (e) {
           if (isPhoneError(e) && effectiveStatus === 'ACTIVE') {
             effectiveStatus = 'PAUSED'; phoneForced = true;
@@ -709,11 +716,13 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     const mkAdset = async (campId: string, name: string): Promise<string> => {
       for (let attempt = 0; attempt < 5; attempt += 1) {
         try {
-          return await createAdset(token, ext, {
+          const asid = await createAdset(token, ext, {
             name, campaignId: campId, pixelId, event: tpl.event, countries, excludedCountries, excludedRegions, excludedCities,
             dsaBeneficiary: dsaBeneficiary || undefined, dsaPayer: dsaPayer || undefined, dailyBudgetCents,
             ageMin: tpl.ageMin, ageMax: tpl.ageMax, genders, placements, status: effectiveStatus, startTime,
           }, net);
+          createdAdsets.push(asid);
+          return asid;
         } catch (e) {
           const msg = (e as Error).message;
           const m = msg.match(/Invalid value (\S+?)[.,\s]*for the placement field/i);
@@ -745,12 +754,16 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // весь залив: номер подтверждён — баер включит объявление вручную.
     const mkAd = async (name: string, adsetIdArg: string, creativeId: string): Promise<string> => {
       try {
-        return await createAd(token, ext, { name, adsetId: adsetIdArg, creativeId, status: effectiveStatus }, net);
+        const aid = await createAd(token, ext, { name, adsetId: adsetIdArg, creativeId, status: effectiveStatus }, net);
+        createdAds.push(aid);
+        return aid;
       } catch (e) {
         if (isPhoneError(e) && effectiveStatus === 'ACTIVE') {
           effectiveStatus = 'PAUSED'; phoneForced = true;
-          append('⚠ Кабинету нужен подтверждённый/выбранный телефон — объявление создаю НА ПАУЗЕ (подтверди/выбери номер в Ads Manager и включи)');
-          return await createAd(token, ext, { name, adsetId: adsetIdArg, creativeId, status: 'PAUSED' }, net);
+          append('⚠ Телефон-гейт на создании — объявление создаю НА ПАУЗЕ, ниже попробую включить в актив (обычно номер не нужен)');
+          const aid = await createAd(token, ext, { name, adsetId: adsetIdArg, creativeId, status: 'PAUSED' }, net);
+          createdAds.push(aid);
+          return aid;
         }
         throw e;
       }
@@ -1018,6 +1031,23 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     if (created === 0) {
       await finish({ status: 'error', error: 'Ни одно объявление не создано', campaignFbId: campaignId });
       return { ok: false, error: 'Ни одно объявление не создано (см. журнал)', jobId: job.id, log, campaignFbId: campaignId };
+    }
+
+    // Телефон-гейт на СОЗДАНИИ часто ложный: объект создать в актив нельзя, а
+    // включить обновлением статуса (как руками в Ads Manager) — можно, номер не
+    // спрашивает. Поэтому если хотели АКТИВ и упёрлись в гейт — досоздания
+    // включаем всё (кампании → адсеты → объявления) сменой статуса на ACTIVE.
+    if (objectStatus === 'ACTIVE' && phoneForced) {
+      await stage('Включаю в актив (телефон-гейт на создании обычно ложный)…');
+      try {
+        for (const id of [...createdCampaigns, ...createdAdsets, ...createdAds]) {
+          await setAdStatus(token, id, 'ACTIVE', net);
+        }
+        phoneForced = false;
+        append('✓ Включено в актив обновлением статуса — номер для запуска не понадобился');
+      } catch (e) {
+        append(`⚠ Включить в актив не вышло (${(e as Error).message}) — осталось на паузе, включи вручную`);
+      }
     }
 
     const modeLabel = phoneForced
