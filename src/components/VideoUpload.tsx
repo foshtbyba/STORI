@@ -315,8 +315,10 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
           <span className="ml-auto text-[12px] text-mute">выбрано {selectedList.length} из {ownerCabs.length}</span>
         </div>
 
-        <div className="scroll-slim mt-3 max-h-[240px] overflow-auto rounded-[12px] border border-line">
-          <div className="sticky top-0 z-10 flex items-center gap-2 bg-sub px-3 py-1.5">
+        {/* Шапка поиска вне прокрутки (не sticky) — иначе кабинеты просвечивали
+            над ней в скруглённых углах. Скроллятся только строки. */}
+        <div className="mt-3 overflow-hidden rounded-[12px] border border-line">
+          <div className="flex items-center gap-2 border-b border-line bg-sub px-3 py-1.5">
             <span className="shrink-0 text-[11.5px] font-semibold text-amber">{owner} · кабинеты</span>
             <input
               value={qCab}
@@ -328,21 +330,23 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
               {visibleCabs.length > 0 && visibleCabs.every((c) => selected.has(c.id)) ? 'снять все' : 'выбрать все'}
             </button>
           </div>
-          {visibleCabs.map((c) => (
-            <label key={c.id} className="flex cursor-pointer items-center gap-2.5 border-t border-line px-3 py-1.5 text-[12.5px] transition hover:bg-sub/60">
-              <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggle(c.id)} className="accent-[#b4c68c]" />
-              <span className="min-w-0 flex-1 truncate text-soft">{c.name || c.externalId}</span>
-              {c.name && c.name !== c.externalId ? (
-                <span className="n shrink-0 text-[11px] text-dim">{c.externalId}</span>
-              ) : null}
-              <span className="shrink-0 text-[11px] text-dim">{c.currency}</span>
-            </label>
-          ))}
-          {ownerCabs.length === 0 ? (
-            <div className="px-3 py-3 text-[12px] text-mute">У этого овнера нет кабинетов.</div>
-          ) : visibleCabs.length === 0 ? (
-            <div className="px-3 py-3 text-[12px] text-mute">Ничего не найдено по «{qCab.trim()}».</div>
-          ) : null}
+          <div className="scroll-slim max-h-[240px] overflow-auto">
+            {visibleCabs.map((c) => (
+              <label key={c.id} className="flex cursor-pointer items-center gap-2.5 border-t border-line px-3 py-1.5 text-[12.5px] transition first:border-t-0 hover:bg-sub/60">
+                <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggle(c.id)} className="accent-[#b4c68c]" />
+                <span className="min-w-0 flex-1 truncate text-soft">{c.name || c.externalId}</span>
+                {c.name && c.name !== c.externalId ? (
+                  <span className="n shrink-0 text-[11px] text-dim">{c.externalId}</span>
+                ) : null}
+                <span className="shrink-0 text-[11px] text-dim">{c.currency}</span>
+              </label>
+            ))}
+            {ownerCabs.length === 0 ? (
+              <div className="px-3 py-3 text-[12px] text-mute">У этого овнера нет кабинетов.</div>
+            ) : visibleCabs.length === 0 ? (
+              <div className="px-3 py-3 text-[12px] text-mute">Ничего не найдено по «{qCab.trim()}».</div>
+            ) : null}
+          </div>
         </div>
 
         {selectedList.length > 0 ? (
@@ -452,10 +456,10 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         </div>
       ) : null}
 
-      {/* 4 · Шаблон гео и объявление */}
+      {/* Шаблон гео и объявление. Номер динамический (шаг ФП/пиксель условный). */}
       <div className={box}>
         <div className="flex items-center gap-2.5">
-          <span className={stepBadge}>4</span>
+          <span className={stepBadge}>{anyAssets ? 4 : 3}</span>
           <span className="text-[13px] font-semibold">Шаблон гео и объявление</span>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -490,14 +494,11 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         </div>
       </div>
 
-      {/* 5 · Режим запуска. Кнопка «в очередь» — справа в шапке плашки. */}
+      {/* Режим запуска. Кнопка «в очередь» — ниже, под кнопками режима. */}
       <div className={box}>
-        <div className="flex flex-wrap items-center gap-2.5">
-          <span className={stepBadge}>5</span>
+        <div className="flex items-center gap-2.5">
+          <span className={stepBadge}>{anyAssets ? 5 : 4}</span>
           <span className="text-[13px] font-semibold">Режим запуска</span>
-          <button type="button" onClick={addToQueue} className="ml-auto rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-medium text-sage transition hover:brightness-110">
-            + Добавить в очередь{selectedList.length > 1 ? ` (${selectedList.length})` : ''}
-          </button>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {(['paused', 'active', 'midnight', 'scheduled'] as const).map((m) => (
@@ -514,7 +515,13 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
             className={`h-9 w-[200px] rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage ${mode === 'scheduled' ? '' : 'invisible'}`}
           />
         </div>
-        {msg ? <div className="mt-2 text-[11.5px] text-sage">{msg}</div> : null}
+        {/* Кнопка «в очередь» — отдельной строкой ниже кнопок режима. */}
+        <div className="mt-3 flex items-center gap-2 border-t border-line pt-3">
+          <button type="button" onClick={addToQueue} className="rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-medium text-sage transition hover:brightness-110">
+            + Добавить в очередь{selectedList.length > 1 ? ` (${selectedList.length})` : ''}
+          </button>
+          {msg ? <span className="text-[11.5px] text-sage">{msg}</span> : null}
+        </div>
       </div>
 
       {/* ОЧЕРЕДЬ */}
