@@ -15,6 +15,7 @@ type Mode = 'paused' | 'active' | 'midnight' | 'scheduled';
 
 type VideoDraft = {
   id: string;
+  owner: string;
   cabId: string; cabLabel: string;
   pageId: string; pixelId: string;
   templateId: string; tplName: string;
@@ -27,8 +28,11 @@ type VideoDraft = {
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
+// Единый визуальный язык с обычным заливом (AutouploadForm): те же box, поле,
+// нумерованные шаги.
 const inp = 'h-9 w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage';
 const box = 'rounded-[16px] border border-line bg-panel/40 px-4 py-4 sm:px-5';
+const stepBadge = 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-t text-[12px] font-semibold text-sage';
 const DEFAULT_TAGS_VIDEO = 'ad_id={{ad.id}}&fbpx={{pixel}}&fb_pixel={{fbpixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
 
 function nextMoscowMidnight(): string {
@@ -218,6 +222,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
     if (err) { setMsg(err); return; }
     const drafts: VideoDraft[] = selectedList.map((c) => ({
       id: uid(),
+      owner,
       cabId: c.id, cabLabel: c.name || c.externalId,
       pageId: pageByAcc[c.id], pixelId: pixelByAcc[c.id],
       templateId, tplName: tpl?.name ?? '',
@@ -270,9 +275,14 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
 
   return (
     <div className="flex flex-col gap-4">
-      {/* 1 · Овнер + кабинеты (как в статичном заливе) */}
+      <div className="flex items-center gap-2">
+        <span className="text-[13px] font-semibold text-soft">Новый залив · видео</span>
+      </div>
+
+      {/* 1 · Овнер + кабинеты */}
       <div className={box}>
         <div className="flex flex-wrap items-center gap-2.5">
+          <span className={stepBadge}>1</span>
           <span className="text-[13px] font-semibold">На кого заливаем</span>
           <div className="flex flex-wrap items-center gap-1.5">
             {owners.map((o) => (
@@ -329,7 +339,10 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
       {/* 2 · ФП + пиксель по кабинетам */}
       {anyAssets ? (
         <div className={box}>
-          <span className="text-[13px] font-semibold">Страница и пиксель по кабинетам</span>
+          <div className="flex items-center gap-2.5">
+            <span className={stepBadge}>2</span>
+            <span className="text-[13px] font-semibold">Страница и пиксель по кабинетам</span>
+          </div>
           <div className="mt-3 flex flex-col gap-2.5">
             {selectedList.map((c) => {
               const a = assets[c.id];
@@ -364,50 +377,61 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         </div>
       ) : null}
 
-      {/* 3 · Шаблон + ролик + тексты */}
+      {/* 3 · Шаблон гео и объявление */}
       <div className={box}>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[13px] font-semibold">Шаблон и объявление</span>
+        <div className="flex items-center gap-2.5">
+          <span className={stepBadge}>3</span>
+          <span className="text-[13px] font-semibold">Шаблон гео и объявление</span>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <TemplatePicker templates={templates} value={templateId} onPick={onPickTemplate} />
           {tpl ? <span className="rounded-full border border-line bg-sub px-3 py-1 text-[11.5px] text-mute">{tpl.countries} · {tpl.event}</span> : null}
         </div>
-        <div className="mt-3 grid gap-2">
-          <input value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="Название кампании" className={inp} />
+        <div className="mt-2.5 grid gap-2">
+          <input value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="Название кампании (оно же у адсета и объявлений)" className={inp} />
           <div className="grid gap-2 sm:grid-cols-[1fr_140px]">
             <input value={link} onChange={(e) => setLink(e.target.value.replace(/\s+/g, ''))} type="url" placeholder="Ссылка на лендинг (https://…)" className={inp} />
             <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" placeholder="$/день" className={inp} />
           </div>
+          <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Текст объявления" rows={3} className="w-full rounded-xl border border-line2 bg-sub px-3 py-2 text-[12.5px] text-soft outline-none focus:border-sage" />
+          <div className="grid gap-2 sm:grid-cols-2">
+            <input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Заголовок (опц.)" className={inp} />
+            <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Описание под ссылкой (опц.)" className={inp} />
+          </div>
+          <div className="rounded-xl border border-amber/40 bg-amber-t/40 px-3 py-2">
+            <div className="mb-1 text-[11.5px] font-semibold text-amber">fb_pixel — впиши вручную</div>
+            <input value={fbPixel} onChange={(e) => setFbPixel(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder="напр. 5645645435" className={`n ${inp}`} />
+            <p className="mt-1 text-[11px] text-dim">Подставится в метку <code className="text-mute">fb_pixel=…</code>. Вводишь при каждом заливе — не запоминаем.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* 4 · Ролик и языки */}
+      <div className={box}>
+        <div className="flex items-center gap-2.5">
+          <span className={stepBadge}>4</span>
+          <span className="text-[13px] font-semibold">Ролик и языки</span>
+          {video ? <span className="ml-auto text-[12px] text-sage">1 ролик</span> : null}
+        </div>
+        <div className="mt-3 grid gap-3">
           <div>
             <div className="lab mb-1">Ролик (видеофайл) {mainOptional ? <span className="text-dim">— необязателен: с языками дефолт возьмётся из пака</span> : null}</div>
             <input ref={fileRef} type="file" accept="video/*" onChange={(e) => setVideo(e.target.files?.[0] ?? null)} className="block w-fit max-w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
             {video ? <p className="mt-1 text-[11px] text-sage">{video.name} · {(video.size / 1024 / 1024).toFixed(1)} МБ</p> : mainOptional ? <p className="mt-1 text-[11px] text-dim">Без файла соберём объявление из языков пака (дефолт — язык ниже).</p> : null}
           </div>
           <div>
-            <div className="lab mb-1">Язык основного ролика <span className="text-dim">(нужен для языков — идёт в дефолтное правило)</span></div>
+            <div className="lab mb-1">Язык по умолчанию <span className="text-dim">(с языков — какой из пака будет дефолтным вариантом)</span></div>
             <ComboSelect
               options={LOCALES.map((l) => ({ id: l.code, name: l.name }))}
               value={mainLocale}
               onChange={setMainLocale}
-              placeholder="— язык основного —"
+              placeholder="— язык по умолчанию —"
               searchPlaceholder="Найди язык…"
               className="w-[240px] max-w-full"
             />
           </div>
-          <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Текст объявления" rows={3} className="w-full rounded-xl border border-line2 bg-sub px-3 py-2 text-[12.5px] text-soft outline-none focus:border-sage" />
-          <div className="grid gap-2 sm:grid-cols-2">
-            <input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Заголовок (опц.)" className={inp} />
-            <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Описание (опц.)" className={inp} />
-          </div>
-          <div className="rounded-xl border border-amber/40 bg-amber-t/40 px-3 py-2">
-            <div className="lab mb-1 text-amber">fb_pixel (метка в ссылке)</div>
-            <input value={fbPixel} onChange={(e) => setFbPixel(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder="напр. 5645645435" className={`n ${inp}`} />
-          </div>
         </div>
-      </div>
-
-      {/* Языки из пака */}
-      <div className={box}>
-        <label className="flex cursor-pointer items-center gap-2 text-[13px] font-semibold text-soft">
+        <label className="mt-3 flex cursor-pointer items-center gap-2 border-t border-line pt-3 text-[12.5px] font-semibold text-soft">
           <input type="checkbox" checked={withLanguages} onChange={(e) => setWithLanguages(e.target.checked)} disabled={languages.length === 0} className="accent-[#b4c68c]" />
           Добавить языки из пака <span className="text-mute">· {languages.length}</span>
         </label>
@@ -425,50 +449,65 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
           <p className="mt-1.5 text-[11px] text-mute">Выключено — зальётся только основной ролик.</p>
         )}
         {withLanguages && languages.length ? (
-          <p className="mt-2 text-[11px] text-dim">Основной ролик — дефолт (по его языку), а эти языки FB покажет по языку пользователя. Языки без видео пропустятся.</p>
+          <p className="mt-2 text-[11px] text-dim">Дефолт объявления — язык «по умолчанию» выше (или первый из пака), остальные FB покажет по языку пользователя. Языки без видео пропустятся.</p>
         ) : null}
       </div>
 
-      {/* Режим + запуск */}
-      <div className="flex flex-wrap items-center gap-2">
-        {(['paused', 'active', 'midnight', 'scheduled'] as const).map((m) => (
-          <button key={m} type="button" onClick={() => setMode(m)} className={`rounded-full border px-3.5 py-1.5 text-[12px] transition ${mode === m ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-soft hover:border-sage'}`}>
-            {m === 'paused' ? 'На паузе' : m === 'active' ? 'Сразу в актив' : m === 'midnight' ? 'С 00:00 МСК' : 'По расписанию'}
-          </button>
-        ))}
-        {mode === 'scheduled' ? (
-          <input value={startLocal} onChange={(e) => setStartLocal(e.target.value)} type="datetime-local" className="h-9 w-[210px] rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage" />
-        ) : null}
-        <button type="button" onClick={addToQueue} className="ml-auto rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-medium text-sage transition hover:brightness-110">
-          + В очередь{selectedList.length > 1 ? ` (${selectedList.length})` : ''}
+      {/* 5 · Режим запуска */}
+      <div className={box}>
+        <div className="flex items-center gap-2.5">
+          <span className={stepBadge}>5</span>
+          <span className="text-[13px] font-semibold">Режим запуска</span>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {(['paused', 'active', 'midnight', 'scheduled'] as const).map((m) => (
+            <button key={m} type="button" onClick={() => setMode(m)} className={`rounded-full border px-3.5 py-1.5 text-[12px] transition ${mode === m ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-soft hover:border-sage'}`}>
+              {m === 'paused' ? 'На паузе' : m === 'active' ? 'Сразу в актив' : m === 'midnight' ? 'С 00:00 МСК' : 'По расписанию'}
+            </button>
+          ))}
+          <input
+            value={startLocal}
+            onChange={(e) => setStartLocal(e.target.value)}
+            type="datetime-local"
+            tabIndex={mode === 'scheduled' ? 0 : -1}
+            aria-hidden={mode !== 'scheduled'}
+            className={`h-9 w-[200px] rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage ${mode === 'scheduled' ? '' : 'invisible'}`}
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={addToQueue} className="rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-medium text-sage transition hover:brightness-110">
+          + Добавить в очередь{selectedList.length > 1 ? ` (${selectedList.length})` : ''}
         </button>
+        {msg ? <span className="text-[11.5px] text-sage">{msg}</span> : null}
       </div>
-      {msg ? <div className="text-[12px] text-sage">{msg}</div> : null}
 
-      {/* Очередь видео-заливов */}
+      {/* ОЧЕРЕДЬ */}
       <div className="rounded-[16px] border border-line2 bg-panel/60 p-4 sm:p-5">
         <div className="flex items-center gap-2.5">
-          <span className="text-[14px] font-semibold">Очередь видео</span>
+          <span className="text-[14px] font-semibold">Очередь заливов</span>
           <span className="text-[12px] text-mute">{queue.length} заливов</span>
         </div>
         {queue.length === 0 ? (
-          <p className="mt-3 text-[12px] text-mute">Пусто. Собери залив выше и добавь в очередь — можно подготовить несколько и запустить всё разом.</p>
+          <p className="mt-3 text-[12px] text-mute">Пусто. Собери залив выше и добавь в очередь — можно подготовить сразу несколько, а потом запустить всё одной кнопкой.</p>
         ) : (
           <div className="mt-3 flex flex-col gap-2">
             {queue.map((d) => (
               <div key={d.id} className="rounded-[12px] border border-line px-3.5 py-2.5">
                 <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-amber-t px-2 py-0.5 text-[10.5px] text-amber">{d.owner}</span>
                   <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-soft">{d.campaignName || 'без имени'} <span className="text-mute">· {d.cabLabel}</span></span>
-                  <span className="shrink-0 text-[11px] text-mute">{d.mode === 'paused' ? 'на паузе' : d.mode === 'active' ? 'в актив' : d.mode === 'midnight' ? 'с 00:00' : 'по расписанию'}</span>
+                  <span className="shrink-0 text-[11px] text-mute">{d.mode === 'paused' ? 'на паузе' : d.mode === 'active' ? 'в актив' : d.mode === 'midnight' ? 'с 00:00 МСК' : 'по расписанию'}</span>
                   <button type="button" onClick={() => setQueue((q) => q.filter((x) => x.id !== d.id))} className="shrink-0 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute transition hover:border-rust hover:text-rust">убрать</button>
                 </div>
-                <div className="mt-1.5 text-[11px] text-dim">{d.tplName || 'шаблон?'} · 🎬 {d.video ? `${d.video.name} · ${(d.video.size / 1024 / 1024).toFixed(1)} МБ` : 'ролики из пака языков'}{d.withLanguages ? ` · +языки` : ''}{d.budget ? ` · $${d.budget}/д` : ''}</div>
+                <div className="mt-1.5 text-[11px] text-dim">{d.tplName || 'шаблон?'} · 🎬 {d.video ? `${d.video.name} · ${(d.video.size / 1024 / 1024).toFixed(1)} МБ` : 'ролики из пака языков'}{d.withLanguages ? ' · +языки' : ''}{d.budget ? ` · $${d.budget}/д` : ''}</div>
               </div>
             ))}
           </div>
         )}
-        <button type="button" onClick={fireAll} disabled={pending || queue.length === 0} className={`mt-3 rounded-full border border-sage bg-sage-t px-6 py-2.5 text-[13px] font-semibold text-sage transition ${pending || queue.length === 0 ? 'opacity-50' : 'hover:brightness-110'}`}>
-          {pending ? 'Запускаю…' : `Залить всё${queue.length ? ` (${queue.length})` : ''}`}
+        <button type="button" onClick={fireAll} disabled={pending || queue.length === 0} className={`mt-3 rounded-full border border-sage bg-sage-t px-6 py-2.5 text-[13px] font-semibold text-sage transition hover:brightness-110 ${pending || queue.length === 0 ? 'opacity-50' : ''}`}>
+          {pending ? 'Заливаю…' : `Залить всё${queue.length ? ` (${queue.length})` : ''}`}
         </button>
       </div>
 
