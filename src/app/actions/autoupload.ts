@@ -610,115 +610,69 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // тогда дефолтом станет язык из пака (см. видео-ветку ниже).
     const wantLanguages = withLanguages;
 
-    // 1. Кампания. Цель — под событие пикселя (лиды/продажи), иначе ФБ не даёт
-    //    оптимизироваться на выбранное событие.
-    await stage('Создаю кампанию…');
+    // DSA (ЕС) + Instagram считаем один раз на кабинет — не зависят от кампании.
+    // DSA: имя ФП (ФБ берёт как рекламодателя); IG: привязанный/созданный
+    // page-backed аккаунт (иначе код 1772103 на IG-плейсментах).
     const objective = objectiveForEvent(tpl.event);
-    let campaignId = '';
-    for (let attempt = 0; attempt < 2; attempt += 1) {
-      try {
-        campaignId = await createCampaign(token, ext, { name: campaignName, objective, status: effectiveStatus }, net);
-        break;
-      } catch (e) {
-        if (isPhoneError(e) && effectiveStatus === 'ACTIVE') {
-          effectiveStatus = 'PAUSED';
-          phoneForced = true;
-          append('⚠ Кабинету нужен подтверждённый телефон — создаю НА ПАУЗЕ (подтверди телефон и включи вручную)');
-          continue;
-        }
-        throw e;
-      }
-    }
-    append(`✓ Кампания создана: ${campaignId} · цель ${objective}`);
-    await sleep(300);
-
-    // DSA (ЕС): если среди целевых стран есть ЕС/ЕЭЗ, нужно объявить, кого
-    // продвигаем и кто платит. По умолчанию берём имя выбранной страницы (ФП) —
-    // ФБ принимает его как имя рекламодателя. Без страны ЕС — не трогаем.
-    // Ставим ВСЕГДА (не только для ЕС): ФБ всё чаще требует это и вне ЕС, а для
-    // не-ЕС гео поля просто метаданные — вреда нет. Так залив не спотыкается о
-    // DSA независимо от гео. Значение — имя выбранной ФП (ФБ берёт как рекламодателя).
     const pageName = await getPageName(token, pageId, net);
     let dsaBeneficiary = pageName || ctx.acc.name || 'Advertiser';
     let dsaPayer = dsaBeneficiary;
     append(`DSA: продвигается/платит — ${dsaBeneficiary}`);
-
-    // Instagram-идентичность: без неё FB отбивает креатив на IG-плейсментах
-    // (код 1772103). Берём привязанный IG или создаём page-backed (ФП
-    // представляет бизнес в Instagram). Не вышло — работаем без неё (могут
-    // отвалиться только IG-плейсменты).
     const igActor = await resolveInstagramActor(token, pageId, net);
     if (igActor) append(`Instagram: аккаунт ${igActor} (для IG-плейсментов)`);
     else append('⚠ IG-аккаунт к ФП не привязан и создать не вышло — Instagram-плейсменты могут не пройти');
 
-    // 2. Адсет с бюджетом и таргетом. Плейсменты, которые кабинет/цель не
-    //    принимают (ФБ: «Invalid value X for the placement field …»), сами
-    //    выкидываем и повторяем — залив не должен падать из-за одной галки.
-    await stage('Создаю адсет…');
+    // Кампания и адсет со всем самолечением вынесены в помощники, чтобы звать их
+    // по нужной структуре публикации (1-1-1 / 1-2-1 / 1-1-2) и для видео.
     let placements = tpl.placements ? tpl.placements.split(',') : [];
-    let adsetId = '';
-    for (let attempt = 0; attempt < 5; attempt += 1) {
-      try {
-        adsetId = await createAdset(token, ext, {
-          name: campaignName,
-          campaignId,
-          pixelId,
-          event: tpl.event,
-          countries,
-          excludedCountries,
-          excludedRegions,
-          dsaBeneficiary: dsaBeneficiary || undefined,
-          dsaPayer: dsaPayer || undefined,
-          dailyBudgetCents,
-          ageMin: tpl.ageMin,
-          ageMax: tpl.ageMax,
-          genders,
-          placements,
-          status: effectiveStatus,
-          startTime,
-        }, net);
-        break;
-      } catch (e) {
-        const msg = (e as Error).message;
-        const m = msg.match(/Invalid value (\S+?)[.,\s]*for the placement field/i);
-        if (m && placements.length) {
-          const badVal = m[1];
-          const next = stripPlacementValue(placements, badVal);
-          if (next.length < placements.length) {
-            append(`⚠ Плейсмент «${badVal}» кабинет не принял — убрал и повторяю`);
-            placements = next;
-            await sleep(400);
+    let campaignId = ''; // первая созданная кампания — для finish (campaignFbId)
+
+    const mkCampaign = async (name: string): Promise<string> => {
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        try { return await createCampaign(token, ext, { name, objective, status: effectiveStatus }, net); }
+        catch (e) {
+          if (isPhoneError(e) && effectiveStatus === 'ACTIVE') {
+            effectiveStatus = 'PAUSED'; phoneForced = true;
+            append('⚠ Кабинету нужен подтверждённый телефон — создаю НА ПАУЗЕ (подтверди телефон и включи вручную)');
             continue;
           }
+          throw e;
         }
-        // DSA (ЕС): ФБ требует указать бенефициара/плательщика (коды 3858079/
-        // 3858081 или текст про «человека или организацию»). Если ещё не задали —
-        // подставляем имя ФП и повторяем. Так пройдёт даже если целевая страна
-        // не попала в наш список ЕЭЗ.
-        const needsDsa = /385807\d|385808\d|человека или организацию|dsa_|beneficiary|payer/i.test(msg);
-        if (needsDsa && !dsaBeneficiary) {
-          const pageName = await getPageName(token, pageId, net);
-          dsaBeneficiary = pageName || ctx.acc.name || 'Advertiser';
-          dsaPayer = dsaBeneficiary;
-          append(`DSA (ЕС): ФБ запросил бенефициара — подставил «${dsaBeneficiary}» и повторяю`);
-          await sleep(400);
-          continue;
-        }
-        // Телефон кабинета не подтверждён — активная доставка запрещена. Создаём
-        // на паузе и продолжаем, чтобы не потерять весь залив.
-        if (isPhoneError(e) && effectiveStatus === 'ACTIVE') {
-          effectiveStatus = 'PAUSED';
-          phoneForced = true;
-          append('⚠ Кабинету нужен подтверждённый телефон — адсет создаю НА ПАУЗЕ');
-          await sleep(300);
-          continue;
-        }
-        throw e;
       }
-    }
-    if (!adsetId) throw new FbError('Адсет не создан после снятия неподдержанных плейсментов');
-    append(`✓ Адсет создан: ${adsetId} · бюджет $${(dailyBudgetCents / 100).toFixed(2)}/день · событие ${tpl.event} · ${placements.length ? placementSummary(placements.join(',')) : 'плейсменты: авто'}`);
-    await sleep(300);
+      throw new FbError('Кампания не создана');
+    };
+
+    const mkAdset = async (campId: string, name: string): Promise<string> => {
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        try {
+          return await createAdset(token, ext, {
+            name, campaignId: campId, pixelId, event: tpl.event, countries, excludedCountries, excludedRegions,
+            dsaBeneficiary: dsaBeneficiary || undefined, dsaPayer: dsaPayer || undefined, dailyBudgetCents,
+            ageMin: tpl.ageMin, ageMax: tpl.ageMax, genders, placements, status: effectiveStatus, startTime,
+          }, net);
+        } catch (e) {
+          const msg = (e as Error).message;
+          const m = msg.match(/Invalid value (\S+?)[.,\s]*for the placement field/i);
+          if (m && placements.length) {
+            const badVal = m[1];
+            const next = stripPlacementValue(placements, badVal);
+            if (next.length < placements.length) { append(`⚠ Плейсмент «${badVal}» кабинет не принял — убрал и повторяю`); placements = next; await sleep(400); continue; }
+          }
+          const needsDsa = /385807\d|385808\d|человека или организацию|dsa_|beneficiary|payer/i.test(msg);
+          if (needsDsa && !dsaBeneficiary) {
+            const pn = await getPageName(token, pageId, net);
+            dsaBeneficiary = pn || ctx.acc.name || 'Advertiser'; dsaPayer = dsaBeneficiary;
+            append(`DSA (ЕС): ФБ запросил бенефициара — подставил «${dsaBeneficiary}» и повторяю`); await sleep(400); continue;
+          }
+          if (isPhoneError(e) && effectiveStatus === 'ACTIVE') {
+            effectiveStatus = 'PAUSED'; phoneForced = true;
+            append('⚠ Кабинету нужен подтверждённый телефон — адсет создаю НА ПАУЗЕ'); await sleep(300); continue;
+          }
+          throw e;
+        }
+      }
+      throw new FbError('Адсет не создан после снятия неподдержанных плейсментов');
+    };
 
     // 3. Для каждой картинки — креатив и объявление. Список ключей авто-улучшений
     //    подрезаем самолечением: неизвестный ключ ФБ отбивает весь креатив, тогда
@@ -731,6 +685,17 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // иначе обычное видео-объявление. В режиме языков основной ролик можно не
     // прикладывать — дефолтным станет язык из пака.
     if (video || wantLanguages) {
+      // Видео: одна кампания + один адсет (мультиязычность собирается ВНУТРИ
+      // одного объявления, отдельная структура не нужна).
+      await stage('Создаю кампанию…');
+      campaignId = await mkCampaign(campaignName);
+      append(`✓ Кампания создана: ${campaignId} · цель ${objective}`);
+      await sleep(300);
+      await stage('Создаю адсет…');
+      const adsetId = await mkAdset(campaignId, campaignName);
+      append(`✓ Адсет создан: ${adsetId} · бюджет $${(dailyBudgetCents / 100).toFixed(2)}/день · событие ${tpl.event} · ${placements.length ? placementSummary(placements.join(',')) : 'плейсменты: авто'}`);
+      await sleep(300);
+
       // Видео-специфичные ключи авто-улучшений (Video touch-ups / Add video
       // effects). Неверные самолечение отсеет.
       optOut = [...optOut, ...VIDEO_ENHANCEMENT_OPTOUT_KEYS];
@@ -876,58 +841,89 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         created = 1;
         append(`✓ Видео-объявление: ${adId}`);
       }
-    } else
-    for (let idx = 0; idx < files.length; idx += 1) {
-      await stage(`Создаю объявления (${idx + 1}/${files.length})…`);
-      const file = files[idx];
-      const buf = Buffer.from(await file.arrayBuffer());
-      let imageHash: string;
-      try {
-        imageHash = await uploadAdImage(token, ext, buf, net);
-      } catch (e) {
-        append(`✗ Картинка ${idx + 1}: не загрузилась — ${(e as Error).message}`);
-        continue;
+    } else {
+      // Структура публикации картинок:
+      //  1-1-2 — 1 кампания / 1 адсет / N объявлений (бюджет общий);
+      //  1-2-1 — 1 кампания / N адсетов (каждый со своим бюджетом) / по объявл.;
+      //  1-1-1 — N кампаний / N адсетов (каждая со своим бюджетом) / по объявл.
+      const structure = String(form.get('structure') ?? '1-1-2');
+      append(`Структура публикации: ${structure}`);
+
+      let sharedCampaign = '';
+      let sharedAdset = '';
+      if (structure !== '1-1-1') {
+        await stage('Создаю кампанию…');
+        sharedCampaign = await mkCampaign(campaignName);
+        campaignId = sharedCampaign;
+        append(`✓ Кампания создана: ${sharedCampaign} · цель ${objective}`);
+        await sleep(300);
       }
-      await sleep(200);
-      let creativeId = '';
-      for (let a = 0; a < optOut.length + 2; a += 1) {
-        try {
-          creativeId = await createAdCreative(token, ext, {
-            name: files.length > 1 ? `${campaignName} · cr ${idx + 1}` : campaignName,
-            pageId,
-            message,
-            imageHash,
-            link,
-            cta,
-            urlTags: urlTags || undefined,
-            headline: headline || undefined,
-            description: description || undefined,
-            optOutKeys: optOut,
-            instagramActorId: igActor || undefined,
-          }, net);
-          break;
-        } catch (e) {
-          const m = (e as Error).message.match(/Param key '([^']+)' in degrees_of_freedom_spec/i);
-          if (m && optOut.includes(m[1])) {
-            optOut = optOut.filter((k) => k !== m[1]);
-            if (idx === 0) append(`⚠ ключ улучшения «${m[1]}» не поддержан — убрал`);
-            await sleep(300);
-            continue;
-          }
-          throw e;
+      if (structure === '1-1-2') {
+        await stage('Создаю адсет…');
+        sharedAdset = await mkAdset(sharedCampaign, campaignName);
+        append(`✓ Адсет создан: ${sharedAdset} · бюджет $${(dailyBudgetCents / 100).toFixed(2)}/день · событие ${tpl.event}`);
+        await sleep(300);
+      }
+
+      for (let idx = 0; idx < files.length; idx += 1) {
+        const label = files.length > 1 ? `${campaignName} · ${idx + 1}` : campaignName;
+        await stage(`Создаю объявления (${idx + 1}/${files.length})…`);
+
+        // Кампания/адсет под выбранную структуру.
+        let adsetForImage = sharedAdset;
+        if (structure === '1-1-1') {
+          const c = await mkCampaign(label);
+          if (!campaignId) campaignId = c;
+          adsetForImage = await mkAdset(c, label);
+          append(`✓ Кампания+адсет для «${label}»: ${c} / ${adsetForImage}`);
+          await sleep(200);
+        } else if (structure === '1-2-1') {
+          adsetForImage = await mkAdset(sharedCampaign, label);
+          append(`✓ Адсет для «${label}»: ${adsetForImage}`);
+          await sleep(200);
         }
+
+        const file = files[idx];
+        const buf = Buffer.from(await file.arrayBuffer());
+        let imageHash: string;
+        try {
+          imageHash = await uploadAdImage(token, ext, buf, net);
+        } catch (e) {
+          append(`✗ Картинка ${idx + 1}: не загрузилась — ${(e as Error).message}`);
+          continue;
+        }
+        await sleep(200);
+        let creativeId = '';
+        for (let a = 0; a < optOut.length + 2; a += 1) {
+          try {
+            creativeId = await createAdCreative(token, ext, {
+              name: label,
+              pageId, message, imageHash, link, cta,
+              urlTags: urlTags || undefined,
+              headline: headline || undefined,
+              description: description || undefined,
+              optOutKeys: optOut,
+              instagramActorId: igActor || undefined,
+            }, net);
+            break;
+          } catch (e) {
+            const m = (e as Error).message.match(/Param key '([^']+)' in degrees_of_freedom_spec/i);
+            if (m && optOut.includes(m[1])) {
+              optOut = optOut.filter((k) => k !== m[1]);
+              if (idx === 0) append(`⚠ ключ улучшения «${m[1]}» не поддержан — убрал`);
+              await sleep(300);
+              continue;
+            }
+            throw e;
+          }
+        }
+        if (!creativeId) throw new FbError('Креатив не создан (после подрезки ключей улучшений)');
+        await sleep(200);
+        const adId = await createAd(token, ext, { name: label, adsetId: adsetForImage, creativeId, status: effectiveStatus }, net);
+        created += 1;
+        append(`✓ Объявление ${idx + 1}/${files.length}: ${adId}`);
+        await sleep(300);
       }
-      if (!creativeId) throw new FbError('Креатив не создан (после подрезки ключей улучшений)');
-      await sleep(200);
-      const adId = await createAd(token, ext, {
-        name: files.length > 1 ? `${campaignName} · ${idx + 1}` : campaignName,
-        adsetId,
-        creativeId,
-        status: effectiveStatus,
-      }, net);
-      created += 1;
-      append(`✓ Объявление ${idx + 1}/${files.length}: ${adId}`);
-      await sleep(300);
     }
 
     if (created === 0) {

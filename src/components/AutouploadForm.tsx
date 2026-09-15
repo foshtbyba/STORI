@@ -51,6 +51,7 @@ type Draft = {
   mode: Mode;
   startAt: string; // ISO или ''
   startLocal: string; // для префилла при правке
+  structure: string; // 1-1-1 | 1-2-1 | 1-1-2 — как публикуем картинки
   files: File[];
 };
 
@@ -138,6 +139,8 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
   const [manualPixel, setManualPixel] = useState('');
   const [mode, setMode] = useState<Mode>('paused');
   const [startLocal, setStartLocal] = useState('');
+  // Структура публикации картинок: 1-1-2 (общий бюджет) | 1-2-1 | 1-1-1.
+  const [structure, setStructure] = useState('1-1-2');
   const [files, setFiles] = useState<File[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -333,7 +336,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
       owner, cabinetIds: selectedList.map((c) => c.id), pick,
       templateId, campaignName: campaignName.trim(), link: link.trim(), budget: budget.trim(),
       message: message.trim(), headline: headline.trim(), description: description.trim(),
-      urlTags: urlTags.trim(), manualPixel: manualPixel.trim(), mode, startAt, startLocal: mid ? mid.local : startLocal, files,
+      urlTags: urlTags.trim(), manualPixel: manualPixel.trim(), mode, startAt, startLocal: mid ? mid.local : startLocal, structure, files,
     };
     setQueue((q) => (editingId ? q.map((d) => (d.id === editingId ? draft : d)) : [...q, draft]));
     setMsg({ ok: true, text: editingId ? 'Черновик обновлён.' : 'Залив добавлен в очередь. Ссылку/текст/заголовок очистил — вставляй новые.' });
@@ -354,7 +357,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
     setPixelByAcc((p) => ({ ...p, ...Object.fromEntries(d.cabinetIds.map((id) => [id, d.pick[id]?.pixelId ?? ''])) }));
     setTemplateId(d.templateId); setCampaignName(d.campaignName); setLink(d.link); setBudget(d.budget);
     setMessage(d.message); setHeadline(d.headline); setDescription(d.description); setUrlTags(d.urlTags); setManualPixel(d.manualPixel ?? '');
-    setMode(d.mode); setStartLocal(d.startLocal); setFiles(d.files); setEditingId(d.id);
+    setMode(d.mode); setStartLocal(d.startLocal); setStructure(d.structure || '1-1-2'); setFiles(d.files); setEditingId(d.id);
     autoName.current = ''; // имя из черновика — руками, авто-подмена его не трогает
     setMsg(null);
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -390,6 +393,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           fd.set('urlTags', d.urlTags);
           fd.set('manualPixel', d.manualPixel ?? '');
           fd.set('mode', d.mode);
+          fd.set('structure', d.structure || '1-1-2');
           if (d.startAt) fd.set('startAt', d.startAt);
           for (const f of d.files) fd.append('images', f);
           const r = await runAutoupload(fd);
@@ -520,7 +524,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
             <span className="text-[13px] font-semibold">Креативы</span>
             {files.length > 0 ? <span className="ml-auto text-[12px] text-sage">{files.length} шт.</span> : null}
           </div>
-          <p className="mt-1.5 text-[11px] text-mute">Каждая картинка — отдельное объявление. До 20 штук. Авто-улучшения Меты отключаем.</p>
+          <p className="mt-1.5 text-[11px] text-mute">До 20 картинок. Авто-улучшения Меты отключаем.</p>
           <input ref={fileInput} type="file" accept="image/*" multiple onChange={(e) => addFiles(e.target.files)} className="mt-2 block w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
           {files.length > 0 ? (
             <div className="mt-2 flex flex-wrap gap-1.5">
@@ -532,6 +536,29 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
               ))}
             </div>
           ) : null}
+
+          {/* Как публикуем картинки — структура кампания/адсет/объявление. */}
+          <div className="mt-3 border-t border-line pt-3">
+            <div className="lab mb-1.5">Как публикуем картинки</div>
+            <div className="flex flex-wrap gap-1.5">
+              {([
+                ['1-1-2', '1 кампания · 1 адсет', 'по объявлению на картинку, бюджет общий'],
+                ['1-2-1', '1 кампания · адсеты', 'на картинку свой адсет со своим бюджетом'],
+                ['1-1-1', 'кампании', 'на картинку своя кампания+адсет со своим бюджетом'],
+              ] as const).map(([val, title]) => (
+                <button key={val} type="button" onClick={() => setStructure(val)} className={`rounded-full border px-3 py-1.5 text-[11.5px] transition ${structure === val ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-soft hover:border-sage'}`}>
+                  <span className="n font-medium">{val}</span> · {title}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1.5 text-[11px] text-dim">
+              {structure === '1-1-2'
+                ? 'Один бюджет на весь адсет — картинки делят его между собой.'
+                : structure === '1-2-1'
+                  ? `Бюджет задаётся на КАЖДЫЙ адсет: ${files.length || 'N'} картинок = ${files.length || 'N'}× расход.`
+                  : `Каждая картинка — своя кампания со своим бюджетом: ${files.length || 'N'} картинок = ${files.length || 'N'}× расход.`}
+            </p>
+          </div>
         </div>
         </div>
 

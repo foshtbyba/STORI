@@ -42,8 +42,43 @@ body {
   color: var(--color-text);
 }
 
+html {
+  /* Резервируем место под скролл всегда — страница не «прыгает» вбок, когда
+     скроллбар появляется/исчезает. */
+  scrollbar-gutter: stable;
+}
+
 body {
   -webkit-font-smoothing: antialiased;
+}
+
+/* Аккуратный тонкий скролл ВЕЗДЕ (страница и любые прокручиваемые блоки), а не
+   только у .scroll-slim — вместо жирного системного. .no-scrollbar перекрывает
+   это своей спецификой. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line2) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line2);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-mute);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /*
