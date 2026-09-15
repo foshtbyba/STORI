@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'nav-divider-domains · 15.09 18:24';
+export const BUILD_INFO = 'symmetric-bg+press-translate · 15.09 18:41';

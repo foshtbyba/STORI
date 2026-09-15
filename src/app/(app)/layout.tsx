@@ -59,8 +59,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         прозрачны, и рисунок проходит под ними насквозь. Слой держим на нулевом
         уровне, а содержимое поднимаем над ним: отрицательный z-index уводит
         фон под заливку body, и его попросту не видно.
+
+        Ширина — ровно вьюпорт (w-screen = 100vw), а не область контента: при
+        симметричном scrollbar-gutter содержимое зажато между «жёлобами», и
+        fixed inset-0 обрывался бы, не доходя до краёв. Слой центрируем
+        (left-1/2 + -translate-x-1/2) — 100vw-полотно ложится ровно от края до
+        края, под скроллбаром в том числе.
       */}
-      <Contours className="fixed inset-0 z-0" />
+      <Contours className="fixed left-1/2 top-0 z-0 h-screen w-screen -translate-x-1/2" />
       <ScrollCalm />
       <div className="relative z-10 flex flex-1 flex-col gap-2.5 sm:gap-3.5">
       <TopBar
