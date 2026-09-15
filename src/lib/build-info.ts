@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'stories-hint · 15.09 14:30';
+export const BUILD_INFO = 'video-creative-hint · 15.09 14:31';

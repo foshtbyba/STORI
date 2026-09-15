@@ -444,9 +444,15 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         </div>
         <div className="mt-3 grid gap-3">
           <div>
-            <div className="lab mb-1">Ролик (видеофайл) {mainOptional ? <span className="text-dim">— необязателен: с языками дефолт возьмётся из пака</span> : null}</div>
+            <div className="lab mb-1">Ролик (видеофайл) {mainOptional ? <span className="text-dim">— в режиме языков не прикладывай</span> : <span className="text-amber">— обязателен</span>}</div>
             <input ref={fileRef} type="file" accept="video/*" onChange={(e) => setVideo(e.target.files?.[0] ?? null)} className="block w-fit max-w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
-            {video ? <p className="mt-1 text-[11px] text-sage">{video.name} · {(video.size / 1024 / 1024).toFixed(1)} МБ</p> : mainOptional ? <p className="mt-1 text-[11px] text-dim">Без файла соберём объявление из языков пака (дефолт — язык ниже).</p> : null}
+            {video ? (
+              <p className="mt-1 text-[11px] text-sage">{video.name} · {(video.size / 1024 / 1024).toFixed(1)} МБ</p>
+            ) : mainOptional ? (
+              <p className="mt-1 text-[11px] text-dim">Целевой креатив обязателен, но здесь его не грузи — он идёт из языков: их ролики и станут креативом, а основным (дефолтным) креативом объявления будет ролик с языка (по умолчанию — язык ниже).</p>
+            ) : (
+              <p className="mt-1 text-[11px] text-dim">Целевой креатив обязателен — без ролика (или языков с видео) залить не получится.</p>
+            )}
           </div>
           <div>
             <div className="lab mb-1">Язык по умолчанию <span className="text-dim">(с языков — какой из пака будет дефолтным вариантом)</span></div>
