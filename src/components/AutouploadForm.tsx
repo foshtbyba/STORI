@@ -461,7 +461,11 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
         {/* 1 · Кабинеты + 2 · Креативы — в две колонки, равной высоты (stretch),
             чтобы правый бокс совпадал по размеру с видео-заливом. */}
         <div className="grid gap-4 lg:grid-cols-2">
-        <div className={`${box} flex flex-col`}>
+        {/* Левый бокс не задаёт высоту сам (внутренний слой абсолютный на lg),
+            поэтому строка грида равна ПРАВОМУ боксу, а не списку кабинетов —
+            колонки одинаковые, а кабинеты листаются внутри. */}
+        <div className={`${box} flex flex-col lg:relative lg:min-h-[300px] lg:overflow-hidden`}>
+         <div className="flex flex-1 flex-col lg:absolute lg:inset-0 lg:px-5 lg:py-4">
           <div className="flex flex-wrap items-center gap-2.5">
             <span className={stepBadge}>1</span>
             <span className="text-[13px] font-semibold">На кого заливаем</span>
@@ -490,15 +494,15 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
                 {visibleCabs.length > 0 && visibleCabs.every((c) => selected.has(c.id)) ? 'снять все' : 'выбрать все'}
               </button>
             </div>
-            <div className="scroll-slim min-h-[220px] flex-1 overflow-auto">
+            <div className="scroll-slim min-h-0 flex-1 overflow-y-auto">
               {visibleCabs.map((c) => (
                 <label key={c.id} className="flex cursor-pointer items-center gap-2.5 border-t border-line px-3 py-1.5 text-[12.5px] transition first:border-t-0 hover:bg-sub/60">
-                  <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggle(c.id)} className="accent-[#b4c68c]" />
+                  <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggle(c.id)} className="shrink-0 accent-[#b4c68c]" />
                   <span className="min-w-0 flex-1 truncate text-soft">{c.name || c.externalId}</span>
                   {c.name && c.name !== c.externalId ? (
-                    <span className="n shrink-0 text-[11px] text-dim">{c.externalId}</span>
+                    <span className="n w-[170px] shrink-0 truncate text-right text-[11px] text-dim">{c.externalId}</span>
                   ) : null}
-                  <span className="shrink-0 text-[11px] text-dim">{c.currency}</span>
+                  <span className="w-8 shrink-0 text-right text-[11px] text-dim">{c.currency}</span>
                 </label>
               ))}
               {ownerCabs.length === 0 ? (
@@ -520,6 +524,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
               {assetMsg.text}
             </div>
           ) : null}
+         </div>
         </div>
 
         {/* 2 · Креативы — справа от кабинетов */}
