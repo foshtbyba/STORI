@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'langs-cbo · 15.09 03:02';
+export const BUILD_INFO = 'langs-one-ad · 15.09 10:53';

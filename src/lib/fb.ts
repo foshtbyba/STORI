@@ -1431,27 +1431,32 @@ export type CreateMultiLangVideoInput = {
   cta?: string;
   urlTags?: string;
   optOutKeys?: string[];
-  /** Целевые страны (ISO-2) — ФБ требует geolocation в каждом не-дефолтном
-   *  правиле (код 100/2446501). */
+  /** Целевые страны (ISO-2) — только для журнала/справки; в правила НЕ идут
+   *  (языковая кастомизация по locale гео не требует). */
   countries: string[];
-  // Основной (гео) вариант — дефолтный фолбэк.
+  // Основной вариант — идёт в дефолтное правило под свой (основной) язык.
   main: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string };
-  /** locale ID языка основного ролика — если задан, основной привязывается и к
-   *  своему языку (правило), и остаётся дефолтом. 0/undefined — только дефолт. */
-  mainLocaleId?: number;
+  /** locale ID языка основного ролика — ОБЯЗАТЕЛЕН: идёт в дефолтное правило
+   *  (customization_spec.locales на is_default). Без него FB считает правила
+   *  плейсментными и требует гео (код 2446501). */
+  mainLocaleId: number;
   langs: LangVariant[];
 };
 
 /**
  * Мультиязычный видео-креатив: основной ролик + доп-языки в ОДНОМ объявлении
- * через asset_feed_spec + asset_customization_rules (по locale). Каждый ассет
- * помечаем adlabels, правило связывает язык (customization_spec.locales) с его
- * роликом/текстом. Дефолтное правило (is_default) отдаёт основной вариант.
+ * (нативная фича FB «Добавить языки») через asset_feed_spec +
+ * asset_customization_rules по locale. Каждый ассет помечаем adlabels, правило
+ * связывает язык (customization_spec.locales) с его роликом/текстом.
  *
- * ВНИМАНИЕ: точная форма правил у Меты капризна и плохо документирована —
- * это лучшая реконструкция, доводим по тексту ошибок при тесте на паузе.
+ * КЛЮЧЕВОЕ: дефолтное правило (is_default) обязано нести locale ОСНОВНОГО языка
+ * в customization_spec.locales — как в примере из офиц. доков Меты. Пустой
+ * customization_spec:{} на дефолте ломал всё: FB считал правила плейсментными и
+ * требовал гео (код 2446501). Гео в правилах НЕ нужно вовсе — только locales.
+ * Никаких priority. Форма один-в-один с документированным примером.
  */
 export async function createMultiLangVideoCreative(token: string, externalId: string, i: CreateMultiLangVideoInput, net: FbNet = {}) {
+  if (!i.mainLocaleId) throw new FbError('Мультиязычный креатив: не задан locale основного языка');
   const videos: Record<string, unknown>[] = [];
   const bodies: Record<string, unknown>[] = [];
   const titles: Record<string, unknown>[] = [];
@@ -1459,58 +1464,39 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
   const linkUrls: Record<string, unknown>[] = [];
   const rules: Record<string, unknown>[] = [];
 
-  const pushVariant = (tag: string, v: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link?: string }) => {
+  const pushVariant = (tag: string, v: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string }) => {
     const vid: Record<string, unknown> = { video_id: v.videoId, adlabels: [{ name: `vid_${tag}` }] };
     if (v.thumb) vid.thumbnail_url = v.thumb;
     videos.push(vid);
     bodies.push({ text: v.message, adlabels: [{ name: `body_${tag}` }] });
     if (v.headline) titles.push({ text: v.headline, adlabels: [{ name: `title_${tag}` }] });
     if (v.description) descriptions.push({ text: v.description, adlabels: [{ name: `desc_${tag}` }] });
-    if (v.link) linkUrls.push({ website_url: v.link, adlabels: [{ name: `link_${tag}` }] });
+    // link_url для каждого варианта свой (у языка может быть свой лендинг).
+    linkUrls.push({ website_url: v.link, adlabels: [{ name: `link_${tag}` }] });
   };
 
-  // Основной вариант.
-  pushVariant('def', i.main);
-  // Языковые варианты. Приоритет выше дефолта (конкретный язык побеждает).
-  let prio = 1;
+  // Основной вариант (пойдёт в дефолтное правило под свой язык).
+  pushVariant('def', { ...i.main });
+  // Языковые варианты — по одному не-дефолтному правилу на каждый (только locale).
   i.langs.forEach((l, idx) => {
     pushVariant(`l${idx}`, { videoId: l.videoId, thumb: l.thumb, message: l.message, headline: l.headline, description: l.description, link: l.link || i.main.link });
     const rule: Record<string, unknown> = {
-      // Только язык (locale). Гео берётся с адсета — так сегмент это «носители
-      // языка», и FB не режет по размеру аудитории.
       customization_spec: { locales: [l.localeId] },
       video_label: { name: `vid_l${idx}` },
       body_label: { name: `body_l${idx}` },
-      link_url_label: { name: l.link ? `link_l${idx}` : 'link_def' },
-      priority: prio++,
+      link_url_label: { name: `link_l${idx}` },
     };
     if (l.headline) rule.title_label = { name: `title_l${idx}` };
     if (l.description) rule.description_label = { name: `desc_l${idx}` };
     rules.push(rule);
   });
-  // Основной ролик под своим языком (если задан) — явное правило по его locale.
-  if (i.mainLocaleId) {
-    const mr: Record<string, unknown> = {
-      customization_spec: { locales: [i.mainLocaleId] },
-      video_label: { name: 'vid_def' },
-      body_label: { name: 'body_def' },
-      link_url_label: { name: 'link_def' },
-      priority: prio++,
-    };
-    if (i.main.headline) mr.title_label = { name: 'title_def' };
-    if (i.main.description) mr.description_label = { name: 'desc_def' };
-    rules.push(mr);
-  }
-  // Дефолтное правило мультиязычного объявления: маркируется is_default: true.
-  // Именно оно переводит FB в языковой режим — тогда у языковых правил не
-  // требуется гео (иначе код 2446501) и нет проверки на узость аудитории.
+  // Дефолтное правило: is_default + locale ОСНОВНОГО языка (не пустой спек!).
   const defRule: Record<string, unknown> = {
     is_default: true,
-    customization_spec: {},
+    customization_spec: { locales: [i.mainLocaleId] },
     video_label: { name: 'vid_def' },
     body_label: { name: 'body_def' },
     link_url_label: { name: 'link_def' },
-    priority: prio++,
   };
   if (i.main.headline) defRule.title_label = { name: 'title_def' };
   if (i.main.description) defRule.description_label = { name: 'desc_def' };
@@ -1539,12 +1525,23 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
     params.degrees_of_freedom_spec = JSON.stringify({ creative_features_spec: spec });
   }
   if (i.urlTags && i.urlTags.trim()) params.url_tags = i.urlTags.trim();
-  // Сегментная кастомизация (по языку/гео) удалена из v22+ (код 2715), но жива
-  // на v21 — мультиязычный креатив создаём именно на ней.
-  const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST', 'v21.0');
-  const id = body.id as string | undefined;
-  if (!id) throw new FbError('Мультиязычный креатив не создан: нет id');
-  return id;
+
+  // Языковая кастомизация по locale поддержана в актуальных версиях. Если кабинет
+  // на новой версии вдруг отобьёт как «сегментную» (код 2715) — повторяем на v21.
+  const post = async (ver: string) => {
+    const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST', ver);
+    const id = body.id as string | undefined;
+    if (!id) throw new FbError('Мультиязычный креатив не создан: нет id');
+    return id;
+  };
+  try {
+    return await post(CREATE_API_VERSION);
+  } catch (e) {
+    if (/\b2715\b|Segment Asset Customization/i.test((e as Error).message)) {
+      return await post('v21.0');
+    }
+    throw e;
+  }
 }
 
 export type CreateVideoCreativeInput = {
