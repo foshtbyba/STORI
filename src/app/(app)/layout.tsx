@@ -53,7 +53,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="relative mx-auto flex min-h-screen max-w-[1600px] flex-col gap-2.5 p-2.5 sm:gap-3.5 sm:p-4">
+    <div
+      className="relative mx-auto flex min-h-screen max-w-[1600px] flex-col gap-2.5 p-2.5 sm:gap-3.5 sm:p-4"
+      /* Скроллбар справа съедает ширину только справа, из-за чего mx-auto
+         центрирует контент в области БЕЗ скроллбара — и правое поле шире левого
+         на ширину скроллбара. Сдвигаем оболочку вправо на половину этой ширины
+         (100vw−100% = ширина скроллбара), чтобы по краям было поровну. */
+      style={{ left: 'calc((100vw - 100%) / 2)' }}
+    >
       {/*
         Горизонтали живут на всём экране, а не внутри блока: панели чуть
         прозрачны, и рисунок проходит под ними насквозь. Слой держим на нулевом

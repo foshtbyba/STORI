@@ -82,7 +82,12 @@ export default function Contours({
   return (
     <span
       aria-hidden
-      className={`pointer-events-none absolute overflow-hidden ${className}`}
+      /* Позицию задаёт вызывающий (className) — НЕ хардкодим `absolute`: в
+         каскаде Tailwind `.absolute` идёт после `.fixed` и перебивал бы
+         переданный `fixed`, из-за чего фон рисовался внутри центрированной
+         оболочки max-w, а не во весь вьюпорт (не доходил до краёв и под
+         скроллбар). */
+      className={`pointer-events-none overflow-hidden ${className}`}
       style={{ opacity }}
     >
       {/*
