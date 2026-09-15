@@ -91,21 +91,25 @@ export async function saveSnapshot(form: FormData) {
     agentsCents: cents('agents'),
     note: String(form.get('note') ?? '').trim().slice(0, 200),
   };
-  await prisma.treasurySnapshot.upsert({
-    where: { date },
-    create: { date, ...data },
-    update: data,
-  });
-  await prisma.auditLog.create({
-    data: {
-      actorId: user.id,
-      actorName: user.name,
-      entity: 'TreasurySnapshot',
-      entityId: date.toISOString().slice(0, 10),
-      action: 'treasury:snapshot',
-      diffJson: JSON.stringify(data),
-    },
-  });
+  // Запись снимка и запись в аудит независимы — пишем параллельно, чтобы не
+  // ждать два круга к БД подряд.
+  await Promise.all([
+    prisma.treasurySnapshot.upsert({
+      where: { date },
+      create: { date, ...data },
+      update: data,
+    }),
+    prisma.auditLog.create({
+      data: {
+        actorId: user.id,
+        actorName: user.name,
+        entity: 'TreasurySnapshot',
+        entityId: date.toISOString().slice(0, 10),
+        action: 'treasury:snapshot',
+        diffJson: JSON.stringify(data),
+      },
+    }),
+  ]);
   revalidatePath('/treasury');
 }
 
