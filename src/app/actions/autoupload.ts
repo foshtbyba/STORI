@@ -387,6 +387,7 @@ export type JobRow = {
   campaignName: string;
   mode: string;
   status: string; // running | done | error
+  stage: string;  // текущий этап (пока running)
   adsPlanned: number;
   adsCreated: number;
   error: string;
@@ -406,6 +407,7 @@ export async function loadRecentJobs(): Promise<JobRow[]> {
     campaignName: r.campaignName,
     mode: r.mode,
     status: r.status,
+    stage: r.stage,
     adsPlanned: r.adsPlanned,
     adsCreated: r.adsCreated,
     error: r.error,
@@ -529,8 +531,20 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   const finish = async (patch: { status: string; error?: string; campaignFbId?: string; adsCreated?: number }) => {
     await prisma.uploadJob.update({
       where: { id: job.id },
-      data: { ...patch, log: log.join('\n') },
+      // stage чистим — статус (готово/ошибка) теперь сам говорит за себя.
+      data: { ...patch, stage: '', log: log.join('\n') },
     });
+  };
+
+  // Живой этап: пишем в БД сразу, чтобы «Журнал заливов» показывал, где сейчас
+  // залив (он опрашивает каждые 5с). Заодно сбрасываем накопленный лог, чтобы
+  // его можно было раскрыть и следить в реальном времени. Сбой записи не валит
+  // сам залив.
+  const stage = async (s: string) => {
+    log.push(s);
+    try {
+      await prisma.uploadJob.update({ where: { id: job.id }, data: { stage: s, log: log.join('\n') } });
+    } catch { /* не критично */ }
   };
 
   const ext = ctx.acc.externalId;
@@ -564,12 +578,13 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // Мультиязычный видео-залив: одно объявление с языками ВНУТРИ (нативная фича
     // FB «Добавить языки») через asset_feed_spec + asset_customization_rules по
     // locale. Бюджет и таргет — как обычно на адсете; FB сам показывает нужный
-    // язык под язык интерфейса зрителя. Язык основного ролика обязателен: он идёт
-    // в дефолтное правило (иначе FB не понимает, что это языковой режим).
-    const wantLanguages = withLanguages && !!video;
+    // язык под язык интерфейса зрителя. Основной ролик можно не прикладывать —
+    // тогда дефолтом станет язык из пака (см. видео-ветку ниже).
+    const wantLanguages = withLanguages;
 
     // 1. Кампания. Цель — под событие пикселя (лиды/продажи), иначе ФБ не даёт
     //    оптимизироваться на выбранное событие.
+    await stage('Создаю кампанию…');
     const objective = objectiveForEvent(tpl.event);
     let campaignId = '';
     for (let attempt = 0; attempt < 2; attempt += 1) {
@@ -603,6 +618,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // 2. Адсет с бюджетом и таргетом. Плейсменты, которые кабинет/цель не
     //    принимают (ФБ: «Invalid value X for the placement field …»), сами
     //    выкидываем и повторяем — залив не должен падать из-за одной галки.
+    await stage('Создаю адсет…');
     let placements = tpl.placements ? tpl.placements.split(',') : [];
     let adsetId = '';
     for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -707,10 +723,10 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       let mainVideoId = '';
       let mainThumb = '';
       if (video) {
-        append('Загружаю основной ролик в кабинет…');
+        await stage('Загружаю основной ролик…');
         const vbuf = Buffer.from(await video.arrayBuffer());
         mainVideoId = await uploadVideo(token, ext, vbuf, video.name || 'video.mp4', net);
-        append(`✓ Ролик загружен: ${mainVideoId} — жду обработки…`);
+        await stage('Ролик загружен — жду обработки FB…');
         await waitVideoReady(token, mainVideoId, net);
         append('✓ Ролик обработан');
         mainThumb = await videoThumbnailUrl(token, mainVideoId, net);
@@ -721,8 +737,11 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       const langVariants: LangVariant[] = [];
       if (wantLanguages) {
         const pack = await prisma.uploadLanguage.findMany({ where: { userId: ctx.userId, archived: false }, orderBy: { sort: 'asc' } });
-        append(`Языки: в паке ${pack.length} — собираю в одно объявление…`);
+        await stage(`Загружаю языки (0/${pack.length})…`);
+        let li = 0;
         for (const lp of pack) {
+          li += 1;
+          await stage(`Загружаю языки (${li}/${pack.length}): ${lp.locale}…`);
           try {
             let lvid = '';
             if (lp.videoData && lp.videoData.length) {
@@ -779,6 +798,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
       if (!mainVar) throw new FbError('Нет ни основного ролика, ни языков с видео — нечего заливать');
 
+      await stage('Собираю объявление…');
       let creativeId = '';
       if (restLangs.length && mainVar.localeId) {
         // Мультиязычное объявление: дефолт (mainVar) + остальные языки.
@@ -813,6 +833,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       }
     } else
     for (let idx = 0; idx < files.length; idx += 1) {
+      await stage(`Создаю объявления (${idx + 1}/${files.length})…`);
       const file = files[idx];
       const buf = Buffer.from(await file.arrayBuffer());
       let imageHash: string;

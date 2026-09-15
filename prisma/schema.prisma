@@ -841,6 +841,8 @@ model UploadJob {
   adsPlanned   Int      @default(0)
   adsCreated   Int      @default(0)
   campaignFbId String   @default("")
+  /// текущий этап (для живого статуса в журнале, пока идёт)
+  stage        String   @default("")
   log          String   @default("") // построчный журнал шагов
   error        String   @default("")
   createdAt    DateTime @default(now())

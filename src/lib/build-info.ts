@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'video-timeout · 15.09 11:46';
+export const BUILD_INFO = 'live-stage · 15.09 12:21';
