@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'fbpixel-parts · 15.09 14:04';
+export const BUILD_INFO = 'ui-polish-2 · 15.09 14:19';

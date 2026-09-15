@@ -57,7 +57,7 @@ const inp = 'h-9 w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px]
 const box = 'rounded-[16px] border border-line bg-panel/40 px-4 py-4 sm:px-5';
 const stepBadge = 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-t text-[12px] font-semibold text-sage';
 // Метки статики/сториков — без ручного fb_pixel (он для видео-метода).
-const DEFAULT_TAGS = 'ad_id={{ad.id}}&fbpx={{pixel}}&fb_pixel={{fbpixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
+const DEFAULT_TAGS = 'ad_id={{ad.id}}&fbpx={{pixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
 const uid = () => Math.random().toString(36).slice(2, 9);
 
 const modeLabel = (m: Mode) => (m === 'active' ? 'в актив' : m === 'scheduled' ? 'по расписанию' : m === 'midnight' ? 'с 00:00 МСК' : 'на паузе');
@@ -552,10 +552,14 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
 
         {/* 3 · Шаблон + объявление */}
         <div className={box}>
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center gap-2.5">
             <span className={stepBadge}>3</span>
             <span className="text-[13px] font-semibold">Шаблон гео и объявление</span>
-            {/* Ссылка на объявление и бюджет — справа в шапке шага. */}
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <TemplatePicker templates={templates} value={templateId} onPick={onPickTemplate} />
+            {tpl ? <span className="rounded-full border border-line bg-sub px-3 py-1 text-[11.5px] text-mute">{tpl.countries}{tpl.excluded ? ` (−${tpl.excluded})` : ''} · {tpl.ageMin}-{tpl.ageMax} · {tpl.event} · {placementSummary(tpl.placements)}</span> : null}
+            {/* Ссылка на объявление и бюджет — справа от поиска шаблона. */}
             <div className="ml-auto flex items-center gap-2">
               <input
                 value={link}
@@ -577,10 +581,6 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
               <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" placeholder="$/день" className="h-9 w-[90px] rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage" />
             </div>
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <TemplatePicker templates={templates} value={templateId} onPick={onPickTemplate} />
-            {tpl ? <span className="rounded-full border border-line bg-sub px-3 py-1 text-[11.5px] text-mute">{tpl.countries}{tpl.excluded ? ` (−${tpl.excluded})` : ''} · {tpl.ageMin}-{tpl.ageMax} · {tpl.event} · {placementSummary(tpl.placements)}</span> : null}
-          </div>
           <div className="mt-2.5 grid gap-2">
             <input value={campaignName} onChange={(e) => setCampaignName(e.target.value)} placeholder="Название кампании (оно же у адсета и объявлений)" className={inp} />
             {(linkWarn || (link && !isLinkValid(link))) ? (
@@ -600,9 +600,11 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
                 <p className="mt-1 text-[11px] text-dim">Число (после «=») · подставится в метку <code className="text-mute">fb_pixel=…</code>. Вводишь при каждом заливе.</p>
               </div>
             ) : null}
-            <div>
-              <input value={urlTags} onChange={(e) => setUrlTags(e.target.value)} className={inp} />
-              <p className="mt-1 text-[11px] text-dim">Метки к ссылке. <code className="text-mute">{'{{pixel}}'}</code> → пиксель кабинета, <code className="text-mute">{'{{fbpixel}}'}</code> → номер fb_pixel выше; <code className="text-mute">{'{{ad.id}}'}</code>, <code className="text-mute">{'{{campaign.id}}'}</code>, <code className="text-mute">{'{{account.id}}'}</code> подставит ФБ.</p>
+            {/* Метки ссылки (пиксель и параметры) — в аккуратной обводке. */}
+            <div className="rounded-xl border border-amber/40 bg-amber-t/40 px-3 py-2">
+              <div className="mb-1 text-[11.5px] font-semibold text-amber">Метки ссылки (пиксель и параметры)</div>
+              <input value={urlTags} onChange={(e) => setUrlTags(e.target.value)} className={`n ${inp}`} />
+              <p className="mt-1 text-[11px] text-dim"><code className="text-mute">{'{{pixel}}'}</code> → пиксель кабинета, <code className="text-mute">{'{{fbpixel}}'}</code> → номер fb_pixel выше; <code className="text-mute">{'{{ad.id}}'}</code>, <code className="text-mute">{'{{campaign.id}}'}</code>, <code className="text-mute">{'{{account.id}}'}</code> подставит ФБ.</p>
             </div>
           </div>
         </div>
@@ -616,7 +618,6 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           </div>
           <p className="mt-1.5 text-[11px] text-mute">Каждая картинка — отдельное объявление. До 20 штук. Авто-улучшения Меты отключаем.</p>
           <input ref={fileInput} type="file" accept="image/*" multiple onChange={(e) => addFiles(e.target.files)} className="mt-2 block w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
-          {files.length === 0 ? <p className="mt-1.5 text-[11px] text-rust">Без картинки сторик не зальётся — добавь хотя бы одну.</p> : null}
           {files.length > 0 ? (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {files.map((f, i) => (
@@ -661,17 +662,13 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           <button
             type="button"
             onClick={addToQueue}
-            disabled={files.length === 0}
-            title={files.length === 0 ? 'Сначала добавь картинку' : undefined}
-            className={`rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-medium text-sage transition ${files.length === 0 ? 'cursor-not-allowed opacity-50' : 'hover:brightness-110'}`}
+            className="rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-medium text-sage transition hover:brightness-110"
           >
             {editingId ? 'Сохранить черновик' : '+ Добавить в очередь'}
           </button>
-          {files.length === 0 ? (
-            <span className="text-[11.5px] text-rust">Нужна картинка</span>
-          ) : msg ? (
-            <span className="text-[11.5px]" style={{ color: msg.ok ? '#b4c68c' : '#ce6e58' }}>{msg.text}</span>
-          ) : null}
+          {/* Предупреждение показываем только после клика (validateConstructor → msg),
+              а не постоянно висящей красной строкой. */}
+          {msg ? <span className="text-[11.5px]" style={{ color: msg.ok ? '#b4c68c' : '#ce6e58' }}>{msg.text}</span> : null}
         </div>
       </div>
 
