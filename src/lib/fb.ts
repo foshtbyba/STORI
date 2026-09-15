@@ -182,7 +182,12 @@ export type FbNet = { ua?: string; proxyUrl?: string | null; cookie?: string | n
  * пути отдают одно и то же — код ответа и тело строкой, — поэтому разбор
  * ошибок ниже общий и про транспорт ничего не знает.
  */
-async function send(url: URL, net: FbNet, method: 'GET' | 'POST' = 'GET'): Promise<{ status: number; text: string }> {
+async function send(
+  url: URL,
+  net: FbNet,
+  method: 'GET' | 'POST' = 'GET',
+  reqBody?: string,
+): Promise<{ status: number; text: string }> {
   // Токены, снятые из Ads Manager, публичный Graph API принимает только когда
   // запрос выглядит как из браузера аккаунта: его user-agent, его куки и его
   // прокси. Без кук на такой токен приходит «код 1 Invalid request», хотя сам
@@ -190,14 +195,18 @@ async function send(url: URL, net: FbNet, method: 'GET' | 'POST' = 'GET'): Promi
   const headers: Record<string, string> = {};
   if (net.ua) headers['User-Agent'] = net.ua;
   if (net.cookie) headers['Cookie'] = net.cookie;
+  // Тело POST-а уходит form-urlencoded (см. call): у креативов payload с
+  // object_story_spec/asset_feed_spec огромный, в query он не влезает — edge
+  // Facebook рубит слишком длинный URL HTML-страницей 400/502 ещё до Graph API.
+  if (reqBody !== undefined) headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
   if (net.proxyUrl) {
     const agent = proxyAgent(net.proxyUrl);
-    // Параметры записи (POST) тоже кладём в query — Graph API их так принимает.
     const res = await axios.request({
       method,
       url: url.toString(),
       headers,
+      data: reqBody,
       httpAgent: agent,
       httpsAgent: agent,
       // Facebook на длинную цепочку кук иногда отвечает не по-json огромной
@@ -219,6 +228,7 @@ async function send(url: URL, net: FbNet, method: 'GET' | 'POST' = 'GET'): Promi
     method,
     cache: 'no-store',
     headers: Object.keys(headers).length ? headers : undefined,
+    body: reqBody,
   });
   return { status: res.status, text: await res.text() };
 }
@@ -234,11 +244,22 @@ async function call(
   const base = version ? `https://graph.facebook.com/${version}` : API;
   const url = new URL(`${base}${path}`);
   url.searchParams.set('access_token', token);
-  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  // GET кладёт параметры в query; POST — в тело form-urlencoded. Payload
+  // креатива (object_story_spec, asset_feed_spec, длинный link) в query не
+  // помещается: edge Facebook отвечает на слишком длинный URL HTML-страницей
+  // 400/502 «Client Error», хотя сам Graph API запрос принял бы.
+  let reqBody: string | undefined;
+  if (method === 'POST') {
+    const form = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) form.set(k, v);
+    reqBody = form.toString();
+  } else {
+    for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  }
 
   let res: { status: number; text: string };
   try {
-    res = await send(url, net, method);
+    res = await send(url, net, method, reqBody);
   } catch (e) {
     const via = net.proxyUrl ? ' (через прокси — проверь адрес и доступность)' : '';
     throw new FbError(`Не достучались до Facebook${via}: ${(e as Error).message}`);
