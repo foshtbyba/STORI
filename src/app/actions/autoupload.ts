@@ -417,6 +417,26 @@ export async function loadRecentJobs(): Promise<JobRow[]> {
   }));
 }
 
+/**
+ * Отменить «залипший» залив: если фоновый процесс оборвался (перезапуск
+ * контейнера и т.п.), задача остаётся в статусе running навсегда. Кнопкой в
+ * журнале помечаем её ошибкой. Право: команда — любой, баер — только свой.
+ * Уже завершённые (done/error) не трогаем.
+ */
+export async function cancelJob(id: string): Promise<{ ok: boolean; error?: string }> {
+  const user = await requireUser();
+  const team = canSeeTeam(user.role as Role);
+  const job = await prisma.uploadJob.findUnique({ where: { id } });
+  if (!job) return { ok: false, error: 'Залив не найден' };
+  if (!team && job.buyerId !== (user.buyer?.id ?? '__none__')) return { ok: false, error: 'Нет доступа' };
+  if (job.status !== 'running') return { ok: true }; // уже завершён — ничего не делаем
+  await prisma.uploadJob.update({
+    where: { id },
+    data: { status: 'error', stage: '', error: 'Отменено вручную', log: `${job.log}\n✗ Отменено вручную из журнала` },
+  });
+  return { ok: true };
+}
+
 export type UploadResult = {
   ok: boolean;
   error?: string;

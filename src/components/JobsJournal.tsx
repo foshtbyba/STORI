@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { loadRecentJobs, type JobRow } from '@/app/actions/autoupload';
+import { loadRecentJobs, cancelJob, type JobRow } from '@/app/actions/autoupload';
 
 const fmt = (iso: string) => {
   try {
@@ -29,6 +29,11 @@ export default function JobsJournal({ pollMs = 5000, defaultExpanded = false }: 
   const refresh = async () => {
     try { setJobs(await loadRecentJobs()); } catch { /* тихо */ }
     setLoading(false);
+  };
+
+  const cancel = async (id: string) => {
+    try { await cancelJob(id); } catch { /* тихо */ }
+    refresh();
   };
 
   useEffect(() => {
@@ -74,6 +79,7 @@ export default function JobsJournal({ pollMs = 5000, defaultExpanded = false }: 
                     </span>
                   )}
                   {j.log ? <button type="button" onClick={() => setOpen(isOpen ? '' : j.id)} className="shrink-0 text-[11px] text-mute transition hover:text-sage">{isOpen ? 'скрыть' : 'журнал'}</button> : null}
+                  {j.status === 'running' ? <button type="button" onClick={() => cancel(j.id)} className="shrink-0 text-[11px] text-mute transition hover:text-rust" title="Отменить залипший залив">отменить</button> : null}
                 </div>
                 {j.status === 'error' ? <p className="mt-1.5 break-words text-[11.5px] leading-relaxed text-rust">{j.error || 'ошибка'}</p> : null}
                 {isOpen && j.log ? <pre className="scroll-slim mt-2 max-h-[240px] overflow-auto whitespace-pre-wrap break-words text-[11px] leading-relaxed text-dim">{j.log}</pre> : null}
