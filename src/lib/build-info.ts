@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'fire-lock+buyer-journal · 15.09 22:11';
+export const BUILD_INFO = 'unify-queue-blocks · 15.09 22:31';

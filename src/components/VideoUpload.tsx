@@ -315,8 +315,10 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
         if (d.video) fd.set('video', d.video);
         await startUpload(fd);
       }
+      const n = queue.length;
       setQueue([]);
-      // Без «зависшей» плашки — результат виден в журнале ниже, он раскроется.
+      // Единый текст со сторис-заливом: статусы — в списке ниже.
+      setMsg(`Запущено в фоне: ${n}. Статусы — в списке ниже, можно уйти со страницы.`);
       setJournalKey((k) => k + 1);
       } finally {
         firing.current = false;
@@ -567,7 +569,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
       <div className="rounded-[16px] border border-line2 bg-panel/60 p-4 sm:p-5">
         <div className="flex items-center gap-2.5">
           <span className="text-[14px] font-semibold">Очередь заливов</span>
-          <span className="text-[12px] text-mute">{queue.length} заливов</span>
+          <span className="text-[12px] text-mute">{queue.length} заливов · {queue.length} кабинетов</span>
         </div>
         <div className="mt-3 flex flex-col gap-2">
           {queue.map((d) => (

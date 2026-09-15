@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
-import { loadCabinetAssets, makePixel, makePage, runAutoupload, type UploadResult } from '@/app/actions/autoupload';
+import { loadCabinetAssets, makePixel, makePage, startUpload } from '@/app/actions/autoupload';
 import TemplateManager, { type Template } from './TemplateManager';
 import TemplatePicker from './TemplatePicker';
 import CardBinder from './CardBinder';
@@ -165,8 +165,6 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   // Сообщение прямо под кнопкой «Подтянуть» — чтобы сбой был заметен сразу.
   const [assetMsg, setAssetMsg] = useState<{ ok: boolean; text: string } | null>(null);
-  const [results, setResults] = useState<Record<string, UploadResult & { label: string }>>({});
-  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [confirm, setConfirm] = useState(false);
   // Метод залива. Сейчас сторис/статика; видео с языками — отдельным методом позже.
   const [method, setMethod] = useState<'static' | 'video' | 'templates' | 'languages' | 'cards'>('static');
@@ -385,14 +383,15 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
     if (fireLock || firing.current || pending || queue.length === 0) return;
     fireLock = true;
     firing.current = true;
-    setMsg(null); setResults({}); setConfirm(false);
+    setMsg(null); setConfirm(false);
     start(async () => {
       try {
-      setProgress({ done: 0, total: totalTargets });
-      let success = 0, warned = 0, failed = 0, done = 0;
+      // Как в видео-заливе: уходит в ФОН (startUpload), статусы — в журнале ниже
+      // («Мои сторис-заливы» / общая стата). Никаких инлайн-плашек с кривыми
+      // статусами — единый источник правды журнал, он же переживает обновление.
+      let n = 0;
       for (const d of queue) {
         for (const cabId of d.cabinetIds) {
-          const cab = byId.get(cabId);
           const p = d.pick[cabId];
           const fd = new FormData();
           fd.set('accountId', cabId);
@@ -415,21 +414,12 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
           fd.set('structure', d.structure || '1-1-2');
           if (d.startAt) fd.set('startAt', d.startAt);
           for (const f of d.files) fd.append('images', f);
-          const r = await runAutoupload(fd);
-          if (!r.ok) failed += 1;
-          else if (r.phoneRequired) warned += 1;
-          else success += 1;
-          done += 1;
-          const label = `${cab?.name || cabId} · ${d.campaignName || 'без имени'}`;
-          setResults((prev) => ({ ...prev, [`${d.id}:${cabId}`]: { ...r, label } }));
-          setProgress({ done, total: totalTargets });
+          await startUpload(fd);
+          n += 1;
         }
       }
-      setProgress(null);
-      const parts = [`✓ Успешно: ${success}/${totalTargets}`];
-      if (warned) parts.push(`⚠ С проблемой (нужен телефон): ${warned}`);
-      if (failed) parts.push(`✗ Ошибки: ${failed}`);
-      setMsg({ ok: failed === 0, text: parts.join(' · ') });
+      setQueue([]);
+      setMsg({ ok: true, text: `Запущено в фоне: ${n}. Статусы — в списке ниже, можно уйти со страницы.` });
       } finally {
         firing.current = false;
         fireLock = false;
@@ -444,7 +434,6 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
     fireAll();
   };
 
-  const [openLog, setOpenLog] = useState('');
   const anyAssets = selectedList.some((c) => assets[c.id]);
 
   return (
@@ -735,8 +724,8 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
         </div>
       </div>
 
-      {/* ОЧЕРЕДЬ — показываем только когда есть очередь, идёт залив или уже есть результаты. */}
-      {(queue.length > 0 || progress || Object.keys(results).length > 0) ? (
+      {/* ОЧЕРЕДЬ — показываем только когда в ней что-то есть. */}
+      {queue.length > 0 ? (
       <div className="rounded-[16px] border border-line2 bg-panel/60 p-4 sm:p-5">
         <div className="flex items-center gap-2.5">
           <span className="text-[14px] font-semibold">Очередь заливов</span>
@@ -765,8 +754,6 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
           </div>
         ) : null}
 
-        {progress ? <div className="mt-3 text-[12px] text-mute">Заливаю… {progress.done}/{progress.total}</div> : null}
-
         {queue.length > 0 ? (
           confirm && hasLive ? (
             <div className="mt-3 flex flex-wrap items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-[12.5px]" style={{ borderColor: '#5a3a2a', background: '#241712' }}>
@@ -783,30 +770,6 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
           )
         ) : null}
 
-        {/* Результаты */}
-        {Object.keys(results).length ? (
-          <div className="mt-3 flex flex-col gap-1.5">
-            {Object.entries(results).map(([key, r]) => {
-              const open = openLog === key;
-              const warn = r.ok && r.phoneRequired;
-              const mark = !r.ok ? '✗' : warn ? '⚠' : '✓';
-              const markColor = !r.ok ? 'text-rust' : warn ? 'text-amber' : 'text-sage';
-              return (
-                <div key={key} className={`rounded-[12px] border bg-sub px-3.5 py-2.5 ${warn ? 'border-amber/40' : !r.ok ? 'border-rust/40' : 'border-line'}`}>
-                  <div className="flex items-center gap-2 text-[12.5px]">
-                    <span className={markColor}>{mark}</span>
-                    <span className="min-w-0 flex-1 truncate text-soft">{r.label}</span>
-                    <span className={`shrink-0 text-[11.5px] ${warn ? 'text-amber' : 'text-mute'}`}>
-                      {!r.ok ? (r.error ?? 'ошибка') : warn ? `${r.adsCreated} объявл. · на паузе, нужен телефон` : `${r.adsCreated} объявл.`}
-                    </span>
-                    {r.log?.length ? <button type="button" onClick={() => setOpenLog(open ? '' : key)} className="shrink-0 text-[11px] text-mute transition hover:text-sage">{open ? 'скрыть' : 'журнал'}</button> : null}
-                  </div>
-                  {open && r.log?.length ? <pre className="scroll-slim mt-2 max-h-[220px] overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-dim">{r.log.join('\n')}</pre> : null}
-                </div>
-              );
-            })}
-          </div>
-        ) : null}
       </div>
       ) : null}
 
