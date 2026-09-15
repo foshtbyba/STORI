@@ -26,11 +26,9 @@ import {
   waitVideoReady,
   videoThumbnailUrl,
   createVideoAdCreative,
-  createMultiLangVideoCreative,
   resolveLocaleId,
   VIDEO_ENHANCEMENT_OPTOUT_KEYS,
   FbError,
-  type LangVariant,
   type FbNet,
   type CardInput,
   type CardBindMethod,
@@ -558,13 +556,33 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       }
     }
 
+    // Мультиязычный видео-залив: вместо капризной кастомизации ассетов (её ФБ то
+    // требует гео на каждое правило, то ругается на «узкую» аудиторию, а сегментную
+    // кастомизацию и вовсе выпилил в v22) делаем надёжно и официально — ОТДЕЛЬНЫЙ
+    // адсет на каждый язык (то же гео + фильтр targeting.locales + свой ролик), а
+    // бюджет переносим НА КАМПАНИЮ (CBO): он не умножается на число языков, а
+    // делится между адсетами. Резолвим locale основного ролика заранее — он нужен
+    // и на главном адсете.
+    const cboLanguages = withLanguages && !!video;
+    let mainLocaleId = 0;
+    if (cboLanguages && mainLocale) {
+      try { mainLocaleId = await resolveLocaleId(token, localeName(mainLocale), net); } catch { mainLocaleId = 0; }
+      if (mainLocaleId) append(`Основной ролик — язык ${mainLocale} (locale ${mainLocaleId})`);
+      else append(`⚠ Язык основного ролика «${mainLocale}» не нашёлся у FB — главный адсет без языкового фильтра`);
+    }
+
     // 1. Кампания. Цель — под событие пикселя (лиды/продажи), иначе ФБ не даёт
-    //    оптимизироваться на выбранное событие.
+    //    оптимизироваться на выбранное событие. При языках бюджет — на кампании (CBO).
     const objective = objectiveForEvent(tpl.event);
     let campaignId = '';
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
-        campaignId = await createCampaign(token, ext, { name: campaignName, objective, status: effectiveStatus }, net);
+        campaignId = await createCampaign(token, ext, {
+          name: campaignName,
+          objective,
+          status: effectiveStatus,
+          dailyBudgetCents: cboLanguages ? dailyBudgetCents : undefined,
+        }, net);
         break;
       } catch (e) {
         if (isPhoneError(e) && effectiveStatus === 'ACTIVE') {
@@ -576,7 +594,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         throw e;
       }
     }
-    append(`✓ Кампания создана: ${campaignId} · цель ${objective}`);
+    append(`✓ Кампания создана: ${campaignId} · цель ${objective}${cboLanguages ? ` · бюджет на кампании (CBO) $${(dailyBudgetCents / 100).toFixed(2)}/день` : ''}`);
     await sleep(300);
 
     // DSA (ЕС): если среди целевых стран есть ЕС/ЕЭЗ, нужно объявить, кого
@@ -598,16 +616,18 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     for (let attempt = 0; attempt < 5; attempt += 1) {
       try {
         adsetId = await createAdset(token, ext, {
-          name: campaignName,
+          name: cboLanguages && mainLocale ? `${campaignName} · ${mainLocale}` : campaignName,
           campaignId,
           pixelId,
           event: tpl.event,
           countries,
+          locales: mainLocaleId ? [mainLocaleId] : undefined,
           excludedCountries,
           excludedRegions,
           dsaBeneficiary: dsaBeneficiary || undefined,
           dsaPayer: dsaPayer || undefined,
-          dailyBudgetCents,
+          // При CBO бюджет уже на кампании — на адсете не дублируем.
+          dailyBudgetCents: cboLanguages ? undefined : dailyBudgetCents,
           ageMin: tpl.ageMin,
           ageMax: tpl.ageMax,
           genders,
@@ -655,7 +675,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       }
     }
     if (!adsetId) throw new FbError('Адсет не создан после снятия неподдержанных плейсментов');
-    append(`✓ Адсет создан: ${adsetId} · бюджет $${(dailyBudgetCents / 100).toFixed(2)}/день · событие ${tpl.event} · ${placements.length ? placementSummary(placements.join(',')) : 'плейсменты: авто'}`);
+    append(`✓ Адсет создан: ${adsetId} · ${cboLanguages ? 'бюджет на кампании (CBO)' : `бюджет $${(dailyBudgetCents / 100).toFixed(2)}/день`} · событие ${tpl.event} · ${placements.length ? placementSummary(placements.join(',')) : 'плейсменты: авто'}`);
     await sleep(300);
 
     // 3. Для каждой картинки — креатив и объявление. Список ключей авто-улучшений
@@ -698,11 +718,26 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       append('✓ Ролик обработан');
       const thumb = await videoThumbnailUrl(token, videoId, net);
 
-      // Языки из личного пака — грузим их ролики, резолвим locale ID.
-      const langVariants: LangVariant[] = [];
-      if (withLanguages) {
+      // Основной ролик → креатив и объявление на главном адсете.
+      const creativeId = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
+        name: campaignName, pageId, videoId, message, link, cta,
+        urlTags: urlTags || undefined, headline: headline || undefined,
+        description: description || undefined, imageUrl: thumb || undefined, optOutKeys: optOut,
+      }, net));
+      if (!creativeId) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
+      await sleep(200);
+      const mainAdId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
+      created = 1;
+      append(`✓ Видео-объявление${cboLanguages && mainLocale ? ` (${mainLocale})` : ''}: ${mainAdId}`);
+
+      // Языки: на каждый язык — СВОЙ адсет (то же гео + targeting.locales + свой
+      // ролик) под общей CBO-кампанией. Так бюджет делится, а не умножается, и мы
+      // обходим капризы кастомизации ассетов (2446501/1885952/2715). Узкую
+      // аудиторию «гео+язык» ФБ на СОЗДАНИИ не блокирует — только доставку, так что
+      // адсет создастся, а крутиться начнёт при активном статусе.
+      if (cboLanguages) {
         const pack = await prisma.uploadLanguage.findMany({ where: { userId: ctx.userId, archived: false }, orderBy: { sort: 'asc' } });
-        append(`Языки: в паке ${pack.length} — подключаю…`);
+        append(`Языки: в паке ${pack.length} — по отдельному адсету на каждый…`);
         for (const lp of pack) {
           try {
             let lvid = '';
@@ -714,79 +749,39 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
               append(`⚠ ${lp.locale}: нет видео — пропускаю`);
               continue;
             }
-            await waitVideoReady(token, lvid, net);
             const localeId = await resolveLocaleId(token, localeName(lp.locale), net);
             if (!localeId) { append(`⚠ ${lp.locale}: не нашёл locale ID у FB — пропускаю`); continue; }
+            await waitVideoReady(token, lvid, net);
             const lthumb = await videoThumbnailUrl(token, lvid, net);
-            langVariants.push({
-              localeId,
-              videoId: lvid,
-              thumb: lthumb || undefined,
-              message: lp.primaryText || message,
-              headline: lp.headline || undefined,
-              description: lp.description || undefined,
-              link: lp.link || undefined,
-            });
-            append(`✓ Язык ${lp.locale} (locale ${localeId})`);
+            // Адсет под язык: гео и таргет как у основного, но фильтр по языку.
+            const langAdsetId = await createAdset(token, ext, {
+              name: `${campaignName} · ${lp.locale}`,
+              campaignId, pixelId, event: tpl.event,
+              countries, locales: [localeId],
+              excludedCountries, excludedRegions,
+              dsaBeneficiary: dsaBeneficiary || undefined, dsaPayer: dsaPayer || undefined,
+              // Бюджет на кампании (CBO) — на адсете не задаём.
+              ageMin: tpl.ageMin, ageMax: tpl.ageMax, genders, placements,
+              status: effectiveStatus, startTime,
+            }, net);
+            await sleep(150);
+            const langCreative = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
+              name: `${campaignName} · ${lp.locale}`, pageId, videoId: lvid,
+              message: lp.primaryText || message, link: lp.link || link, cta,
+              urlTags: urlTags || undefined, headline: lp.headline || headline || undefined,
+              description: lp.description || description || undefined,
+              imageUrl: lthumb || undefined, optOutKeys: optOut,
+            }, net));
+            if (!langCreative) { append(`⚠ ${lp.locale}: креатив не создан — пропускаю`); continue; }
+            await sleep(150);
+            const langAdId = await createAd(token, ext, { name: `${campaignName} · ${lp.locale}`, adsetId: langAdsetId, creativeId: langCreative, status: effectiveStatus }, net);
+            created += 1;
+            append(`✓ Язык ${lp.locale} (locale ${localeId}): адсет + объявл. ${langAdId}`);
           } catch (e) {
             append(`⚠ ${lp.locale}: не подключился — пропускаю (${(e as Error).message})`);
           }
         }
-      }
-
-      let creativeId = '';
-      if (langVariants.length) {
-        // Язык основного ролика — резолвим его locale ID (если задан).
-        const mainLocaleId = mainLocale ? await resolveLocaleId(token, localeName(mainLocale), net) : 0;
-        if (mainLocale && mainLocaleId) append(`Основной ролик — язык ${mainLocale} (locale ${mainLocaleId})`);
-        // Самолечение мультиязычного креатива: подрезаем неподдержанные ключи
-        // улучшений И слишком узкие языки (сегмент «гео+язык» без аудитории,
-        // код 1885952) — убираем язык и повторяем. Останется 0 языков → обычное
-        // видео-объявление ниже.
-        for (let attempt = 0; attempt < optOut.length + langVariants.length + 3; attempt += 1) {
-          if (langVariants.length === 0) break;
-          try {
-            creativeId = await createMultiLangVideoCreative(token, ext, {
-              name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
-              main: { videoId, thumb: thumb || undefined, message, headline: headline || undefined, description: description || undefined, link },
-              mainLocaleId: mainLocaleId || undefined,
-              langs: langVariants,
-            }, net);
-            break;
-          } catch (e) {
-            const msg = (e as Error).message;
-            const mk = msg.match(/Param key '([^']+)' in degrees_of_freedom_spec/i);
-            if (mk && optOut.includes(mk[1])) { optOut = optOut.filter((k) => k !== mk[1]); append(`⚠ ключ улучшения «${mk[1]}» не поддержан — убрал`); await sleep(200); continue; }
-            if (/1885952|too narrow|reduce the overlap/i.test(msg) && langVariants.length) {
-              const mn = msg.match(/rule no\.?\s*(\d+)/i);
-              const idx = mn ? Math.min(langVariants.length - 1, Math.max(0, parseInt(mn[1], 10) - 1)) : 0;
-              const dropped = langVariants.splice(idx, 1)[0];
-              append(`⚠ язык locale ${dropped?.localeId}: аудитория «гео+язык» пустая — убрал и повторяю`);
-              await sleep(200);
-              continue;
-            }
-            throw e;
-          }
-        }
-        if (creativeId) {
-          await sleep(200);
-          const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
-          created = 1;
-          append(`✓ Мультиязычное видео-объявление: ${adId} · языков ${langVariants.length}`);
-        }
-      }
-      if (!creativeId) {
-        if (withLanguages) append('⚠ Языки не подключились (пустая аудитория гео+язык) — делаю обычное видео-объявление');
-        creativeId = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
-          name: campaignName, pageId, videoId, message, link, cta,
-          urlTags: urlTags || undefined, headline: headline || undefined,
-          description: description || undefined, imageUrl: thumb || undefined, optOutKeys: optOut,
-        }, net));
-        if (!creativeId) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
-        await sleep(200);
-        const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
-        created = 1;
-        append(`✓ Видео-объявление: ${adId}`);
+        append(`Итого объявлений: ${created} (основное + языки)`);
       }
     } else
     for (let idx = 0; idx < files.length; idx += 1) {

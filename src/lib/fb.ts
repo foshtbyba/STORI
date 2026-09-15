@@ -1072,15 +1072,26 @@ export type CreateCampaignInput = {
   objective?: string;
   status?: 'PAUSED' | 'ACTIVE';
   specialCategories?: string[];
+  /** Бюджет на кампании (CBO/Advantage campaign budget), в центах. Если задан —
+   *  бюджет делится между адсетами кампании, а на адсетах его НЕ ставим. Нужен
+   *  для мульти-язычного залива: один ролик = один адсет, но бюджет общий. */
+  dailyBudgetCents?: number;
+  bidStrategy?: string; // LOWEST_COST_WITHOUT_CAP
 };
 
 export async function createCampaign(token: string, externalId: string, i: CreateCampaignInput, net: FbNet = {}) {
-  const body = await call(`/${externalId}/campaigns`, token, {
+  const params: Record<string, string> = {
     name: i.name,
     objective: i.objective || 'OUTCOME_SALES',
     status: i.status || 'PAUSED',
     special_ad_categories: JSON.stringify(i.specialCategories ?? []),
-  }, net, 'POST', CREATE_API_VERSION);
+  };
+  // CBO: бюджет и стратегия ставок задаются на уровне кампании.
+  if (i.dailyBudgetCents) {
+    params.daily_budget = String(i.dailyBudgetCents);
+    params.bid_strategy = i.bidStrategy || 'LOWEST_COST_WITHOUT_CAP';
+  }
+  const body = await call(`/${externalId}/campaigns`, token, params, net, 'POST', CREATE_API_VERSION);
   const id = body.id as string | undefined;
   if (!id) throw new FbError('Кампания не создана: нет id');
   return id;
@@ -1180,6 +1191,9 @@ export type CreateAdsetInput = {
   pixelId: string;
   event?: string; // PURCHASE по умолчанию
   countries: string[]; // ['US']
+  /** Числовые FB locale ID для таргета по языку (targeting.locales). Пусто — без
+   *  языкового фильтра. Резолвятся через resolveLocaleId. */
+  locales?: number[];
   /** Исключаемые страны (excluded_geo_locations). Пусто — не передаём. */
   excludedCountries?: string[];
   /** Исключаемые регионы (области/штаты) — ключи FB (region key). Пусто — не передаём. */
@@ -1215,6 +1229,8 @@ export async function createAdset(token: string, externalId: string, i: CreateAd
     targeting.excluded_geo_locations = ex;
   }
   if (i.genders && i.genders.length) targeting.genders = i.genders;
+  // Языковой таргет: показываем только тем, у кого интерфейс на этих языках.
+  if (i.locales && i.locales.length) targeting.locales = i.locales;
   // Плейсменты: если в шаблоне выбраны — задаём вручную, иначе авто (Advantage+).
   if (i.placements && i.placements.length) {
     const pt = buildPlacementTargeting(i.placements);
