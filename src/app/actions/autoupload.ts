@@ -351,6 +351,10 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  * Цепочка промисов на каждый accountId живёт в памяти процесса (self-hosted —
  * один процесс, этого достаточно).
  */
+// Замок от дубля залива (см. runAutoupload): ключ «баер:кабинет:кампания» →
+// метка времени старта. Живёт в памяти процесса (self-hosted — один процесс).
+const inFlightUploads = new Map<string, number>();
+
 const accountChains = new Map<string, Promise<unknown>>();
 function runPerAccount(accountId: string, task: () => Promise<unknown>): Promise<unknown> {
   const prev = accountChains.get(accountId) ?? Promise.resolve();
@@ -547,6 +551,18 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   const log: string[] = [];
   const append = (line: string) => log.push(line);
 
+  // Замок от дубля НА СЕРВЕРЕ: даже если клиент как-то дёрнул залив дважды
+  // (дабл-клик, ретрай запроса), второй запуск того же залива (тот же баер +
+  // кабинет + имя кампании) на время исполнения пропускаем — второго job'а не
+  // будет. Ключ снимаем в finish (терминал любого исхода). Метка времени —
+  // страховка от «зависшего» ключа: старше 10 мин считаем протухшим.
+  const dedupKey = `${ctx.buyerId}:${accountId}:${campaignName}`;
+  const prevTs = inFlightUploads.get(dedupKey);
+  if (prevTs && Date.now() - prevTs < 10 * 60_000) {
+    return { ok: false, error: 'Этот залив уже запущен на этом кабинете — дубль пропущен' };
+  }
+  inFlightUploads.set(dedupKey, Date.now());
+
   // Тип залива — для раздельных журналов: видео (ролик/языки) vs сторис/фото.
   const jobKind = (video || withLanguages) ? 'video' : 'static';
   const job = await prisma.uploadJob.create({
@@ -563,6 +579,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   });
 
   const finish = async (patch: { status: string; error?: string; campaignFbId?: string; adsCreated?: number }) => {
+    inFlightUploads.delete(dedupKey); // залив завершён — снимаем замок от дубля
     await prisma.uploadJob.update({
       where: { id: job.id },
       // stage чистим — статус (готово/ошибка) теперь сам говорит за себя.
