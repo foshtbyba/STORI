@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'video-creative-hint · 15.09 14:31';
+export const BUILD_INFO = 'queue-btn-inline · 15.09 14:34';

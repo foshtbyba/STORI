@@ -488,11 +488,14 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         ) : null}
       </div>
 
-      {/* 5 · Режим запуска */}
+      {/* 5 · Режим запуска. Кнопка «в очередь» — справа в шапке плашки. */}
       <div className={box}>
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <span className={stepBadge}>5</span>
           <span className="text-[13px] font-semibold">Режим запуска</span>
+          <button type="button" onClick={addToQueue} className="ml-auto rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-medium text-sage transition hover:brightness-110">
+            + Добавить в очередь{selectedList.length > 1 ? ` (${selectedList.length})` : ''}
+          </button>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {(['paused', 'active', 'midnight', 'scheduled'] as const).map((m) => (
@@ -509,13 +512,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
             className={`h-9 w-[200px] rounded-xl border border-line2 bg-sub px-3 text-[12.5px] text-soft outline-none focus:border-sage ${mode === 'scheduled' ? '' : 'invisible'}`}
           />
         </div>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <button type="button" onClick={addToQueue} className="rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-medium text-sage transition hover:brightness-110">
-          + Добавить в очередь{selectedList.length > 1 ? ` (${selectedList.length})` : ''}
-        </button>
-        {msg ? <span className="text-[11.5px] text-sage">{msg}</span> : null}
+        {msg ? <div className="mt-2 text-[11.5px] text-sage">{msg}</div> : null}
       </div>
 
       {/* ОЧЕРЕДЬ */}
