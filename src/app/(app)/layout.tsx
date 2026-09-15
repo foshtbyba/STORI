@@ -7,7 +7,7 @@ import ScrollCalm from '@/components/ScrollCalm';
 import TopBar from '@/components/TopBar';
 import Workspace from '@/components/Workspace';
 import {
-  IconCalendar, IconChart, IconBox, IconPeak, IconTag, IconWallet, IconRocket, IconLink,
+  IconCalendar, IconChart, IconBox, IconPeak, IconTag, IconWallet, IconRocket, IconLink, IconMusic,
 } from '@/components/icons';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -38,12 +38,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // переехали в админку (их трогают раз в жизни), а кабинеты Facebook — в окно
   // «Реклама», где их и смотрят каждый день.
 
-  // Пространство «Реклама»: техничка — мониторинг ФБ, управление, автозалив.
+  // Пространство «Реклама»: техничка — мониторинг, управление, автозалив.
+  // Первый набор вкладок — под Facebook, второй (после «Домены», через
+  // разделитель) — под TikTok. У ТикТок-вкладок нотка-иконка, чтобы отличать
+  // их от одноимённых FB-вкладок.
   const adsItems = [
     { href: '/ads', label: 'Обзор', icon: <IconChart size={15} /> },
     { href: '/ads/campaigns', label: 'Кампании', icon: <IconRocket size={15} /> },
     { href: '/ads/upload', label: 'Автозалив', icon: <IconTag size={15} /> },
     { href: '/ads/domains', label: 'Домены', icon: <IconLink size={15} /> },
+    { href: '/tiktok', label: 'Обзор', icon: <IconMusic size={15} />, divider: true },
+    { href: '/tiktok/campaigns', label: 'Кампании', icon: <IconMusic size={15} /> },
+    { href: '/tiktok/upload', label: 'Автозалив', icon: <IconMusic size={15} /> },
   ];
 
   return (

@@ -48,3 +48,15 @@ export function IconUser({ size = 18, color = 'currentColor' }: P) {
     </svg>
   );
 }
+
+// Нотка — маркер пространства TikTok (короткого музыкального клипа).
+export function IconMusic({ size = 18, color = 'currentColor', width = 1.7 }: P) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+      strokeWidth={width} strokeLinejoin="round" strokeLinecap="round" aria-hidden>
+      <path d="M9 17V4l11-2v13" />
+      <circle cx="6" cy="17" r="3" />
+      <circle cx="17" cy="15" r="3" />
+    </svg>
+  );
+}

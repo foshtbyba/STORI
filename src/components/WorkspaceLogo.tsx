@@ -14,7 +14,8 @@ import { IconPeak, IconRocket } from './icons';
  */
 export default function WorkspaceLogo() {
   const pathname = usePathname();
-  const inAds = pathname.startsWith('/ads');
+  // TikTok-раздел тоже относится к пространству «Реклама».
+  const inAds = pathname.startsWith('/ads') || pathname.startsWith('/tiktok');
   const href = inAds ? '/' : '/ads';
   const Icon = inAds ? IconRocket : IconPeak;
 

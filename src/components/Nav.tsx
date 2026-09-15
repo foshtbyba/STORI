@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 
-export type NavItem = { href: string; label: string; icon: ReactNode };
+export type NavItem = { href: string; label: string; icon: ReactNode; divider?: boolean };
 
 export default function Nav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
@@ -20,8 +20,9 @@ export default function Nav({ items }: { items: NavItem[] }) {
       {items.map((item) => {
         const active = item.href === activeHref;
         return (
+          <div key={item.href} className="flex items-center gap-1">
+          {item.divider ? <span aria-hidden className="mx-0.5 h-4 w-px shrink-0 bg-line2" /> : null}
           <Link
-            key={item.href}
             href={item.href}
             /*
               Каждая страница здесь динамическая: предзагрузка не может её
@@ -37,6 +38,7 @@ export default function Nav({ items }: { items: NavItem[] }) {
             {item.icon}
             {item.label}
           </Link>
+          </div>
         );
       })}
     </nav>

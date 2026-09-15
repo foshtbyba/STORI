@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'langs-one-ad · 15.09 10:53';
+export const BUILD_INFO = 'tiktok-tabs · 15.09 11:05';
