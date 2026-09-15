@@ -106,10 +106,12 @@ export default function Contours({
           {/* Линии доходят до самого края: гасим только последние проценты,
               чтобы срез не читался прямой вертикалью. */}
           <linearGradient id="contour-fade" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stopColor={color} stopOpacity="0.12" />
+            <stop offset="0" stopColor={color} stopOpacity="0.16" />
             <stop offset="0.35" stopColor={color} stopOpacity="0.32" />
-            <stop offset="0.8" stopColor={color} stopOpacity="0.22" />
-            <stop offset="1" stopColor={color} stopOpacity="0.1" />
+            <stop offset="0.85" stopColor={color} stopOpacity="0.26" />
+            {/* У правого края держим видимость почти до конца — иначе полоса перед
+                скроллбаром выглядит пустой (линии гасли слишком рано). */}
+            <stop offset="1" stopColor={color} stopOpacity="0.2" />
           </linearGradient>
         </defs>
         {PATHS.map((p, i) => (

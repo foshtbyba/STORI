@@ -120,18 +120,12 @@ export default function BuyerCabinet({ data, label }: { data: Data; label: strin
         </Panel>
       </div>
 
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-6 lg:gap-3.5">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-5 lg:gap-3.5">
         {[
           { label: 'Доход', value: usd(data.revenueCents), color: 'text-text', note: label },
           { label: 'Спенд с комиссией', value: usd(data.spendGrossCents), color: 'text-text', note: `комиссия ${usd(data.commissionCents)}` },
           { label: 'Профит', value: usd(data.profitCents), color: 'text-sage', note: `ROI ${data.roi.toFixed(1).replace('.', ',')}%` },
           { label: 'Расходники', value: `−${usd(data.consumableCents)}`, color: 'text-rust', note: data.buyer.consumablesAffectSalary ? 'списаны на меня' : 'на команде' },
-          {
-            label: 'За всё время',
-            value: usd(data.allTimeCents, { sign: true }),
-            color: data.allTimeCents >= 0 ? 'text-sage' : 'text-rust',
-            note: 'по всем периодам',
-          },
           {
             label: 'Дней в плюсе',
             value: `${greenDays}`,

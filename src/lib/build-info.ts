@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'consumables-taller-boxes · 15.09 21:14';
+export const BUILD_INFO = 'buyer-hide-alltime+bg-edge · 15.09 21:17';
