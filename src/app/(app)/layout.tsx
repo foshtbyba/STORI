@@ -43,7 +43,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // разделитель) — под TikTok. У ТикТок-вкладок нотка-иконка, чтобы отличать
   // их от одноимённых FB-вкладок.
   const adsItems = [
-    { href: '/ads', label: 'Обзор', icon: <IconChart size={15} /> },
+    { href: '/ads', label: 'Обзор', icon: <IconChart size={15} />, divider: true },
     { href: '/ads/campaigns', label: 'Кампании', icon: <IconRocket size={15} /> },
     { href: '/ads/upload', label: 'Автозалив', icon: <IconTag size={15} /> },
     { href: '/ads/domains', label: 'Домены', icon: <IconLink size={15} /> },

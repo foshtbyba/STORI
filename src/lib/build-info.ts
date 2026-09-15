@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'queue-btn-inline · 15.09 14:34';
+export const BUILD_INFO = 'nav-divider · 15.09 14:38';
