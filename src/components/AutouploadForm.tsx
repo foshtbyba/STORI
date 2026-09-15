@@ -388,6 +388,10 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
           const p = d.pick[cabId];
           const fd = new FormData();
           fd.set('accountId', cabId);
+          // Ключ запуска: id черновика + кабинет. Один и тот же запуск,
+          // случайно ушедший дважды, сервер отобьёт по этому ключу; разные
+          // черновики (даже одинаковые по содержимому) — разные ключи, зальются.
+          fd.set('uploadKey', `${d.id}:${cabId}`);
           fd.set('templateId', d.templateId);
           fd.set('pageId', p.pageId);
           fd.set('pixelId', p.pixelId);

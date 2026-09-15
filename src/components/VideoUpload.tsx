@@ -271,6 +271,9 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
       for (const d of queue) {
         const fd = new FormData();
         fd.set('accountId', d.cabId);
+        // Ключ запуска (см. AutouploadForm): случайный дубль отобьётся, а
+        // намеренно одинаковые заливы — разные черновики, разные ключи.
+        fd.set('uploadKey', `${d.id}:${d.cabId}`);
         fd.set('templateId', d.templateId);
         fd.set('pageId', d.pageId);
         fd.set('pixelId', d.pixelId);

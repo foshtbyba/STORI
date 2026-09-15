@@ -551,15 +551,17 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   const log: string[] = [];
   const append = (line: string) => log.push(line);
 
-  // Замок от дубля НА СЕРВЕРЕ: даже если клиент как-то дёрнул залив дважды
-  // (дабл-клик, ретрай запроса), второй запуск того же залива (тот же баер +
-  // кабинет + имя кампании) на время исполнения пропускаем — второго job'а не
-  // будет. Ключ снимаем в finish (терминал любого исхода). Метка времени —
-  // страховка от «зависшего» ключа: старше 10 мин считаем протухшим.
-  const dedupKey = `${ctx.buyerId}:${accountId}:${campaignName}`;
+  // Замок от дубля НА СЕРВЕРЕ по КЛЮЧУ КОНКРЕТНОГО ЗАПУСКА (uploadKey =
+  // id черновика:кабинет, приходит с клиента). Смысл: один и тот же запуск,
+  // случайно ушедший дважды (дабл-клик, повторный вызов «в процессе»), второй
+  // раз не создаст job. А вот НАМЕРЕННО залить 2-3 одинаковых залива можно —
+  // это разные черновики в очереди, у каждого свой id → свой ключ → все пройдут.
+  // Ключ снимаем в finish; метка времени — страховка от протухшего ключа.
+  const uploadKey = String(form.get('uploadKey') ?? '').trim();
+  const dedupKey = uploadKey || `${ctx.buyerId}:${accountId}:${campaignName}:${rand(6)}`;
   const prevTs = inFlightUploads.get(dedupKey);
   if (prevTs && Date.now() - prevTs < 10 * 60_000) {
-    return { ok: false, error: 'Этот залив уже запущен на этом кабинете — дубль пропущен' };
+    return { ok: false, error: 'Этот же запуск уже идёт — повторная отправка пропущена' };
   }
   inFlightUploads.set(dedupKey, Date.now());
 
