@@ -57,9 +57,7 @@ const inp = 'h-9 w-full rounded-xl border border-line2 bg-sub px-3 text-[12.5px]
 const box = 'rounded-[16px] border border-line bg-panel/40 px-4 py-4 sm:px-5';
 const stepBadge = 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-t text-[12px] font-semibold text-sage';
 // Метки статики/сториков — без ручного fb_pixel (он для видео-метода).
-const DEFAULT_TAGS = 'ad_id={{ad.id}}&fbpx={{pixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
-// Метки видео-метода — с ручным fb_pixel ({{fbpixel}} проявит поле ввода).
-const DEFAULT_TAGS_VIDEO = 'ad_id={{ad.id}}&fbpx={{pixel}}&fb_pixel={{fbpixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
+const DEFAULT_TAGS = 'ad_id={{ad.id}}&fbpx={{pixel}}&fb_pixel={{fbpixel}}&account_id={{account.id}}&campaign_id={{campaign.id}}';
 const uid = () => Math.random().toString(36).slice(2, 9);
 
 const modeLabel = (m: Mode) => (m === 'active' ? 'в актив' : m === 'scheduled' ? 'по расписанию' : m === 'midnight' ? 'с 00:00 МСК' : 'на паузе');
@@ -593,13 +591,13 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
               <input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Заголовок (опц.)" className={inp} />
               <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Описание под ссылкой (опц.)" className={inp} />
             </div>
-            {/* Ручной fb_pixel — вводится каждый залив (легко забыть), поэтому
-                на видном месте и не запоминается. */}
+            {/* Ручной fb_pixel — та же аккуратная обводка, что и на видео (одно
+                поле: сторис двух частей не требуют). */}
             {urlTags.includes('{{fbpixel}}') || urlTags.includes('{{fb_pixel}}') ? (
               <div className="rounded-xl border border-amber/40 bg-amber-t/40 px-3 py-2">
-                <div className="mb-1 text-[11.5px] font-semibold text-amber">fb_pixel — впиши вручную</div>
-                <input value={manualPixel} onChange={(e) => setManualPixel(e.target.value)} inputMode="numeric" placeholder="напр. 5645645435" className={inp} />
-                <p className="mt-1 text-[11px] text-dim">Подставится в метку <code className="text-mute">fb_pixel=…</code>. Вводишь при каждом заливе — не запоминаем.</p>
+                <div className="mb-1 text-[11.5px] font-semibold text-amber">Метка fb_pixel в ссылке <span className="font-normal text-dim">· fbpx подставим автоматически (пиксель кабинета)</span></div>
+                <input value={manualPixel} onChange={(e) => setManualPixel(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder="напр. 5645645435" className={`n ${inp}`} />
+                <p className="mt-1 text-[11px] text-dim">Число (после «=») · подставится в метку <code className="text-mute">fb_pixel=…</code>. Вводишь при каждом заливе.</p>
               </div>
             ) : null}
             <div>

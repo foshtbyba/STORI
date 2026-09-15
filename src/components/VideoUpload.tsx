@@ -21,7 +21,7 @@ type VideoDraft = {
   templateId: string; tplName: string;
   campaignName: string; link: string; budget: string;
   message: string; headline: string; description: string;
-  fbPixel: string; fbpxManual: string; mode: Mode; startLocal: string;
+  fbPixelKey: string; fbPixelNum: string; mode: Mode; startLocal: string;
   withLanguages: boolean; mainLocale: string;
   video: File | null;
 };
@@ -73,10 +73,13 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
   const [message, setMessage] = useState('');
   const [headline, setHeadline] = useState('');
   const [description, setDescription] = useState('');
-  // fbpx — пиксель в метке (меняется часто, не запоминаем; пусто → пиксель кабинета).
-  const [fbpxManual, setFbpxManual] = useState('');
-  // fb_pixel — число в метке (меняется редко, запоминаем за баером / за овнер-именем).
-  const [fbPixel, setFbPixel] = useState('');
+  // Метка fb_pixel в ссылке собирается из двух частей (fbpx=ПИКСЕЛЬ подставляем
+  // автоматически — пиксель кабинета, отдельного поля не надо):
+  //  • ключ (часть до «=», обычно fb_pixel) — меняется редко, ЗАПОМИНАЕМ за
+  //    баером/овнер-именем;
+  //  • число (после «=», напр. 5645645435) — меняется часто, НЕ запоминаем.
+  const [fbPixelKey, setFbPixelKey] = useState('fb_pixel');
+  const [fbPixelNum, setFbPixelNum] = useState('');
   const [mode, setMode] = useState<Mode>('paused');
   const [startLocal, setStartLocal] = useState('');
   const [withLanguages, setWithLanguages] = useState(languages.length > 0);
@@ -106,17 +109,17 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
   useEffect(() => { try { localStorage.setItem('videoupload:owner', owner); } catch { /* игнор */ } }, [owner]);
   useEffect(() => { try { localStorage.setItem('videoupload:selected', JSON.stringify([...selected])); } catch { /* игнор */ } }, [selected]);
 
-  // fb_pixel запоминаем ЗА ОВНЕР-ИМЕНЕМ (для баера owner = его хэндл, для овнера —
-  // SKO/MPR). При смене овнера подставляем сохранённое значение этого овнера.
+  // Ключ fb_pixel запоминаем ЗА ОВНЕР-ИМЕНЕМ (для баера owner = его хэндл, для
+  // овнера — SKO/MPR). Число (fbPixelNum) не запоминаем — оно меняется часто.
   useEffect(() => {
     if (!owner) return;
-    try { setFbPixel(localStorage.getItem(`videoupload:fbpixel:${owner}`) ?? ''); } catch { /* игнор */ }
+    try { setFbPixelKey(localStorage.getItem(`videoupload:fbpixelkey:${owner}`) || 'fb_pixel'); } catch { /* игнор */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [owner]);
   useEffect(() => {
     if (!owner) return;
-    try { localStorage.setItem(`videoupload:fbpixel:${owner}`, fbPixel); } catch { /* игнор */ }
-  }, [owner, fbPixel]);
+    try { localStorage.setItem(`videoupload:fbpixelkey:${owner}`, fbPixelKey); } catch { /* игнор */ }
+  }, [owner, fbPixelKey]);
 
   const tpl = templates.find((t) => t.id === templateId) ?? null;
   const ownerCabs = cabinets.filter((c) => c.group === owner);
@@ -215,7 +218,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
     if (!video && !mainOptional) return 'Добавь ролик (видеофайл) или включи языки с видео';
     if (!/^https?:\/\//i.test(link.trim())) return 'Ссылка должна начинаться с http(s)://';
     if (!message.trim()) return 'Текст объявления пустой';
-    if (!fbPixel.trim()) return 'Впиши номер fb_pixel';
+    if (!fbPixelNum.trim()) return 'Впиши число fb_pixel';
     for (const c of selectedList) {
       if (!assets[c.id]) return `Подтяни ФП/пиксели: ${c.name || c.externalId}`;
       if (!pageByAcc[c.id]) return `Выбери страницу: ${c.name || c.externalId}`;
@@ -242,7 +245,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
       templateId, tplName: tpl?.name ?? '',
       campaignName: campaignName.trim(), link: link.trim(), budget: budget.trim(),
       message: message.trim(), headline: headline.trim(), description: description.trim(),
-      fbPixel: fbPixel.trim(), fbpxManual: fbpxManual.trim(), mode, startLocal,
+      fbPixelKey: (fbPixelKey.trim() || 'fb_pixel'), fbPixelNum: fbPixelNum.trim(), mode, startLocal,
       withLanguages, mainLocale,
       video,
     }));
@@ -250,6 +253,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
     setVideo(null);
     if (fileRef.current) fileRef.current.value = '';
     setCampaignName(''); setLink(''); setMessage(''); setHeadline(''); setDescription('');
+    setFbPixelNum(''); // число меняется часто — чистим; ключ (fbPixelKey) оставляем.
     autoName.current = '';
     setMsg(`Добавлено в очередь: ${drafts.length} (по кабинетам). Собери ещё или жми «Залить всё».`);
   };
@@ -270,11 +274,10 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         fd.set('message', d.message);
         fd.set('headline', d.headline);
         fd.set('description', d.description);
-        // Метки собираем из двух полей: fbpx (пусто → пиксель кабинета {{pixel}})
-        // и fb_pixel (число). Остальное подставит ФБ/сервер.
-        const tags = `ad_id={{ad.id}}&fbpx=${d.fbpxManual || '{{pixel}}'}&fb_pixel=${d.fbPixel || '{{fbpixel}}'}&account_id={{account.id}}&campaign_id={{campaign.id}}`;
+        // fbpx=ПИКСЕЛЬ — автоподстановка пикселя кабинета ({{pixel}}).
+        // fb_pixel собираем сами: <ключ>=<число> (ключ запомнен, число — из формы).
+        const tags = `ad_id={{ad.id}}&fbpx={{pixel}}&${d.fbPixelKey || 'fb_pixel'}=${d.fbPixelNum}&account_id={{account.id}}&campaign_id={{campaign.id}}`;
         fd.set('urlTags', tags);
-        fd.set('manualPixel', d.fbPixel);
         fd.set('mode', d.mode);
         if (d.withLanguages) fd.set('withLanguages', '1');
         if (d.mainLocale) fd.set('mainLocale', d.mainLocale);
@@ -417,15 +420,15 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
             <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Описание под ссылкой (опц.)" className={inp} />
           </div>
           <div className="rounded-xl border border-amber/40 bg-amber-t/40 px-3 py-2">
-            <div className="mb-1 text-[11.5px] font-semibold text-amber">Пиксель в метке ссылки</div>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="mb-1 text-[11.5px] font-semibold text-amber">Метка fb_pixel в ссылке <span className="font-normal text-dim">· fbpx подставим автоматически (пиксель кабинета)</span></div>
+            <div className="grid gap-2 sm:grid-cols-[200px_1fr]">
               <div>
-                <input value={fbpxManual} onChange={(e) => setFbpxManual(e.target.value.trim())} placeholder="пиксель (fbpx) — пусто = пиксель кабинета" className={`n ${inp}`} />
-                <p className="mt-1 text-[11px] text-dim"><code className="text-mute">fbpx=</code> · меняется часто, не запоминаем. Пусто — подставим пиксель кабинета.</p>
+                <input value={fbPixelKey} onChange={(e) => setFbPixelKey(e.target.value.trim())} placeholder="fb_pixel" className={`n ${inp}`} />
+                <p className="mt-1 text-[11px] text-dim">Ключ (до «=») · меняется редко, запоминаем за {owner || 'вами'}.</p>
               </div>
               <div>
-                <input value={fbPixel} onChange={(e) => setFbPixel(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder="fb_pixel, напр. 5645645435" className={`n ${inp}`} />
-                <p className="mt-1 text-[11px] text-dim"><code className="text-mute">fb_pixel=</code> · меняется редко, запоминаем за {owner || 'вами'}.</p>
+                <input value={fbPixelNum} onChange={(e) => setFbPixelNum(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder="напр. 5645645435" className={`n ${inp}`} />
+                <p className="mt-1 text-[11px] text-dim">Число (после «=») · меняется часто, вставляй каждый залив.</p>
               </div>
             </div>
           </div>
