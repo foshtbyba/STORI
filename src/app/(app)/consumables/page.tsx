@@ -165,7 +165,10 @@ export default async function ConsumablesPage({
         </Panel>
         </div>
 
-        <div className="flex flex-col gap-3.5">
+        {/* Правая колонка задаёт высоту строки грида, а левый бокс «Списания»
+            (lg:absolute) к ней привязан. min-h держит обе колонки повыше, чтобы
+            в «Списаниях» было видно больше строк — тонкими они смотрелись бедно. */}
+        <div className="flex flex-col gap-3.5 lg:min-h-[440px]">
           <Panel className="p-4 sm:p-6">
             <PanelHead icon={<IconBox color="#ce6e58" />} tint="bg-rust-t" title="По типам" />
             <div className="mt-4">

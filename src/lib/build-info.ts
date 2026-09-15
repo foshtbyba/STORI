@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'snapshot-3day-lock-back · 15.09 20:49';
+export const BUILD_INFO = 'consumables-taller-boxes · 15.09 21:14';
