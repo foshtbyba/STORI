@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'assets-defaults+placement-hitarea · 16.09 01:29';
+export const BUILD_INFO = 'phone-gate-ad-paused · 16.09 02:19';

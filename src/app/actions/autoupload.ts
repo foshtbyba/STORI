@@ -738,6 +738,24 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       throw new FbError('Адсет не создан после снятия неподдержанных плейсментов');
     };
 
+    // Создание объявления с тем же самолечением по телефону: ФБ гейт «нужен
+    // подтверждённый телефон» (код 31/3858013) часто срабатывает именно на
+    // создании ОБЪЯВЛЕНИЯ (кампания/адсет проходят). API не даёт «выбрать»
+    // верифицированный номер — поэтому объявление создаём НА ПАУЗЕ, а не роняем
+    // весь залив: номер подтверждён — баер включит объявление вручную.
+    const mkAd = async (name: string, adsetIdArg: string, creativeId: string): Promise<string> => {
+      try {
+        return await createAd(token, ext, { name, adsetId: adsetIdArg, creativeId, status: effectiveStatus }, net);
+      } catch (e) {
+        if (isPhoneError(e) && effectiveStatus === 'ACTIVE') {
+          effectiveStatus = 'PAUSED'; phoneForced = true;
+          append('⚠ Кабинету нужен подтверждённый/выбранный телефон — объявление создаю НА ПАУЗЕ (подтверди/выбери номер в Ads Manager и включи)');
+          return await createAd(token, ext, { name, adsetId: adsetIdArg, creativeId, status: 'PAUSED' }, net);
+        }
+        throw e;
+      }
+    };
+
     // 3. Для каждой картинки — креатив и объявление. Список ключей авто-улучшений
     //    подрезаем самолечением: неизвестный ключ ФБ отбивает весь креатив, тогда
     //    выкидываем его и повторяем. Подрезанный список переиспользуем дальше.
@@ -890,7 +908,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         }, net));
         if (creativeId) {
           await sleep(200);
-          const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
+          const adId = await mkAd(campaignName, adsetId, creativeId);
           created = 1;
           append(`✓ Одно объявление с языками: ${adId} · языков ${restLangs.length + 1}`);
         } else {
@@ -908,7 +926,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         }, net));
         if (!creativeId) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
         await sleep(200);
-        const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
+        const adId = await mkAd(campaignName, adsetId, creativeId);
         created = 1;
         append(`✓ Видео-объявление: ${adId}`);
       }
@@ -990,7 +1008,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         }
         if (!creativeId) throw new FbError('Креатив не создан (после подрезки ключей улучшений)');
         await sleep(200);
-        const adId = await createAd(token, ext, { name: label, adsetId: adsetForImage, creativeId, status: effectiveStatus }, net);
+        const adId = await mkAd(label, adsetForImage, creativeId);
         created += 1;
         append(`✓ Объявление ${idx + 1}/${files.length}: ${adId}`);
         await sleep(300);
