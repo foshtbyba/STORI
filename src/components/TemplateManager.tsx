@@ -129,7 +129,7 @@ export default function TemplateManager({ templates, query = '' }: { templates: 
                     <div className="mb-1 text-[10.5px] font-semibold uppercase tracking-wide text-amber">{label}</div>
                     <div className="flex flex-col gap-1">
                       {items.map((p) => (
-                        <label key={p.key} className="flex cursor-pointer items-center gap-2 text-[12px] text-soft">
+                        <label key={p.key} className="inline-flex w-fit cursor-pointer items-center gap-2 text-[12px] text-soft">
                           <input type="checkbox" name="placements" value={p.key} defaultChecked={marked.includes(p.key)} className="accent-[#b4c68c]" />
                           <span className="truncate">{p.label}</span>
                         </label>

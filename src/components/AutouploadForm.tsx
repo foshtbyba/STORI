@@ -137,6 +137,8 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
   const [pixelByAcc, setPixelByAcc] = useState<Record<string, string>>({});
   const [newPixelByAcc, setNewPixelByAcc] = useState<Record<string, string>>({});
   const [newPageByAcc, setNewPageByAcc] = useState<Record<string, string>>({});
+  // Что сейчас создаётся: `${accId}:pixel` / `${accId}:page` — для «создаю…».
+  const [creating, setCreating] = useState('');
   const [templateId, setTemplateId] = useState('');
   const [campaignName, setCampaignName] = useState('');
   const [link, setLink] = useState('');
@@ -237,8 +239,10 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
         if (!r.ok) { fails.push(`${byId.get(id)?.name || id} — ${friendlyReason(r.error)}`); continue; }
         okCount += 1;
         nA[id] = { pages: r.pages ?? [], pixels: r.pixels ?? [] };
-        if ((r.pages?.length ?? 0) === 1) nP[id] = r.pages![0].id;
-        if ((r.pixels?.length ?? 0) === 1) nX[id] = r.pixels![0].id;
+        // Сразу выбираем ПЕРВЫЙ доступный ФП/пиксель (не только когда он один),
+        // чтобы поля не были пустыми при новых заливах. Ручной выбор не трогаем.
+        if ((r.pages?.length ?? 0) >= 1 && !nP[id]) nP[id] = r.pages![0].id;
+        if ((r.pixels?.length ?? 0) >= 1 && !nX[id]) nX[id] = r.pixels![0].id;
       }
       setAssets(nA); setPageByAcc(nP); setPixelByAcc(nX);
       if (fails.length) setAssetMsg({ ok: false, text: `Не подтянулось: ${fails.join(' · ')}` });
@@ -248,13 +252,16 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
 
   const addPixel = (accId: string) => {
     if (pending) return;
+    setCreating(`${accId}:pixel`);
     start(async () => {
+      try {
       const r = await makePixel(accId, newPixelByAcc[accId] ?? '');
       if (!r.ok) { setMsg({ ok: false, text: r.error ?? 'сбой создания пикселя' }); return; }
       setAssets((a) => ({ ...a, [accId]: { pages: a[accId]?.pages ?? [], pixels: r.pixels ?? [] } }));
       if (r.pixels?.length) setPixelByAcc((p) => ({ ...p, [accId]: r.pixels![r.pixels!.length - 1].id }));
       setNewPixelByAcc((n) => ({ ...n, [accId]: '' }));
       setMsg({ ok: true, text: 'Пиксель создан.' });
+      } finally { setCreating(''); }
     });
   };
 
@@ -262,13 +269,16 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
     if (pending) return;
     const name = (newPageByAcc[accId] ?? '').trim();
     if (!name) { setMsg({ ok: false, text: 'Впиши имя новой страницы' }); return; }
+    setCreating(`${accId}:page`);
     start(async () => {
+      try {
       const r = await makePage(accId, name);
       if (!r.ok) { setMsg({ ok: false, text: r.error ?? 'сбой создания страницы' }); return; }
       setAssets((a) => ({ ...a, [accId]: { pages: r.pages ?? [], pixels: a[accId]?.pixels ?? [] } }));
       if (r.pages?.length) setPageByAcc((p) => ({ ...p, [accId]: r.pages![r.pages!.length - 1].id }));
       setNewPageByAcc((n) => ({ ...n, [accId]: '' }));
       setMsg({ ok: true, text: 'Страница создана.' });
+      } finally { setCreating(''); }
     });
   };
 
@@ -603,7 +613,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
                       </select>
                       <div className="flex items-center gap-2">
                         <input value={newPageByAcc[c.id] ?? ''} onChange={(e) => setNewPageByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя новой ФП" className={`${inp} min-w-0 flex-1`} />
-                        <button type="button" onClick={() => addPage(c.id)} disabled={pending} className="shrink-0 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ ФП</button>
+                        <button type="button" onClick={() => addPage(c.id)} disabled={pending} className={`shrink-0 rounded-full border px-3 py-1.5 text-[11.5px] transition ${creating === `${c.id}:page` ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-soft hover:border-sage hover:text-sage'}`}>{creating === `${c.id}:page` ? 'создаю…' : '+ ФП'}</button>
                       </div>
                       <select value={pixelByAcc[c.id] ?? ''} onChange={(e) => setPixelByAcc((p) => ({ ...p, [c.id]: e.target.value }))} className={inp}>
                         <option value="">— пиксель —</option>
@@ -611,7 +621,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
                       </select>
                       <div className="flex items-center gap-2">
                         <input value={newPixelByAcc[c.id] ?? ''} onChange={(e) => setNewPixelByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя нового пикселя" className={`${inp} min-w-0 flex-1`} />
-                        <button type="button" onClick={() => addPixel(c.id)} disabled={pending} className="shrink-0 rounded-full border border-line2 bg-sub px-3 py-1.5 text-[11.5px] text-soft transition hover:border-sage hover:text-sage">+ пиксель</button>
+                        <button type="button" onClick={() => addPixel(c.id)} disabled={pending} className={`shrink-0 rounded-full border px-3 py-1.5 text-[11.5px] transition ${creating === `${c.id}:pixel` ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-soft hover:border-sage hover:text-sage'}`}>{creating === `${c.id}:pixel` ? 'создаю…' : '+ пиксель'}</button>
                       </div>
                     </div>
                     {a.pages.length === 0 ? <p className="mt-1.5 text-[11px] text-rust">нет страниц под токеном — создай ФП слева</p> : null}

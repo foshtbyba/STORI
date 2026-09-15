@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'multiadv-optout-on-creative · 16.09 01:23';
+export const BUILD_INFO = 'assets-defaults+placement-hitarea · 16.09 01:29';
