@@ -605,7 +605,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [] }: 
             <div className="rounded-xl border border-amber/40 bg-amber-t/40 px-3 py-2">
               <div className="mb-1 text-[11.5px] font-semibold text-amber">Метки ссылки (пиксель и параметры)</div>
               <input value={urlTags} onChange={(e) => setUrlTags(e.target.value)} className={`n ${inp}`} />
-              <p className="mt-1 text-[11px] text-dim"><code className="text-mute">{'{{pixel}}'}</code> → пиксель кабинета, <code className="text-mute">{'{{fbpixel}}'}</code> → номер fb_pixel выше; <code className="text-mute">{'{{ad.id}}'}</code>, <code className="text-mute">{'{{campaign.id}}'}</code>, <code className="text-mute">{'{{account.id}}'}</code> подставит ФБ.</p>
+              <p className="mt-1 text-[11px] text-dim"><code className="text-mute">{'{{pixel}}'}</code> → пиксель кабинета; <code className="text-mute">{'{{ad.id}}'}</code>, <code className="text-mute">{'{{campaign.id}}'}</code>, <code className="text-mute">{'{{account.id}}'}</code> подставит ФБ.</p>
             </div>
           </div>
         </div>

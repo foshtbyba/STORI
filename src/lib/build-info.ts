@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'gap-unify · 15.09 14:27';
+export const BUILD_INFO = 'stories-hint · 15.09 14:30';
