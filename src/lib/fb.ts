@@ -1797,10 +1797,9 @@ export const ENHANCEMENT_OPTOUT_KEYS = [
   'description_automation',
   'adapt_to_placement',
   'media_type_automation',
-  // Кандидаты для отключения multi-advertiser ads через creative_features_spec.
-  // Если такого ключа у Меты нет — самолечение молча их выкинет.
-  'multi_advertiser_ads',
-  'multi_advertiser',
+  // multi-advertiser ads НЕ отключается через creative_features_spec (Мета
+  // отвергала ключ) — отключаем на уровне АДСЕТА через contextual_multi_ads:
+  // OPT_OUT (см. createAdset). Поэтому здесь этих ключей нет.
 ];
 
 /**
