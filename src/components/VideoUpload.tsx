@@ -22,7 +22,7 @@ type VideoDraft = {
   message: string; headline: string; description: string;
   fbPixel: string; mode: Mode; startLocal: string;
   withLanguages: boolean; mainLocale: string;
-  video: File;
+  video: File | null;
 };
 
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -186,10 +186,15 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
     }
   };
 
+  // В режиме языков с непустым паком (есть языки с видео) основной ролик
+  // необязателен: дефолтным станет язык из пака.
+  const langsWithVideo = languages.filter((l) => l.hasVideo || l.videoUrl).length;
+  const mainOptional = withLanguages && langsWithVideo > 0;
+
   const validate = (): string | null => {
     if (selectedList.length === 0) return 'Выбери хотя бы один кабинет';
     if (!templateId) return 'Выбери шаблон гео';
-    if (!video) return 'Добавь ролик (видеофайл)';
+    if (!video && !mainOptional) return 'Добавь ролик (видеофайл) или включи языки с видео';
     if (!/^https?:\/\//i.test(link.trim())) return 'Ссылка должна начинаться с http(s)://';
     if (!message.trim()) return 'Текст объявления пустой';
     if (!fbPixel.trim()) return 'Впиши номер fb_pixel';
@@ -220,7 +225,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
       message: message.trim(), headline: headline.trim(), description: description.trim(),
       fbPixel: fbPixel.trim(), mode, startLocal,
       withLanguages, mainLocale,
-      video: video!,
+      video,
     }));
     setQueue((q) => [...q, ...drafts]);
     setVideo(null);
@@ -253,7 +258,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
         if (d.mainLocale) fd.set('mainLocale', d.mainLocale);
         if (d.mode === 'midnight') fd.set('startAt', nextMoscowMidnight());
         if (d.mode === 'scheduled' && d.startLocal) fd.set('startAt', new Date(d.startLocal).toISOString());
-        fd.set('video', d.video);
+        if (d.video) fd.set('video', d.video);
         await startUpload(fd);
       }
       const n = queue.length;
@@ -377,9 +382,9 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
             <input value={budget} onChange={(e) => setBudget(e.target.value)} inputMode="decimal" placeholder="$/день" className={inp} />
           </div>
           <div>
-            <div className="lab mb-1">Ролик (видеофайл)</div>
+            <div className="lab mb-1">Ролик (видеофайл) {mainOptional ? <span className="text-dim">— необязателен: с языками дефолт возьмётся из пака</span> : null}</div>
             <input ref={fileRef} type="file" accept="video/*" onChange={(e) => setVideo(e.target.files?.[0] ?? null)} className="block w-fit max-w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
-            {video ? <p className="mt-1 text-[11px] text-sage">{video.name} · {(video.size / 1024 / 1024).toFixed(1)} МБ</p> : null}
+            {video ? <p className="mt-1 text-[11px] text-sage">{video.name} · {(video.size / 1024 / 1024).toFixed(1)} МБ</p> : mainOptional ? <p className="mt-1 text-[11px] text-dim">Без файла соберём объявление из языков пака (дефолт — язык ниже).</p> : null}
           </div>
           <div>
             <div className="lab mb-1">Язык основного ролика <span className="text-dim">(нужен для языков — идёт в дефолтное правило)</span></div>
@@ -461,7 +466,7 @@ export default function VideoUpload({ cabinets, templates, languages = [] }: { c
                   <span className="shrink-0 text-[11px] text-mute">{d.mode === 'paused' ? 'на паузе' : d.mode === 'active' ? 'в актив' : d.mode === 'midnight' ? 'с 00:00' : 'по расписанию'}</span>
                   <button type="button" onClick={() => setQueue((q) => q.filter((x) => x.id !== d.id))} className="shrink-0 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute transition hover:border-rust hover:text-rust">убрать</button>
                 </div>
-                <div className="mt-1.5 text-[11px] text-dim">{d.tplName || 'шаблон?'} · 🎬 {d.video.name} · {(d.video.size / 1024 / 1024).toFixed(1)} МБ{d.withLanguages ? ` · +языки` : ''}{d.budget ? ` · $${d.budget}/д` : ''}</div>
+                <div className="mt-1.5 text-[11px] text-dim">{d.tplName || 'шаблон?'} · 🎬 {d.video ? `${d.video.name} · ${(d.video.size / 1024 / 1024).toFixed(1)} МБ` : 'ролики из пака языков'}{d.withLanguages ? ` · +языки` : ''}{d.budget ? ` · $${d.budget}/д` : ''}</div>
               </div>
             ))}
           </div>

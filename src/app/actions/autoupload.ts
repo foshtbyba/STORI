@@ -497,9 +497,12 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   const video = videoFile instanceof File && videoFile.size > 0 ? videoFile : null;
   // Видео + языки: добавить доп-языки из личного пака в одно объявление.
   const withLanguages = String(form.get('withLanguages') ?? '') === '1';
-  // Язык основного ролика — привязываем основной и к своему языку (не только дефолт).
+  // Язык основного ролика — в режиме языков это язык ДЕФОЛТНОГО варианта.
   const mainLocale = String(form.get('mainLocale') ?? '').trim();
-  if (!video && files.length === 0) return { ok: false, error: 'Добавь картинку (сторис) или ролик (видео)' };
+  // В режиме языков основной ролик можно не прикладывать: дефолтным станет язык
+  // из пака, FB сам соберёт объявление из языков. Поэтому пускаем и без файла,
+  // если включены языки (пустой пак отсеется ниже понятной ошибкой).
+  if (!video && files.length === 0 && !withLanguages) return { ok: false, error: 'Добавь картинку (сторис) или ролик (видео)' };
   if (files.length > 20) return { ok: false, error: 'За раз не больше 20 картинок' };
 
   const genders = tpl.genders === '1' ? [1] : tpl.genders === '2' ? [2] : undefined;
@@ -673,8 +676,9 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
     // Видео-метод. Грузим основной ролик, ждём обработки, берём кадр-превью.
     // Если включены языки — собираем мультиязычное объявление (основной + пак),
-    // иначе обычное видео-объявление.
-    if (video) {
+    // иначе обычное видео-объявление. В режиме языков основной ролик можно не
+    // прикладывать — дефолтным станет язык из пака.
+    if (video || wantLanguages) {
       // Видео-специфичные ключи авто-улучшений (Video touch-ups / Add video
       // effects). Неверные самолечение отсеет.
       optOut = [...optOut, ...VIDEO_ENHANCEMENT_OPTOUT_KEYS];
@@ -697,13 +701,20 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         return '';
       };
 
-      append('Загружаю основной ролик в кабинет…');
-      const vbuf = Buffer.from(await video.arrayBuffer());
-      const videoId = await uploadVideo(token, ext, vbuf, video.name || 'video.mp4', net);
-      append(`✓ Ролик загружен: ${videoId} — жду обработки…`);
-      await waitVideoReady(token, videoId, net);
-      append('✓ Ролик обработан');
-      const thumb = await videoThumbnailUrl(token, videoId, net);
+      // Основной ролик грузим ТОЛЬКО если он приложен. В режиме языков его можно
+      // не прикладывать — тогда дефолтным станет язык из пака (ниже), а отдельный
+      // «главный» крео мы не навязываем: FB сам соберёт объявление из языков.
+      let mainVideoId = '';
+      let mainThumb = '';
+      if (video) {
+        append('Загружаю основной ролик в кабинет…');
+        const vbuf = Buffer.from(await video.arrayBuffer());
+        mainVideoId = await uploadVideo(token, ext, vbuf, video.name || 'video.mp4', net);
+        append(`✓ Ролик загружен: ${mainVideoId} — жду обработки…`);
+        await waitVideoReady(token, mainVideoId, net);
+        append('✓ Ролик обработан');
+        mainThumb = await videoThumbnailUrl(token, mainVideoId, net);
+      }
 
       // Языки из личного пака — грузим ролики, резолвим locale, собираем варианты
       // для ОДНОГО объявления с языками внутри.
@@ -742,41 +753,57 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         }
       }
 
-      let creativeId = '';
-      if (wantLanguages && langVariants.length) {
-        // Язык основного ролика ОБЯЗАТЕЛЕН: он идёт в дефолтное правило
-        // (customization_spec.locales на is_default). Без него FB считает правила
-        // плейсментными и требует гео (2446501). Не выбран — берём английский.
+      // Определяем ДЕФОЛТНЫЙ вариант и список остальных языков.
+      // • Основной ролик приложен → он дефолт, весь пак — доп-языки.
+      // • Основного нет (режим «только языки») → дефолтом берём язык из пака,
+      //   совпавший с «Язык основного ролика», иначе первый; остальные — доп.
+      let mainVar: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string; localeId: number } | null = null;
+      let restLangs: LangVariant[] = [];
+      if (mainVideoId) {
         let mainLocaleId = mainLocale ? await resolveLocaleId(token, localeName(mainLocale), net) : 0;
-        if (mainLocaleId) {
-          append(`Основной ролик — язык ${mainLocale} (locale ${mainLocaleId})`);
-        } else {
+        if (mainLocaleId) append(`Основной ролик — язык ${mainLocale} (locale ${mainLocaleId})`);
+        else if (wantLanguages) {
           mainLocaleId = (await resolveLocaleId(token, 'English (US)', net)) || (await resolveLocaleId(token, 'English', net));
-          if (mainLocaleId) append(`Основной язык не выбран — беру английский (locale ${mainLocaleId}) для дефолтного правила`);
+          if (mainLocaleId) append(`Основной язык не выбран — беру английский (locale ${mainLocaleId}) для дефолта`);
         }
-        if (mainLocaleId) {
-          creativeId = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
-            name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
-            main: { videoId, thumb: thumb || undefined, message, headline: headline || undefined, description: description || undefined, link },
-            mainLocaleId,
-            langs: langVariants,
-          }, net));
-          if (creativeId) {
-            await sleep(200);
-            const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
-            created = 1;
-            append(`✓ Одно объявление с языками: ${adId} · языков ${langVariants.length + 1} (основной + ${langVariants.length})`);
-          }
+        mainVar = { videoId: mainVideoId, thumb: mainThumb || undefined, message, headline: headline || undefined, description: description || undefined, link, localeId: mainLocaleId };
+        restLangs = langVariants;
+      } else if (langVariants.length) {
+        const wantId = mainLocale ? await resolveLocaleId(token, localeName(mainLocale), net) : 0;
+        const idx = wantId ? Math.max(0, langVariants.findIndex((l) => l.localeId === wantId)) : 0;
+        const chosen = langVariants[idx] ?? langVariants[0];
+        restLangs = langVariants.filter((_, i) => i !== langVariants.indexOf(chosen));
+        mainVar = { videoId: chosen.videoId, thumb: chosen.thumb, message: chosen.message, headline: chosen.headline, description: chosen.description, link: chosen.link || link, localeId: chosen.localeId };
+        append(`Дефолтный язык объявления — locale ${chosen.localeId} (основной ролик не прикладывался)`);
+      }
+
+      if (!mainVar) throw new FbError('Нет ни основного ролика, ни языков с видео — нечего заливать');
+
+      let creativeId = '';
+      if (restLangs.length && mainVar.localeId) {
+        // Мультиязычное объявление: дефолт (mainVar) + остальные языки.
+        creativeId = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
+          name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
+          main: { videoId: mainVar!.videoId, thumb: mainVar!.thumb, message: mainVar!.message, headline: mainVar!.headline, description: mainVar!.description, link: mainVar!.link },
+          mainLocaleId: mainVar.localeId,
+          langs: restLangs,
+        }, net));
+        if (creativeId) {
+          await sleep(200);
+          const adId = await createAd(token, ext, { name: campaignName, adsetId, creativeId, status: effectiveStatus }, net);
+          created = 1;
+          append(`✓ Одно объявление с языками: ${adId} · языков ${restLangs.length + 1}`);
         } else {
-          append('⚠ Не определил locale основного языка — делаю обычное видео-объявление');
+          append('⚠ Мультиязычный креатив не собрался — делаю обычное видео-объявление');
         }
       }
       if (!creativeId) {
-        if (wantLanguages) append('⚠ Языки не подключились — делаю обычное видео-объявление');
+        // Обычное видео-объявление из дефолтного варианта.
+        if (wantLanguages && !restLangs.length) append('Языков для кастомизации не набралось — заливаю один ролик');
         creativeId = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
-          name: campaignName, pageId, videoId, message, link, cta,
-          urlTags: urlTags || undefined, headline: headline || undefined,
-          description: description || undefined, imageUrl: thumb || undefined, optOutKeys: optOut,
+          name: campaignName, pageId, videoId: mainVar!.videoId, message: mainVar!.message, link: mainVar!.link, cta,
+          urlTags: urlTags || undefined, headline: mainVar!.headline,
+          description: mainVar!.description, imageUrl: mainVar!.thumb, optOutKeys: optOut,
         }, net));
         if (!creativeId) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
         await sleep(200);
