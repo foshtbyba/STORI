@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'phone-gate-auto-activate · 16.09 02:44';
+export const BUILD_INFO = 'fb-only-full-placements · 16.09 02:58';

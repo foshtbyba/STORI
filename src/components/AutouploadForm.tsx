@@ -387,7 +387,6 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
     setQueue((q) => q.filter((d) => d.id !== id));
 
   const totalTargets = queue.reduce((n, d) => n + d.cabinetIds.length, 0);
-  const hasLive = queue.some((d) => d.mode !== 'paused');
 
   const fireAll = () => {
     if (fireLock || firing.current || pending || queue.length === 0) return;
@@ -439,7 +438,6 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
 
   const onFireClick = () => {
     if (queue.length === 0) { setMsg({ ok: false, text: 'Очередь пуста — добавь хотя бы один залив' }); return; }
-    if (!hasLive) { fireAll(); return; }
     if (!confirm) { setConfirm(true); return; }
     fireAll();
   };
@@ -765,7 +763,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
         ) : null}
 
         {queue.length > 0 ? (
-          confirm && hasLive ? (
+          confirm ? (
             <div className="mt-3 flex flex-wrap items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-[12.5px]" style={{ borderColor: '#5a3a2a', background: '#241712' }}>
               <span className="text-soft">Запустить всю очередь?</span>
               <div className="ml-auto flex items-center gap-2">

@@ -679,16 +679,24 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // на Facebook. Если выбор был пустой (авто) или в нём были ТОЛЬКО IG —
     // задаём явный FB-набор, иначе FB сам добавит Instagram и снова упадёт.
     if (!igActor) {
-      const igKeys = new Set(PLACEMENTS.filter((p) => p.platform === 'instagram').map((p) => p.key));
-      const fbOnlyDefault = ['fb_feed', 'fb_video_feeds', 'fb_story', 'fb_reels', 'fb_marketplace'];
+      // IG/Threads без page-backed аккаунта не публикуются (Meta их не показывает
+      // как площадки, а IG-плейсменты роняют залив кодом 1772103). Поэтому уходим
+      // в FB-only и ВСЕГДА задаём полный набор Facebook-плейсментов — иначе от
+      // шаблона мог остаться один сиротливый «FB лента», и объявление уходит с
+      // почти пустыми площадками. Свои FB-плейсменты из шаблона (напр. In-stream,
+      // Поиск) сохраняем поверх набора.
+      const fbKeys = new Set(PLACEMENTS.filter((p) => p.platform === 'facebook').map((p) => p.key));
+      const fbFull = PLACEMENTS.filter((p) => p.platform === 'facebook').map((p) => p.key);
       const before = validPlacementKeys(placements);
-      const kept = before.filter((k) => !igKeys.has(k));
-      if (before.length === 0 || kept.length === 0) {
-        placements = fbOnlyDefault;
-        append('⚠ IG не привязан — объявление пойдёт только на Facebook (задал FB-плейсменты, IG исключён)');
-      } else if (kept.length !== before.length) {
-        placements = kept;
-        append('⚠ IG не привязан — убрал IG-плейсменты, объявление пойдёт только на Facebook');
+      const keptFb = before.filter((k) => fbKeys.has(k));
+      const droppedNonFb = before.length !== keptFb.length;
+      placements = validPlacementKeys([...fbFull, ...keptFb]);
+      if (before.length === 0) {
+        append('⚠ IG не привязан — объявление пойдёт только на Facebook (задал полный FB-набор площадок)');
+      } else if (droppedNonFb) {
+        append('⚠ IG не привязан — убрал IG/Threads-плейсменты и добил полным FB-набором, объявление пойдёт на Facebook');
+      } else {
+        append('⚠ IG не привязан — объявление пойдёт только на Facebook (расширил до полного FB-набора площадок)');
       }
     }
     let campaignId = ''; // первая созданная кампания — для finish (campaignFbId)

@@ -281,13 +281,11 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
     setMsg(`Добавлено в очередь: ${drafts.length} (по кабинетам). Собери ещё или жми «Залить всё».`);
   };
 
-  const hasLive = queue.some((d) => d.mode !== 'paused');
 
   // Клик по «Залить»: пустая очередь — подсказка; есть живой залив — сперва
   // просим подтверждение (баннер ниже), иначе запускаем сразу.
   const onFireClick = () => {
     if (queue.length === 0) { setMsg('Очередь пуста — собери хотя бы один залив'); return; }
-    if (!hasLive) { fireAll(); return; }
     if (!confirm) { setConfirm(true); return; }
     fireAll();
   };
@@ -597,7 +595,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
             </div>
           ))}
         </div>
-        {confirm && hasLive ? (
+        {confirm ? (
           <div className="mt-3 flex flex-wrap items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-[12.5px]" style={{ borderColor: '#5a3a2a', background: '#241712' }}>
             <span className="text-soft">Запустить всю очередь?</span>
             <div className="ml-auto flex items-center gap-2">
