@@ -3,9 +3,10 @@ import { canSeeTeam, type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
 import { fmtWhen, weekBounds, weekKey } from '@/lib/period';
 import { usd } from '@/lib/money';
-import { tiktokConfigured } from '@/lib/tiktok';
+import { tiktokConfigured, tiktokAuthUrl, signTiktokState } from '@/lib/tiktok';
 import { Panel, PanelHead, Empty } from '@/components/ui';
 import TiktokTokenCard, { type TiktokTokenView } from '@/components/TiktokTokenCard';
+import CopyConnectLink from '@/components/CopyConnectLink';
 import { IconRocket } from '@/components/icons';
 
 /** Деньги кабинета: USD как $, прочее — округляем и локализуем. */
@@ -72,6 +73,9 @@ export default async function TiktokOverviewPage({
   const totalCabinets = tokens.reduce((n, t) => n + t.accounts.length, 0);
   const configured = tiktokConfigured();
   const canConnect = Boolean(user.buyer);
+  // Одна ссылка подключения на баера: открывается по очереди в разных
+  // антидетект-профилях, каждый раз привязывая тот кабинет, что залогинен там.
+  const connectUrl = configured && user.buyer ? tiktokAuthUrl(signTiktokState(user.buyer.id)) : '';
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -121,12 +125,16 @@ export default async function TiktokOverviewPage({
             <div>
               <div className="text-[12.5px] font-semibold">Подключить TikTok</div>
               <p className="mt-1.5 text-[11.5px] leading-relaxed text-mute">
-                Откроется авторизация TikTok — подтверди доступ к своему рекламному кабинету. Данные вводить не нужно,
-                прокси и антидетект тоже: всё идёт через официальный API.
+                Всё через официальный TikTok Marketing API — данные, прокси и антидетект вводить не нужно.
+                Нажми кнопку (подключит кабинет из текущего браузера) <span className="text-soft">или</span> скопируй ссылку и
+                открой её по очереди в каждом антидетект-профиле — каждый раз привяжется тот кабинет, что залогинен в этом
+                браузере. Одной ссылкой можно подключить сколько угодно кабинетов.
               </p>
               <a href="/api/tiktok/auth" className="mt-3 inline-flex rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-semibold text-sage transition hover:brightness-110">
-                Подключить TikTok
+                Подключить кабинет из этого браузера
               </a>
+              <div className="mt-3 text-[11.5px] font-medium text-soft">Ссылка для подключения (многоразовая):</div>
+              <CopyConnectLink url={connectUrl} />
             </div>
           )}
         </div>
