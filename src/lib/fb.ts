@@ -1382,6 +1382,42 @@ export async function createAdset(token: string, externalId: string, i: CreateAd
 }
 
 /**
+ * Читаем обратно, какие площадки FB РЕАЛЬНО сохранил в адсете. Нужно для
+ * диагностики: Мета молча выкидывает плейсмент, если значение/платформа не
+ * подходят (частый случай — Threads), ошибку при этом не отдаёт. Возвращаем
+ * publisher_platforms и *_positions как есть; null — если прочитать не вышло.
+ */
+export async function getAdsetPlacements(
+  token: string,
+  adsetId: string,
+  net: FbNet = {},
+): Promise<{
+  publisher_platforms?: string[];
+  facebook_positions?: string[];
+  instagram_positions?: string[];
+  threads_positions?: string[];
+  messenger_positions?: string[];
+  audience_network_positions?: string[];
+} | null> {
+  try {
+    const body = await call(`/${adsetId}`, token, { fields: 'targeting' }, net, 'GET');
+    const t = (body as { targeting?: Record<string, unknown> }).targeting;
+    if (!t) return null;
+    const arr = (k: string) => (Array.isArray(t[k]) ? (t[k] as string[]) : undefined);
+    return {
+      publisher_platforms: arr('publisher_platforms'),
+      facebook_positions: arr('facebook_positions'),
+      instagram_positions: arr('instagram_positions'),
+      threads_positions: arr('threads_positions'),
+      messenger_positions: arr('messenger_positions'),
+      audience_network_positions: arr('audience_network_positions'),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Загрузка картинки в кабинет → image_hash. FB принимает base64 в параметре
  * `bytes`, но он большой, поэтому шлём его ТЕЛОМ POST (form-urlencoded), а не в
  * query. Возвращаем hash для креатива.

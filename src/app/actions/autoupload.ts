@@ -19,6 +19,7 @@ import {
   ENHANCEMENT_OPTOUT_KEYS,
   createAd,
   setAdStatus,
+  getAdsetPlacements,
   searchRegions,
   searchCities,
   getPageName,
@@ -732,6 +733,28 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       throw new FbError('Адсет не создан после снятия неподдержанных плейсментов');
     };
 
+    // Диагностика площадок: читаем адсет обратно и показываем, что FB РЕАЛЬНО
+    // сохранил. Мета молча выкидывает неподдержанный плейсмент (типичный случай —
+    // Threads), не отдавая ошибку, — так мы видим расхождение «просили vs. стоит».
+    const reportPlacements = async (adsetId: string) => {
+      if (!placements.length) return;
+      const got = await getAdsetPlacements(token, adsetId, net);
+      if (!got) return;
+      const platforms = got.publisher_platforms?.join(', ') || '—';
+      const parts: string[] = [];
+      if (got.facebook_positions?.length) parts.push(`FB: ${got.facebook_positions.join('/')}`);
+      if (got.instagram_positions?.length) parts.push(`IG: ${got.instagram_positions.join('/')}`);
+      if (got.threads_positions?.length) parts.push(`Threads: ${got.threads_positions.join('/')}`);
+      if (got.messenger_positions?.length) parts.push(`Messenger: ${got.messenger_positions.join('/')}`);
+      if (got.audience_network_positions?.length) parts.push(`AN: ${got.audience_network_positions.join('/')}`);
+      append(`ℹ FB сохранил площадки: платформы [${platforms}]${parts.length ? ` · ${parts.join(' · ')}` : ''}`);
+      // Что просили, но FB не сохранил (по платформам) — подсветим.
+      const wantThreads = placements.some((k) => k === 'threads_home');
+      if (wantThreads && !(got.publisher_platforms || []).includes('threads')) {
+        append('⚠ Threads запросили, но FB его не сохранил — кабинет/цель, похоже, не поддерживают Threads-плейсмент');
+      }
+    };
+
     // Создание объявления с тем же самолечением по телефону: ФБ гейт «нужен
     // подтверждённый телефон» (код 31/3858013) часто срабатывает именно на
     // создании ОБЪЯВЛЕНИЯ (кампания/адсет проходят). API не даёт «выбрать»
@@ -774,6 +797,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       await stage('Создаю адсет…');
       const adsetId = await mkAdset(campaignId, campaignName);
       append(`✓ Адсет создан: ${adsetId} · бюджет $${(dailyBudgetCents / 100).toFixed(2)}/день · событие ${tpl.event} · ${placements.length ? placementSummary(placements.join(',')) : 'плейсменты: авто'}`);
+      await reportPlacements(adsetId);
       await sleep(300);
 
       // Видео-специфичные ключи авто-улучшений (Video touch-ups / Add video
@@ -969,6 +993,8 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           append(`✓ Адсет для «${label}»: ${adsetForImage}`);
           await sleep(200);
         }
+        // Диагностику площадок печатаем один раз на залив (по первому адсету).
+        if (idx === 0 && adsetForImage) await reportPlacements(adsetForImage);
 
         const file = files[idx];
         const buf = Buffer.from(await file.arrayBuffer());
