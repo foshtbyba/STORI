@@ -535,7 +535,8 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   const video = videoFile instanceof File && videoFile.size > 0 ? videoFile : null;
   // Видео + языки: добавить доп-языки из личного пака в одно объявление.
   const withLanguages = String(form.get('withLanguages') ?? '') === '1';
-  // Язык основного ролика — в режиме языков это язык ДЕФОЛТНОГО варианта.
+  // Язык ГЕО — язык основного ролика. В режиме языков дефолт берётся из пака, а
+  // основной ролик добавляется как ДОП-язык под этот locale (если задан/определим).
   const mainLocale = String(form.get('mainLocale') ?? '').trim();
   // В режиме языков основной ролик можно не прикладывать: дефолтным станет язык
   // из пака, FB сам соберёт объявление из языков. Поэтому пускаем и без файла,
@@ -891,38 +892,43 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         return { localeId: l.localeId, videoId: l.videoId, thumb: langThumbs[i] || undefined, message: l.message, headline: l.headline, description: l.description, link: l.link };
       });
 
-      // Определяем ДЕФОЛТНЫЙ вариант и список остальных языков.
-      // ДЕФОЛТ = основной ролик + основной текст на языке ГЕО («Язык по
-      // умолчанию», напр. румынский для RO): его FB показывает всем, чей язык не
-      // совпал с доп-языком — то есть основной аудитории кабинета. ВСЕ языки из
-      // пака идут ДОПОЛНИТЕЛЬНЫМИ. Если основного ролика нет — дефолт берём из
-      // пака (фолбэк), как раньше.
+      // Язык ГЕО (для основного ролика как ДОП-языка): из формы или по стране.
       let mainLocaleId = mainLocale ? await resolveLocaleId(token, localeName(mainLocale), net) : 0;
-      // «Язык по умолчанию» не задан руками — определяем по гео (главная страна):
-      // язык гео = язык основного ролика. Так доп-языки пака прикрепляются всегда,
-      // без ручного выбора. Не знаем язык страны — оставляем как есть (попросим).
       if (!mainLocaleId) {
         const geoCode = geoDefaultLocale(countries[0] || '');
         if (geoCode) {
           mainLocaleId = await resolveLocaleId(token, localeName(geoCode), net);
-          if (mainLocaleId) append(`Язык по умолчанию определён по гео ${countries[0]}: ${localeName(geoCode)}`);
+          if (mainLocaleId) append(`Язык гео определён по стране ${countries[0]}: ${localeName(geoCode)}`);
         }
       }
+
+      // Структура языковых слоёв объявления:
+      //  • ДЕФОЛТ (основной язык) = ПЕРВЫЙ язык ПАКА — намеренно нетипичный для
+      //    гео (его почти никто не увидит).
+      //  • СРЕДНИЕ слои = остальные языки пака (нейтральные).
+      //  • ЦЕЛЕВОЙ слой = ПОСЛЕДНИМ добавляется язык ГЕО (напр. болгарский) с
+      //    ОСНОВНЫМ роликом и всем контентом объявления (видео/текст/описание/
+      //    ссылка — то, что заполнил баер в форме).
+      // Если пака языков нет — обычное одно-роликовое объявление из основного.
       let mainVar: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string; localeId: number } | null = null;
       let restLangs: LangVariant[] = [];
-      if (mainVideoId) {
-        mainVar = { videoId: mainVideoId, thumb: mainThumb || undefined, message, headline: headline || undefined, description: description || undefined, link, localeId: mainLocaleId };
-        restLangs = langVariants; // все пак-языки — дополнительные
-        append(`Дефолт объявления — основной ролик, язык по умолчанию${mainLocale ? ` ${mainLocale}` : ' не задан'}; добавлено языков: ${langVariants.length}`);
-        if (!mainLocaleId && langVariants.length) append('⚠ «Язык по умолчанию» не задан — без него доп-языки не прикрепить (залью один ролик). Укажи язык гео.');
-      } else if (langVariants.length) {
-        // Основного ролика нет — дефолт берём из пака (совпал с «Язык по
-        // умолчанию», иначе первый), остальные — доп-языки.
-        const idx = mainLocaleId ? Math.max(0, langVariants.findIndex((l) => l.localeId === mainLocaleId)) : 0;
-        const chosen = langVariants[idx] ?? langVariants[0];
-        restLangs = langVariants.filter((_, i) => i !== langVariants.indexOf(chosen));
+      if (langVariants.length) {
+        const chosen = langVariants[0]; // дефолт — первый (нетипичный) язык пака
+        restLangs = langVariants.slice(1); // нейтральные слои
         mainVar = { videoId: chosen.videoId, thumb: chosen.thumb, message: chosen.message, headline: chosen.headline, description: chosen.description, link: chosen.link || link, localeId: chosen.localeId };
-        append(`Дефолт объявления — язык из пака locale ${chosen.localeId} (основного ролика нет)`);
+        // Целевой слой (гео) — ПОСЛЕДНИМ, с основным роликом и контентом объявления.
+        if (mainVideoId && mainLocaleId && mainLocaleId !== chosen.localeId && !restLangs.some((l) => l.localeId === mainLocaleId)) {
+          restLangs.push({ localeId: mainLocaleId, videoId: mainVideoId, thumb: mainThumb || undefined, message, headline: headline || undefined, description: description || undefined, link });
+          append(`Целевой слой (гео, основной ролик + контент объявления) добавлен ПОСЛЕДНИМ (locale ${mainLocaleId})`);
+        } else if (mainVideoId && !mainLocaleId) {
+          append('⚠ Язык гео не определён — целевой слой (основной ролик) не добавил. Укажи язык гео/страну.');
+        } else if (mainVideoId && mainLocaleId === chosen.localeId) {
+          append('⚠ Язык гео совпал с дефолтным языком пака — целевой слой не добавил (поставь дефолтом нетипичный язык).');
+        }
+        append(`Дефолт — первый язык пака (locale ${chosen.localeId}); языковых слоёв всего: ${restLangs.length + 1}`);
+      } else if (mainVideoId) {
+        // Пака языков нет — обычное одно-роликовое объявление из основного ролика.
+        mainVar = { videoId: mainVideoId, thumb: mainThumb || undefined, message, headline: headline || undefined, description: description || undefined, link, localeId: mainLocaleId };
       }
 
       if (!mainVar) throw new FbError('Нет ни основного ролика, ни языков с видео — нечего заливать');
