@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useActionState } from 'react';
 import { saveTemplate, deleteTemplate, type TemplateState } from '@/app/actions/autoupload';
 import { PLACEMENTS, validPlacementKeys, placementSummary } from '@/lib/placements';
@@ -36,6 +36,22 @@ export default function TemplateManager({ templates, query = '' }: { templates: 
   const [edit, setEdit] = useState<Template | null>(null);
   const [saveState, save] = useActionState<TemplateState, FormData>(saveTemplate, null);
   const [, del] = useActionState<TemplateState, FormData>(deleteTemplate, null);
+
+  // Проверка на дубль по ГЕО перед созданием нового шаблона: если уже есть
+  // шаблон(ы) с тем же набором стран — покажем какие и спросим подтверждение.
+  const formRef = useRef<HTMLFormElement>(null);
+  const [dups, setDups] = useState<Template[] | null>(null);
+  const normGeo = (s: string) => [...new Set((s || '').toUpperCase().split(/[,;\s]+/).filter(Boolean))].sort().join(',');
+  const submitForm = () => { setDups(null); formRef.current?.requestSubmit(); };
+  const onCreateClick = () => {
+    // Правку не проверяем — дубль касается только создания нового шаблона.
+    if (edit) { submitForm(); return; }
+    const geo = normGeo(String(new FormData(formRef.current!).get('countries') ?? ''));
+    if (!geo) { submitForm(); return; } // без стран проверять нечего
+    const found = templates.filter((t) => normGeo(t.countries) === geo);
+    if (found.length) { setDups(found); return; }
+    submitForm();
+  };
 
   // Ключом сбрасываем поля формы при переключении «новый ↔ правка».
   const key = edit?.id ?? 'new';
@@ -77,7 +93,7 @@ export default function TemplateManager({ templates, query = '' }: { templates: 
         </>
       )}
 
-      <form key={key} action={save} className="mt-3 flex flex-col gap-2 border-t border-line pt-3">
+      <form key={key} ref={formRef} action={save} className="mt-3 flex flex-col gap-2 border-t border-line pt-3">
         <div className="text-[12px] font-semibold text-soft">{edit ? `Правка: ${edit.name}` : 'Новый шаблон'}</div>
         {edit ? <input type="hidden" name="id" value={edit.id} /> : null}
         <input name="name" defaultValue={edit?.name ?? ''} placeholder="Название (напр. «Европа лид»)" className={inp} />
@@ -155,16 +171,35 @@ export default function TemplateManager({ templates, query = '' }: { templates: 
 
         {saveState && !saveState.ok ? <div className="text-[11.5px] text-rust">{saveState.error}</div> : null}
         {saveState?.ok ? <div className="text-[11.5px] text-sage">Сохранено.</div> : null}
-        <div className="flex items-center gap-2">
-          <button type="submit" className="rounded-full border border-sage bg-sage-t px-4 py-1.5 text-[12px] text-sage transition hover:brightness-110">
-            {edit ? 'Сохранить' : 'Добавить шаблон'}
-          </button>
-          {edit ? (
-            <button type="button" onClick={() => setEdit(null)} className="rounded-full border border-line2 px-4 py-1.5 text-[12px] text-mute transition hover:text-text">
-              Отмена
+
+        {/* Найден дубль по гео — показываем какой и просим подтвердить создание. */}
+        {!edit && dups && dups.length ? (
+          <div className="flex flex-col gap-2 rounded-[12px] border px-3 py-2.5 text-[12px]" style={{ borderColor: '#5a3a2a', background: '#241712' }}>
+            <div className="text-soft">
+              Уже есть шаблон{dups.length > 1 ? 'ы' : ''} с таким же гео (<span className="font-medium text-amber">{normGeo(dups[0].countries) || '—'}</span>):{' '}
+              <span className="text-soft">{dups.map((d) => `«${d.name}»`).join(', ')}</span>. Точно создать ещё один?
+            </div>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={submitForm} className="rounded-full border border-sage bg-sage-t px-4 py-1.5 text-[12px] text-sage transition hover:brightness-110">
+                Всё равно создать
+              </button>
+              <button type="button" onClick={() => setDups(null)} className="rounded-full border border-line2 px-4 py-1.5 text-[12px] text-mute transition hover:text-text">
+                Отмена
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={onCreateClick} className="rounded-full border border-sage bg-sage-t px-4 py-1.5 text-[12px] text-sage transition hover:brightness-110">
+              {edit ? 'Сохранить' : 'Добавить шаблон'}
             </button>
-          ) : null}
-        </div>
+            {edit ? (
+              <button type="button" onClick={() => setEdit(null)} className="rounded-full border border-line2 px-4 py-1.5 text-[12px] text-mute transition hover:text-text">
+                Отмена
+              </button>
+            ) : null}
+          </div>
+        )}
       </form>
     </div>
   );

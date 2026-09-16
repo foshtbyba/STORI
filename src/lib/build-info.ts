@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'hide-banned-cabinets-upload · 16.09 12:39';
+export const BUILD_INFO = 'template-geo-dup-confirm · 16.09 14:14';
