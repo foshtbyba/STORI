@@ -112,14 +112,7 @@ export default async function TiktokOverviewPage({
         </div>
 
         <div className="mt-5 border-t border-line pt-4">
-          {!configured ? (
-            <p className="text-[11.5px] leading-relaxed text-mute">
-              Подключение через официальный TikTok Marketing API. Чтобы включить, задай на сервере
-              <span className="text-soft"> TIKTOK_APP_ID</span>, <span className="text-soft">TIKTOK_APP_SECRET</span> и
-              <span className="text-soft"> TIKTOK_REDIRECT_URI</span> (redirect должен указывать на
-              <span className="text-soft"> /api/tiktok/callback</span> и совпадать с настройками приложения в TikTok for Business).
-            </p>
-          ) : !canConnect ? (
+          {!canConnect ? (
             <p className="text-[11.5px] text-mute">У аккаунта нет профиля баера — подключать кабинеты не с чем.</p>
           ) : (
             <div>
@@ -130,11 +123,29 @@ export default async function TiktokOverviewPage({
                 открой её по очереди в каждом антидетект-профиле — каждый раз привяжется тот кабинет, что залогинен в этом
                 браузере. Одной ссылкой можно подключить сколько угодно кабинетов.
               </p>
-              <a href="/api/tiktok/auth" className="mt-3 inline-flex rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-semibold text-sage transition hover:brightness-110">
-                Подключить кабинет из этого браузера
-              </a>
-              <div className="mt-3 text-[11.5px] font-medium text-soft">Ссылка для подключения (многоразовая):</div>
-              <CopyConnectLink url={connectUrl} />
+
+              {configured ? (
+                <>
+                  <a href="/api/tiktok/auth" className="mt-3 inline-flex rounded-full border border-sage bg-sage-t px-5 py-2 text-[12.5px] font-semibold text-sage transition hover:brightness-110">
+                    Подключить кабинет из этого браузера
+                  </a>
+                  <div className="mt-3 text-[11.5px] font-medium text-soft">Ссылка для подключения (многоразовая):</div>
+                  <CopyConnectLink url={connectUrl} />
+                </>
+              ) : (
+                <>
+                  <span className="mt-3 inline-flex cursor-not-allowed rounded-full border border-line2 px-5 py-2 text-[12.5px] font-semibold text-dim opacity-60" title="Сначала настрой приложение TikTok">
+                    Подключить TikTok
+                  </span>
+                  <div className="mt-3 rounded-[12px] border border-amber/40 bg-amber-t px-3 py-2.5 text-[11.5px] leading-relaxed text-amber">
+                    Кнопка появится, когда подключим наше приложение TikTok. Нужно один раз (как у shakeads — своё
+                    приложение): зарегистрировать приложение в TikTok for Business (Marketing API), в его настройках указать
+                    redirect <span className="font-medium">https://наш-домен/api/tiktok/callback</span>, затем прописать на
+                    сервере <span className="font-medium">TIKTOK_APP_ID</span>, <span className="font-medium">TIKTOK_APP_SECRET</span> и
+                    <span className="font-medium"> TIKTOK_REDIRECT_URI</span>. После этого кнопка и ссылка станут активными.
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
