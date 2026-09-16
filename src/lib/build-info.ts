@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'placement-raw-error-log · 16.09 03:49';
+export const BUILD_INFO = 'threads-diag-cleanup · 16.09 03:59';

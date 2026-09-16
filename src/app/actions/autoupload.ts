@@ -715,7 +715,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           if (m && placements.length) {
             const badVal = m[1];
             const next = stripPlacementValue(placements, badVal);
-            if (next.length < placements.length) { append(`⚠ Плейсмент «${badVal}» кабинет не принял — убрал и повторяю`); const rawMsg = (e as FbError).raw || msg; append(`↳ FB: ${rawMsg.slice(0, 500)}`); placements = next; await sleep(400); continue; }
+            if (next.length < placements.length) { append(`⚠ Плейсмент «${badVal}» кабинет не принял — убрал и повторяю`); placements = next; await sleep(400); continue; }
           }
           const needsDsa = /385807\d|385808\d|человека или организацию|dsa_|beneficiary|payer/i.test(msg);
           if (needsDsa && !dsaBeneficiary) {
