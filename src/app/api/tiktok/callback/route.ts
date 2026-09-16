@@ -1,29 +1,28 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
-import { requireUser } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { advertiserInfo, exchangeAuthCode, listAdvertisers, tiktokConfig } from '@/lib/tiktok';
+import { advertiserInfo, exchangeAuthCode, listAdvertisers, tiktokConfig, verifyTiktokState } from '@/lib/tiktok';
 
 /**
- * Возврат с портала авторизации TikTok. Проверяем CSRF-state, меняем auth_code
- * на долгоживущий access_token, сохраняем подключение баера и его кабинеты.
+ * Возврат с портала авторизации TikTok (официальный Marketing API). Баера
+ * опознаём из ПОДПИСАННОГО state — поэтому ссылку можно открывать в любом
+ * браузере, где залогинен TikTok-кабинет. Меняем auth_code на долгоживущий
+ * access_token и сохраняем подключение баера с его кабинетами.
  */
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const origin = url.origin;
   const back = (q: string) => NextResponse.redirect(new URL(`/tiktok?${q}`, origin));
 
-  const user = await requireUser();
-  if (!user.buyer) return back('err=nobuyer');
-
   const authCode = url.searchParams.get('auth_code') || url.searchParams.get('code') || '';
   const state = url.searchParams.get('state') || '';
-  const jar = await cookies();
-  const saved = jar.get('tt_oauth_state')?.value || '';
-  jar.delete('tt_oauth_state');
   if (!authCode) return back('err=nocode');
-  if (!state || state !== saved) return back('err=state');
+
+  const buyerId = verifyTiktokState(state);
+  if (!buyerId) return back('err=state');
+  // Баер мог исчезнуть/переименоваться — проверим существование.
+  const buyer = await prisma.buyer.findUnique({ where: { id: buyerId }, select: { id: true } });
+  if (!buyer) return back('err=nobuyer');
 
   try {
     const { accessToken, advertiserIds } = await exchangeAuthCode(authCode);
@@ -32,7 +31,7 @@ export async function GET(req: Request) {
 
     const token = await prisma.tiktokToken.create({
       data: {
-        buyerId: user.buyer.id,
+        buyerId,
         kind: 'api',
         accessToken,
         appId: tiktokConfig().appId,

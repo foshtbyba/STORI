@@ -1,14 +1,12 @@
-import { randomUUID } from 'crypto';
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 import { requireUser } from '@/lib/auth';
-import { tiktokAuthUrl, tiktokConfigured } from '@/lib/tiktok';
+import { signTiktokState, tiktokAuthUrl, tiktokConfigured } from '@/lib/tiktok';
 
 /**
- * Старт подключения TikTok: ставим CSRF-state в куку и ведём баера на портал
- * авторизации приложения. Там он подтверждает доступ к своему кабинету, а TikTok
- * возвращает его в /api/tiktok/callback с auth_code.
+ * Старт подключения TikTok: подписываем state с id баера и ведём на портал
+ * авторизации приложения. Ссылку можно открыть в любом браузере (где залогинен
+ * TikTok-кабинет) — callback опознает баера из подписи, без куки и сессии.
  */
 export async function GET(req: Request) {
   const user = await requireUser();
@@ -16,8 +14,6 @@ export async function GET(req: Request) {
   if (!user.buyer) return NextResponse.redirect(new URL('/tiktok?err=nobuyer', origin));
   if (!tiktokConfigured()) return NextResponse.redirect(new URL('/tiktok?err=noapp', origin));
 
-  const state = randomUUID();
-  const jar = await cookies();
-  jar.set('tt_oauth_state', state, { httpOnly: true, sameSite: 'lax', secure: true, maxAge: 600, path: '/' });
+  const state = signTiktokState(user.buyer.id);
   return NextResponse.redirect(tiktokAuthUrl(state));
 }

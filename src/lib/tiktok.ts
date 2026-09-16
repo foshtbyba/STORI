@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { createHmac, timingSafeEqual } from 'crypto';
+
 /**
  * Тонкий клиент к официальному TikTok Marketing API (business-api.tiktok.com).
  *
@@ -44,7 +46,43 @@ export class TiktokError extends Error {
   }
 }
 
-/** Ссылка авторизации приложения. state — защита от CSRF (проверим в callback). */
+// --- Подписанный state ---------------------------------------------------
+// Кладём в state (как делает shakeads) подписанную полезную нагрузку с id баера
+// и временем. Это позволяет открыть ссылку авторизации В ЛЮБОМ браузере (где
+// залогинен TikTok-кабинет) — callback опознает баера из подписи, без куки и без
+// сессии нашего приложения. Подпись — HMAC на AUTH_SECRET, жизнь — 15 минут.
+const STATE_TTL_MS = 15 * 60 * 1000;
+const b64url = (b: Buffer) => b.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const unb64url = (s: string) => Buffer.from(s.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
+function stateSecret(): string {
+  return process.env.AUTH_SECRET || process.env.TIKTOK_APP_SECRET || 'tiktok-state';
+}
+
+/** Подписать state: { b: buyerId, t: ts }. */
+export function signTiktokState(buyerId: string): string {
+  const data = b64url(Buffer.from(JSON.stringify({ b: buyerId, t: Date.now() })));
+  const sig = b64url(createHmac('sha256', stateSecret()).update(data).digest());
+  return `${data}.${sig}`;
+}
+
+/** Проверить state и вернуть buyerId (или null — подпись/срок не сошлись). */
+export function verifyTiktokState(state: string): string | null {
+  const [data, sig] = (state || '').split('.');
+  if (!data || !sig) return null;
+  const expected = b64url(createHmac('sha256', stateSecret()).update(data).digest());
+  const a = Buffer.from(sig);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+  try {
+    const payload = JSON.parse(unb64url(data).toString('utf8')) as { b?: string; t?: number };
+    if (!payload.b || !payload.t || Date.now() - payload.t > STATE_TTL_MS) return null;
+    return payload.b;
+  } catch {
+    return null;
+  }
+}
+
+/** Ссылка авторизации приложения. state — подписанный (см. signTiktokState). */
 export function tiktokAuthUrl(state: string): string {
   const c = tiktokConfig();
   const u = new URL(AUTH_PORTAL);
