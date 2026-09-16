@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'threads-diag-cleanup · 16.09 03:59';
+export const BUILD_INFO = 'geo-default-language · 16.09 04:15';

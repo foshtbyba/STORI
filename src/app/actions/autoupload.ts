@@ -5,7 +5,7 @@ import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { validPlacementKeys, placementSummary, stripPlacementValue } from '@/lib/placements';
-import { isLocale, localeName } from '@/lib/locales';
+import { isLocale, localeName, geoDefaultLocale } from '@/lib/locales';
 import {
   fbAccess,
   listPages,
@@ -897,7 +897,17 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       // совпал с доп-языком — то есть основной аудитории кабинета. ВСЕ языки из
       // пака идут ДОПОЛНИТЕЛЬНЫМИ. Если основного ролика нет — дефолт берём из
       // пака (фолбэк), как раньше.
-      const mainLocaleId = mainLocale ? await resolveLocaleId(token, localeName(mainLocale), net) : 0;
+      let mainLocaleId = mainLocale ? await resolveLocaleId(token, localeName(mainLocale), net) : 0;
+      // «Язык по умолчанию» не задан руками — определяем по гео (главная страна):
+      // язык гео = язык основного ролика. Так доп-языки пака прикрепляются всегда,
+      // без ручного выбора. Не знаем язык страны — оставляем как есть (попросим).
+      if (!mainLocaleId) {
+        const geoCode = geoDefaultLocale(countries[0] || '');
+        if (geoCode) {
+          mainLocaleId = await resolveLocaleId(token, localeName(geoCode), net);
+          if (mainLocaleId) append(`Язык по умолчанию определён по гео ${countries[0]}: ${localeName(geoCode)}`);
+        }
+      }
       let mainVar: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string; localeId: number } | null = null;
       let restLangs: LangVariant[] = [];
       if (mainVideoId) {
