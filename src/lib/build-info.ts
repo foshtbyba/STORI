@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'template-geo-dup-confirm · 16.09 14:14';
+export const BUILD_INFO = 'tiktok-connect-overview · 16.09 14:37';

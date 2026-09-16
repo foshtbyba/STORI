@@ -69,6 +69,7 @@ model Buyer {
   payouts      Payout[]
   attendance   Attendance[]
   adTokens     AdToken[]
+  tiktokTokens TiktokToken[]
   adGroups     TrackerGroup[]
   brocardTeams BrocardTeam[]
 
@@ -531,6 +532,71 @@ model AdAccountDay {
   date       DateTime
   spendCents Int
   currency   String    @default("USD")
+
+  @@unique([accountId, date])
+  @@index([date])
+}
+
+/// Подключение к TikTok Ads. Как и AdToken, привязано к баеру: всё, что видно
+/// под ним, — его расход. Две механики доступа:
+///  • kind = "api"    — официальный Marketing API: accessToken (долгоживущий),
+///                      опц. appId; ходим на business-api.tiktok.com.
+///  • kind = "cookie" — как у FB: куки из антидетекта + прокси кабинета; ходим
+///                      во внутренний web-API ads.tiktok.com (пока задел).
+model TiktokToken {
+  id          String  @id @default(cuid())
+  buyerId     String
+  buyer       Buyer   @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  label       String  @default("")
+
+  kind        String  @default("api") // api | cookie
+  accessToken String  @default("")    // Marketing API access_token
+  appId       String  @default("")    // опц. app_id (если нужен для запроса)
+  cookiesJson String?                 // для kind=cookie: куки антидетекта (JSON)
+  proxyUrl    String?                 // http://login:pass@ip:port
+
+  enabled     Boolean   @default(true)
+  status      String    @default("ACTIVE") // ACTIVE, TOKEN_EXPIRED, ERROR
+  lastSyncAt  DateTime?
+  lastError   String    @default("")
+  pausedUntil DateTime?
+
+  accounts    TiktokAccount[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+/// Рекламный кабинет TikTok (advertiser), найденный под токеном.
+model TiktokAccount {
+  id           String      @id @default(cuid())
+  tokenId      String
+  token        TiktokToken @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  advertiserId String      // числовой advertiser_id TikTok
+  name         String      @default("")
+  currency     String      @default("USD")
+  timezone     String      @default("")
+  /// status кабинета из TikTok: STATUS_ENABLE (норм), STATUS_DISABLE и пр.
+  status       String      @default("STATUS_ENABLE")
+  /// Причина, если кабинет ограничен/забанен (справочно).
+  statusReason String      @default("")
+  balanceCents Int         @default(0)
+
+  enabled      Boolean     @default(true)
+  lastSpendAt  DateTime?
+  createdAt    DateTime    @default(now())
+  days         TiktokAccountDay[]
+
+  @@unique([tokenId, advertiserId])
+}
+
+/// Дневной расход по кабинету TikTok — как AdAccountDay для FB.
+model TiktokAccountDay {
+  id         String        @id @default(cuid())
+  accountId  String
+  account    TiktokAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  date       DateTime
+  spendCents Int
+  currency   String        @default("USD")
 
   @@unique([accountId, date])
   @@index([date])
