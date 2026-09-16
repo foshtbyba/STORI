@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'fb-only-full-placements · 16.09 02:58';
+export const BUILD_INFO = 'placements-from-template · 16.09 03:10';

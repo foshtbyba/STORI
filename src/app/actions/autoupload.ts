@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { validPlacementKeys, placementSummary, stripPlacementValue, PLACEMENTS } from '@/lib/placements';
+import { validPlacementKeys, placementSummary, stripPlacementValue } from '@/lib/placements';
 import { isLocale, localeName } from '@/lib/locales';
 import {
   fbAccess,
@@ -667,38 +667,15 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     append(`DSA: продвигается/платит — ${dsaBeneficiary}`);
     const igRes = await resolveInstagramActor(token, pageId, net);
     const igActor = igRes.id;
-    if (igActor) append(`Instagram: «Использовать страницу FB» (page-backed IG ${igActor}) — для IG/Threads-плейсментов`);
-    else append(`⚠ IG-идентичность («Использовать страницу FB») не создалась${igRes.error ? `: ${igRes.error}` : ''} — IG/Threads-плейсменты уберу`);
+    if (igActor) append(`Instagram: явная IG-идентичность (page-backed IG ${igActor})`);
+    else append('Instagram: явная IG-идентичность не задана — FB сам подставит страницу для IG/Threads-плейсментов');
 
-    // Кампания и адсет со всем самолечением вынесены в помощники, чтобы звать их
-    // по нужной структуре публикации (1-1-1 / 1-2-1 / 1-1-2) и для видео.
-    let placements = tpl.placements ? tpl.placements.split(',') : [];
-
-    // Без IG-идентичности Instagram-плейсменты дают код 1772103 и валят весь
-    // залив. Чтобы объявление всё же ушло — убираем IG-плейсменты и льём только
-    // на Facebook. Если выбор был пустой (авто) или в нём были ТОЛЬКО IG —
-    // задаём явный FB-набор, иначе FB сам добавит Instagram и снова упадёт.
-    if (!igActor) {
-      // IG/Threads без page-backed аккаунта не публикуются (Meta их не показывает
-      // как площадки, а IG-плейсменты роняют залив кодом 1772103). Поэтому уходим
-      // в FB-only и ВСЕГДА задаём полный набор Facebook-плейсментов — иначе от
-      // шаблона мог остаться один сиротливый «FB лента», и объявление уходит с
-      // почти пустыми площадками. Свои FB-плейсменты из шаблона (напр. In-stream,
-      // Поиск) сохраняем поверх набора.
-      const fbKeys = new Set(PLACEMENTS.filter((p) => p.platform === 'facebook').map((p) => p.key));
-      const fbFull = PLACEMENTS.filter((p) => p.platform === 'facebook').map((p) => p.key);
-      const before = validPlacementKeys(placements);
-      const keptFb = before.filter((k) => fbKeys.has(k));
-      const droppedNonFb = before.length !== keptFb.length;
-      placements = validPlacementKeys([...fbFull, ...keptFb]);
-      if (before.length === 0) {
-        append('⚠ IG не привязан — объявление пойдёт только на Facebook (задал полный FB-набор площадок)');
-      } else if (droppedNonFb) {
-        append('⚠ IG не привязан — убрал IG/Threads-плейсменты и добил полным FB-набором, объявление пойдёт на Facebook');
-      } else {
-        append('⚠ IG не привязан — объявление пойдёт только на Facebook (расширил до полного FB-набора площадок)');
-      }
-    }
+    // Плейсменты берём ИЗ ШАБЛОНА как есть (FB лента, IG лента, Threads лента и
+    // т.д.) и НИЧЕГО не выкидываем заранее. Даже без явной IG-идентичности FB сам
+    // использует страницу для IG/Threads-площадок (проверено вручную — заливается
+    // без ошибок). Если конкретный кабинет какую-то площадку реально не примет —
+    // её снимет самолечение в mkAdset по ответу FB, а не мы наугад.
+    let placements = tpl.placements ? validPlacementKeys(tpl.placements.split(',')) : [];
     let campaignId = ''; // первая созданная кампания — для finish (campaignFbId)
     // Все созданные объекты — чтобы после залива при телефон-гейте попробовать
     // включить их в актив обновлением статуса (как включают руками).
