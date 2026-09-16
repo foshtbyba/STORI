@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'tiktok-connect-btn-visible · 16.09 15:17';
+export const BUILD_INFO = 'public-landing-tiktok-verify · 16.09 15:57';

@@ -25,7 +25,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   // Пространство «Статистика»: отчётность, зарплата, офферы.
   const statsItems = [
-    { href: '/', label: team ? 'Сводка' : 'Мой кабинет', icon: <IconChart size={15} /> },
+    { href: '/dashboard', label: team ? 'Сводка' : 'Мой кабинет', icon: <IconChart size={15} /> },
     { href: '/peak', label: 'Вершина', icon: <IconPeak size={15} /> },
     { href: '/days', label: 'Дни', icon: <IconCalendar size={15} /> },
     { href: '/consumables', label: 'Расходники', icon: <IconBox size={15} /> },

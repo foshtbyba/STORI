@@ -19,16 +19,16 @@ export async function requireUser() {
   return user;
 }
 
-/** Командные экраны. Баера отправляем на его кабинет — это корень. */
+/** Командные экраны. Баера отправляем на его кабинет (домашний дашборд). */
 export async function requireTeamView() {
   const user = await requireUser();
-  if (!canSeeTeam(user.role as Role)) redirect('/');
+  if (!canSeeTeam(user.role as Role)) redirect('/dashboard');
   return user;
 }
 
 export async function requireAdmin() {
   const user = await requireUser();
-  if (user.role !== 'ADMIN') redirect('/');
+  if (user.role !== 'ADMIN') redirect('/dashboard');
   return user;
 }
 

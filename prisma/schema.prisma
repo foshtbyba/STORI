@@ -602,6 +602,16 @@ model TiktokAccountDay {
   @@index([date])
 }
 
+/// Заявка «хочу в команду» с публичного лендинга: человек оставляет свой ТГ.
+/// Смотрит админ (в уведомлениях/списке), связывается сам.
+model TeamLead {
+  id        String   @id @default(cuid())
+  telegram  String
+  note      String   @default("")
+  handled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
 /// Keitaro. Инстанс один на команду, поэтому строка тут ровно одна.
 model Tracker {
   id      String  @id @default(cuid())

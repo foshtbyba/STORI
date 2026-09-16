@@ -16,7 +16,7 @@ export default function WorkspaceLogo() {
   const pathname = usePathname();
   // TikTok-раздел тоже относится к пространству «Реклама».
   const inAds = pathname.startsWith('/ads') || pathname.startsWith('/tiktok');
-  const href = inAds ? '/' : '/ads';
+  const href = inAds ? '/dashboard' : '/ads';
   const Icon = inAds ? IconRocket : IconPeak;
 
   return (

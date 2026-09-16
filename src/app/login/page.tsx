@@ -10,7 +10,7 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  if (await currentUser()) redirect('/');
+  if (await currentUser()) redirect('/dashboard');
   const { error } = await searchParams;
 
   async function signIn(formData: FormData) {
@@ -25,7 +25,7 @@ export default async function LoginPage({
       redirect('/login?error=1');
     }
     await createSession({ sub: user.id, role: user.role as Role, name: user.name });
-    redirect('/');
+    redirect('/dashboard');
   }
 
   const field =

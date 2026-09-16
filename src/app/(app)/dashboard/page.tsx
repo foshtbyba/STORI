@@ -100,7 +100,7 @@ export default async function HomePage({
             aside={<span className="text-[15px] text-sage">{label}</span>}
             right={
               <PeriodNav
-                base="/"
+                base="/dashboard"
                 label={label}
                 isWeek={isWeekKey(view)}
                 prev={shiftKey(view, -1)}
