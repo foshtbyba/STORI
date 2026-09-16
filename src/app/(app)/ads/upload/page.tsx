@@ -1,5 +1,6 @@
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
+import { isDeadAccount } from '@/lib/fb-status';
 import { prisma } from '@/lib/db';
 import { Panel, PanelHead } from '@/components/ui';
 import { IconRocket } from '@/components/icons';
@@ -48,14 +49,18 @@ export default async function AdsUploadPage() {
     link: l.link,
   }));
 
+  // Забаненные/закрытые кабинеты в списки выбора (сторис и видео) не выводим —
+  // заливать на них нельзя. Критерий «мёртвого» кабинета — общий с синком.
   const cabinets = tokens.flatMap((t) =>
-    t.accounts.map((a) => ({
-      id: a.id,
-      name: a.name,
-      externalId: a.externalId,
-      currency: a.currency,
-      group: team ? t.buyer.handle : t.label || t.buyer.handle,
-    })),
+    t.accounts
+      .filter((a) => !isDeadAccount(a.accountStatus, a.disableReason))
+      .map((a) => ({
+        id: a.id,
+        name: a.name,
+        externalId: a.externalId,
+        currency: a.currency,
+        group: team ? t.buyer.handle : t.label || t.buyer.handle,
+      })),
   );
 
   const templates = templatesRaw.map((t) => ({

@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'geo-lang-from-template · 16.09 04:50';
+export const BUILD_INFO = 'hide-banned-cabinets-upload · 16.09 12:39';
