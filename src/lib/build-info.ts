@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'placement-readback-diag · 16.09 03:37';
+export const BUILD_INFO = 'placement-raw-error-log · 16.09 03:49';

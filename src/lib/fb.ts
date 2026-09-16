@@ -55,11 +55,15 @@ export class FbError extends Error {
   /** Код и субкод Facebook — по ним синхронизация решает, отступить ли. */
   code?: number;
   subcode?: number;
-  constructor(message: string, code?: number, subcode?: number) {
+  /** Технический message ФБ как есть (в нём Мета часто перечисляет допустимые
+   * значения поля — для error_user_msg этот список обычно теряется). */
+  raw?: string;
+  constructor(message: string, code?: number, subcode?: number, raw?: string) {
     super(message);
     this.name = 'FbError';
     this.code = code;
     this.subcode = subcode;
+    this.raw = raw;
   }
 }
 
@@ -284,7 +288,7 @@ async function call(
     }
   ).error;
   if (err) {
-    throw new FbError(fbErrorMessage(err, res.status), err.code, err.error_subcode);
+    throw new FbError(fbErrorMessage(err, res.status), err.code, err.error_subcode, err.message);
   }
   if (res.status < 200 || res.status >= 300) {
     throw new FbError(`Facebook ответил ${res.status}`);
