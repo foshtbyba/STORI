@@ -1,4 +1,5 @@
 import { requireUser } from '@/lib/auth';
+import { getActivityFeed } from '@/lib/activity';
 import { prisma } from '@/lib/db';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { periodTitle, periodKeyOf } from '@/lib/period';
@@ -82,6 +83,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         crew={crew.map((b) => ({ id: b.id, initials: b.initials, color: b.color, handle: b.handle }))}
         nav={<Workspace stats={statsItems} ads={adsItems} />}
         role={role}
+        notif={await getActivityFeed({ id: user.id, role })}
       />
       {children}
       </div>

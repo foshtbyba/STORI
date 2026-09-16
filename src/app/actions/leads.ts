@@ -1,6 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/db';
+import { logActivity } from '@/lib/activity';
 
 export type LeadState = { ok: boolean; error?: string } | null;
 
@@ -21,6 +22,7 @@ export async function submitTeamLead(_prev: LeadState, form: FormData): Promise<
 
   try {
     await prisma.teamLead.create({ data: { telegram: `@${tg}`, note } });
+    await logActivity({ kind: 'team_lead', message: `Новая заявка в команду: @${tg}`, adminOnly: true });
     return { ok: true };
   } catch {
     return { ok: false, error: 'Не удалось отправить — попробуй ещё раз' };

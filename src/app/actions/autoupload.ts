@@ -6,6 +6,7 @@ import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { validPlacementKeys, placementSummary, stripPlacementValue } from '@/lib/placements';
 import { isLocale, localeName, geoDefaultLocale } from '@/lib/locales';
+import { logActivity } from '@/lib/activity';
 import {
   fbAccess,
   listPages,
@@ -588,6 +589,20 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       // stage чистим — статус (готово/ошибка) теперь сам говорит за себя.
       data: { ...patch, stage: '', log: log.join('\n') },
     });
+    // Успешный залив — в ленту уведомлений (автор видит свой, админы — все).
+    if (patch.status === 'done') {
+      let who = '';
+      try {
+        const b = ctx.buyerId ? await prisma.buyer.findUnique({ where: { id: ctx.buyerId }, select: { handle: true } }) : null;
+        who = b?.handle ?? '';
+      } catch { /* не критично */ }
+      await logActivity({
+        kind: 'autoupload',
+        message: `Автозалив: ${patch.adsCreated ?? 0} объявл. в «${ctx.acc.name}» (${campaignName})`,
+        actorUserId: ctx.userId,
+        actorName: who,
+      });
+    }
   };
 
   // Живой этап: пишем в БД сразу, чтобы «Журнал заливов» показывал, где сейчас

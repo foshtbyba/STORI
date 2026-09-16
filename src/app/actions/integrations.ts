@@ -11,6 +11,7 @@ import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
 import { checkBrocard, probeBalances, listAccounts, createTransfer, BrocardError, type BrocardAccount } from '@/lib/brocard';
 import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
+import { logActivity } from '@/lib/activity';
 import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies } from '@/lib/sync';
 
 /**
@@ -199,6 +200,12 @@ export async function addMyToken(_prev: ActionState, form: FormData): Promise<Ac
   revalidatePath('/ads');
   revalidatePath('/admin');
   revalidatePath('/ads');
+  await logActivity({
+    kind: 'cabinet_added',
+    message: `Добавлен кабинет: ${found.name} — кабинетов ${found.accounts.length}`,
+    actorUserId: user.id,
+    actorName: user.buyer.handle,
+  });
   return { ok: true, message: `${found.name}: кабинетов найдено ${found.accounts.length}` };
 }
 
@@ -515,6 +522,12 @@ export async function myBrocardTopUp(form: FormData): Promise<{ ok: boolean; err
       },
     });
     revalidatePath('/');
+    await logActivity({
+      kind: 'brocard_topup',
+      message: `Пополнение Brocard: $${amount}`,
+      actorUserId: user.id,
+      actorName: user.buyer.handle,
+    });
     return { ok: true, message: `Пополнено на $${amount}.` };
   } catch (e) {
     const err = e instanceof BrocardError ? e.message : `Сбой перевода: ${(e as Error).message}`;

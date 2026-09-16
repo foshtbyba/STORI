@@ -21,7 +21,26 @@ model User {
   active       Boolean  @default(true)
   createdAt    DateTime @default(now())
 
+  /// Когда пользователь последний раз открывал уведомления — по нему считаем
+  /// непрочитанные (события позже этой отметки).
+  notifSeenAt  DateTime?
+
   buyer Buyer?
+}
+
+/// Лента событий (уведомления). Успешные действия видит их автор, командные/
+/// денежные события (пополнение Brocard, добавление кабинета и т.п.) — админы.
+model Activity {
+  id          String   @id @default(cuid())
+  kind        String   // тип: autoupload, cabinet_added, tiktok_connected, brocard_topup, team_lead …
+  message     String   // человеческий текст события
+  actorUserId String?  // кто сделал (для «своих» успехов)
+  actorName   String   @default("") // денормализованное имя/ник для показа
+  adminOnly   Boolean  @default(false) // событие видят только админы/команда
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([actorUserId])
 }
 
 /// A buyer is the unit everything is reported against. Kept separate from

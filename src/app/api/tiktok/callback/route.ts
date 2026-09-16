@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/db';
+import { logActivity } from '@/lib/activity';
 import { advertiserInfo, exchangeAuthCode, listAdvertisers, tiktokConfig, verifyTiktokState } from '@/lib/tiktok';
 
 /**
@@ -21,7 +22,7 @@ export async function GET(req: Request) {
   const buyerId = verifyTiktokState(state);
   if (!buyerId) return back('err=state');
   // Баер мог исчезнуть/переименоваться — проверим существование.
-  const buyer = await prisma.buyer.findUnique({ where: { id: buyerId }, select: { id: true } });
+  const buyer = await prisma.buyer.findUnique({ where: { id: buyerId }, select: { id: true, handle: true, userId: true } });
   if (!buyer) return back('err=nobuyer');
 
   try {
@@ -52,6 +53,12 @@ export async function GET(req: Request) {
       select: { id: true },
     });
 
+    await logActivity({
+      kind: 'tiktok_connected',
+      message: `Подключён TikTok — кабинетов: ${infos.length}`,
+      actorUserId: buyer.userId,
+      actorName: buyer.handle,
+    });
     return back(`connected=${infos.length}&token=${token.id}`);
   } catch (e) {
     const msg = encodeURIComponent((e as Error).message.slice(0, 160));

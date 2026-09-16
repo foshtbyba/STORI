@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import { Avatar, Panel } from './ui';
 import { IconLogout } from './icons';
 import WorkspaceLogo from './WorkspaceLogo';
+import NotificationsBell from './NotificationsBell';
+import type { ActivityFeed } from '@/lib/activity';
 
 export type Crew = { id: string; initials: string; color: string; handle: string };
 
@@ -12,12 +14,14 @@ export default function TopBar({
   crew,
   nav,
   role,
+  notif,
 }: {
   title: string;
   date: string;
   crew: Crew[];
   nav?: React.ReactNode;
   role?: string;
+  notif?: ActivityFeed;
 }) {
   async function signOut() {
     'use server';
@@ -58,6 +62,8 @@ export default function TopBar({
             ))}
           </span>
         </span>
+
+        {notif ? <NotificationsBell items={notif.items} unread={notif.unread} /> : null}
 
         <form action={signOut}>
           <button
