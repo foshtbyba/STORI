@@ -534,10 +534,8 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   const videoFile = form.get('video');
   const video = videoFile instanceof File && videoFile.size > 0 ? videoFile : null;
   // Видео + языки: добавить доп-языки из личного пака в одно объявление.
+  // Язык целевого гео определяется по шаблону (см. ниже), вручную не задаётся.
   const withLanguages = String(form.get('withLanguages') ?? '') === '1';
-  // Язык ГЕО — язык основного ролика. В режиме языков дефолт берётся из пака, а
-  // основной ролик добавляется как ДОП-язык под этот locale (если задан/определим).
-  const mainLocale = String(form.get('mainLocale') ?? '').trim();
   // В режиме языков основной ролик можно не прикладывать: дефолтным станет язык
   // из пака, FB сам соберёт объявление из языков. Поэтому пускаем и без файла,
   // если включены языки (пустой пак отсеется ниже понятной ошибкой).
@@ -892,14 +890,15 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         return { localeId: l.localeId, videoId: l.videoId, thumb: langThumbs[i] || undefined, message: l.message, headline: l.headline, description: l.description, link: l.link };
       });
 
-      // Язык ГЕО (для основного ролика как ДОП-языка): из формы или по стране.
-      let mainLocaleId = mainLocale ? await resolveLocaleId(token, localeName(mainLocale), net) : 0;
-      if (!mainLocaleId) {
-        const geoCode = geoDefaultLocale(countries[0] || '');
-        if (geoCode) {
-          mainLocaleId = await resolveLocaleId(token, localeName(geoCode), net);
-          if (mainLocaleId) append(`Язык гео определён по стране ${countries[0]}: ${localeName(geoCode)}`);
-        }
+      // Язык ЦЕЛЕВОГО ГЕО определяем ПО ШАБЛОНУ (страна шаблона): напр. шаблон BG
+      // → болгарский. Это язык последнего (целевого) слоя с основным роликом.
+      let mainLocaleId = 0;
+      const geoCode = geoDefaultLocale(countries[0] || '');
+      if (geoCode) {
+        mainLocaleId = await resolveLocaleId(token, localeName(geoCode), net);
+        if (mainLocaleId) append(`Язык целевого гео по шаблону (${countries[0]}): ${localeName(geoCode)}`);
+      } else if (countries[0]) {
+        append(`⚠ Язык страны ${countries[0]} неизвестен — целевой слой (основной ролик) не добавлю. Скажи, добавлю страну в карту языков.`);
       }
 
       // Структура языковых слоёв объявления:

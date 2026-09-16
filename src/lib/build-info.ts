@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'lang-layers-geo-last · 16.09 04:41';
+export const BUILD_INFO = 'geo-lang-from-template · 16.09 04:50';

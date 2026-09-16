@@ -6,8 +6,7 @@ import TemplatePicker from './TemplatePicker';
 import JobsJournal from './JobsJournal';
 import type { Template } from './TemplateManager';
 import type { Language } from './LanguagePack';
-import ComboSelect from './ComboSelect';
-import { LOCALES, localeName } from '@/lib/locales';
+import { localeName } from '@/lib/locales';
 
 type Cabinet = { id: string; name: string; externalId: string; currency: string; group: string };
 type Asset = { pages: { id: string; name: string }[]; pixels: { id: string; name: string }[] };
@@ -22,7 +21,7 @@ type VideoDraft = {
   campaignName: string; link: string; budget: string;
   message: string; headline: string; description: string;
   fbPixelKey: string; fbPixelNum: string; mode: Mode; startLocal: string;
-  withLanguages: boolean; mainLocale: string;
+  withLanguages: boolean;
   video: File | null;
 };
 
@@ -96,7 +95,6 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
   const [mode, setMode] = useState<Mode>('paused');
   const [startLocal, setStartLocal] = useState('');
   const [withLanguages, setWithLanguages] = useState(languages.length > 0);
-  const [mainLocale, setMainLocale] = useState('');
   const [video, setVideo] = useState<File | null>(null);
   const [msg, setMsg] = useState('');
   const [journalKey, setJournalKey] = useState(0);
@@ -269,7 +267,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
       campaignName: campaignName.trim(), link: link.trim(), budget: budget.trim(),
       message: message.trim(), headline: headline.trim(), description: description.trim(),
       fbPixelKey: (fbPixelKey.trim() || 'fb_pixel'), fbPixelNum: fbPixelNum.trim(), mode, startLocal,
-      withLanguages, mainLocale,
+      withLanguages,
       video,
     }));
     setQueue((q) => [...q, ...drafts]);
@@ -320,7 +318,6 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
         fd.set('urlTags', tags);
         fd.set('mode', d.mode);
         if (d.withLanguages) fd.set('withLanguages', '1');
-        if (d.mainLocale) fd.set('mainLocale', d.mainLocale);
         if (d.mode === 'midnight') fd.set('startAt', nextMoscowMidnight());
         if (d.mode === 'scheduled' && d.startLocal) fd.set('startAt', new Date(d.startLocal).toISOString());
         if (d.video) fd.set('video', d.video);
@@ -421,26 +418,15 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
         </div>
         <div className="mt-3 grid gap-3">
           <div>
-            <div className="lab mb-1">Ролик (видеофайл) {mainOptional ? <span className="text-dim">— основной, на языке гео (станет дефолтным)</span> : <span className="text-amber">— обязателен</span>}</div>
+            <div className="lab mb-1">Ролик (видеофайл) {mainOptional ? <span className="text-dim">— целевой, на языке гео (станет последним слоем)</span> : <span className="text-amber">— обязателен</span>}</div>
             <input ref={fileRef} type="file" accept="video/*" onChange={(e) => setVideo(e.target.files?.[0] ?? null)} className="block w-fit max-w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
             {video ? (
               <p className="mt-1 text-[11px] text-sage">{video.name} · {(video.size / 1024 / 1024).toFixed(1)} МБ</p>
             ) : mainOptional ? (
-              <p className="mt-1 text-[11px] text-dim">Приложи ОСНОВНОЙ ролик на языке гео (напр. румынский для RO) — он станет дефолтным вариантом объявления, его увидит основная аудитория. Языки из пака добавятся сверху. Не приложишь — дефолтом станет первый язык из пака.</p>
+              <p className="mt-1 text-[11px] text-dim">Это ЦЕЛЕВОЙ ролик на языке гео (язык определится по шаблону: BG → болгарский). Он добавится ПОСЛЕДНИМ слоем с этим текстом/ссылкой. Дефолтом станет первый язык из пака. Не приложишь — целевого слоя не будет, зальются только языки пака.</p>
             ) : (
               <p className="mt-1 text-[11px] text-dim">Целевой креатив обязателен — без ролика (или языков с видео) залить не получится.</p>
             )}
-          </div>
-          <div>
-            <div className="lab mb-1">Язык по умолчанию <span className="text-dim">(язык гео = язык основного ролика, напр. Romanian для RO)</span></div>
-            <ComboSelect
-              options={LOCALES.map((l) => ({ id: l.code, name: l.name }))}
-              value={mainLocale}
-              onChange={setMainLocale}
-              placeholder="— язык по умолчанию —"
-              searchPlaceholder="Найди язык…"
-              className="w-[240px] max-w-full"
-            />
           </div>
         </div>
         <label className="mt-3 flex cursor-pointer items-center gap-2 border-t border-line pt-3 text-[12.5px] font-semibold text-soft">
@@ -461,7 +447,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
           <p className="mt-1.5 text-[11px] text-mute">Выключено — зальётся только основной ролик.</p>
         )}
         {withLanguages && languages.length ? (
-          <p className="mt-2 text-[11px] text-dim">Дефолт объявления — язык «по умолчанию» выше (или первый из пака), остальные FB покажет по языку пользователя. Языки без видео пропустятся.</p>
+          <p className="mt-2 text-[11px] text-dim">Слои: дефолт — первый язык пака (нетипичный для гео), затем остальные языки пака, а ПОСЛЕДНИМ — целевой ролик на языке гео (по шаблону) с его текстом/ссылкой. Языки без видео пропустятся.</p>
         ) : null}
       </div>
       </div>
