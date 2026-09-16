@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'placements-from-template · 16.09 03:10';
+export const BUILD_INFO = 'threads-placement-fix · 16.09 03:25';
