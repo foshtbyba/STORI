@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'agency-balance-slot · 17.09 16:44';
+export const BUILD_INFO = 'agency-only-balance · 17.09 19:50';

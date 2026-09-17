@@ -104,7 +104,10 @@ export default async function AdsOverviewPage() {
         a.currency === 'USD'
           ? usd(spendByAccount.get(a.id) ?? 0)
           : Math.round((spendByAccount.get(a.id) ?? 0) / 100).toLocaleString('ru-RU'),
-      remain: remainOf(a),
+      // Остаток открута имеет смысл только на агентских кабинетах — там своя
+      // модель (лимит/кредитная линия). На фармах баланс кабинета живёт иначе
+      // (карты/предоплата мелкими суммами), и «ост. $2/$3» — это шум, не деньги.
+      remain: a.agency ? remainOf(a) : undefined,
       badge: accountBadge(a.accountStatus, a.disableReason),
     })),
   });
