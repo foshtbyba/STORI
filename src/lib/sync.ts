@@ -1,7 +1,7 @@
 import 'server-only';
 import { prisma } from './db';
 import { dayKey } from './period';
-import { grossUp, ceilDollars, DEFAULT_COMMISSION_BPS } from './money';
+import { grossUp, ceilDollars, DEFAULT_COMMISSION_BPS, usd } from './money';
 import { AGENCY_SOURCE, AGENCY_COMMISSION_BPS } from './extra-spend';
 import { mergeDay } from './sync-rule';
 import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, adMeta, listAdIds, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
@@ -368,6 +368,24 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
             actorName: token.buyer?.handle ?? '',
           });
         }
+
+        // Низкий остаток открута (< 200) на ЖИВОМ кабинете — сигнал в колокольчик,
+        // раз в сутки на кабинет (refKey с датой).
+        if (!isDeadAccount(acc.accountStatus, acc.disableReason)) {
+          const remCents = acc.spendCapCents > 0
+            ? Math.max(0, acc.spendCapCents - acc.amountSpentCents)
+            : acc.balanceCents > 0 ? acc.balanceCents : -1;
+          if (remCents >= 0 && remCents / 100 < 200) {
+            const money = acc.currency === 'USD' ? usd(remCents) : `${Math.round(remCents / 100).toLocaleString('ru-RU')} ${acc.currency}`;
+            await logActivity({
+              kind: 'low_balance',
+              message: `⚠️ Низкий остаток на кабинете «${acc.name || acc.externalId}»: ${money}`,
+              actorUserId: token.buyer?.userId,
+              actorName: token.buyer?.handle ?? '',
+              refKey: `low_balance:${acc.externalId}:${new Date().toISOString().slice(0, 10)}`,
+            });
+          }
+        }
       }
 
       // Порядок кабинетов внутри токена — вперемешку: одинаковый обход из раза
@@ -411,6 +429,38 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
           data: { lastSpendAt: new Date() },
         });
 
+        // Детект резкого скачка расхода за ~2 часа. Реалтайм-часов у нас нет,
+        // поэтому раз в 2 часа снимаем «метку» сегодняшнего расхода; на следующем
+        // снятии смотрим прирост за окно и сравниваем со средним 2-часовым
+        // расходом кабинета (по последним 7 дням). Резко больше — уведомляем.
+        const nowT = new Date();
+        const todayCents = spend.find((d) => d.date === nowT.toISOString().slice(0, 10))?.cents ?? 0;
+        const TWO_H = 2 * 3600_000;
+        if (!acc.spendMarkAt) {
+          await prisma.adAccount.update({ where: { id: acc.id }, data: { spendMarkCents: todayCents, spendMarkAt: nowT } });
+        } else if (nowT.getTime() - acc.spendMarkAt.getTime() >= TWO_H) {
+          const sameDay = acc.spendMarkAt.toISOString().slice(0, 10) === nowT.toISOString().slice(0, 10);
+          if (sameDay) {
+            const delta = todayCents - acc.spendMarkCents;
+            const weekAgo = new Date(nowT.getTime() - 7 * 24 * 3600_000);
+            const rows = await prisma.adAccountDay.findMany({ where: { accountId: acc.id, date: { gte: weekAgo } }, select: { spendCents: true } });
+            const avgDaily = rows.length ? rows.reduce((s, r) => s + r.spendCents, 0) / rows.length : 0;
+            const baseline2h = avgDaily / 12; // 24ч / 2ч
+            const FLOOR = 100 * 100; // не шумим на мелочи: минимум $100 за окно
+            const threshold = Math.max(FLOOR, Math.round(2 * baseline2h));
+            if (delta >= threshold) {
+              const money = acc.currency === 'USD' ? usd(delta) : `${Math.round(delta / 100).toLocaleString('ru-RU')} ${acc.currency}`;
+              await logActivity({
+                kind: 'spend_spike',
+                message: `📈 Резкий скачок расхода на «${acc.name || acc.externalId}»: ${money} за ~2 часа`,
+                actorUserId: token.buyer?.userId,
+                actorName: token.buyer?.handle ?? '',
+                refKey: `spend_spike:${acc.externalId}:${nowT.toISOString().slice(0, 13)}`,
+              });
+            }
+          }
+          await prisma.adAccount.update({ where: { id: acc.id }, data: { spendMarkCents: todayCents, spendMarkAt: nowT } });
+        }
       }
 
       await prisma.adToken.update({

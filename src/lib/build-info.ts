@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'account-balance-remain + ban/token notifs · 17.09 16:10';
+export const BUILD_INFO = 'low-balance-spend-spike-notifs · 17.09 16:16';

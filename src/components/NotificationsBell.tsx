@@ -13,6 +13,10 @@ const ICON: Record<string, string> = {
   team_lead: '👋',
   domain: '🌐',
   birthday: '🎂',
+  cabinet_banned: '🚫',
+  token_expired: '🔑',
+  low_balance: '⚠️',
+  spend_spike: '📈',
 };
 
 /** Колокольчик уведомлений: бейдж непрочитанных + выпадающая лента. */

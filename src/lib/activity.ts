@@ -17,11 +17,17 @@ export type ActivityInput = {
   actorUserId?: string | null;
   actorName?: string;
   adminOnly?: boolean;
+  /** Идемпотентный ключ: если задан и такое событие уже есть — не дублируем. */
+  refKey?: string;
 };
 
 /** Записать событие. Никогда не роняет вызывающий код (fire-and-forget). */
 export async function logActivity(a: ActivityInput): Promise<void> {
   try {
+    if (a.refKey) {
+      const dup = await prisma.activity.findFirst({ where: { refKey: a.refKey }, select: { id: true } });
+      if (dup) return; // такое событие уже было — тихо выходим
+    }
     await prisma.activity.create({
       data: {
         kind: a.kind,
@@ -29,6 +35,7 @@ export async function logActivity(a: ActivityInput): Promise<void> {
         actorUserId: a.actorUserId ?? null,
         actorName: (a.actorName ?? '').slice(0, 80),
         adminOnly: Boolean(a.adminOnly),
+        refKey: a.refKey ?? null,
       },
     });
   } catch {

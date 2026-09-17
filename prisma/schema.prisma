@@ -37,10 +37,14 @@ model Activity {
   actorUserId String?  // кто сделал (для «своих» успехов)
   actorName   String   @default("") // денормализованное имя/ник для показа
   adminOnly   Boolean  @default(false) // событие видят только админы/команда
+  // Идемпотентный ключ: если задан, повторное событие с тем же ключом не
+  // создаётся (напр. low_balance:act_123:2026-09-17 — раз в сутки на кабинет).
+  refKey      String?
   createdAt   DateTime @default(now())
 
   @@index([createdAt])
   @@index([actorUserId])
+  @@index([refKey])
 }
 
 /// A buyer is the unit everything is reported against. Kept separate from
@@ -416,6 +420,11 @@ model AdAccount {
   spendCapCents    Int   @default(0)
   amountSpentCents Int   @default(0)
   balanceCents     Int   @default(0)
+  // Метка для детекта резкого скачка расхода: снимок расхода за сегодня и когда
+  // он снят. Раз в ~2 часа синк сравнивает прирост со средним и, если резко,
+  // шлёт уведомление.
+  spendMarkCents   Int       @default(0)
+  spendMarkAt      DateTime?
   // Агентский/основной кабинет среди дублей. Один и тот же act_ID виден под
   // несколькими профилями; этим флагом помечают «настоящий». Пока флаг —
   // ориентир для человека и задел под авто-расход агентских кабинетов; в
