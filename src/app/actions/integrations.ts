@@ -443,7 +443,7 @@ export async function brocardTransfer(form: FormData): Promise<{ ok: boolean; er
       },
     });
     revalidatePath('/admin');
-    revalidatePath('/');
+    revalidatePath('/dashboard');
     const who = target.teamName || target.ownerEmail || target.id;
     return { ok: true, message: `Переведено $${amount.toFixed(2)} → ${who}.` };
   } catch (e) {
@@ -521,7 +521,7 @@ export async function myBrocardTopUp(form: FormData): Promise<{ ok: boolean; err
         status: 'ok', respJson: raw, actorId: user.id, actorName: user.name,
       },
     });
-    revalidatePath('/');
+    revalidatePath('/dashboard');
     await logActivity({
       kind: 'brocard_topup',
       message: `Пополнение Brocard: $${amount}`,
@@ -682,7 +682,7 @@ export async function linkBrocardTeam(form: FormData) {
   }
   revalidatePath('/admin');
   revalidatePath('/ads');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
 }
 
 /**
@@ -1079,7 +1079,7 @@ export async function runSync(): Promise<{ started: boolean; running: boolean }>
     revalidatePath('/admin');
     revalidatePath('/ads');
     revalidatePath('/days');
-    revalidatePath('/');
+    revalidatePath('/dashboard');
   });
 
   return { started: true, running: true };

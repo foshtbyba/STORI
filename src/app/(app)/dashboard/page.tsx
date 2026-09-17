@@ -95,7 +95,7 @@ export default async function HomePage({
             icon={<IconChart color="#b4c68c" />}
             tint="bg-sage-t"
             title="Чистый профит"
-            iconHref={view === now ? undefined : '/'}
+            iconHref={view === now ? undefined : '/dashboard'}
             iconTitle="Вернуться к текущей неделе"
             aside={<span className="text-[15px] text-sage">{label}</span>}
             right={

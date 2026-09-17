@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'notifications-feed · 16.09 16:04';
+export const BUILD_INFO = 'audit-fixes · 17.09 15:36';

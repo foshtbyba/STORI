@@ -629,6 +629,8 @@ model TeamLead {
   note      String   @default("")
   handled   Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 /// Keitaro. Инстанс один на команду, поэтому строка тут ровно одна.

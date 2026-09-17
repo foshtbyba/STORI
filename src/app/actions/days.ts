@@ -99,7 +99,7 @@ export async function saveDay(input: unknown): Promise<ActionResult> {
   });
 
   revalidatePath('/days');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
   revalidatePath('/peak');
   return { ok: true };
 }
@@ -209,7 +209,7 @@ export async function saveDayGrid(
   revalidatePath('/days/new');
   revalidatePath('/consumables');
   revalidatePath('/payroll');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
   revalidatePath('/peak');
   return { ok: true, saved };
 }
@@ -299,7 +299,7 @@ export async function saveExtraSpend(
   revalidatePath('/days');
   revalidatePath('/days/new');
   revalidatePath('/payroll');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
   revalidatePath('/peak');
   return { ok: true, saved };
 }
@@ -375,7 +375,7 @@ export async function importDays(
   }
 
   revalidatePath('/days');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
   revalidatePath('/peak');
   return { ok: true, imported, skipped };
 }
@@ -421,7 +421,7 @@ export async function updateDay(input: unknown): Promise<ActionResult> {
   });
 
   revalidatePath('/days');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
   revalidatePath('/peak');
   revalidatePath('/payroll');
   return { ok: true };
@@ -449,7 +449,7 @@ export async function deleteDay(id: string): Promise<ActionResult> {
   });
 
   revalidatePath('/days');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
   revalidatePath('/peak');
   revalidatePath('/payroll');
   return { ok: true };

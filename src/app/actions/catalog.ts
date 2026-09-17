@@ -233,7 +233,7 @@ export async function addConsumable(formData: FormData) {
   });
 
   revalidatePath('/consumables');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
 }
 
 export async function deleteConsumable(formData: FormData) {
@@ -247,5 +247,5 @@ export async function deleteConsumable(formData: FormData) {
   if (!isWeekEditable(entry.date)) return;
   await prisma.consumableEntry.delete({ where: { id } });
   revalidatePath('/consumables');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
 }

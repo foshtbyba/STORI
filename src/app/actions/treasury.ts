@@ -192,5 +192,5 @@ export async function saveFundBase(form: FormData) {
     },
   });
   revalidatePath('/treasury');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
 }

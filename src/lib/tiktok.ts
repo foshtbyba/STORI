@@ -59,7 +59,12 @@ const STATE_TTL_MS = 90 * 24 * 60 * 60 * 1000; // 90 дней
 const b64url = (b: Buffer) => b.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const unb64url = (s: string) => Buffer.from(s.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
 function stateSecret(): string {
-  return process.env.AUTH_SECRET || process.env.TIKTOK_APP_SECRET || 'tiktok-state';
+  // Секрет для подписи state — берём серверный AUTH_SECRET (в этом приложении
+  // он всегда задан: на нём держится сессия). НИКАКОГО публичного литерала-
+  // фолбэка: иначе state можно подделать и привязать кабинеты к чужому баеру.
+  const s = process.env.AUTH_SECRET || process.env.TIKTOK_APP_SECRET || '';
+  if (!s) throw new TiktokError('Не задан AUTH_SECRET — подключение TikTok отключено');
+  return s;
 }
 
 /** Подписать state: { b: buyerId, t: ts }. */

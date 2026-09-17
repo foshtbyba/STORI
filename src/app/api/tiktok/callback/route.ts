@@ -30,7 +30,21 @@ export async function GET(req: Request) {
     const ids = advertiserIds.length ? advertiserIds : await listAdvertisers(accessToken);
     const infos = await advertiserInfo(accessToken, ids);
 
-    const token = await prisma.tiktokToken.create({
+    // В браузере не залогинен ни один рекламный кабинет TikTok.
+    if (infos.length === 0) return back('noaccounts=1');
+
+    // Дедуп: ссылка многоразовая (её открывают в разных профилях), один и тот
+    // же advertiser могут авторизовать повторно. Не создаём дубли кабинетов —
+    // иначе в обзоре две карточки и расход считается дважды.
+    const existing = await prisma.tiktokAccount.findMany({
+      where: { token: { buyerId } },
+      select: { advertiserId: true },
+    });
+    const have = new Set(existing.map((a) => a.advertiserId));
+    const fresh = infos.filter((inf) => !have.has(inf.advertiserId));
+    if (fresh.length === 0) return back('already=1');
+
+    await prisma.tiktokToken.create({
       data: {
         buyerId,
         kind: 'api',
@@ -39,7 +53,7 @@ export async function GET(req: Request) {
         status: 'ACTIVE',
         lastSyncAt: new Date(),
         accounts: {
-          create: infos.map((inf) => ({
+          create: fresh.map((inf) => ({
             advertiserId: inf.advertiserId,
             name: inf.name,
             currency: inf.currency,
@@ -55,11 +69,11 @@ export async function GET(req: Request) {
 
     await logActivity({
       kind: 'tiktok_connected',
-      message: `Подключён TikTok — кабинетов: ${infos.length}`,
+      message: `Подключён TikTok — кабинетов: ${fresh.length}`,
       actorUserId: buyer.userId,
       actorName: buyer.handle,
     });
-    return back(`connected=${infos.length}&token=${token.id}`);
+    return back(`connected=${fresh.length}`);
   } catch (e) {
     const msg = encodeURIComponent((e as Error).message.slice(0, 160));
     return back(`err=${msg}`);

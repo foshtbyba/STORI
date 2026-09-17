@@ -45,7 +45,7 @@ export async function closePeriod(key: string) {
   });
 
   revalidatePath('/payroll');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
   return { ok: true as const };
 }
 
@@ -66,7 +66,7 @@ export async function reopenPeriod(key: string) {
     },
   });
   revalidatePath('/payroll');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
   return { ok: true as const };
 }
 
@@ -99,7 +99,7 @@ export async function setManualRate(formData: FormData) {
   });
 
   revalidatePath('/payroll');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
 }
 
 /** Вернуть период на автоматический курс — обновится при следующем открытии. */
@@ -125,5 +125,5 @@ export async function useAutoRate(formData: FormData) {
   });
 
   revalidatePath('/payroll');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
 }

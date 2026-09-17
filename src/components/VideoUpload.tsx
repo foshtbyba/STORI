@@ -192,7 +192,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
         const r = await makePixel(accId, newPixelByAcc[accId] ?? '');
         if (!r.ok) { setMsg(r.error ?? 'сбой создания пикселя'); return; }
         setAssets((a) => ({ ...a, [accId]: { pages: a[accId]?.pages ?? [], pixels: r.pixels ?? [] } }));
-        if (r.pixels?.length) setPixelByAcc((p) => ({ ...p, [accId]: r.pixels![r.pixels!.length - 1].id }));
+        { const pick = r.createdId ?? (r.pixels?.length ? r.pixels[r.pixels.length - 1].id : ''); if (pick) setPixelByAcc((p) => ({ ...p, [accId]: pick })); }
         setNewPixelByAcc((n) => ({ ...n, [accId]: '' }));
       } finally { setCreating(''); }
     });
@@ -209,7 +209,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
       const r = await makePage(accId, name);
       if (!r.ok) { setMsg(r.error ?? 'сбой создания страницы'); return; }
       setAssets((a) => ({ ...a, [accId]: { pages: r.pages ?? [], pixels: a[accId]?.pixels ?? [] } }));
-      if (r.pages?.length) setPageByAcc((p) => ({ ...p, [accId]: r.pages![r.pages!.length - 1].id }));
+      { const pick = r.createdId ?? (r.pages?.length ? r.pages[r.pages.length - 1].id : ''); if (pick) setPageByAcc((p) => ({ ...p, [accId]: pick })); }
       setNewPageByAcc((n) => ({ ...n, [accId]: '' }));
       } finally { setCreating(''); }
     });
@@ -328,6 +328,8 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
       // Единый текст со сторис-заливом: статусы — в списке ниже.
       setMsg(`Запущено в фоне: ${n}. Статусы — в списке ниже, можно уйти со страницы.`);
       setJournalKey((k) => k + 1);
+      } catch (e) {
+        setMsg(`Не удалось запустить: ${(e as Error).message || 'ошибка сети'}. Очередь не тронута — попробуй ещё раз.`);
       } finally {
         firing.current = false;
         fireLock = false;

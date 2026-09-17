@@ -258,7 +258,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
       const r = await makePixel(accId, newPixelByAcc[accId] ?? '');
       if (!r.ok) { setMsg({ ok: false, text: r.error ?? 'сбой создания пикселя' }); return; }
       setAssets((a) => ({ ...a, [accId]: { pages: a[accId]?.pages ?? [], pixels: r.pixels ?? [] } }));
-      if (r.pixels?.length) setPixelByAcc((p) => ({ ...p, [accId]: r.pixels![r.pixels!.length - 1].id }));
+      { const pick = r.createdId ?? (r.pixels?.length ? r.pixels[r.pixels.length - 1].id : ''); if (pick) setPixelByAcc((p) => ({ ...p, [accId]: pick })); }
       setNewPixelByAcc((n) => ({ ...n, [accId]: '' }));
       setMsg({ ok: true, text: 'Пиксель создан.' });
       } finally { setCreating(''); }
@@ -275,7 +275,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
       const r = await makePage(accId, name);
       if (!r.ok) { setMsg({ ok: false, text: r.error ?? 'сбой создания страницы' }); return; }
       setAssets((a) => ({ ...a, [accId]: { pages: r.pages ?? [], pixels: a[accId]?.pixels ?? [] } }));
-      if (r.pages?.length) setPageByAcc((p) => ({ ...p, [accId]: r.pages![r.pages!.length - 1].id }));
+      { const pick = r.createdId ?? (r.pages?.length ? r.pages[r.pages.length - 1].id : ''); if (pick) setPageByAcc((p) => ({ ...p, [accId]: pick })); }
       setNewPageByAcc((n) => ({ ...n, [accId]: '' }));
       setMsg({ ok: true, text: 'Страница создана.' });
       } finally { setCreating(''); }
@@ -317,6 +317,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
     setTemplateId(''); setCampaignName(''); setLink(''); setBudget('');
     setMessage(''); setHeadline(''); setDescription(''); setUrlTags(DEFAULT_TAGS);
     setMode('paused'); setStartLocal(''); setFiles([]); setEditingId(null);
+    setManualPixel(''); setStructure('1-1-1');
     autoName.current = '';
   };
 
@@ -421,7 +422,11 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
           fd.set('manualPixel', d.manualPixel ?? '');
           fd.set('mode', d.mode);
           fd.set('structure', d.structure || '1-1-2');
-          if (d.startAt) fd.set('startAt', d.startAt);
+          // «С 00:00 МСК»: время старта считаем В МОМЕНТ ЗАПУСКА, а не при
+          // добавлении в очередь — иначе «сегодняшняя» полночь к моменту запуска
+          // уже в прошлом, и сервер отбивает «время в прошлом».
+          const startAt = d.mode === 'midnight' ? nextMoscowMidnight().iso : d.startAt;
+          if (startAt) fd.set('startAt', startAt);
           for (const f of d.files) fd.append('images', f);
           await startUpload(fd);
           n += 1;
@@ -429,6 +434,8 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
       }
       setQueue([]);
       setMsg({ ok: true, text: `Запущено в фоне: ${n}. Статусы — в списке ниже, можно уйти со страницы.` });
+      } catch (e) {
+        setMsg({ ok: false, text: `Не удалось запустить: ${(e as Error).message || 'ошибка сети'}. Очередь не тронута — попробуй ещё раз.` });
       } finally {
         firing.current = false;
         fireLock = false;

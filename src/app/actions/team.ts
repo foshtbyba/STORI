@@ -103,7 +103,7 @@ export async function createMember(input: {
   });
 
   revalidatePath('/admin');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
   revalidatePath('/payroll');
   // Овнеру логина нет — почту/пароль не возвращаем.
   return owner ? { ok: true, email: '', password: '' } : { ok: true, email, password };
@@ -168,8 +168,8 @@ export async function saveBuyerProfile(
 
   revalidatePath('/admin');
   revalidatePath('/payroll');
-  revalidatePath('/');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
+  revalidatePath('/dashboard');
   revalidatePath('/peak');
   revalidatePath('/days');
   return { ok: true };

@@ -44,13 +44,20 @@ export async function getActivityFeed(user: { id: string; role: string }): Promi
   const team = canSeeTeam(user.role as Role);
   const where = team ? {} : { actorUserId: user.id, adminOnly: false };
 
-  const me = await prisma.user.findUnique({ where: { id: user.id }, select: { notifSeenAt: true } });
-  const seenAt = me?.notifSeenAt ?? new Date(0);
-
-  const [rows, unread] = await Promise.all([
-    prisma.activity.findMany({ where, orderBy: { createdAt: 'desc' }, take: 30 }),
-    prisma.activity.count({ where: { ...where, createdAt: { gt: seenAt } } }),
-  ]);
+  // Лента не должна ронять весь layout: любая ошибка запроса (нет таблицы/
+  // колонки, сбой БД) → отдаём пустую ленту, а не 500 на всё приложение.
+  let rows: Awaited<ReturnType<typeof prisma.activity.findMany>> = [];
+  let unread = 0;
+  try {
+    const me = await prisma.user.findUnique({ where: { id: user.id }, select: { notifSeenAt: true } });
+    const seenAt = me?.notifSeenAt ?? new Date(0);
+    [rows, unread] = await Promise.all([
+      prisma.activity.findMany({ where, orderBy: { createdAt: 'desc' }, take: 30 }),
+      prisma.activity.count({ where: { ...where, createdAt: { gt: seenAt } } }),
+    ]);
+  } catch {
+    return { items: [], unread: 0 };
+  }
 
   return {
     items: rows.map((r) => ({

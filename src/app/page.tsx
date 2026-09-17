@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { currentUser } from '@/lib/session';
 import JoinTeamForm from '@/components/JoinTeamForm';
 
 /**
@@ -33,7 +35,10 @@ const features = [
   },
 ];
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  // Гость видит лендинг (его же открывает ревьюер при верификации API);
+  // залогиненного сразу уводим в дашборд.
+  if (await currentUser()) redirect('/dashboard');
   return (
     <main className="min-h-screen bg-bg text-text">
       {/* Шапка */}

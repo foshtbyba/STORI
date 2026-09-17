@@ -222,7 +222,7 @@ export async function buyDomains(formData: FormData) {
 
   revalidatePath('/ads/domains');
   revalidatePath('/consumables');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
 
   const short = picked.length < qty ? ` (просили ${qty}, в зоне было столько)` : '';
   const ktNote = ktProblems.length ? `КТ: ${ktProblems.length} не перенесено — см. столбец «КТ».` : '';
@@ -261,5 +261,5 @@ export async function returnDomain(formData: FormData) {
 
   revalidatePath('/ads/domains');
   revalidatePath('/consumables');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
 }

@@ -244,6 +244,9 @@ export type CabinetAssets = {
   error?: string;
   pages?: { id: string; name: string }[];
   pixels?: { id: string; name: string }[];
+  /** id только что созданного ассета — чтобы клиент выбрал именно его, а не
+   *  угадывал «последний в списке» (порядок у FB не гарантирован). */
+  createdId?: string;
 };
 
 /** Подтянуть живьём страницы (ФП) и пиксели кабинета — для выпадашек формы. */
@@ -267,9 +270,9 @@ export async function makePixel(accountId: string, name: string): Promise<Cabine
   if ('error' in ctx) return { ok: false, error: ctx.error };
   const clean = name.trim() || `pixel ${rand()}`;
   try {
-    await createPixel(ctx.token, ctx.acc.externalId, clean, ctx.net);
+    const createdId = await createPixel(ctx.token, ctx.acc.externalId, clean, ctx.net);
     const pixels = await listPixels(ctx.token, ctx.acc.externalId, ctx.net);
-    return { ok: true, pixels };
+    return { ok: true, pixels, createdId };
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
@@ -285,9 +288,9 @@ export async function makePage(accountId: string, name: string): Promise<Cabinet
   const clean = name.trim();
   if (!clean) return { ok: false, error: 'Впиши имя новой страницы' };
   try {
-    await createPage(ctx.token, clean, 'BRAND', ctx.net);
+    const createdId = await createPage(ctx.token, clean, 'BRAND', ctx.net);
     const pages = await listPages(ctx.token, ctx.net);
-    return { ok: true, pages };
+    return { ok: true, pages, createdId };
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
@@ -584,6 +587,16 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
   const finish = async (patch: { status: string; error?: string; campaignFbId?: string; adsCreated?: number }) => {
     inFlightUploads.delete(dedupKey); // залив завершён — снимаем замок от дубля
+    // Если залив отменили вручную (cancelJob выставил 'error'), пока шла фоновая
+    // задача — НЕ перетираем статус обратно на 'done'. Иначе отмена «отскакивает»
+    // и в журнале появляется ✓ готово. Пишем только лог, отмену сохраняем.
+    if (patch.status === 'done') {
+      const cur = await prisma.uploadJob.findUnique({ where: { id: job.id }, select: { status: true } }).catch(() => null);
+      if (cur?.status === 'error') {
+        await prisma.uploadJob.update({ where: { id: job.id }, data: { stage: '', log: log.join('\n') } }).catch(() => {});
+        return;
+      }
+    }
     await prisma.uploadJob.update({
       where: { id: job.id },
       // stage чистим — статус (готово/ошибка) теперь сам говорит за себя.
@@ -931,9 +944,18 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         restLangs = langVariants.slice(1); // нейтральные слои
         mainVar = { videoId: chosen.videoId, thumb: chosen.thumb, message: chosen.message, headline: chosen.headline, description: chosen.description, link: chosen.link || link, localeId: chosen.localeId };
         // Целевой слой (гео) — ПОСЛЕДНИМ, с основным роликом и контентом объявления.
-        if (mainVideoId && mainLocaleId && mainLocaleId !== chosen.localeId && !restLangs.some((l) => l.localeId === mainLocaleId)) {
+        // ОСНОВНОЙ ролик ВСЕГДА побеждает для языка гео: если такой язык уже есть
+        // в паке (не дефолтный) — заменяем пак-вариант основным, а не молча
+        // используем пак-версию.
+        if (mainVideoId && mainLocaleId && mainLocaleId !== chosen.localeId) {
+          const before = restLangs.length;
+          restLangs = restLangs.filter((l) => l.localeId !== mainLocaleId);
           restLangs.push({ localeId: mainLocaleId, videoId: mainVideoId, thumb: mainThumb || undefined, message, headline: headline || undefined, description: description || undefined, link });
-          append(`Целевой слой (гео, основной ролик + контент объявления) добавлен ПОСЛЕДНИМ (locale ${mainLocaleId})`);
+          if (restLangs.length <= before) {
+            append(`Целевой слой (гео) — язык ${mainLocaleId} был в паке, заменил его ОСНОВНЫМ роликом и контентом объявления`);
+          } else {
+            append(`Целевой слой (гео, основной ролик + контент объявления) добавлен ПОСЛЕДНИМ (locale ${mainLocaleId})`);
+          }
         } else if (mainVideoId && !mainLocaleId) {
           append('⚠ Язык гео не определён — целевой слой (основной ролик) не добавил. Укажи язык гео/страну.');
         } else if (mainVideoId && mainLocaleId === chosen.localeId) {

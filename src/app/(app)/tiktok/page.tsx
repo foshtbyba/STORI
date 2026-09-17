@@ -24,7 +24,7 @@ const DEAD = new Set(['STATUS_DISABLE', 'STATUS_CONFIRM_FAIL', 'STATUS_PUNISH', 
 export default async function TiktokOverviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ connected?: string; err?: string }>;
+  searchParams: Promise<{ connected?: string; err?: string; noaccounts?: string; already?: string }>;
 }) {
   const user = await requireUser();
   const team = canSeeTeam(user.role as Role);
@@ -91,6 +91,16 @@ export default async function TiktokOverviewPage({
         {sp.connected ? (
           <div className="mt-4 rounded-[12px] border border-sage/40 bg-sage-t px-3 py-2.5 text-[12px] text-sage">
             TikTok подключён — добавлено кабинетов: {sp.connected}.
+          </div>
+        ) : null}
+        {sp.already ? (
+          <div className="mt-4 rounded-[12px] border border-amber/40 bg-amber-t px-3 py-2.5 text-[12px] text-amber">
+            Этот кабинет уже подключён — ничего не добавили.
+          </div>
+        ) : null}
+        {sp.noaccounts ? (
+          <div className="mt-4 rounded-[12px] border border-amber/40 bg-amber-t px-3 py-2.5 text-[12px] text-amber">
+            В этом браузере не залогинен ни один рекламный кабинет TikTok — открой ссылку в профиле с нужным кабинетом.
           </div>
         ) : null}
         {sp.err ? (

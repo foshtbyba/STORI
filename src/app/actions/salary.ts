@@ -44,7 +44,7 @@ export async function saveSalaryRule(input: unknown): Promise<ActionResult> {
   // Лесенка влияет на все зарплатные экраны разом.
   revalidatePath('/admin');
   revalidatePath('/payroll');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
   revalidatePath('/peak');
   return { ok: true };
 }
@@ -89,7 +89,7 @@ export async function saveBuyerLadder(buyerId: string, input: unknown): Promise<
 
   revalidatePath('/admin');
   revalidatePath('/payroll');
-  revalidatePath('/');
+  revalidatePath('/dashboard');
   revalidatePath('/peak');
   return { ok: true };
 }
