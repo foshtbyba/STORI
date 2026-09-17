@@ -94,10 +94,17 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
         ) : null}
         {acc.remain ? (
           <span
-            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${acc.remain.low ? 'bg-rust-t text-rust' : 'bg-sub text-mute'}`}
+            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${acc.remain.low ? 'bg-rust-t text-rust' : 'bg-teal-t text-teal'}`}
             title="Остаток открута (лимит − потрачено, либо баланс кабинета)"
           >
             ост. {acc.remain.text}
+          </span>
+        ) : acc.agency ? (
+          <span
+            className="shrink-0 rounded-full bg-sub px-2 py-0.5 text-[10px] text-dim"
+            title="Остаток появится после синхронизации. Если ФБ не отдаёт баланс по агентскому кабинету (биллинг на уровне бизнеса, а не кабинета) — цифры не будет; тогда её тянем из кредитной линии бизнеса."
+          >
+            ост. —
           </span>
         ) : null}
         <span className="n ml-auto shrink-0 text-[12.5px] text-mute">
