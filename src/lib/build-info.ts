@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'live-notifs-birthday · 17.09 15:50';
+export const BUILD_INFO = 'account-balance-remain + ban/token notifs · 17.09 16:10';

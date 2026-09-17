@@ -411,6 +411,11 @@ model AdAccount {
   currency      String   @default("USD")
   accountStatus Int      @default(1) // код account_status из Facebook
   disableReason Int      @default(0) // код disable_reason: 0 нет, 1 integrity, 3 риск-платёж…
+  // Баланс/лимит кабинета в минорных единицах валюты (из FB). «Остаток открута»
+  // считаем: есть лимит (spendCap>0) → spendCap−amountSpent; иначе → balance.
+  spendCapCents    Int   @default(0)
+  amountSpentCents Int   @default(0)
+  balanceCents     Int   @default(0)
   // Агентский/основной кабинет среди дублей. Один и тот же act_ID виден под
   // несколькими профилями; этим флагом помечают «настоящий». Пока флаг —
   // ориентир для человека и задел под авто-расход агентских кабинетов; в

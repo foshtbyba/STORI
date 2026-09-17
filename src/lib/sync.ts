@@ -6,6 +6,7 @@ import { AGENCY_SOURCE, AGENCY_COMMISSION_BPS } from './extra-spend';
 import { mergeDay } from './sync-rule';
 import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, adMeta, listAdIds, fbAccess, extractFbToken, FbError, fbErrorKind } from './fb';
 import { isDeadAccount } from './fb-status';
+import { logActivity } from './activity';
 import { extractTokenFromCookies } from './fb-engine';
 import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
 import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, clearCostsWindow, adCampaignMap, KeitaroError, type CostEntry } from './keitaro';
@@ -301,7 +302,7 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
   // активности» аккаунт должен остыть, а не получать запросы по расписанию.
   const all = await prisma.adToken.findMany({
     where: { enabled: true },
-    include: { accounts: true, buyer: { select: { handle: true } } },
+    include: { accounts: true, buyer: { select: { handle: true, userId: true } } },
   });
   const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
 
@@ -330,6 +331,11 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
       // Facebook — бан, риск-платёж, проверка видны без отдельного запроса.
       const seen = await listAccounts(access, net);
       for (const acc of seen) {
+        // Прошлый статус — чтобы поймать МОМЕНТ ухода в бан и уведомить.
+        const prev = await prisma.adAccount.findUnique({
+          where: { tokenId_externalId: { tokenId: token.id, externalId: acc.externalId } },
+          select: { accountStatus: true, disableReason: true },
+        });
         await prisma.adAccount.upsert({
           where: { tokenId_externalId: { tokenId: token.id, externalId: acc.externalId } },
           update: {
@@ -337,6 +343,9 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
             currency: acc.currency,
             accountStatus: acc.accountStatus,
             disableReason: acc.disableReason,
+            spendCapCents: acc.spendCapCents,
+            amountSpentCents: acc.amountSpentCents,
+            balanceCents: acc.balanceCents,
           },
           create: {
             tokenId: token.id,
@@ -345,8 +354,20 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
             currency: acc.currency,
             accountStatus: acc.accountStatus,
             disableReason: acc.disableReason,
+            spendCapCents: acc.spendCapCents,
+            amountSpentCents: acc.amountSpentCents,
+            balanceCents: acc.balanceCents,
           },
         });
+        // Был живой → стал мёртвый: уведомление баеру и админам.
+        if (prev && !isDeadAccount(prev.accountStatus, prev.disableReason) && isDeadAccount(acc.accountStatus, acc.disableReason)) {
+          await logActivity({
+            kind: 'cabinet_banned',
+            message: `🚫 Кабинет «${acc.name || acc.externalId}» ушёл в бан/отключён`,
+            actorUserId: token.buyer?.userId,
+            actorName: token.buyer?.handle ?? '',
+          });
+        }
       }
 
       // Порядок кабинетов внутри токена — вперемешку: одинаковый обход из раза
@@ -441,6 +462,24 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
         where: { id: token.id },
         data: { lastError: note, lastSyncAt: new Date(), pausedUntil },
       });
+
+      // Токен слетел (не троттлинг) — уведомляем баера/админов, но не чаще раза
+      // в 12 часов на профиль (дедуп по нику), чтобы не заспамить.
+      if (kind === 'token') {
+        const since = new Date(now.getTime() - 12 * 3600_000);
+        const dup = await prisma.activity.findFirst({
+          where: { kind: 'token_expired', actorName: token.buyer.handle, createdAt: { gt: since } },
+          select: { id: true },
+        }).catch(() => null);
+        if (!dup) {
+          await logActivity({
+            kind: 'token_expired',
+            message: `🔑 Токен профиля «${token.buyer.handle}»${token.label ? ` (${token.label})` : ''} слетел — переподключи`,
+            actorUserId: token.buyer.userId,
+            actorName: token.buyer.handle,
+          });
+        }
+      }
     }
   });
 
@@ -670,7 +709,7 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
   const now = new Date();
   const all = await prisma.adToken.findMany({
     where: { enabled: true },
-    include: { accounts: { where: { enabled: true } }, buyer: { select: { handle: true } } },
+    include: { accounts: { where: { enabled: true } }, buyer: { select: { handle: true, userId: true } } },
   });
   const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
 
@@ -743,6 +782,24 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
         where: { id: token.id },
         data: { lastError: note, lastSyncAt: new Date(), pausedUntil },
       });
+
+      // Токен слетел (не троттлинг) — уведомляем баера/админов, но не чаще раза
+      // в 12 часов на профиль (дедуп по нику), чтобы не заспамить.
+      if (kind === 'token') {
+        const since = new Date(now.getTime() - 12 * 3600_000);
+        const dup = await prisma.activity.findFirst({
+          where: { kind: 'token_expired', actorName: token.buyer.handle, createdAt: { gt: since } },
+          select: { id: true },
+        }).catch(() => null);
+        if (!dup) {
+          await logActivity({
+            kind: 'token_expired',
+            message: `🔑 Токен профиля «${token.buyer.handle}»${token.label ? ` (${token.label})` : ''} слетел — переподключи`,
+            actorUserId: token.buyer.userId,
+            actorName: token.buyer.handle,
+          });
+        }
+      }
     }
   });
 
@@ -874,7 +931,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
 
   const all = await prisma.adToken.findMany({
     where: { enabled: true },
-    include: { accounts: { where: { enabled: true } }, buyer: { select: { handle: true } } },
+    include: { accounts: { where: { enabled: true } }, buyer: { select: { handle: true, userId: true } } },
   });
   const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
 

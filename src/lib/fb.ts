@@ -36,6 +36,12 @@ export type FbAccount = {
   accountStatus: number;
   /** disable_reason: почему отключён (0 — не отключён). */
   disableReason: number;
+  /** Лимит кабинета (spend_cap) в минорных единицах валюты; 0 — лимита нет. */
+  spendCapCents: number;
+  /** Всего потрачено (amount_spent) в минорных единицах. */
+  amountSpentCents: number;
+  /** Текущий баланс (balance) в минорных единицах. */
+  balanceCents: number;
 };
 
 /** День расхода по одному кабинету. */
@@ -363,7 +369,7 @@ export async function listAccounts(token: string, net: FbNet = {}) {
   // синхронизацию навсегда.
   for (let page = 0; page < 40; page += 1) {
     const body = await call('/me/adaccounts', token, {
-      fields: 'account_id,name,currency,account_status,disable_reason',
+      fields: 'account_id,name,currency,account_status,disable_reason,spend_cap,amount_spent,balance',
       limit: '100',
       ...(after ? { after } : {}),
     }, net);
@@ -373,6 +379,9 @@ export async function listAccounts(token: string, net: FbNet = {}) {
       currency?: string;
       account_status?: number;
       disable_reason?: number;
+      spend_cap?: string | number;
+      amount_spent?: string | number;
+      balance?: string | number;
     }[];
     for (const row of data) {
       if (!row.account_id) continue;
@@ -382,6 +391,10 @@ export async function listAccounts(token: string, net: FbNet = {}) {
         currency: row.currency ?? 'USD',
         accountStatus: Number(row.account_status ?? 1),
         disableReason: Number(row.disable_reason ?? 0),
+        // FB отдаёт эти суммы строкой в минорных единицах валюты кабинета.
+        spendCapCents: Math.round(Number(row.spend_cap ?? 0)),
+        amountSpentCents: Math.round(Number(row.amount_spent ?? 0)),
+        balanceCents: Math.round(Number(row.balance ?? 0)),
       });
     }
     const next = (body.paging as { cursors?: { after?: string }; next?: string } | undefined);

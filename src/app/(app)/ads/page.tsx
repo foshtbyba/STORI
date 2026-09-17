@@ -19,6 +19,24 @@ import { IconWallet } from '@/components/icons';
  * списке. Один и тот же act_ID под разными профилями метится «дублём», чтобы
  * назначить настоящий агентским, а лишние убрать из подсчёта.
  */
+/**
+ * «Остаток открута» кабинета. Авто-определение модели:
+ *  • есть лимит (spend_cap>0) → остаток = лимит − потрачено (агентская модель);
+ *  • иначе есть баланс (balance>0) → показываем баланс (предоплатная модель);
+ *  • ничего из этого — бейдж не показываем.
+ * Красным подсвечиваем, когда остаток < 200 в валюте кабинета.
+ */
+function remainOf(a: { currency: string; spendCapCents: number; amountSpentCents: number; balanceCents: number }):
+  | { text: string; low: boolean }
+  | undefined {
+  let cents: number;
+  if (a.spendCapCents > 0) cents = Math.max(0, a.spendCapCents - a.amountSpentCents);
+  else if (a.balanceCents > 0) cents = a.balanceCents;
+  else return undefined;
+  const text = a.currency === 'USD' ? usd(cents) : `${Math.round(cents / 100).toLocaleString('ru-RU')} ${a.currency}`;
+  return { text, low: cents / 100 < 200 };
+}
+
 export default async function AdsOverviewPage() {
   const user = await requireUser();
   const role = user.role as Role;
@@ -86,6 +104,7 @@ export default async function AdsOverviewPage() {
         a.currency === 'USD'
           ? usd(spendByAccount.get(a.id) ?? 0)
           : Math.round((spendByAccount.get(a.id) ?? 0) / 100).toLocaleString('ru-RU'),
+      remain: remainOf(a),
       badge: accountBadge(a.accountStatus, a.disableReason),
     })),
   });

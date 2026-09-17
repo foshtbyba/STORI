@@ -17,6 +17,8 @@ export type AccountRow = {
   agency: boolean;
   duplicate: boolean;
   spend: string;
+  /** «Остаток открута»: подпись (напр. «$180» или «—») + флаг «мало» (<200). */
+  remain?: { text: string; low: boolean };
   badge: { label: string; tone: StatusTone };
 };
 
@@ -88,6 +90,14 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
         {acc.duplicate ? (
           <span className="shrink-0 rounded-full bg-sub px-2 py-0.5 text-[10px] text-dim" title="Тот же act_ID виден под другим профилем">
             дубль
+          </span>
+        ) : null}
+        {acc.remain ? (
+          <span
+            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${acc.remain.low ? 'bg-rust-t text-rust' : 'bg-sub text-mute'}`}
+            title="Остаток открута (лимит − потрачено, либо баланс кабинета)"
+          >
+            ост. {acc.remain.text}
           </span>
         ) : null}
         <span className="n ml-auto shrink-0 text-[12.5px] text-mute">
