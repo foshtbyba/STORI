@@ -30,6 +30,10 @@ export const IconFlag = base('M6 20V5l11 3.5L6 12');
 export const IconCheck = base('M6 12l4 4 8-8');
 export const IconLogout = base('M14 20H5V4h9M18 12H9M15 8l4 4-4 4');
 export const IconSource = base('M4 4h16v16H4z');
+// Плей-треугольник — короткий видеоклип (кампании TikTok).
+export const IconPlay = base('M8 5l11 7-11 7z');
+// Стрелка вверх к полке — заливка ролика (автозалив TikTok).
+export const IconUpload = base('M12 20V7M7 12l5-5 5 5M5 4h14');
 
 export function IconCircle({ size = 18, color = 'currentColor' }: P) {
   return (

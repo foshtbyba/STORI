@@ -211,6 +211,336 @@ export async function advertiserInfo(accessToken: string, advertiserIds: string[
   return out;
 }
 
+// ── Кампании и статистика ─────────────────────────────────────────────────
+// Читающая часть готова к боевому токену: как только приложение одобрят и в env
+// появятся app_id/secret, эти вызовы отдадут реальные кампании и их метрики.
+
+/** Строка таблицы кампаний: настройки кампании + метрики за период. */
+export type TiktokCampaignRow = {
+  campaignId: string;
+  name: string;
+  objective: string;        // objective_type: TRAFFIC, CONVERSIONS, ...
+  status: string;           // operation_status: ENABLE / DISABLE
+  secondaryStatus: string;  // secondary_status — детальный статус (модерация/работа)
+  budgetMode: string;       // BUDGET_MODE_DAY / BUDGET_MODE_TOTAL / BUDGET_MODE_INFINITE
+  budgetCents: number;      // бюджет в минорных единицах валюты кабинета
+  spendCents: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  ctr: number;              // %
+  cpcCents: number;
+};
+
+type RawCampaign = {
+  campaign_id?: string | number;
+  campaign_name?: string;
+  objective_type?: string;
+  operation_status?: string;
+  secondary_status?: string;
+  budget_mode?: string;
+  budget?: string | number;
+};
+
+/** Список кампаний кабинета (без статистики). Пагинация по 1000. */
+export async function listCampaigns(accessToken: string, advertiserId: string): Promise<RawCampaign[]> {
+  const out: RawCampaign[] = [];
+  let page = 1;
+  for (;;) {
+    const data = await apiGet<{ list?: RawCampaign[]; page_info?: { total_page?: number } }>(
+      '/campaign/get/',
+      accessToken,
+      {
+        advertiser_id: advertiserId,
+        fields: JSON.stringify([
+          'campaign_id', 'campaign_name', 'objective_type',
+          'operation_status', 'secondary_status', 'budget_mode', 'budget',
+        ]),
+        page: String(page),
+        page_size: '1000',
+      },
+    );
+    for (const c of data.list ?? []) out.push(c);
+    const total = data.page_info?.total_page ?? 1;
+    if (page >= total) break;
+    page += 1;
+  }
+  return out;
+}
+
+/** Метрики по кампаниям за период: campaign_id → метрики. */
+async function campaignMetrics(
+  accessToken: string,
+  advertiserId: string,
+  startDate: string,
+  endDate: string,
+): Promise<Map<string, { spend: number; impressions: number; clicks: number; conversions: number; ctr: number; cpc: number }>> {
+  const map = new Map<string, { spend: number; impressions: number; clicks: number; conversions: number; ctr: number; cpc: number }>();
+  let page = 1;
+  for (;;) {
+    const data = await apiGet<{
+      list?: { dimensions?: Record<string, unknown>; metrics?: Record<string, unknown> }[];
+      page_info?: { total_page?: number };
+    }>('/report/integrated/get/', accessToken, {
+      advertiser_id: advertiserId,
+      report_type: 'BASIC',
+      data_level: 'AUCTION_CAMPAIGN',
+      dimensions: JSON.stringify(['campaign_id']),
+      metrics: JSON.stringify(['spend', 'impressions', 'clicks', 'conversions', 'ctr', 'cpc']),
+      start_date: startDate,
+      end_date: endDate,
+      page: String(page),
+      page_size: '1000',
+    });
+    for (const row of data.list ?? []) {
+      const id = String(row.dimensions?.campaign_id ?? '');
+      if (!id) continue;
+      const m = row.metrics ?? {};
+      map.set(id, {
+        spend: Number(m.spend ?? 0),
+        impressions: Number(m.impressions ?? 0),
+        clicks: Number(m.clicks ?? 0),
+        conversions: Number(m.conversions ?? 0),
+        ctr: Number(m.ctr ?? 0),
+        cpc: Number(m.cpc ?? 0),
+      });
+    }
+    const total = data.page_info?.total_page ?? 1;
+    if (page >= total) break;
+    page += 1;
+  }
+  return map;
+}
+
+/** Кампании кабинета со статистикой за период — готовые строки для таблицы. */
+export async function campaignsWithStats(
+  accessToken: string,
+  advertiserId: string,
+  startDate: string,
+  endDate: string,
+): Promise<TiktokCampaignRow[]> {
+  const [campaigns, metrics] = await Promise.all([
+    listCampaigns(accessToken, advertiserId),
+    campaignMetrics(accessToken, advertiserId, startDate, endDate).catch(() => new Map()),
+  ]);
+  return campaigns.map((c) => {
+    const id = String(c.campaign_id ?? '');
+    const m = metrics.get(id);
+    return {
+      campaignId: id,
+      name: String(c.campaign_name ?? ''),
+      objective: String(c.objective_type ?? ''),
+      status: String(c.operation_status ?? ''),
+      secondaryStatus: String(c.secondary_status ?? ''),
+      budgetMode: String(c.budget_mode ?? ''),
+      budgetCents: Math.round(Number(c.budget ?? 0) * 100),
+      spendCents: Math.round((m?.spend ?? 0) * 100),
+      impressions: Math.round(m?.impressions ?? 0),
+      clicks: Math.round(m?.clicks ?? 0),
+      conversions: Math.round(m?.conversions ?? 0),
+      ctr: m?.ctr ?? 0,
+      cpcCents: Math.round((m?.cpc ?? 0) * 100),
+    };
+  });
+}
+
+/** POST в TikTok API (JSON-тело). Разворачивает { code, message, data }. */
+async function apiPost<T>(path: string, accessToken: string, body: Record<string, unknown>): Promise<T> {
+  let res: Response;
+  try {
+    res = await fetch(`${API}${path}`, {
+      method: 'POST',
+      headers: { 'Access-Token': accessToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      cache: 'no-store',
+    });
+  } catch (e) {
+    throw new TiktokError(`Не достучались до TikTok: ${(e as Error).message}`);
+  }
+  const text = await res.text();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new TiktokError(`TikTok ответил не по-json (${res.status}): ${text.slice(0, 200)}`);
+  }
+  return unwrap<T>(parsed);
+}
+
+// ── Пауза / запуск / бюджет кампании ───────────────────────────────────────
+
+/** Включить/выключить кампанию (operation_status: ENABLE | DISABLE). */
+export async function setCampaignStatus(
+  accessToken: string,
+  advertiserId: string,
+  campaignId: string,
+  enable: boolean,
+): Promise<void> {
+  await apiPost('/campaign/status/update/', accessToken, {
+    advertiser_id: advertiserId,
+    campaign_ids: [campaignId],
+    operation_status: enable ? 'ENABLE' : 'DISABLE',
+  });
+}
+
+/** Изменить бюджет кампании (в основных единицах валюты, напр. 50 = $50). */
+export async function updateCampaignBudget(
+  accessToken: string,
+  advertiserId: string,
+  campaignId: string,
+  budget: number,
+): Promise<void> {
+  await apiPost('/campaign/update/', accessToken, {
+    advertiser_id: advertiserId,
+    campaign_id: campaignId,
+    budget,
+  });
+}
+
+// ── Автозалив: создание кампании → группы → загрузка ролика → объявление ────
+// Реализовано по документации Marketing API для видео-объявлений с ведением на
+// сайт (objective TRAFFIC/WEBSITE). Перед боевым запуском проверить на тестовом
+// кабинете: набор обязательных полей группы зависит от цели и типа продвижения.
+
+export type TiktokLaunchInput = {
+  advertiserId: string;
+  campaignName: string;
+  objective: string;             // TRAFFIC | CONVERSIONS | VIDEO_VIEWS | REACH
+  budgetMode: string;            // BUDGET_MODE_DAY | BUDGET_MODE_TOTAL
+  budget: number;                // бюджет кампании в основных единицах
+  locationIds: string[];         // гео (location_id TikTok)
+  ageGroups: string[];           // напр. ['AGE_25_34','AGE_35_44']
+  gender: string;                // GENDER_UNLIMITED | GENDER_MALE | GENDER_FEMALE
+  identityId: string;            // от чьего имени показывать (identity)
+  identityType: string;          // CUSTOMIZED_USER | AUTH_CODE | TT_USER
+  adText: string;
+  landingUrl: string;
+  callToAction: string;          // напр. LEARN_MORE, SHOP_NOW
+  enable: boolean;               // запустить сразу или создать на паузе
+};
+
+/** Создать кампанию → вернуть campaign_id. */
+export async function createCampaign(accessToken: string, i: TiktokLaunchInput): Promise<string> {
+  const data = await apiPost<{ campaign_id?: string | number }>('/campaign/create/', accessToken, {
+    advertiser_id: i.advertiserId,
+    campaign_name: i.campaignName,
+    objective_type: i.objective,
+    budget_mode: i.budgetMode,
+    budget: i.budget,
+  });
+  const id = String(data.campaign_id ?? '');
+  if (!id) throw new TiktokError('TikTok не вернул campaign_id');
+  return id;
+}
+
+/** Создать группу объявлений в кампании → вернуть adgroup_id. */
+export async function createAdGroup(
+  accessToken: string,
+  i: TiktokLaunchInput,
+  campaignId: string,
+): Promise<string> {
+  const data = await apiPost<{ adgroup_id?: string | number }>('/adgroup/create/', accessToken, {
+    advertiser_id: i.advertiserId,
+    campaign_id: campaignId,
+    adgroup_name: `${i.campaignName} · AG`,
+    placement_type: 'PLACEMENT_TYPE_AUTOMATIC',
+    promotion_type: 'WEBSITE',
+    location_ids: i.locationIds,
+    ...(i.ageGroups.length ? { age_groups: i.ageGroups } : {}),
+    gender: i.gender,
+    budget_mode: i.budgetMode,
+    budget: i.budget,
+    schedule_type: 'SCHEDULE_FROM_NOW',
+    optimization_goal: i.objective === 'CONVERSIONS' ? 'CONVERT' : 'CLICK',
+    billing_event: 'CPC',
+    pacing: 'PACING_MODE_SMOOTH',
+    operation_status: i.enable ? 'ENABLE' : 'DISABLE',
+  });
+  const id = String(data.adgroup_id ?? '');
+  if (!id) throw new TiktokError('TikTok не вернул adgroup_id');
+  return id;
+}
+
+/** Загрузить видеофайл в кабинет (multipart) → вернуть video_id. */
+export async function uploadVideoFromFile(
+  accessToken: string,
+  advertiserId: string,
+  file: File,
+): Promise<string> {
+  const form = new FormData();
+  form.set('advertiser_id', advertiserId);
+  form.set('upload_type', 'UPLOAD_BY_FILE');
+  form.set('video_file', file, file.name || 'video.mp4');
+  let res: Response;
+  try {
+    res = await fetch(`${API}/file/video/ad/upload/`, {
+      method: 'POST',
+      headers: { 'Access-Token': accessToken },
+      body: form,
+      cache: 'no-store',
+    });
+  } catch (e) {
+    throw new TiktokError(`Не удалось загрузить ролик: ${(e as Error).message}`);
+  }
+  const text = await res.text();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new TiktokError(`TikTok ответил не по-json (${res.status}): ${text.slice(0, 200)}`);
+  }
+  const data = unwrap<{ video_id?: string }[] | { video_id?: string }>(parsed);
+  const first = Array.isArray(data) ? data[0] : data;
+  const id = String(first?.video_id ?? '');
+  if (!id) throw new TiktokError('TikTok не вернул video_id');
+  return id;
+}
+
+/** Создать объявление в группе → вернуть ad_id. */
+export async function createAd(
+  accessToken: string,
+  i: TiktokLaunchInput,
+  adgroupId: string,
+  videoId: string,
+): Promise<string> {
+  const data = await apiPost<{ ad_ids?: (string | number)[] }>('/ad/create/', accessToken, {
+    advertiser_id: i.advertiserId,
+    adgroup_id: adgroupId,
+    creatives: [
+      {
+        ad_name: `${i.campaignName} · AD`,
+        identity_id: i.identityId,
+        identity_type: i.identityType,
+        ad_format: 'SINGLE_VIDEO',
+        video_id: videoId,
+        ad_text: i.adText,
+        call_to_action: i.callToAction,
+        landing_page_url: i.landingUrl,
+      },
+    ],
+  });
+  const id = String((data.ad_ids ?? [])[0] ?? '');
+  if (!id) throw new TiktokError('TikTok не вернул ad_id');
+  return id;
+}
+
+/** Идентити кабинета (от чьего имени публикуем объявление). */
+export type TiktokIdentity = { identityId: string; identityType: string; displayName: string };
+
+/** Список identity кабинета (для выбора в форме автозалива). */
+export async function listIdentities(accessToken: string, advertiserId: string): Promise<TiktokIdentity[]> {
+  const data = await apiGet<{ identity_list?: Record<string, unknown>[] }>(
+    '/identity/get/',
+    accessToken,
+    { advertiser_id: advertiserId },
+  );
+  return (data.identity_list ?? []).map((r) => ({
+    identityId: String(r.identity_id ?? ''),
+    identityType: String(r.identity_type ?? 'CUSTOMIZED_USER'),
+    displayName: String(r.display_name ?? ''),
+  }));
+}
+
 /** Один день расхода по кабинету. */
 export type TiktokSpendDay = { date: string; cents: number };
 
