@@ -39,9 +39,52 @@ export async function logActivity(a: ActivityInput): Promise<void> {
 export type ActivityItem = { id: string; kind: string; message: string; actorName: string; when: string };
 export type ActivityFeed = { items: ActivityItem[]; unread: number };
 
+// ── Напоминания о днях рождения ────────────────────────────────────────────
+// Раз в несколько часов (на процесс) проверяем ближайшие ДР и кладём в ленту
+// напоминание за неделю. Дедуп — по нику баера в последние 10 дней, чтобы не
+// плодить копии на каждый заход.
+let lastBdayCheck = 0;
+
+function daysUntilBirthday(bday: Date, now: Date): number {
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  let next = Date.UTC(now.getUTCFullYear(), bday.getUTCMonth(), bday.getUTCDate());
+  if (next < today) next = Date.UTC(now.getUTCFullYear() + 1, bday.getUTCMonth(), bday.getUTCDate());
+  return Math.round((next - today) / 86_400_000);
+}
+
+async function ensureBirthdayNotifications(): Promise<void> {
+  const now = Date.now();
+  if (now - lastBdayCheck < 6 * 3600 * 1000) return; // не чаще раза в 6 часов
+  lastBdayCheck = now;
+  try {
+    const buyers = await prisma.buyer.findMany({
+      where: { archived: false, birthday: { not: null } },
+      select: { handle: true, birthday: true },
+    });
+    const today = new Date();
+    const since = new Date(now - 10 * 86_400_000);
+    for (const b of buyers) {
+      if (!b.birthday) continue;
+      const d = daysUntilBirthday(b.birthday, today);
+      if (d < 0 || d > 7) continue;
+      const exists = await prisma.activity.findFirst({
+        where: { kind: 'birthday', actorName: b.handle, createdAt: { gt: since } },
+        select: { id: true },
+      });
+      if (exists) continue;
+      const when = d === 0 ? 'сегодня' : d === 1 ? 'завтра' : `через ${d} дн.`;
+      await logActivity({ kind: 'birthday', message: `🎂 ${when} день рождения у ${b.handle}`, actorName: b.handle, adminOnly: true });
+    }
+  } catch {
+    /* напоминания не критичны — молча пропускаем сбой */
+  }
+}
+
 /** Лента и число непрочитанных для пользователя (по его роли и notifSeenAt). */
 export async function getActivityFeed(user: { id: string; role: string }): Promise<ActivityFeed> {
   const team = canSeeTeam(user.role as Role);
+  // Заодно подкидываем напоминания о ДР (внутри — троттлинг раз в 6 часов).
+  await ensureBirthdayNotifications();
   const where = team ? {} : { actorUserId: user.id, adminOnly: false };
 
   // Лента не должна ронять весь layout: любая ошибка запроса (нет таблицы/
