@@ -14,6 +14,23 @@ import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
 
 /**
+ * Ошибка про ВЕСЬ токен (её пробрасываем наверх — там кулдаун при троттлинге
+ * или обновление ключа из кук) — против ошибки про ОДИН кабинет.
+ *
+ * Троттлинг/блок/протухший ключ/кончившаяся сессия — это про токен. А «код 100»
+ * по конкретному act_ (Object with ID '…' does not exist / missing permissions /
+ * Unsupported get request) — это лишь про ЭТОТ кабинет: доступ к нему убрали или
+ * его закрыли. Такой не должен ронять весь профиль — просто пропускаем кабинет,
+ * остальные под токеном тянутся дальше.
+ */
+function isTokenLevelError(e: unknown): boolean {
+  const k = fbErrorKind(e);
+  if (k === 'throttle' || k === 'blocked' || k === 'token') return true;
+  if (e instanceof FbError && e.code === 1) return true; // сессия кончилась
+  return false;
+}
+
+/**
  * Подтягивание цифр из Facebook и Keitaro в отчёты по дням.
  *
  * Главное правило здесь одно: **синхронизация никогда не спорит с человеком**.
@@ -411,6 +428,7 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
         // иначе расход занижается. Окно всего 14 дней, так что «древнюю» историю
         // мёртвого каба мы и не подтянем — тянем только недавний реальный открут.
         // Пауза перед каждым запросом расхода: главный рычаг против чекпоинта.
+        try {
         await humanPause();
         const spend = await accountSpend(access, acc.externalId, from, to, net);
         for (const d of spend) {
@@ -462,6 +480,11 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
             }
           }
           await prisma.adAccount.update({ where: { id: acc.id }, data: { spendMarkCents: todayCents, spendMarkAt: nowT } });
+        }
+        } catch (e) {
+          if (isTokenLevelError(e)) throw e;
+          result.info.push(`${token.buyer.handle}/${acc.name || acc.externalId}: ${e instanceof FbError ? e.message : (e as Error).message}`);
+          result.skipped += 1;
         }
       }
 
@@ -773,6 +796,7 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
         // Мёртвый кабинет (бан/закрыт) — кампании оттуда не тянем: они все
         // стоят, толку ноль, а запрос лишний.
         if (isDeadAccount(acc.accountStatus, acc.disableReason)) continue;
+        try {
         await humanPause();
         const camps = await listFbCampaigns(access, acc.externalId, net);
         const liveIds: string[] = [];
@@ -795,6 +819,11 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
         await prisma.fbCampaign.deleteMany({
           where: { adAccountId: acc.id, campaignId: { notIn: liveIds.length ? liveIds : ['__none__'] } },
         });
+        } catch (e) {
+          if (isTokenLevelError(e)) throw e;
+          result.info.push(`${token.buyer.handle}/${acc.name || acc.externalId}: ${e instanceof FbError ? e.message : (e as Error).message}`);
+          result.skipped += 1;
+        }
       }
       await prisma.adToken.update({
         where: { id: token.id },
@@ -1003,6 +1032,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
         // Забаненные кабы тянем тоже: их недавний открут в окне реальный (есть в
         // ФБ) и обязан долететь в КТ, иначе расход недобирает. Окно 14 дней —
         // старьё мёртвого каба всё равно не подтянется, только свежий открут.
+        try {
         await humanPause();
         const stats = await adStats(access, acc.externalId, from, to, net);
         const statIds = new Set(stats.map((s) => s.adId));
@@ -1220,6 +1250,11 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
             where: { adAccountId: acc.id, adId: { notIn: live } },
           });
           prunedAds += del.count;
+        }
+        } catch (e) {
+          if (isTokenLevelError(e)) throw e;
+          result.info.push(`${token.buyer.handle}/${acc.name || acc.externalId}: ${e instanceof FbError ? e.message : (e as Error).message}`);
+          result.skipped += 1;
         }
       }
 
