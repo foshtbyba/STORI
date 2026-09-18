@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'tiktok-tabs-icons · 17.09 21:09';
+export const BUILD_INFO = 'no-duplicate-token · 18.09 10:28';

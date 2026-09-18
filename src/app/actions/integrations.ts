@@ -32,6 +32,33 @@ const Token = z.object({
 
 export type ActionState = { ok: boolean; error?: string; message?: string } | null;
 
+/**
+ * Какие из найденных кабинетов уже подключены у ЭТОГО баера (по act_ID).
+ * Нужно, чтобы не плодить дубль того же профиля: если весь токен уже в списке —
+ * отказываем с понятным текстом, а слетевший ключ обновляют кнопкой «Обновить
+ * токен». Один и тот же act_ID под РАЗНЫМИ профилями (агентский дубль) — это
+ * другое и проверяется отдельно (тут скоуп по конкретному баеру).
+ */
+async function connectedNames(buyerId: string, externalIds: string[]): Promise<{ matched: Set<string>; names: string[] }> {
+  const ids = [...new Set(externalIds)];
+  if (!ids.length) return { matched: new Set(), names: [] };
+  const rows = await prisma.adAccount.findMany({
+    where: { externalId: { in: ids }, adToken: { buyerId } },
+    select: { externalId: true, name: true },
+  });
+  const byId = new Map(rows.map((r) => [r.externalId, r.name] as const));
+  const matched = new Set(rows.map((r) => r.externalId));
+  const names = [...matched].map((id) => byId.get(id) || id.replace(/^act_/, ''));
+  return { matched, names };
+}
+
+/** Текст отказа: перечисляет уже подключённые кабинеты (до 5). */
+function dupError(names: string[]): string {
+  const shown = names.slice(0, 5).join(', ');
+  const more = names.length > 5 ? ` и ещё ${names.length - 5}` : '';
+  return `Этот кабинет уже добавлен (${shown}${more}). Повторно не добавляем — чтобы обновить слетевший ключ, нажми «Обновить токен» на профиле.`;
+}
+
 export async function addToken(_prev: ActionState, form: FormData): Promise<ActionState> {
   await requireAdmin();
   const parsed = Token.safeParse({
@@ -105,6 +132,14 @@ export async function addToken(_prev: ActionState, form: FormData): Promise<Acti
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
 
+  // Повтор: если ВСЕ кабинеты токена уже подключены у этого баера — не создаём
+  // дубль профиля, а сообщаем.
+  const ids = found.accounts.map((a) => a.externalId);
+  const { matched, names } = await connectedNames(buyerId, ids);
+  if (ids.length > 0 && matched.size === new Set(ids).size) {
+    return { ok: false, error: dupError(names) };
+  }
+
   const created = await prisma.adToken.create({
     data: {
       buyerId,
@@ -173,6 +208,14 @@ export async function addMyToken(_prev: ActionState, form: FormData): Promise<Ac
     found = await checkToken(token, { proxyUrl: proxyUrl || null, cookie: cookieHeader });
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
+  }
+
+  // Повтор: если ВСЕ кабинеты токена уже подключены у баера — не плодим дубль
+  // профиля, сообщаем. Слетевший ключ обновляют кнопкой «Обновить токен».
+  const ids = found.accounts.map((a) => a.externalId);
+  const { matched, names } = await connectedNames(user.buyer.id, ids);
+  if (ids.length > 0 && matched.size === new Set(ids).size) {
+    return { ok: false, error: dupError(names) };
   }
 
   const created = await prisma.adToken.create({
