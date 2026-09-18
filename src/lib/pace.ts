@@ -17,9 +17,9 @@ function envInt(name: string, fallback: number): number {
   return Number.isFinite(v) && v >= 0 ? v : fallback;
 }
 
-/** Пауза между запросами к Facebook: по умолчанию 2–6 секунд. */
-export const FB_PAUSE_MIN_MS = envInt('SYNC_FB_PAUSE_MIN_MS', 2000);
-export const FB_PAUSE_MAX_MS = envInt('SYNC_FB_PAUSE_MAX_MS', 6000);
+/** Пауза между запросами к Facebook: по умолчанию 3–7 секунд (мягкий режим). */
+export const FB_PAUSE_MIN_MS = envInt('SYNC_FB_PAUSE_MIN_MS', 3000);
+export const FB_PAUSE_MAX_MS = envInt('SYNC_FB_PAUSE_MAX_MS', 7000);
 
 /** Сколько часов токен «отдыхает» после тревожного сигнала. */
 export const FB_COOLDOWN_HOURS = envInt('SYNC_FB_COOLDOWN_HOURS', 6);
@@ -69,7 +69,7 @@ export function shuffle<T>(arr: T[]): T[] {
 /** Максимум токенов, опрашиваемых одновременно. Разные токены — разные
  *  аккаунты и прокси, их можно вести параллельно; серийность нужна только
  *  внутри аккаунта. */
-export const FB_CONCURRENCY = envInt('SYNC_FB_CONCURRENCY', 4);
+export const FB_CONCURRENCY = envInt('SYNC_FB_CONCURRENCY', 3);
 
 /**
  * Выполнить задачи с ограничением на число одновременно идущих. Простой пул:

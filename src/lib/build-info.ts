@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'throttle-short-cooldown · 18.09 13:41';
+export const BUILD_INFO = 'gentle-sync-pacing · 18.09 13:48';
