@@ -24,6 +24,23 @@ export const FB_PAUSE_MAX_MS = envInt('SYNC_FB_PAUSE_MAX_MS', 6000);
 /** Сколько часов токен «отдыхает» после тревожного сигнала. */
 export const FB_COOLDOWN_HOURS = envInt('SYNC_FB_COOLDOWN_HOURS', 6);
 
+/**
+ * Отдельный, КОРОТКИЙ кулдаун для троттлинга. Троттлинг (код 4 и т.п.) FB
+ * отпускает через минуты, а не часы — незачем держать кабинет мёртвым полдня.
+ * «Блок» за подозрительную активность — другое: там отступаем надолго
+ * (FB_COOLDOWN_HOURS), чтобы не довести до чекпоинта.
+ */
+export const FB_THROTTLE_COOLDOWN_HOURS = envInt('SYNC_FB_THROTTLE_COOLDOWN_HOURS', 1);
+
+/**
+ * До какого времени парковать токен после сигнала FB (или null — не паркуем).
+ * Троттлинг → короткий кулдаун, блок → длинный.
+ */
+export function fbCooldownUntil(kind: 'throttle' | 'blocked' | 'token' | 'other', from: Date): Date | null {
+  const hours = kind === 'throttle' ? FB_THROTTLE_COOLDOWN_HOURS : kind === 'blocked' ? FB_COOLDOWN_HOURS : 0;
+  return hours ? new Date(from.getTime() + hours * 3600_000) : null;
+}
+
 export const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 /** Случайная задержка в диапазоне [min, max]. */

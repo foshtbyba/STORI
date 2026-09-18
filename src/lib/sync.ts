@@ -8,7 +8,7 @@ import { accountSpend, listAccounts, listCampaigns as listFbCampaigns, adStats, 
 import { isDeadAccount } from './fb-status';
 import { logActivity } from './activity';
 import { extractTokenFromCookies } from './fb-engine';
-import { humanPause, shuffle, pool, FB_COOLDOWN_HOURS, FB_CONCURRENCY } from './pace';
+import { humanPause, shuffle, pool, fbCooldownUntil, FB_CONCURRENCY } from './pace';
 import { dailyRevenue, revenueByAd, listCampaigns, indexByToken, updateCostsBulk, clearCostsWindow, adCampaignMap, KeitaroError, type CostEntry } from './keitaro';
 import { parseKtCandidates } from './kt-link';
 import { dailySpend, listTeams, BrocardError } from './brocard';
@@ -496,9 +496,7 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
       // бывало: долбить именно этот аккаунт после сигнала и значит доводить
       // его до чекпоинта.
       const scary = kind === 'throttle' || kind === 'blocked';
-      const pausedUntil = scary
-        ? new Date(now.getTime() + FB_COOLDOWN_HOURS * 3600_000)
-        : token.pausedUntil ?? null;
+      const pausedUntil = scary ? fbCooldownUntil(kind, now) : token.pausedUntil ?? null;
       const note = scary
         ? `${why} — токен на паузе до ${pausedUntil?.toLocaleString('ru-RU')}, чтобы не словить чекпоинт`
         : why;
@@ -821,7 +819,7 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
       const kind = fbErrorKind(e);
       const why = e instanceof FbError ? e.message : `Сбой: ${(e as Error).message}`;
       const scary = kind === 'throttle' || kind === 'blocked';
-      const pausedUntil = scary ? new Date(now.getTime() + FB_COOLDOWN_HOURS * 3600_000) : token.pausedUntil ?? null;
+      const pausedUntil = scary ? fbCooldownUntil(kind, now) : token.pausedUntil ?? null;
       const note = scary ? `${why} — токен на паузе до ${pausedUntil?.toLocaleString('ru-RU')}` : why;
       // Пользователю — коротко и без технических деталей FB: подробности всё
       // равно лежат в lastError токена (для админа в настройках).
@@ -1248,7 +1246,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       const kind = fbErrorKind(e);
       const why = e instanceof FbError ? e.message : `Сбой: ${(e as Error).message}`;
       const scary = kind === 'throttle' || kind === 'blocked';
-      const pausedUntil = scary ? new Date(now.getTime() + FB_COOLDOWN_HOURS * 3600_000) : token.pausedUntil ?? null;
+      const pausedUntil = scary ? fbCooldownUntil(kind, now) : token.pausedUntil ?? null;
       const note = scary ? `${why} — токен на паузе до ${pausedUntil?.toLocaleString('ru-RU')}` : why;
       // Пользователю — коротко и без технических деталей FB: подробности всё
       // равно лежат в lastError токена (для админа в настройках).

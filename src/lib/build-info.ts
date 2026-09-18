@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'low-balance-agency-only · 18.09 12:14';
+export const BUILD_INFO = 'throttle-short-cooldown · 18.09 13:41';
