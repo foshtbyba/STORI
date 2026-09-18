@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'per-account-error-isolation · 18.09 15:00';
+export const BUILD_INFO = 'partner-affstar · 18.09 19:46';
