@@ -1282,6 +1282,11 @@ const PARTNERS = {
   "KMA.pro": { label:"KMA.pro", mode:"kma", native:true, buyerField:"data2",
     kma:{ subField:"data1", apiFolder:true, successFile:"success.php" },
     hint:"KMA: нужна ПАПКА api из общего архива KMA (config.php, custom.min.js, KmaLead.php, success.php…) — ОБЯЗАТЕЛЬНО загрузи её в поле выше, конструктор положит её в ленд как api/. Файл api/success.php заменяется на наш (переведённый + пиксель). Форму/скрипты KMA не трогаем, ловим subid в data1, вставляем Meta Pixel и back-fix." },
+  "affstar.com": { label:"affstar.com", mode:"php", domain:"affstar.com", native:true, buyerField:"sub_id2",
+    php:{ gen:"", action:"api.php", subField:"sub_id1", country:true, noId:true,
+      needFile:"api.php", successPage:"confirm.php", errorPage:"error.php",
+      extraHidden:'<input type="hidden" name="sub_id3" value="">\n        <input type="hidden" name="utm_source" value="">\n        <input type="hidden" name="utm_content" value="">\n        <input type="hidden" name="utm_campaign" value="">\n        <input type="hidden" name="utm_term" value="">\n        <input type="hidden" name="utm_medium" value="">\n' },
+    hint:"AFFSTAR: форма постит на api.php (из архива оффера — впиши в него API_KEY и FLOW_UUID). subid → sub_id1, метка баера → sub_id2, страна (ISO) — авто из «Код гео». confirm.php/error.php (спасибо/ошибка) берутся из архива — call/error НЕ генерятся. Загружай ленд ПАПКОЙ (index.html + api.php + confirm.php + error.php + css/js)." },
   "skylead.biz": { label:"skylead.biz", mode:"php", domain:"skylead.biz", skylead:true, buyerField:"utm_content",
     php:{ gen:"skylead", subField:"subid", country:true, idLabel:"ID оффера (offer)" },
     hint:"SkyLead: серверный order.php (генерируется) — форма постит на него, лид уходит на api.skylead.biz/wm/push.json (POST). Заполни SkyLead API-ключ (из профиля, вид 3341-…), ID оффера (offer) и ID потока (flow). Страна (ISO) — авто из «Код гео», subid ловится сам. Хост должен поддерживать PHP+cURL. Загружай ленд папкой. call/error генерятся сами (перевод + пиксель)." }
@@ -1950,7 +1955,7 @@ function wireOrderPhpForm(cfg, html){
   // SkyLead: скрытое поле offer/flow в форме -> ошибка no-api (по докам). Держим их только в order.php, из формы выкидываем.
   var extraStrip=(cfg.phpGen==="skylead")?"|offer|flow":"";
   // + чистим everad-остатки (если ленд раньше был everad): campaign_id/country_code/sid1/sid5 — иначе мусор в POST.
-  var stripRe=new RegExp('<input[^>]*name=["\'](?:sub1|subid|clickid|country'+extraStrip+'|campaign_id|country_code|sid\\d+|utm_[a-z]+|fbpxl?)["\'][^>]*>\\s*',"gi");
+  var stripRe=new RegExp('<input[^>]*name=["\'](?:sub1|sub_id\\d+|subid|clickid|country'+extraStrip+'|campaign_id|country_code|sid\\d+|utm_[a-z]+|fbpxl?)["\'][^>]*>\\s*',"gi");
   return html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
     if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа (декоративные оставляем)
     // target тоже срезаем: остаток target="ev_frame" от everad-сборки отправлял бы ответ order.php в скрытый iframe -> белый экран/404
@@ -2070,6 +2075,9 @@ function patchHtml(cfg, html){
     // если ленд раньше был everad — выкидываем его сабмит-скрипт (редирект на success.html -> 404) и скрытый iframe.
     html=html.replace(/<script(?![^>]*\bsrc=)[^>]*>((?:(?!<\/script>)[\s\S])*?)<\/script>/gi,function(m,body){ return /ev_order_form|ev_submit_btn|ev_frame|\/conversion\/new|tracker\.(?:everad|rocketprofit)\.com/i.test(body)?"":m; });
     html=html.replace(/<iframe\b[^>]*(?:name|id)=["']ev_frame["'][^>]*>(?:(?!<\/iframe>)[\s\S])*?<\/iframe>/gi,"");
+    // AFFSTAR: выкидываем их af.js и afjs.init (по гайду) — форму шлём на api.php сами
+    html=html.replace(/<script\b[^>]*\baf\.js[^>]*>\s*<\/script>/gi,"");
+    html=html.replace(/<script\b(?![^>]*\bsrc=)[^>]*>(?:(?!<\/script>)[\s\S])*?afjs\.init[\s\S]*?<\/script>/gi,"");
     // shakes/skylead: форма постит на серверный order.php; JS-движок НЕ вставляем
     html=wireOrderPhpForm(cfg, html);
     // та же надёжная ловля subid, что и у m1: URL ?s/?subid или keitaro_subid -> в скрытое sub1
