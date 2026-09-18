@@ -334,7 +334,7 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
         // Прошлый статус — чтобы поймать МОМЕНТ ухода в бан и уведомить.
         const prev = await prisma.adAccount.findUnique({
           where: { tokenId_externalId: { tokenId: token.id, externalId: acc.externalId } },
-          select: { accountStatus: true, disableReason: true },
+          select: { accountStatus: true, disableReason: true, agency: true },
         });
         await prisma.adAccount.upsert({
           where: { tokenId_externalId: { tokenId: token.id, externalId: acc.externalId } },
@@ -369,9 +369,11 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
           });
         }
 
-        // Низкий остаток открута (< 200) на ЖИВОМ кабинете — сигнал в колокольчик,
-        // раз в сутки на кабинет (refKey с датой).
-        if (!isDeadAccount(acc.accountStatus, acc.disableReason)) {
+        // Низкий остаток открута (< 200) на ЖИВОМ АГЕНТСКОМ кабинете — сигнал в
+        // колокольчик, раз в сутки на кабинет (refKey с датой). Только агентские:
+        // у ферм баланс живёт иначе (карты/предоплата мелкими суммами), и «$1/$3»
+        // — это шум, а не низкий остаток. Совпадает с логикой пилюли «ост.».
+        if (prev?.agency && !isDeadAccount(acc.accountStatus, acc.disableReason)) {
           const remCents = acc.spendCapCents > 0
             ? Math.max(0, acc.spendCapCents - acc.amountSpentCents)
             : acc.balanceCents > 0 ? acc.balanceCents : -1;
