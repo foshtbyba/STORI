@@ -1266,10 +1266,10 @@ const PARTNERS = {
   "hamsters.run": { label:"hamsters.run",
     php:{ gen:"hamsters", subField:"subid", country:false, landing:false, stream:false, idLabel:"OFFER_KEY (key_hash)" },
     hint:"Серверный order.php (генерируется): форма постит на него, лид уходит на hamsters.run/api/leads/set. Впиши OFFER_KEY (ключ оффера, 16 символов) в поле ниже. api_key/ref/страна не нужны." },
-  "limonad.com": { label:"limonad.com",
+  "limonad.com": { label:"limonad.com", buyerField:"utm_medium",
     php:{ gen:"", action:"lemon.php", subField:"clickid", noId:true, country:false, landing:false, stream:false,
       needFile:"lemon.php", successPage:"success.php", errorPage:"error.php", pageGen:"limonad",
-      extraHidden:'<input type="hidden" name="utm_campaign" value="">\n        <input type="hidden" name="utm_content" value="">\n        <input type="hidden" name="utm_medium" value="">\n        <input type="hidden" name="utm_source" value="">\n        <input type="hidden" name="utm_term" value="">\n        <input type="hidden" name="fbpxl" value="">\n' },
+      extraHidden:'<input type="hidden" name="utm_campaign" value="">\n        <input type="hidden" name="utm_content" value="">\n        <input type="hidden" name="utm_source" value="">\n        <input type="hidden" name="utm_term" value="">\n        <input type="hidden" name="fbpxl" value="">\n' },
     hint:"Форма постит на lemon.php (index остаётся .html). ВАЖНО: файл lemon.php бери из архива оффера limonad и клади в папку ленда — конструктор его НЕ генерит (без него форма не отправит заказ). success.php и error.php конструктор генерит сам. subid идёт в поле clickid. ID оффера/ключи не нужны." },
   "everad.com": { label:"everad.com", mode:"everad", buyerField:"sid2",
     ev:{ action:"https://tracker.everad.com/conversion/new", subField:"sid5", pxField:"sid1",
@@ -1279,7 +1279,7 @@ const PARTNERS = {
     ev:{ action:"https://tracker.rocketprofit.com/conversion/new", subField:"sid5", pxField:"sid1",
          idLabel:"Campaign ID (campaign_id)", country:true, successPage:"success.html", errorPage:"error.html" },
     hint:"rocketprofit (как everad): форма постит в трекер rocketprofit через скрытый iframe, потом редирект на success.html. Нужен только Campaign ID (id потока); country_code — авто из «Код гео». subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." },
-  "KMA.pro": { label:"KMA.pro", mode:"kma", native:true,
+  "KMA.pro": { label:"KMA.pro", mode:"kma", native:true, buyerField:"data2",
     kma:{ subField:"data1", apiFolder:true, successFile:"success.php" },
     hint:"KMA: нужна ПАПКА api из общего архива KMA (config.php, custom.min.js, KmaLead.php, success.php…) — ОБЯЗАТЕЛЬНО загрузи её в поле выше, конструктор положит её в ленд как api/. Файл api/success.php заменяется на наш (переведённый + пиксель). Форму/скрипты KMA не трогаем, ловим subid в data1, вставляем Meta Pixel и back-fix." },
   "skylead.biz": { label:"skylead.biz", mode:"php", domain:"skylead.biz", skylead:true, buyerField:"utm_content",
@@ -1838,6 +1838,7 @@ function kmaSuccessPhp(cfg){
 "$lang    = isset($_POST['language']) ? trim($_POST['language']) : "+phpq(defLang)+";\n"+
 "$subid   = isset($_POST['subid'])    ? trim($_POST['subid'])    : '';\n"+
 "$data1   = isset($_POST['data1'])    ? trim($_POST['data1'])    : '';\n"+
+"$data2   = isset($_POST['data2'])    ? trim($_POST['data2'])    : '';\n"+   // метка баера
 "\n"+
 "$lead_sent = false;\n"+
 "\n"+
@@ -1855,6 +1856,7 @@ function kmaSuccessPhp(cfg){
 "    );\n"+
 "    if ($data1) { $data['data1'] = $data1; }\n"+
 "    if ($subid) { $data['subid'] = $subid; }\n"+
+"    if ($data2) { $data['data2'] = $data2; }\n"+   // метка баера -> data2
 "\n"+
 "    $raw = $kma->addLeadAndReturnPage($data);\n"+
 "    if ($raw) {\n"+
@@ -1921,7 +1923,7 @@ function phpSubidScript(cfg){
 // KMA: у формы заказа принудительно ставим action="api/success.php" method="POST" (лид уходит нативным POST-ом,
 // а api/success.php шлёт его в партнёрку через KmaLead). Скрытые поля KMA (offer_id/channel/landing/webmaster/data1)
 // НЕ трогаем — они уже в форме. Если поля data1 нет — добавляем (для subid). Декоративные формы не трогаем.
-function wireKmaForm(html){
+function wireKmaForm(cfg, html){
   var done=false;
   html=html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
     if(done) return m;
@@ -1932,6 +1934,8 @@ function wireKmaForm(html){
     attrs=' action="api/success.php" method="POST"'+attrs;
     var body=inner;
     if(!/name=["']data1["']/i.test(body)) body='\n        <input type="hidden" name="data1" value="{subid}">'+body;   // поле для subid, если его нет
+    if(cfg && cfg.buyerTag && cfg.buyerField && !new RegExp('name=["\']'+cfg.buyerField+'["\']').test(body))
+      body='\n        <input type="hidden" name="'+cfg.buyerField+'" value="'+cfg.buyerTag+'">'+body;   // метка баера (KMA -> data2)
     return "<form"+attrs+">"+body+"</form>";
   });
   return html;
@@ -2087,7 +2091,7 @@ function patchHtml(cfg, html){
     // ГЛАВНОЕ: гарантируем у формы заказа action="api/success.php" method="POST". Иначе (напр. после
     // перевода Claude, который иногда срезает атрибуты формы) браузер сабмитит форму GET-ом на корень
     // страницы -> «сайт/?name=...&phone=...» и лид НЕ уходит. Скрытые поля KMA (offer_id/channel/…) не трогаем.
-    html=wireKmaForm(html);
+    html=wireKmaForm(cfg, html);
     if(!cfg.backfix){ var kbf=html.match(/<script\b[^>]*ywbackfix\.js[^>]*data-links=['"]\s*\[\s*"([^"]+)"/i); if(kbf) cfg.backfix=kbf[1]; }
     var ktail=phpSubidScript(cfg);   // subField=data1 -> заполняем из URL ?s/?subid или keitaro
     var kyw=backfixBlock(cfg); if(kyw) ktail+="\n"+kyw;
