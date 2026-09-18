@@ -585,7 +585,7 @@
         <label id="handlerLabel">Файл обработчика (lemon.php) *</label>
         <label class="drop" for="handlerFile" id="handlerDrop" style="padding:14px;position:relative">
           <b class="x" id="handlerClear" title="Убрать файл" style="position:absolute;top:8px;right:10px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.32);color:#fff;font-size:12px;display:none;align-items:center;justify-content:center;line-height:1;cursor:pointer;z-index:2">✕</b>
-          <div class="ic">🍋</div>
+          <div class="ic" id="handlerIcon">🍋</div>
           <div class="t" id="handlerDropT">Загрузи lemon.php</div>
           <div class="s" id="handlerDropS">свой под КАЖДЫЙ оффер — бери из архива оффера. Кладётся как есть.</div>
           <input id="handlerFile" type="file" accept=".php">
@@ -1270,6 +1270,7 @@ const PARTNERS = {
   "limonad.com": { label:"limonad.com", buyerField:"utm_medium",
     php:{ gen:"", action:"lemon.php", subField:"clickid", noId:true, country:false, landing:false, stream:false,
       needFile:"lemon.php", successPage:"success.php", errorPage:"error.php", pageGen:"limonad",
+      handlerIcon:"🍋", handlerHint:"⚠ <b>lemon.php у каждого оффера свой</b> (внутри его OFFER_ID и токен). Загружай новый под каждый оффер. Файл кладётся в сборку <b>без изменений</b>. success.php/error.php генерятся сами.",
       extraHidden:'<input type="hidden" name="utm_campaign" value="">\n        <input type="hidden" name="utm_content" value="">\n        <input type="hidden" name="utm_source" value="">\n        <input type="hidden" name="utm_term" value="">\n        <input type="hidden" name="fbpxl" value="">\n' },
     hint:"Форма постит на lemon.php (index остаётся .html). ВАЖНО: файл lemon.php бери из архива оффера limonad и клади в папку ленда — конструктор его НЕ генерит (без него форма не отправит заказ). success.php и error.php конструктор генерит сам. subid идёт в поле clickid. ID оффера/ключи не нужны." },
   "everad.com": { label:"everad.com", mode:"everad", buyerField:"sid2",
@@ -1286,6 +1287,7 @@ const PARTNERS = {
   "affstar.com": { label:"affstar.com", mode:"php", domain:"affstar.com", native:true, buyerField:"sub_id2", affstar:true,
     php:{ gen:"", action:"api.php", subField:"sub_id1", country:true, idLabel:"FLOW_UUID (хеш потока)",
       needFile:"api.php", successPage:"confirm.php", errorPage:"error.php",
+      handlerIcon:"📄", handlerHint:"api.php из архива оффера. Если грузишь ленд <b>ПАПКОЙ</b> (index.html + api.php + confirm.php + error.php) — он уже внутри, отдельно загружать НЕ нужно. <b>API_KEY вшит</b>, а <b>FLOW_UUID</b> из поля выше — билдер впишет их в api.php сам.",
       extraHidden:'<input type="hidden" name="sub_id3" value="">\n        <input type="hidden" name="utm_source" value="">\n        <input type="hidden" name="utm_content" value="">\n        <input type="hidden" name="utm_campaign" value="">\n        <input type="hidden" name="utm_term" value="">\n        <input type="hidden" name="utm_medium" value="">\n' },
     hint:"AFFSTAR: форма постит на api.php (из архива оффера — впиши в него API_KEY и FLOW_UUID). subid → sub_id1, метка баера → sub_id2, страна (ISO) — авто из «Код гео». confirm.php/error.php (спасибо/ошибка) берутся из архива — call/error НЕ генерятся. Загружай ленд ПАПКОЙ (index.html + api.php + confirm.php + error.php + css/js)." },
   "skylead.biz": { label:"skylead.biz", mode:"php", domain:"skylead.biz", skylead:true, buyerField:"utm_content",
@@ -3102,7 +3104,10 @@ function enhanceSelect(sel){
     document.getElementById("handlerHint").style.display=needF?"":"none";
     document.getElementById("kmaApiDrop").style.display=needApi?"":"none";
     document.getElementById("kmaApiHint").style.display=needApi?"":"none";
-    if(needF){ HANDLER_NAME=needF; var hl=document.getElementById("handlerLabel"); if(hl) hl.textContent="Файл-обработчик ("+needF+") *"; try{ renderHandlerState(); }catch(e){} }
+    if(needF){ HANDLER_NAME=needF; var hl=document.getElementById("handlerLabel"); if(hl) hl.textContent="Файл-обработчик ("+needF+") *";
+      var hi=document.getElementById("handlerIcon"); if(hi) hi.textContent=(php&&php.handlerIcon)||"📄";
+      var hh=document.getElementById("handlerHint"); if(hh) hh.innerHTML=(php&&php.handlerHint)||("⚠ <b>"+needF+"</b> берётся из архива оффера. Если грузишь ленд <b>папкой</b> — он уже внутри, отдельно загружать не нужно. Кладётся в сборку без изменений.");
+      try{ renderHandlerState(); }catch(e){} }
     if(needApi){ try{ renderKmaApi(); }catch(e){} }
     document.getElementById("pidWrap").style.display=(isKma||(php&&php.noId))?"none":"block";   // KMA/limonad: id оффера не нужен (он в ленде/lemon.php); everad: нужен campaign_id
     // если в правой ячейке ряда ничего не показано (m1/hamsters) — «Код гео» на всю ширину, без пустого места
