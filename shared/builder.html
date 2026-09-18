@@ -1256,6 +1256,7 @@ function trace(msg, style = null) {
 <script>
 /* ================= АДАПТЕРЫ ПАРТНЁРОК ================= */
 var SKYLEAD_KEY_B64="MzM0MS0xOGM5NjhhYzA3MzI4MDEzZjI1ZTM0ZWJjYTY2MzA1OQ==";   // ключ SkyLead (закодирован, не открытым текстом)
+var AFFSTAR_KEY_B64="ODRhNzVhZmFjY2IxNWJiOWRmY2NjMzJhNTllZDQ5MWM=";   // ключ AFFSTAR (закодирован)
 const PARTNERS = {
   "m1.top": { label:"m1.top", mode:"js", endpoint:"https://m1.top/send_order/", okField:"result", okValue:"ok", idField:"id",
     ref:"1029931", api_key:"2188aad9cfb9f55626bf1d64cf4e95e0", buyerField:"sub_id_2",
@@ -1282,8 +1283,8 @@ const PARTNERS = {
   "KMA.pro": { label:"KMA.pro", mode:"kma", native:true, buyerField:"data2",
     kma:{ subField:"data1", apiFolder:true, successFile:"success.php" },
     hint:"KMA: нужна ПАПКА api из общего архива KMA (config.php, custom.min.js, KmaLead.php, success.php…) — ОБЯЗАТЕЛЬНО загрузи её в поле выше, конструктор положит её в ленд как api/. Файл api/success.php заменяется на наш (переведённый + пиксель). Форму/скрипты KMA не трогаем, ловим subid в data1, вставляем Meta Pixel и back-fix." },
-  "affstar.com": { label:"affstar.com", mode:"php", domain:"affstar.com", native:true, buyerField:"sub_id2",
-    php:{ gen:"", action:"api.php", subField:"sub_id1", country:true, noId:true,
+  "affstar.com": { label:"affstar.com", mode:"php", domain:"affstar.com", native:true, buyerField:"sub_id2", affstar:true,
+    php:{ gen:"", action:"api.php", subField:"sub_id1", country:true, idLabel:"FLOW_UUID (хеш потока)",
       needFile:"api.php", successPage:"confirm.php", errorPage:"error.php",
       extraHidden:'<input type="hidden" name="sub_id3" value="">\n        <input type="hidden" name="utm_source" value="">\n        <input type="hidden" name="utm_content" value="">\n        <input type="hidden" name="utm_campaign" value="">\n        <input type="hidden" name="utm_term" value="">\n        <input type="hidden" name="utm_medium" value="">\n' },
     hint:"AFFSTAR: форма постит на api.php (из архива оффера — впиши в него API_KEY и FLOW_UUID). subid → sub_id1, метка баера → sub_id2, страна (ISO) — авто из «Код гео». confirm.php/error.php (спасибо/ошибка) берутся из архива — call/error НЕ генерятся. Загружай ленд ПАПКОЙ (index.html + api.php + confirm.php + error.php + css/js)." },
@@ -1827,6 +1828,13 @@ function limonadErrorPhp(cfg){
 // затем рисует НАШ дизайн (переведённый + пиксель) — success при отправленном лиде, error иначе.
 // Именно так работает боевой ленд: меняются ровно 2 файла — index.html и api/success.php.
 function phpq(s){ return "'"+String(s==null?"":s).replace(/\\/g,"\\\\").replace(/'/g,"\\'")+"'"; }   // PHP single-quoted string literal
+// AFFSTAR: вписываем в их api.php наш API_KEY (вшит) и FLOW_UUID (поле). Остальное api.php не трогаем.
+function patchAffstarApi(str, cfg){
+  var key=(cfg.affstarKey||"").replace(/'/g,""), flow=String(cfg.product_id||"").replace(/'/g,"");
+  if(key)  str=str.replace(/const\s+API_KEY\s*=\s*'[^']*'\s*;/, "const API_KEY = '"+key+"';");
+  if(flow) str=str.replace(/const\s+FLOW_UUID\s*=\s*'[^']*'\s*;/, "const FLOW_UUID = '"+flow+"';");
+  return str;
+}
 function kmaSuccessPhp(cfg){
   var t=cfg.t, dir=t.rtl?' dir="rtl"':'', img=pageImg(cfg,"success");
   // success.php лежит в api/, поэтому относительный путь к картинке поднимаем на уровень выше
@@ -2629,6 +2637,7 @@ function readCfg(){
     product_id:val("product_id"),ref:(pk.ref!=null&&pk.ref!=="")?pk.ref:val("ref"),api_key:(pk.api_key!=null&&pk.api_key!=="")?pk.api_key:val("api_key"),langCode:val("langCode"),
     slKey:(function(){try{return atob(SKYLEAD_KEY_B64);}catch(e){return"";}})(),slFlow:val("sl_flow"),
     buyerTag:val("buyerTag"),buyerField:pk.buyerField||"",
+    affstar:!!pk.affstar,affstarKey:(function(){try{return atob(AFFSTAR_KEY_B64);}catch(e){return"";}})(),
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),ywUrl:val("ywUrl"),
     brand:val("brand")||"Product",image:val("image")||"images/product.png",price:val("price")||"—",
     successImg:PAGE_IMG.page,errorImg:PAGE_IMG.page,
@@ -2939,6 +2948,13 @@ function downloadZip(){
       var succPhp=kmaSuccessPhp(cfg), hasSucc=false;
       out.forEach(function(f){ if(/(^|\/)api\/success\.php$/i.test(f.name||"")){ f.str=succPhp; delete f.bytes; hasSucc=true; } });
       if(!hasSucc) out.push({name:"api/success.php",str:succPhp});
+    }
+    // AFFSTAR: вписываем в api.php наш API_KEY (вшит) и FLOW_UUID (поле). .php в папке хранится байтами — декодим.
+    if(cfg.affstar){
+      out.forEach(function(f){ if(/(^|\/)api\.php$/i.test(f.name||"")){
+        var s=(f.str!=null)?f.str:(f.bytes?new TextDecoder("utf-8").decode(f.bytes):null);
+        if(s!=null){ f.str=patchAffstarApi(s, cfg); delete f.bytes; }
+      } });
     }
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
