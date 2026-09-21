@@ -1275,7 +1275,7 @@ const PARTNERS = {
   "shakes.pro": { label:"shakes.pro", mode:"php", domain:"shakes.pro", api_key:"f825ffeff11da49a86dc5d095c648f3c", buyerField:"sub2",
     php:{ gen:"shakes", subField:"sub1", country:true, landing:true, stream:true, idLabel:"ID оффера (offerId)" },
     hint:"Серверный order.php (генерируется): форма постит на него. ID оффера = offerId, api_key закреплён, ref не нужен. Заполни ID оффера, страну и URL лендинга." },
-  "hamsters.run": { label:"hamsters.run",
+  "hamsters.run": { label:"hamsters.run", buyerField:"subid2",
     php:{ gen:"hamsters", subField:"subid", country:false, landing:false, stream:false, idLabel:"OFFER_KEY (key_hash)" },
     hint:"Серверный order.php (генерируется): форма постит на него, лид уходит на hamsters.run/api/leads/set. Впиши OFFER_KEY (ключ оффера, 16 символов) в поле ниже. api_key/ref/страна не нужны." },
   "limonad.com": { label:"limonad.com", buyerField:"utm_medium",
@@ -1655,7 +1655,9 @@ function hamstersOrderPhp(cfg){
 "$name  = isset($_POST['name'])  ? trim($_POST['name'])  : '';\n"+
 "$phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';\n\n"+
 "$subid = isset($_POST['subid']) ? trim($_POST['subid']) : '';\n"+
-"if (strpos($subid, '{') !== false) { $subid = ''; }\n\n"+
+"if (strpos($subid, '{') !== false) { $subid = ''; }\n"+
+"$subid2 = isset($_POST['subid2']) ? trim($_POST['subid2']) : '';\n"+   // метка баера
+"if (strpos($subid2, '{') !== false) { $subid2 = ''; }\n\n"+
 "if ($phone === '') { header('Location: ' . $ERROR_PAGE); exit; }\n\n"+
 "$data = [\n"+
 "    'key_hash' => $OFFER_KEY,\n"+
@@ -1663,7 +1665,8 @@ function hamstersOrderPhp(cfg){
 "    'phone'    => $phone,\n"+
 "    'ip'       => getUserIP(),\n"+
 "];\n"+
-"if ($subid !== '') { $data['subid'] = $subid; }\n\n"+
+"if ($subid  !== '') { $data['subid']  = $subid; }\n"+
+"if ($subid2 !== '') { $data['subid2'] = $subid2; }\n\n"+
 "$result = sendLead($data);\n\n"+
 "if (is_array($result) && !empty($result['api']['success'])) { header('Location: ' . $THANK_PAGE); }\n"+
 "else { header('Location: ' . $ERROR_PAGE); }\n"+
