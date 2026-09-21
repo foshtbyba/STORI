@@ -1928,8 +1928,10 @@ function isSuccErrPage(name){
 }
 // известные серверные обработчики заказа партнёрок (lemon.php у limonad, subscribe.php у everad/rocketprofit, order.php у shakes/hamsters)
 var KNOWN_HANDLERS=/^(?:lemon|subscribe1?|subscription|order|handler)\.php$/i;
-// какой обработчик нужен ТЕКУЩЕЙ партнёрке (иначе — ни одного)
-function activeHandler(cfg){ return (cfg.needFile||"").toLowerCase() || ((cfg.mode==="php" && cfg.phpGen)?"order.php":""); }
+// какой обработчик нужен ТЕКУЩЕЙ партнёрке (иначе — ни одного). Имя = реальный файл обработчика (api.php у affstar, order.php у shakes/hamsters/skylead)
+function activeHandler(cfg){ return (cfg.needFile||"").toLowerCase() || ((cfg.mode==="php" && cfg.phpGen)?(cfg.phpAction||"order.php").toLowerCase():""); }
+// служебные лог-файлы обработчиков (пишутся на проде) — в сборку не тащим
+var JUNK_FILE=/^(?:debug_log|_skylead_log|_affstar_log|order_log|leads?_log)\.txt$|\.log$/i;
 // файл-обработчик ЧУЖОЙ партнёрки (напр. lemon.php при everad) — такой из папки выкидываем, чтобы не мусорил
 function isForeignHandler(name, cfg){ var b=String(name||"").toLowerCase(); return KNOWN_HANDLERS.test(b) && b!==activeHandler(cfg); }
 // php-режим: заполнить скрытое sub1 меткой subid из URL (?s/?subid) или keitaro_subid — как надёжная ловля у m1.
@@ -2931,10 +2933,12 @@ function downloadZip(){
   function idxName(p){ return cfg.mainExt==="php" ? p.replace(/index\.html?$/i,"index.php") : p; }   // limonad -> index.php
   if(MODE==="folder"&&FOLDER){
     var had={}, succL=cfg.successName.toLowerCase(), errL=cfg.errorName.toLowerCase();
+    if(cfg.affstar){ succL="confirm.php"; errL="error.php"; }   // affstar: активные страницы — confirm.php/error.php (через api.php), а call.html/error.html из старой партнёрки надо выкинуть
     var out=FOLDER.files.filter(function(x){
       if(REMOVE[x.path]) return false;
       if(cfg.makeChest && baseName(x.path).toLowerCase()==="chest.html") return false; // сундук уходит в свой zip
       var b=baseName(x.path).toLowerCase();
+      if(JUNK_FILE.test(b)) return false;   // логи обработчиков (debug_log.txt и т.п.) — не тащим
       // лишние старые спасибо/ошибка (не активные success/error партнёрки) — выкидываем, чтобы не засоряли папку.
       // для нативных партнёрок (KMA) НЕ трогаем — у них свои success.php и т.п.
       if(!cfg.native && x.path!==FOLDER.indexPath && isSuccErrPage(b) && b!==succL && b!==errL) return false;
@@ -2998,6 +3002,7 @@ function downloadChestZip(){
     var pres={}; out.forEach(function(f){pres[f.name]=1;});
     CHEST_FOLDER.files.forEach(function(f){
       if(f.path===CHEST_FOLDER.mainPath) return;   // это уже index.html
+      if(JUNK_FILE.test(baseName(f.path).toLowerCase())) return;   // логи обработчиков — не тащим
       if(/\.html?$/i.test(f.path)) return;          // прочие html сундука не тащим
       if(baseName(f.path).toLowerCase()==="ywbackfix.js") return;  // back-fix в сундук не тащим
       if(cfg.mode==="php" && baseName(f.path).toLowerCase()==="order.php") return;  // свой order.php уже добавлен
