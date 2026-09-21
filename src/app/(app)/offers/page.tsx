@@ -4,7 +4,7 @@ import { canSeeTeam, type Role } from '@/lib/roles';
 import { parseGeos, OFFER_STATUS } from '@/lib/format';
 import { PREVIEW_REV } from '@/lib/preview';
 import { saveOffer, deleteOffer, uploadOfferFiles, deleteOfferFile } from '@/app/actions/catalog';
-import { builderPayload, builderGaps, partnerOf, DEFAULT_BACKFIX } from '@/lib/builder';
+import { builderPayload, builderGaps, partnerOf } from '@/lib/builder';
 import { Panel, Empty } from '@/components/ui';
 import OfferForm, { type OfferDraft } from '@/components/OfferForm';
 import CopyOffer from '@/components/CopyOffer';
@@ -367,7 +367,6 @@ export default async function OffersPage({
                             const one = {
                               name: offer.name,
                               partnerKey: offer.partnerKey,
-                              backfix: offer.backfix,
                               langCode: g.langCode,
                               uiLang: g.uiLang,
                               partnerOfferId: g.partnerOfferId,
@@ -456,7 +455,6 @@ function draftFor(o: OfferRow | null): OfferDraft {
     previewName: o?.files?.find((f) => f.kind === 'PREVIEW')?.name ?? '',
     payout: o?.payout ?? '',
     partnerKey: o?.partnerKey ?? '',
-    backfix: o?.backfix ?? DEFAULT_BACKFIX,
     rows: (o?.geos ?? []).map((g) => ({
       langCode: g.langCode,
       uiLang: g.uiLang,

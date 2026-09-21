@@ -82,7 +82,6 @@ export function partnerOf(key: string): Partner | null {
 export type BuilderOffer = {
   name: string;
   partnerKey: string;
-  backfix: string;
   langCode: string;
   uiLang: string;
   partnerOfferId: string;
@@ -111,7 +110,8 @@ export function builderPayload(o: BuilderOffer): string {
   put('landingUrl', o.landingUrl);
   put('streamCode', o.streamCode);
   put('price', o.price);
-  put('backfix', o.backfix);
+  // Back-fix ссылку не шлём: в конструкторе она настроена автоматически
+  // (макро-URL по кампании), поэтому в оффере её больше не задают.
   // Язык служебных страниц. Введённый руками тоже прогоняем через таблицу:
   // в поле легко вписать код гео вместо кода языка («cz» вместо «cs»), а
   // конструктор такой код просто не найдёт у себя в списке и оставит
@@ -157,9 +157,6 @@ export function uiLangFor(geo: string): string {
   if (UI_LANGS.has(code)) return code;
   return GEO_TO_UI[code] ?? '';
 }
-
-/** Ссылка «Назад» у команды одна на все офферы. */
-export const DEFAULT_BACKFIX = 'https://nutrivition.top/VXsVxCX?sun={sub_id_30}';
 
 export function builderGaps(o: BuilderOffer): string[] {
   const partner = partnerOf(o.partnerKey);

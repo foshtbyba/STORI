@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireTeamView } from '@/lib/auth';
 import { moneyInputToCents } from '@/lib/format';
-import { DEFAULT_BACKFIX, partnerOf } from '@/lib/builder';
+import { partnerOf } from '@/lib/builder';
 import { isWeekEditable } from '@/lib/period';
 
 const list = (raw: FormDataEntryValue | null) =>
@@ -83,7 +83,9 @@ export async function saveOffer(formData: FormData) {
     notesJson: list(formData.get('notes')),
     previewUrl: String(formData.get('previewUrl') ?? '').trim() || null,
     partnerKey: String(formData.get('partnerKey') ?? '').trim(),
-    backfix: String(formData.get('backfix') ?? '').trim() || DEFAULT_BACKFIX,
+    // Back-fix больше не задаётся в оффере — в конструкторе она настроена
+    // автоматически. Колонка в БД остаётся со своим дефолтом (для старых
+    // офферов), новые просто берут его.
   };
   if (!data.name) return;
 

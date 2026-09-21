@@ -1270,12 +1270,12 @@ function affstarConfirmPhp(){ return b64utf8(AFFSTAR_CONFIRM_B64); }
 function affstarErrorPhp(){ return b64utf8(AFFSTAR_ERROR_B64); }
 const PARTNERS = {
   "m1.top": { label:"m1.top", mode:"js", endpoint:"https://m1.top/send_order/", okField:"result", okValue:"ok", idField:"id",
-    ref:"1029931", api_key:"2188aad9cfb9f55626bf1d64cf4e95e0", buyerField:"sub_id_2",
-    hint:"JS-приём заказа: POST send_order, ответ {result:'ok', id}. ref и api_key закреплены за этой партнёркой." },
+    ref:"1029931", api_key:"2188aad9cfb9f55626bf1d64cf4e95e0", buyerField:"m",
+    hint:"JS-приём заказа: POST send_order, ответ {result:'ok', id}. ref и api_key закреплены за этой партнёркой. Метка баера идёт в родной слот m1 «m» (кабинет фильтрует по S/W/T/P/M; S=clickid занят)." },
   "shakes.pro": { label:"shakes.pro", mode:"php", domain:"shakes.pro", api_key:"f825ffeff11da49a86dc5d095c648f3c", buyerField:"sub2",
     php:{ gen:"shakes", subField:"sub1", country:true, landing:true, stream:true, idLabel:"ID оффера (offerId)" },
     hint:"Серверный order.php (генерируется): форма постит на него. ID оффера = offerId, api_key закреплён, ref не нужен. Заполни ID оффера, страну и URL лендинга." },
-  "hamsters.run": { label:"hamsters.run",
+  "hamsters.run": { label:"hamsters.run", buyerField:"subid2",
     php:{ gen:"hamsters", subField:"subid", country:false, landing:false, stream:false, idLabel:"OFFER_KEY (key_hash)" },
     hint:"Серверный order.php (генерируется): форма постит на него, лид уходит на hamsters.run/api/leads/set. Впиши OFFER_KEY (ключ оффера, 16 символов) в поле ниже. api_key/ref/страна не нужны." },
   "limonad.com": { label:"limonad.com", buyerField:"utm_medium",
@@ -1324,6 +1324,10 @@ const ENGINE = `
   // subid из URL (?s=) или из глобала Keitaro (keitaro_subid), как в родных лендах: client_s = QueryString.s || keitaro_subid
   var ks = ""; try { if (typeof keitaro_subid !== "undefined" && String(keitaro_subid).indexOf("{") === -1) ks = keitaro_subid; } catch (e) {}
   var TR = { s: Q.s || Q.subid || ks || subid || "", w: Q.w || "", t: Q.t || "", p: Q.p || "", m: Q.m || "" };
+  // метка баера: если поле партнёрки — родной слот m1 (s/w/t/p/m), кладём код баера прямо в этот слот
+  // (тогда он уходит и в out-пиксель, и в тело заказа; кабинет m1 фильтрует по S/W/T/P/M)
+  var __buyer = (OFFER.buyer && OFFER.buyer.indexOf("{") === -1) ? OFFER.buyer : "";
+  if (__buyer && OFFER.buyerField && /^[swtpm]$/.test(OFFER.buyerField)) TR[OFFER.buyerField] = __buyer;
 
   function tqs() {
     return "&s=" + encodeURIComponent(TR.s) +
@@ -1384,9 +1388,10 @@ const ENGINE = `
       "&m=" + encodeURIComponent(TR.m) +
       "&referer=" + encodeURIComponent(document.referrer) +
       "&langCode=" + encodeURIComponent(OFFER.langCode || "");
-    // метка баера: Keitaro-макрос {sub_id_2} подставляется в OFFER.buyer при отдаче ленда; шлём в поле buyerField
+    // метка баера: слоты s/w/t/p/m уже проставлены в TR выше (уходят и в body, и в out-пиксель);
+    // для НЕ-слотовых полей (на будущее) шлём отдельным параметром
     var buyer = (OFFER.buyer && OFFER.buyer.indexOf("{") === -1) ? OFFER.buyer : "";
-    if (buyer && OFFER.buyerField) body += "&" + OFFER.buyerField + "=" + encodeURIComponent(buyer);
+    if (buyer && OFFER.buyerField && !/^[swtpm]$/.test(OFFER.buyerField)) body += "&" + OFFER.buyerField + "=" + encodeURIComponent(buyer);
     var r = new XMLHttpRequest();
     r.open("POST", API, true);
     r.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -1655,7 +1660,9 @@ function hamstersOrderPhp(cfg){
 "$name  = isset($_POST['name'])  ? trim($_POST['name'])  : '';\n"+
 "$phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';\n\n"+
 "$subid = isset($_POST['subid']) ? trim($_POST['subid']) : '';\n"+
-"if (strpos($subid, '{') !== false) { $subid = ''; }\n\n"+
+"if (strpos($subid, '{') !== false) { $subid = ''; }\n"+
+"$subid2 = isset($_POST['subid2']) ? trim($_POST['subid2']) : '';\n"+   // метка баера
+"if (strpos($subid2, '{') !== false) { $subid2 = ''; }\n\n"+
 "if ($phone === '') { header('Location: ' . $ERROR_PAGE); exit; }\n\n"+
 "$data = [\n"+
 "    'key_hash' => $OFFER_KEY,\n"+
@@ -1663,7 +1670,8 @@ function hamstersOrderPhp(cfg){
 "    'phone'    => $phone,\n"+
 "    'ip'       => getUserIP(),\n"+
 "];\n"+
-"if ($subid !== '') { $data['subid'] = $subid; }\n\n"+
+"if ($subid  !== '') { $data['subid']  = $subid; }\n"+
+"if ($subid2 !== '') { $data['subid2'] = $subid2; }\n\n"+
 "$result = sendLead($data);\n\n"+
 "if (is_array($result) && !empty($result['api']['success'])) { header('Location: ' . $THANK_PAGE); }\n"+
 "else { header('Location: ' . $ERROR_PAGE); }\n"+

@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'partner-affstar · 18.09 19:46';
+export const BUILD_INFO = 'offer-no-backfix · 21.09 18:49';

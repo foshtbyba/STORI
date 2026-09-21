@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Select from './Select';
 import { PanelHead, Sub } from './ui';
 import { IconTag, IconPlus } from './icons';
-import { PARTNERS, partnerOf, DEFAULT_BACKFIX, uiLangFor } from '@/lib/builder';
+import { PARTNERS, partnerOf, uiLangFor } from '@/lib/builder';
 import { VERTICALS } from '@/lib/verticals';
 
 export type GeoDraft = {
@@ -37,7 +37,6 @@ export type OfferDraft = {
   previewName: string;
   payout: string;
   partnerKey: string;
-  backfix: string;
   rows: GeoDraft[];
 };
 
@@ -270,14 +269,6 @@ export default function OfferForm({
               От неё зависит, что нужно заполнить по каждому гео.
             </p>
           </div>
-          <Field
-            label="Back-fix ссылка"
-            name="backfix"
-            value={v.backfix}
-            onChange={set('backfix')}
-            placeholder={DEFAULT_BACKFIX}
-            hint="Одна на все офферы, подставляется сама. Меняй, только если знаешь зачем."
-          />
         </div>
 
         {partner?.note ? (
