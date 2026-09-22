@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { myBrocardBalance, myBrocardTopUp } from '@/app/actions/integrations';
+import { MY_TOPUP_MAX_CENTS } from '@/lib/brocard-const';
 
 const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
 
@@ -57,6 +58,9 @@ export default function MyBrocard() {
       ) : !bal ? (
         <p className="text-[12.5px] text-mute">{pending ? 'Загружаю остаток…' : '—'}</p>
       ) : (
+        (() => {
+          const atLimit = bal.availableCents >= MY_TOPUP_MAX_CENTS;
+          return (
         <>
           <div className="flex items-baseline gap-2">
             <span className="n text-[32px] font-bold tracking-[-0.03em] text-sage">{usd(bal.availableCents)}</span>
@@ -71,16 +75,22 @@ export default function MyBrocard() {
               <button
                 key={v}
                 type="button"
-                disabled={pending}
+                disabled={pending || atLimit}
                 onClick={() => setConfirm(v)}
-                className={`rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12.5px] text-soft transition hover:border-sage hover:text-sage ${pending ? 'cursor-progress opacity-60' : ''}`}
+                className={`rounded-full border border-line2 bg-sub px-4 py-1.5 text-[12.5px] text-soft transition hover:border-sage hover:text-sage ${pending || atLimit ? 'cursor-not-allowed opacity-50 hover:border-line2 hover:text-soft' : ''}`}
               >
                 Пополнить ${v}
               </button>
             ))}
           </div>
 
-          {confirm ? (
+          {atLimit ? (
+            <p className="mt-2.5 text-[11.5px] leading-relaxed text-amber">
+              Свободный остаток ${MY_TOPUP_MAX_CENTS / 100} и выше — пополнение недоступно. Потрать баланс ниже ${MY_TOPUP_MAX_CENTS / 100}, и кнопки снова откроются.
+            </p>
+          ) : null}
+
+          {confirm && !atLimit ? (
             <div className="mt-3 flex items-center gap-2.5 rounded-[12px] border px-3 py-2.5 text-[12.5px]" style={{ borderColor: '#3c4d33', background: '#1c241a' }}>
               <span className="text-soft">Пополнить свой счёт на <span className="font-semibold text-sage">${confirm}</span>?</span>
               <div className="ml-auto flex shrink-0 items-center gap-2">
@@ -96,6 +106,8 @@ export default function MyBrocard() {
             </div>
           ) : null}
         </>
+          );
+        })()
       )}
     </Panel>
   );

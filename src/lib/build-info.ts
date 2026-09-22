@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'offer-no-backfix · 21.09 18:49';
+export const BUILD_INFO = 'brocard-topup-cap · 22.09 20:50';

@@ -10,7 +10,8 @@ import { extractTokenFromCookies, readCookieBlob, cookieHeaderOf } from '@/lib/f
 import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
 import { checkBrocard, probeBalances, listAccounts, createTransfer, BrocardError, type BrocardAccount } from '@/lib/brocard';
-import { BROCARD_OVERHEAD } from '@/lib/brocard-const';
+import { BROCARD_OVERHEAD, MY_TOPUP_MAX_CENTS } from '@/lib/brocard-const';
+import { usd } from '@/lib/money';
 import { logActivity } from '@/lib/activity';
 import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies } from '@/lib/sync';
 
@@ -551,6 +552,15 @@ export async function myBrocardTopUp(form: FormData): Promise<{ ok: boolean; err
   const { mine, obshchak } = await buyerAndObshchak(user.buyer.id, accounts);
   if (!mine) return { ok: false, error: 'Твой счёт Brocard не найден — попроси овнера привязать команду.' };
   if (!obshchak) return { ok: false, error: 'Общий счёт не найден — обратитесь к овнеру.' };
+  // Потолок баланса: пополнять нельзя, пока свободный остаток уже на планке или
+  // выше. Само пополнение может увести баланс за неё (900 → 1400), но следующее
+  // не пройдёт, пока не спустят обратно ниже $1000.
+  if (mine.availableCents >= MY_TOPUP_MAX_CENTS) {
+    return {
+      ok: false,
+      error: `На счету уже ${usd(mine.availableCents)} — пополнять можно, только когда свободный остаток ниже $${MY_TOPUP_MAX_CENTS / 100}. Потрать текущий баланс и попробуй снова.`,
+    };
+  }
   if (amount * 100 > obshchak.availableCents) {
     return { ok: false, error: 'На общем счёте недостаточно средств — обратитесь к овнеру.' };
   }
