@@ -2173,11 +2173,8 @@ function patchHtml(cfg, html){
     var kyw=backfixBlock(cfg); if(kyw) ktail+="\n"+kyw;
     if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,ktail+"\n</body>"); else html+="\n"+ktail;
   } else if(cfg.mode==="ss"){
-    // SS / преленд: формы/лида нет — CTA-кнопки ведут на {offer} (Keitaro click-ссылка). Движок заказа НЕ вставляем.
+    // SS / преленд: формы/лида нет — CTA-кнопки ведут на {offer} (Keitaro click-ссылка). Ни движка заказа, ни back-fix.
     html=wireSsForm(cfg, html);
-    if(!cfg.backfix){ var sbf=html.match(/<script\b[^>]*ywbackfix\.js[^>]*data-links=['"]\s*\[\s*"([^"]+)"/i); if(sbf) cfg.backfix=sbf[1]; }   // сохраним back-fix из ленда
-    var syw=backfixBlock(cfg);
-    if(syw){ if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,syw+"\n</body>"); else html+="\n"+syw; }
   } else {
     if(cfg.autofix){
       html=html.replace(/<form\b(?![^>]*data-order-form)([^>]*)>/i,'<form data-order-form$1>');
@@ -3007,7 +3004,7 @@ function downloadZip(){
     // KMA (native) — свои success/error, не генерим/не добавляем.
     if(!cfg.native && !cfg.ss && !had.call)  out.push({name:cfg.successName,str:FILES.call});   // SS: страниц спасибо/ошибка нет
     if(!cfg.native && !cfg.ss && !had.error) out.push({name:cfg.errorName,str:FILES.error});
-    if(!cfg.ywUrl && !had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});   // при центральном URL локальный скрипт не кладём
+    if(!cfg.ss && !cfg.ywUrl && !had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});   // SS: back-fix не нужен; при центральном URL локальный скрипт не кладём
     if(genPhp&&!had.php) out.push({name:(cfg.phpAction||"order.php"),str:FILES.orderphp});
     if(cfg.needFile&&handlerLoaded()&&!had.handler) out.push(handlerEntry(cfg.needFile));
     // AFFSTAR: спасибо/ошибка теперь как у других — call.html/error.html (добавлены выше), api.php редиректит на них
@@ -3025,7 +3022,7 @@ function downloadZip(){
   } else {
     var files=[{name:cfg.mainExt==="php"?"index.php":"index.html",str:FILES.index}];
     if(!cfg.ss){ files.push({name:cfg.successName,str:FILES.call}); files.push({name:cfg.errorName,str:FILES.error}); }   // SS: без страниц спасибо/ошибка
-    if(!cfg.ywUrl) files.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});   // при центральном URL локальный скрипт не кладём
+    if(!cfg.ss && !cfg.ywUrl) files.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});   // SS: back-fix не нужен; при центральном URL локальный скрипт не кладём
     if(genPhp) files.push({name:(cfg.phpAction||"order.php"),str:FILES.orderphp});
     // affstar: call.html/error.html уже добавлены выше (как у других партнёрок)
     if(cfg.needFile&&handlerLoaded()) files.push(handlerEntry(cfg.needFile));
