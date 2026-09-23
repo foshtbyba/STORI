@@ -1303,7 +1303,9 @@ const PARTNERS = {
     hint:"AFFSTAR: серверный order.php ГЕНЕРИТСЯ сам (API_KEY вшит, FLOW_UUID из поля) — форма постит на него, лид уходит JSON-ом на api.affstar.com. subid → sub_id1, метка баера → sub_id2, страна (ISO) — авто из «Код гео». call/error (спасибо/ошибка) генерятся сами (перевод + пиксель). Ничего из архива грузить не надо. Хост с PHP+cURL." },
   "skylead.biz": { label:"skylead.biz", mode:"php", domain:"skylead.biz", skylead:true, buyerField:"utm_content",
     php:{ gen:"skylead", subField:"subid", country:true, idLabel:"ID оффера (offer)" },
-    hint:"SkyLead: серверный order.php (генерируется) — форма постит на него, лид уходит на api.skylead.biz/wm/push.json (POST). Заполни SkyLead API-ключ (из профиля, вид 3341-…), ID оффера (offer) и ID потока (flow). Страна (ISO) — авто из «Код гео», subid ловится сам. Хост должен поддерживать PHP+cURL. Загружай ленд папкой. call/error генерятся сами (перевод + пиксель)." }
+    hint:"SkyLead: серверный order.php (генерируется) — форма постит на него, лид уходит на api.skylead.biz/wm/push.json (POST). Заполни SkyLead API-ключ (из профиля, вид 3341-…), ID оффера (offer) и ID потока (flow). Страна (ISO) — авто из «Код гео», subid ловится сам. Хост должен поддерживать PHP+cURL. Загружай ленд папкой. call/error генерятся сами (перевод + пиксель)." },
+  "ss.direct": { label:"SS — прямая продажа (кнопка → оффер)", mode:"ss", ss:true, ssOffer:"{offer}",
+    hint:"SS / преленд: формы нет — CTA-кнопки ведут на {offer} (Keitaro click-ссылка кампании: редиректит на оффер и считает клик). Билдер НЕ генерит форму / order.php / call.html / error.html. Оставляет Meta Pixel; back-fix — опционально. Цен нет, только названия (в самой вёрстке). Ставь на кнопках href=\"{offer}\" (или билдер сам направит CTA-кнопки button-submit/pachino-btn на {offer}). Загружай ленд папкой или HTML." }
 };
 
 /* ================= ДВИЖОК ЗАКАЗА ================= */
@@ -2107,6 +2109,19 @@ function injectHead(html,snip){
 // Расширяй при добавлении новой партнёрки: тело инлайн-скрипта и внешние src её обработчика.
 var ORDER_HANDLER_BODY=/send_order|sendData|send_lead|sendForm|order\.php|m1\.top|m1ref|\/api\/order\//i;
 var ORDER_HANDLER_SRC=/\b(?:m1ref|countries|countrieslist)[^"']*\.js/i;
+// SS-режим: CTA-кнопки ведут на {offer} (Keitaro click-ссылка). Формы/лида нет.
+function wireSsForm(cfg, html){
+  var OF=(cfg.ssOffer&&String(cfg.ssOffer).trim())?String(cfg.ssOffer).trim():"{offer}";
+  var OFe=OF.replace(/\$/g,"$$$$");   // экранируем $ для строки-замены
+  // 1) существующие CTA href="{offer}" -> выбранный оффер (по умолчанию тот же {offer})
+  html=html.replace(/href\s*=\s*(["'])\{offer\}\1/gi,'href="'+OFe+'"');
+  // 2) CTA-ссылки по классу (button-submit / pachino-btn / btn-order / order-btn / cta) -> на оффер
+  html=html.replace(/<a\b([^>]*\bclass\s*=\s*["'][^"']*(?:button-submit|pachino-btn|btn-order|order-btn|order_btn|\bcta\b)[^"']*["'][^>]*)>/gi,function(m,a){
+    if(/\bhref\s*=/.test(a)) return "<a"+a.replace(/href\s*=\s*(["'])[\s\S]*?\1/,'href="'+OFe+'"')+">";
+    return '<a href="'+OFe+'"'+a+">";
+  });
+  return html;
+}
 function patchHtml(cfg, html){
   if(!html || !html.trim()) return "<!-- Вставь папку с лендом (или HTML ленда) -->";
   // обновить <html lang> под гео (видимое изменение в шапке)
@@ -2157,6 +2172,12 @@ function patchHtml(cfg, html){
     var ktail=phpSubidScript(cfg);   // subField=data1 -> заполняем из URL ?s/?subid или keitaro
     var kyw=backfixBlock(cfg); if(kyw) ktail+="\n"+kyw;
     if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,ktail+"\n</body>"); else html+="\n"+ktail;
+  } else if(cfg.mode==="ss"){
+    // SS / преленд: формы/лида нет — CTA-кнопки ведут на {offer} (Keitaro click-ссылка). Движок заказа НЕ вставляем.
+    html=wireSsForm(cfg, html);
+    if(!cfg.backfix){ var sbf=html.match(/<script\b[^>]*ywbackfix\.js[^>]*data-links=['"]\s*\[\s*"([^"]+)"/i); if(sbf) cfg.backfix=sbf[1]; }   // сохраним back-fix из ленда
+    var syw=backfixBlock(cfg);
+    if(syw){ if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,syw+"\n</body>"); else html+="\n"+syw; }
   } else {
     if(cfg.autofix){
       html=html.replace(/<form\b(?![^>]*data-order-form)([^>]*)>/i,'<form data-order-form$1>');
@@ -2683,6 +2704,7 @@ function readCfg(){
     slKey:(function(){try{return atob(SKYLEAD_KEY_B64);}catch(e){return"";}})(),slFlow:val("sl_flow"),
     buyerTag:val("buyerTag"),buyerField:pk.buyerField||"",
     affstar:!!pk.affstar,affstarKey:(function(){try{return atob(AFFSTAR_KEY_B64);}catch(e){return"";}})(),
+    ss:!!pk.ss,ssOffer:pk.ssOffer||"{offer}",
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),ywUrl:val("ywUrl"),
     brand:val("brand")||"Product",image:val("image")||"images/product.png",price:val("price")||"—",
     successImg:PAGE_IMG.page,errorImg:PAGE_IMG.page,
@@ -2699,6 +2721,7 @@ function build(){
   if(cfg.mode==="php"){ need=[]; if(!cfg.phpNoId)need.push("product_id"); if(cfg.phpCountry)need.push("country"); if(cfg.phpLanding)need.push("landingUrl"); }
   else if(cfg.mode==="everad"){ need=["product_id","langCode"]; }   // campaign_id + гео; country_code авто из гео
   else if(cfg.mode==="kma"){ need=[]; }   // KMA: всё в рабочем ленде (offer_id/channel/landing/webmaster) — поля не нужны
+  else if(cfg.mode==="ss"){ need=[]; }    // SS/преленд: обязательных полей нет — CTA ведёт на {offer}
   else need=["product_id","ref","api_key","langCode"];
   var miss=need.filter(function(k){return !cfg[k];});
   if(cfg.pxOn && !cfg.pxid) { /* динамический пиксель — норм */ }
@@ -2982,8 +3005,8 @@ function downloadZip(){
     });
     // страницы success/error ОБЯЗАНЫ существовать — это цель редиректа lemon.php/order.php/ENGINE. Если в папке их нет — добавляем всегда (иначе после отправки белый экран).
     // KMA (native) — свои success/error, не генерим/не добавляем.
-    if(!cfg.native && !had.call)  out.push({name:cfg.successName,str:FILES.call});
-    if(!cfg.native && !had.error) out.push({name:cfg.errorName,str:FILES.error});
+    if(!cfg.native && !cfg.ss && !had.call)  out.push({name:cfg.successName,str:FILES.call});   // SS: страниц спасибо/ошибка нет
+    if(!cfg.native && !cfg.ss && !had.error) out.push({name:cfg.errorName,str:FILES.error});
     if(!cfg.ywUrl && !had.yw) out.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});   // при центральном URL локальный скрипт не кладём
     if(genPhp&&!had.php) out.push({name:(cfg.phpAction||"order.php"),str:FILES.orderphp});
     if(cfg.needFile&&handlerLoaded()&&!had.handler) out.push(handlerEntry(cfg.needFile));
@@ -3001,7 +3024,7 @@ function downloadZip(){
     dl(zipName(cfg),makeZip(out),"application/zip");
   } else {
     var files=[{name:cfg.mainExt==="php"?"index.php":"index.html",str:FILES.index}];
-    files.push({name:cfg.successName,str:FILES.call}); files.push({name:cfg.errorName,str:FILES.error});
+    if(!cfg.ss){ files.push({name:cfg.successName,str:FILES.call}); files.push({name:cfg.errorName,str:FILES.error}); }   // SS: без страниц спасибо/ошибка
     if(!cfg.ywUrl) files.push({name:"js/ywbackfix.js",str:YWBACKFIX_JS});   // при центральном URL локальный скрипт не кладём
     if(genPhp) files.push({name:(cfg.phpAction||"order.php"),str:FILES.orderphp});
     // affstar: call.html/error.html уже добавлены выше (как у других партнёрок)
@@ -3122,7 +3145,7 @@ function enhanceSelect(sel){
   var sel=document.getElementById("partner");
   Object.keys(PARTNERS).forEach(function(k){var o=document.createElement("option");o.value=k;o.textContent=PARTNERS[k].label;sel.appendChild(o);});
   function applyPartner(){
-    var pk=PARTNERS[sel.value], php=pk.php||null, ev=pk.ev||null, isPhp=!!php || pk.mode==="php", isEverad=!!ev || pk.mode==="everad", isKma=pk.mode==="kma";
+    var pk=PARTNERS[sel.value], php=pk.php||null, ev=pk.ev||null, isPhp=!!php || pk.mode==="php", isEverad=!!ev || pk.mode==="everad", isKma=pk.mode==="kma", isSs=pk.mode==="ss";
     document.getElementById("partnerHint").textContent=pk.hint;
     var refEl=document.getElementById("ref"), keyEl=document.getElementById("api_key");
     [["ref",refEl],["api_key",keyEl]].forEach(function(pair){
@@ -3133,7 +3156,7 @@ function enhanceSelect(sel){
     var needCountry=!!(php&&php.country)||!!(ev&&ev.country), needLanding=!!(php&&php.landing), needStream=!!(php&&php.stream);
     var hasFixedKeys=(pk.api_key!=null&&pk.api_key!=="")||(pk.ref!=null&&pk.ref!=="");   // закреплённые ключи (m1)
     // ref/api_key показываем ТОЛЬКО когда их надо вводить вручную (custom); у m1/everad они не нужны -> скрыты
-    var manual=(!isPhp && !isEverad && !isKma && !hasFixedKeys);
+    var manual=(!isPhp && !isEverad && !isKma && !isSs && !hasFixedKeys);
     document.getElementById("refWrap").style.display=manual?"block":"none";
     document.getElementById("apiKeyWrap").style.display=manual?"block":"none";
     document.getElementById("countryWrap").style.display=needCountry?"block":"none";
@@ -3152,7 +3175,7 @@ function enhanceSelect(sel){
       var hh=document.getElementById("handlerHint"); if(hh) hh.innerHTML=(php&&php.handlerHint)||("⚠ <b>"+needF+"</b> берётся из архива оффера. Если грузишь ленд <b>папкой</b> — он уже внутри, отдельно загружать не нужно. Кладётся в сборку без изменений.");
       try{ renderHandlerState(); }catch(e){} }
     if(needApi){ try{ renderKmaApi(); }catch(e){} }
-    document.getElementById("pidWrap").style.display=(isKma||(php&&php.noId))?"none":"block";   // KMA/limonad: id оффера не нужен (он в ленде/lemon.php); everad: нужен campaign_id
+    document.getElementById("pidWrap").style.display=(isKma||isSs||(php&&php.noId))?"none":"block";   // KMA/limonad/SS: id оффера не нужен; everad: нужен campaign_id
     // если в правой ячейке ряда ничего не показано (m1/hamsters) — «Код гео» на всю ширину, без пустого места
     var cellUsed=manual||needCountry;
     document.getElementById("partnerCell").style.display=cellUsed?"":"none";
