@@ -608,7 +608,7 @@
       </div>
     </div>
 
-    <div class="grp">
+    <div class="grp" id="grpChest">
       <h3 class="gtoggle" data-target="chestBody"><span class="chev">▸</span> Сундук (chest.html)</h3>
       <div id="chestBody" class="grp-body" style="display:none">
         <div class="chk"><input type="checkbox" id="makeChest"><label>Делать сундук (chest.html)</label></div>
@@ -643,7 +643,7 @@
       </div>
     </div>
 
-    <div class="grp">
+    <div class="grp" id="grpPages">
       <h3>Страницы и ссылки</h3>
       <div class="hint">Куда ленд ведёт после отправки формы и на каком языке будут служебные страницы.</div>
       <div class="row">
@@ -671,7 +671,7 @@
       <div class="hint">На каком языке генерятся служебные страницы (спасибо/ошибка/сундук). На перевод самого ленда не влияет.</div>
     </div>
 
-    <div class="grp">
+    <div class="grp" id="grpOffer">
       <h3>Оффер (для call/error/chest)</h3>
       <div class="hint">Эти данные подставляются в <b>генерируемые</b> страницы call/error/chest. Сам переведённый ленд они не меняют.</div>
       <div class="row">
@@ -1304,7 +1304,7 @@ const PARTNERS = {
   "skylead.biz": { label:"skylead.biz", mode:"php", domain:"skylead.biz", skylead:true, buyerField:"utm_content",
     php:{ gen:"skylead", subField:"subid", country:true, idLabel:"ID оффера (offer)" },
     hint:"SkyLead: серверный order.php (генерируется) — форма постит на него, лид уходит на api.skylead.biz/wm/push.json (POST). Заполни SkyLead API-ключ (из профиля, вид 3341-…), ID оффера (offer) и ID потока (flow). Страна (ISO) — авто из «Код гео», subid ловится сам. Хост должен поддерживать PHP+cURL. Загружай ленд папкой. call/error генерятся сами (перевод + пиксель)." },
-  "ss.direct": { label:"SS — прямая продажа (кнопка → оффер)", mode:"ss", ss:true, ssOffer:"{offer}",
+  "ss.direct": { label:"SS — прямая продажа", mode:"ss", ss:true, ssOffer:"{offer}",
     hint:"SS / преленд: формы нет — CTA-кнопки ведут на {offer} (Keitaro click-ссылка кампании: редиректит на оффер и считает клик). Билдер НЕ генерит форму / order.php / call.html / error.html. Оставляет Meta Pixel; back-fix — опционально. Цен нет, только названия (в самой вёрстке). Ставь на кнопках href=\"{offer}\" (или билдер сам направит CTA-кнопки button-submit/pachino-btn на {offer}). Загружай ленд папкой или HTML." }
 };
 
@@ -2126,14 +2126,19 @@ function wireSsForm(cfg, html){
     var txt=(bm&&bm[2])?String(bm[2]).replace(/<[^>]+>/g,"").trim():"";
     if(!txt&&bm){ var vm=String(bm[1]).match(/value\s*=\s*["']([^"']*)["']/i); if(vm) txt=vm[1]; }
     if(!txt) txt=(cfg.t&&cfg.t.recv)||"Order now";
-    return '<form'+attrs+'><a class="'+cls+'" href="'+OFe+'" style="display:block;text-align:center">'+txt+'</a></form>';
+    return '<form'+attrs+'><a class="'+cls+'" href="'+OFe+'" data-ss-cta style="display:block;text-align:center">'+txt+'</a></form>';
   });
-  // 1) существующие CTA href="{offer}" -> выбранный оффер (по умолчанию тот же {offer})
-  html=html.replace(/href\s*=\s*(["'])\{offer\}\1/gi,'href="'+OFe+'"');
-  // 2) CTA-ссылки по классу (button-submit / pachino-btn / btn-order / order-btn / cta) -> на оффер
+  // 1) любые <a href="{offer}"> -> href=оффер + пометка data-ss-cta (для события клика)
+  html=html.replace(/<a\b([^>]*\bhref\s*=\s*["']\{offer\}["'][^>]*)>/gi,function(m,a){
+    a=a.replace(/href\s*=\s*(["'])\{offer\}\1/i,'href="'+OFe+'"');
+    if(!/data-ss-cta/i.test(a)) a+=" data-ss-cta";
+    return "<a"+a+">";
+  });
+  // 2) CTA-ссылки по классу (button-submit / pachino-btn / btn-order / order-btn / cta) -> на оффер + метка
   html=html.replace(/<a\b([^>]*\bclass\s*=\s*["'][^"']*(?:button-submit|pachino-btn|btn-order|order-btn|order_btn|\bcta\b)[^"']*["'][^>]*)>/gi,function(m,a){
-    if(/\bhref\s*=/.test(a)) return "<a"+a.replace(/href\s*=\s*(["'])[\s\S]*?\1/,'href="'+OFe+'"')+">";
-    return '<a href="'+OFe+'"'+a+">";
+    if(/\bhref\s*=/.test(a)) a=a.replace(/href\s*=\s*(["'])[\s\S]*?\1/,'href="'+OFe+'"'); else a='href="'+OFe+'" '+a;
+    if(!/data-ss-cta/i.test(a)) a+=" data-ss-cta";
+    return "<a"+a+">";
   });
   return html;
 }
@@ -2190,6 +2195,13 @@ function patchHtml(cfg, html){
   } else if(cfg.mode==="ss"){
     // SS / преленд: формы/лида нет — CTA-кнопки ведут на {offer} (Keitaro click-ссылка). Ни движка заказа, ни back-fix.
     html=wireSsForm(cfg, html);
+    // в SS нет success-страницы, поэтому событие конверсии (Purchase) фаерим на КЛИК по CTA-кнопке
+    if(cfg.pxOn){
+      var ssEv=String(cfg.pxev||"Purchase").replace(/[^\w]/g,"")||"Purchase";
+      var ssV=parseFloat(cfg.pxval), ssProps=(!isNaN(ssV))?(",{value:"+ssV+",currency:'"+(String(cfg.pxcur||"USD").replace(/[^A-Za-z]/g,"")||"USD")+"'}"):"";
+      var ssPx='<script>(function(){function f(e){var a=e.target&&e.target.closest?e.target.closest("a[data-ss-cta]"):null;if(!a)return;try{if(window.fbq)fbq("track","'+ssEv+'"'+ssProps+');}catch(_){}}document.addEventListener("click",f,true);})();<\/script>';
+      if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,ssPx+"\n</body>"); else html+="\n"+ssPx;
+    }
   } else {
     if(cfg.autofix){
       html=html.replace(/<form\b(?![^>]*data-order-form)([^>]*)>/i,'<form data-order-form$1>');
@@ -3188,6 +3200,11 @@ function enhanceSelect(sel){
       try{ renderHandlerState(); }catch(e){} }
     if(needApi){ try{ renderKmaApi(); }catch(e){} }
     document.getElementById("pidWrap").style.display=(isKma||isSs||(php&&php.noId))?"none":"block";   // KMA/limonad/SS: id оффера не нужен; everad: нужен campaign_id
+    // SS: событие конверсии автоматом = Purchase (продажа) — если пользователь не менял вручную
+    var peEl=document.getElementById("pxev");
+    if(peEl){ if(isSs){ if(peEl.dataset.auto!=="0"){ peEl.value="Purchase"; peEl.dataset.auto="1"; } } else if(peEl.dataset.auto==="1"){ peEl.value="Lead"; } }
+    // SS: скрываем блоки, которые к транзитке не относятся (сундук, страницы call/error+back-fix+метка, оффер call/error/chest)
+    ["grpChest","grpPages","grpOffer"].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display=isSs?"none":""; });
     // если в правой ячейке ряда ничего не показано (m1/hamsters) — «Код гео» на всю ширину, без пустого места
     var cellUsed=manual||needCountry;
     document.getElementById("partnerCell").style.display=cellUsed?"":"none";
@@ -3197,7 +3214,9 @@ function enhanceSelect(sel){
     if(needCountry){ try{ var cEl=document.getElementById("country"); if(cEl && (!cEl.value||cEl.dataset.auto==="1")){ var cc=ccFromGeo(document.getElementById("langCode").value); if(cc){ cEl.value=cc; cEl.dataset.auto="1"; } } }catch(e){} }
     try{ build(); }catch(e){}
   }
-  sel.addEventListener("change",applyPartner);applyPartner();
+  sel.addEventListener("change",applyPartner);
+  (function(){ var pe=document.getElementById("pxev"); if(pe) pe.addEventListener("change",function(){ pe.dataset.auto="0"; }); })();   // ручная смена события отключает авто-Purchase
+  applyPartner();
 
   /* ── Оффер из дешборда ───────────────────────────────────────────────
      Дешборд кладёт в буфер одну строку JSON с меткой msteam-offer. Здесь её
