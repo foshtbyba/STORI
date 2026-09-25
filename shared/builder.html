@@ -1976,6 +1976,21 @@ function activeHandler(cfg){ return (cfg.needFile||"").toLowerCase() || ((cfg.mo
 var JUNK_FILE=/^(?:debug_log|_skylead_log|_affstar_log|order_log|leads?_log)\.txt$|\.log$/i;
 // файл-обработчик ЧУЖОЙ партнёрки (напр. lemon.php при everad) — такой из папки выкидываем, чтобы не мусорил
 function isForeignHandler(name, cfg){ var b=String(name||"").toLowerCase(); return KNOWN_HANDLERS.test(b) && b!==activeHandler(cfg); }
+// файл, принадлежащий ДРУГОЙ партнёрке (не текущей) — выкидываем из сборки, чтобы не тащить чужое
+function isForeignPartnerFile(path, cfg){
+  var b=baseName(path).toLowerCase(), p=String(path).toLowerCase(), active=activeHandler(cfg);
+  // серверные PHP-обработчики/страницы конкретных партнёрок
+  if((b==="api.php"||b==="confirm.php"||b==="error.php") && !cfg.affstar) return true;   // affstar-only
+  if(b==="order.php" && active!=="order.php") return true;                                // shakes/hamsters/skylead-only
+  if(b==="lemon.php" && (cfg.needFile||"").toLowerCase()!=="lemon.php") return true;       // limonad-only
+  if(/^subscribe1?\.php$/.test(b) && cfg.mode!=="everad") return true;                     // everad/rocketprofit-only
+  if(b==="success.php" && !/(^|\/)api\//.test(p) && (cfg.needFile||"").toLowerCase()!=="lemon.php") return true;
+  // папка api/ (config.php/KmaLead.php/…) — только у KMA
+  if(/(^|\/)api\//.test(p) && !cfg.kmaApi) return true;
+  // донорские скрипты m1/countries
+  if(/^m1ref[^\/]*\.js$/.test(b) || /^countries(list)?[^\/]*\.js$/.test(b)) return true;
+  return false;
+}
 // php-режим: заполнить скрытое sub1 меткой subid из URL (?s/?subid) или keitaro_subid — как надёжная ловля у m1.
 // Если ничего нет и стоит литерал {subid} (Keitaro не подставил) — чистим, чтобы не улетал мусор.
 function phpSubidScript(cfg){
@@ -3151,6 +3166,7 @@ async function downloadZip(){
       if(!cfg.native && x.path!==FOLDER.indexPath && isSuccErrPage(b) && b!==succL && b!==errL) return false;
       // чужой серверный обработчик (напр. lemon.php при everad/rocketprofit/m1) — выкидываем
       if(!cfg.native && isForeignHandler(b, cfg)) return false;
+      if(isForeignPartnerFile(x.path, cfg)) return false;   // файлы других партнёрок — вон
       return true;
     }).map(function(x){
       var b=baseName(x.path).toLowerCase(), succ=cfg.successName.toLowerCase(), errn=cfg.errorName.toLowerCase(), nf=(cfg.needFile||"").toLowerCase();
