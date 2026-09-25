@@ -691,6 +691,9 @@
     <div class="grp" id="grpOffer">
       <h3>Оффер (для call/error/chest)</h3>
       <div class="hint">Эти данные подставляются в <b>генерируемые</b> страницы call/error/chest. Сам переведённый ленд они не меняют.</div>
+      <label>Дизайн страницы «спасибо» / ошибки</label>
+      <select id="thanksDesign"><option value="minimal">Минимал (карточка)</option><option value="hero">Hero (градиент)</option><option value="receipt">Чек заказа</option><option value="clinic">Клиника (мед.)</option></select>
+      <div class="hint">Оформление сгенерированных call.html (спасибо) и error.html. Текст один и тот же (переводится под гео), меняется только вид.</div>
       <div class="row">
         <div><label>Бренд</label><input id="brand" placeholder="Имя оффера"></div>
         <div><label>Картинка</label><input id="image" placeholder="images/product.png"></div>
@@ -2264,44 +2267,83 @@ function buildIndex(cfg){return patchHtml(cfg, cfg.html);}
 var THANKS_CSS="*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1a2b42;background:radial-gradient(1200px 600px at 50% -10%,#e8f2fa,#f5f8fb 55%)}.card{background:#fff;max-width:460px;width:100%;padding:38px 30px 30px;border-radius:22px;text-align:center;box-shadow:0 24px 60px rgba(10,40,80,.13);animation:pop .45s cubic-bezier(.2,.8,.2,1)}@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}.ic{width:92px;height:92px;margin:0 auto 12px}.ic svg{width:100%;height:100%;fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.ic.ok circle{fill:#eafaf1;stroke:#cdeede}.ic.ok path{stroke:#1e8449;stroke-dasharray:44;stroke-dashoffset:44;animation:draw .55s .2s forwards}.ic.wait circle{fill:#eef4fb;stroke:#d7e6f5}.ic.wait path{stroke:#0a5c9e}@keyframes draw{to{stroke-dashoffset:0}}.prod{max-width:160px;width:62%;height:auto;display:block;margin:8px auto 2px}h1{font-size:25px;line-height:1.25;margin:10px 0 8px;color:#1e8449}.card.err h1{color:#c0392b}.ic.err circle{fill:#fdecea;stroke:#f3ccc6}.ic.err path{stroke:#c0392b}.retry{display:inline-block;margin-top:18px;background:#0a5c9e;color:#fff;border:0;border-radius:12px;padding:13px 24px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;box-shadow:0 6px 18px rgba(10,92,158,.25)}.retry:hover{background:#084678}p{font-size:16px;line-height:1.6;margin:6px 0}.muted{color:#6b7a8f;font-size:14px}.oid{margin-top:16px;font-size:13px;color:#4a5a70;background:#f1f6fb;border:1px solid #e4ecf4;border-radius:30px;padding:7px 16px;display:inline-block}.trust{margin-top:18px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:12px;color:#8a93a3}.trust span{display:inline-flex;align-items:center;gap:5px}";
 function dirAttr(cfg){return cfg.t.rtl?' dir="rtl"':'';}
 function pageImg(cfg,slot){var u=(slot==="success"?cfg.successImg:cfg.errorImg)||cfg.image;return u;}
-function buildCall(cfg){var t=cfg.t;var img=pageImg(cfg,"success");return `<!DOCTYPE html>
+// ── Дизайны страницы благодарности/ошибки (call.html / error.html) ──
+// Все используют одни и те же тексты (переводятся под гео); отличается вёрстка/стиль.
+var THANKS_DESIGNS=[["minimal","Минимал (карточка)"],["hero","Hero (градиент)"],["receipt","Чек заказа"],["clinic","Клиника (мед.)"]];
+function pageHead(cfg,isErr){var t=cfg.t;return `<!DOCTYPE html>
 <html lang="${cfg.langCode}"${dirAttr(cfg)}>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${esc(t.thanks)}</title><link rel="icon" href="${esc(cfg.image)}">
-${pixelBlock(cfg,true)}
+<title>${esc(isErr?t.errt:t.thanks)}</title><link rel="icon" href="${esc(cfg.image)}">
+${pixelBlock(cfg,!isErr)}`;}
+function orderIdScript(cfg){var t=cfg.t;return `<script>(function(){var id=new URLSearchParams(location.search).get('order_id');if(id){var e=document.getElementById('order-id');if(e){e.textContent='${esc(t.ordno)}'+id;e.style.display='';}}})();<\/script>`;}
+function svgIcon(isErr){return `<svg viewBox="0 0 52 52">${isErr?'<path d="M26 15v16"/><path d="M26 37l.02 0"/>':'<path d="M15 27l7.5 7.5L38 18"/>'}</svg>`;}
+
+function dsMinimal(cfg,isErr){var t=cfg.t,img=pageImg(cfg,isErr?"error":"success");return pageHead(cfg,isErr)+`
 <style>${THANKS_CSS}</style></head>
 <body>
+<div class="card${isErr?' err':''}">
+  <div class="ic ${isErr?'err':'ok'}"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/>${isErr?'<path d="M26 15v16"/><path d="M26 37l.02 0"/>':'<path d="M15 27l7.5 7.5L38 18"/>'}</svg></div>
+  <img class="prod" src="${img}" alt="${esc(cfg.brand)}" loading="lazy">
+  <h1>${esc(isErr?t.errt:t.thanks)}</h1>
+  <p>${esc(isErr?t.el1:t.tl1)}</p>
+  <p class="muted">${esc(isErr?t.el2:t.tl2)}</p>
+  ${isErr?`<button class="retry" onclick="history.back()">${esc(t.retry)}</button>`:`<div class="oid" id="order-id" style="display:none"></div>`}
+</div>
+${isErr?"":orderIdScript(cfg)}
+</body></html>`;}
+
+var HERO_CSS="*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;font-family:'Inter',system-ui,-apple-system,Arial,sans-serif;background:#0b1220}.wrap{max-width:470px;width:100%;border-radius:26px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);background:#fff;animation:up .5s cubic-bezier(.2,.8,.2,1)}@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}.top{background:linear-gradient(135deg,#12b76a,#0a8f52);padding:42px 26px 30px;text-align:center;color:#fff}.top.e{background:linear-gradient(135deg,#e05a4a,#c0392b)}.ring{width:104px;height:104px;margin:0 auto 14px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center}.ring svg{width:54px;height:54px;fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.ring svg path{stroke-dasharray:48;stroke-dashoffset:48;animation:d .6s .25s forwards}@keyframes d{to{stroke-dashoffset:0}}.top h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.2}.bd{padding:24px 26px 30px;text-align:center;color:#1a2b42}.bd img{max-width:150px;width:52%;height:auto;display:block;margin:-52px auto 10px;filter:drop-shadow(0 14px 24px rgba(0,0,0,.18))}.bd p{margin:8px 0;font-size:16px;line-height:1.6}.bd .m{color:#6b7a8f;font-size:14px}.oid{margin-top:16px;font-size:13px;color:#0a8f52;background:#eafaf1;border-radius:30px;padding:8px 16px;display:inline-block;font-weight:600}.retry{display:inline-block;margin-top:18px;background:#c0392b;color:#fff;text-decoration:none;border:0;border-radius:14px;padding:14px 26px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}";
+function dsHero(cfg,isErr){var t=cfg.t,img=pageImg(cfg,isErr?"error":"success");return pageHead(cfg,isErr)+`
+<style>${HERO_CSS}</style></head>
+<body>
+<div class="wrap">
+  <div class="top${isErr?' e':''}"><div class="ring">${svgIcon(isErr)}</div><h1>${esc(isErr?t.errt:t.thanks)}</h1></div>
+  <div class="bd">
+    <img src="${img}" alt="${esc(cfg.brand)}" loading="lazy">
+    <p>${esc(isErr?t.el1:t.tl1)}</p>
+    <p class="m">${esc(isErr?t.el2:t.tl2)}</p>
+    ${isErr?`<button class="retry" onclick="history.back()">${esc(t.retry)}</button>`:`<div class="oid" id="order-id" style="display:none"></div>`}
+  </div>
+</div>
+${isErr?"":orderIdScript(cfg)}
+</body></html>`;}
+
+var RCPT_CSS="*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;font-family:'Inter',system-ui,-apple-system,Arial,sans-serif;background:#eef2f6;color:#1f2a37}.rc{max-width:410px;width:100%;background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(20,40,70,.14);overflow:hidden}.hd{background:#16a34a;color:#fff;padding:26px 22px;text-align:center}.hd.e{background:#c0392b}.ck{width:66px;height:66px;margin:0 auto 8px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center}.ck svg{width:34px;height:34px;fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.hd h1{margin:6px 0 0;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.dash{height:0;border-top:2px dashed #d7dee7;margin:0 18px;position:relative}.dash:before,.dash:after{content:'';position:absolute;top:-13px;width:26px;height:26px;background:#eef2f6;border-radius:50%}.dash:before{left:-31px}.dash:after{right:-31px}.bd{padding:22px 22px 26px;text-align:center}.bd img{max-width:120px;width:44%;height:auto;margin:4px auto 12px;display:block}.bd p{margin:7px 0;font-size:15px;line-height:1.55}.bd .m{color:#6b7a8f;font-size:13px}.oid{margin:14px auto 0;font-size:13px;color:#166534;background:#eafaf1;border:1px dashed #bfe6cd;border-radius:8px;padding:9px 14px;display:inline-block;font-weight:700;letter-spacing:.02em}.retry{display:inline-block;margin-top:16px;background:#1f2a37;color:#fff;text-decoration:none;border:0;border-radius:10px;padding:13px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}";
+function dsReceipt(cfg,isErr){var t=cfg.t,img=pageImg(cfg,isErr?"error":"success");return pageHead(cfg,isErr)+`
+<style>${RCPT_CSS}</style></head>
+<body>
+<div class="rc">
+  <div class="hd${isErr?' e':''}"><div class="ck">${svgIcon(isErr)}</div><h1>${esc(isErr?t.errt:t.thanks)}</h1></div>
+  <div class="dash"></div>
+  <div class="bd">
+    <img src="${img}" alt="${esc(cfg.brand)}" loading="lazy">
+    <p>${esc(isErr?t.el1:t.tl1)}</p>
+    <p class="m">${esc(isErr?t.el2:t.tl2)}</p>
+    ${isErr?`<button class="retry" onclick="history.back()">${esc(t.retry)}</button>`:`<div class="oid" id="order-id" style="display:none"></div>`}
+  </div>
+</div>
+${isErr?"":orderIdScript(cfg)}
+</body></html>`;}
+
+var CLIN_CSS="*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:'Inter',system-ui,-apple-system,Arial,sans-serif;background:#f4f7fb;color:#131e2c;display:flex;flex-direction:column;align-items:center;padding:0 16px}.bar{width:100%;background:#0d2f5a;color:#eaf1fa;text-align:center;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:9px 10px;font-weight:600}.card{max-width:520px;width:100%;background:#fff;margin:26px 0;border:1px solid #d0dae8;border-top:4px solid #2b7ec7;border-radius:8px;padding:34px 28px;text-align:center;box-shadow:0 10px 30px rgba(13,47,90,.08)}.ic{width:84px;height:84px;margin:0 auto 12px;border-radius:50%;background:#e6f1e9;display:flex;align-items:center;justify-content:center}.ic.e{background:#fbeae7}.ic svg{width:42px;height:42px;fill:none;stroke:#2f7a44;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.ic.e svg{stroke:#b2352a}.card h1{font-family:Georgia,'Times New Roman',serif;font-size:25px;color:#0d2f5a;margin:6px 0 10px;line-height:1.25}.card img{max-width:140px;width:48%;height:auto;display:block;margin:10px auto}.card p{margin:8px 0;font-size:16px;line-height:1.6}.card .m{color:#435168;font-size:14px}.trust{margin-top:18px;padding-top:16px;border-top:1px solid #e0e7f0;display:flex;gap:18px;justify-content:center;flex-wrap:wrap;font-size:22px}.oid{margin-top:14px;font-size:13px;color:#0d2f5a;background:#eaf1fa;border-radius:6px;padding:8px 14px;display:inline-block;font-weight:600}.retry{display:inline-block;margin-top:16px;background:#1e4d8b;color:#fff;text-decoration:none;border:0;border-radius:6px;padding:13px 26px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}";
+function dsClinic(cfg,isErr){var t=cfg.t,img=pageImg(cfg,isErr?"error":"success");return pageHead(cfg,isErr)+`
+<style>${CLIN_CSS}</style></head>
+<body>
+<div class="bar">${esc(cfg.brand||"")}</div>
 <div class="card">
-  <div class="ic ok"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l7.5 7.5L38 18"/></svg></div>
-  <img class="prod" src="${img}" alt="${esc(cfg.brand)}" loading="lazy">
-  <h1>${esc(t.thanks)}</h1>
-  <p>${esc(t.tl1)}</p>
-  <p class="muted">${esc(t.tl2)}</p>
-  <div class="oid" id="order-id"></div>
+  <div class="ic ${isErr?'e':''}">${svgIcon(isErr)}</div>
+  <h1>${esc(isErr?t.errt:t.thanks)}</h1>
+  <img src="${img}" alt="${esc(cfg.brand)}" loading="lazy">
+  <p>${esc(isErr?t.el1:t.tl1)}</p>
+  <p class="m">${esc(isErr?t.el2:t.tl2)}</p>
+  ${isErr?`<button class="retry" onclick="history.back()">${esc(t.retry)}</button>`:`<div class="oid" id="order-id" style="display:none"></div><div class="trust"><span>✓</span><span>🔒</span><span>🚚</span></div>`}
 </div>
-<script>
-(function () {
-  var id = new URLSearchParams(location.search).get('order_id');
-  if (id) document.getElementById('order-id').textContent = '${esc(t.ordno)}' + id;
-})();
-<\/script>
+${isErr?"":orderIdScript(cfg)}
 </body></html>`;}
-function buildError(cfg){var t=cfg.t;var img=pageImg(cfg,"error");return `<!DOCTYPE html>
-<html lang="${cfg.langCode}"${dirAttr(cfg)}>
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${esc(t.errt)}</title><link rel="icon" href="${esc(cfg.image)}">
-${pixelBlock(cfg,false)}
-<style>${THANKS_CSS}</style></head>
-<body>
-<div class="card err">
-  <div class="ic err"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M26 15v16"/><path d="M26 37l.02 0"/></svg></div>
-  <img class="prod" src="${img}" alt="${esc(cfg.brand)}" loading="lazy">
-  <h1>${esc(t.errt)}</h1>
-  <p>${esc(t.el1)}</p>
-  <p class="muted">${esc(t.el2)}</p>
-  <button class="retry" onclick="history.back()">${esc(t.retry)}</button>
-</div>
-</body></html>`;}
+
+function callPage(cfg,isErr){var fn={minimal:dsMinimal,hero:dsHero,receipt:dsReceipt,clinic:dsClinic}[cfg.thanksDesign||"minimal"]||dsMinimal;return fn(cfg,isErr);}
+function buildCall(cfg){return callPage(cfg,false);}
+function buildError(cfg){return callPage(cfg,true);}
 // половина от введённой цены (сохраняя валюту и разделители)
 // halfCalc -> {num:"5450", full:"5450 PKR"}: num — только число-половина, full — с валютой/текстом
 function halfCalc(s){
@@ -2771,6 +2813,7 @@ function readCfg(){
     keepComments:document.getElementById("keepComments").checked,
     optB64:chk("optB64"),optUnused:chk("optUnused"),optImg:chk("optImg"),optImgSmart:chk("optImgSmart"),optWebp:chk("optWebp"),optJunk:chk("optJunk"),
     optImgMax:parseInt(val("optImgMax"),10)||1000,optImgQ:Math.min(1,Math.max(0.3,(parseInt(val("optImgQ"),10)||82)/100)),
+    thanksDesign:(document.getElementById("thanksDesign")||{}).value||"minimal",
     t:T(lang)};
 }
 function chk(id){ var e=document.getElementById(id); return !!(e&&e.checked); }
