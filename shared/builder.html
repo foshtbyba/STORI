@@ -133,6 +133,7 @@
   .grp:nth-of-type(5) h3{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13 2L3 14h7l-1 8 10-12h-7z'/%3E%3C/svg%3E")}
   .grp:nth-of-type(6) h3{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12.5V4h8.5L21 13.5 12.5 22 3 12.5z'/%3E%3C/svg%3E")}
   .grp:nth-of-type(7) h3{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 20V5l11 3.5L6 12'/%3E%3C/svg%3E")}
+  .grp:nth-of-type(8) h3{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z'/%3E%3Cpath d='M9 12l2 2 4-4'/%3E%3C/svg%3E")}
 
   /* Складные заголовки: шеврон отделён от текста и не пляшет. */
   .gtoggle{cursor:pointer;user-select:none}
@@ -748,6 +749,18 @@
       <div class="hint" style="margin-top:2px">По умолчанию выключено: готовый ленд чистый, без служебных <code>&lt;!-- … --&gt;</code> конструктора. Включи, если хочешь видеть пометки, что и куда вставлено.</div>
     </div>
 
+    <div class="grp" id="grpDedup">
+      <h3 class="gtoggle" data-target="ddBody"><span class="chev">▸</span> Антидубль (повторные заявки)</h3>
+      <div id="ddBody" class="grp-body" style="display:none">
+        <div class="chk"><input type="checkbox" id="dedupOn" checked><label>Не отправлять повторные заявки в ПП</label></div>
+        <div class="row">
+          <div><label>Окно по телефону, дней</label><input id="dedupPhoneDays" value="1"></div>
+          <div><label>Окно по IP, минут</label><input id="dedupIpMin" value="5"></div>
+        </div>
+        <div class="hint">Один человек не задублит заявку. Дедуп по <b>телефону</b> (тот же номер за N дней — блок, даже с другого устройства) и по <b>IP</b> (тот же IP за N минут — анти-флуд/двойной клик). При дубле юзеру показываем «спасибо», но в партнёрку <b>не шлём</b> (чистая стата, без треша). Хранилище — <code>_dedup.json</code> в папке ленда, только sha256-хэши, автоочистка окон. Работает в серверных обработчиках (shakes/hamsters/skylead/affstar/KMA). ⚠ IP держи коротким (5 мин): мобильные сети прячут много людей за одним IP — долгий блок порежет живых.</div>
+      </div>
+    </div>
+
     <div id="trWrap" class="grp" style="margin-top:14px">
       <div class="gtoggle" data-target="trBody"><span class="chev">▸</span> 🌐 Перевод ленда через Claude</div>
       <div id="trBody" style="display:none">
@@ -1287,6 +1300,12 @@ function b64utf8(b){ try{ return decodeURIComponent(escape(atob(b))); }catch(e){
 function affstarApiPhp(cfg){ var s=b64utf8(AFFSTAR_API_B64), key=(cfg.affstarKey||"").replace(/\x27/g,""), flow=String(cfg.product_id||"").replace(/\x27/g,"");
   if(key)  s=s.replace(/const\s+API_KEY\s*=\s*\x27[^\x27]*\x27\s*;/, "const API_KEY = \x27"+key+"\x27;");
   if(flow) s=s.replace(/const\s+FLOW_UUID\s*=\s*\x27[^\x27]*\x27\s*;/, "const FLOW_UUID = \x27"+flow+"\x27;");
+  if(cfg.dedup){ var __pt=Math.max(1,(cfg.dedupPhoneDays||1))*86400, __it=Math.max(1,(cfg.dedupIpMin||5))*60;
+    s=s.replace("<?php", "<?php\n"+DD_FNS);
+    s=s.replace("(new LeadSender())->send();",
+      "$__ddp = preg_replace(\x27/\\D+/\x27, \x27\x27, (isset($_POST[\x27phone\x27])?$_POST[\x27phone\x27]:\x27\x27));\n    $GLOBALS[\x27__dd\x27] = ss_dd_check($__ddp, (!empty($_SERVER[\x27REMOTE_ADDR\x27])?$_SERVER[\x27REMOTE_ADDR\x27]:\x27\x27), __DIR__, "+__pt+", "+__it+");\n    if (!empty($GLOBALS[\x27__dd\x27][\x27dup\x27])) { header(\x27Location: __SUCCESS_PAGE__\x27); exit; }\n    (new LeadSender())->send();");
+    s=s.replace("header('Location: __SUCCESS_PAGE__');", "if(!empty($GLOBALS['__dd'])) ss_dd_mark($GLOBALS['__dd']); header('Location: __SUCCESS_PAGE__');");
+  }
   s=s.split("__SUCCESS_PAGE__").join((cfg.success||"call.html").replace(/\x27/g,""));
   s=s.split("__ERROR_PAGE__").join((cfg.error||"error.html").replace(/\x27/g,""));
   return s; }
@@ -1650,6 +1669,14 @@ function orderBlock(cfg){
 // страна для shakes: из отдельного поля country или из langCode, ISO-2 верхним регистром
 function shakesCountry(cfg){ return (cfg.country||cfg.langCode||"").toUpperCase().replace(/[^A-Z]/g,"").slice(0,2); }
 // серверный прокси shakes: генерируем order.php с закреплённым apiKey, offerId и нашими call/error
+// ─── Антидубль: серверная предпроверка (пер-ленд _dedup.json, sha256-хэши, автоочистка окон) ───
+var DD_FNS="function ss_dd_check($phone,$ip,$dir,$pt,$it){$f=$dir.'/_dedup.json';$n=time();$s=array('ph'=>array(),'ip'=>array());if(is_file($f)){$j=json_decode(@file_get_contents($f),true);if(is_array($j)){if(!empty($j['ph'])&&is_array($j['ph']))$s['ph']=$j['ph'];if(!empty($j['ip'])&&is_array($j['ip']))$s['ip']=$j['ip'];}}foreach($s['ph'] as $k=>$t){if($t<$n-$pt)unset($s['ph'][$k]);}foreach($s['ip'] as $k=>$t){if($t<$n-$it)unset($s['ip'][$k]);}$ph=($phone!=='')?hash('sha256',$phone):'';$ik=($ip!=='')?hash('sha256',$ip):'';$d=($ph!==''&&isset($s['ph'][$ph]))||($ik!==''&&isset($s['ip'][$ik]));return array('dup'=>$d,'store'=>$s,'ph'=>$ph,'ik'=>$ik,'file'=>$f,'now'=>$n);}\nfunction ss_dd_mark($r){if(!is_array($r))return;$s=$r['store'];if($r['ph']!=='')$s['ph'][$r['ph']]=$r['now'];if($r['ik']!=='')$s['ip'][$r['ik']]=$r['now'];@file_put_contents($r['file'],json_encode($s),LOCK_EX);}\n";
+function ddFns(cfg){ return cfg.dedup ? DD_FNS : ""; }
+function ddCheck(cfg, successStmt){ if(!cfg.dedup) return ""; var pt=Math.max(1,(cfg.dedupPhoneDays||1))*86400, it=Math.max(1,(cfg.dedupIpMin||5))*60;
+  return "$__ddp = preg_replace('/\\D+/', '', (isset($_POST['phone'])?$_POST['phone']:''));\n"+
+         "$__dd = ss_dd_check($__ddp, (!empty($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:''), __DIR__, "+pt+", "+it+");\n"+
+         "if (!empty($__dd['dup'])) { "+successStmt+" }\n\n"; }
+function ddMark(cfg){ return cfg.dedup ? "ss_dd_mark($__dd); " : ""; }
 function shakesOrderPhp(cfg){
   var offerId=String(cfg.product_id||"").replace(/[^0-9]/g,"");
   return "<?php\n\n"+
@@ -1660,6 +1687,8 @@ function shakesOrderPhp(cfg){
 "$streamCode = '"+String(cfg.streamCode||"").replace(/'/g,"")+"';\n"+
 "$successPage = '"+(cfg.success||"call.html")+"';\n"+
 "$errorPage = '"+(cfg.error||"error.html")+"';\n\n"+
+ddFns(cfg)+
+ddCheck(cfg, "if (!empty($successPage) && is_file(__DIR__.'/'.$successPage)) { include __DIR__.'/'.$successPage; } else { header('Location: '.$successPage); } exit;")+
 "$url = \"http://$domain?r=/api/order/in&key=$apiKey\";\n"+
 "$order = [\n"+
 "    'createdAt' => date('Y-m-d H:i:s'),\n"+
@@ -1690,7 +1719,7 @@ function shakesOrderPhp(cfg){
 "    if (empty($response)) { throw new Exception('Error: Broken json format for order.'); }\n"+
 "    if ($response['status'] != 'ok') { throw new Exception('Error: Order rejected.'); }\n"+
 "    curl_close($curl);\n"+
-"    if (!empty($successPage) && is_file(__DIR__ . '/' . $successPage)) { include __DIR__ . '/' . $successPage; }\n"+
+"    "+ddMark(cfg)+"if (!empty($successPage) && is_file(__DIR__ . '/' . $successPage)) { include __DIR__ . '/' . $successPage; }\n"+
 "} catch (Exception $e) {\n"+
 "    if (!empty($errorPage) && is_file(__DIR__ . '/' . $errorPage)) { include __DIR__ . '/' . $errorPage; }\n"+
 "}\n";
@@ -1705,6 +1734,7 @@ function hamstersOrderPhp(cfg){
 "$OFFER_KEY  = '"+key+"';\n"+
 "$THANK_PAGE = '"+(cfg.success||"call.html")+"';\n"+
 "$ERROR_PAGE = '"+(cfg.error||"error.html")+"';\n\n"+
+ddFns(cfg)+
 "$name  = isset($_POST['name'])  ? trim($_POST['name'])  : '';\n"+
 "$phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';\n\n"+
 "$subid = isset($_POST['subid']) ? trim($_POST['subid']) : '';\n"+
@@ -1712,6 +1742,7 @@ function hamstersOrderPhp(cfg){
 "$subid2 = isset($_POST['subid2']) ? trim($_POST['subid2']) : '';\n"+   // метка баера
 "if (strpos($subid2, '{') !== false) { $subid2 = ''; }\n\n"+
 "if ($phone === '') { header('Location: ' . $ERROR_PAGE); exit; }\n\n"+
+ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK_PAGE; } else { header('Location: '.$THANK_PAGE); } exit;")+
 "$data = [\n"+
 "    'key_hash' => $OFFER_KEY,\n"+
 "    'name'     => $name,\n"+
@@ -1721,7 +1752,7 @@ function hamstersOrderPhp(cfg){
 "if ($subid  !== '') { $data['subid']  = $subid; }\n"+
 "if ($subid2 !== '') { $data['subid2'] = $subid2; }\n\n"+
 "$result = sendLead($data);\n\n"+
-"if (is_array($result) && !empty($result['api']['success'])) { header('Location: ' . $THANK_PAGE); }\n"+
+"if (is_array($result) && !empty($result['api']['success'])) { "+ddMark(cfg)+"header('Location: ' . $THANK_PAGE); }\n"+
 "else { header('Location: ' . $ERROR_PAGE); }\n"+
 "exit;\n\n"+
 "function sendLead($data) {\n"+
@@ -1780,6 +1811,7 @@ function skyleadOrderPhp(cfg){
 "$DIAL       = '"+dc+"';\n"+           // код страны (напр. 36 для HU), '' если неизвестен
 "$LOCAL_LEN  = "+dl+";\n"+             // длина локального номера без кода страны
 "$DEBUG_LOG  = true;\n\n"+            // писать ответ SkyLead в _skylead_log.txt при ошибке (для диагностики)
+ddFns(cfg)+
 "$name  = isset($_POST['name'])  ? trim($_POST['name'])  : '';\n"+
 "$phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';\n"+
 "$subid = isset($_POST['subid']) ? trim($_POST['subid']) : '';\n"+
@@ -1793,6 +1825,7 @@ function skyleadOrderPhp(cfg){
 "    elseif (strpos($phone, $DIAL) === 0 && strlen($phone) === strlen($DIAL) + $LOCAL_LEN) { /* уже международный, ок */ }\n"+
 "}\n\n"+
 "if ($phone === '') { header('Location: ' . $ERROR_PAGE); exit; }\n\n"+
+ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK_PAGE; } else { header('Location: '.$THANK_PAGE); } exit;")+
 "$data = array(\n"+
 "    'flow'  => $FLOW,\n"+
 "    'offer' => $OFFER,\n"+
@@ -1809,6 +1842,7 @@ function skyleadOrderPhp(cfg){
 "}\n\n"+
 "$res = sendLead('https://api.skylead.biz/wm/push.json?id=' . rawurlencode($API_ID), $data);\n"+
 "$ok  = $res['ok'];\n"+
+(cfg.dedup?"if ($ok) { "+ddMark(cfg)+"}\n":"")+
 "if (!$ok && $DEBUG_LOG) {\n"+
 "    @file_put_contents(__DIR__ . '/_skylead_log.txt', date('c') . '  RESP: ' . $res['raw'] . '  | SENT: ' . http_build_query($data) . \"\\n\", FILE_APPEND);\n"+
 "}\n\n"+
@@ -1911,6 +1945,7 @@ function kmaSuccessPhp(cfg){
 "<?php\n"+
 "require_once __DIR__ . '/config.php';\n"+
 "require_once __DIR__ . '/KmaLead.php';\n"+
+(cfg.dedup?DD_FNS:"")+
 "\n"+
 "$name    = isset($_POST['name'])     ? trim($_POST['name'])     : '';\n"+
 "$phone   = isset($_POST['phone'])    ? trim($_POST['phone'])    : '';\n"+
@@ -1921,8 +1956,13 @@ function kmaSuccessPhp(cfg){
 "$data2   = isset($_POST['data2'])    ? trim($_POST['data2'])    : '';\n"+   // метка баера
 "\n"+
 "$lead_sent = false;\n"+
+(cfg.dedup?
+  "$__ddp = preg_replace('/\\\\D+/', '', $phone);\n"+
+  "$__dd = ss_dd_check($__ddp, (!empty($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:''), __DIR__, "+(Math.max(1,(cfg.dedupPhoneDays||1))*86400)+", "+(Math.max(1,(cfg.dedupIpMin||5))*60)+");\n"+
+  "if (!empty($__dd['dup'])) { $lead_sent = true; $lead_name = $name; }\n"
+:"")+
 "\n"+
-"if ($name && $phone) {\n"+
+"if ("+(cfg.dedup?"empty($__dd['dup']) && ":"")+"$name && $phone) {\n"+
 "    $kma = new KmaLead(KMA_ACCESS_TOKEN);\n"+
 "    $kma->debug = false;\n"+
 "\n"+
@@ -1941,7 +1981,7 @@ function kmaSuccessPhp(cfg){
 "    $raw = $kma->addLeadAndReturnPage($data);\n"+
 "    if ($raw) {\n"+
 "        $response = json_decode($raw, true);\n"+
-"        if (isset($response['order'])) { $lead_sent = true; }\n"+
+"        if (isset($response['order'])) { $lead_sent = true;"+(cfg.dedup?" ss_dd_mark($__dd);":"")+" }\n"+
 "    }\n"+
 "    $lead_name = $name;\n"+
 "}\n"+
@@ -2248,6 +2288,7 @@ function patchHtml(cfg, html){
     var block=orderBlock(cfg);
     if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,block+"\n</body>"); else html+="\n"+block;
   }
+  if(cfg.dedup){ var __lock='<script>(function(){function L(f){var s=false;f.addEventListener("submit",function(e){if(s){e.preventDefault();e.stopImmediatePropagation();return false;}s=true;var b=f.querySelector("[type=submit],button");if(b)setTimeout(function(){b.disabled=true;},0);},true);}Array.prototype.forEach.call(document.querySelectorAll("form"),L);})();<\/script>'; if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,__lock+"\n</body>"); else html+="\n"+__lock; }   // антидубль: замок двойного сабмита
   if(cfg.keepComments){
     // видимый маркер сверху (чтобы было понятно, что файл собран/изменён)
     var mark="<!-- ✦ собрано конструктором: +Meta Pixel (head) +блок заказа (перед /body), lang="+(cfg.langCode||"?")+" -->";
@@ -2881,6 +2922,7 @@ function readCfg(){
     optB64:chk("optB64"),optUnused:chk("optUnused"),optImg:chk("optImg"),optImgSmart:chk("optImgSmart"),optWebp:chk("optWebp"),optJunk:chk("optJunk"),
     optImgMax:parseInt(val("optImgMax"),10)||1000,optImgQ:Math.min(1,Math.max(0.3,(parseInt(val("optImgQ"),10)||82)/100)),
     thanksDesign:(document.getElementById("thanksDesign")||{}).value||"minimal",
+    dedup:chk("dedupOn"),dedupPhoneDays:parseInt(val("dedupPhoneDays"),10)||1,dedupIpMin:parseInt(val("dedupIpMin"),10)||5,
     uiLang:lang,
     t:T(lang)};
 }
