@@ -692,7 +692,7 @@
       <h3>Оффер (для call/error/chest)</h3>
       <div class="hint">Эти данные подставляются в <b>генерируемые</b> страницы call/error/chest. Сам переведённый ленд они не меняют.</div>
       <label>Дизайн страницы «спасибо» / ошибки</label>
-      <select id="thanksDesign"><option value="minimal">Минимал (карточка)</option><option value="hero">Hero (градиент)</option><option value="receipt">Чек заказа</option><option value="clinic">Клиника (мед.)</option></select>
+      <select id="thanksDesign"><option value="minimal">Минимал (карточка)</option><option value="splash">Сплэш (весь экран)</option><option value="chat">Чат менеджера</option><option value="split">Сплит: товар | текст</option></select>
       <div class="hint">Оформление сгенерированных call.html (спасибо) и error.html. Текст один и тот же (переводится под гео), меняется только вид.</div>
       <div class="row">
         <div><label>Бренд</label><input id="brand" placeholder="Имя оффера"></div>
@@ -2269,7 +2269,7 @@ function dirAttr(cfg){return cfg.t.rtl?' dir="rtl"':'';}
 function pageImg(cfg,slot){var u=(slot==="success"?cfg.successImg:cfg.errorImg)||cfg.image;return u;}
 // ── Дизайны страницы благодарности/ошибки (call.html / error.html) ──
 // Все используют одни и те же тексты (переводятся под гео); отличается вёрстка/стиль.
-var THANKS_DESIGNS=[["minimal","Минимал (карточка)"],["hero","Hero (градиент)"],["receipt","Чек заказа"],["clinic","Клиника (мед.)"]];
+var THANKS_DESIGNS=[["minimal","Минимал (карточка)"],["splash","Сплэш (весь экран)"],["chat","Чат менеджера"],["split","Сплит: товар | текст"]];
 function pageHead(cfg,isErr){var t=cfg.t;return `<!DOCTYPE html>
 <html lang="${cfg.langCode}"${dirAttr(cfg)}>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2292,56 +2292,54 @@ function dsMinimal(cfg,isErr){var t=cfg.t,img=pageImg(cfg,isErr?"error":"success
 ${isErr?"":orderIdScript(cfg)}
 </body></html>`;}
 
-var HERO_CSS="*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;font-family:'Inter',system-ui,-apple-system,Arial,sans-serif;background:#0b1220}.wrap{max-width:470px;width:100%;border-radius:26px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);background:#fff;animation:up .5s cubic-bezier(.2,.8,.2,1)}@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}.top{background:linear-gradient(135deg,#12b76a,#0a8f52);padding:42px 26px 30px;text-align:center;color:#fff}.top.e{background:linear-gradient(135deg,#e05a4a,#c0392b)}.ring{width:104px;height:104px;margin:0 auto 14px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center}.ring svg{width:54px;height:54px;fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.ring svg path{stroke-dasharray:48;stroke-dashoffset:48;animation:d .6s .25s forwards}@keyframes d{to{stroke-dashoffset:0}}.top h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.2}.bd{padding:24px 26px 30px;text-align:center;color:#1a2b42}.bd img{max-width:150px;width:52%;height:auto;display:block;margin:-52px auto 10px;filter:drop-shadow(0 14px 24px rgba(0,0,0,.18))}.bd p{margin:8px 0;font-size:16px;line-height:1.6}.bd .m{color:#6b7a8f;font-size:14px}.oid{margin-top:16px;font-size:13px;color:#0a8f52;background:#eafaf1;border-radius:30px;padding:8px 16px;display:inline-block;font-weight:600}.retry{display:inline-block;margin-top:18px;background:#c0392b;color:#fff;text-decoration:none;border:0;border-radius:14px;padding:14px 26px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}";
-function dsHero(cfg,isErr){var t=cfg.t,img=pageImg(cfg,isErr?"error":"success");return pageHead(cfg,isErr)+`
-<style>${HERO_CSS}</style></head>
-<body>
-<div class="wrap">
-  <div class="top${isErr?' e':''}"><div class="ring">${svgIcon(isErr)}</div><h1>${esc(isErr?t.errt:t.thanks)}</h1></div>
-  <div class="bd">
-    <img src="${img}" alt="${esc(cfg.brand)}" loading="lazy">
-    <p>${esc(isErr?t.el1:t.tl1)}</p>
-    <p class="m">${esc(isErr?t.el2:t.tl2)}</p>
-    ${isErr?`<button class="retry" onclick="history.back()">${esc(t.retry)}</button>`:`<div class="oid" id="order-id" style="display:none"></div>`}
-  </div>
-</div>
-${isErr?"":orderIdScript(cfg)}
-</body></html>`;}
-
-var RCPT_CSS="*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;font-family:'Inter',system-ui,-apple-system,Arial,sans-serif;background:#eef2f6;color:#1f2a37}.rc{max-width:410px;width:100%;background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(20,40,70,.14);overflow:hidden}.hd{background:#16a34a;color:#fff;padding:26px 22px;text-align:center}.hd.e{background:#c0392b}.ck{width:66px;height:66px;margin:0 auto 8px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center}.ck svg{width:34px;height:34px;fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.hd h1{margin:6px 0 0;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.dash{height:0;border-top:2px dashed #d7dee7;margin:0 18px;position:relative}.dash:before,.dash:after{content:'';position:absolute;top:-13px;width:26px;height:26px;background:#eef2f6;border-radius:50%}.dash:before{left:-31px}.dash:after{right:-31px}.bd{padding:22px 22px 26px;text-align:center}.bd img{max-width:120px;width:44%;height:auto;margin:4px auto 12px;display:block}.bd p{margin:7px 0;font-size:15px;line-height:1.55}.bd .m{color:#6b7a8f;font-size:13px}.oid{margin:14px auto 0;font-size:13px;color:#166534;background:#eafaf1;border:1px dashed #bfe6cd;border-radius:8px;padding:9px 14px;display:inline-block;font-weight:700;letter-spacing:.02em}.retry{display:inline-block;margin-top:16px;background:#1f2a37;color:#fff;text-decoration:none;border:0;border-radius:10px;padding:13px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}";
-function dsReceipt(cfg,isErr){var t=cfg.t,img=pageImg(cfg,isErr?"error":"success");return pageHead(cfg,isErr)+`
-<style>${RCPT_CSS}</style></head>
-<body>
-<div class="rc">
-  <div class="hd${isErr?' e':''}"><div class="ck">${svgIcon(isErr)}</div><h1>${esc(isErr?t.errt:t.thanks)}</h1></div>
-  <div class="dash"></div>
-  <div class="bd">
-    <img src="${img}" alt="${esc(cfg.brand)}" loading="lazy">
-    <p>${esc(isErr?t.el1:t.tl1)}</p>
-    <p class="m">${esc(isErr?t.el2:t.tl2)}</p>
-    ${isErr?`<button class="retry" onclick="history.back()">${esc(t.retry)}</button>`:`<div class="oid" id="order-id" style="display:none"></div>`}
-  </div>
-</div>
-${isErr?"":orderIdScript(cfg)}
-</body></html>`;}
-
-var CLIN_CSS="*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:'Inter',system-ui,-apple-system,Arial,sans-serif;background:#f4f7fb;color:#131e2c;display:flex;flex-direction:column;align-items:center;padding:0 16px}.bar{width:100%;background:#0d2f5a;color:#eaf1fa;text-align:center;font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:9px 10px;font-weight:600}.card{max-width:520px;width:100%;background:#fff;margin:26px 0;border:1px solid #d0dae8;border-top:4px solid #2b7ec7;border-radius:8px;padding:34px 28px;text-align:center;box-shadow:0 10px 30px rgba(13,47,90,.08)}.ic{width:84px;height:84px;margin:0 auto 12px;border-radius:50%;background:#e6f1e9;display:flex;align-items:center;justify-content:center}.ic.e{background:#fbeae7}.ic svg{width:42px;height:42px;fill:none;stroke:#2f7a44;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.ic.e svg{stroke:#b2352a}.card h1{font-family:Georgia,'Times New Roman',serif;font-size:25px;color:#0d2f5a;margin:6px 0 10px;line-height:1.25}.card img{max-width:140px;width:48%;height:auto;display:block;margin:10px auto}.card p{margin:8px 0;font-size:16px;line-height:1.6}.card .m{color:#435168;font-size:14px}.trust{margin-top:18px;padding-top:16px;border-top:1px solid #e0e7f0;display:flex;gap:18px;justify-content:center;flex-wrap:wrap;font-size:22px}.oid{margin-top:14px;font-size:13px;color:#0d2f5a;background:#eaf1fa;border-radius:6px;padding:8px 14px;display:inline-block;font-weight:600}.retry{display:inline-block;margin-top:16px;background:#1e4d8b;color:#fff;text-decoration:none;border:0;border-radius:6px;padding:13px 26px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}";
-function dsClinic(cfg,isErr){var t=cfg.t,img=pageImg(cfg,isErr?"error":"success");return pageHead(cfg,isErr)+`
-<style>${CLIN_CSS}</style></head>
-<body>
-<div class="bar">${esc(cfg.brand||"")}</div>
-<div class="card">
-  <div class="ic ${isErr?'e':''}">${svgIcon(isErr)}</div>
+var SPLASH_CSS="*{box-sizing:border-box}html,body{height:100%}body{margin:0;font-family:'Inter',system-ui,-apple-system,Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:34px 22px;color:#fff;background:radial-gradient(1200px 720px at 50% -5%,#18c46a,#0a8f52 55%,#077043)}body.e{background:radial-gradient(1200px 720px at 50% -5%,#f47160,#c0392b 55%,#9c2b20)}.ring{width:132px;height:132px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;margin-bottom:22px;box-shadow:0 0 0 14px rgba(255,255,255,.06)}.ring svg{width:70px;height:70px;fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.ring svg path{stroke-dasharray:52;stroke-dashoffset:52;animation:dr .7s .2s forwards}@keyframes dr{to{stroke-dashoffset:0}}h1{font-size:34px;font-weight:800;margin:0 0 12px;letter-spacing:-.02em;line-height:1.15;max-width:15ch}p{margin:6px 0;font-size:17px;line-height:1.55;max-width:34ch;opacity:.96}p.m{font-size:15px;opacity:.82}img.prod{max-width:130px;width:42%;height:auto;margin:24px 0 4px;filter:drop-shadow(0 18px 30px rgba(0,0,0,.28))}.oid{margin-top:16px;font-size:14px;background:rgba(255,255,255,.16);border-radius:30px;padding:9px 18px;font-weight:600}.retry{margin-top:24px;display:inline-block;background:#fff;color:#c0392b;text-decoration:none;border:0;border-radius:40px;padding:15px 36px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit}";
+function dsSplash(cfg,isErr){var t=cfg.t,img=pageImg(cfg,isErr?"error":"success");return pageHead(cfg,isErr)+`
+<style>${SPLASH_CSS}</style></head>
+<body class="${isErr?'e':''}">
+  <div class="ring">${svgIcon(isErr)}</div>
   <h1>${esc(isErr?t.errt:t.thanks)}</h1>
-  <img src="${img}" alt="${esc(cfg.brand)}" loading="lazy">
   <p>${esc(isErr?t.el1:t.tl1)}</p>
   <p class="m">${esc(isErr?t.el2:t.tl2)}</p>
-  ${isErr?`<button class="retry" onclick="history.back()">${esc(t.retry)}</button>`:`<div class="oid" id="order-id" style="display:none"></div><div class="trust"><span>✓</span><span>🔒</span><span>🚚</span></div>`}
+  ${isErr?'':`<img class="prod" src="${img}" alt="${esc(cfg.brand)}" loading="lazy">`}
+  ${isErr?`<a class="retry" href="#" onclick="history.back();return false">${esc(t.retry)}</a>`:`<div class="oid" id="order-id" style="display:none"></div>`}
+${isErr?"":orderIdScript(cfg)}
+</body></html>`;}
+
+var CHAT_CSS="*{box-sizing:border-box}body{margin:0;font-family:'Inter',system-ui,-apple-system,Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px;background:#0b141a}.ph{max-width:400px;width:100%;background:#e5ddd5;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5);display:flex;flex-direction:column;height:min(86vh,700px)}.hdr{background:#075e54;color:#fff;padding:11px 14px;display:flex;align-items:center;gap:11px}.hdr .av{width:42px;height:42px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;font-size:20px;flex:0 0 auto}.hdr .nm{font-weight:700;font-size:15px;line-height:1.15}.hdr .st{font-size:12px;opacity:.85;display:flex;align-items:center;gap:6px;margin-top:2px}.hdr .st:before{content:'';width:7px;height:7px;border-radius:50%;background:#8ef0a6;display:inline-block}.msgs{flex:1;overflow:auto;padding:16px 12px;display:flex;flex-direction:column;gap:8px;background:#e5ddd5 url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='20' cy='20' r='1.2' fill='%23c9bfb2'/></svg>\")}.b{max-width:84%;padding:9px 12px;border-radius:12px;font-size:14.5px;line-height:1.45;background:#fff;color:#111b21;box-shadow:0 1px 1px rgba(0,0,0,.08);align-self:flex-start;border-top-left-radius:3px}.b.big{font-weight:700}.b.ok{background:#d9fdd3}.b img{max-width:150px;width:100%;border-radius:8px;display:block}.b .tm{display:block;text-align:right;font-size:10px;color:#54756a;margin-top:3px}.typing{align-self:flex-start;background:#fff;border-radius:12px;border-top-left-radius:3px;padding:12px 14px;display:flex;gap:4px}.typing i{width:7px;height:7px;border-radius:50%;background:#9aa5ac;animation:tp 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes tp{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}.oid{align-self:center;font-size:12px;color:#54656f;background:rgba(255,255,255,.75);border-radius:20px;padding:5px 12px;margin:2px 0}.retry{align-self:center;margin:8px;display:inline-block;background:#075e54;color:#fff;text-decoration:none;border:0;border-radius:30px;padding:12px 28px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}";
+function dsChat(cfg,isErr){var t=cfg.t,img=pageImg(cfg,isErr?"error":"success");return pageHead(cfg,isErr)+`
+<style>${CHAT_CSS}</style></head>
+<body>
+<div class="ph">
+  <div class="hdr"><div class="av">${isErr?'⚠':'💬'}</div><div><div class="nm">${esc(cfg.brand||'')}</div><div class="st">online</div></div></div>
+  <div class="msgs">
+    <div class="b big${isErr?'':' ok'}">${isErr?'✕ ':'✓ '}${esc(isErr?t.errt:t.thanks)}<span class="tm">✓✓</span></div>
+    <div class="b">${esc(isErr?t.el1:t.tl1)}</div>
+    <div class="b">${esc(isErr?t.el2:t.tl2)}</div>
+    ${isErr?'':`<div class="b" style="padding:6px"><img src="${img}" alt="${esc(cfg.brand)}" loading="lazy"></div>`}
+    ${isErr?`<a class="retry" href="#" onclick="history.back();return false">${esc(t.retry)}</a>`:`<div class="oid" id="order-id" style="display:none"></div><div class="typing"><i></i><i></i><i></i></div>`}
+  </div>
 </div>
 ${isErr?"":orderIdScript(cfg)}
 </body></html>`;}
 
-function callPage(cfg,isErr){var fn={minimal:dsMinimal,hero:dsHero,receipt:dsReceipt,clinic:dsClinic}[cfg.thanksDesign||"minimal"]||dsMinimal;return fn(cfg,isErr);}
+var SPLIT_CSS="*{box-sizing:border-box}body{margin:0;font-family:'Inter',system-ui,-apple-system,Arial,sans-serif;min-height:100vh;display:flex;background:#eef2f7;color:#16233a}.split{margin:auto;max-width:900px;width:100%;min-height:min(88vh,620px);display:grid;grid-template-columns:1fr 1fr;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 30px 70px rgba(15,40,80,.16)}.pl{background:linear-gradient(160deg,#2b6fd6,#0d2f5a);display:flex;align-items:center;justify-content:center;padding:30px}.pl img{max-width:80%;height:auto;filter:drop-shadow(0 20px 34px rgba(0,0,0,.35))}.pr{padding:46px 40px;display:flex;flex-direction:column;justify-content:center;text-align:left}.ic{width:72px;height:72px;border-radius:50%;background:#e6f6ec;display:flex;align-items:center;justify-content:center;margin-bottom:18px}.ic.e{background:#fdecea}.ic svg{width:38px;height:38px;fill:none;stroke:#16a34a;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.ic.e svg{stroke:#c0392b}h1{font-size:29px;font-weight:800;margin:0 0 12px;letter-spacing:-.02em;line-height:1.18}p{margin:7px 0;font-size:16px;line-height:1.6;color:#33425c}p.m{color:#6b7a8f;font-size:14px}.oid{margin-top:18px;font-size:13px;color:#1e4d8b;background:#eaf1fa;border-radius:8px;padding:9px 15px;align-self:flex-start;font-weight:600}.retry{margin-top:20px;align-self:flex-start;display:inline-block;background:#1e4d8b;color:#fff;text-decoration:none;border:0;border-radius:10px;padding:14px 28px;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit}@media(max-width:640px){.split{grid-template-columns:1fr;min-height:0;max-width:440px}.pl{padding:24px;min-height:190px}.pl img{max-width:150px}.pr{padding:30px 24px;text-align:center;align-items:center}.oid,.retry{align-self:center}}";
+function dsSplit(cfg,isErr){var t=cfg.t,img=pageImg(cfg,isErr?"error":"success");return pageHead(cfg,isErr)+`
+<style>${SPLIT_CSS}</style></head>
+<body>
+<div class="split">
+  <div class="pl"><img src="${img}" alt="${esc(cfg.brand)}" loading="lazy"></div>
+  <div class="pr">
+    <div class="ic ${isErr?'e':''}">${svgIcon(isErr)}</div>
+    <h1>${esc(isErr?t.errt:t.thanks)}</h1>
+    <p>${esc(isErr?t.el1:t.tl1)}</p>
+    <p class="m">${esc(isErr?t.el2:t.tl2)}</p>
+    ${isErr?`<a class="retry" href="#" onclick="history.back();return false">${esc(t.retry)}</a>`:`<div class="oid" id="order-id" style="display:none"></div>`}
+  </div>
+</div>
+${isErr?"":orderIdScript(cfg)}
+</body></html>`;}
+
+function callPage(cfg,isErr){var fn={minimal:dsMinimal,splash:dsSplash,chat:dsChat,split:dsSplit}[cfg.thanksDesign||"minimal"]||dsMinimal;return fn(cfg,isErr);}
 function buildCall(cfg){return callPage(cfg,false);}
 function buildError(cfg){return callPage(cfg,true);}
 // половина от введённой цены (сохраняя валюту и разделители)
