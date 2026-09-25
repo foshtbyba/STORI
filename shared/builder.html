@@ -706,6 +706,7 @@
       <label>Своё фото для call / error (опц.) — одно на обе страницы</label>
       <div class="imgpick" id="pick-page"><span class="t">＋ фото</span><b class="x">✕</b><input type="file" accept="image/*" hidden></div>
       <div class="hint">Не выбрано — на call/error встанет картинка оффера из поля <b>«Картинка»</b> выше. В режиме папки это поле заполняется автоматически (подбирается главное фото оффера из папки). Загрузишь своё — встроится прямо в страницу (data-uri), путь не нужен.</div>
+      <div class="chk" style="margin-top:8px"><input type="checkbox" id="favOn" checked><label>Фавикон = фото оффера (на ленде и call/error)</label></div>
     </div>
 
     <div class="grp">
@@ -914,6 +915,8 @@ inline-style, вёрстку. Чистка касается ТОЛЬКО скр�
       <div class="tab" data-t="chest" id="tabChest" style="display:none">chest.html</div>
       <div class="tab" data-t="src">✎ исходник</div>
       <div class="tab" data-t="preview">👁 превью ленд</div>
+      <div class="tab" data-t="cprev">👁 превью спасибо</div>
+      <div class="tab" data-t="eprev">👁 превью ошибка</div>
       <div class="tab" data-t="cpreview" id="tabCPrev" style="display:none">👁 превью сундук</div>
     </div>
     <div class="codefind" id="codefind" style="display:none">
@@ -2182,6 +2185,12 @@ function injectHead(html,snip){
   if(/<body[^>]*>/i.test(html)) return html.replace(/<body[^>]*>/i,function(m){return snip+"\n"+m;});
   return snip+"\n"+html;
 }
+// фавикон ленда = фото оффера: убираем существующие иконки и ставим свою
+function injectFavicon(html,img){
+  if(!img) return html;
+  html=html.replace(/<link\b[^>]*\brel=["'][^"']*icon[^"']*["'][^>]*>\s*/gi,"");
+  return injectHead(html,'<link rel="icon" href="'+esc(img)+'">');
+}
 // сигнатуры «старых обработчиков заказа» ВСЕХ известных партнёрок (для галки «Вырезать старый обработчик»).
 // Расширяй при добавлении новой партнёрки: тело инлайн-скрипта и внешние src её обработчика.
 var ORDER_HANDLER_BODY=/send_order|sendData|send_lead|sendForm|order\.php|m1\.top|m1ref|\/api\/order\//i;
@@ -2236,6 +2245,7 @@ function patchHtml(cfg, html){
     html=html.replace(/<script\b[^>]*\bywbackfix\.js[^>]*>(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"");
   }
   if(cfg.pxOn){ html=stripPixel(html); html=injectHead(html,pixelBlock(cfg,false)); }
+  if(cfg.favicon!==false && cfg.image){ html=injectFavicon(html,cfg.image); }
   if(cfg.mode==="php"){
     // если ленд раньше был everad — выкидываем его сабмит-скрипт (редирект на success.html -> 404) и скрытый iframe.
     html=html.replace(/<script(?![^>]*\bsrc=)[^>]*>((?:(?!<\/script>)[\s\S])*?)<\/script>/gi,function(m,body){ return /ev_order_form|ev_submit_btn|ev_frame|\/conversion\/new|tracker\.(?:everad|rocketprofit)\.com/i.test(body)?"":m; });
@@ -2316,7 +2326,7 @@ var THANKS_DESIGNS=[["minimal","Минимал (карточка)"],["splash","�
 function pageHead(cfg,isErr){var t=cfg.t;return `<!DOCTYPE html>
 <html lang="${cfg.langCode}"${dirAttr(cfg)}>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${esc(isErr?t.errt:t.thanks)}</title><link rel="icon" href="${esc(cfg.image)}">
+<title>${esc(isErr?t.errt:t.thanks)}</title>${(cfg.favicon!==false&&cfg.image)?'<link rel="icon" href="'+esc(cfg.image)+'">':''}
 ${pixelBlock(cfg,!isErr)}`;}
 function orderIdScript(cfg){var t=cfg.t;return `<script>(function(){var id=new URLSearchParams(location.search).get('order_id');if(id){var e=document.getElementById('order-id');if(e){e.textContent='${esc(t.ordno)}'+id;e.style.display='';}}})();<\/script>`;}
 function svgIcon(isErr){return `<svg viewBox="0 0 52 52">${isErr?'<path d="M26 15v16"/><path d="M26 37l.02 0"/>':'<path d="M15 27l7.5 7.5L38 18"/>'}</svg>`;}
@@ -2913,6 +2923,7 @@ function readCfg(){
     ss:!!pk.ss,ssOffer:pk.ssOffer||"{offer}",
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),ywUrl:val("ywUrl"),
     brand:val("brand")||"Product",image:val("image")||"images/product.png",price:val("price")||"—",
+    favicon:chk("favOn"),
     successImg:PAGE_IMG.page,errorImg:PAGE_IMG.page,
     pxOn:document.getElementById("pxOn").checked,pxid:val("pxid"),pxev:val("pxev")||"Lead",pxval:val("pxval"),pxcur:val("pxcur"),
     html:document.getElementById("html").value,autofix:document.getElementById("autofix").checked,
@@ -2968,10 +2979,12 @@ function showTab(t){
   currentTab=t;
   document.querySelectorAll(".tab").forEach(function(el){el.classList.toggle("active",el.dataset.t===t);});
   var out=document.getElementById("out"),prev=document.getElementById("prev"),find=document.getElementById("codefind"),note=document.getElementById("editnote");
-  var isPrev=(t==="preview"||t==="cpreview");
+  var isPrev=(t==="preview"||t==="cpreview"||t==="cprev"||t==="eprev");
   if(find) find.style.display=isPrev?"none":"flex";
   if(t==="preview"){out.style.display="none";prev.style.display="block";if(note)note.style.display="none";renderPreview("index");}
   else if(t==="cpreview"){out.style.display="none";prev.style.display="block";if(note)note.style.display="none";renderPreview("chest");}
+  else if(t==="cprev"){out.style.display="none";prev.style.display="block";if(note)note.style.display="none";renderPreview("call");}
+  else if(t==="eprev"){out.style.display="none";prev.style.display="block";if(note)note.style.display="none";renderPreview("error");}
   else{
     prev.style.display="none";out.style.display="block";
     // редактируемые вкладки исходника: «✎ исходник» и «index.html» (обе правят исходник ленда).
