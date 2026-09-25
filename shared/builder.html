@@ -676,8 +676,9 @@
       <div id="optBody" class="grp-body" style="display:none">
         <div class="chk"><input type="checkbox" id="optB64" checked><label>Вынести base64-картинки в файлы</label></div>
         <div class="chk"><input type="checkbox" id="optImg" checked><label>Пережимать картинки (ресайз + перекодировка)</label></div>
+        <div class="chk"><input type="checkbox" id="optImgSmart" checked><label>Умный ресайз — по реальному размеру отображения (×2 retina)</label></div>
         <div class="row">
-          <div><label>Макс. ширина, px</label><input id="optImgMax" value="1000"></div>
+          <div><label>Макс. ширина (fallback), px</label><input id="optImgMax" value="1000"></div>
           <div><label>Качество (1–100)</label><input id="optImgQ" value="82"></div>
         </div>
         <div class="chk"><input type="checkbox" id="optWebp"><label>Конвертировать в WebP (меняет ссылки .jpg/.png → .webp)</label></div>
@@ -2768,7 +2769,7 @@ function readCfg(){
     stripOld:document.getElementById("stripOld").checked,repCallErr:document.getElementById("repCallErr").checked,
     makeChest:document.getElementById("makeChest").checked,
     keepComments:document.getElementById("keepComments").checked,
-    optB64:chk("optB64"),optUnused:chk("optUnused"),optImg:chk("optImg"),optWebp:chk("optWebp"),optJunk:chk("optJunk"),
+    optB64:chk("optB64"),optUnused:chk("optUnused"),optImg:chk("optImg"),optImgSmart:chk("optImgSmart"),optWebp:chk("optWebp"),optJunk:chk("optJunk"),
     optImgMax:parseInt(val("optImgMax"),10)||1000,optImgQ:Math.min(1,Math.max(0.3,(parseInt(val("optImgQ"),10)||82)/100)),
     t:T(lang)};
 }
@@ -3060,8 +3061,39 @@ function optExtractB64(out, rep){
 function optLoadImg(url){ return new Promise(function(res,rej){ var im=new Image(); im.onload=function(){res(im);}; im.onerror=function(){rej();}; im.src=url; }); }
 function optCanvasBytes(cv,type,q){ return new Promise(function(res){ try{ cv.toBlob(function(b){ if(!b){res(null);return;} b.arrayBuffer().then(function(ab){res(new Uint8Array(ab));},function(){res(null);}); }, type, q); }catch(e){ res(null); } }); }
 function optRename(out, f, newName){ var oldN=f.name; if(oldN===newName) return; f.name=newName; var ob=oldN.split("/").pop(), nb=newName.split("/").pop(); out.forEach(function(g){ if(typeof g.str==="string"){ g.str=g.str.split(oldN).join(newName); if(ob!==nb) g.str=g.str.split(ob).join(nb); } }); }
+// умный замер: рендерим ленд в скрытом iframe на мобильной ширине и меряем реальный размер каждой картинки (×2 под retina)
+async function measureDisplaySizes(out){
+  var map={};
+  try{
+    var idx=(out.filter(function(f){return /(^|\/)index\.html?$/i.test(f.name)&&typeof f.str==="string";})[0]) || (out.filter(function(f){return /\.html?$/i.test(f.name)&&typeof f.str==="string";})[0]);
+    if(!idx) return map;
+    var p2b={}, b2p={};
+    out.forEach(function(f){ if(f.bytes && /\.(png|jpe?g|webp|gif|avif)$/i.test(f.name)){ var u=URL.createObjectURL(new Blob([f.bytes],{type:mimeOf(f.name)})); var base=f.name.split("/").pop(); p2b[f.name]=u; if(!p2b[base])p2b[base]=u; b2p[u]=base; } });
+    var html=String(idx.str);
+    html=html.replace(/<script[\s\S]*?<\/script>/gi,"");   // без скриптов — только раскладка (без редиректов/бекфикса)
+    html=html.replace(/<link\b[^>]*\bhref=["']([^"']+\.css)["'][^>]*>/gi,function(m,href){
+      var hb=href.split("/").pop().split("?")[0];
+      var cssf=out.filter(function(f){ return typeof f.str==="string" && (f.name===href || f.name.split("/").pop()===hb); })[0];
+      if(!cssf) return m;
+      var css=String(cssf.str).replace(/url\(\s*(['"]?)([^'")]+)\1\s*\)/gi,function(mm,q,u){ var bb=u.split("/").pop().split("?")[0]; return p2b[bb]?('url("'+p2b[bb]+'")'):mm; });
+      return "<style>"+css+"</style>";
+    });
+    html=html.replace(/(<img\b[^>]*\bsrc=["'])([^"']+)(["'])/gi,function(m,a,src,c){ var bb=src.split("/").pop().split("?")[0]; return p2b[bb]?(a+p2b[bb]+c):m; });
+    var ifr=document.createElement("iframe");
+    ifr.style.cssText="position:fixed;left:-9999px;top:0;width:412px;height:900px;border:0;visibility:hidden";
+    document.body.appendChild(ifr);
+    await new Promise(function(res){ var done=false,fin=function(){ if(!done){done=true;res();} }; ifr.onload=fin; setTimeout(fin,3000); ifr.srcdoc=html; });
+    await new Promise(function(r){ setTimeout(r,450); });   // дать раскладке/картинкам дорисоваться
+    var doc=ifr.contentDocument;
+    if(doc) Array.prototype.forEach.call(doc.querySelectorAll("img"),function(im){ var u=im.currentSrc||im.getAttribute("src")||""; var base=b2p[u]; if(!base) return; var w=Math.round(im.getBoundingClientRect().width); if(w>0){ var t=Math.min(2400,w*2); if(!map[base]||t>map[base]) map[base]=t; } });
+    document.body.removeChild(ifr);
+    Object.keys(p2b).forEach(function(k){ try{URL.revokeObjectURL(p2b[k]);}catch(e){} });
+  }catch(e){ console.warn("measureDisplaySizes",e); }
+  return map;
+}
 async function optImages(out, cfg, rep){
   var maxW=cfg.optImgMax||1000, q=cfg.optImgQ||0.82, webp=!!cfg.optWebp;
+  var disp = (cfg.optImgSmart!==false) ? await measureDisplaySizes(out) : {};   // умный размер по факту отображения
   for(var i=0;i<out.length;i++){ var f=out[i];
     if(!f.bytes) continue;
     var ext=(f.name.split(".").pop()||"").toLowerCase();
@@ -3071,7 +3103,9 @@ async function optImages(out, cfg, rep){
     try{ im=await optLoadImg(url); }catch(e){}
     URL.revokeObjectURL(url); if(!im) continue;
     var w=im.naturalWidth,h=im.naturalHeight; if(!w||!h) continue;
-    var nw=Math.min(w,maxW), nh=Math.max(1,Math.round(h*nw/w));
+    var base=f.name.split("/").pop();
+    var target = Math.min(disp[base]||maxW, maxW);   // умный размер (замер×2), но не выше потолка «Макс. ширина»
+    var nw=Math.min(w,target), nh=Math.max(1,Math.round(h*nw/w));
     var cv=document.createElement("canvas"); cv.width=nw; cv.height=nh;
     try{ cv.getContext("2d").drawImage(im,0,0,nw,nh); }catch(e){ continue; }
     var alpha=(ext==="png"||ext==="webp"), type=webp?"image/webp":(alpha?"image/png":"image/jpeg");
