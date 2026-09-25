@@ -671,6 +671,22 @@
       <div class="hint">На каком языке генерятся служебные страницы (спасибо/ошибка/сундук). На перевод самого ленда не влияет.</div>
     </div>
 
+    <div class="grp" id="grpOpt">
+      <h3 class="gtoggle" data-target="optBody"><span class="chev">▸</span> Оптимизация (вес / скорость)</h3>
+      <div id="optBody" class="grp-body" style="display:none">
+        <div class="chk"><input type="checkbox" id="optB64" checked><label>Вынести base64-картинки в файлы</label></div>
+        <div class="chk"><input type="checkbox" id="optImg" checked><label>Пережимать картинки (ресайз + перекодировка)</label></div>
+        <div class="row">
+          <div><label>Макс. ширина, px</label><input id="optImgMax" value="1000"></div>
+          <div><label>Качество (1–100)</label><input id="optImgQ" value="82"></div>
+        </div>
+        <div class="chk"><input type="checkbox" id="optWebp"><label>Конвертировать в WebP (меняет ссылки .jpg/.png → .webp)</label></div>
+        <div class="chk"><input type="checkbox" id="optUnused" checked><label>Удалять неиспользуемые файлы (+ мёртвый jQuery)</label></div>
+        <div class="chk"><input type="checkbox" id="optJunk"><label>Чистить подозрительный код (майнеры / eval / скрытые iframe)</label></div>
+        <div class="hint" id="optReport">Уменьшает вес и ускоряет ленд. Base64 выносится в файлы, картинки жмутся под реальный размер, лишние/чужие файлы удаляются. После скачивания здесь появится отчёт: что сделано и сколько сэкономлено.</div>
+      </div>
+    </div>
+
     <div class="grp" id="grpOffer">
       <h3>Оффер (для call/error/chest)</h3>
       <div class="hint">Эти данные подставляются в <b>генерируемые</b> страницы call/error/chest. Сам переведённый ленд они не меняют.</div>
@@ -2736,8 +2752,12 @@ function readCfg(){
     html:document.getElementById("html").value,autofix:document.getElementById("autofix").checked,
     stripOld:document.getElementById("stripOld").checked,repCallErr:document.getElementById("repCallErr").checked,
     makeChest:document.getElementById("makeChest").checked,
-    keepComments:document.getElementById("keepComments").checked, t:T(lang)};
+    keepComments:document.getElementById("keepComments").checked,
+    optB64:chk("optB64"),optUnused:chk("optUnused"),optImg:chk("optImg"),optWebp:chk("optWebp"),optJunk:chk("optJunk"),
+    optImgMax:parseInt(val("optImgMax"),10)||1000,optImgQ:Math.min(1,Math.max(0.3,(parseInt(val("optImgQ"),10)||82)/100)),
+    t:T(lang)};
 }
+function chk(id){ var e=document.getElementById(id); return !!(e&&e.checked); }
 var FILES={};
 function build(){
   var cfg=readCfg(),st=document.getElementById("status");
@@ -2997,7 +3017,122 @@ async function loadChestFolder(items){
   }catch(e){ st.className="status warn"; st.textContent="Ошибка чтения сундука: "+e.message; }
 }
 // ЛЕНД (без сундука — сундук отдельным zip)
-function downloadZip(){
+/* ═══ ОПТИМИЗАЦИЯ СБОРКИ (вес/скорость) ═══════════════════════════════════
+   Работает над списком файлов сборки: base64→файлы, пережатие картинок,
+   чистка мусора/подозрительного кода, удаление неиспользуемого. С отчётом. */
+function fmtSize(n){ n=n||0; return n>=1048576 ? (n/1048576).toFixed(2)+" МБ" : Math.max(0,Math.round(n/1024))+" КБ"; }
+function outBytes(out){ var n=0; out.forEach(function(f){ n += f.bytes?f.bytes.length:(typeof f.str==="string"?f.str.length:0); }); return n; }
+function b64ToBytes(b){ b=String(b).replace(/\s+/g,""); var s=atob(b),u=new Uint8Array(s.length),i=0; for(;i<s.length;i++)u[i]=s.charCodeAt(i); return u; }
+var OPT_B64EXT={jpeg:"jpg",jpg:"jpg",png:"png",webp:"webp",gif:"gif","svg+xml":"svg",avif:"avif","x-icon":"ico",bmp:"bmp"};
+
+// 1) base64-картинки -> отдельные файлы (дедуп по содержимому, мелкие оставляем инлайн)
+function optExtractB64(out, rep){
+  var MIN=27000, map={}, seq=1, add=[];
+  out.forEach(function(f){
+    if(typeof f.str!=="string" || !/\.(html?|css|js)$/i.test(f.name)) return;
+    f.str=f.str.replace(/(["'(]\s*)data:image\/([a-z0-9.+-]+);base64,([A-Za-z0-9+\/=\s]+?)(\s*["')])/gi,function(m,pre,mime,blob,post){
+      var clean=String(blob).replace(/\s+/g,"");
+      if(clean.length<MIN) return m;
+      var path=map[clean];
+      if(!path){ var bytes; try{ bytes=b64ToBytes(clean); }catch(e){ return m; } var ext=OPT_B64EXT[(mime||"").toLowerCase()]||"img"; path="images/inline_"+(seq++)+"."+ext; map[clean]=path; add.push({name:path,bytes:bytes}); rep.b64++; rep.b64b+=bytes.length; }
+      return pre+path+post;
+    });
+  });
+  add.forEach(function(f){ out.push(f); });
+}
+
+// 2) пережатие картинок (ресайз по макс.ширине + перекодировка; опц. WebP)
+function optLoadImg(url){ return new Promise(function(res,rej){ var im=new Image(); im.onload=function(){res(im);}; im.onerror=function(){rej();}; im.src=url; }); }
+function optCanvasBytes(cv,type,q){ return new Promise(function(res){ try{ cv.toBlob(function(b){ if(!b){res(null);return;} b.arrayBuffer().then(function(ab){res(new Uint8Array(ab));},function(){res(null);}); }, type, q); }catch(e){ res(null); } }); }
+function optRename(out, f, newName){ var oldN=f.name; if(oldN===newName) return; f.name=newName; var ob=oldN.split("/").pop(), nb=newName.split("/").pop(); out.forEach(function(g){ if(typeof g.str==="string"){ g.str=g.str.split(oldN).join(newName); if(ob!==nb) g.str=g.str.split(ob).join(nb); } }); }
+async function optImages(out, cfg, rep){
+  var maxW=cfg.optImgMax||1000, q=cfg.optImgQ||0.82, webp=!!cfg.optWebp;
+  for(var i=0;i<out.length;i++){ var f=out[i];
+    if(!f.bytes) continue;
+    var ext=(f.name.split(".").pop()||"").toLowerCase();
+    if(["jpg","jpeg","png","webp"].indexOf(ext)<0) continue;   // gif/svg/ico не трогаем
+    if(f.bytes.length<15000) continue;                          // мелкие — смысла нет
+    var url=URL.createObjectURL(new Blob([f.bytes],{type:mimeOf(f.name)})), im=null;
+    try{ im=await optLoadImg(url); }catch(e){}
+    URL.revokeObjectURL(url); if(!im) continue;
+    var w=im.naturalWidth,h=im.naturalHeight; if(!w||!h) continue;
+    var nw=Math.min(w,maxW), nh=Math.max(1,Math.round(h*nw/w));
+    var cv=document.createElement("canvas"); cv.width=nw; cv.height=nh;
+    try{ cv.getContext("2d").drawImage(im,0,0,nw,nh); }catch(e){ continue; }
+    var alpha=(ext==="png"||ext==="webp"), type=webp?"image/webp":(alpha?"image/png":"image/jpeg");
+    var nb=await optCanvasBytes(cv,type,(type==="image/jpeg"||type==="image/webp")?q:undefined);
+    if(!nb||!nb.length) continue;
+    if(nb.length < f.bytes.length){ rep.img++; rep.imgb+=(f.bytes.length-nb.length); f.bytes=nb; if(webp&&ext!=="webp") optRename(out,f,f.name.replace(/\.(jpe?g|png)$/i,".webp")); }
+  }
+}
+
+// 3) чистка подозрительного кода (майнеры / обфусцированный eval / скрытые внешние iframe)
+function optJunk(out, rep){
+  var bad=[
+    [/<script\b[^>]*\bsrc=["'][^"']*(?:coinhive|coin-hive|cryptonight|jsecoin|webminepool|crypto-loot|deepminer|minero\.)[^"']*["'][^>]*>\s*<\/script>/gi,"майнер(внешний)"],
+    [/<script\b(?![^>]*\bsrc=)[^>]*>(?:(?!<\/script>)[\s\S])*?(?:CoinHive|CryptoNight|coinhive|jsecoin|crypto-loot)[\s\S]*?<\/script>/gi,"майнер(инлайн)"],
+    [/<script\b(?![^>]*\bsrc=)[^>]*>\s*(?:eval\s*\(\s*(?:atob|unescape)\s*\(|eval\s*\(\s*function\s*\(\s*p\s*,\s*a\s*,\s*c\s*,\s*k\s*,\s*e\s*,)[\s\S]*?<\/script>/gi,"обфусцированный eval"],
+    [/<iframe\b[^>]*\bsrc=["']https?:\/\/[^"']+["'][^>]*\bstyle=["'][^"']*display\s*:\s*none[^"']*["'][^>]*>\s*<\/iframe>/gi,"скрытый внешний iframe"],
+    [/<iframe\b[^>]*\bstyle=["'][^"']*display\s*:\s*none[^"']*["'][^>]*\bsrc=["']https?:\/\/[^"']+["'][^>]*>\s*<\/iframe>/gi,"скрытый внешний iframe"]
+  ];
+  out.forEach(function(f){ if(typeof f.str!=="string"||!/\.html?$/i.test(f.name)) return;
+    bad.forEach(function(p){ f.str=f.str.replace(p[0],function(){ rep.junk++; if(rep.junkList.indexOf(p[1])<0) rep.junkList.push(p[1]); return ""; }); });
+  });
+}
+
+// 4a) мёртвый jQuery (подключён, но нигде не вызывается $()/jQuery()) -> убираем тег (файл удалится в 4b)
+function optDeadLibs(out, rep){
+  var jq=[], used=false;
+  out.forEach(function(f){ if(typeof f.str!=="string") return;
+    var isJqFile=/\.js$/i.test(f.name) && (/jquery/i.test(f.name) || /jQuery\.fn\.jquery\s*=|jQuery JavaScript Library/.test(f.str));
+    if(isJqFile){ jq.push(f); return; }
+    if(/\$\s*\(|\bjQuery\s*\(/.test(f.str)) used=true;
+  });
+  if(used || !jq.length) return;
+  jq.forEach(function(jf){ var base=jf.name.split("/").pop().replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    out.forEach(function(f){ if(typeof f.str==="string" && /\.html?$/i.test(f.name)) f.str=f.str.replace(new RegExp('<script\\b[^>]*\\bsrc=["\'][^"\']*'+base+'["\'][^>]*>\\s*<\\/script>',"gi"),""); });
+    rep.lib++;
+  });
+}
+// 4b) удаление файлов, на которые нет ни одной ссылки в html/css/js (html/php не трогаем)
+function optRemoveUnused(out, rep){
+  var text=""; out.forEach(function(f){ if(typeof f.str==="string" && /\.(html?|css|js|php)$/i.test(f.name)) text+="\n"+f.str; });
+  var keep=[];
+  out.forEach(function(f){ var nm=f.name||"";
+    if(/\.(html?|php)$/i.test(nm)){ keep.push(f); return; }   // страницы/обработчики оставляем всегда
+    var base=nm.split("/").pop();
+    if(text.indexOf(base)>=0 || text.indexOf(nm)>=0){ keep.push(f); return; }
+    rep.unused++; rep.unusedb += (f.bytes?f.bytes.length:(typeof f.str==="string"?f.str.length:0));
+  });
+  return keep;
+}
+
+async function optimizeOut(out, cfg, rep){
+  if(cfg.optB64) optExtractB64(out, rep);
+  if(cfg.optJunk) optJunk(out, rep);
+  if(cfg.optImg) await optImages(out, cfg, rep);
+  if(cfg.optUnused){ optDeadLibs(out, rep); out=optRemoveUnused(out, rep); }
+  return out;
+}
+function optReportText(rep){
+  var p=[];
+  if(rep.b64) p.push("base64→файлы: "+rep.b64+" ("+fmtSize(rep.b64b)+")");
+  if(rep.img) p.push("картинок пережато: "+rep.img+" (−"+fmtSize(rep.imgb)+")");
+  if(rep.lib) p.push("мёртвых библиотек: "+rep.lib);
+  if(rep.unused) p.push("удалено файлов: "+rep.unused+" (−"+fmtSize(rep.unusedb)+")");
+  if(rep.junk) p.push("вырезано подозрительного: "+rep.junk+(rep.junkList.length?" ["+rep.junkList.join(", ")+"]":""));
+  p.push("итог: "+fmtSize(rep.before)+" → "+fmtSize(rep.after)+" (−"+fmtSize(Math.max(0,rep.before-rep.after))+")");
+  return p.join(" · ");
+}
+function showOptReport(rep){ var el=document.getElementById("optReport"); if(el){ el.textContent="✓ "+optReportText(rep); el.style.color="var(--ok)"; } }
+async function optAndZip(list, cfg){
+  var optOn=cfg.optB64||cfg.optUnused||cfg.optImg||cfg.optJunk;
+  if(optOn){ var rep={b64:0,b64b:0,img:0,imgb:0,lib:0,libb:0,unused:0,unusedb:0,junk:0,junkList:[]}; rep.before=outBytes(list);
+    try{ list=await optimizeOut(list,cfg,rep); }catch(e){ console.warn("opt",e); }
+    rep.after=outBytes(list); try{ showOptReport(rep); }catch(e){} }
+  dl(zipName(cfg),makeZip(list),"application/zip");
+}
+async function downloadZip(){
   if(!FILES.index)build();
   var cfg=readCfg();
   var isPhp=(cfg.mode==="php"), genPhp=isPhp&&!!FILES.orderphp;
@@ -3045,7 +3180,7 @@ function downloadZip(){
       out.forEach(function(f){ if(/(^|\/)api\/success\.php$/i.test(f.name||"")){ f.str=succPhp; delete f.bytes; hasSucc=true; } });
       if(!hasSucc) out.push({name:"api/success.php",str:succPhp});
     }
-    dl(zipName(cfg),makeZip(out),"application/zip");
+    await optAndZip(out,cfg);
   } else {
     var files=[{name:cfg.mainExt==="php"?"index.php":"index.html",str:FILES.index}];
     if(!cfg.ss){ files.push({name:cfg.successName,str:FILES.call}); files.push({name:cfg.errorName,str:FILES.error}); }   // SS: без страниц спасибо/ошибка
@@ -3053,7 +3188,7 @@ function downloadZip(){
     if(genPhp) files.push({name:(cfg.phpAction||"order.php"),str:FILES.orderphp});
     // affstar: call.html/error.html уже добавлены выше (как у других партнёрок)
     if(cfg.needFile&&handlerLoaded()) files.push(handlerEntry(cfg.needFile));
-    dl(zipName(cfg),makeZip(files),"application/zip");
+    await optAndZip(files,cfg);
   }
 }
 // СУНДУК — отдельный самостоятельный сайт: главная = index.html
