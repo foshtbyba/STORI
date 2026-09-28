@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'keep-ig-selfheal · 28.09 19:42';
+export const BUILD_INFO = 'page-picker-both-forms · 28.09 19:55';

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { loadCabinetAssets, makePixel, makePage, startUpload } from '@/app/actions/autoupload';
+import ComboSelect from './ComboSelect';
 import TemplateManager, { type Template } from './TemplateManager';
 import TemplatePicker from './TemplatePicker';
 import CardBinder from './CardBinder';
@@ -11,7 +12,7 @@ import LanguagePack, { type Language } from './LanguagePack';
 import { placementSummary } from '@/lib/placements';
 
 type Cabinet = { id: string; name: string; externalId: string; currency: string; group: string };
-type Asset = { pages: { id: string; name: string }[]; pixels: { id: string; name: string }[] };
+type Asset = { pages: { id: string; name: string; valid?: boolean; reason?: string }[]; pixels: { id: string; name: string }[] };
 type Mode = 'paused' | 'active' | 'scheduled' | 'midnight';
 
 // Замок запуска на УРОВНЕ МОДУЛЯ, а не useRef: ref живёт в конкретном
@@ -239,9 +240,12 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
         if (!r.ok) { fails.push(`${byId.get(id)?.name || id} — ${friendlyReason(r.error)}`); continue; }
         okCount += 1;
         nA[id] = { pages: r.pages ?? [], pixels: r.pixels ?? [] };
-        // Сразу выбираем ПЕРВЫЙ доступный ФП/пиксель (не только когда он один),
-        // чтобы поля не были пустыми при новых заливах. Ручной выбор не трогаем.
-        if ((r.pages?.length ?? 0) >= 1 && !nP[id]) nP[id] = r.pages![0].id;
+        // Сразу выбираем ПЕРВУЮ ГОДНУЮ ФП (разрешённую кабинетом) и первый
+        // пиксель, чтобы поля не были пустыми. Негодные ФП не подставляем.
+        if (!nP[id]) {
+          const firstValid = (r.pages ?? []).find((p) => p.valid);
+          if (firstValid) nP[id] = firstValid.id;
+        }
         if ((r.pixels?.length ?? 0) >= 1 && !nX[id]) nX[id] = r.pixels![0].id;
       }
       setAssets(nA); setPageByAcc(nP); setPixelByAcc(nX);
@@ -612,24 +616,36 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
                     <div className="text-[12px] font-medium text-soft">{c.name || c.externalId}</div>
                     {/* 4 колонки в строку: выбрать ФП · создать ФП · выбрать пиксель · создать пиксель. */}
                     <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                      <select value={pageByAcc[c.id] ?? ''} onChange={(e) => setPageByAcc((p) => ({ ...p, [c.id]: e.target.value }))} className={inp}>
-                        <option value="">— страница (ФП) —</option>
-                        {a.pages.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                      </select>
+                      <ComboSelect
+                        className="w-full"
+                        value={pageByAcc[c.id] ?? ''}
+                        onChange={(v) => setPageByAcc((p) => ({ ...p, [c.id]: v }))}
+                        placeholder="— страница (ФП) —"
+                        searchPlaceholder="Поиск ФП…"
+                        options={a.pages.map((p) => ({ id: p.id, name: p.name, disabled: p.valid === false, hint: p.reason }))}
+                      />
                       <div className="flex items-center gap-2">
                         <input value={newPageByAcc[c.id] ?? ''} onChange={(e) => setNewPageByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя новой ФП" className={`${inp} min-w-0 flex-1`} />
                         <button type="button" onClick={() => addPage(c.id)} disabled={pending} className={`shrink-0 rounded-full border px-3 py-1.5 text-[11.5px] transition ${creating === `${c.id}:page` ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-soft hover:border-sage hover:text-sage'}`}>{creating === `${c.id}:page` ? 'создаю…' : '+ ФП'}</button>
                       </div>
-                      <select value={pixelByAcc[c.id] ?? ''} onChange={(e) => setPixelByAcc((p) => ({ ...p, [c.id]: e.target.value }))} className={inp}>
-                        <option value="">— пиксель —</option>
-                        {a.pixels.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                      </select>
+                      <ComboSelect
+                        className="w-full"
+                        value={pixelByAcc[c.id] ?? ''}
+                        onChange={(v) => setPixelByAcc((p) => ({ ...p, [c.id]: v }))}
+                        placeholder="— пиксель —"
+                        searchPlaceholder="Поиск пикселя…"
+                        options={a.pixels.map((p) => ({ id: p.id, name: p.name }))}
+                      />
                       <div className="flex items-center gap-2">
                         <input value={newPixelByAcc[c.id] ?? ''} onChange={(e) => setNewPixelByAcc((n) => ({ ...n, [c.id]: e.target.value }))} placeholder="имя нового пикселя" className={`${inp} min-w-0 flex-1`} />
                         <button type="button" onClick={() => addPixel(c.id)} disabled={pending} className={`shrink-0 rounded-full border px-3 py-1.5 text-[11.5px] transition ${creating === `${c.id}:pixel` ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-soft hover:border-sage hover:text-sage'}`}>{creating === `${c.id}:pixel` ? 'создаю…' : '+ пиксель'}</button>
                       </div>
                     </div>
-                    {a.pages.length === 0 ? <p className="mt-1.5 text-[11px] text-rust">нет страниц под токеном — создай ФП слева</p> : null}
+                    {a.pages.length === 0 ? (
+                      <p className="mt-1.5 text-[11px] text-rust">нет страниц под токеном — создай ФП слева</p>
+                    ) : !a.pages.some((p) => p.valid !== false) ? (
+                      <p className="mt-1.5 text-[11px] text-rust">нет ГОДНЫХ ФП для этого кабинета (все не разрешены/не опубликованы) — залив не пройдёт, разбань/подключи страницу</p>
+                    ) : null}
                   </div>
                 );
               })}
