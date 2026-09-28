@@ -263,32 +263,37 @@ export type CabinetAssets = {
 };
 
 /**
- * Разметить ФП на годные/негодные для залива с кабинета:
- *  • если кабинет привязан к списку ФП (promote_pages непустой) — годны только они;
- *  • неопубликованная ФП не годится в любом случае;
- *  • годные — выше в списке. Разрешённые кабинетом ФП, которых нет под токеном,
- *    тоже добавляем (их можно выбрать — кабинет их примет).
+ * Разметить ФП на годные/негодные для залива с кабинета.
+ *
+ * ВАЖНО: /act_/promote_pages НЕ авторитетен — он отдаёт лишь уже ПОДКЛЮЧЁННЫЕ к
+ * кабинету ФП (часто 1 штука), тогда как кабинет, как и Ads Manager, крутит рекламу
+ * с ЛЮБОЙ доступной и не забаненной ФП: FB сам подцепляет её при запуске. Поэтому
+ * НЕ блокируем страницы по членству в promote_pages (раньше почти все получали
+ * ложное «не разрешена кабинетом»). Блокируем ТОЛЬКО реально негодные:
+ *  • бан/ограничение рекламы (promotion_eligible === false);
+ *  • неопубликованные.
+ * Членство в promote_pages используем лишь для сортировки — подключённые выше.
  */
 function annotatePages(
   pages: { id: string; name: string; isPublished?: boolean; promotionEligible?: boolean; ineligibleReason?: string }[],
   promote: { id: string; name: string }[],
 ): AssetPage[] {
-  const allow = new Set(promote.map((p) => p.id));
-  const restricted = promote.length > 0;
+  const connected = new Set(promote.map((p) => p.id));
   const map = new Map<string, AssetPage>();
   for (const p of pages) {
-    const allowed = !restricted || allow.has(p.id);
     const published = p.isPublished !== false;
     const eligible = p.promotionEligible !== false; // забаненную/ограниченную FB рекламировать не даёт
-    // Причина показываем по приоритету: бан рекламы → не разрешена → не опубликована.
     const reason = !eligible ? 'нельзя рекламировать (бан/ограничение)'
-      : !allowed ? 'не разрешена кабинетом'
       : !published ? 'не опубликована'
       : undefined;
-    map.set(p.id, { id: p.id, name: p.name, valid: allowed && published && eligible, reason });
+    map.set(p.id, { id: p.id, name: p.name, valid: published && eligible, reason });
   }
-  if (restricted) for (const p of promote) if (!map.has(p.id)) map.set(p.id, { id: p.id, name: p.name, valid: true });
-  return [...map.values()].sort((a, b) => Number(b.valid) - Number(a.valid) || a.name.localeCompare(b.name, 'ru'));
+  // Разрешённые кабинетом ФП, которых нет под токеном, — тоже годны.
+  for (const p of promote) if (!map.has(p.id)) map.set(p.id, { id: p.id, name: p.name, valid: true });
+  return [...map.values()].sort((a, b) =>
+    Number(b.valid) - Number(a.valid)
+    || (Number(connected.has(b.id)) - Number(connected.has(a.id)))
+    || a.name.localeCompare(b.name, 'ru'));
 }
 
 /** Подтянуть живьём страницы (ФП) и пиксели кабинета — для выпадашек формы. */
@@ -760,15 +765,24 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // page-backed аккаунт (иначе код 1772103 на IG-плейсментах).
     const objective = objectiveForEvent(tpl.event);
 
-    // Часть кабинетов привязана к КОНКРЕТНОЙ ФП: реклама с другой страницы
-    // отбивается кодом 100/1815645. Спрашиваем у кабинета список разрешённых ФП;
-    // если наша не в нём — переключаемся на разрешённую (иначе весь залив падёт).
+    // Часть кабинетов ПРИВЯЗАНА к конкретной ФП: реклама с другой отбивается кодом
+    // 100/1815645. НО /act_/promote_pages не отражает весь доступный список (кабинет,
+    // как Ads Manager, крутит и с не подключёнными заранее ФП — FB подцепляет их при
+    // запуске). Поэтому выбранную баером Страницу заранее НЕ трогаем: список
+    // разрешённых держим для РЕАКТИВНОГО отката — переключимся, только если креатив
+    // реально отобьёт 1815645.
     const promotable = await listPromotePages(token, ctx.acc.externalId, net);
-    if (promotable.length && !promotable.some((p) => p.id === pageId)) {
-      const pick = promotable[0];
-      append(`⚠ Кабинет привязан к другой Странице — выбранная не разрешена. Переключаюсь на «${pick.name}» (${pick.id}).`);
+    let pageSwitched = false;
+    const switchPageOnMismatch = (err: unknown): boolean => {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (!/1815645|isn'?t allowed|not allowed to (?:promote|advertise)/i.test(msg)) return false;
+      const pick = promotable.find((p) => p.id !== pageId) || promotable[0];
+      if (!pick || pick.id === pageId || pageSwitched) return false;
+      append(`⚠ Кабинет не принял выбранную Страницу (1815645) — переключаюсь на разрешённую «${pick.name}» (${pick.id}) и повторяю.`);
       pageId = pick.id;
-    }
+      pageSwitched = true;
+      return true;
+    };
 
     const pageName = await getPageName(token, pageId, net);
     let dsaBeneficiary = pageName || ctx.acc.name || 'Advertiser';
@@ -980,7 +994,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
       // Создание креатива с подрезкой неподдержанных ключей улучшений.
       const buildCreativeWithRetry = async (build: () => Promise<string>): Promise<string> => {
-        for (let a = 0; a < optOut.length + 3; a += 1) {
+        for (let a = 0; a < optOut.length + 4; a += 1) {
           try { return await build(); }
           catch (e) {
             const m = (e as Error).message.match(/Param key '([^']+)' in degrees_of_freedom_spec/i);
@@ -990,6 +1004,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
               await sleep(300);
               continue;
             }
+            if (switchPageOnMismatch(e)) { await sleep(300); continue; }
             throw e;
           }
         }
@@ -1262,7 +1277,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         }
         await sleep(200);
         let creativeId = '';
-        for (let a = 0; a < optOut.length + 2; a += 1) {
+        for (let a = 0; a < optOut.length + 3; a += 1) {
           try {
             creativeId = await createAdCreative(token, ext, {
               name: label,
@@ -1282,6 +1297,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
               await sleep(300);
               continue;
             }
+            if (switchPageOnMismatch(e)) { await sleep(300); continue; }
             throw e;
           }
         }
