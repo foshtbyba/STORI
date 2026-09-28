@@ -10,6 +10,7 @@ import { logActivity } from '@/lib/activity';
 import {
   fbAccess,
   listPages,
+  listPromotePages,
   listPixels,
   createPixel,
   createPage,
@@ -486,7 +487,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     : null;
   if (!tpl) return { ok: false, error: 'Выбери свой шаблон гео' };
 
-  const pageId = String(form.get('pageId') ?? '').trim();
+  let pageId = String(form.get('pageId') ?? '').trim();
   const pixelId = String(form.get('pixelId') ?? '').trim();
   if (!pageId) return { ok: false, error: 'Выбери страницу (ФП)' };
   if (!pixelId) return { ok: false, error: 'Выбери или создай пиксель' };
@@ -691,6 +692,17 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // DSA: имя ФП (ФБ берёт как рекламодателя); IG: привязанный/созданный
     // page-backed аккаунт (иначе код 1772103 на IG-плейсментах).
     const objective = objectiveForEvent(tpl.event);
+
+    // Часть кабинетов привязана к КОНКРЕТНОЙ ФП: реклама с другой страницы
+    // отбивается кодом 100/1815645. Спрашиваем у кабинета список разрешённых ФП;
+    // если наша не в нём — переключаемся на разрешённую (иначе весь залив падёт).
+    const promotable = await listPromotePages(token, ctx.acc.externalId, net);
+    if (promotable.length && !promotable.some((p) => p.id === pageId)) {
+      const pick = promotable[0];
+      append(`⚠ Кабинет привязан к другой Странице — выбранная не разрешена. Переключаюсь на «${pick.name}» (${pick.id}).`);
+      pageId = pick.id;
+    }
+
     const pageName = await getPageName(token, pageId, net);
     let dsaBeneficiary = pageName || ctx.acc.name || 'Advertiser';
     let dsaPayer = dsaBeneficiary;

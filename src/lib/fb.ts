@@ -341,6 +341,10 @@ function fbHint(code: number, subcode: number | undefined, why: string): string 
   // событие не подходит к цели кампании) — тогда честнее оставить текст ФБ, а не
   // валить на токен. Без субкода на нашем /me это обычно битый токен.
   if (code === 100) {
+    // Кабинет привязан к конкретной ФП: реклама с другой страницы не проходит.
+    if (w.includes("promoting doesn't match") || w.includes('during ad account creation')) {
+      return 'кабинет привязан к другой Странице — выбери ту ФП, что разрешена этому кабинету (или подключи нужную страницу к кабинету).';
+    }
     // С субкодом или с явным «param … must be one of …» это конкретная ошибка
     // параметров запроса (не токен) — оставляем текст ФБ как есть.
     if (subcode || w.includes('param ') || w.includes('must be one of') || w.includes('_spec')) return null;
@@ -1115,6 +1119,23 @@ export async function listPages(token: string, net: FbNet = {}) {
   const body = await call('/me/accounts', token, { fields: 'id,name', limit: '200' }, net);
   const data = (body.data ?? []) as { id?: string; name?: string }[];
   return data.filter((p) => p.id).map((p) => ({ id: p.id as string, name: p.name || (p.id as string) }));
+}
+
+/**
+ * Страницы, которые РАЗРЕШЕНО продвигать с ЭТОГО кабинета. Часть арендных
+ * кабинетов привязана к одной конкретной ФП: реклама с чужой страницы отбивается
+ * кодом 100/1815645 «The Page or app this ad is promoting doesn't match the one
+ * specified during ad account creation». Тогда берём ФП отсюда.
+ * externalId — с префиксом act_. Пустой массив = ограничения нет/не отдал.
+ */
+export async function listPromotePages(token: string, externalId: string, net: FbNet = {}) {
+  try {
+    const body = await call(`/${externalId}/promote_pages`, token, { fields: 'id,name', limit: '200' }, net);
+    const data = (body.data ?? []) as { id?: string; name?: string }[];
+    return data.filter((p) => p.id).map((p) => ({ id: p.id as string, name: p.name || (p.id as string) }));
+  } catch {
+    return [] as { id: string; name: string }[];
+  }
 }
 
 /**

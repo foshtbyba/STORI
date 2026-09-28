@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'multilang-locale-fix · 28.09 18:31';
+export const BUILD_INFO = 'promote-page-autoswitch · 28.09 18:59';
