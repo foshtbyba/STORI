@@ -1282,7 +1282,19 @@ export async function getPageName(token: string, pageId: string, net: FbNet = {}
  *  3) иначе — создаём PBIA (страница представляет бизнес в Instagram).
  * Пусто — не удалось (тогда IG-плейсменты могут отвалиться).
  */
-export async function resolveInstagramActor(token: string, pageId: string, net: FbNet = {}): Promise<{ id: string; error?: string }> {
+export async function resolveInstagramActor(token: string, pageId: string, net: FbNet = {}, accountExternalId?: string): Promise<{ id: string; error?: string }> {
+  // 0. Уровень РЕКЛАМНОГО КАБИНЕТА: у токена есть доступ к кабинету (в отличие от
+  //    страницы, где часто #10 Permission Denied). IG-аккаунт, привязанный к
+  //    кабинету, годится как instagram_actor_id.
+  if (accountExternalId) {
+    for (const edge of ['instagram_accounts', 'assigned_instagram_accounts']) {
+      try {
+        const a = await call(`/${accountExternalId}/${edge}`, token, { fields: 'id' }, net) as { data?: { id?: string }[] };
+        const id = (a.data ?? [])[0]?.id;
+        if (id) return { id: String(id) };
+      } catch { /* нет такого эджа/доступа — пробуем дальше */ }
+    }
+  }
   try {
     const b = await call(`/${pageId}`, token, { fields: 'instagram_business_account,connected_instagram_account' }, net) as {
       instagram_business_account?: { id?: string };
@@ -1543,6 +1555,30 @@ export async function stripAdsetInstagram(token: string, adsetId: string, net: F
       if (kept.length !== (tg.publisher_platforms as string[]).length) { tg.publisher_platforms = kept; changed = true; }
     }
     for (const k of ['instagram_positions', 'threads_positions']) {
+      if (tg[k] !== undefined) { delete tg[k]; changed = true; }
+    }
+    if (!changed) return false;
+    await call(`/${adsetId}`, token, { targeting: JSON.stringify(tg) }, net, 'POST');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Перевести адсет на АВТОПЛЕЙСМЕНТЫ (Advantage+): убрать ручные площадки —
+ * publisher_platforms и все *_positions. Тогда FB сам крутит по всем площадкам,
+ * включая Instagram, и сам представляет бизнес Страницей — без явной
+ * IG-идентичности (не отбивает 1772103). true — изменили и обновили.
+ */
+export async function setAdsetAutoPlacements(token: string, adsetId: string, net: FbNet = {}): Promise<boolean> {
+  try {
+    const body = await call(`/${adsetId}`, token, { fields: 'targeting' }, net, 'GET');
+    const t = (body as { targeting?: Record<string, unknown> }).targeting;
+    if (!t || typeof t !== 'object') return false;
+    const tg = { ...(t as Record<string, unknown>) };
+    let changed = false;
+    for (const k of ['publisher_platforms', 'facebook_positions', 'instagram_positions', 'threads_positions', 'messenger_positions', 'audience_network_positions', 'device_platforms']) {
       if (tg[k] !== undefined) { delete tg[k]; changed = true; }
     }
     if (!changed) return false;

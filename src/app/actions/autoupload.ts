@@ -24,6 +24,7 @@ import {
   setAdStatus,
   getAdsetPlacements,
   stripAdsetInstagram,
+  setAdsetAutoPlacements,
   searchRegions,
   searchCities,
   getPageName,
@@ -774,7 +775,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     let dsaBeneficiary = pageName || ctx.acc.name || 'Advertiser';
     let dsaPayer = dsaBeneficiary;
     append(`DSA: продвигается/платит — ${dsaBeneficiary}`);
-    const igRes = await resolveInstagramActor(token, pageId, net);
+    const igRes = await resolveInstagramActor(token, pageId, net, ctx.acc.externalId);
     const igActor = igRes.id;
     if (igActor) append(`Instagram: явная IG-идентичность (page-backed IG ${igActor})`);
     else append(`Instagram: явной IG-идентичности нет${igRes.error ? ` (${igRes.error})` : ''} — оставляю IG/Threads, FB сам подставит страницу; если отобьёт (1772103) — сниму их только тогда`);
@@ -886,20 +887,35 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           throw e;
         }
       };
+      const isIgGate = (err: unknown) => /1772103|instagram account or facebook page/i.test(err instanceof Error ? err.message : String(err));
       try {
         return await create();
       } catch (e) {
-        // Нет IG-идентичности (код 1772103): FB не даёт IG/Threads. Снимаем их с
-        // адсета ПО ФАКТУ ошибки (а не наугад до залива) и повторяем — так IG/
-        // Threads остаются везде, где кабинет их принимает.
-        const msg = e instanceof Error ? e.message : String(e);
-        if (/1772103|instagram account or facebook page/i.test(msg)) {
-          const stripped = await stripAdsetInstagram(token, adsetIdArg, net);
-          if (stripped) {
-            append('⚠ FB не принял IG/Threads без IG-аккаунта (1772103) — снял их с адсета и повторяю объявление на Facebook.');
-            await sleep(400);
+        // Нет IG-идентичности (код 1772103): FB не даёт РУЧНОЙ IG-плейсмент. Чтобы
+        // IG всё же остался, сперва переводим адсет на АВТОПЛЕЙСМЕНТЫ (Advantage+):
+        // там FB сам крутит по IG и представляет бизнес Страницей — без явной
+        // идентичности. Не поможет — тогда уже оставляем только Facebook.
+        if (!isIgGate(e)) throw e;
+        if (await setAdsetAutoPlacements(token, adsetIdArg, net)) {
+          append('⚠ Нет явной IG-идентичности — перевёл адсет на автоплейсменты (Advantage+), чтобы IG остался. Повторяю.');
+          await sleep(400);
+          try {
             return await create();
+          } catch (e2) {
+            if (!isIgGate(e2)) throw e2;
+            if (await stripAdsetInstagram(token, adsetIdArg, net)) {
+              append('⚠ Автоплейсменты не помогли — оставляю только Facebook и повторяю.');
+              await sleep(400);
+              return await create();
+            }
+            throw e2;
           }
+        }
+        // Автоплейсменты не выставились — прямой откат на Facebook.
+        if (await stripAdsetInstagram(token, adsetIdArg, net)) {
+          append('⚠ FB не принял IG/Threads без IG-аккаунта (1772103) — оставляю только Facebook и повторяю.');
+          await sleep(400);
+          return await create();
         }
         throw e;
       }
