@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'page-picker-both-forms · 28.09 19:55';
+export const BUILD_INFO = 'page-ban-detect · 28.09 19:58';

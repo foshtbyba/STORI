@@ -268,7 +268,7 @@ export type CabinetAssets = {
  *    тоже добавляем (их можно выбрать — кабинет их примет).
  */
 function annotatePages(
-  pages: { id: string; name: string; isPublished?: boolean }[],
+  pages: { id: string; name: string; isPublished?: boolean; promotionEligible?: boolean; ineligibleReason?: string }[],
   promote: { id: string; name: string }[],
 ): AssetPage[] {
   const allow = new Set(promote.map((p) => p.id));
@@ -277,12 +277,13 @@ function annotatePages(
   for (const p of pages) {
     const allowed = !restricted || allow.has(p.id);
     const published = p.isPublished !== false;
-    map.set(p.id, {
-      id: p.id,
-      name: p.name,
-      valid: allowed && published,
-      reason: !allowed ? 'не разрешена кабинетом' : !published ? 'не опубликована' : undefined,
-    });
+    const eligible = p.promotionEligible !== false; // забаненную/ограниченную FB рекламировать не даёт
+    // Причина показываем по приоритету: бан рекламы → не разрешена → не опубликована.
+    const reason = !eligible ? 'нельзя рекламировать (бан/ограничение)'
+      : !allowed ? 'не разрешена кабинетом'
+      : !published ? 'не опубликована'
+      : undefined;
+    map.set(p.id, { id: p.id, name: p.name, valid: allowed && published && eligible, reason });
   }
   if (restricted) for (const p of promote) if (!map.has(p.id)) map.set(p.id, { id: p.id, name: p.name, valid: true });
   return [...map.values()].sort((a, b) => Number(b.valid) - Number(a.valid) || a.name.localeCompare(b.name, 'ru'));

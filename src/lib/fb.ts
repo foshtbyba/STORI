@@ -1114,14 +1114,42 @@ export async function createPixel(token: string, externalId: string, name: strin
   return id;
 }
 
-/** Страницы (ФП), от имени которых публикуется реклама. is_published — можно ли
- *  вообще на ней крутить (неопубликованные/ограниченные не годятся для залива). */
+/**
+ * Страницы (ФП), от имени которых публикуется реклама.
+ *  • is_published — опубликована ли (неопубликованные нельзя рекламировать);
+ *  • promotion_eligible / promotion_ineligible_reason — можно ли ВООБЩЕ
+ *    рекламировать эту ФП (забаненную/ограниченную FB не даёт выбрать в
+ *    Ads Manager — ловим это тем же полем).
+ */
 export async function listPages(token: string, net: FbNet = {}) {
-  const body = await call('/me/accounts', token, { fields: 'id,name,is_published', limit: '200' }, net);
-  const data = (body.data ?? []) as { id?: string; name?: string; is_published?: boolean }[];
+  // Расширенные поля (promotion_eligible и пр.) часть токенов читать не даёт и
+  // роняет весь запрос — тогда откатываемся на базовые, чтобы список ФП всё
+  // равно подтянулся (просто без пометки «нельзя рекламировать»).
+  let body: Record<string, unknown>;
+  try {
+    body = await call(
+      '/me/accounts',
+      token,
+      { fields: 'id,name,is_published,promotion_eligible,promotion_ineligible_reason', limit: '200' },
+      net,
+    );
+  } catch {
+    body = await call('/me/accounts', token, { fields: 'id,name,is_published', limit: '200' }, net);
+  }
+  const data = (body.data ?? []) as {
+    id?: string; name?: string; is_published?: boolean;
+    promotion_eligible?: boolean; promotion_ineligible_reason?: string;
+  }[];
   return data
     .filter((p) => p.id)
-    .map((p) => ({ id: p.id as string, name: p.name || (p.id as string), isPublished: p.is_published !== false }));
+    .map((p) => ({
+      id: p.id as string,
+      name: p.name || (p.id as string),
+      isPublished: p.is_published !== false,
+      // FB отдаёт признак не всегда; трактуем только явный false как «нельзя».
+      promotionEligible: p.promotion_eligible !== false,
+      ineligibleReason: p.promotion_ineligible_reason || '',
+    }));
 }
 
 /**
