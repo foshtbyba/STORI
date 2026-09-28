@@ -1001,27 +1001,27 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       const buildCreativeForMain = async (mv: string): Promise<string> => {
         const thumb = mainThumbById.get(mv) || undefined;
         if (packDefault && mainLocaleId && mainLocaleId !== packDefault.localeId) {
-          // Мультиязычное: дефолт из пака + нейтральные + целевой слой (этот ролик).
+          // Языки запрошены → делаем ИМЕННО мультиязычное объявление. Дефолт из
+          // пака + нейтральные слои + целевой слой (этот ролик на языке гео).
           const rest = packNeutral.filter((l) => l.localeId !== mainLocaleId);
           rest.push({ localeId: mainLocaleId, videoId: mv, thumb, message, headline: headline || undefined, description: description || undefined, link });
-          // Языковой asset_feed_spec часть кабинетов/целей не принимает (код
-          // 1885985 «unsupported targeting field» и т.п.). Тогда не роняем залив —
-          // откатываемся на обычное одно-роликовое объявление из этого же ролика.
-          try {
-            const cid = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
-              name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
-              main: { videoId: packDefault.videoId, thumb: packDefault.thumb, message: packDefault.message, headline: packDefault.headline, description: packDefault.description, link: packDefault.link || link },
-              mainLocaleId,
-              langs: rest,
-              instagramActorId: igActor || undefined,
-            }, net));
-            if (cid) return cid;
-            append('⚠ Мультиязычный креатив не собрался — делаю обычное видео-объявление');
-          } catch (e) {
-            append(`⚠ Мультиязычный креатив кабинет не принял (${(e as Error).message.slice(0, 140)}) — заливаю ролик одноязычным`);
-          }
+          const cid = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
+            name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
+            main: { videoId: packDefault.videoId, thumb: packDefault.thumb, message: packDefault.message, headline: packDefault.headline, description: packDefault.description, link: packDefault.link || link },
+            // Дефолтное правило таргетит язык ДЕФОЛТНОГО контента (первый язык
+            // пака), а НЕ гео: язык гео уже отдан целевому слою в `rest`. Иначе
+            // locale гео попадал бы в два правила сразу (дефолт + целевой слой)
+            // и FB отбивал креатив кодом 1885985 «unsupported targeting field».
+            mainLocaleId: packDefault.localeId,
+            langs: rest,
+            instagramActorId: igActor || undefined,
+          }, net));
+          // НЕ подменяем молча одноязычным: смысл залива — именно языки. Не
+          // собралось — отдаём ошибку наверх, чтобы было видно, что чинить.
+          if (!cid) throw new FbError('Мультиязычный креатив не собрался (после подрезки ключей улучшений)');
+          return cid;
         }
-        // Обычное одно-роликовое объявление.
+        // Языки не запрошены (пак пуст) — обычное одно-роликовое объявление.
         const cid = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
           name: campaignName, pageId, videoId: mv, message, link, cta,
           urlTags: urlTags || undefined, headline: headline || undefined,
@@ -1042,27 +1042,17 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           await sleep(200);
         }
       } else if (packDefault) {
-        // Роликов нет — режим «только языки»: одно объявление из пака (как раньше).
-        let cid = '';
-        try {
-          cid = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
-            name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
-            main: { videoId: packDefault.videoId, thumb: packDefault.thumb, message: packDefault.message, headline: packDefault.headline, description: packDefault.description, link: packDefault.link || link },
-            mainLocaleId: packDefault.localeId,
-            langs: packNeutral,
-            instagramActorId: igActor || undefined,
-          }, net));
-        } catch (e) {
-          append(`⚠ Мультиязычный креатив кабинет не принял (${(e as Error).message.slice(0, 140)}) — заливаю одним роликом из пака`);
-        }
-        if (!cid) {
-          cid = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
-            name: campaignName, pageId, videoId: packDefault.videoId, message: packDefault.message, link: packDefault.link || link, cta,
-            urlTags: urlTags || undefined, headline: packDefault.headline, description: packDefault.description, imageUrl: packDefault.thumb, optOutKeys: optOut,
-            instagramActorId: igActor || undefined,
-          }, net));
-        }
-        if (!cid) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
+        // Роликов нет — режим «только языки»: одно мультиязычное объявление из
+        // пака (дефолт + нейтральные). Не собралось — ошибка наверх, без молчащего
+        // отката к одноязычному (смысл именно в языках).
+        const cid = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
+          name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
+          main: { videoId: packDefault.videoId, thumb: packDefault.thumb, message: packDefault.message, headline: packDefault.headline, description: packDefault.description, link: packDefault.link || link },
+          mainLocaleId: packDefault.localeId,
+          langs: packNeutral,
+          instagramActorId: igActor || undefined,
+        }, net));
+        if (!cid) throw new FbError('Мультиязычный креатив не собрался (после подрезки ключей улучшений)');
         creativeIds.push(cid);
       }
 
