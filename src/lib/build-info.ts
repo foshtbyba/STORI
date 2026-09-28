@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'page-ban-detect · 28.09 19:58';
+export const BUILD_INFO = 'video-upload-408-retry · 28.09 20:34';

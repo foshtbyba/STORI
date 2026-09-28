@@ -967,15 +967,20 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       const mainVideoIds: string[] = [];
       const mainThumbById = new Map<string, string>();
       if (videos.length) {
-        await stage(videos.length > 1 ? `Загружаю ролики (${videos.length}) параллельно…` : 'Загружаю основной ролик…');
-        const ups = await Promise.allSettled(videos.map(async (v) => {
-          const vbuf = Buffer.from(await v.arrayBuffer());
-          return uploadVideo(token, ext, vbuf, v.name || 'video.mp4', net);
-        }));
-        ups.forEach((r, i) => {
-          if (r.status === 'fulfilled') { mainVideoIds.push(r.value); append(`✓ Ролик ${i + 1} загружен: ${r.value}`); }
-          else append(`⚠ Ролик ${i + 1} не загрузился — пропускаю (${(r.reason as Error)?.message ?? 'ошибка'})`);
-        });
+        // Ролики грузим ПО ОЧЕРЕДИ, а не параллельно: две тяжёлые загрузки разом
+        // делят узкий канал (особенно через прокси) и обе ловят таймаут FB (408).
+        // Последовательно каждая получает весь канал и проходит надёжно.
+        for (let i = 0; i < videos.length; i += 1) {
+          await stage(videos.length > 1 ? `Загружаю ролик ${i + 1}/${videos.length}…` : 'Загружаю основной ролик…');
+          try {
+            const vbuf = Buffer.from(await videos[i].arrayBuffer());
+            const vid = await uploadVideo(token, ext, vbuf, videos[i].name || 'video.mp4', net);
+            mainVideoIds.push(vid);
+            append(`✓ Ролик ${i + 1} загружен: ${vid}`);
+          } catch (e) {
+            append(`⚠ Ролик ${i + 1} не загрузился — пропускаю (${(e as Error)?.message ?? 'ошибка'})`);
+          }
+        }
       }
 
       // Заготовки языков: грузим ролик + резолвим locale, БЕЗ ожидания обработки.

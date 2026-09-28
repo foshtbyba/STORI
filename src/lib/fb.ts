@@ -1642,6 +1642,13 @@ export async function uploadVideo(token: string, externalId: string, bytes: Buff
         responseType: 'text', transformResponse: [(d) => d], validateStatus: () => true,
       });
       status = res.status; text = String(res.data ?? '');
+      // 408/429/5xx — временный сбой на стороне FB (таймаут/перегрузка), не
+      // окончательный отказ: повторяем, как и сетевую ошибку.
+      if ([408, 429, 500, 502, 503, 504].includes(status) && attempt < TRIES) {
+        lastNetErr = `HTTP ${status}`;
+        await new Promise((r) => setTimeout(r, 3000 * attempt));
+        continue;
+      }
       sent = true;
       break;
     } catch (e) {
