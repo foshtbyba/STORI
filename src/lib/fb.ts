@@ -1114,11 +1114,14 @@ export async function createPixel(token: string, externalId: string, name: strin
   return id;
 }
 
-/** Страницы (ФП), от имени которых публикуется реклама. */
+/** Страницы (ФП), от имени которых публикуется реклама. is_published — можно ли
+ *  вообще на ней крутить (неопубликованные/ограниченные не годятся для залива). */
 export async function listPages(token: string, net: FbNet = {}) {
-  const body = await call('/me/accounts', token, { fields: 'id,name', limit: '200' }, net);
-  const data = (body.data ?? []) as { id?: string; name?: string }[];
-  return data.filter((p) => p.id).map((p) => ({ id: p.id as string, name: p.name || (p.id as string) }));
+  const body = await call('/me/accounts', token, { fields: 'id,name,is_published', limit: '200' }, net);
+  const data = (body.data ?? []) as { id?: string; name?: string; is_published?: boolean }[];
+  return data
+    .filter((p) => p.id)
+    .map((p) => ({ id: p.id as string, name: p.name || (p.id as string), isPublished: p.is_published !== false }));
 }
 
 /**

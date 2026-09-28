@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'promote-page-autoswitch · 28.09 18:59';
+export const BUILD_INFO = 'page-picker-valid · 28.09 19:13';

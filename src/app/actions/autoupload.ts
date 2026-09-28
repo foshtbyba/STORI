@@ -240,26 +240,64 @@ async function accountAccessFor(accountId: string) {
   return { acc, tok, token, net, buyerId: user.buyer?.id ?? null, userId: user.id };
 }
 
+export type AssetPage = {
+  id: string;
+  name: string;
+  /** Годна ли ФП для залива с ЭТОГО кабинета (разрешена + опубликована). */
+  valid: boolean;
+  /** Почему нельзя выбрать (для негодных): «не разрешена кабинетом» / «не опубликована». */
+  reason?: string;
+};
+
 export type CabinetAssets = {
   ok: boolean;
   error?: string;
-  pages?: { id: string; name: string }[];
+  pages?: AssetPage[];
   pixels?: { id: string; name: string }[];
   /** id только что созданного ассета — чтобы клиент выбрал именно его, а не
    *  угадывал «последний в списке» (порядок у FB не гарантирован). */
   createdId?: string;
 };
 
+/**
+ * Разметить ФП на годные/негодные для залива с кабинета:
+ *  • если кабинет привязан к списку ФП (promote_pages непустой) — годны только они;
+ *  • неопубликованная ФП не годится в любом случае;
+ *  • годные — выше в списке. Разрешённые кабинетом ФП, которых нет под токеном,
+ *    тоже добавляем (их можно выбрать — кабинет их примет).
+ */
+function annotatePages(
+  pages: { id: string; name: string; isPublished?: boolean }[],
+  promote: { id: string; name: string }[],
+): AssetPage[] {
+  const allow = new Set(promote.map((p) => p.id));
+  const restricted = promote.length > 0;
+  const map = new Map<string, AssetPage>();
+  for (const p of pages) {
+    const allowed = !restricted || allow.has(p.id);
+    const published = p.isPublished !== false;
+    map.set(p.id, {
+      id: p.id,
+      name: p.name,
+      valid: allowed && published,
+      reason: !allowed ? 'не разрешена кабинетом' : !published ? 'не опубликована' : undefined,
+    });
+  }
+  if (restricted) for (const p of promote) if (!map.has(p.id)) map.set(p.id, { id: p.id, name: p.name, valid: true });
+  return [...map.values()].sort((a, b) => Number(b.valid) - Number(a.valid) || a.name.localeCompare(b.name, 'ru'));
+}
+
 /** Подтянуть живьём страницы (ФП) и пиксели кабинета — для выпадашек формы. */
 export async function loadCabinetAssets(accountId: string): Promise<CabinetAssets> {
   const ctx = await accountAccessFor(accountId);
   if ('error' in ctx) return { ok: false, error: ctx.error };
   try {
-    const [pages, pixels] = await Promise.all([
+    const [pages, pixels, promote] = await Promise.all([
       listPages(ctx.token, ctx.net),
       listPixels(ctx.token, ctx.acc.externalId, ctx.net),
+      listPromotePages(ctx.token, ctx.acc.externalId, ctx.net),
     ]);
-    return { ok: true, pages, pixels };
+    return { ok: true, pages: annotatePages(pages, promote), pixels };
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
@@ -290,8 +328,11 @@ export async function makePage(accountId: string, name: string): Promise<Cabinet
   if (!clean) return { ok: false, error: 'Впиши имя новой страницы' };
   try {
     const createdId = await createPage(ctx.token, clean, 'BRAND', ctx.net);
-    const pages = await listPages(ctx.token, ctx.net);
-    return { ok: true, pages, createdId };
+    const [pages, promote] = await Promise.all([
+      listPages(ctx.token, ctx.net),
+      listPromotePages(ctx.token, ctx.acc.externalId, ctx.net),
+    ]);
+    return { ok: true, pages: annotatePages(pages, promote), createdId };
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }

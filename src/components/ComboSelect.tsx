@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-type Opt = { id: string; name: string };
+type Opt = { id: string; name: string; disabled?: boolean; hint?: string };
 
 /**
  * Универсальный combobox в общем дизайне (как выбор шаблона гео): само поле —
@@ -75,7 +75,7 @@ export default function ComboSelect({
           onFocus={openUp}
           onChange={(e) => { if (!open) setOpen(true); setQ(e.target.value); }}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') { e.preventDefault(); if (filtered.length) pick(filtered[0].id); }
+            if (e.key === 'Enter') { e.preventDefault(); const first = filtered.find((o) => !o.disabled); if (first) pick(first.id); }
             else if (e.key === 'Escape') { setOpen(false); setQ(''); inputRef.current?.blur(); }
           }}
           placeholder={open ? searchPlaceholder : placeholder}
@@ -109,6 +109,20 @@ export default function ComboSelect({
             ) : (
               filtered.map((o) => {
                 const on = o.id === current;
+                if (o.disabled) {
+                  // Негодная опция (напр. ФП не разрешена кабинетом / не опубликована):
+                  // показываем приглушённой и НЕ даём выбрать, с пометкой причины.
+                  return (
+                    <div
+                      key={o.id}
+                      title={o.hint || 'недоступно'}
+                      className="flex w-full cursor-not-allowed items-center gap-2 rounded-[10px] px-3 py-1.5 text-left text-[12.5px] text-dim opacity-60"
+                    >
+                      <span className="min-w-0 flex-1 truncate line-through decoration-dim/60">{o.name}</span>
+                      <span className="shrink-0 rounded-full bg-rust-t px-2 py-0.5 text-[10px] text-rust">{o.hint || 'нельзя'}</span>
+                    </div>
+                  );
+                }
                 return (
                   <button
                     key={o.id}
