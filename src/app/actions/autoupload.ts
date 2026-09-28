@@ -843,7 +843,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       //  • 1-1-1 — по кампании на ролик (свой бюджет) / адсет / объявление.
       // Первое объявление идёт в уже созданные кампанию+адсет, остальные —
       // добавляют адсеты/кампании по структуре.
-      const vidStructure = String(form.get('structure') ?? '1-1-2');
+      const vidStructure = String(form.get('structure') ?? '1-1-1');
 
       /** Разложить готовые видео-креативы (по одному на ролик) по структуре. */
       const placeVideoCreatives = async (creativeIds: string[]): Promise<number> => {

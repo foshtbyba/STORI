@@ -98,7 +98,8 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
   const [withLanguages, setWithLanguages] = useState(languages.length > 0);
   const [videos, setVideos] = useState<File[]>([]);
   // Структура публикации роликов (несколько роликов — одним заливом на гео).
-  const [structure, setStructure] = useState('1-1-2');
+  // По умолчанию 1-1-1 (каждый ролик — своя кампания/адсет/объявление).
+  const [structure, setStructure] = useState('1-1-1');
   const [msg, setMsg] = useState('');
   const [journalKey, setJournalKey] = useState(0);
   const [queue, setQueue] = useState<VideoDraft[]>([]);
@@ -321,7 +322,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
         const tags = `ad_id={{ad.id}}&fbpx={{pixel}}&${d.fbPixelKey || 'fb_pixel'}=${d.fbPixelNum}&account_id={{account.id}}&campaign_id={{campaign.id}}`;
         fd.set('urlTags', tags);
         fd.set('mode', d.mode);
-        fd.set('structure', d.structure || '1-1-2');
+        fd.set('structure', d.structure || '1-1-1');
         if (d.withLanguages) fd.set('withLanguages', '1');
         if (d.mode === 'midnight') fd.set('startAt', nextMoscowMidnight());
         if (d.mode === 'scheduled' && d.startLocal) fd.set('startAt', new Date(d.startLocal).toISOString());
