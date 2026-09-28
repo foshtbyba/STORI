@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'video-default-1-1-1 · 28.09 18:03';
+export const BUILD_INFO = 'multilang-fallback · 28.09 18:23';

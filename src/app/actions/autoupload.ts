@@ -1004,15 +1004,22 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           // Мультиязычное: дефолт из пака + нейтральные + целевой слой (этот ролик).
           const rest = packNeutral.filter((l) => l.localeId !== mainLocaleId);
           rest.push({ localeId: mainLocaleId, videoId: mv, thumb, message, headline: headline || undefined, description: description || undefined, link });
-          const cid = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
-            name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
-            main: { videoId: packDefault.videoId, thumb: packDefault.thumb, message: packDefault.message, headline: packDefault.headline, description: packDefault.description, link: packDefault.link || link },
-            mainLocaleId,
-            langs: rest,
-            instagramActorId: igActor || undefined,
-          }, net));
-          if (cid) return cid;
-          append('⚠ Мультиязычный креатив не собрался — делаю обычное видео-объявление');
+          // Языковой asset_feed_spec часть кабинетов/целей не принимает (код
+          // 1885985 «unsupported targeting field» и т.п.). Тогда не роняем залив —
+          // откатываемся на обычное одно-роликовое объявление из этого же ролика.
+          try {
+            const cid = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
+              name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
+              main: { videoId: packDefault.videoId, thumb: packDefault.thumb, message: packDefault.message, headline: packDefault.headline, description: packDefault.description, link: packDefault.link || link },
+              mainLocaleId,
+              langs: rest,
+              instagramActorId: igActor || undefined,
+            }, net));
+            if (cid) return cid;
+            append('⚠ Мультиязычный креатив не собрался — делаю обычное видео-объявление');
+          } catch (e) {
+            append(`⚠ Мультиязычный креатив кабинет не принял (${(e as Error).message.slice(0, 140)}) — заливаю ролик одноязычным`);
+          }
         }
         // Обычное одно-роликовое объявление.
         const cid = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
@@ -1036,13 +1043,18 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         }
       } else if (packDefault) {
         // Роликов нет — режим «только языки»: одно объявление из пака (как раньше).
-        let cid = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
-          name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
-          main: { videoId: packDefault.videoId, thumb: packDefault.thumb, message: packDefault.message, headline: packDefault.headline, description: packDefault.description, link: packDefault.link || link },
-          mainLocaleId: packDefault.localeId,
-          langs: packNeutral,
-          instagramActorId: igActor || undefined,
-        }, net));
+        let cid = '';
+        try {
+          cid = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
+            name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
+            main: { videoId: packDefault.videoId, thumb: packDefault.thumb, message: packDefault.message, headline: packDefault.headline, description: packDefault.description, link: packDefault.link || link },
+            mainLocaleId: packDefault.localeId,
+            langs: packNeutral,
+            instagramActorId: igActor || undefined,
+          }, net));
+        } catch (e) {
+          append(`⚠ Мультиязычный креатив кабинет не принял (${(e as Error).message.slice(0, 140)}) — заливаю одним роликом из пака`);
+        }
         if (!cid) {
           cid = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
             name: campaignName, pageId, videoId: packDefault.videoId, message: packDefault.message, link: packDefault.link || link, cta,
