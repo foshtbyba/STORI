@@ -288,30 +288,47 @@ async function gatherCabinetPages(
     return { pages, debug: `обычный аккаунт — общий список токена ${globalPages.length} ⇒ ${pages.length}` };
   }
 
-  // АГЕНТСКИЙ кабинет: Ads Manager группирует ФП по бизнесу-владельцу
-  // (owner_business). Фильтруем глобальные ФП по бизнесу кабинета — получаем
-  // ровно тот per-cabinet набор, что показывает Ads Manager.
-  const [globalPages, bizId, businessPages, creativePageIds, promote] = await Promise.all([
+  // АГЕНТСКИЙ кабинет: Ads Manager показывает ФП из БИЗНЕС-ПОРТФЕЛЯ, которому
+  // принадлежат страницы (owner_business), а НЕ из бизнеса самого кабинета
+  // (у арендных кабинетов это разные бизнесы: кабинет в BM агентства, а страницы
+  // в отдельном портфеле). Поэтому портфель ВЫЧИСЛЯЕМ из страниц, которые точно
+  // относятся к кабинету (подключённые promote + крутившиеся в объявлениях):
+  // берём их owner_business, а затем показываем ВСЕ страницы этого портфеля.
+  const [globalPages, promote, creativePageIds] = await Promise.all([
     listPages(token, net),
-    getAccountBusinessId(token, externalId, net),
-    listAdAccountPages(token, externalId, net),
-    listAdAccountCreativePageIds(token, externalId, net),
     listPromotePages(token, externalId, net),
+    listAdAccountCreativePageIds(token, externalId, net),
   ]);
-  const ownedByBiz = bizId ? globalPages.filter((p) => p.ownerBusinessId === bizId) : [];
+  const ownerById = new Map(globalPages.map((p) => [p.id, p.ownerBusinessId]));
+  const confirmed = new Set<string>([...promote.map((p) => p.id), ...creativePageIds]);
+  // Голосуем за бизнес-портфель по owner_business подтверждённых страниц.
+  const votes = new Map<string, number>();
+  for (const id of confirmed) {
+    const biz = ownerById.get(id);
+    if (biz) votes.set(biz, (votes.get(biz) ?? 0) + 1);
+  }
+  const portfolioBiz = [...votes.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
+  const ownedByBiz = portfolioBiz ? globalPages.filter((p) => p.ownerBusinessId === portfolioBiz) : [];
 
+  // Финал: страницы портфеля (точный набор Ads Manager). Если портфель не
+  // определился (owner_business пуст) — откат на подтверждённые, затем глобальный.
   const nameOf = new Map(globalPages.map((p) => [p.id, p.name]));
   type Raw = { id: string; name: string; isPublished?: boolean; promotionEligible?: boolean; ineligibleReason?: string };
+  let source: string;
   const byId = new Map<string, Raw>();
-  for (const p of ownedByBiz) byId.set(p.id, p);       // по owner_business (точный набор)
-  for (const p of businessPages) if (!byId.has(p.id)) byId.set(p.id, p); // бизнес-эйдж, если дал
-  for (const p of promote) if (!byId.has(p.id)) byId.set(p.id, { id: p.id, name: p.name }); // подключённые
-  for (const id of creativePageIds) if (!byId.has(id)) byId.set(id, { id, name: nameOf.get(id) || id }); // из объявлений
-
-  const perCab = [...byId.values()];
-  const usedGlobal = perCab.length === 0;
-  const pages = annotatePages(usedGlobal ? globalPages : perCab, promote);
-  const debug = `агентский · бизнес ${bizId || '—'} · по владельцу ${ownedByBiz.length} · бизнес-эйдж ${businessPages.length} · promote ${promote.length} · из объявл. ${creativePageIds.length} · глоб. ${globalPages.length} ⇒ ${pages.length} (${usedGlobal ? 'глобально' : 'по кабинету'})`;
+  if (ownedByBiz.length) {
+    for (const p of ownedByBiz) byId.set(p.id, p);
+    source = `портфель ${portfolioBiz}`;
+  } else if (confirmed.size) {
+    for (const p of promote) byId.set(p.id, { id: p.id, name: p.name });
+    for (const id of creativePageIds) if (!byId.has(id)) byId.set(id, { id, name: nameOf.get(id) || id });
+    source = 'подтверждённые (портфель не определён)';
+  } else {
+    for (const p of globalPages) byId.set(p.id, p);
+    source = 'глобально';
+  }
+  const pages = annotatePages([...byId.values()], promote);
+  const debug = `агентский · портфель ${portfolioBiz || '—'} · в портфеле ${ownedByBiz.length} · promote ${promote.length} · из объявл. ${creativePageIds.length} · глоб. ${globalPages.length} ⇒ ${pages.length} (${source})`;
   return { pages, debug };
 }
 
