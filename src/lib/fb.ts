@@ -1694,6 +1694,17 @@ export async function waitVideoReady(token: string, videoId: string, net: FbNet 
   throw new FbError('Видео не обработалось вовремя (таймаут). Ролик уже загружен — повтори залив чуть позже.');
 }
 
+/** Быстрая проверка: ролик уже обработан (ready)? Для кэша — переиспользуем
+ *  ранее залитый video_id, только если он ещё жив и готов. false — нет/сбой. */
+export async function isVideoReady(token: string, videoId: string, net: FbNet = {}): Promise<boolean> {
+  try {
+    const body = await call(`/${videoId}`, token, { fields: 'status' }, net);
+    return ((body as { status?: { video_status?: string } }).status?.video_status) === 'ready';
+  } catch {
+    return false;
+  }
+}
+
 /** Кадр-превью обработанного ролика (video_data требует image_url/hash). Берём
  *  предпочтительный (is_preferred) или первый доступный. Пусто — не нашли. */
 export async function videoThumbnailUrl(token: string, videoId: string, net: FbNet = {}): Promise<string> {

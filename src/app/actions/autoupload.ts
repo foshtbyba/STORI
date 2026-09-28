@@ -1,5 +1,6 @@
 'use server';
 
+import { createHash } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth';
@@ -29,6 +30,7 @@ import {
   resolveInstagramActor,
   bindCardToAccount,
   uploadVideo,
+  isVideoReady,
   uploadVideoByUrl,
   waitVideoReady,
   videoThumbnailUrl,
@@ -394,6 +396,28 @@ export async function linkCards(input: {
 // ── Оркестратор ────────────────────────────────────────────────────────────
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Хэш содержимого ролика — ключ кэша загруженных видео. */
+function sha256(buf: Buffer): string {
+  return createHash('sha256').update(buf).digest('hex');
+}
+
+/**
+ * Вернуть video_id из кэша, если тот же файл уже залит в ЭТОТ кабинет и всё ещё
+ * готов (isVideoReady). Иначе null (и чистим протухшую запись). Так повторный
+ * залив не грузит и не ждёт обработку одних и тех же роликов заново.
+ */
+async function cachedReadyVideo(accountExternalId: string, hash: string, token: string, net: FbNet): Promise<string | null> {
+  try {
+    const row = await prisma.uploadedVideo.findUnique({
+      where: { accountExternalId_contentHash: { accountExternalId, contentHash: hash } },
+    });
+    if (!row) return null;
+    if (await isVideoReady(token, row.fbVideoId, net)) return row.fbVideoId;
+    await prisma.uploadedVideo.delete({ where: { id: row.id } }).catch(() => {}); // протух — убираем
+  } catch { /* сбой кэша не критичен — считаем промахом */ }
+  return null;
+}
 
 /**
  * Очередь заливов ПО КАБИНЕТУ: на один кабинет — строго по очереди (чтобы не
@@ -966,16 +990,28 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       // объявлением. Грузим все параллельно.
       const mainVideoIds: string[] = [];
       const mainThumbById = new Map<string, string>();
+      // Кэш: video_id, которые НЕ надо грузить/ждать заново (взяты из кэша, уже
+      // готовы). Плюс карта id→хэш для сохранения свежезалитых в кэш после
+      // обработки.
+      const freshIds = new Set<string>();
+      const hashById = new Map<string, string>();
       if (videos.length) {
         // Ролики грузим ПО ОЧЕРЕДИ, а не параллельно: две тяжёлые загрузки разом
         // делят узкий канал (особенно через прокси) и обе ловят таймаут FB (408).
         // Последовательно каждая получает весь канал и проходит надёжно.
         for (let i = 0; i < videos.length; i += 1) {
-          await stage(videos.length > 1 ? `Загружаю ролик ${i + 1}/${videos.length}…` : 'Загружаю основной ролик…');
           try {
             const vbuf = Buffer.from(await videos[i].arrayBuffer());
+            const hash = sha256(vbuf);
+            const hit = await cachedReadyVideo(ext, hash, token, net);
+            if (hit) {
+              mainVideoIds.push(hit);
+              append(`✓ Ролик ${i + 1}: из кэша (уже был залит) — ${hit}`);
+              continue;
+            }
+            await stage(videos.length > 1 ? `Загружаю ролик ${i + 1}/${videos.length}…` : 'Загружаю основной ролик…');
             const vid = await uploadVideo(token, ext, vbuf, videos[i].name || 'video.mp4', net);
-            mainVideoIds.push(vid);
+            mainVideoIds.push(vid); freshIds.add(vid); hashById.set(vid, hash);
             append(`✓ Ролик ${i + 1} загружен: ${vid}`);
           } catch (e) {
             append(`⚠ Ролик ${i + 1} не загрузился — пропускаю (${(e as Error)?.message ?? 'ошибка'})`);
@@ -994,20 +1030,31 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           // Ролики языков грузим ВСЕ СРАЗУ (параллельно), а не по одному — это
           // была основная задержка залива. Разные видео на один каб FB тянет
           // спокойно; ошибка одного не рушит остальные (allSettled).
-          await stage(`Загружаю ролики языков (${withVideo.length}) параллельно…`);
+          await stage(`Готовлю ролики языков (${withVideo.length})…`);
           const ups = await Promise.allSettled(withVideo.map(async (lp) => {
+            const localeId = await resolveLocaleId(token, localeName(lp.locale), net);
+            if (!localeId) throw new FbError('нет locale ID у FB');
+            // Хэш содержимого языкового ролика — по байтам, либо по URL.
+            const hash = lp.videoData && lp.videoData.length
+              ? sha256(Buffer.from(lp.videoData))
+              : sha256(Buffer.from(`url:${lp.videoUrl}`));
+            const hit = await cachedReadyVideo(ext, hash, token, net);
+            if (hit) return { lvid: hit, localeId, hash, cached: true };
             const lvid = lp.videoData && lp.videoData.length
               ? await uploadVideo(token, ext, Buffer.from(lp.videoData), lp.videoName || 'lang.mp4', net)
               : await uploadVideoByUrl(token, ext, String(lp.videoUrl), net);
-            const localeId = await resolveLocaleId(token, localeName(lp.locale), net);
-            if (!localeId) throw new FbError('нет locale ID у FB');
-            return { lvid, localeId };
+            return { lvid, localeId, hash, cached: false };
           }));
           ups.forEach((r, i) => {
             const lp = withVideo[i];
             if (r.status === 'fulfilled') {
               langUps.push({ locale: lp.locale, localeId: r.value.localeId, videoId: r.value.lvid, message: lp.primaryText || message, headline: lp.headline || undefined, description: lp.description || undefined, link: lp.link || undefined });
-              append(`✓ ${lp.locale}: ролик загружен`);
+              if (r.value.cached) {
+                append(`✓ ${lp.locale}: из кэша (уже был залит)`);
+              } else {
+                freshIds.add(r.value.lvid); hashById.set(r.value.lvid, r.value.hash);
+                append(`✓ ${lp.locale}: ролик загружен`);
+              }
             } else {
               append(`⚠ ${lp.locale}: не загрузился — пропускаю (${(r.reason as Error)?.message ?? 'ошибка'})`);
             }
@@ -1015,16 +1062,28 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         }
       }
 
-      // Ждём обработки всех роликов ПАРАЛЛЕЛЬНО.
+      // Ждём обработки только СВЕЖИХ роликов (из кэша уже готовы). Параллельно.
       const readyOf = new Map<string, boolean>();
       const allIds = [...mainVideoIds, ...langUps.map((l) => l.videoId)];
-      if (allIds.length) {
-        await stage(`Обработка роликов на стороне FB (${allIds.length})…`);
-        const waits = await Promise.allSettled(allIds.map((id) => waitVideoReady(token, id, net)));
-        allIds.forEach((id, i) => readyOf.set(id, waits[i].status === 'fulfilled'));
-        if (mainVideoIds.length && !mainVideoIds.some((id) => readyOf.get(id))) {
-          throw new FbError('FB не обработал ни один основной ролик вовремя — повтори залив позже (ролики уже загружены)');
+      for (const id of allIds) if (!freshIds.has(id)) readyOf.set(id, true); // кэш → готов
+      const toWait = allIds.filter((id) => freshIds.has(id));
+      if (toWait.length) {
+        await stage(`Обработка роликов на стороне FB (${toWait.length})…`);
+        const waits = await Promise.allSettled(toWait.map((id) => waitVideoReady(token, id, net)));
+        toWait.forEach((id, i) => readyOf.set(id, waits[i].status === 'fulfilled'));
+        // Свежезалитые и готовые — кладём в кэш, чтобы следующий залив их не грузил.
+        for (const id of toWait) {
+          if (readyOf.get(id) && hashById.has(id)) {
+            await prisma.uploadedVideo.upsert({
+              where: { accountExternalId_contentHash: { accountExternalId: ext, contentHash: hashById.get(id)! } },
+              create: { accountExternalId: ext, contentHash: hashById.get(id)!, fbVideoId: id },
+              update: { fbVideoId: id },
+            }).catch(() => {});
+          }
         }
+      }
+      if (mainVideoIds.length && !mainVideoIds.some((id) => readyOf.get(id))) {
+        throw new FbError('FB не обработал ни один основной ролик вовремя — повтори залив позже (ролики уже загружены)');
       }
       // Только обработанные основные ролики (в исходном порядке) — по объявлению.
       const readyMains = mainVideoIds.filter((id) => readyOf.get(id));

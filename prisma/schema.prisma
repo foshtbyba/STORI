@@ -940,6 +940,21 @@ model UploadLanguage {
   @@index([userId])
 }
 
+/// Кэш загруженных в кабинет роликов: тот же файл (по хэшу содержимого) уже был
+/// залит и обработан → переиспользуем его video_id, не грузим и не ждём
+/// обработку заново. Сильно ускоряет повторные заливы (пак языков — один и тот
+/// же). Перед переиспользованием проверяем, что ролик ещё готов (isVideoReady).
+model UploadedVideo {
+  id                String   @id @default(cuid())
+  accountExternalId String
+  contentHash       String
+  fbVideoId         String
+  createdAt         DateTime @default(now())
+
+  @@unique([accountExternalId, contentHash])
+  @@index([accountExternalId])
+}
+
 /// Запись о запуске автозалива — для истории и разбора, что именно ушло в ФБ.
 /// Пишется по факту оркестрации: сколько объявлений создано, в каком режиме,
 /// и лог по шагам (текстом). Денег не двигает — это просто журнал.
