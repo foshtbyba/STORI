@@ -322,10 +322,22 @@ function annotatePages(
   }
   // Разрешённые кабинетом ФП, которых нет под токеном, — тоже годны.
   for (const p of promote) if (!map.has(p.id)) map.set(p.id, { id: p.id, name: p.name, valid: true });
-  return [...map.values()].sort((a, b) =>
+  const sorted = [...map.values()].sort((a, b) =>
     Number(b.valid) - Number(a.valid)
     || (Number(connected.has(b.id)) - Number(connected.has(a.id)))
     || a.name.localeCompare(b.name, 'ru'));
+  // Дедуп по ИМЕНИ: у токена бывают страницы-дубли (одно имя, разные id) —
+  // фантомы из /me/accounts. Оставляем по одной на имя, предпочитая годную/
+  // подключённую (список уже отсортирован: годные и connected — выше).
+  const seenName = new Set<string>();
+  const out: AssetPage[] = [];
+  for (const p of sorted) {
+    const key = p.name.trim().toLowerCase();
+    if (seenName.has(key)) continue;
+    seenName.add(key);
+    out.push(p);
+  }
+  return out;
 }
 
 /** Подтянуть живьём страницы (ФП) и пиксели кабинета — для выпадашек формы. */
