@@ -834,6 +834,41 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       await reportPlacements(adsetId);
       await sleep(300);
 
+      // Структура публикации ролика — чтобы одним заливом наполнить гео быстрее:
+      //  • 1-1-2 — 1 кампания / 1 адсет / N объявлений (общий бюджет адсета);
+      //  • 1-2-1 — 1 кампания / N адсетов (каждый со своим бюджетом) / по объявл.;
+      //  • 1-1-1 — N кампаний (каждая со своим бюджетом) / адсет / объявление.
+      // Ролик и креатив грузим ОДИН раз, а дальше только копируем готовый креатив
+      // в нужное число объявлений/адсетов/кампаний — это быстро.
+      const vidStructure = String(form.get('structure') ?? '1-1-2');
+      const vidCount = Math.max(1, Math.min(10, Math.round(Number(form.get('count') ?? 1)) || 1));
+      if (vidCount > 1) append(`Структура публикации: ${vidStructure} · копий ${vidCount}`);
+
+      /** Разложить готовый видео-креатив по выбранной структуре (vidCount раз). */
+      const placeVideoAds = async (creativeId: string): Promise<number> => {
+        const total = vidCount;
+        const adId1 = await mkAd(campaignName, adsetId, creativeId);
+        append(`✓ Объявление 1/${total}: ${adId1}`);
+        for (let u = 1; u < total; u += 1) {
+          await sleep(300);
+          const nm = `${campaignName} · ${u + 1}`;
+          if (vidStructure === '1-2-1') {
+            const as = await mkAdset(campaignId, nm);
+            const aid = await mkAd(nm, as, creativeId);
+            append(`✓ Адсет+объявление ${u + 1}/${total}: ${as} / ${aid}`);
+          } else if (vidStructure === '1-1-1') {
+            const c = await mkCampaign(nm);
+            const as = await mkAdset(c, nm);
+            const aid = await mkAd(nm, as, creativeId);
+            append(`✓ Кампания+адсет+объявление ${u + 1}/${total}: ${c} / ${as} / ${aid}`);
+          } else {
+            const aid = await mkAd(nm, adsetId, creativeId); // 1-1-2
+            append(`✓ Объявление ${u + 1}/${total}: ${aid}`);
+          }
+        }
+        return total;
+      };
+
       // Видео-специфичные ключи авто-улучшений (Video touch-ups / Add video
       // effects). Неверные самолечение отсеет.
       optOut = [...optOut, ...VIDEO_ENHANCEMENT_OPTOUT_KEYS];
@@ -987,14 +1022,8 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           langs: restLangs,
           instagramActorId: igActor || undefined,
         }, net));
-        if (creativeId) {
-          await sleep(200);
-          const adId = await mkAd(campaignName, adsetId, creativeId);
-          created = 1;
-          append(`✓ Одно объявление с языками: ${adId} · языков ${restLangs.length + 1}`);
-        } else {
-          append('⚠ Мультиязычный креатив не собрался — делаю обычное видео-объявление');
-        }
+        if (creativeId) append(`✓ Мультиязычный креатив собран · языков ${restLangs.length + 1}`);
+        else append('⚠ Мультиязычный креатив не собрался — делаю обычное видео-объявление');
       }
       if (!creativeId) {
         // Обычное видео-объявление из дефолтного варианта.
@@ -1006,11 +1035,10 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           instagramActorId: igActor || undefined,
         }, net));
         if (!creativeId) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
-        await sleep(200);
-        const adId = await mkAd(campaignName, adsetId, creativeId);
-        created = 1;
-        append(`✓ Видео-объявление: ${adId}`);
       }
+      await sleep(200);
+      // Один готовый креатив раскладываем по структуре (1-1-2 / 1-2-1 / 1-1-1).
+      created = await placeVideoAds(creativeId);
     } else {
       // Структура публикации картинок:
       //  1-1-2 — 1 кампания / 1 адсет / N объявлений (бюджет общий);

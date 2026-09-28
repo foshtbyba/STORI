@@ -23,6 +23,8 @@ type VideoDraft = {
   fbPixelKey: string; fbPixelNum: string; mode: Mode; startLocal: string;
   withLanguages: boolean;
   video: File | null;
+  structure: string; // 1-1-1 | 1-2-1 | 1-1-2 — как раскладываем ролик
+  count: number;     // сколько объявлений/адсетов/кампаний создать из ролика
 };
 
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -96,6 +98,9 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
   const [startLocal, setStartLocal] = useState('');
   const [withLanguages, setWithLanguages] = useState(languages.length > 0);
   const [video, setVideo] = useState<File | null>(null);
+  // Структура публикации ролика + сколько копий (наполнить гео одним заливом).
+  const [structure, setStructure] = useState('1-1-2');
+  const [count, setCount] = useState(1);
   const [msg, setMsg] = useState('');
   const [journalKey, setJournalKey] = useState(0);
   const [queue, setQueue] = useState<VideoDraft[]>([]);
@@ -269,6 +274,8 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
       fbPixelKey: (fbPixelKey.trim() || 'fb_pixel'), fbPixelNum: fbPixelNum.trim(), mode, startLocal,
       withLanguages,
       video,
+      structure,
+      count,
     }));
     setQueue((q) => [...q, ...drafts]);
     setVideo(null);
@@ -317,6 +324,8 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
         const tags = `ad_id={{ad.id}}&fbpx={{pixel}}&${d.fbPixelKey || 'fb_pixel'}=${d.fbPixelNum}&account_id={{account.id}}&campaign_id={{campaign.id}}`;
         fd.set('urlTags', tags);
         fd.set('mode', d.mode);
+        fd.set('structure', d.structure || '1-1-2');
+        fd.set('count', String(d.count || 1));
         if (d.withLanguages) fd.set('withLanguages', '1');
         if (d.mode === 'midnight') fd.set('startAt', nextMoscowMidnight());
         if (d.mode === 'scheduled' && d.startLocal) fd.set('startAt', new Date(d.startLocal).toISOString());
@@ -451,6 +460,32 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
         {withLanguages && languages.length ? (
           <p className="mt-2 text-[11px] text-dim">Слои: дефолт — первый язык пака (нетипичный для гео), затем остальные языки пака, а ПОСЛЕДНИМ — целевой ролик на языке гео (по шаблону) с его текстом/ссылкой. Языки без видео пропустятся.</p>
         ) : null}
+
+        {/* Структура публикации ролика — наполнить гео одним заливом. */}
+        <div className="mt-3 border-t border-line pt-3">
+          <div className="lab mb-1.5">Как раскладываем ролик</div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {(['1-1-1', '1-2-1', '1-1-2'] as const).map((val) => (
+              <button key={val} type="button" onClick={() => setStructure(val)} className={`n rounded-full border px-4 py-1.5 text-[12px] font-medium transition ${structure === val ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-soft hover:border-sage'}`}>
+                {val}
+              </button>
+            ))}
+            <span className="ml-2 flex items-center gap-1.5 text-[12px] text-mute">
+              копий
+              <input type="number" min={1} max={10} value={count} onChange={(e) => setCount(Math.max(1, Math.min(10, Math.round(Number(e.target.value) || 1))))} className="n h-8 w-16 rounded-lg border border-line2 bg-sub px-2 text-center text-[12.5px] text-soft outline-none focus:border-sage" />
+            </span>
+          </div>
+          <p className="mt-1.5 text-[11px] text-dim">
+            {count <= 1
+              ? 'Одно объявление (как обычно). Поставь копий > 1, чтобы одним заливом сделать несколько.'
+              : structure === '1-1-2'
+                ? `1 кампания / 1 адсет / ${count} объявлений — общий бюджет адсета делится между ними.`
+                : structure === '1-2-1'
+                  ? `1 кампания / ${count} адсетов (каждый со своим бюджетом) / по объявлению — ${count}× расход.`
+                  : `${count} кампаний, у каждой свой адсет и объявление (свой бюджет) — ${count}× расход.`}
+            {' '}Ролик грузится один раз, дальше копируется готовый креатив.
+          </p>
+        </div>
       </div>
       </div>
 

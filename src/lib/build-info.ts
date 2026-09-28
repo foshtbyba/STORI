@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'ig-identity-fallback · 28.09 17:16';
+export const BUILD_INFO = 'video-structure-bid-dupe · 28.09 17:22';

@@ -5,7 +5,7 @@ import { after } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { requireAdmin, requireUser } from '@/lib/auth';
-import { checkToken, setAdStatus, setAdsetBudget, duplicateAd, duplicateAdset, duplicateCampaign, adCampaignId, campaignInfo, renameAd, getAdCreative, applyAdText, fbAccess, fbErrorKind, FbError, type FbNet, type AdText } from '@/lib/fb';
+import { checkToken, setAdStatus, setAdsetBudget, duplicateAd, duplicateAdset, duplicateCampaign, duplicateAdWithBid, adCampaignId, campaignInfo, renameAd, getAdCreative, applyAdText, fbAccess, fbErrorKind, FbError, type FbNet, type AdText } from '@/lib/fb';
 import { extractTokenFromCookies, readCookieBlob, cookieHeaderOf } from '@/lib/fb-engine';
 import { parseProxy, type ProxyKind } from '@/lib/proxy';
 import { checkTracker, KeitaroError } from '@/lib/keitaro';
@@ -1032,6 +1032,30 @@ export async function duplicateAction(_prev: AdActionState, form: FormData): Pro
       } catch { /* не уточнили — оставляем исходный текст */ }
     }
     return { ok: false, error: msg };
+  }
+  revalidatePath('/ads/campaigns');
+  return { ok: true };
+}
+
+/**
+ * Дубль объявления 1:1 с РУЧНОЙ ставкой за результат (cost cap). Копия 1 в 1,
+ * только новый адсет получает выбранную «ставку за результат» (в долларах из
+ * формы). Всё на паузе. `count` — сколько таких копий сделать.
+ */
+export async function duplicateWithBidAction(_prev: AdActionState, form: FormData): Promise<AdActionState> {
+  const id = String(form.get('id') ?? '');
+  const count = Math.min(20, Math.max(1, Math.round(Number(String(form.get('count') ?? '1')) || 1)));
+  const bidUsd = Number(String(form.get('bid') ?? '').replace(',', '.'));
+  if (!Number.isFinite(bidUsd) || bidUsd <= 0) return { ok: false, error: 'Укажи ставку за результат больше нуля' };
+  const ctx = await adAccessFor(id);
+  if ('error' in ctx) return { ok: false, error: ctx.error };
+  const bidCents = Math.round(bidUsd * 100);
+  try {
+    for (let i = 0; i < count; i += 1) {
+      await withFreshToken(ctx, (a, n) => duplicateAdWithBid(a, ctx.ad.adId, bidCents, n));
+    }
+  } catch (e) {
+    return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
   revalidatePath('/ads/campaigns');
   return { ok: true };

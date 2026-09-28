@@ -1006,6 +1006,36 @@ export async function duplicateAdset(token: string, adsetId: string, net: FbNet 
   return newAdsetId;
 }
 
+/**
+ * Дубль объявления 1:1 в НОВЫЙ адсет с РУЧНОЙ ставкой за результат (cost cap).
+ *
+ * Ставка в Facebook живёт на адсете, а не на объявлении, поэтому: копируем
+ * адсет-оболочку исходного объявления (без объявлений), ставим на копию ручную
+ * ставку (bid_strategy=COST_CAP + bid_amount в центах), затем переносим в неё
+ * копию этого объявления. Всё на паузе — баер проверит и включит. bidCents — в
+ * минорных единицах валюты кабинета (напр. $3.50 → 350).
+ */
+export async function duplicateAdWithBid(token: string, adId: string, bidCents: number, net: FbNet = {}): Promise<string> {
+  const info = await call(`/${adId}`, token, { fields: 'adset_id' }, net) as { adset_id?: string };
+  const adsetId = String(info.adset_id ?? '');
+  if (!adsetId) throw new FbError('Не нашёл адсет объявления для дубля со ставкой');
+
+  // Копия адсета-оболочки (без объявлений), на паузе.
+  const asB = await call(`/${adsetId}/copies`, token, { deep_copy: 'false', status_option: 'PAUSED' }, net, 'POST');
+  const newAdsetId = String((asB as { copied_adset_id?: string; id?: string }).copied_adset_id ?? (asB as { id?: string }).id ?? '');
+  if (!newAdsetId) throw new FbError('Facebook не вернул id копии адсета');
+
+  // Ручная ставка за результат на новом адсете. Если кабинет/кампания не дают
+  // сменить стратегию (напр. бюджет на кампании — CBO), FB вернёт понятную
+  // ошибку — пробрасываем её наверх, копию-адсет оставляем на паузе.
+  await call(`/${newAdsetId}`, token, { bid_strategy: 'COST_CAP', bid_amount: String(Math.round(bidCents)) }, net, 'POST');
+
+  // Переносим копию этого объявления в новый адсет.
+  await sleep(400);
+  await call(`/${adId}/copies`, token, { adset_id: newAdsetId, status_option: 'PAUSED' }, net, 'POST');
+  return newAdsetId;
+}
+
 /** Справка по кампании — имя, цель и спец-категории. Нужна, чтобы объяснить,
  *  почему копия могла не пройти (спец-категорию FB копировать не даёт). */
 export async function campaignInfo(token: string, campaignId: string, net: FbNet = {}) {
