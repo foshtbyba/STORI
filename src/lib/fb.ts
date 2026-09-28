@@ -1292,6 +1292,14 @@ export async function resolveInstagramActor(token: string, pageId: string, net: 
     if (id) return { id: String(id) };
   } catch { /* нет доступа/поля — идём дальше */ }
 
+  // Легаси-связка IG со страницей: иногда привязанный IG виден только тут, а не
+  // в instagram_business_account/connected_instagram_account.
+  try {
+    const l = await call(`/${pageId}/instagram_accounts`, token, { fields: 'id' }, net) as { data?: { id?: string }[] };
+    const id = (l.data ?? [])[0]?.id;
+    if (id) return { id: String(id) };
+  } catch { /* идём дальше */ }
+
   // Операции с page-backed IG (список/создание) ФБ обычно разрешает с ТОКЕНОМ
   // СТРАНИЦЫ. Берём его; если не дали — пробуем пользовательским.
   let pageToken = token;
