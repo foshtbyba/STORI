@@ -1130,7 +1130,7 @@ export async function listPages(token: string, net: FbNet = {}) {
     body = await call(
       '/me/accounts',
       token,
-      { fields: 'id,name,is_published,promotion_eligible,promotion_ineligible_reason', limit: '200' },
+      { fields: 'id,name,is_published,promotion_eligible,promotion_ineligible_reason,owner_business{id}', limit: '200' },
       net,
     );
   } catch {
@@ -1139,6 +1139,7 @@ export async function listPages(token: string, net: FbNet = {}) {
   const data = (body.data ?? []) as {
     id?: string; name?: string; is_published?: boolean;
     promotion_eligible?: boolean; promotion_ineligible_reason?: string;
+    owner_business?: { id?: string };
   }[];
   return data
     .filter((p) => p.id)
@@ -1149,7 +1150,18 @@ export async function listPages(token: string, net: FbNet = {}) {
       // FB отдаёт признак не всегда; трактуем только явный false как «нельзя».
       promotionEligible: p.promotion_eligible !== false,
       ineligibleReason: p.promotion_ineligible_reason || '',
+      // Бизнес-владелец страницы. Ads Manager группирует список ФП кабинета
+      // именно по нему («Shopify: … <business_id>»), так и получаем per-cabinet.
+      ownerBusinessId: p.owner_business?.id ? String(p.owner_business.id) : '',
     }));
+}
+
+/** Бизнес, которому принадлежит кабинет (для фильтра ФП по owner_business). '' — не отдал. */
+export async function getAccountBusinessId(token: string, externalId: string, net: FbNet = {}): Promise<string> {
+  try {
+    const b = await call(`/${externalId}`, token, { fields: 'business' }, net) as { business?: { id?: string } };
+    return b.business?.id ? String(b.business.id) : '';
+  } catch { return ''; }
 }
 
 export type PageInfo = { id: string; name: string; isPublished: boolean; promotionEligible: boolean; ineligibleReason: string };

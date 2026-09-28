@@ -11,6 +11,7 @@ import { logActivity } from '@/lib/activity';
 import {
   fbAccess,
   listPages,
+  getAccountBusinessId,
   listAdAccountPages,
   listAdAccountCreativePageIds,
   listPromotePages,
@@ -275,22 +276,31 @@ export type CabinetAssets = {
 async function gatherCabinetPages(
   token: string, externalId: string, net: FbNet,
 ): Promise<{ pages: AssetPage[]; debug: string }> {
-  const [globalPages, businessPages, creativePageIds, promote] = await Promise.all([
+  const [globalPages, bizId, businessPages, creativePageIds, promote] = await Promise.all([
     listPages(token, net),
+    getAccountBusinessId(token, externalId, net),
     listAdAccountPages(token, externalId, net),
     listAdAccountCreativePageIds(token, externalId, net),
     listPromotePages(token, externalId, net),
   ]);
+
+  // ГЛАВНЫЙ путь: Ads Manager группирует ФП кабинета по бизнесу-владельцу
+  // (owner_business). Фильтруем глобальные ФП по бизнесу кабинета — получаем
+  // ровно тот per-cabinet набор, что показывает Ads Manager.
+  const ownedByBiz = bizId ? globalPages.filter((p) => p.ownerBusinessId === bizId) : [];
+
   const nameOf = new Map(globalPages.map((p) => [p.id, p.name]));
   type Raw = { id: string; name: string; isPublished?: boolean; promotionEligible?: boolean; ineligibleReason?: string };
   const byId = new Map<string, Raw>();
-  for (const p of businessPages) byId.set(p.id, p);
-  for (const p of promote) if (!byId.has(p.id)) byId.set(p.id, { id: p.id, name: p.name });
-  for (const id of creativePageIds) if (!byId.has(id)) byId.set(id, { id, name: nameOf.get(id) || id });
+  for (const p of ownedByBiz) byId.set(p.id, p);       // по owner_business (точный набор)
+  for (const p of businessPages) if (!byId.has(p.id)) byId.set(p.id, p); // бизнес-эйдж, если дал
+  for (const p of promote) if (!byId.has(p.id)) byId.set(p.id, { id: p.id, name: p.name }); // подключённые
+  for (const id of creativePageIds) if (!byId.has(id)) byId.set(id, { id, name: nameOf.get(id) || id }); // из объявлений
+
   const perCab = [...byId.values()];
   const usedGlobal = perCab.length === 0;
   const pages = annotatePages(usedGlobal ? globalPages : perCab, promote);
-  const debug = `источники ФП → бизнес ${businessPages.length} · promote ${promote.length} · из объявлений ${creativePageIds.length} · глобально ${globalPages.length} ⇒ показываю ${pages.length} (${usedGlobal ? 'глобально — per-cabinet недоступен' : 'по кабинету'})`;
+  const debug = `ФП → бизнес ${bizId || '—'} · по владельцу ${ownedByBiz.length} · бизнес-эйдж ${businessPages.length} · promote ${promote.length} · из объявл. ${creativePageIds.length} · глоб. ${globalPages.length} ⇒ ${pages.length} (${usedGlobal ? 'глобально' : 'по кабинету'})`;
   return { pages, debug };
 }
 
@@ -326,18 +336,15 @@ function annotatePages(
     Number(b.valid) - Number(a.valid)
     || (Number(connected.has(b.id)) - Number(connected.has(a.id)))
     || a.name.localeCompare(b.name, 'ru'));
-  // Дедуп по ИМЕНИ: у токена бывают страницы-дубли (одно имя, разные id) —
-  // фантомы из /me/accounts. Оставляем по одной на имя, предпочитая годную/
-  // подключённую (список уже отсортирован: годные и connected — выше).
-  const seenName = new Set<string>();
-  const out: AssetPage[] = [];
-  for (const p of sorted) {
-    const key = p.name.trim().toLowerCase();
-    if (seenName.has(key)) continue;
-    seenName.add(key);
-    out.push(p);
-  }
-  return out;
+  // Дедуп ТОЛЬКО по id (страница может законно повторяться по имени — это разные
+  // ФП). Если у РАЗНЫХ страниц одно имя — оставляем обе, но дописываем хвост id,
+  // чтобы их можно было различить в выпадашке (ничего не прячем).
+  const nameCount = new Map<string, number>();
+  for (const p of sorted) { const k = p.name.trim().toLowerCase(); nameCount.set(k, (nameCount.get(k) ?? 0) + 1); }
+  return sorted.map((p) => {
+    const dup = (nameCount.get(p.name.trim().toLowerCase()) ?? 0) > 1;
+    return dup ? { ...p, name: `${p.name} · …${p.id.slice(-4)}` } : p;
+  });
 }
 
 /** Подтянуть живьём страницы (ФП) и пиксели кабинета — для выпадашек формы. */
