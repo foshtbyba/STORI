@@ -534,9 +534,11 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
   // Картинки: каждая — отдельное объявление (уникализация креативов).
   const files = form.getAll('images').filter((f): f is File => f instanceof File && f.size > 0);
-  // Видео-метод: вместо картинок — один основной ролик файлом.
-  const videoFile = form.get('video');
-  const video = videoFile instanceof File && videoFile.size > 0 ? videoFile : null;
+  // Видео-метод: вместо картинок — один или НЕСКОЛЬКО роликов файлами. Каждый
+  // ролик станет ОТДЕЛЬНЫМ объявлением (свой креатив); как их разложить по
+  // кампаниям/адсетам — задаёт структура (1-1-1 / 1-2-1 / 1-1-2).
+  const videos = form.getAll('video').filter((f): f is File => f instanceof File && f.size > 0);
+  const video = videos[0] ?? null;
   // Видео + языки: добавить доп-языки из личного пака в одно объявление.
   // Язык целевого гео определяется по шаблону (см. ниже), вручную не задаётся.
   const withLanguages = String(form.get('withLanguages') ?? '') === '1';
@@ -834,37 +836,34 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       await reportPlacements(adsetId);
       await sleep(300);
 
-      // Структура публикации ролика — чтобы одним заливом наполнить гео быстрее:
-      //  • 1-1-2 — 1 кампания / 1 адсет / N объявлений (общий бюджет адсета);
-      //  • 1-2-1 — 1 кампания / N адсетов (каждый со своим бюджетом) / по объявл.;
-      //  • 1-1-1 — N кампаний (каждая со своим бюджетом) / адсет / объявление.
-      // Ролик и креатив грузим ОДИН раз, а дальше только копируем готовый креатив
-      // в нужное число объявлений/адсетов/кампаний — это быстро.
+      // Структура публикации НЕСКОЛЬКИХ роликов — каждый ролик = отдельное
+      // объявление (свой креатив), а структура задаёт, как их разложить:
+      //  • 1-1-2 — 1 кампания / 1 адсет / по объявлению на каждый ролик;
+      //  • 1-2-1 — 1 кампания / по адсету на ролик (свой бюджет) / объявление;
+      //  • 1-1-1 — по кампании на ролик (свой бюджет) / адсет / объявление.
+      // Первое объявление идёт в уже созданные кампанию+адсет, остальные —
+      // добавляют адсеты/кампании по структуре.
       const vidStructure = String(form.get('structure') ?? '1-1-2');
-      const vidCount = Math.max(1, Math.min(10, Math.round(Number(form.get('count') ?? 1)) || 1));
-      if (vidCount > 1) append(`Структура публикации: ${vidStructure} · копий ${vidCount}`);
 
-      /** Разложить готовый видео-креатив по выбранной структуре (vidCount раз). */
-      const placeVideoAds = async (creativeId: string): Promise<number> => {
-        const total = vidCount;
-        const adId1 = await mkAd(campaignName, adsetId, creativeId);
-        append(`✓ Объявление 1/${total}: ${adId1}`);
-        for (let u = 1; u < total; u += 1) {
-          await sleep(300);
-          const nm = `${campaignName} · ${u + 1}`;
-          if (vidStructure === '1-2-1') {
-            const as = await mkAdset(campaignId, nm);
-            const aid = await mkAd(nm, as, creativeId);
-            append(`✓ Адсет+объявление ${u + 1}/${total}: ${as} / ${aid}`);
-          } else if (vidStructure === '1-1-1') {
-            const c = await mkCampaign(nm);
-            const as = await mkAdset(c, nm);
-            const aid = await mkAd(nm, as, creativeId);
-            append(`✓ Кампания+адсет+объявление ${u + 1}/${total}: ${c} / ${as} / ${aid}`);
-          } else {
-            const aid = await mkAd(nm, adsetId, creativeId); // 1-1-2
-            append(`✓ Объявление ${u + 1}/${total}: ${aid}`);
+      /** Разложить готовые видео-креативы (по одному на ролик) по структуре. */
+      const placeVideoCreatives = async (creativeIds: string[]): Promise<number> => {
+        const total = creativeIds.length;
+        for (let i = 0; i < total; i += 1) {
+          const nm = total > 1 ? `${campaignName} · ${i + 1}` : campaignName;
+          let targetAdset = adsetId; // первый ролик — в уже созданный адсет
+          if (i > 0) {
+            await sleep(300);
+            if (vidStructure === '1-2-1') {
+              targetAdset = await mkAdset(campaignId, nm);
+              append(`✓ Адсет для ролика ${i + 1}: ${targetAdset}`);
+            } else if (vidStructure === '1-1-1') {
+              const c = await mkCampaign(nm);
+              targetAdset = await mkAdset(c, nm);
+              append(`✓ Кампания+адсет для ролика ${i + 1}: ${c} / ${targetAdset}`);
+            } // 1-1-2 — тот же adsetId
           }
+          const aid = await mkAd(nm, targetAdset, creativeIds[i]);
+          append(`✓ Объявление ${i + 1}/${total}: ${aid}`);
         }
         return total;
       };
@@ -895,13 +894,20 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       // ПАРАЛЛЕЛЬНО. Раньше ждали на каждый язык по очереди (до ~2-3 мин на ролик),
       // и это складывалось в долгие минуты «висения» на одном языке. Теперь ждём
       // столько, сколько занимает самый долгий ролик.
-      let mainVideoId = '';
-      let mainThumb = '';
-      if (video) {
-        await stage('Загружаю основной ролик…');
-        const vbuf = Buffer.from(await video.arrayBuffer());
-        mainVideoId = await uploadVideo(token, ext, vbuf, video.name || 'video.mp4', net);
-        append(`✓ Основной ролик загружен: ${mainVideoId}`);
+      // Основные ролики: их может быть несколько — каждый станет отдельным
+      // объявлением. Грузим все параллельно.
+      const mainVideoIds: string[] = [];
+      const mainThumbById = new Map<string, string>();
+      if (videos.length) {
+        await stage(videos.length > 1 ? `Загружаю ролики (${videos.length}) параллельно…` : 'Загружаю основной ролик…');
+        const ups = await Promise.allSettled(videos.map(async (v) => {
+          const vbuf = Buffer.from(await v.arrayBuffer());
+          return uploadVideo(token, ext, vbuf, v.name || 'video.mp4', net);
+        }));
+        ups.forEach((r, i) => {
+          if (r.status === 'fulfilled') { mainVideoIds.push(r.value); append(`✓ Ролик ${i + 1} загружен: ${r.value}`); }
+          else append(`⚠ Ролик ${i + 1} не загрузился — пропускаю (${(r.reason as Error)?.message ?? 'ошибка'})`);
+        });
       }
 
       // Заготовки языков: грузим ролик + резолвим locale, БЕЗ ожидания обработки.
@@ -938,19 +944,25 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
       // Ждём обработки всех роликов ПАРАЛЛЕЛЬНО.
       const readyOf = new Map<string, boolean>();
-      const allIds = [...(mainVideoId ? [mainVideoId] : []), ...langUps.map((l) => l.videoId)];
+      const allIds = [...mainVideoIds, ...langUps.map((l) => l.videoId)];
       if (allIds.length) {
         await stage(`Обработка роликов на стороне FB (${allIds.length})…`);
         const waits = await Promise.allSettled(allIds.map((id) => waitVideoReady(token, id, net)));
         allIds.forEach((id, i) => readyOf.set(id, waits[i].status === 'fulfilled'));
-        if (mainVideoId && !readyOf.get(mainVideoId)) {
-          throw new FbError('FB не обработал основной ролик вовремя — повтори залив позже (ролик уже загружен)');
+        if (mainVideoIds.length && !mainVideoIds.some((id) => readyOf.get(id))) {
+          throw new FbError('FB не обработал ни один основной ролик вовремя — повтори залив позже (ролики уже загружены)');
         }
+      }
+      // Только обработанные основные ролики (в исходном порядке) — по объявлению.
+      const readyMains = mainVideoIds.filter((id) => readyOf.get(id));
+      if (mainVideoIds.length && readyMains.length < mainVideoIds.length) {
+        append(`⚠ ${mainVideoIds.length - readyMains.length} ролик(ов) FB не успел обработать — пропускаю`);
       }
 
       // Превью и сборка языковых вариантов (только для обработанных роликов).
       await stage('Собираю превью и объявление…');
-      if (mainVideoId) mainThumb = await videoThumbnailUrl(token, mainVideoId, net);
+      const mainThumbs = await Promise.all(readyMains.map((id) => videoThumbnailUrl(token, id, net)));
+      readyMains.forEach((id, i) => mainThumbById.set(id, mainThumbs[i] || ''));
       const readyLangs = langUps.filter((l) => readyOf.get(l.videoId));
       const notReady = langUps.length - readyLangs.length;
       if (notReady) append(`⚠ ${notReady} язык(ов) FB не успел обработать — пропускаю`);
@@ -979,66 +991,74 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       //    ОСНОВНЫМ роликом и всем контентом объявления (видео/текст/описание/
       //    ссылка — то, что заполнил баер в форме).
       // Если пака языков нет — обычное одно-роликовое объявление из основного.
-      let mainVar: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string; localeId: number } | null = null;
-      let restLangs: LangVariant[] = [];
-      if (langVariants.length) {
-        const chosen = langVariants[0]; // дефолт — первый (нетипичный) язык пака
-        restLangs = langVariants.slice(1); // нейтральные слои
-        mainVar = { videoId: chosen.videoId, thumb: chosen.thumb, message: chosen.message, headline: chosen.headline, description: chosen.description, link: chosen.link || link, localeId: chosen.localeId };
-        // Целевой слой (гео) — ПОСЛЕДНИМ, с основным роликом и контентом объявления.
-        // ОСНОВНОЙ ролик ВСЕГДА побеждает для языка гео: если такой язык уже есть
-        // в паке (не дефолтный) — заменяем пак-вариант основным, а не молча
-        // используем пак-версию.
-        if (mainVideoId && mainLocaleId && mainLocaleId !== chosen.localeId) {
-          const before = restLangs.length;
-          restLangs = restLangs.filter((l) => l.localeId !== mainLocaleId);
-          restLangs.push({ localeId: mainLocaleId, videoId: mainVideoId, thumb: mainThumb || undefined, message, headline: headline || undefined, description: description || undefined, link });
-          if (restLangs.length <= before) {
-            append(`Целевой слой (гео) — язык ${mainLocaleId} был в паке, заменил его ОСНОВНЫМ роликом и контентом объявления`);
-          } else {
-            append(`Целевой слой (гео, основной ролик + контент объявления) добавлен ПОСЛЕДНИМ (locale ${mainLocaleId})`);
-          }
-        } else if (mainVideoId && !mainLocaleId) {
-          append('⚠ Язык гео не определён — целевой слой (основной ролик) не добавил. Укажи язык гео/страну.');
-        } else if (mainVideoId && mainLocaleId === chosen.localeId) {
-          append('⚠ Язык гео совпал с дефолтным языком пака — целевой слой не добавил (поставь дефолтом нетипичный язык).');
+      // Дефолт-слой (первый, нетипичный язык пака) и нейтральные слои пака —
+      // ОБЩИЕ для всех роликов. Целевой слой (язык гео) у каждого ролика свой —
+      // это сам ролик с контентом объявления.
+      const packDefault = langVariants.length ? langVariants[0] : null;
+      const packNeutral = langVariants.length ? langVariants.slice(1) : [];
+
+      /** Собрать креатив под ОДИН основной ролик (мультиязычный, если есть пак). */
+      const buildCreativeForMain = async (mv: string): Promise<string> => {
+        const thumb = mainThumbById.get(mv) || undefined;
+        if (packDefault && mainLocaleId && mainLocaleId !== packDefault.localeId) {
+          // Мультиязычное: дефолт из пака + нейтральные + целевой слой (этот ролик).
+          const rest = packNeutral.filter((l) => l.localeId !== mainLocaleId);
+          rest.push({ localeId: mainLocaleId, videoId: mv, thumb, message, headline: headline || undefined, description: description || undefined, link });
+          const cid = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
+            name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
+            main: { videoId: packDefault.videoId, thumb: packDefault.thumb, message: packDefault.message, headline: packDefault.headline, description: packDefault.description, link: packDefault.link || link },
+            mainLocaleId,
+            langs: rest,
+            instagramActorId: igActor || undefined,
+          }, net));
+          if (cid) return cid;
+          append('⚠ Мультиязычный креатив не собрался — делаю обычное видео-объявление');
         }
-        append(`Дефолт — первый язык пака (locale ${chosen.localeId}); языковых слоёв всего: ${restLangs.length + 1}`);
-      } else if (mainVideoId) {
-        // Пака языков нет — обычное одно-роликовое объявление из основного ролика.
-        mainVar = { videoId: mainVideoId, thumb: mainThumb || undefined, message, headline: headline || undefined, description: description || undefined, link, localeId: mainLocaleId };
-      }
+        // Обычное одно-роликовое объявление.
+        const cid = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
+          name: campaignName, pageId, videoId: mv, message, link, cta,
+          urlTags: urlTags || undefined, headline: headline || undefined,
+          description: description || undefined, imageUrl: thumb, optOutKeys: optOut,
+          instagramActorId: igActor || undefined,
+        }, net));
+        if (!cid) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
+        return cid;
+      };
 
-      if (!mainVar) throw new FbError('Нет ни основного ролика, ни языков с видео — нечего заливать');
-
-      await stage('Собираю объявление…');
-      let creativeId = '';
-      if (restLangs.length && mainVar.localeId) {
-        // Мультиязычное объявление: дефолт (mainVar) + остальные языки.
-        creativeId = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
+      await stage('Собираю объявления…');
+      const creativeIds: string[] = [];
+      if (readyMains.length) {
+        if (packDefault && mainLocaleId) append(`Слои на каждый ролик: дефолт (locale ${packDefault.localeId}) + пак (${packNeutral.length}) + целевой ролик (locale ${mainLocaleId})`);
+        else if (mainLocaleId) append('Язык гео определён, но пак пуст — заливаю ролики как одно-язычные объявления');
+        for (const mv of readyMains) {
+          creativeIds.push(await buildCreativeForMain(mv));
+          await sleep(200);
+        }
+      } else if (packDefault) {
+        // Роликов нет — режим «только языки»: одно объявление из пака (как раньше).
+        let cid = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
           name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
-          main: { videoId: mainVar!.videoId, thumb: mainVar!.thumb, message: mainVar!.message, headline: mainVar!.headline, description: mainVar!.description, link: mainVar!.link },
-          mainLocaleId: mainVar.localeId,
-          langs: restLangs,
+          main: { videoId: packDefault.videoId, thumb: packDefault.thumb, message: packDefault.message, headline: packDefault.headline, description: packDefault.description, link: packDefault.link || link },
+          mainLocaleId: packDefault.localeId,
+          langs: packNeutral,
           instagramActorId: igActor || undefined,
         }, net));
-        if (creativeId) append(`✓ Мультиязычный креатив собран · языков ${restLangs.length + 1}`);
-        else append('⚠ Мультиязычный креатив не собрался — делаю обычное видео-объявление');
+        if (!cid) {
+          cid = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
+            name: campaignName, pageId, videoId: packDefault.videoId, message: packDefault.message, link: packDefault.link || link, cta,
+            urlTags: urlTags || undefined, headline: packDefault.headline, description: packDefault.description, imageUrl: packDefault.thumb, optOutKeys: optOut,
+            instagramActorId: igActor || undefined,
+          }, net));
+        }
+        if (!cid) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
+        creativeIds.push(cid);
       }
-      if (!creativeId) {
-        // Обычное видео-объявление из дефолтного варианта.
-        if (wantLanguages && !restLangs.length) append('Языков для кастомизации не набралось — заливаю один ролик');
-        creativeId = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
-          name: campaignName, pageId, videoId: mainVar!.videoId, message: mainVar!.message, link: mainVar!.link, cta,
-          urlTags: urlTags || undefined, headline: mainVar!.headline,
-          description: mainVar!.description, imageUrl: mainVar!.thumb, optOutKeys: optOut,
-          instagramActorId: igActor || undefined,
-        }, net));
-        if (!creativeId) throw new FbError('Видео-креатив не создан (после подрезки ключей улучшений)');
-      }
+
+      if (!creativeIds.length) throw new FbError('Нет ни роликов, ни языков с видео — нечего заливать');
+
       await sleep(200);
-      // Один готовый креатив раскладываем по структуре (1-1-2 / 1-2-1 / 1-1-1).
-      created = await placeVideoAds(creativeId);
+      // Готовые креативы (по одному на ролик) раскладываем по структуре.
+      created = await placeVideoCreatives(creativeIds);
     } else {
       // Структура публикации картинок:
       //  1-1-2 — 1 кампания / 1 адсет / N объявлений (бюджет общий);

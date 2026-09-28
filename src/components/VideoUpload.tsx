@@ -22,9 +22,8 @@ type VideoDraft = {
   message: string; headline: string; description: string;
   fbPixelKey: string; fbPixelNum: string; mode: Mode; startLocal: string;
   withLanguages: boolean;
-  video: File | null;
-  structure: string; // 1-1-1 | 1-2-1 | 1-1-2 — как раскладываем ролик
-  count: number;     // сколько объявлений/адсетов/кампаний создать из ролика
+  videos: File[];    // один или несколько роликов — каждый станет объявлением
+  structure: string; // 1-1-1 | 1-2-1 | 1-1-2 — как раскладываем ролики
 };
 
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -97,10 +96,9 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
   const [mode, setMode] = useState<Mode>('paused');
   const [startLocal, setStartLocal] = useState('');
   const [withLanguages, setWithLanguages] = useState(languages.length > 0);
-  const [video, setVideo] = useState<File | null>(null);
-  // Структура публикации ролика + сколько копий (наполнить гео одним заливом).
+  const [videos, setVideos] = useState<File[]>([]);
+  // Структура публикации роликов (несколько роликов — одним заливом на гео).
   const [structure, setStructure] = useState('1-1-2');
-  const [count, setCount] = useState(1);
   const [msg, setMsg] = useState('');
   const [journalKey, setJournalKey] = useState(0);
   const [queue, setQueue] = useState<VideoDraft[]>([]);
@@ -241,7 +239,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
   const validate = (): string | null => {
     if (selectedList.length === 0) return 'Выбери хотя бы один кабинет';
     if (!templateId) return 'Выбери шаблон гео';
-    if (!video && !mainOptional) return 'Добавь ролик (видеофайл) или включи языки с видео';
+    if (videos.length === 0 && !mainOptional) return 'Добавь хотя бы один ролик (видеофайл) или включи языки с видео';
     if (!/^https?:\/\//i.test(link.trim())) return 'Ссылка должна начинаться с http(s)://';
     if (!message.trim()) return 'Текст объявления пустой';
     if (!fbPixelNum.trim()) return 'Впиши число fb_pixel';
@@ -273,12 +271,11 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
       message: message.trim(), headline: headline.trim(), description: description.trim(),
       fbPixelKey: (fbPixelKey.trim() || 'fb_pixel'), fbPixelNum: fbPixelNum.trim(), mode, startLocal,
       withLanguages,
-      video,
+      videos,
       structure,
-      count,
     }));
     setQueue((q) => [...q, ...drafts]);
-    setVideo(null);
+    setVideos([]);
     if (fileRef.current) fileRef.current.value = '';
     setCampaignName(''); setLink(''); setMessage(''); setHeadline(''); setDescription('');
     setFbPixelNum(''); // число меняется часто — чистим; ключ (fbPixelKey) оставляем.
@@ -325,11 +322,10 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
         fd.set('urlTags', tags);
         fd.set('mode', d.mode);
         fd.set('structure', d.structure || '1-1-2');
-        fd.set('count', String(d.count || 1));
         if (d.withLanguages) fd.set('withLanguages', '1');
         if (d.mode === 'midnight') fd.set('startAt', nextMoscowMidnight());
         if (d.mode === 'scheduled' && d.startLocal) fd.set('startAt', new Date(d.startLocal).toISOString());
-        if (d.video) fd.set('video', d.video);
+        for (const v of d.videos) fd.append('video', v);
         await startUpload(fd);
       }
       const n = queue.length;
@@ -425,18 +421,27 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
         <div className="flex items-center gap-2.5">
           <span className={stepBadge}>2</span>
           <span className="text-[13px] font-semibold">Ролик и языки</span>
-          {video ? <span className="ml-auto text-[12px] text-sage">1 ролик</span> : null}
+          {videos.length ? <span className="ml-auto text-[12px] text-sage">{videos.length} ролик(ов)</span> : null}
         </div>
         <div className="mt-3 grid gap-3">
           <div>
-            <div className="lab mb-1">Ролик (видеофайл) {mainOptional ? <span className="text-dim">— целевой, на языке гео (станет последним слоем)</span> : <span className="text-amber">— обязателен</span>}</div>
-            <input ref={fileRef} type="file" accept="video/*" onChange={(e) => setVideo(e.target.files?.[0] ?? null)} className="block w-fit max-w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
-            {video ? (
-              <p className="mt-1 text-[11px] text-sage">{video.name} · {(video.size / 1024 / 1024).toFixed(1)} МБ</p>
-            ) : mainOptional ? (
-              <p className="mt-1 text-[11px] text-dim">Это ЦЕЛЕВОЙ ролик на языке гео (язык определится по шаблону: BG → болгарский). Он добавится ПОСЛЕДНИМ слоем с этим текстом/ссылкой. Дефолтом станет первый язык из пака. Не приложишь — целевого слоя не будет, зальются только языки пака.</p>
+            <div className="lab mb-1">Ролики (видеофайлы) {mainOptional ? <span className="text-dim">— целевые, на языке гео; каждый = своё объявление</span> : <span className="text-amber">— хотя бы один</span>}</div>
+            <input ref={fileRef} type="file" accept="video/*" multiple onChange={(e) => { setVideos((prev) => [...prev, ...Array.from(e.target.files ?? [])]); if (fileRef.current) fileRef.current.value = ''; }} className="block w-fit max-w-full text-[12px] text-soft file:mr-3 file:rounded-full file:border file:border-line2 file:bg-sub file:px-4 file:py-1.5 file:text-[12px] file:text-soft hover:file:border-sage" />
+            {videos.length ? (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {videos.map((f, i) => (
+                  <span key={`${f.name}${i}`} className="flex items-center gap-1.5 rounded-full border border-line bg-sub px-2.5 py-1 text-[11px] text-soft">
+                    <span className="max-w-[160px] truncate">🎬 {f.name}</span>
+                    <span className="text-dim">{(f.size / 1024 / 1024).toFixed(1)} МБ</span>
+                    <button type="button" onClick={() => setVideos((prev) => prev.filter((_, j) => j !== i))} className="text-mute transition hover:text-rust">×</button>
+                  </span>
+                ))}
+              </div>
+            ) : null}
+            {mainOptional ? (
+              <p className="mt-1.5 text-[11px] text-dim">Это ЦЕЛЕВЫЕ ролики на языке гео (язык определится по шаблону: BG → болгарский). Каждый ролик станет отдельным объявлением; в мультиязычном режиме он идёт ПОСЛЕДНИМ слоем с этим текстом/ссылкой, дефолтом — первый язык пака. Не приложишь ни одного — зальются только языки пака (одно объявление).</p>
             ) : (
-              <p className="mt-1 text-[11px] text-dim">Целевой креатив обязателен — без ролика (или языков с видео) залить не получится.</p>
+              <p className="mt-1.5 text-[11px] text-dim">Нужен хотя бы один ролик (или языки с видео). Несколько роликов = несколько объявлений за один залив — как разложить, ниже.</p>
             )}
           </div>
         </div>
@@ -463,27 +468,23 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
 
         {/* Структура публикации ролика — наполнить гео одним заливом. */}
         <div className="mt-3 border-t border-line pt-3">
-          <div className="lab mb-1.5">Как раскладываем ролик</div>
+          <div className="lab mb-1.5">Как раскладываем ролики</div>
           <div className="flex flex-wrap items-center gap-1.5">
             {(['1-1-1', '1-2-1', '1-1-2'] as const).map((val) => (
               <button key={val} type="button" onClick={() => setStructure(val)} className={`n rounded-full border px-4 py-1.5 text-[12px] font-medium transition ${structure === val ? 'border-sage bg-sage-t text-sage' : 'border-line2 bg-sub text-soft hover:border-sage'}`}>
                 {val}
               </button>
             ))}
-            <span className="ml-2 flex items-center gap-1.5 text-[12px] text-mute">
-              копий
-              <input type="number" min={1} max={10} value={count} onChange={(e) => setCount(Math.max(1, Math.min(10, Math.round(Number(e.target.value) || 1))))} className="n h-8 w-16 rounded-lg border border-line2 bg-sub px-2 text-center text-[12.5px] text-soft outline-none focus:border-sage" />
-            </span>
           </div>
           <p className="mt-1.5 text-[11px] text-dim">
-            {count <= 1
-              ? 'Одно объявление (как обычно). Поставь копий > 1, чтобы одним заливом сделать несколько.'
+            {videos.length <= 1
+              ? 'Один ролик — одно объявление. Догрузи ещё ролики выше, чтобы одним заливом сделать несколько (каждый ролик = своё объявление).'
               : structure === '1-1-2'
-                ? `1 кампания / 1 адсет / ${count} объявлений — общий бюджет адсета делится между ними.`
+                ? `1 кампания / 1 адсет / ${videos.length} объявлений (по ролику) — общий бюджет адсета.`
                 : structure === '1-2-1'
-                  ? `1 кампания / ${count} адсетов (каждый со своим бюджетом) / по объявлению — ${count}× расход.`
-                  : `${count} кампаний, у каждой свой адсет и объявление (свой бюджет) — ${count}× расход.`}
-            {' '}Ролик грузится один раз, дальше копируется готовый креатив.
+                  ? `1 кампания / ${videos.length} адсетов (по ролику, свой бюджет) — ${videos.length}× расход.`
+                  : `${videos.length} кампаний (по ролику, свой бюджет) — ${videos.length}× расход.`}
+            {' '}Каждый ролик грузится и становится отдельным объявлением.
           </p>
         </div>
       </div>
@@ -614,7 +615,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
                 <span className="shrink-0 text-[11px] text-mute">{d.mode === 'paused' ? 'на паузе' : d.mode === 'active' ? 'в актив' : d.mode === 'midnight' ? 'с 00:00 МСК' : 'по расписанию'}</span>
                 <button type="button" onClick={() => setQueue((q) => q.filter((x) => x.id !== d.id))} className="shrink-0 rounded-full border border-line2 px-2.5 py-1 text-[11px] text-mute transition hover:border-rust hover:text-rust">убрать</button>
               </div>
-              <div className="mt-1.5 text-[11px] text-dim">{d.tplName || 'шаблон?'} · 🎬 {d.video ? `${d.video.name} · ${(d.video.size / 1024 / 1024).toFixed(1)} МБ` : 'ролики из пака языков'}{d.withLanguages ? ' · +языки' : ''}{d.budget ? ` · $${d.budget}/д` : ''}</div>
+              <div className="mt-1.5 text-[11px] text-dim">{d.tplName || 'шаблон?'} · 🎬 {d.videos.length ? `${d.videos.length} ролик(ов) · ${d.structure}` : 'ролики из пака языков'}{d.withLanguages ? ' · +языки' : ''}{d.budget ? ` · $${d.budget}/д` : ''}</div>
             </div>
           ))}
         </div>

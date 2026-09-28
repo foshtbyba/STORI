@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'video-structure-bid-dupe · 28.09 17:22';
+export const BUILD_INFO = 'video-multi-structure · 28.09 17:45';
