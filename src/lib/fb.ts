@@ -1489,6 +1489,35 @@ export async function getAdsetPlacements(
 }
 
 /**
+ * Убрать из адсета плейсменты Instagram и Threads. Нужно как само-хил, когда у
+ * объявления нет IG-идентичности и FB отбивает ad кодом 100/1772103 «Select an
+ * Instagram account or Facebook Page…»: читаем таргетинг, вырезаем instagram/
+ * threads из publisher_platforms и *_positions, пишем обратно. true — изменили и
+ * обновили; false — менять было нечего либо не вышло.
+ */
+export async function stripAdsetInstagram(token: string, adsetId: string, net: FbNet = {}): Promise<boolean> {
+  try {
+    const body = await call(`/${adsetId}`, token, { fields: 'targeting' }, net, 'GET');
+    const t = (body as { targeting?: Record<string, unknown> }).targeting;
+    if (!t || typeof t !== 'object') return false;
+    const tg = { ...(t as Record<string, unknown>) };
+    let changed = false;
+    if (Array.isArray(tg.publisher_platforms)) {
+      const kept = (tg.publisher_platforms as string[]).filter((p) => p !== 'instagram' && p !== 'threads');
+      if (kept.length !== (tg.publisher_platforms as string[]).length) { tg.publisher_platforms = kept; changed = true; }
+    }
+    for (const k of ['instagram_positions', 'threads_positions']) {
+      if (tg[k] !== undefined) { delete tg[k]; changed = true; }
+    }
+    if (!changed) return false;
+    await call(`/${adsetId}`, token, { targeting: JSON.stringify(tg) }, net, 'POST');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Загрузка картинки в кабинет → image_hash. FB принимает base64 в параметре
  * `bytes`, но он большой, поэтому шлём его ТЕЛОМ POST (form-urlencoded), а не в
  * query. Возвращаем hash для креатива.

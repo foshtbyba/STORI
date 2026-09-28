@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { validPlacementKeys, placementSummary, stripPlacementValue, stripInstagramFamily } from '@/lib/placements';
+import { validPlacementKeys, placementSummary, stripPlacementValue } from '@/lib/placements';
 import { isLocale, localeName, geoDefaultLocale } from '@/lib/locales';
 import { logActivity } from '@/lib/activity';
 import {
@@ -22,6 +22,7 @@ import {
   createAd,
   setAdStatus,
   getAdsetPlacements,
+  stripAdsetInstagram,
   searchRegions,
   searchCities,
   getPageName,
@@ -751,21 +752,14 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     const igRes = await resolveInstagramActor(token, pageId, net);
     const igActor = igRes.id;
     if (igActor) append(`Instagram: явная IG-идентичность (page-backed IG ${igActor})`);
-    else append(`Instagram: IG-идентичность создать не удалось${igRes.error ? ` (${igRes.error})` : ''}`);
+    else append(`Instagram: явной IG-идентичности нет${igRes.error ? ` (${igRes.error})` : ''} — оставляю IG/Threads, FB сам подставит страницу; если отобьёт (1772103) — сниму их только тогда`);
 
-    // Плейсменты берём ИЗ ШАБЛОНА как есть (FB лента, IG лента, Threads лента и
-    // т.д.). Но если IG-идентичность получить НЕ удалось, оставлять IG/Threads
-    // площадки нельзя: ФБ отобьёт всё объявление кодом 1772103 «Select an
-    // Instagram account…». В этом случае снимаем IG/Threads заранее и льём на
-    // Facebook — успешная заливка на FB-площадках лучше полного провала.
+    // Плейсменты берём ИЗ ШАБЛОНА КАК ЕСТЬ (FB лента, IG лента, Threads лента и
+    // т.д.) — НИЧЕГО не срезаем заранее. IG/Threads часто работают и без явной
+    // IG-идентичности (FB представляет бизнес Страницей — как в Ads Manager).
+    // Если конкретное объявление FB всё же отобьёт кодом 1772103, IG/Threads
+    // снимет само-хил в mkAd по факту ошибки (а не наугад до залива).
     let placements = tpl.placements ? validPlacementKeys(tpl.placements.split(',')) : [];
-    if (!igActor && placements.length) {
-      const kept = stripInstagramFamily(placements);
-      if (kept.length !== placements.length) {
-        placements = kept.length ? kept : ['fb_feed'];
-        append(`Без IG-идентичности убрал IG/Threads плейсменты — оставил только Facebook (${placements.length}), чтобы объявление не отбилось по 1772103.`);
-      }
-    }
     let campaignId = ''; // первая созданная кампания — для finish (campaignFbId)
     // Все созданные объекты — чтобы после залива при телефон-гейте попробовать
     // включить их в актив обновлением статуса (как включают руками).
@@ -850,17 +844,37 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // верифицированный номер — поэтому объявление создаём НА ПАУЗЕ, а не роняем
     // весь залив: номер подтверждён — баер включит объявление вручную.
     const mkAd = async (name: string, adsetIdArg: string, creativeId: string): Promise<string> => {
-      try {
-        const aid = await createAd(token, ext, { name, adsetId: adsetIdArg, creativeId, status: effectiveStatus }, net);
-        createdAds.push(aid);
-        return aid;
-      } catch (e) {
-        if (isPhoneError(e) && effectiveStatus === 'ACTIVE') {
-          effectiveStatus = 'PAUSED'; phoneForced = true;
-          append('⚠ Телефон-гейт на создании — объявление создаю НА ПАУЗЕ, ниже попробую включить в актив (обычно номер не нужен)');
-          const aid = await createAd(token, ext, { name, adsetId: adsetIdArg, creativeId, status: 'PAUSED' }, net);
+      // Создание с телефон-само-хилом (ACTIVE → PAUSED на телефон-гейте).
+      const create = async (): Promise<string> => {
+        try {
+          const aid = await createAd(token, ext, { name, adsetId: adsetIdArg, creativeId, status: effectiveStatus }, net);
           createdAds.push(aid);
           return aid;
+        } catch (e) {
+          if (isPhoneError(e) && effectiveStatus === 'ACTIVE') {
+            effectiveStatus = 'PAUSED'; phoneForced = true;
+            append('⚠ Телефон-гейт на создании — объявление создаю НА ПАУЗЕ, ниже попробую включить в актив (обычно номер не нужен)');
+            const aid = await createAd(token, ext, { name, adsetId: adsetIdArg, creativeId, status: 'PAUSED' }, net);
+            createdAds.push(aid);
+            return aid;
+          }
+          throw e;
+        }
+      };
+      try {
+        return await create();
+      } catch (e) {
+        // Нет IG-идентичности (код 1772103): FB не даёт IG/Threads. Снимаем их с
+        // адсета ПО ФАКТУ ошибки (а не наугад до залива) и повторяем — так IG/
+        // Threads остаются везде, где кабинет их принимает.
+        const msg = e instanceof Error ? e.message : String(e);
+        if (/1772103|instagram account or facebook page/i.test(msg)) {
+          const stripped = await stripAdsetInstagram(token, adsetIdArg, net);
+          if (stripped) {
+            append('⚠ FB не принял IG/Threads без IG-аккаунта (1772103) — снял их с адсета и повторяю объявление на Facebook.');
+            await sleep(400);
+            return await create();
+          }
         }
         throw e;
       }
