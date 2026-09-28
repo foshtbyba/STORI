@@ -1178,30 +1178,41 @@ function mapPageRow(p: {
  * глобальный список).
  */
 export async function listAdAccountPages(token: string, externalId: string, net: FbNet = {}): Promise<PageInfo[]> {
+  const out = new Map<string, PageInfo>();
+  const add = (rows?: Record<string, unknown>[]) => {
+    for (const p of rows ?? []) if (p?.id) out.set(String(p.id), mapPageRow(p));
+  };
+  const PF = 'id,name,is_published,promotion_eligible,promotion_ineligible_reason';
+
+  // 1. РАСКРЫТИЕ поля business прямо на кабинете. Часто проходит там, где прямой
+  //    эйдж /{business}/owned_pages отдаёт #10: права на nested-раскрытие мягче.
+  try {
+    const b = await call(`/${externalId}`, token,
+      { fields: `business{owned_pages.limit(200){${PF}},client_pages.limit(200){${PF}}}` }, net) as
+      { business?: { owned_pages?: { data?: Record<string, unknown>[] }; client_pages?: { data?: Record<string, unknown>[] } } };
+    add(b.business?.owned_pages?.data);
+    add(b.business?.client_pages?.data);
+  } catch { /* раскрытие не дали — пробуем прямые эйджи */ }
+  if (out.size) return [...out.values()];
+
+  // 2. Фолбэк: прямые эйджи бизнеса.
   let businessId = '';
   try {
     const b = await call(`/${externalId}`, token, { fields: 'business' }, net) as { business?: { id?: string } };
     if (b.business?.id) businessId = String(b.business.id);
-  } catch { /* нет доступа к бизнесу — вернём пусто, будет фолбэк */ }
+  } catch { /* нет доступа к бизнесу */ }
   if (!businessId) return [];
-
-  const out = new Map<string, PageInfo>();
   const pull = async (edge: string) => {
-    let data: Record<string, unknown>[] = [];
     try {
-      const body = await call(`/${businessId}/${edge}`, token,
-        { fields: 'id,name,is_published,promotion_eligible,promotion_ineligible_reason', limit: '200' }, net);
-      data = (body.data ?? []) as Record<string, unknown>[];
+      const body = await call(`/${businessId}/${edge}`, token, { fields: PF, limit: '200' }, net);
+      add((body.data ?? []) as Record<string, unknown>[]);
     } catch {
-      // Расширенные поля токену не дали — базовые (без пометки «нельзя рекламировать»).
       try {
         const body = await call(`/${businessId}/${edge}`, token, { fields: 'id,name,is_published', limit: '200' }, net);
-        data = (body.data ?? []) as Record<string, unknown>[];
-      } catch { data = []; }
+        add((body.data ?? []) as Record<string, unknown>[]);
+      } catch { /* пусто */ }
     }
-    for (const p of data) if (p.id) out.set(String(p.id), mapPageRow(p));
   };
-  // owned_pages — страницы самого бизнеса; client_pages — переданные ему клиентами.
   await pull('owned_pages');
   await pull('client_pages');
   return [...out.values()];
