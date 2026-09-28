@@ -274,8 +274,23 @@ export type CabinetAssets = {
  * источников нет (свежий каб / #10 на бизнес) — откат на глобальный /me/accounts.
  */
 async function gatherCabinetPages(
-  token: string, externalId: string, net: FbNet,
+  token: string, externalId: string, net: FbNet, agency: boolean,
 ): Promise<{ pages: AssetPage[]; debug: string }> {
+  // ОБЫЧНЫЙ аккаунт (не агентский): как было — общий список ФП токена с
+  // пометками «забанено/не опубликована», без фильтра по бизнесу. Портфель
+  // owner_business есть только у агентских кабинетов.
+  if (!agency) {
+    const [globalPages, promote] = await Promise.all([
+      listPages(token, net),
+      listPromotePages(token, externalId, net),
+    ]);
+    const pages = annotatePages(globalPages, promote);
+    return { pages, debug: `обычный аккаунт — общий список токена ${globalPages.length} ⇒ ${pages.length}` };
+  }
+
+  // АГЕНТСКИЙ кабинет: Ads Manager группирует ФП по бизнесу-владельцу
+  // (owner_business). Фильтруем глобальные ФП по бизнесу кабинета — получаем
+  // ровно тот per-cabinet набор, что показывает Ads Manager.
   const [globalPages, bizId, businessPages, creativePageIds, promote] = await Promise.all([
     listPages(token, net),
     getAccountBusinessId(token, externalId, net),
@@ -283,10 +298,6 @@ async function gatherCabinetPages(
     listAdAccountCreativePageIds(token, externalId, net),
     listPromotePages(token, externalId, net),
   ]);
-
-  // ГЛАВНЫЙ путь: Ads Manager группирует ФП кабинета по бизнесу-владельцу
-  // (owner_business). Фильтруем глобальные ФП по бизнесу кабинета — получаем
-  // ровно тот per-cabinet набор, что показывает Ads Manager.
   const ownedByBiz = bizId ? globalPages.filter((p) => p.ownerBusinessId === bizId) : [];
 
   const nameOf = new Map(globalPages.map((p) => [p.id, p.name]));
@@ -300,7 +311,7 @@ async function gatherCabinetPages(
   const perCab = [...byId.values()];
   const usedGlobal = perCab.length === 0;
   const pages = annotatePages(usedGlobal ? globalPages : perCab, promote);
-  const debug = `ФП → бизнес ${bizId || '—'} · по владельцу ${ownedByBiz.length} · бизнес-эйдж ${businessPages.length} · promote ${promote.length} · из объявл. ${creativePageIds.length} · глоб. ${globalPages.length} ⇒ ${pages.length} (${usedGlobal ? 'глобально' : 'по кабинету'})`;
+  const debug = `агентский · бизнес ${bizId || '—'} · по владельцу ${ownedByBiz.length} · бизнес-эйдж ${businessPages.length} · promote ${promote.length} · из объявл. ${creativePageIds.length} · глоб. ${globalPages.length} ⇒ ${pages.length} (${usedGlobal ? 'глобально' : 'по кабинету'})`;
   return { pages, debug };
 }
 
@@ -353,7 +364,7 @@ export async function loadCabinetAssets(accountId: string): Promise<CabinetAsset
   if ('error' in ctx) return { ok: false, error: ctx.error };
   try {
     const [{ pages, debug }, pixels] = await Promise.all([
-      gatherCabinetPages(ctx.token, ctx.acc.externalId, ctx.net),
+      gatherCabinetPages(ctx.token, ctx.acc.externalId, ctx.net, ctx.acc.agency),
       listPixels(ctx.token, ctx.acc.externalId, ctx.net),
     ]);
     return { ok: true, pages, pixels, pagesDebug: debug };
@@ -387,7 +398,7 @@ export async function makePage(accountId: string, name: string): Promise<Cabinet
   if (!clean) return { ok: false, error: 'Впиши имя новой страницы' };
   try {
     const createdId = await createPage(ctx.token, clean, 'BRAND', ctx.net);
-    const { pages, debug } = await gatherCabinetPages(ctx.token, ctx.acc.externalId, ctx.net);
+    const { pages, debug } = await gatherCabinetPages(ctx.token, ctx.acc.externalId, ctx.net, ctx.acc.agency);
     return { ok: true, pages, createdId, pagesDebug: debug };
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
