@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { validPlacementKeys, placementSummary, stripPlacementValue } from '@/lib/placements';
+import { validPlacementKeys, placementSummary, stripPlacementValue, stripInstagramFamily } from '@/lib/placements';
 import { isLocale, localeName, geoDefaultLocale } from '@/lib/locales';
 import { logActivity } from '@/lib/activity';
 import {
@@ -24,7 +24,6 @@ import {
   setAdStatus,
   getAdsetPlacements,
   stripAdsetInstagram,
-  setAdsetAutoPlacements,
   searchRegions,
   searchCities,
   getPageName,
@@ -777,15 +776,27 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     append(`DSA: продвигается/платит — ${dsaBeneficiary}`);
     const igRes = await resolveInstagramActor(token, pageId, net, ctx.acc.externalId);
     const igActor = igRes.id;
-    if (igActor) append(`Instagram: явная IG-идентичность (page-backed IG ${igActor})`);
-    else append(`Instagram: явной IG-идентичности нет${igRes.error ? ` (${igRes.error})` : ''} — оставляю IG/Threads, FB сам подставит страницу; если отобьёт (1772103) — сниму их только тогда`);
+    // Жёсткий признак «IG кабинету недоступен»: токену не хватает прав на IG
+    // (#10 Permission Denied) — ни через кабинет, ни через Страницу IG-аккаунт не
+    // получить и не создать. Тогда IG/Threads НЕ пройдут никак: даже
+    // автоплейсменты (Advantage+) включают Instagram и требуют идентичность.
+    // Поэтому режем IG/Threads СРАЗУ — без заведомо неудачных попыток на адсетах.
+    const igHardDenied = !igActor && /#?10\b|код 10|Permission Denied|no_permission/i.test(igRes.error || '');
 
-    // Плейсменты берём ИЗ ШАБЛОНА КАК ЕСТЬ (FB лента, IG лента, Threads лента и
-    // т.д.) — НИЧЕГО не срезаем заранее. IG/Threads часто работают и без явной
-    // IG-идентичности (FB представляет бизнес Страницей — как в Ads Manager).
-    // Если конкретное объявление FB всё же отобьёт кодом 1772103, IG/Threads
-    // снимет само-хил в mkAd по факту ошибки (а не наугад до залива).
+    // Плейсменты из шаблона. Если IG доступен (или неизвестно) — берём КАК ЕСТЬ:
+    // IG/Threads часто работают и без явной идентичности (FB представляет бизнес
+    // Страницей), а если объявление отобьёт 1772103 — их снимет само-хил в mkAd.
     let placements = tpl.placements ? validPlacementKeys(tpl.placements.split(',')) : [];
+    if (igActor) {
+      append(`Instagram: нашёл IG-идентичность кабинета (${igActor}) — IG/Threads-плейсменты пойдут как при ручном запуске`);
+    } else if (igHardDenied) {
+      const before = placements.length;
+      placements = stripInstagramFamily(placements);
+      const removed = before - placements.length;
+      append(`Instagram: кабинету недоступен — у токена нет прав на IG (${igRes.error}).${removed ? ` Убрал IG/Threads из плейсментов (${removed}) — заливаю только на Facebook.` : ' Заливаю только на Facebook.'} Чтобы вернуть IG — привяжи Instagram к кабинету/Странице и выпусти токен с доступом к рекламным кабинетам.`);
+    } else {
+      append(`Instagram: явной IG-идентичности нет${igRes.error ? ` (${igRes.error})` : ''} — оставляю IG/Threads, FB попробует подставить Страницу; если отобьёт (1772103) — сниму их сам.`);
+    }
     let campaignId = ''; // первая созданная кампания — для finish (campaignFbId)
     // Все созданные объекты — чтобы после залива при телефон-гейте попробовать
     // включить их в актив обновлением статуса (как включают руками).
@@ -891,29 +902,16 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       try {
         return await create();
       } catch (e) {
-        // Нет IG-идентичности (код 1772103): FB не даёт РУЧНОЙ IG-плейсмент. Чтобы
-        // IG всё же остался, сперва переводим адсет на АВТОПЛЕЙСМЕНТЫ (Advantage+):
-        // там FB сам крутит по IG и представляет бизнес Страницей — без явной
-        // идентичности. Не поможет — тогда уже оставляем только Facebook.
+        // Нет IG-идентичности (код 1772103): FB не крутит объявление на Instagram
+        // без аккаунта, который представляет бизнес. Автоплейсменты тут НЕ спасают
+        // — Advantage+ всё равно включает Instagram и требует ту же идентичность.
+        // Единственный рабочий путь — снять IG/Threads с адсета (оставить только
+        // Facebook) и повторить. Заодно вычищаем IG из общего списка плейсментов,
+        // чтобы следующие адсеты этого залива сразу создавались без IG.
         if (!isIgGate(e)) throw e;
-        if (await setAdsetAutoPlacements(token, adsetIdArg, net)) {
-          append('⚠ Нет явной IG-идентичности — перевёл адсет на автоплейсменты (Advantage+), чтобы IG остался. Повторяю.');
-          await sleep(400);
-          try {
-            return await create();
-          } catch (e2) {
-            if (!isIgGate(e2)) throw e2;
-            if (await stripAdsetInstagram(token, adsetIdArg, net)) {
-              append('⚠ Автоплейсменты не помогли — оставляю только Facebook и повторяю.');
-              await sleep(400);
-              return await create();
-            }
-            throw e2;
-          }
-        }
-        // Автоплейсменты не выставились — прямой откат на Facebook.
         if (await stripAdsetInstagram(token, adsetIdArg, net)) {
-          append('⚠ FB не принял IG/Threads без IG-аккаунта (1772103) — оставляю только Facebook и повторяю.');
+          placements = stripInstagramFamily(placements);
+          append('⚠ FB не принял IG/Threads без IG-аккаунта (1772103) — оставил только Facebook и повторяю (следующие адсеты тоже без IG).');
           await sleep(400);
           return await create();
         }

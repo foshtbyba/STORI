@@ -1283,7 +1283,32 @@ export async function getPageName(token: string, pageId: string, net: FbNet = {}
  * Пусто — не удалось (тогда IG-плейсменты могут отвалиться).
  */
 export async function resolveInstagramActor(token: string, pageId: string, net: FbNet = {}, accountExternalId?: string): Promise<{ id: string; error?: string }> {
-  // 0. Уровень РЕКЛАМНОГО КАБИНЕТА: у токена есть доступ к кабинету (в отличие от
+  // 0. САМЫЙ НАДЁЖНЫЙ ИСТОЧНИК: IG-идентичность, которая УЖЕ стоит в существующих
+  //    объявлениях этого кабинета — ровно та, что FB берёт, когда баер запускает
+  //    рекламу с IG-плейсментами руками. Токен читает свои же креативы/объявления
+  //    (право на это у него есть — он их и создаёт), поэтому #10 Permission Denied
+  //    на /instagram_accounts тут не мешает: instagram_basic не требуется.
+  if (accountExternalId) {
+    try {
+      const r = await call(`/${accountExternalId}/adcreatives`, token,
+        { fields: 'instagram_actor_id,object_story_spec{instagram_actor_id}', limit: '200' }, net) as
+        { data?: { instagram_actor_id?: string; object_story_spec?: { instagram_actor_id?: string } }[] };
+      for (const d of r.data ?? []) {
+        const id = d.instagram_actor_id || d.object_story_spec?.instagram_actor_id;
+        if (id) return { id: String(id) };
+      }
+    } catch { /* нет доступа/поля — пробуем следующий источник */ }
+    try {
+      const r = await call(`/${accountExternalId}/ads`, token,
+        { fields: 'creative{instagram_actor_id}', limit: '200' }, net) as
+        { data?: { creative?: { instagram_actor_id?: string } }[] };
+      for (const d of r.data ?? []) {
+        const id = d.creative?.instagram_actor_id;
+        if (id) return { id: String(id) };
+      }
+    } catch { /* пробуем дальше */ }
+  }
+  // 0б. Уровень РЕКЛАМНОГО КАБИНЕТА: у токена есть доступ к кабинету (в отличие от
   //    страницы, где часто #10 Permission Denied). IG-аккаунт, привязанный к
   //    кабинету, годится как instagram_actor_id.
   if (accountExternalId) {

@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'ig-account-actor-autoplacements · 28.09 21:41';
+export const BUILD_INFO = 'ig-actor-from-existing-creatives · 28.09 23:13';
