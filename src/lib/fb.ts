@@ -1208,6 +1208,22 @@ export async function listAdAccountPages(token: string, externalId: string, net:
 }
 
 /**
+ * ID страниц, реально использованных в объявлениях ЭТОГО кабинета (из
+ * object_story_spec.page_id существующих креативов). Токену на чтение своих
+ * креативов прав хватает даже там, где бизнес-ручки отдают #10. Это надёжный
+ * per-cabinet сигнал «с какими ФП кабинет крутит».
+ */
+export async function listAdAccountCreativePageIds(token: string, externalId: string, net: FbNet = {}): Promise<string[]> {
+  const ids = new Set<string>();
+  try {
+    const r = await call(`/${externalId}/adcreatives`, token, { fields: 'object_story_spec{page_id}', limit: '300' }, net) as
+      { data?: { object_story_spec?: { page_id?: string } }[] };
+    for (const d of r.data ?? []) { const id = d.object_story_spec?.page_id; if (id) ids.add(String(id)); }
+  } catch { /* нет доступа — вернём пусто */ }
+  return [...ids];
+}
+
+/**
  * Страницы, которые РАЗРЕШЕНО продвигать с ЭТОГО кабинета. Часть арендных
  * кабинетов привязана к одной конкретной ФП: реклама с чужой страницы отбивается
  * кодом 100/1815645 «The Page or app this ad is promoting doesn't match the one

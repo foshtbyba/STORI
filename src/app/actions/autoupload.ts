@@ -12,6 +12,7 @@ import {
   fbAccess,
   listPages,
   listAdAccountPages,
+  listAdAccountCreativePageIds,
   listPromotePages,
   listPixels,
   createPixel,
@@ -261,7 +262,37 @@ export type CabinetAssets = {
   /** id только что созданного ассета — чтобы клиент выбрал именно его, а не
    *  угадывал «последний в списке» (порядок у FB не гарантирован). */
   createdId?: string;
+  /** Диагностика источников ФП (что вернул каждый источник) — под выпадашкой. */
+  pagesDebug?: string;
 };
+
+/**
+ * Собрать per-cabinet список ФП из всех доступных токену источников и объяснить,
+ * что вернул каждый. Приоритет кандидатов (объединяем): бизнес кабинета
+ * (owned+client) ∪ promote_pages ∪ страницы из объявлений кабинета. Если per-cabinet
+ * источников нет (свежий каб / #10 на бизнес) — откат на глобальный /me/accounts.
+ */
+async function gatherCabinetPages(
+  token: string, externalId: string, net: FbNet,
+): Promise<{ pages: AssetPage[]; debug: string }> {
+  const [globalPages, businessPages, creativePageIds, promote] = await Promise.all([
+    listPages(token, net),
+    listAdAccountPages(token, externalId, net),
+    listAdAccountCreativePageIds(token, externalId, net),
+    listPromotePages(token, externalId, net),
+  ]);
+  const nameOf = new Map(globalPages.map((p) => [p.id, p.name]));
+  type Raw = { id: string; name: string; isPublished?: boolean; promotionEligible?: boolean; ineligibleReason?: string };
+  const byId = new Map<string, Raw>();
+  for (const p of businessPages) byId.set(p.id, p);
+  for (const p of promote) if (!byId.has(p.id)) byId.set(p.id, { id: p.id, name: p.name });
+  for (const id of creativePageIds) if (!byId.has(id)) byId.set(id, { id, name: nameOf.get(id) || id });
+  const perCab = [...byId.values()];
+  const usedGlobal = perCab.length === 0;
+  const pages = annotatePages(usedGlobal ? globalPages : perCab, promote);
+  const debug = `источники ФП → бизнес ${businessPages.length} · promote ${promote.length} · из объявлений ${creativePageIds.length} · глобально ${globalPages.length} ⇒ показываю ${pages.length} (${usedGlobal ? 'глобально — per-cabinet недоступен' : 'по кабинету'})`;
+  return { pages, debug };
+}
 
 /**
  * Разметить ФП на годные/негодные для залива с кабинета.
@@ -302,16 +333,11 @@ export async function loadCabinetAssets(accountId: string): Promise<CabinetAsset
   const ctx = await accountAccessFor(accountId);
   if ('error' in ctx) return { ok: false, error: ctx.error };
   try {
-    const [globalPages, cabinetPages, pixels, promote] = await Promise.all([
-      listPages(ctx.token, ctx.net),
-      listAdAccountPages(ctx.token, ctx.acc.externalId, ctx.net),
+    const [{ pages, debug }, pixels] = await Promise.all([
+      gatherCabinetPages(ctx.token, ctx.acc.externalId, ctx.net),
       listPixels(ctx.token, ctx.acc.externalId, ctx.net),
-      listPromotePages(ctx.token, ctx.acc.externalId, ctx.net),
     ]);
-    // Per-cabinet набор (страницы бизнеса кабинета) — то, что показывает Ads
-    // Manager. Если бизнес-ручка недоступна токену — откат на глобальный список.
-    const pages = cabinetPages.length ? cabinetPages : globalPages;
-    return { ok: true, pages: annotatePages(pages, promote), pixels };
+    return { ok: true, pages, pixels, pagesDebug: debug };
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
@@ -342,13 +368,8 @@ export async function makePage(accountId: string, name: string): Promise<Cabinet
   if (!clean) return { ok: false, error: 'Впиши имя новой страницы' };
   try {
     const createdId = await createPage(ctx.token, clean, 'BRAND', ctx.net);
-    const [globalPages, cabinetPages, promote] = await Promise.all([
-      listPages(ctx.token, ctx.net),
-      listAdAccountPages(ctx.token, ctx.acc.externalId, ctx.net),
-      listPromotePages(ctx.token, ctx.acc.externalId, ctx.net),
-    ]);
-    const pages = cabinetPages.length ? cabinetPages : globalPages;
-    return { ok: true, pages: annotatePages(pages, promote), createdId };
+    const { pages, debug } = await gatherCabinetPages(ctx.token, ctx.acc.externalId, ctx.net);
+    return { ok: true, pages, createdId, pagesDebug: debug };
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }

@@ -10,7 +10,7 @@ import type { Language } from './LanguagePack';
 import { localeName } from '@/lib/locales';
 
 type Cabinet = { id: string; name: string; externalId: string; currency: string; group: string };
-type Asset = { pages: { id: string; name: string; valid?: boolean; reason?: string }[]; pixels: { id: string; name: string }[] };
+type Asset = { pages: { id: string; name: string; valid?: boolean; reason?: string }[]; pixels: { id: string; name: string }[]; debug?: string };
 type Mode = 'paused' | 'active' | 'midnight' | 'scheduled';
 
 type VideoDraft = {
@@ -176,7 +176,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
       for (const [id, r] of got) {
         if (!r.ok) { fails.push(`${byId.get(id)?.name || id} — ${r.error || 'нет доступа'}`); continue; }
         okCount += 1;
-        nA[id] = { pages: r.pages ?? [], pixels: r.pixels ?? [] };
+        nA[id] = { pages: r.pages ?? [], pixels: r.pixels ?? [], debug: r.pagesDebug };
         // Сразу выбираем ПЕРВУЮ ГОДНУЮ ФП (разрешённую кабинетом) и первый
         // пиксель, чтобы поля не были пустыми. Негодные ФП не подставляем.
         if (!nP[id]) {
@@ -199,7 +199,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
       try {
         const r = await makePixel(accId, newPixelByAcc[accId] ?? '');
         if (!r.ok) { setMsg(r.error ?? 'сбой создания пикселя'); return; }
-        setAssets((a) => ({ ...a, [accId]: { pages: a[accId]?.pages ?? [], pixels: r.pixels ?? [] } }));
+        setAssets((a) => ({ ...a, [accId]: { pages: a[accId]?.pages ?? [], pixels: r.pixels ?? [], debug: a[accId]?.debug } }));
         { const pick = r.createdId ?? (r.pixels?.length ? r.pixels[r.pixels.length - 1].id : ''); if (pick) setPixelByAcc((p) => ({ ...p, [accId]: pick })); }
         setNewPixelByAcc((n) => ({ ...n, [accId]: '' }));
       } finally { setCreating(''); }
@@ -216,7 +216,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
       try {
       const r = await makePage(accId, name);
       if (!r.ok) { setMsg(r.error ?? 'сбой создания страницы'); return; }
-      setAssets((a) => ({ ...a, [accId]: { pages: r.pages ?? [], pixels: a[accId]?.pixels ?? [] } }));
+      setAssets((a) => ({ ...a, [accId]: { pages: r.pages ?? [], pixels: a[accId]?.pixels ?? [], debug: r.pagesDebug ?? a[accId]?.debug } }));
       { const pick = r.createdId ?? (r.pages?.length ? r.pages[r.pages.length - 1].id : ''); if (pick) setPageByAcc((p) => ({ ...p, [accId]: pick })); }
       setNewPageByAcc((n) => ({ ...n, [accId]: '' }));
       } finally { setCreating(''); }
@@ -541,6 +541,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
                   ) : !a.pages.some((p) => p.valid !== false) ? (
                     <p className="mt-1.5 text-[11px] text-rust">нет ГОДНЫХ ФП для этого кабинета (все не разрешены/не опубликованы) — залив не пройдёт, разбань/подключи страницу</p>
                   ) : null}
+                  {a.debug ? <p className="mt-1 text-[10.5px] text-mute">{a.debug}</p> : null}
                 </div>
               );
             })}

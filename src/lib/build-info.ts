@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'pages-per-cabinet-business · 29.09 00:16';
+export const BUILD_INFO = 'pages-sources-union-debug · 29.09 00:27';
