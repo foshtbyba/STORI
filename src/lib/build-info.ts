@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'pages-picker-no-promote-gate · 28.09 23:33';
+export const BUILD_INFO = 'pages-per-cabinet-business · 29.09 00:16';

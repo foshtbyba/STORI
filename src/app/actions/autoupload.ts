@@ -11,6 +11,7 @@ import { logActivity } from '@/lib/activity';
 import {
   fbAccess,
   listPages,
+  listAdAccountPages,
   listPromotePages,
   listPixels,
   createPixel,
@@ -301,11 +302,15 @@ export async function loadCabinetAssets(accountId: string): Promise<CabinetAsset
   const ctx = await accountAccessFor(accountId);
   if ('error' in ctx) return { ok: false, error: ctx.error };
   try {
-    const [pages, pixels, promote] = await Promise.all([
+    const [globalPages, cabinetPages, pixels, promote] = await Promise.all([
       listPages(ctx.token, ctx.net),
+      listAdAccountPages(ctx.token, ctx.acc.externalId, ctx.net),
       listPixels(ctx.token, ctx.acc.externalId, ctx.net),
       listPromotePages(ctx.token, ctx.acc.externalId, ctx.net),
     ]);
+    // Per-cabinet набор (страницы бизнеса кабинета) — то, что показывает Ads
+    // Manager. Если бизнес-ручка недоступна токену — откат на глобальный список.
+    const pages = cabinetPages.length ? cabinetPages : globalPages;
     return { ok: true, pages: annotatePages(pages, promote), pixels };
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
@@ -337,10 +342,12 @@ export async function makePage(accountId: string, name: string): Promise<Cabinet
   if (!clean) return { ok: false, error: 'Впиши имя новой страницы' };
   try {
     const createdId = await createPage(ctx.token, clean, 'BRAND', ctx.net);
-    const [pages, promote] = await Promise.all([
+    const [globalPages, cabinetPages, promote] = await Promise.all([
       listPages(ctx.token, ctx.net),
+      listAdAccountPages(ctx.token, ctx.acc.externalId, ctx.net),
       listPromotePages(ctx.token, ctx.acc.externalId, ctx.net),
     ]);
+    const pages = cabinetPages.length ? cabinetPages : globalPages;
     return { ok: true, pages: annotatePages(pages, promote), createdId };
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };

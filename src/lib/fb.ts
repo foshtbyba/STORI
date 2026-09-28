@@ -1152,6 +1152,61 @@ export async function listPages(token: string, net: FbNet = {}) {
     }));
 }
 
+export type PageInfo = { id: string; name: string; isPublished: boolean; promotionEligible: boolean; ineligibleReason: string };
+
+function mapPageRow(p: {
+  id?: string; name?: string; is_published?: boolean;
+  promotion_eligible?: boolean; promotion_ineligible_reason?: string;
+}): PageInfo {
+  return {
+    id: p.id as string,
+    name: p.name || (p.id as string),
+    isPublished: p.is_published !== false,
+    promotionEligible: p.promotion_eligible !== false,
+    ineligibleReason: p.promotion_ineligible_reason || '',
+  };
+}
+
+/**
+ * Страницы (ФП), доступные для залива ИМЕННО С ЭТОГО КАБИНЕТА — как в списке
+ * идентичностей Ads Manager (у разных кабинетов набор РАЗНЫЙ: где-то 2, где-то 5).
+ *
+ * `/me/accounts` (listPages) отдаёт ВСЕ страницы пользователя глобально, не по
+ * кабинету, — поэтому для per-cabinet берём страницы БИЗНЕСА, которому принадлежит
+ * кабинет: owned_pages + client_pages. externalId — с префиксом act_.
+ * Пустой массив = бизнес/страницы недоступны токену (вызывающий откатится на
+ * глобальный список).
+ */
+export async function listAdAccountPages(token: string, externalId: string, net: FbNet = {}): Promise<PageInfo[]> {
+  let businessId = '';
+  try {
+    const b = await call(`/${externalId}`, token, { fields: 'business' }, net) as { business?: { id?: string } };
+    if (b.business?.id) businessId = String(b.business.id);
+  } catch { /* нет доступа к бизнесу — вернём пусто, будет фолбэк */ }
+  if (!businessId) return [];
+
+  const out = new Map<string, PageInfo>();
+  const pull = async (edge: string) => {
+    let data: Record<string, unknown>[] = [];
+    try {
+      const body = await call(`/${businessId}/${edge}`, token,
+        { fields: 'id,name,is_published,promotion_eligible,promotion_ineligible_reason', limit: '200' }, net);
+      data = (body.data ?? []) as Record<string, unknown>[];
+    } catch {
+      // Расширенные поля токену не дали — базовые (без пометки «нельзя рекламировать»).
+      try {
+        const body = await call(`/${businessId}/${edge}`, token, { fields: 'id,name,is_published', limit: '200' }, net);
+        data = (body.data ?? []) as Record<string, unknown>[];
+      } catch { data = []; }
+    }
+    for (const p of data) if (p.id) out.set(String(p.id), mapPageRow(p));
+  };
+  // owned_pages — страницы самого бизнеса; client_pages — переданные ему клиентами.
+  await pull('owned_pages');
+  await pull('client_pages');
+  return [...out.values()];
+}
+
 /**
  * Страницы, которые РАЗРЕШЕНО продвигать с ЭТОГО кабинета. Часть арендных
  * кабинетов привязана к одной конкретной ФП: реклама с чужой страницы отбивается
