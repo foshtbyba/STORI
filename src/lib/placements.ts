@@ -49,6 +49,19 @@ export function stripPlacementValue(keys: string[], fbValue: string): string[] {
   return validPlacementKeys(keys).filter((k) => BY_KEY.get(k)?.value !== fbValue);
 }
 
+/**
+ * Убрать плейсменты «семейства Instagram» (сам Instagram + Threads — Threads
+ * показывается в приложении IG и тоже требует IG-идентичности). Нужно, когда для
+ * кабинета не удалось получить/создать IG-аккаунт: иначе ФБ отбивает объявление
+ * кодом 1772103. Оставляем только Facebook/Audience Network/Messenger.
+ */
+export function stripInstagramFamily(keys: string[]): string[] {
+  return validPlacementKeys(keys).filter((k) => {
+    const p = BY_KEY.get(k);
+    return p ? p.platform !== 'instagram' && p.platform !== 'threads' : false;
+  });
+}
+
 /** Короткая подпись выбранных плейсментов для сводки шаблона. */
 export function placementSummary(csv: string): string {
   const keys = validPlacementKeys(csv.split(','));

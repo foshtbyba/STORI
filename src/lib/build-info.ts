@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'brocard-topup-cap · 22.09 20:50';
+export const BUILD_INFO = 'ig-identity-fallback · 28.09 17:16';

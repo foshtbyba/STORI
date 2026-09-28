@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/db';
 import { requireUser } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
-import { validPlacementKeys, placementSummary, stripPlacementValue } from '@/lib/placements';
+import { validPlacementKeys, placementSummary, stripPlacementValue, stripInstagramFamily } from '@/lib/placements';
 import { isLocale, localeName, geoDefaultLocale } from '@/lib/locales';
 import { logActivity } from '@/lib/activity';
 import {
@@ -696,14 +696,21 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     const igRes = await resolveInstagramActor(token, pageId, net);
     const igActor = igRes.id;
     if (igActor) append(`Instagram: явная IG-идентичность (page-backed IG ${igActor})`);
-    else append('Instagram: явная IG-идентичность не задана — FB сам подставит страницу для IG/Threads-плейсментов');
+    else append(`Instagram: IG-идентичность создать не удалось${igRes.error ? ` (${igRes.error})` : ''}`);
 
     // Плейсменты берём ИЗ ШАБЛОНА как есть (FB лента, IG лента, Threads лента и
-    // т.д.) и НИЧЕГО не выкидываем заранее. Даже без явной IG-идентичности FB сам
-    // использует страницу для IG/Threads-площадок (проверено вручную — заливается
-    // без ошибок). Если конкретный кабинет какую-то площадку реально не примет —
-    // её снимет самолечение в mkAdset по ответу FB, а не мы наугад.
+    // т.д.). Но если IG-идентичность получить НЕ удалось, оставлять IG/Threads
+    // площадки нельзя: ФБ отобьёт всё объявление кодом 1772103 «Select an
+    // Instagram account…». В этом случае снимаем IG/Threads заранее и льём на
+    // Facebook — успешная заливка на FB-площадках лучше полного провала.
     let placements = tpl.placements ? validPlacementKeys(tpl.placements.split(',')) : [];
+    if (!igActor && placements.length) {
+      const kept = stripInstagramFamily(placements);
+      if (kept.length !== placements.length) {
+        placements = kept.length ? kept : ['fb_feed'];
+        append(`Без IG-идентичности убрал IG/Threads плейсменты — оставил только Facebook (${placements.length}), чтобы объявление не отбилось по 1772103.`);
+      }
+    }
     let campaignId = ''; // первая созданная кампания — для finish (campaignFbId)
     // Все созданные объекты — чтобы после залива при телефон-гейте попробовать
     // включить их в актив обновлением статуса (как включают руками).
