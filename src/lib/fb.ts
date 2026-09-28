@@ -1156,6 +1156,29 @@ export async function listPages(token: string, net: FbNet = {}) {
     }));
 }
 
+/**
+ * owner_business каждой страницы через МУЛЬТИ-ГЕТ ПО НОДАМ (`/?ids=…`). У
+ * отдельной ноды страницы это поле часто читается, даже когда в раскрытии
+ * `/me/accounts{owner_business}` оно приходит пустым (у токена разные права на
+ * edge-раскрытие и на прямую ноду). Возвращает map pageId → businessId.
+ */
+export async function pagesOwnerBusiness(token: string, ids: string[], net: FbNet = {}): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  const uniq = [...new Set(ids.filter(Boolean))];
+  for (let i = 0; i < uniq.length; i += 50) {
+    const chunk = uniq.slice(i, i + 50);
+    try {
+      const body = await call('/', token, { ids: chunk.join(','), fields: 'owner_business{id}' }, net) as
+        Record<string, { owner_business?: { id?: string } }>;
+      for (const [id, v] of Object.entries(body)) {
+        const b = v?.owner_business?.id;
+        if (b) out.set(id, String(b));
+      }
+    } catch { /* нода не дала поле — пропускаем */ }
+  }
+  return out;
+}
+
 /** Бизнес, которому принадлежит кабинет (для фильтра ФП по owner_business). '' — не отдал. */
 export async function getAccountBusinessId(token: string, externalId: string, net: FbNet = {}): Promise<string> {
   try {

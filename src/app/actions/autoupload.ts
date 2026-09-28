@@ -11,8 +11,7 @@ import { logActivity } from '@/lib/activity';
 import {
   fbAccess,
   listPages,
-  getAccountBusinessId,
-  listAdAccountPages,
+  pagesOwnerBusiness,
   listAdAccountCreativePageIds,
   listPromotePages,
   listPixels,
@@ -299,7 +298,12 @@ async function gatherCabinetPages(
     listPromotePages(token, externalId, net),
     listAdAccountCreativePageIds(token, externalId, net),
   ]);
+  // owner_business из списка часто пуст → добираем мульти-гетом по нодам страниц.
   const ownerById = new Map(globalPages.map((p) => [p.id, p.ownerBusinessId]));
+  const allIds = [...new Set([...globalPages.map((p) => p.id), ...creativePageIds])];
+  const nodeOwner = await pagesOwnerBusiness(token, allIds, net);
+  for (const [id, biz] of nodeOwner) if (biz) ownerById.set(id, biz);
+  const withOwner = [...ownerById.values()].filter(Boolean).length;
   const confirmed = new Set<string>([...promote.map((p) => p.id), ...creativePageIds]);
   // Голосуем за бизнес-портфель по owner_business подтверждённых страниц.
   const votes = new Map<string, number>();
@@ -308,7 +312,7 @@ async function gatherCabinetPages(
     if (biz) votes.set(biz, (votes.get(biz) ?? 0) + 1);
   }
   const portfolioBiz = [...votes.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
-  const ownedByBiz = portfolioBiz ? globalPages.filter((p) => p.ownerBusinessId === portfolioBiz) : [];
+  const ownedByBiz = portfolioBiz ? globalPages.filter((p) => ownerById.get(p.id) === portfolioBiz) : [];
 
   // Финал: страницы портфеля (точный набор Ads Manager). Если портфель не
   // определился (owner_business пуст) — откат на подтверждённые, затем глобальный.
@@ -328,7 +332,7 @@ async function gatherCabinetPages(
     source = 'глобально';
   }
   const pages = annotatePages([...byId.values()], promote);
-  const debug = `агентский · портфель ${portfolioBiz || '—'} · в портфеле ${ownedByBiz.length} · promote ${promote.length} · из объявл. ${creativePageIds.length} · глоб. ${globalPages.length} ⇒ ${pages.length} (${source})`;
+  const debug = `агентский · портфель ${portfolioBiz || '—'} · в портфеле ${ownedByBiz.length} · owner_business у ${withOwner}/${globalPages.length} · promote ${promote.length} · из объявл. ${creativePageIds.length} ⇒ ${pages.length} (${source})`;
   return { pages, debug };
 }
 
