@@ -541,7 +541,6 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
                   ) : !a.pages.some((p) => p.valid !== false) ? (
                     <p className="mt-1.5 text-[11px] text-rust">нет ГОДНЫХ ФП для этого кабинета (все не разрешены/не опубликованы) — залив не пройдёт, разбань/подключи страницу</p>
                   ) : null}
-                  {a.debug ? <p className="mt-1 text-[10.5px] text-mute">{a.debug}</p> : null}
                 </div>
               );
             })}
