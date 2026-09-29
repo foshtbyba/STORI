@@ -872,26 +872,16 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       }
       return true;
     };
-    // Жёсткий признак «IG кабинету недоступен»: токену не хватает прав на IG
-    // (#10 Permission Denied) — ни через кабинет, ни через Страницу IG-аккаунт не
-    // получить и не создать. Тогда IG/Threads НЕ пройдут никак: даже
-    // автоплейсменты (Advantage+) включают Instagram и требуют идентичность.
-    // Поэтому режем IG/Threads СРАЗУ — без заведомо неудачных попыток на адсетах.
-    const igHardDenied = !igActor && /#?10\b|код 10|Permission Denied|no_permission/i.test(igRes.error || '');
-
-    // Плейсменты из шаблона. Если IG доступен (или неизвестно) — берём КАК ЕСТЬ:
-    // IG/Threads часто работают и без явной идентичности (FB представляет бизнес
-    // Страницей), а если объявление отобьёт 1772103 — их снимет само-хил в mkAd.
+    // Плейсменты берём ИЗ ШАБЛОНА КАК ЕСТЬ и IG/Threads НЕ режем: если явного
+    // IG-аккаунта нет, креатив уходит с use_page_actor_override — FB представляет
+    // бизнес в Instagram самой Страницей (как галка «use Facebook Page» в Ads
+    // Manager), и IG-плейсменты идут без 1772103/1815199. Явный IG-аккаунт (если
+    // нашёлся и авторизован) используем как есть.
     let placements = tpl.placements ? validPlacementKeys(tpl.placements.split(',')) : [];
     if (igActor) {
       append(`Instagram: IG-идентичность (${igActor})${igCandidates.length ? ` +${igCandidates.length} запасных` : ''} — IG/Threads-плейсменты пойдут как при ручном запуске`);
-    } else if (igHardDenied) {
-      const before = placements.length;
-      placements = stripInstagramFamily(placements);
-      const removed = before - placements.length;
-      append(`Instagram: кабинету недоступен — у токена нет прав на IG (${igRes.error}).${removed ? ` Убрал IG/Threads из плейсментов (${removed}) — заливаю только на Facebook.` : ' Заливаю только на Facebook.'} Чтобы вернуть IG — привяжи Instagram к кабинету/Странице и выпусти токен с доступом к рекламным кабинетам.`);
     } else {
-      append(`Instagram: явной IG-идентичности нет${igRes.error ? ` (${igRes.error})` : ''} — оставляю IG/Threads, FB попробует подставить Страницу; если отобьёт (1772103) — сниму их сам.`);
+      append('Instagram: явного IG-аккаунта нет — FB представит бизнес Страницей (use_page_actor_override), IG-плейсменты пойдут через неё');
     }
     let campaignId = ''; // первая созданная кампания — для finish (campaignFbId)
     // Все созданные объекты — чтобы после залива при телефон-гейте попробовать

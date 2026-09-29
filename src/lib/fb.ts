@@ -1918,7 +1918,11 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
   if (descriptions.length) assetFeedSpec.descriptions = descriptions;
 
   const storySpec: Record<string, unknown> = { page_id: i.pageId };
+  // Есть явный IG-аккаунт — ставим его; нет — просим FB представлять бизнес в
+  // Instagram САМОЙ СТРАНИЦЕЙ (как галка «use Facebook Page» в Ads Manager). Так
+  // IG-плейсменты идут без явной IG-идентичности и без ошибок 1772103/1815199.
   if (i.instagramActorId) storySpec.instagram_actor_id = i.instagramActorId;
+  else storySpec.use_page_actor_override = true;
   const params: Record<string, string> = {
     name: i.name,
     object_story_spec: JSON.stringify(storySpec),
@@ -1982,7 +1986,9 @@ export async function createVideoAdCreative(token: string, externalId: string, i
   if (i.headline) videoData.title = i.headline;
   if (i.description) videoData.link_description = i.description;
   const objectStorySpec: Record<string, unknown> = { page_id: i.pageId, video_data: videoData };
+  // См. createAdCreative: нет явного IG — представляем Страницей (use_page_actor_override).
   if (i.instagramActorId) objectStorySpec.instagram_actor_id = i.instagramActorId;
+  else objectStorySpec.use_page_actor_override = true;
   const params: Record<string, string> = {
     name: i.name,
     object_story_spec: JSON.stringify(objectStorySpec),
@@ -2121,7 +2127,10 @@ export async function createAdCreative(token: string, externalId: string, i: Cre
   if (i.headline) linkData.name = i.headline;
   if (i.description) linkData.description = i.description;
   const objectStorySpec: Record<string, unknown> = { page_id: i.pageId, link_data: linkData };
+  // Нет явного IG-аккаунта — просим FB представлять бизнес в Instagram Страницей
+  // (галка «use Facebook Page» в Ads Manager): IG-плейсменты без 1772103/1815199.
   if (i.instagramActorId) objectStorySpec.instagram_actor_id = i.instagramActorId;
+  else objectStorySpec.use_page_actor_override = true;
   const params: Record<string, string> = {
     name: i.name,
     object_story_spec: JSON.stringify(objectStorySpec),

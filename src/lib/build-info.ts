@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'ig-candidates-cycle · 29.09 19:07';
+export const BUILD_INFO = 'ig-use-page-actor-override · 29.09 19:12';
