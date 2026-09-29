@@ -107,9 +107,12 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
             ост. —
           </span>
         ) : null}
-        <span className="n ml-auto shrink-0 text-[12.5px] text-mute">
-          {acc.spend}
-          {acc.currency !== 'USD' ? <span className="ml-1 text-rust">{acc.currency}</span> : null}
+        <span className="ml-auto flex shrink-0 items-baseline gap-1" title="Справочный расход кабинета из Facebook за текущую неделю (Пн–Вс). В зарплату/кассу не идёт — настоящий расход берём из Brocard.">
+          <span className="text-[9.5px] uppercase tracking-wide text-dim">за неделю</span>
+          <span className="n text-[12.5px] text-mute">
+            {acc.spend}
+            {acc.currency !== 'USD' ? <span className="ml-1 text-rust">{acc.currency}</span> : null}
+          </span>
         </span>
       </div>
 
