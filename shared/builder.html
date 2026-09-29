@@ -895,6 +895,11 @@ inline-style, вёрстку. Чистка касается ТОЛЬКО скр�
       </div>
     </div>
 
+    <div class="grp" id="grpExtra">
+      <h3 class="gtoggle" data-target="extraBody"><span class="chev">▸</span> Доп. настройки</h3>
+      <div id="extraBody" class="grp-body" style="display:none"></div>
+    </div>
+
     <button class="btn" id="build">⚙️ Собрать</button>
     <div id="buildBar" class="buildbar"><i></i></div>
     <div class="status" id="status"></div>
@@ -3793,10 +3798,16 @@ function enhanceSelect(sel){
   document.getElementById("btnChest").addEventListener("click",downloadChestZip);
   document.querySelectorAll(".tab").forEach(function(el){el.addEventListener("click",function(){showTab(el.dataset.t);});});
   document.querySelectorAll(".dl button[data-f]").forEach(function(b){b.addEventListener("click",function(){if(!FILES.index)build();var f=b.dataset.f;dl(f+".html",FILES[f]);});});
-  // порядок панелей левого меню: сверху рабочие (всегда открыты), снизу раскрывающиеся по значимости (реже — ниже; правь массив под себя)
+  // порядок панелей левого меню: сверху рабочие (часто юзаю), затем одна плашка «Доп. настройки», кнопка «Собрать» — в самом низу
   (function(){var L=document.querySelector(".panel.left"); if(!L) return;
-    ["grpPartner","grpPages","grpOffer","grpSource","grpDedup","grpChest","grpOpt","trWrap","grpPixel"]
-      .forEach(function(id){var el=document.getElementById(id); if(el) L.appendChild(el);});
+    var CORE=["grpPartner","grpPages","grpOffer","grpSource","grpChest"];   // всегда на виду (Сундук тоже — частый)
+    var EXTRA=["grpDedup","grpOpt","grpPixel","trWrap"];                      // прячем в «Доп. настройки» (Перевод — последним)
+    CORE.forEach(function(id){var el=document.getElementById(id); if(el) L.appendChild(el);});
+    var box=document.getElementById("grpExtra"); if(box) L.appendChild(box);
+    var eb=document.getElementById("extraBody");
+    if(eb) EXTRA.forEach(function(id){var el=document.getElementById(id); if(el) eb.appendChild(el);});
+    // кнопка сборки и её статус — в самый низ, под всеми панелями
+    ["build","buildBar","status"].forEach(function(id){var el=document.getElementById(id); if(el) L.appendChild(el);});
   })();
   // правка исходника на вкладке «✎ исходник» — пишем обратно и пересобираем (не дёргая showTab, чтобы не сбросить текст)
   var _srcT; document.getElementById("out").addEventListener("input",function(){
