@@ -12,7 +12,7 @@ import LanguagePack, { type Language } from './LanguagePack';
 import { placementSummary } from '@/lib/placements';
 
 type Cabinet = { id: string; name: string; externalId: string; currency: string; group: string };
-type Asset = { pages: { id: string; name: string; valid?: boolean; reason?: string }[]; pixels: { id: string; name: string }[]; debug?: string };
+type Asset = { pages: { id: string; name: string; valid?: boolean; reason?: string }[]; pixels: { id: string; name: string }[] };
 type Mode = 'paused' | 'active' | 'scheduled' | 'midnight';
 
 // Замок запуска на УРОВНЕ МОДУЛЯ, а не useRef: ref живёт в конкретном
@@ -239,7 +239,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
       for (const [id, r] of got) {
         if (!r.ok) { fails.push(`${byId.get(id)?.name || id} — ${friendlyReason(r.error)}`); continue; }
         okCount += 1;
-        nA[id] = { pages: r.pages ?? [], pixels: r.pixels ?? [], debug: r.pagesDebug };
+        nA[id] = { pages: r.pages ?? [], pixels: r.pixels ?? [] };
         // Сразу выбираем ПЕРВУЮ ГОДНУЮ ФП (разрешённую кабинетом) и первый
         // пиксель, чтобы поля не были пустыми. Негодные ФП не подставляем.
         if (!nP[id]) {
@@ -261,7 +261,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
       try {
       const r = await makePixel(accId, newPixelByAcc[accId] ?? '');
       if (!r.ok) { setMsg({ ok: false, text: r.error ?? 'сбой создания пикселя' }); return; }
-      setAssets((a) => ({ ...a, [accId]: { pages: a[accId]?.pages ?? [], pixels: r.pixels ?? [], debug: a[accId]?.debug } }));
+      setAssets((a) => ({ ...a, [accId]: { pages: a[accId]?.pages ?? [], pixels: r.pixels ?? [] } }));
       { const pick = r.createdId ?? (r.pixels?.length ? r.pixels[r.pixels.length - 1].id : ''); if (pick) setPixelByAcc((p) => ({ ...p, [accId]: pick })); }
       setNewPixelByAcc((n) => ({ ...n, [accId]: '' }));
       setMsg({ ok: true, text: 'Пиксель создан.' });
@@ -278,7 +278,7 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
       try {
       const r = await makePage(accId, name);
       if (!r.ok) { setMsg({ ok: false, text: r.error ?? 'сбой создания страницы' }); return; }
-      setAssets((a) => ({ ...a, [accId]: { pages: r.pages ?? [], pixels: a[accId]?.pixels ?? [], debug: r.pagesDebug ?? a[accId]?.debug } }));
+      setAssets((a) => ({ ...a, [accId]: { pages: r.pages ?? [], pixels: a[accId]?.pixels ?? [] } }));
       { const pick = r.createdId ?? (r.pages?.length ? r.pages[r.pages.length - 1].id : ''); if (pick) setPageByAcc((p) => ({ ...p, [accId]: pick })); }
       setNewPageByAcc((n) => ({ ...n, [accId]: '' }));
       setMsg({ ok: true, text: 'Страница создана.' });

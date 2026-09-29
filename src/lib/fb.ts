@@ -1179,80 +1179,6 @@ export async function pagesOwnerBusiness(token: string, ids: string[], net: FbNe
   return out;
 }
 
-/** Бизнес, которому принадлежит кабинет (для фильтра ФП по owner_business). '' — не отдал. */
-export async function getAccountBusinessId(token: string, externalId: string, net: FbNet = {}): Promise<string> {
-  try {
-    const b = await call(`/${externalId}`, token, { fields: 'business' }, net) as { business?: { id?: string } };
-    return b.business?.id ? String(b.business.id) : '';
-  } catch { return ''; }
-}
-
-export type PageInfo = { id: string; name: string; isPublished: boolean; promotionEligible: boolean; ineligibleReason: string };
-
-function mapPageRow(p: {
-  id?: string; name?: string; is_published?: boolean;
-  promotion_eligible?: boolean; promotion_ineligible_reason?: string;
-}): PageInfo {
-  return {
-    id: p.id as string,
-    name: p.name || (p.id as string),
-    isPublished: p.is_published !== false,
-    promotionEligible: p.promotion_eligible !== false,
-    ineligibleReason: p.promotion_ineligible_reason || '',
-  };
-}
-
-/**
- * Страницы (ФП), доступные для залива ИМЕННО С ЭТОГО КАБИНЕТА — как в списке
- * идентичностей Ads Manager (у разных кабинетов набор РАЗНЫЙ: где-то 2, где-то 5).
- *
- * `/me/accounts` (listPages) отдаёт ВСЕ страницы пользователя глобально, не по
- * кабинету, — поэтому для per-cabinet берём страницы БИЗНЕСА, которому принадлежит
- * кабинет: owned_pages + client_pages. externalId — с префиксом act_.
- * Пустой массив = бизнес/страницы недоступны токену (вызывающий откатится на
- * глобальный список).
- */
-export async function listAdAccountPages(token: string, externalId: string, net: FbNet = {}): Promise<PageInfo[]> {
-  const out = new Map<string, PageInfo>();
-  const add = (rows?: Record<string, unknown>[]) => {
-    for (const p of rows ?? []) if (p?.id) out.set(String(p.id), mapPageRow(p));
-  };
-  const PF = 'id,name,is_published,promotion_eligible,promotion_ineligible_reason';
-
-  // 1. РАСКРЫТИЕ поля business прямо на кабинете. Часто проходит там, где прямой
-  //    эйдж /{business}/owned_pages отдаёт #10: права на nested-раскрытие мягче.
-  try {
-    const b = await call(`/${externalId}`, token,
-      { fields: `business{owned_pages.limit(200){${PF}},client_pages.limit(200){${PF}}}` }, net) as
-      { business?: { owned_pages?: { data?: Record<string, unknown>[] }; client_pages?: { data?: Record<string, unknown>[] } } };
-    add(b.business?.owned_pages?.data);
-    add(b.business?.client_pages?.data);
-  } catch { /* раскрытие не дали — пробуем прямые эйджи */ }
-  if (out.size) return [...out.values()];
-
-  // 2. Фолбэк: прямые эйджи бизнеса.
-  let businessId = '';
-  try {
-    const b = await call(`/${externalId}`, token, { fields: 'business' }, net) as { business?: { id?: string } };
-    if (b.business?.id) businessId = String(b.business.id);
-  } catch { /* нет доступа к бизнесу */ }
-  if (!businessId) return [];
-  const pull = async (edge: string) => {
-    try {
-      const body = await call(`/${businessId}/${edge}`, token, { fields: PF, limit: '200' }, net);
-      add((body.data ?? []) as Record<string, unknown>[]);
-    } catch {
-      try {
-        const body = await call(`/${businessId}/${edge}`, token, { fields: 'id,name,is_published', limit: '200' }, net);
-        add((body.data ?? []) as Record<string, unknown>[]);
-      } catch { /* пусто */ }
-    }
-  };
-  await pull('owned_pages');
-  await pull('client_pages');
-  return [...out.values()];
-}
-
 /**
  * ID страниц, реально использованных в объявлениях ЭТОГО кабинета (из
  * object_story_spec.page_id существующих креативов). Токену на чтение своих
@@ -1697,30 +1623,6 @@ export async function stripAdsetInstagram(token: string, adsetId: string, net: F
       if (kept.length !== (tg.publisher_platforms as string[]).length) { tg.publisher_platforms = kept; changed = true; }
     }
     for (const k of ['instagram_positions', 'threads_positions']) {
-      if (tg[k] !== undefined) { delete tg[k]; changed = true; }
-    }
-    if (!changed) return false;
-    await call(`/${adsetId}`, token, { targeting: JSON.stringify(tg) }, net, 'POST');
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Перевести адсет на АВТОПЛЕЙСМЕНТЫ (Advantage+): убрать ручные площадки —
- * publisher_platforms и все *_positions. Тогда FB сам крутит по всем площадкам,
- * включая Instagram, и сам представляет бизнес Страницей — без явной
- * IG-идентичности (не отбивает 1772103). true — изменили и обновили.
- */
-export async function setAdsetAutoPlacements(token: string, adsetId: string, net: FbNet = {}): Promise<boolean> {
-  try {
-    const body = await call(`/${adsetId}`, token, { fields: 'targeting' }, net, 'GET');
-    const t = (body as { targeting?: Record<string, unknown> }).targeting;
-    if (!t || typeof t !== 'object') return false;
-    const tg = { ...(t as Record<string, unknown>) };
-    let changed = false;
-    for (const k of ['publisher_platforms', 'facebook_positions', 'instagram_positions', 'threads_positions', 'messenger_positions', 'audience_network_positions', 'device_platforms']) {
       if (tg[k] !== undefined) { delete tg[k]; changed = true; }
     }
     if (!changed) return false;

@@ -262,37 +262,33 @@ export type CabinetAssets = {
   /** id только что созданного ассета — чтобы клиент выбрал именно его, а не
    *  угадывал «последний в списке» (порядок у FB не гарантирован). */
   createdId?: string;
-  /** Диагностика источников ФП (что вернул каждый источник) — под выпадашкой. */
-  pagesDebug?: string;
 };
 
 /**
- * Собрать per-cabinet список ФП из всех доступных токену источников и объяснить,
- * что вернул каждый. Приоритет кандидатов (объединяем): бизнес кабинета
- * (owned+client) ∪ promote_pages ∪ страницы из объявлений кабинета. Если per-cabinet
- * источников нет (свежий каб / #10 на бизнес) — откат на глобальный /me/accounts.
+ * Список ФП кабинета для выпадашки.
+ *
+ * ОБЫЧНЫЙ аккаунт — общий список ФП токена с пометками бан/активна.
+ *
+ * АГЕНТСКИЙ кабинет — Ads Manager показывает ФП из БИЗНЕС-ПОРТФЕЛЯ, которому
+ * принадлежат страницы (owner_business), а НЕ из бизнеса самого кабинета (у
+ * арендных кабинетов это разные бизнесы). Портфель ВЫЧИСЛЯЕМ из страниц, которые
+ * точно относятся к кабинету (promote + крутившиеся в объявлениях): берём их
+ * owner_business и показываем все страницы этого портфеля. Если токен не отдаёт
+ * owner_business (у арендных кабинетов часто #10) — портфель не определить,
+ * поэтому показываем полный чистый список токена (как на обычных): неверную ФП
+ * FB отобьёт на заливе кодом 1815645 — mkAd переключит на разрешённую.
  */
 async function gatherCabinetPages(
   token: string, externalId: string, net: FbNet, agency: boolean,
-): Promise<{ pages: AssetPage[]; debug: string }> {
-  // ОБЫЧНЫЙ аккаунт (не агентский): как было — общий список ФП токена с
-  // пометками «забанено/не опубликована», без фильтра по бизнесу. Портфель
-  // owner_business есть только у агентских кабинетов.
+): Promise<AssetPage[]> {
   if (!agency) {
     const [globalPages, promote] = await Promise.all([
       listPages(token, net),
       listPromotePages(token, externalId, net),
     ]);
-    const pages = annotatePages(globalPages, promote);
-    return { pages, debug: `обычный аккаунт — общий список токена ${globalPages.length} ⇒ ${pages.length}` };
+    return annotatePages(globalPages, promote);
   }
 
-  // АГЕНТСКИЙ кабинет: Ads Manager показывает ФП из БИЗНЕС-ПОРТФЕЛЯ, которому
-  // принадлежат страницы (owner_business), а НЕ из бизнеса самого кабинета
-  // (у арендных кабинетов это разные бизнесы: кабинет в BM агентства, а страницы
-  // в отдельном портфеле). Поэтому портфель ВЫЧИСЛЯЕМ из страниц, которые точно
-  // относятся к кабинету (подключённые promote + крутившиеся в объявлениях):
-  // берём их owner_business, а затем показываем ВСЕ страницы этого портфеля.
   const [globalPages, promote, creativePageIds] = await Promise.all([
     listPages(token, net),
     listPromotePages(token, externalId, net),
@@ -303,9 +299,8 @@ async function gatherCabinetPages(
   const allIds = [...new Set([...globalPages.map((p) => p.id), ...creativePageIds])];
   const nodeOwner = await pagesOwnerBusiness(token, allIds, net);
   for (const [id, biz] of nodeOwner) if (biz) ownerById.set(id, biz);
-  const withOwner = [...ownerById.values()].filter(Boolean).length;
-  const confirmed = new Set<string>([...promote.map((p) => p.id), ...creativePageIds]);
   // Голосуем за бизнес-портфель по owner_business подтверждённых страниц.
+  const confirmed = new Set<string>([...promote.map((p) => p.id), ...creativePageIds]);
   const votes = new Map<string, number>();
   for (const id of confirmed) {
     const biz = ownerById.get(id);
@@ -314,16 +309,8 @@ async function gatherCabinetPages(
   const portfolioBiz = [...votes.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
   const ownedByBiz = portfolioBiz ? globalPages.filter((p) => ownerById.get(p.id) === portfolioBiz) : [];
 
-  // Финал: если портфель определился (токен отдал owner_business) — показываем
-  // ровно его страницы (точный набор Ads Manager). Если нет — НЕ выдумываем
-  // огрызок из promote/объявлений, а показываем полный чистый список токена с
-  // пометками бан/активна (как на обычных аккаунтах).
-  const usedPortfolio = ownedByBiz.length > 0;
-  const pages = annotatePages(usedPortfolio ? ownedByBiz : globalPages, promote);
-  const debug = usedPortfolio
-    ? `агентский · портфель ${portfolioBiz} · в портфеле ${ownedByBiz.length} ⇒ ${pages.length}`
-    : `агентский · owner_business недоступен токену (${withOwner}/${globalPages.length}) — полный список ⇒ ${pages.length}`;
-  return { pages, debug };
+  // Портфель определился → ровно его страницы; иначе — полный список токена.
+  return annotatePages(ownedByBiz.length ? ownedByBiz : globalPages, promote);
 }
 
 /**
@@ -374,11 +361,11 @@ export async function loadCabinetAssets(accountId: string): Promise<CabinetAsset
   const ctx = await accountAccessFor(accountId);
   if ('error' in ctx) return { ok: false, error: ctx.error };
   try {
-    const [{ pages, debug }, pixels] = await Promise.all([
+    const [pages, pixels] = await Promise.all([
       gatherCabinetPages(ctx.token, ctx.acc.externalId, ctx.net, ctx.acc.agency),
       listPixels(ctx.token, ctx.acc.externalId, ctx.net),
     ]);
-    return { ok: true, pages, pixels, pagesDebug: debug };
+    return { ok: true, pages, pixels };
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
@@ -409,8 +396,8 @@ export async function makePage(accountId: string, name: string): Promise<Cabinet
   if (!clean) return { ok: false, error: 'Впиши имя новой страницы' };
   try {
     const createdId = await createPage(ctx.token, clean, 'BRAND', ctx.net);
-    const { pages, debug } = await gatherCabinetPages(ctx.token, ctx.acc.externalId, ctx.net, ctx.acc.agency);
-    return { ok: true, pages, createdId, pagesDebug: debug };
+    const pages = await gatherCabinetPages(ctx.token, ctx.acc.externalId, ctx.net, ctx.acc.agency);
+    return { ok: true, pages, createdId };
   } catch (e) {
     return { ok: false, error: e instanceof FbError ? e.message : (e as Error).message };
   }
