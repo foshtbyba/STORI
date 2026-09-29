@@ -679,10 +679,10 @@
       <div id="optBody" class="grp-body" style="display:none">
         <div class="chk"><input type="checkbox" id="optB64" checked><label>Вынести base64-картинки в файлы</label></div>
         <div class="chk"><input type="checkbox" id="optImg" checked><label>Пережимать картинки (ресайз + перекодировка)</label></div>
-        <div class="chk"><input type="checkbox" id="optImgSmart" checked><label>Умный ресайз — по реальному размеру отображения (×2 retina)</label></div>
+        <div class="chk"><input type="checkbox" id="optImgSmart" checked><label>Умный ресайз — по реальному размеру отображения (×3 retina, порог 800px)</label></div>
         <div class="row">
           <div><label>Макс. ширина (fallback), px</label><input id="optImgMax" value="1000"></div>
-          <div><label>Качество (1–100)</label><input id="optImgQ" value="82"></div>
+          <div><label>Качество (1–100)</label><input id="optImgQ" value="90"></div>
         </div>
         <div class="chk"><input type="checkbox" id="optWebp"><label>Конвертировать в WebP (меняет ссылки .jpg/.png → .webp)</label></div>
         <div class="chk"><input type="checkbox" id="optUnused" checked><label>Удалять неиспользуемые файлы (+ мёртвый jQuery)</label></div>
@@ -2919,7 +2919,7 @@ function readCfg(){
     makeChest:document.getElementById("makeChest").checked,
     keepComments:document.getElementById("keepComments").checked,
     optB64:chk("optB64"),optUnused:chk("optUnused"),optImg:chk("optImg"),optImgSmart:chk("optImgSmart"),optWebp:chk("optWebp"),optJunk:chk("optJunk"),
-    optImgMax:parseInt(val("optImgMax"),10)||1000,optImgQ:Math.min(1,Math.max(0.3,(parseInt(val("optImgQ"),10)||82)/100)),
+    optImgMax:parseInt(val("optImgMax"),10)||1000,optImgQ:Math.min(1,Math.max(0.3,(parseInt(val("optImgQ"),10)||90)/100)),
     thanksDesign:(document.getElementById("thanksDesign")||{}).value||"minimal",
     dedup:chk("dedupOn"),dedupPhoneDays:parseInt(val("dedupPhoneDays"),10)||1,dedupIpMin:parseInt(val("dedupIpMin"),10)||3,
     uiLang:lang,
@@ -3238,14 +3238,14 @@ async function measureDisplaySizes(out){
     await new Promise(function(res){ var done=false,fin=function(){ if(!done){done=true;res();} }; ifr.onload=fin; setTimeout(fin,3000); ifr.srcdoc=html; });
     await new Promise(function(r){ setTimeout(r,450); });   // дать раскладке/картинкам дорисоваться
     var doc=ifr.contentDocument;
-    if(doc) Array.prototype.forEach.call(doc.querySelectorAll("img"),function(im){ var u=im.currentSrc||im.getAttribute("src")||""; var base=b2p[u]; if(!base) return; var w=Math.round(im.getBoundingClientRect().width); if(w>0){ var t=Math.min(2400,w*2); if(!map[base]||t>map[base]) map[base]=t; } });
+    if(doc) Array.prototype.forEach.call(doc.querySelectorAll("img"),function(im){ var u=im.currentSrc||im.getAttribute("src")||""; var base=b2p[u]; if(!base) return; var w=Math.round(im.getBoundingClientRect().width); if(w>0){ var t=Math.min(3000,w*3); if(!map[base]||t>map[base]) map[base]=t; } });
     document.body.removeChild(ifr);
     Object.keys(p2b).forEach(function(k){ try{URL.revokeObjectURL(p2b[k]);}catch(e){} });
   }catch(e){ console.warn("measureDisplaySizes",e); }
   return map;
 }
 async function optImages(out, cfg, rep){
-  var maxW=cfg.optImgMax||1000, q=cfg.optImgQ||0.82, webp=!!cfg.optWebp;
+  var maxW=cfg.optImgMax||1000, q=cfg.optImgQ||0.9, webp=!!cfg.optWebp;
   var disp = (cfg.optImgSmart!==false) ? await measureDisplaySizes(out) : {};   // умный размер по факту отображения
   for(var i=0;i<out.length;i++){ var f=out[i];
     if(!f.bytes) continue;
@@ -3257,10 +3257,12 @@ async function optImages(out, cfg, rep){
     URL.revokeObjectURL(url); if(!im) continue;
     var w=im.naturalWidth,h=im.naturalHeight; if(!w||!h) continue;
     var base=f.name.split("/").pop();
-    var target = Math.min(disp[base]||maxW, maxW);   // умный размер (замер×2), но не выше потолка «Макс. ширина»
+    var smart = Math.min(disp[base]||maxW, maxW);       // умный размер (замер×3), но не выше потолка «Макс. ширина»
+    var floor = Math.min(w, 800);                        // нижний порог: контент-фото не мельчим ниже 800px (или исходника) — иначе каша
+    var target = Math.max(smart, floor);
     var nw=Math.min(w,target), nh=Math.max(1,Math.round(h*nw/w));
     var cv=document.createElement("canvas"); cv.width=nw; cv.height=nh;
-    try{ cv.getContext("2d").drawImage(im,0,0,nw,nh); }catch(e){ continue; }
+    try{ var ctx=cv.getContext("2d"); ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality="high"; ctx.drawImage(im,0,0,nw,nh); }catch(e){ continue; }
     var alpha=(ext==="png"||ext==="webp"), type=webp?"image/webp":(alpha?"image/png":"image/jpeg");
     var nb=await optCanvasBytes(cv,type,(type==="image/jpeg"||type==="image/webp")?q:undefined);
     if(!nb||!nb.length) continue;
