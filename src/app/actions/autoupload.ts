@@ -314,25 +314,15 @@ async function gatherCabinetPages(
   const portfolioBiz = [...votes.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
   const ownedByBiz = portfolioBiz ? globalPages.filter((p) => ownerById.get(p.id) === portfolioBiz) : [];
 
-  // Финал: страницы портфеля (точный набор Ads Manager). Если портфель не
-  // определился (owner_business пуст) — откат на подтверждённые, затем глобальный.
-  const nameOf = new Map(globalPages.map((p) => [p.id, p.name]));
-  type Raw = { id: string; name: string; isPublished?: boolean; promotionEligible?: boolean; ineligibleReason?: string };
-  let source: string;
-  const byId = new Map<string, Raw>();
-  if (ownedByBiz.length) {
-    for (const p of ownedByBiz) byId.set(p.id, p);
-    source = `портфель ${portfolioBiz}`;
-  } else if (confirmed.size) {
-    for (const p of promote) byId.set(p.id, { id: p.id, name: p.name });
-    for (const id of creativePageIds) if (!byId.has(id)) byId.set(id, { id, name: nameOf.get(id) || id });
-    source = 'подтверждённые (портфель не определён)';
-  } else {
-    for (const p of globalPages) byId.set(p.id, p);
-    source = 'глобально';
-  }
-  const pages = annotatePages([...byId.values()], promote);
-  const debug = `агентский · портфель ${portfolioBiz || '—'} · в портфеле ${ownedByBiz.length} · owner_business у ${withOwner}/${globalPages.length} · promote ${promote.length} · из объявл. ${creativePageIds.length} ⇒ ${pages.length} (${source})`;
+  // Финал: если портфель определился (токен отдал owner_business) — показываем
+  // ровно его страницы (точный набор Ads Manager). Если нет — НЕ выдумываем
+  // огрызок из promote/объявлений, а показываем полный чистый список токена с
+  // пометками бан/активна (как на обычных аккаунтах).
+  const usedPortfolio = ownedByBiz.length > 0;
+  const pages = annotatePages(usedPortfolio ? ownedByBiz : globalPages, promote);
+  const debug = usedPortfolio
+    ? `агентский · портфель ${portfolioBiz} · в портфеле ${ownedByBiz.length} ⇒ ${pages.length}`
+    : `агентский · owner_business недоступен токену (${withOwner}/${globalPages.length}) — полный список ⇒ ${pages.length}`;
   return { pages, debug };
 }
 

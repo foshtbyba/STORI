@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'pages-owner-node-multiget · 29.09 01:28';
+export const BUILD_INFO = 'pages-agency-full-fallback · 29.09 07:18';
