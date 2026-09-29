@@ -9,7 +9,7 @@ import TopBar from '@/components/TopBar';
 import Workspace from '@/components/Workspace';
 import {
   IconCalendar, IconChart, IconBox, IconPeak, IconTag, IconWallet, IconRocket, IconLink, IconMusic,
-  IconPlay, IconUpload,
+  IconPlay, IconUpload, IconFlag,
 } from '@/components/icons';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -47,6 +47,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const adsItems = [
     { href: '/ads', label: 'Обзор', icon: <IconChart size={15} /> },
     { href: '/ads/campaigns', label: 'Кампании', icon: <IconRocket size={15} /> },
+    ...(team ? [{ href: '/ads/autorules', label: 'Автоправила', icon: <IconFlag size={15} /> }] : []),
     { href: '/ads/upload', label: 'Автозалив', icon: <IconTag size={15} /> },
     { href: '/ads/domains', label: 'Домены', icon: <IconLink size={15} />, divider: true },
     { href: '/tiktok', label: 'Обзор', icon: <IconMusic size={15} />, divider: true },

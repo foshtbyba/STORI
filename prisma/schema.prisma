@@ -958,6 +958,81 @@ model UploadedVideo {
 /// Запись о запуске автозалива — для истории и разбора, что именно ушло в ФБ.
 /// Пишется по факту оркестрации: сколько объявлений создано, в каком режиме,
 /// и лог по шагам (текстом). Денег не двигает — это просто журнал.
+/// Шаблон АВТОПРАВИЛА. Условие + действие; крутит наш крон (см. runAutoRules),
+/// потому что только он видит ROI из Keitaro. Тонкие пороги — в params (JSON),
+/// чтобы не плодить колонки под каждый тип.
+model AutoRule {
+  id        String  @id @default(cuid())
+  name      String
+  /// roi_pause | spend_no_conv_pause | cpa_pause | roi_scale | schedule
+  type      String
+  /// campaign | adset | ad — на каком уровне считаем метрики и применяем действие
+  level     String  @default("ad")
+  /// окно расчёта метрик в днях (1 = сегодня по МСК)
+  windowDays Int    @default(1)
+  /// пороги/параметры под тип (JSON): roiMin, spendMinCents, cpaMaxCents, event,
+  /// stepPct, capCents, offTime, onTime, days[], reactivate, cooldownMin …
+  params    String  @default("{}")
+  /// владелец-создатель (для скоупа); scope: owner | buyer
+  buyerId   String  @default("")
+  scope     String  @default("owner")
+  enabled   Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignments AutoRuleAssignment[]
+
+  @@index([enabled])
+}
+
+/// Куда применяется правило: кабинет целиком или (сужение) конкретная цель.
+model AutoRuleAssignment {
+  id          String   @id @default(cuid())
+  ruleId      String
+  rule        AutoRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  adAccountId String   // AdAccount.id
+  /// '' — весь кабинет; иначе FB id цели (кампания/адсет/объявление по level правила)
+  scopeFbId   String   @default("")
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@unique([ruleId, adAccountId, scopeFbId])
+  @@index([adAccountId])
+}
+
+/// Состояние правила по конкретной цели — чтобы уметь ОТКАТИТЬ своё же действие
+/// (реактивация при восстановлении, включение по расписанию). Возвращаем только
+/// то, что само правило и выключило.
+model AutoRuleState {
+  id               String    @id @default(cuid())
+  ruleId           String
+  targetFbId       String    // FB id цели (кампания/адсет/объявление)
+  targetType       String    @default("ad")
+  pausedByRule     Boolean   @default(false) // пауза от условия — вернуть при восстановлении
+  pausedBySchedule Boolean   @default(false) // пауза по расписанию — вернуть в on-time
+  lastScaleAt      DateTime?                  // антидребезг роста бюджета
+  updatedAt        DateTime  @updatedAt
+
+  @@unique([ruleId, targetFbId])
+}
+
+/// Журнал действий автоправил: что, где и почему сделано.
+model AutoRuleLog {
+  id          String   @id @default(cuid())
+  ruleId      String   @default("")
+  ruleName    String   @default("")
+  adAccountId String   @default("")
+  accountName String   @default("")
+  targetType  String   @default("")
+  targetFbId  String   @default("")
+  targetName  String   @default("")
+  action      String   @default("") // pause | start | budget_up | skip | error
+  reason      String   @default("")
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 model UploadJob {
   id           String   @id @default(cuid())
   buyerId      String?

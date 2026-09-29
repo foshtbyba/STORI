@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { syncAll, syncFacebookCampaigns, syncFacebookAds, SYNC_DAYS } from '@/lib/sync';
+import { runAutoRules } from '@/lib/autorules';
 
 // Синхронизация нарочно неспешная — с паузами между запросами к Facebook,
 // чтобы не словить чекпоинт. Полный заход длится минуты, поэтому маршрут
@@ -59,6 +60,14 @@ export async function GET(req: Request) {
   if (url.searchParams.get('only') === 'campaigns') {
     const result = await syncFacebookCampaigns();
     return NextResponse.json({ ok: true, only: 'campaigns', ...result });
+  }
+
+  // Прогон АВТОПРАВИЛ: ?only=autorules. Работает по уже собранным метрикам
+  // (FbAd/FbAdDay), поэтому лёгкий и его можно дёргать часто (напр. раз в 10–15
+  // мин днём). Расписание (dayparting) требует запуска рядом с offTime/onTime.
+  if (url.searchParams.get('only') === 'autorules') {
+    const result = await runAutoRules();
+    return NextResponse.json({ ok: true, only: 'autorules', ...result });
   }
 
   // Расход по объявлениям с привязкой к потокам Keitaro: ?only=ads[&days=N].

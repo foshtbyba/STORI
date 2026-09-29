@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'ig-use-page-actor-override · 29.09 19:12';
+export const BUILD_INFO = 'autorules-v1 · 29.09 19:41';
