@@ -5,7 +5,7 @@ import { canSeeTeam, type Role } from '@/lib/roles';
 import { Panel, PanelHead } from '@/components/ui';
 import { IconFlag } from '@/components/icons';
 import { listAutoRules, listAssignableAccounts, loadAutoRuleLog } from '@/app/actions/autorules';
-import { AUTO_RULE_TYPES } from '@/lib/autorules';
+import { METRICS, ACTIONS, FREQUENCIES, WINDOWS } from '@/lib/autorules';
 import AutoRules from '@/components/AutoRules';
 
 /**
@@ -37,7 +37,10 @@ export default async function AutoRulesPage() {
             initialRules={rulesR.rules ?? []}
             accounts={accsR.accounts ?? []}
             initialLog={logR.rows ?? []}
-            types={AUTO_RULE_TYPES.map((t) => ({ type: t.type, label: t.label }))}
+            metrics={METRICS.map((m) => ({ key: m.key, label: m.label, unit: m.unit }))}
+            actions={ACTIONS.map((a) => ({ key: a.key, label: a.label }))}
+            frequencies={FREQUENCIES.map((f) => ({ key: f.key, label: f.label }))}
+            windows={WINDOWS.map((w) => ({ key: w.key, label: w.label }))}
           />
         </div>
       </Panel>

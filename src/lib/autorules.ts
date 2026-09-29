@@ -1,143 +1,159 @@
 import 'server-only';
 
 import { prisma } from './db';
-import { fbAccess, setAdStatus, setAdsetBudget, FbError, type FbNet } from './fb';
+import { fbAccess, setAdStatus, setAdsetBudget, FbError } from './fb';
 import { sleep, shuffle } from './pace';
 
 /**
- * Движок автоправил. Крутит его наш крон (см. /api/sync?only=autorules) — именно
- * он, а не нативные правила Facebook, потому что только у нас есть ROI из Keitaro
- * (доход/расход по объявлению из FbAdDay.revenueCents).
+ * Движок автоправил по модели FB/FBtool: гибкий конструктор
+ *   «частота + период статы + уровень + какие статусы брать + действие + условия».
  *
- * Правило = условие + действие, применяется к назначенным кабинетам (или сужено
- * до конкретной цели). Уровень (кампания/адсет/объявление) свой у каждого
- * правила. Метрики считаем из FbAd + FbAdDay агрегацией на нужный уровень.
- * Реактивация: то, что правило само поставило на паузу (или расписание), оно же
- * и включает обратно, когда условие ушло / наступило время «вкл».
+ * Крутит его наш крон (/api/sync?only=autorules) — только он видит ROI/доход из
+ * Keitaro (FbAdDay.revenueCents). «Без условий» (только время/частота) = чистое
+ * расписание (dayparting). Реактивация — отдельное правило на включение с
+ * условием (напр. статус=Остановленные, действие=Запустить, лидов > 0).
  */
 
 const TZ = process.env.SYNC_TZ || 'Europe/Moscow';
 
-// Типы правил v1 (условные, на нашем движке). Расписание (dayparting) добавим
-// отдельно нативными правилами FB. Константа живёт здесь, а не в 'use server'
-// файле actions (там разрешены только async-экспорты).
-export const AUTO_RULE_TYPES = [
-  { type: 'roi_pause', label: 'ROI ниже порога → пауза' },
-  { type: 'spend_no_conv_pause', label: 'Потрачено ≥ $X, 0 конверсий → пауза' },
-  { type: 'cpa_pause', label: 'CPA выше порога → пауза' },
-  { type: 'roi_scale', label: 'ROI выше порога → +% к бюджету' },
-] as const;
+export type Level = 'campaign' | 'adset' | 'ad';
+export type Op = '>' | '<' | '=';
+export type Condition = { metric: string; op: Op; value: number };
+export type ActionKind = 'pause' | 'start' | 'budget_daily';
+export type StatusFilter = 'active' | 'paused' | 'any';
+export type Frequency = 'halfhour' | 'hour' | 'midnight' | 'hour_at';
+export type ActionParams = { mode?: 'pct' | 'set'; value?: number; capCents?: number; floorCents?: number; cooldownMin?: number };
 
-export type AutoRuleParams = {
-  roiMin?: number;        // % (100 = окупаемость), для roi_pause/roi_scale
-  spendMinCents?: number; // минимальный расход, чтобы правило вообще срабатывало
-  cpaMaxCents?: number;   // потолок цены результата, для cpa_pause
-  stepPct?: number;       // на сколько поднять бюджет, roi_scale
-  capCents?: number;      // потолок дневного бюджета, roi_scale
-  cooldownMin?: number;   // антидребезг роста бюджета (мин), roi_scale
-  offTime?: string;       // 'HH:MM' выключить, schedule
-  onTime?: string;        // 'HH:MM' включить, schedule
-  days?: number[];        // дни недели 1..7 (Пн..Вс), когда расписание активно; пусто = все дни
-  reactivate?: boolean;   // возвращать из паузы, когда условие ушло (для pause-типов)
-};
+/** Каталог метрик для условий (то, что реально считаем из FbAd/FbAdDay). */
+export const METRICS: { key: string; label: string; unit: '$' | '%' | '' }[] = [
+  { key: 'spend', label: 'Расход', unit: '$' },
+  { key: 'revenue', label: 'Доход (Keitaro)', unit: '$' },
+  { key: 'roi', label: 'ROI', unit: '%' },
+  { key: 'results', label: 'Результаты (лиды)', unit: '' },
+  { key: 'cpa', label: 'Цена результата (CPA)', unit: '$' },
+  { key: 'impressions', label: 'Показы', unit: '' },
+  { key: 'clicks', label: 'Клики по ссылке', unit: '' },
+  { key: 'ctr', label: 'CTR', unit: '%' },
+  { key: 'cpc', label: 'CPC', unit: '$' },
+  { key: 'cpm', label: 'CPM', unit: '$' },
+];
 
-type Level = 'campaign' | 'adset' | 'ad';
+export const ACTIONS: { key: ActionKind; label: string }[] = [
+  { key: 'pause', label: 'Остановить' },
+  { key: 'start', label: 'Запустить' },
+  { key: 'budget_daily', label: 'Изменить дневной бюджет' },
+];
 
-/** Разбор текущего времени в нужной таймзоне: часы/минуты/день недели (1..7). */
-function tzNow(now = new Date()): { minutes: number; weekday: number } {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: TZ, hour: '2-digit', minute: '2-digit', weekday: 'short', hour12: false,
-  }).formatToParts(now);
-  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? '';
-  const hh = parseInt(get('hour'), 10) || 0;
-  const mm = parseInt(get('minute'), 10) || 0;
-  const wd = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 }[get('weekday')] ?? 0;
-  return { minutes: hh * 60 + mm, weekday: wd };
+export const FREQUENCIES: { key: Frequency; label: string }[] = [
+  { key: 'halfhour', label: 'Каждые полчаса' },
+  { key: 'hour', label: 'Каждый час' },
+  { key: 'midnight', label: 'Каждую полночь' },
+  { key: 'hour_at', label: 'В конкретный час' },
+];
+
+export const WINDOWS: { key: string; label: string }[] = [
+  { key: 'all', label: 'Всё время' },
+  { key: 'today', label: 'Сегодня' },
+  { key: 'yesterday', label: 'Вчера' },
+  { key: 'last2', label: 'Последние 2 дня' },
+  { key: 'last3', label: 'Последние 3 дня' },
+  { key: 'last7', label: 'Последние 7 дней' },
+  { key: 'last14', label: 'Последние 14 дней' },
+  { key: 'last28', label: 'Последние 28 дней' },
+  { key: 'last30', label: 'Последние 30 дней' },
+  { key: 'month', label: 'Текущий месяц' },
+];
+
+/** Разбор времени в TZ: минуты от полуночи + день недели (1..7). */
+function tzNow(now = new Date()): { minutes: number; hour: number } {
+  const p = new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(now);
+  const hh = parseInt(p.find((x) => x.type === 'hour')?.value ?? '0', 10) || 0;
+  const mm = parseInt(p.find((x) => x.type === 'minute')?.value ?? '0', 10) || 0;
+  return { minutes: hh * 60 + mm, hour: hh };
 }
 
-/** 'HH:MM' → минуты от полуночи, либо null. */
-function hm(v?: string): number | null {
-  if (!v) return null;
-  const m = /^(\d{1,2}):(\d{2})$/.exec(v.trim());
-  if (!m) return null;
-  return (parseInt(m[1], 10) % 24) * 60 + (parseInt(m[2], 10) % 60);
+/** UTC-полночь календарного дня TZ, со сдвигом на daysAgo дней назад. */
+function tzDayStart(daysAgo: number, now = new Date()): Date {
+  const p = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now);
+  const g = (t: string) => parseInt(p.find((x) => x.type === t)?.value ?? '0', 10);
+  return new Date(Date.UTC(g('year'), g('month') - 1, g('day')) - daysAgo * 86_400_000);
 }
 
-/** Начало окна (windowDays календарных дней, включая сегодня) как UTC-дата дня. */
-function windowCutoff(windowDays: number, now = new Date()): Date {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit',
-  }).formatToParts(now);
-  const g = (t: string) => parseInt(parts.find((p) => p.type === t)?.value ?? '0', 10);
-  const base = Date.UTC(g('year'), g('month') - 1, g('day'));
-  return new Date(base - Math.max(0, windowDays - 1) * 86_400_000);
-}
-
-type Agg = { spend: number; leads: number; revenue: number };
-type Target = {
-  key: string;        // FB id цели (кампания/адсет/объявление)
-  type: Level;
-  name: string;
-  budgetId: string;   // куда слать смену бюджета
-  dailyBudget: number | null;
-  agg: Agg;
-};
-
-/** Собрать цели уровня level с агрегированными метриками за окно. */
-function buildTargets(
-  level: Level,
-  ads: { adId: string; name: string; adsetId: string; adsetName: string; campaignId: string; campaignName: string; budgetTargetId: string; dailyBudget: number | null }[],
-  daysByAd: Map<string, Agg>,
-): Map<string, Target> {
-  const out = new Map<string, Target>();
-  for (const a of ads) {
-    const key = level === 'ad' ? a.adId : level === 'adset' ? a.adsetId : a.campaignId;
-    if (!key) continue;
-    let t = out.get(key);
-    if (!t) {
-      t = {
-        key,
-        type: level,
-        name: level === 'ad' ? (a.name || a.adId) : level === 'adset' ? (a.adsetName || a.adsetId) : (a.campaignName || a.campaignId),
-        budgetId: level === 'ad' ? (a.budgetTargetId || a.adsetId) : level === 'adset' ? a.adsetId : a.campaignId,
-        dailyBudget: a.dailyBudget ?? null,
-        agg: { spend: 0, leads: 0, revenue: 0 },
-      };
-      out.set(key, t);
+/** Диапазон дат окна для фильтра FbAdDay.date. */
+function windowRange(kind: string, now = new Date()): { gte?: Date; lt?: Date } {
+  switch (kind) {
+    case 'all': return {};
+    case 'today': return { gte: tzDayStart(0, now) };
+    case 'yesterday': return { gte: tzDayStart(1, now), lt: tzDayStart(0, now) };
+    case 'last2': return { gte: tzDayStart(1, now) };
+    case 'last3': return { gte: tzDayStart(2, now) };
+    case 'last7': return { gte: tzDayStart(6, now) };
+    case 'last14': return { gte: tzDayStart(13, now) };
+    case 'last28': return { gte: tzDayStart(27, now) };
+    case 'last30': return { gte: tzDayStart(29, now) };
+    case 'month': {
+      const p = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit' }).formatToParts(now);
+      const g = (t: string) => parseInt(p.find((x) => x.type === t)?.value ?? '0', 10);
+      return { gte: new Date(Date.UTC(g('year'), g('month') - 1, 1)) };
     }
-    if (t.dailyBudget == null && a.dailyBudget != null) t.dailyBudget = a.dailyBudget;
-    const d = daysByAd.get(a.adId);
-    if (d) { t.agg.spend += d.spend; t.agg.leads += d.leads; t.agg.revenue += d.revenue; }
+    default: return { gte: tzDayStart(0, now) };
   }
-  return out;
 }
 
-function roiPct(a: Agg): number | null {
-  if (a.spend <= 0) return null;
-  return (a.revenue / a.spend) * 100;
-}
-function cpaCents(a: Agg): number | null {
-  if (a.leads <= 0) return null;
-  return a.spend / a.leads;
+type Agg = { spend: number; impressions: number; clicks: number; leads: number; revenue: number };
+const emptyAgg = (): Agg => ({ spend: 0, impressions: 0, clicks: 0, leads: 0, revenue: 0 });
+
+/** Значение метрики в НАТУРАЛЬНЫХ единицах: $ / % / штуки. null — посчитать нельзя. */
+function metricValue(key: string, a: Agg): number | null {
+  switch (key) {
+    case 'spend': return a.spend / 100;
+    case 'revenue': return a.revenue / 100;
+    case 'roi': return a.spend > 0 ? (a.revenue / a.spend) * 100 : null;
+    case 'results': return a.leads;
+    case 'cpa': return a.leads > 0 ? a.spend / 100 / a.leads : null;
+    case 'impressions': return a.impressions;
+    case 'clicks': return a.clicks;
+    case 'ctr': return a.impressions > 0 ? (a.clicks / a.impressions) * 100 : null;
+    case 'cpc': return a.clicks > 0 ? a.spend / 100 / a.clicks : null;
+    case 'cpm': return a.impressions > 0 ? (a.spend / 100 / a.impressions) * 1000 : null;
+    default: return null;
+  }
 }
 
-export type AutoRulesResult = { rules: number; actions: number; errors: number; info: string[] };
+function cmp(op: Op, a: number, b: number): boolean {
+  if (op === '>') return a > b;
+  if (op === '<') return a < b;
+  return Math.abs(a - b) < 1e-9;
+}
 
-export async function runAutoRules(): Promise<AutoRulesResult> {
-  const res: AutoRulesResult = { rules: 0, actions: 0, errors: 0, info: [] };
+/** Гейт по частоте: пора ли гонять правило. */
+function isDue(freq: Frequency, hourAt: number | null, lastRunAt: Date | null, now = new Date()): boolean {
+  const { hour, minutes } = tzNow(now);
+  const sinceMin = lastRunAt ? (now.getTime() - lastRunAt.getTime()) / 60_000 : Infinity;
+  if (freq === 'halfhour') return sinceMin >= 29;
+  if (freq === 'hour') return sinceMin >= 59;
+  if (freq === 'midnight') return minutes < 60 && sinceMin >= 120; // в первый час суток, раз
+  if (freq === 'hour_at') return hourAt != null && hour === hourAt && sinceMin >= 50;
+  return sinceMin >= 29;
+}
+
+export type AutoRulesResult = { rules: number; ran: number; actions: number; errors: number; info: string[] };
+
+export async function runAutoRules(force = false): Promise<AutoRulesResult> {
+  const res: AutoRulesResult = { rules: 0, ran: 0, actions: 0, errors: 0, info: [] };
   const now = new Date();
 
-  const rules = await prisma.autoRule.findMany({
-    where: { enabled: true },
-    include: { assignments: { where: { enabled: true } } },
-  });
+  const rules = await prisma.autoRule.findMany({ where: { enabled: true }, include: { assignments: { where: { enabled: true } } } });
   res.rules = rules.length;
-  if (!rules.length) return res;
 
-  // Группируем работу по кабинету: назначение → (rule, assignment).
+  // Только те правила, которым пора и у которых есть куда применяться.
+  const due = rules.filter((r) => r.assignments.length && (force || isDue(r.frequency as Frequency, r.hourAt, r.lastRunAt, now)));
+  if (!due.length) return res;
+
+  // Группируем по кабинету.
   type Job = { rule: (typeof rules)[number]; scopeFbId: string };
   const byAccount = new Map<string, Job[]>();
-  for (const rule of rules) {
+  for (const rule of due) {
     for (const asg of rule.assignments) {
       const arr = byAccount.get(asg.adAccountId) ?? [];
       arr.push({ rule, scopeFbId: asg.scopeFbId });
@@ -145,172 +161,149 @@ export async function runAutoRules(): Promise<AutoRulesResult> {
     }
   }
 
+  const ranRuleIds = new Set<string>();
+
   for (const accId of shuffle([...byAccount.keys()])) {
     const jobs = byAccount.get(accId)!;
     const acc = await prisma.adAccount.findUnique({ where: { id: accId }, include: { adToken: true } });
-    if (!acc || !acc.enabled) continue;
-    if (acc.accountStatus !== 1) continue; // не активный кабинет — не трогаем
+    if (!acc || !acc.enabled || acc.accountStatus !== 1) continue;
     const tok = acc.adToken;
     if (!tok.enabled) continue;
     if (tok.pausedUntil && tok.pausedUntil > now) continue;
-
     const { token: access, net } = fbAccess(tok.token, { cookiesJson: tok.cookiesJson, proxyUrl: tok.proxyUrl });
 
-    // Метрики: грузим объявления кабинета и их дни за максимальное окно среди правил.
-    const maxWindow = Math.max(1, ...jobs.map((j) => j.rule.windowDays || 1));
-    const cutoff = windowCutoff(maxWindow, now);
     const ads = await prisma.fbAd.findMany({
       where: { adAccountId: accId },
-      select: { id: true, adId: true, name: true, adsetId: true, adsetName: true, campaignId: true, campaignName: true, budgetTargetId: true, dailyBudget: true, status: true },
+      select: { id: true, adId: true, name: true, status: true, adsetId: true, adsetName: true, campaignId: true, campaignName: true, budgetTargetId: true, dailyBudget: true },
     });
     if (!ads.length) continue;
+
+    // Дни за самое широкое окно среди правил этого каба.
+    const kinds = jobs.map((j) => j.rule.windowKind);
+    const gteCandidates = kinds.map((k) => windowRange(k, now).gte).filter(Boolean) as Date[];
+    const widestGte = kinds.includes('all') ? undefined : (gteCandidates.length ? new Date(Math.min(...gteCandidates.map((d) => d.getTime()))) : tzDayStart(0, now));
     const dayRows = await prisma.fbAdDay.findMany({
-      where: { date: { gte: cutoff }, ad: { adAccountId: accId } },
-      select: { adId: true, date: true, spendCents: true, leads: true, revenueCents: true },
+      where: { ad: { adAccountId: accId }, ...(widestGte ? { date: { gte: widestGte } } : {}) },
+      select: { adId: true, date: true, spendCents: true, impressions: true, clicks: true, leads: true, revenueCents: true },
     });
-    // Индекс дней по внутреннему adId (FbAd.id) для срезов окна конкретного правила.
-    const daysByRuleWindow = (windowDays: number): Map<string, Agg> => {
-      const c = windowCutoff(windowDays, now).getTime();
-      const m = new Map<string, Agg>();
-      for (const r of dayRows) {
-        if (r.date.getTime() < c) continue;
-        const cur = m.get(r.adId) ?? { spend: 0, leads: 0, revenue: 0 };
-        cur.spend += r.spendCents; cur.leads += r.leads; cur.revenue += r.revenueCents;
-        m.set(r.adId, cur);
-      }
-      return m;
-    };
-    const statusByFbId = new Map<string, string>(); // для ad-уровня
-    for (const a of ads) statusByFbId.set(a.adId, a.status);
 
-    const act = async (
-      job: Job, target: Target,
-      action: 'pause' | 'start' | 'budget_up', reason: string,
-      apply: () => Promise<unknown>,
-    ) => {
-      try {
-        await apply();
-        await sleep(600);
-        res.actions += 1;
-        await prisma.autoRuleLog.create({ data: {
-          ruleId: job.rule.id, ruleName: job.rule.name, adAccountId: accId, accountName: acc.name || acc.externalId,
-          targetType: target.type, targetFbId: target.key, targetName: target.name, action, reason,
-        } });
-      } catch (e) {
-        res.errors += 1;
-        res.info.push(`${acc.name || acc.externalId}/${job.rule.name}: ${e instanceof FbError ? e.message : (e as Error).message}`);
-        await prisma.autoRuleLog.create({ data: {
-          ruleId: job.rule.id, ruleName: job.rule.name, adAccountId: accId, accountName: acc.name || acc.externalId,
-          targetType: target.type, targetFbId: target.key, targetName: target.name, action: 'error',
-          reason: `${reason} — ${e instanceof FbError ? e.message : (e as Error).message}`,
-        } });
-      }
+    const log = async (job: Job, target: { type: Level; key: string; name: string }, action: string, reason: string) => {
+      await prisma.autoRuleLog.create({ data: {
+        ruleId: job.rule.id, ruleName: job.rule.name, adAccountId: accId, accountName: acc.name || acc.externalId,
+        targetType: target.type, targetFbId: target.key, targetName: target.name, action, reason,
+      } });
     };
-
-    const getState = async (ruleId: string, targetFbId: string) =>
-      prisma.autoRuleState.findUnique({ where: { ruleId_targetFbId: { ruleId, targetFbId } } });
-    const setState = (ruleId: string, targetFbId: string, targetType: Level, data: { pausedByRule?: boolean; pausedBySchedule?: boolean; lastScaleAt?: Date }) =>
-      prisma.autoRuleState.upsert({
-        where: { ruleId_targetFbId: { ruleId, targetFbId } },
-        update: data,
-        create: { ruleId, targetFbId, targetType, ...data },
-      });
 
     for (const job of jobs) {
+      ranRuleIds.add(job.rule.id);
       const { rule } = job;
-      const level = (rule.level as Level) || 'ad';
-      let params: AutoRuleParams = {};
-      try { params = JSON.parse(rule.params || '{}'); } catch { params = {}; }
+      const level = (rule.level as Level) || 'adset';
+      const range = windowRange(rule.windowKind, now);
+      let conditions: Condition[] = [];
+      try { conditions = JSON.parse(rule.conditions || '[]'); } catch { conditions = []; }
+      let ap: ActionParams = {};
+      try { ap = JSON.parse(rule.actionParams || '{}'); } catch { ap = {}; }
+      const useConds = rule.conditionsEnabled && conditions.length > 0;
 
-      const daysByAd = daysByRuleWindow(rule.windowDays || 1);
-      let targets = [...buildTargets(level, ads, daysByAd).values()];
-      // Сужение до конкретной цели, если задано в назначении.
-      if (job.scopeFbId) targets = targets.filter((t) => t.key === job.scopeFbId);
-      if (!targets.length) continue;
+      // Собираем цели уровня level + агрегируем метрики за окно правила.
+      type T = { key: string; name: string; budgetId: string; dailyBudget: number | null; agg: Agg; anyActive: boolean };
+      const targets = new Map<string, T>();
+      const inWindow = (d: Date) => (!range.gte || d >= range.gte) && (!range.lt || d < range.lt);
+      const dayByAd = new Map<string, Agg>();
+      for (const r of dayRows) {
+        if (!inWindow(r.date)) continue;
+        const cur = dayByAd.get(r.adId) ?? emptyAgg();
+        cur.spend += r.spendCents; cur.impressions += r.impressions; cur.clicks += r.clicks; cur.leads += r.leads; cur.revenue += r.revenueCents;
+        dayByAd.set(r.adId, cur);
+      }
+      for (const a of ads) {
+        const key = level === 'ad' ? a.adId : level === 'adset' ? a.adsetId : a.campaignId;
+        if (!key) continue;
+        let t = targets.get(key);
+        if (!t) {
+          t = {
+            key,
+            name: level === 'ad' ? (a.name || a.adId) : level === 'adset' ? (a.adsetName || a.adsetId) : (a.campaignName || a.campaignId),
+            budgetId: level === 'ad' ? (a.budgetTargetId || a.adsetId) : level === 'adset' ? a.adsetId : a.campaignId,
+            dailyBudget: a.dailyBudget ?? null, agg: emptyAgg(), anyActive: false,
+          };
+          targets.set(key, t);
+        }
+        if (t.dailyBudget == null && a.dailyBudget != null) t.dailyBudget = a.dailyBudget;
+        if (a.status === 'ACTIVE') t.anyActive = true;
+        const d = dayByAd.get(a.adId);
+        if (d) { t.agg.spend += d.spend; t.agg.impressions += d.impressions; t.agg.clicks += d.clicks; t.agg.leads += d.leads; t.agg.revenue += d.revenue; }
+      }
 
-      const spendMin = params.spendMinCents ?? 0;
+      let list = [...targets.values()];
+      if (job.scopeFbId) list = list.filter((t) => t.key === job.scopeFbId);
 
-      for (const t of targets) {
-        const st = await getState(rule.id, t.key);
-        const knownActive = level === 'ad' ? statusByFbId.get(t.key) === 'ACTIVE' : undefined;
+      // Фильтр по статусу («какие статусы брать»).
+      if (rule.statusFilter === 'active') list = list.filter((t) => t.anyActive);
+      else if (rule.statusFilter === 'paused') list = list.filter((t) => !t.anyActive);
 
-        // ── Расписание (dayparting) ─────────────────────────────────────────
-        if (rule.type === 'schedule') {
-          const off = hm(params.offTime); const on = hm(params.onTime);
-          if (off == null || on == null) continue;
-          const { minutes, weekday } = tzNow(now);
-          const daysOk = !params.days?.length || params.days.includes(weekday);
-          // Окно «выключено»: от off до on (с переходом через полночь).
-          const inOff = daysOk && (off <= on ? (minutes >= off && minutes < on) : (minutes >= off || minutes < on));
-          if (inOff) {
-            const already = st?.pausedBySchedule;
-            if (!already && (knownActive ?? true)) {
-              await act(job, t, 'pause', `Расписание: выключено ${params.offTime}–${params.onTime}`, () => setAdStatus(access, t.key, 'PAUSED', net));
-              await setState(rule.id, t.key, level, { pausedBySchedule: true });
+      for (const t of list) {
+        // Проверка условий (И-логика). «Без условий» → срабатывает всегда (по времени).
+        let reason = 'по расписанию';
+        if (useConds) {
+          let allOk = true; const parts: string[] = [];
+          for (const c of conditions) {
+            const v = metricValue(c.metric, t.agg);
+            if (v == null || !cmp(c.op, v, c.value)) { allOk = false; break; }
+            const m = METRICS.find((x) => x.key === c.metric);
+            parts.push(`${m?.label ?? c.metric} ${c.op} ${c.value}${m?.unit === '$' ? '$' : m?.unit === '%' ? '%' : ''}`);
+          }
+          if (!allOk) continue;
+          reason = parts.join(' И ');
+        }
+
+        try {
+          if (rule.action === 'pause') {
+            await setAdStatus(access, t.key, 'PAUSED', net);
+            await log(job, { type: level, key: t.key, name: t.name }, 'pause', reason);
+          } else if (rule.action === 'start') {
+            await setAdStatus(access, t.key, 'ACTIVE', net);
+            await log(job, { type: level, key: t.key, name: t.name }, 'start', reason);
+          } else if (rule.action === 'budget_daily') {
+            if (!t.budgetId) continue;
+            const cur = t.dailyBudget ?? 0;
+            // Антидребезг бюджета — по состоянию цели.
+            const cd = (ap.cooldownMin ?? 0) * 60_000;
+            if (cd > 0) {
+              const st = await prisma.autoRuleState.findUnique({ where: { ruleId_targetFbId: { ruleId: rule.id, targetFbId: t.key } } });
+              if (st?.lastScaleAt && now.getTime() - st.lastScaleAt.getTime() < cd) continue;
             }
-          } else if (st?.pausedBySchedule) {
-            await act(job, t, 'start', `Расписание: включено (${params.onTime})`, () => setAdStatus(access, t.key, 'ACTIVE', net));
-            await setState(rule.id, t.key, level, { pausedBySchedule: false });
+            let next: number;
+            if (ap.mode === 'set') next = Math.max(0, Math.round(ap.value ?? 0));
+            else next = Math.round(cur * (1 + (ap.value ?? 0) / 100)); // pct (может быть отрицательным)
+            if (ap.capCents && ap.capCents > 0) next = Math.min(next, ap.capCents);
+            if (ap.floorCents && ap.floorCents > 0) next = Math.max(next, ap.floorCents);
+            if (next <= 0 || next === cur) continue;
+            await setAdsetBudget(access, t.budgetId, next, net);
+            await prisma.autoRuleState.upsert({
+              where: { ruleId_targetFbId: { ruleId: rule.id, targetFbId: t.key } },
+              update: { lastScaleAt: new Date() },
+              create: { ruleId: rule.id, targetFbId: t.key, targetType: level, lastScaleAt: new Date() },
+            });
+            await log(job, { type: level, key: t.key, name: t.name }, 'budget_up', `${reason} — бюджет $${(cur / 100).toFixed(2)}→$${(next / 100).toFixed(2)}`);
+          } else {
+            continue;
           }
-          continue;
-        }
-
-        // ── Рост бюджета по ROI ─────────────────────────────────────────────
-        if (rule.type === 'roi_scale') {
-          const roi = roiPct(t.agg);
-          if (t.agg.spend < spendMin || roi == null) continue;
-          if ((params.roiMin ?? 0) > 0 && roi < params.roiMin!) continue;
-          const cooldownMs = (params.cooldownMin ?? 360) * 60_000;
-          if (st?.lastScaleAt && now.getTime() - st.lastScaleAt.getTime() < cooldownMs) continue;
-          const cur = t.dailyBudget ?? 0;
-          if (cur <= 0 || !t.budgetId) continue;
-          const step = params.stepPct ?? 20;
-          const cap = params.capCents ?? 0;
-          let next = Math.round(cur * (1 + step / 100));
-          if (cap > 0) next = Math.min(next, cap);
-          if (next <= cur) continue;
-          await act(job, t, 'budget_up',
-            `ROI ${roi.toFixed(0)}% ≥ ${params.roiMin ?? 0}% — бюджет $${(cur / 100).toFixed(2)}→$${(next / 100).toFixed(2)}`,
-            () => setAdsetBudget(access, t.budgetId, next, net));
-          await setState(rule.id, t.key, level, { lastScaleAt: new Date() });
-          continue;
-        }
-
-        // ── Паузы по условию (+реактивация) ─────────────────────────────────
-        let bad = false;
-        let reason = '';
-        if (rule.type === 'roi_pause') {
-          const roi = roiPct(t.agg);
-          if (t.agg.spend >= spendMin && roi != null && roi < (params.roiMin ?? 0)) {
-            bad = true; reason = `ROI ${roi.toFixed(0)}% < ${params.roiMin ?? 0}% при расходе $${(t.agg.spend / 100).toFixed(2)}`;
-          }
-        } else if (rule.type === 'spend_no_conv_pause') {
-          if (t.agg.spend >= spendMin && t.agg.leads === 0) {
-            bad = true; reason = `Расход $${(t.agg.spend / 100).toFixed(2)} ≥ $${(spendMin / 100).toFixed(2)}, конверсий 0`;
-          }
-        } else if (rule.type === 'cpa_pause') {
-          const cpa = cpaCents(t.agg);
-          if (t.agg.spend >= spendMin && cpa != null && cpa > (params.cpaMaxCents ?? 0)) {
-            bad = true; reason = `CPA $${(cpa / 100).toFixed(2)} > $${((params.cpaMaxCents ?? 0) / 100).toFixed(2)}`;
-          }
-        } else {
-          continue; // неизвестный тип
-        }
-
-        if (bad) {
-          const alreadyPaused = st?.pausedByRule;
-          if (!alreadyPaused && (knownActive ?? true)) {
-            await act(job, t, 'pause', reason, () => setAdStatus(access, t.key, 'PAUSED', net));
-            await setState(rule.id, t.key, level, { pausedByRule: true });
-          }
-        } else if (params.reactivate && st?.pausedByRule) {
-          // Условие ушло (напр. долетел лид / ROI выправился) — возвращаем то, что
-          // сами и выключили.
-          await act(job, t, 'start', 'Условие ушло — реактивация', () => setAdStatus(access, t.key, 'ACTIVE', net));
-          await setState(rule.id, t.key, level, { pausedByRule: false });
+          res.actions += 1;
+          await sleep(600);
+        } catch (e) {
+          res.errors += 1;
+          res.info.push(`${acc.name || acc.externalId}/${rule.name}: ${e instanceof FbError ? e.message : (e as Error).message}`);
+          await log(job, { type: level, key: t.key, name: t.name }, 'error', `${reason} — ${e instanceof FbError ? e.message : (e as Error).message}`);
         }
       }
     }
+  }
+
+  // Отметить прогон (гейт по частоте) для тех правил, что реально гонялись.
+  if (ranRuleIds.size) {
+    await prisma.autoRule.updateMany({ where: { id: { in: [...ranRuleIds] } }, data: { lastRunAt: now } });
+    res.ran = ranRuleIds.size;
   }
 
   return res;

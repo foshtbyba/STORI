@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'autorules-v1 · 29.09 19:41';
+export const BUILD_INFO = 'autorules-builder · 29.09 20:03';

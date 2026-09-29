@@ -961,22 +961,37 @@ model UploadedVideo {
 /// Шаблон АВТОПРАВИЛА. Условие + действие; крутит наш крон (см. runAutoRules),
 /// потому что только он видит ROI из Keitaro. Тонкие пороги — в params (JSON),
 /// чтобы не плодить колонки под каждый тип.
+/// Автоправило по модели FB/FBtool: конструктор «частота + период статы +
+/// уровень + какие статусы брать + действие + условия». «Без условий» (только
+/// время) = чистое расписание (dayparting). Реактивация — это отдельное правило
+/// на включение с условием (напр. status=Остановленные, action=start, лидов>0).
 model AutoRule {
   id        String  @id @default(cuid())
   name      String
-  /// roi_pause | spend_no_conv_pause | cpa_pause | roi_scale | schedule
-  type      String
-  /// campaign | adset | ad — на каком уровне считаем метрики и применяем действие
-  level     String  @default("ad")
-  /// окно расчёта метрик в днях (1 = сегодня по МСК)
-  windowDays Int    @default(1)
-  /// пороги/параметры под тип (JSON): roiMin, spendMinCents, cpaMaxCents, event,
-  /// stepPct, capCents, offTime, onTime, days[], reactivate, cooldownMin …
-  params    String  @default("{}")
+  /// campaign | adset | ad — с чем работает и на каком уровне метрики/действие
+  level     String  @default("adset")
+  /// какие статусы БРАТЬ в работу: active | paused | any
+  statusFilter String @default("active")
+  /// действие: pause | start | budget_daily
+  action    String  @default("pause")
+  /// параметры действия (JSON): { mode:'pct'|'set', value, capCents, floorCents, cooldownMin }
+  actionParams String @default("{}")
+  /// частота прогона: halfhour | hour | midnight | hour_at (+ hourAt)
+  frequency String  @default("halfhour")
+  hourAt    Int?    // для frequency=hour_at: конкретный час 0..23 (МСК)
+  /// период статистики для условий: all|today|yesterday|last2|last3|last7|last14|last28|last30|month
+  windowKind String @default("today")
+  /// условия (JSON): [{ metric, op:'>'|'<'|'=', value }] — И-логика
+  conditions String @default("[]")
+  conditionsEnabled Boolean @default(true)
+  /// группа автоправил (для совместного применения); '' — без группы
+  groupName String  @default("")
   /// владелец-создатель (для скоупа); scope: owner | buyer
   buyerId   String  @default("")
   scope     String  @default("owner")
   enabled   Boolean @default(true)
+  /// последний прогон (для гейта по частоте)
+  lastRunAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
