@@ -158,6 +158,17 @@
   .subtoggle.trchest-toggle:hover .chev{color:var(--acc)}
   .subtoggle.trchest-toggle.open{border-color:var(--acc);background:var(--acc-soft)}
 
+  /* «Доп. настройки»: внутренние секции — плоским списком, без вложенных карточек/бейджей */
+  #grpExtra h3{--ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6h10M18 6h2M4 12h2M10 12h10M4 18h7M15 18h5'/%3E%3Ccircle cx='16' cy='6' r='2'/%3E%3Ccircle cx='8' cy='12' r='2'/%3E%3Ccircle cx='13' cy='18' r='2'/%3E%3C/svg%3E")}
+  #extraBody{margin-top:12px}
+  #extraBody .grp{background:none;border:none;border-radius:0;padding:0;margin:0}
+  #extraBody .grp + .grp{border-top:1px solid var(--line)}
+  #extraBody .grp > .gtoggle{min-height:0;padding:14px 6px;margin:0;font-size:14px;font-weight:600;color:var(--fg);border-radius:var(--r-sm);transition:color .15s}
+  #extraBody .grp > .gtoggle:hover{color:var(--acc)}
+  #extraBody .grp h3::before,#extraBody .grp h3::after{display:none}
+  #extraBody .gtoggle .chev{order:-1}
+  #extraBody .grp-body,#extraBody #trBody{padding:2px 6px 14px}
+
   /* ── Приём оффера из дешборда ──────────────────────────────────────
      Оффер уже заведён в дешборде: партнёрка, ID, гео, ссылка. Здесь его
      принимают одной строкой, чтобы не перенабирать то же самое руками. */
@@ -762,7 +773,7 @@
       </div>
     </div>
 
-    <div id="trWrap" class="grp" style="margin-top:14px">
+    <div id="trWrap" class="grp">
       <div class="gtoggle" data-target="trBody"><span class="chev">▸</span> 🌐 Перевод ленда через Claude</div>
       <div id="trBody" style="display:none">
         <label>API-ключ Anthropic</label>
