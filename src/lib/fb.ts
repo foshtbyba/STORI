@@ -1325,88 +1325,81 @@ export async function getPageName(token: string, pageId: string, net: FbNet = {}
  *  3) иначе — создаём PBIA (страница представляет бизнес в Instagram).
  * Пусто — не удалось (тогда IG-плейсменты могут отвалиться).
  */
-export async function resolveInstagramActor(token: string, pageId: string, net: FbNet = {}, accountExternalId?: string): Promise<{ id: string; error?: string }> {
-  // 0. САМЫЙ НАДЁЖНЫЙ ИСТОЧНИК: IG-идентичность, которая УЖЕ стоит в существующих
-  //    объявлениях этого кабинета — ровно та, что FB берёт, когда баер запускает
-  //    рекламу с IG-плейсментами руками. Токен читает свои же креативы/объявления
-  //    (право на это у него есть — он их и создаёт), поэтому #10 Permission Denied
-  //    на /instagram_accounts тут не мешает: instagram_basic не требуется.
-  if (accountExternalId) {
-    try {
-      const r = await call(`/${accountExternalId}/adcreatives`, token,
-        { fields: 'instagram_actor_id,object_story_spec{instagram_actor_id}', limit: '200' }, net) as
-        { data?: { instagram_actor_id?: string; object_story_spec?: { instagram_actor_id?: string } }[] };
-      for (const d of r.data ?? []) {
-        const id = d.instagram_actor_id || d.object_story_spec?.instagram_actor_id;
-        if (id) return { id: String(id) };
-      }
-    } catch { /* нет доступа/поля — пробуем следующий источник */ }
-    try {
-      const r = await call(`/${accountExternalId}/ads`, token,
-        { fields: 'creative{instagram_actor_id}', limit: '200' }, net) as
-        { data?: { creative?: { instagram_actor_id?: string } }[] };
-      for (const d of r.data ?? []) {
-        const id = d.creative?.instagram_actor_id;
-        if (id) return { id: String(id) };
-      }
-    } catch { /* пробуем дальше */ }
-  }
-  // 0б. Уровень РЕКЛАМНОГО КАБИНЕТА: у токена есть доступ к кабинету (в отличие от
-  //    страницы, где часто #10 Permission Denied). IG-аккаунт, привязанный к
-  //    кабинету, годится как instagram_actor_id.
+export async function resolveInstagramActor(token: string, pageId: string, net: FbNet = {}, accountExternalId?: string): Promise<{ ids: string[]; error?: string }> {
+  // Собираем ВСЕХ кандидатов IG-идентичности в порядке приоритета и отдаём списком.
+  // Залив перебирает их: если кабинет не авторизован для одного (код 1815199) —
+  // пробует следующего. Порядок: сперва АВТОРИТЕТНЫЕ (IG-аккаунты самого рекламного
+  // кабинета — их каб точно может использовать), затем привязка к ФП, затем
+  // харвест из старых креативов (может оказаться неавторизованным), затем PBIA.
+  const cands: string[] = [];
+  const push = (id?: string | null) => { if (id && !cands.includes(String(id))) cands.push(String(id)); };
+
+  // 1. Уровень РЕКЛАМНОГО КАБИНЕТА — то, что каб реально авторизован крутить.
   if (accountExternalId) {
     for (const edge of ['instagram_accounts', 'assigned_instagram_accounts']) {
       try {
         const a = await call(`/${accountExternalId}/${edge}`, token, { fields: 'id' }, net) as { data?: { id?: string }[] };
-        const id = (a.data ?? [])[0]?.id;
-        if (id) return { id: String(id) };
-      } catch { /* нет такого эджа/доступа — пробуем дальше */ }
+        for (const d of a.data ?? []) push(d.id);
+      } catch { /* нет эджа/доступа — дальше */ }
     }
   }
+  // 2. IG, привязанный к ФП.
   try {
     const b = await call(`/${pageId}`, token, { fields: 'instagram_business_account,connected_instagram_account' }, net) as {
       instagram_business_account?: { id?: string };
       connected_instagram_account?: { id?: string };
     };
-    const id = b.instagram_business_account?.id || b.connected_instagram_account?.id;
-    if (id) return { id: String(id) };
-  } catch { /* нет доступа/поля — идём дальше */ }
-
-  // Легаси-связка IG со страницей: иногда привязанный IG виден только тут, а не
-  // в instagram_business_account/connected_instagram_account.
+    push(b.instagram_business_account?.id);
+    push(b.connected_instagram_account?.id);
+  } catch { /* дальше */ }
   try {
     const l = await call(`/${pageId}/instagram_accounts`, token, { fields: 'id' }, net) as { data?: { id?: string }[] };
-    const id = (l.data ?? [])[0]?.id;
-    if (id) return { id: String(id) };
-  } catch { /* идём дальше */ }
+    for (const d of l.data ?? []) push(d.id);
+  } catch { /* дальше */ }
 
-  // Операции с page-backed IG (список/создание) ФБ обычно разрешает с ТОКЕНОМ
-  // СТРАНИЦЫ. Берём его; если не дали — пробуем пользовательским.
+  // 3. Харвест из существующих объявлений кабинета — та идентичность, что уже
+  //    крутилась руками. Может быть неавторизованной для ЭТОГО каба (1815199),
+  //    поэтому идёт ПОСЛЕ авторитетных, а не первой.
+  if (accountExternalId) {
+    try {
+      const r = await call(`/${accountExternalId}/adcreatives`, token,
+        { fields: 'instagram_actor_id,object_story_spec{instagram_actor_id}', limit: '200' }, net) as
+        { data?: { instagram_actor_id?: string; object_story_spec?: { instagram_actor_id?: string } }[] };
+      for (const d of r.data ?? []) push(d.instagram_actor_id || d.object_story_spec?.instagram_actor_id);
+    } catch { /* дальше */ }
+    try {
+      const r = await call(`/${accountExternalId}/ads`, token,
+        { fields: 'creative{instagram_actor_id}', limit: '200' }, net) as
+        { data?: { creative?: { instagram_actor_id?: string } }[] };
+      for (const d of r.data ?? []) push(d.creative?.instagram_actor_id);
+    } catch { /* дальше */ }
+  }
+
+  // 4. Существующий page-backed IG (PBIA).
   let pageToken = token;
   try {
     const pt = await call(`/${pageId}`, token, { fields: 'access_token' }, net) as { access_token?: string };
     if (pt.access_token) pageToken = String(pt.access_token);
-  } catch { /* нет прав на токен страницы — пробуем пользовательским */ }
-
-  // Сначала уже существующий PBIA (обоими токенами — что сработает).
+  } catch { /* дальше */ }
   for (const tk of pageToken === token ? [token] : [pageToken, token]) {
     try {
       const l = await call(`/${pageId}/page_backed_instagram_accounts`, tk, { fields: 'id' }, net) as { data?: { id?: string }[] };
-      const id = (l.data ?? [])[0]?.id;
-      if (id) return { id: String(id) };
-    } catch { /* пробуем следующий токен / создание */ }
+      for (const d of l.data ?? []) push(d.id);
+    } catch { /* дальше */ }
   }
-  // Создание PBIA — пробуем обоими токенами, на актуальной версии создания.
-  // Реальную причину сбоя возвращаем наружу (в журнал), чтобы было видно, что
-  // именно не даёт создать IG-идентичность (права, версия, статус страницы).
+
+  if (cands.length) return { ids: cands };
+
+  // 5. Кандидатов нет — создаём PBIA (страница представляет бизнес в Instagram).
+  //    Причину сбоя возвращаем наружу (в журнал).
   let lastErr = '';
   for (const tk of pageToken === token ? [token] : [pageToken, token]) {
     try {
       const c = await call(`/${pageId}/page_backed_instagram_accounts`, tk, {}, net, 'POST', CREATE_API_VERSION) as { id?: string };
-      if (c.id) return { id: String(c.id) };
+      if (c.id) return { ids: [String(c.id)] };
     } catch (e) { lastErr = (e as Error).message; }
   }
-  return { id: '', error: lastErr };
+  return { ids: [], error: lastErr };
 }
 
 /** Регион FB для исключения: ключ + человекочитаемое имя со страной. */

@@ -852,19 +852,24 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     let dsaPayer = dsaBeneficiary;
     append(`DSA: продвигается/платит — ${dsaBeneficiary}`);
     const igRes = await resolveInstagramActor(token, pageId, net, ctx.acc.externalId);
-    // Изменяемый: если найденный IG-аккаунт окажется НЕ авторизован для кабинета
-    // (код 1815199 на сборке креатива), сбросим его и пересоберём без IG.
-    let igActor = igRes.id;
-    // Кабинет не имеет доступа к подставленному IG-аккаунту (1815199): найденный
-    // из старых креативов IG-actor кабинету не разрешён. Убираем его и повторяем —
-    // дальше FB представит бизнес Страницей, а если адсет всё же потребует IG
-    // (1772103) — mkAd снимет IG-плейсменты (останется Facebook).
+    // Очередь кандидатов IG (авторитетные — первыми). Текущий — igActor; на 1815199
+    // (каб не авторизован для него) берём следующего, а когда очередь пуста —
+    // убираем IG совсем (FB представит Страницей; если адсет потребует IG — mkAd
+    // снимет IG-плейсменты, останется Facebook).
+    const igCandidates = [...igRes.ids];
+    let igActor = igCandidates.shift() ?? '';
     const dropIgActorOnUnauthorized = (err: unknown): boolean => {
       const msg = err instanceof Error ? err.message : String(err);
       if (!/1815199|does not have access to this instagram|authoris?ed instagram account/i.test(msg)) return false;
       if (!igActor) return false;
-      append('⚠ Кабинет не авторизован для найденного IG-аккаунта (1815199) — убираю IG-идентичность и пересобираю (FB представит Страницей / останется Facebook).');
-      igActor = '';
+      const next = igCandidates.shift() ?? '';
+      if (next) {
+        append(`⚠ Кабинет не авторизован для IG-аккаунта ${igActor} (1815199) — пробую следующего: ${next}`);
+        igActor = next;
+      } else {
+        append('⚠ Кабинет не авторизован ни для одного найденного IG-аккаунта (1815199) — убираю IG-идентичность и пересобираю (FB представит Страницей / останется Facebook).');
+        igActor = '';
+      }
       return true;
     };
     // Жёсткий признак «IG кабинету недоступен»: токену не хватает прав на IG
@@ -879,7 +884,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // Страницей), а если объявление отобьёт 1772103 — их снимет само-хил в mkAd.
     let placements = tpl.placements ? validPlacementKeys(tpl.placements.split(',')) : [];
     if (igActor) {
-      append(`Instagram: нашёл IG-идентичность кабинета (${igActor}) — IG/Threads-плейсменты пойдут как при ручном запуске`);
+      append(`Instagram: IG-идентичность (${igActor})${igCandidates.length ? ` +${igCandidates.length} запасных` : ''} — IG/Threads-плейсменты пойдут как при ручном запуске`);
     } else if (igHardDenied) {
       const before = placements.length;
       placements = stripInstagramFamily(placements);
