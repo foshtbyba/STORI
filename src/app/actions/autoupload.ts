@@ -852,7 +852,21 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     let dsaPayer = dsaBeneficiary;
     append(`DSA: продвигается/платит — ${dsaBeneficiary}`);
     const igRes = await resolveInstagramActor(token, pageId, net, ctx.acc.externalId);
-    const igActor = igRes.id;
+    // Изменяемый: если найденный IG-аккаунт окажется НЕ авторизован для кабинета
+    // (код 1815199 на сборке креатива), сбросим его и пересоберём без IG.
+    let igActor = igRes.id;
+    // Кабинет не имеет доступа к подставленному IG-аккаунту (1815199): найденный
+    // из старых креативов IG-actor кабинету не разрешён. Убираем его и повторяем —
+    // дальше FB представит бизнес Страницей, а если адсет всё же потребует IG
+    // (1772103) — mkAd снимет IG-плейсменты (останется Facebook).
+    const dropIgActorOnUnauthorized = (err: unknown): boolean => {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (!/1815199|does not have access to this instagram|authoris?ed instagram account/i.test(msg)) return false;
+      if (!igActor) return false;
+      append('⚠ Кабинет не авторизован для найденного IG-аккаунта (1815199) — убираю IG-идентичность и пересобираю (FB представит Страницей / останется Facebook).');
+      igActor = '';
+      return true;
+    };
     // Жёсткий признак «IG кабинету недоступен»: токену не хватает прав на IG
     // (#10 Permission Denied) — ни через кабинет, ни через Страницу IG-аккаунт не
     // получить и не создать. Тогда IG/Threads НЕ пройдут никак: даже
@@ -1067,6 +1081,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
               await sleep(300);
               continue;
             }
+            if (dropIgActorOnUnauthorized(e)) { await sleep(300); continue; }
             if (switchPageOnMismatch(e)) { await sleep(300); continue; }
             throw e;
           }
@@ -1340,7 +1355,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         }
         await sleep(200);
         let creativeId = '';
-        for (let a = 0; a < optOut.length + 3; a += 1) {
+        for (let a = 0; a < optOut.length + 4; a += 1) {
           try {
             creativeId = await createAdCreative(token, ext, {
               name: label,
@@ -1360,6 +1375,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
               await sleep(300);
               continue;
             }
+            if (dropIgActorOnUnauthorized(e)) { await sleep(300); continue; }
             if (switchPageOnMismatch(e)) { await sleep(300); continue; }
             throw e;
           }
