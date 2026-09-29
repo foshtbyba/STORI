@@ -331,7 +331,8 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
         if (d.mode === 'midnight') fd.set('startAt', nextMoscowMidnight());
         if (d.mode === 'scheduled' && d.startLocal) fd.set('startAt', new Date(d.startLocal).toISOString());
         for (const v of d.videos) fd.append('video', v);
-        await startUpload(fd);
+        const r = await startUpload(fd);
+        if (!r.ok) throw new Error(r.error || 'сервер отклонил запуск');
       }
       const n = queue.length;
       setQueue([]);

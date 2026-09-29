@@ -509,21 +509,28 @@ function runPerAccount(accountId: string, task: () => Promise<unknown>): Promise
  * Несколько заливов на ОДИН кабинет идут по очереди, на разные — параллельно.
  */
 export async function startUpload(form: FormData): Promise<{ ok: boolean; error?: string }> {
-  await requireUser();
-  // Копия формы с файлами, вычитанными в буфер (переживёт ответ сервера).
-  const cloned = new FormData();
-  for (const [k, v] of form.entries()) {
-    if (v instanceof File) {
-      const buf = await v.arrayBuffer();
-      cloned.append(k, new File([buf], v.name, { type: v.type }));
-    } else {
-      cloned.append(k, v);
+  // Ловим ошибку прелюдии и ВОЗВРАЩАЕМ её текст, а не бросаем: иначе прод-сборка
+  // Next маскирует любое исключение экшена в «An error occurred in the Server
+  // Components render… digest…», и в UI не видно настоящей причины.
+  try {
+    await requireUser();
+    // Копия формы с файлами, вычитанными в буфер (переживёт ответ сервера).
+    const cloned = new FormData();
+    for (const [k, v] of form.entries()) {
+      if (v instanceof File) {
+        const buf = await v.arrayBuffer();
+        cloned.append(k, new File([buf], v.name, { type: v.type }));
+      } else {
+        cloned.append(k, v);
+      }
     }
+    const accountId = String(cloned.get('accountId') ?? '') || 'unknown';
+    // Не ждём: пусть крутится в фоне. Ошибки уедут в журнал самого залива.
+    void runPerAccount(accountId, () => runAutoupload(cloned).catch(() => {}));
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }
-  const accountId = String(cloned.get('accountId') ?? '') || 'unknown';
-  // Не ждём: пусть крутится в фоне. Ошибки уедут в журнал самого залива.
-  void runPerAccount(accountId, () => runAutoupload(cloned).catch(() => {}));
-  return { ok: true };
 }
 
 export type JobRow = {

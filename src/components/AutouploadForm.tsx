@@ -432,7 +432,8 @@ export default function AutouploadForm({ cabinets, templates, languages = [], ad
           const startAt = d.mode === 'midnight' ? nextMoscowMidnight().iso : d.startAt;
           if (startAt) fd.set('startAt', startAt);
           for (const f of d.files) fd.append('images', f);
-          await startUpload(fd);
+          const r = await startUpload(fd);
+          if (!r.ok) throw new Error(r.error || 'сервер отклонил запуск');
           n += 1;
         }
       }
