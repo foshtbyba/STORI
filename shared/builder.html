@@ -547,7 +547,7 @@
 
 <div class="wrap">
   <div class="panel left">
-    <div class="grp">
+    <div class="grp" id="grpPartner">
       <h3>Партнёрка</h3>
       <div class="intake">
         <input id="offerPaste" placeholder="Вставь сюда оффер из дешборда">
@@ -627,7 +627,7 @@
       </div>
     </div>
 
-    <div class="grp">
+    <div class="grp" id="grpPixel">
       <h3 class="gtoggle" data-target="pxBody"><span class="chev">▸</span> Meta Pixel (конверсии FB)</h3>
       <div id="pxBody" class="grp-body" style="display:none">
         <div class="chk"><input type="checkbox" id="pxOn" checked><label>Вставлять Meta Pixel (PageView + конверсия)</label></div>
@@ -709,7 +709,7 @@
       <div class="chk" style="margin-top:8px"><input type="checkbox" id="favOn" checked><label>Фавикон = фото оффера (на ленде и call/error)</label></div>
     </div>
 
-    <div class="grp">
+    <div class="grp" id="grpSource">
       <h3>Источник</h3>
       <div class="seg">
         <button id="modeFolder" class="active">Загрузить папку</button>
@@ -3804,6 +3804,11 @@ function enhanceSelect(sel){
   document.getElementById("btnChest").addEventListener("click",downloadChestZip);
   document.querySelectorAll(".tab").forEach(function(el){el.addEventListener("click",function(){showTab(el.dataset.t);});});
   document.querySelectorAll(".dl button[data-f]").forEach(function(b){b.addEventListener("click",function(){if(!FILES.index)build();var f=b.dataset.f;dl(f+".html",FILES[f]);});});
+  // порядок панелей левого меню: сверху рабочие (всегда открыты), снизу раскрывающиеся по значимости (реже — ниже; правь массив под себя)
+  (function(){var L=document.querySelector(".panel.left"); if(!L) return;
+    ["grpPartner","grpPages","grpOffer","grpSource","grpDedup","grpChest","grpOpt","trWrap","grpPixel"]
+      .forEach(function(id){var el=document.getElementById(id); if(el) L.appendChild(el);});
+  })();
   // правка исходника на вкладке «✎ исходник» — пишем обратно и пересобираем (не дёргая showTab, чтобы не сбросить текст)
   var _srcT; document.getElementById("out").addEventListener("input",function(){
     if(currentTab!=="src" && currentTab!=="index") return;   // обе вкладки правят исходник ленда
