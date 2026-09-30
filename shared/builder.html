@@ -3764,6 +3764,13 @@ function enhanceSelect(sel){
   langEl.addEventListener("input",function(){ var L=langFromGeo(langEl.value); if(L){ul.value=L; ul.dispatchEvent(new Event("change"));} autoFillCountry(); try{build();}catch(e){} });
   if(countryEl){ countryEl.addEventListener("input",function(){ countryEl.dataset.auto=countryEl.value?"0":"1"; try{build();}catch(e){} }); }
 
+  // живое превью call/error/сундук: смена вида/бренда/картинки/цены/фавикона сразу пересобирает (иначе обновлялось только после повторной загрузки фото)
+  (function(){
+    var reb; function kick(){ clearTimeout(reb); reb=setTimeout(function(){ try{build();}catch(e){} },220); }
+    ["thanksDesign","favOn"].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener("change",function(){ try{build();}catch(_){} }); });
+    ["brand","image","price"].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener("input",kick); });
+  })();
+
   function setMode(m){
     MODE=m;
     document.getElementById("modeHtml").classList.toggle("active",m==="html");
