@@ -5,6 +5,12 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+document.addEventListener('wheel', function(e){
+  window.scrollBy(0, e.deltaY);
+}, {capture: true, passive: true});
+document.addEventListener('touchmove', function(){}, {capture: true, passive: true});
+</script>
   <link href="css/css.css" rel="stylesheet">
   <link rel="stylesheet" href="css/comments.css">
   <link rel="stylesheet" href="css/style_2.css">
