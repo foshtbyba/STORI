@@ -3337,10 +3337,28 @@ function optRemoveUnused(out, rep){
   return keep;
 }
 
+// call/error -> самодостаточны: зашиваем их картинки/фавикон инлайном (уже сжатыми, после optImages).
+// Иначе относительный путь (images/...) на задеплоенном ленде может не резолвиться = битая картинка.
+function inlineCallErrAssets(out, cfg){
+  if(cfg && cfg.native) return;
+  var succ=((cfg&&cfg.successName)||"call.html").toLowerCase(), errn=((cfg&&cfg.errorName)||"error.html").toLowerCase();
+  var byBase={}; out.forEach(function(f){ if(f.bytes && IMG_EXT.test(f.name)){ var b=baseName(f.name).toLowerCase(); if(!byBase[b]) byBase[b]=f; } });
+  out.forEach(function(f){
+    if(typeof f.str!=="string") return;
+    var bn=baseName(f.name).toLowerCase(); if(bn!==succ && bn!==errn) return;
+    f.str=f.str.replace(/((?:src|href)\s*=\s*["'])([^"']+)(["'])/gi,function(m,a,ref,c){
+      if(/^(data:|https?:|#|mailto:|tel:)/i.test(ref)) return m;
+      var b=ref.split("?")[0].split("#")[0].split("/").pop().toLowerCase();
+      var g=byBase[b]; if(!g) return m;
+      try{ return a+"data:"+mimeOf(g.name)+";base64,"+bytesToB64(g.bytes)+c; }catch(e){ return m; }
+    });
+  });
+}
 async function optimizeOut(out, cfg, rep){
   if(cfg.optB64) optExtractB64(out, rep);
   if(cfg.optJunk) optJunk(out, rep);
   if(cfg.optImg) await optImages(out, cfg, rep);
+  inlineCallErrAssets(out, cfg);   // call/error self-contained (после сжатия)
   if(cfg.optUnused){ optDeadLibs(out, rep); out=optRemoveUnused(out, rep); }
   return out;
 }
