@@ -2196,6 +2196,9 @@ function injectFavicon(html,img){
   html=html.replace(/<link\b[^>]*\brel=["'][^"']*icon[^"']*["'][^>]*>\s*/gi,"");
   return injectHead(html,'<link rel="icon" href="'+esc(img)+'">');
 }
+// единый источник фавикона: фото оффера, из папки -> data-uri (самодостаточно для call/error/сундука, где своих images может не быть)
+function faviconHref(cfg){ if(!cfg||cfg.favicon===false||!cfg.image) return null; return inlineFolderImg(cfg.image)||cfg.image; }
+function faviconTag(cfg){ var h=faviconHref(cfg); return h?('<link rel="icon" href="'+esc(h)+'">'):''; }
 // сигнатуры «старых обработчиков заказа» ВСЕХ известных партнёрок (для галки «Вырезать старый обработчик»).
 // Расширяй при добавлении новой партнёрки: тело инлайн-скрипта и внешние src её обработчика.
 var ORDER_HANDLER_BODY=/send_order|sendData|send_lead|sendForm|order\.php|m1\.top|m1ref|\/api\/order\//i;
@@ -2341,7 +2344,7 @@ var THANKS_DESIGNS=[["minimal","Минимал (карточка)"],["splash","�
 function pageHead(cfg,isErr){var t=cfg.t;return `<!DOCTYPE html>
 <html lang="${cfg.langCode}"${dirAttr(cfg)}>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${esc(isErr?t.errt:t.thanks)}</title>${(cfg.favicon!==false&&cfg.image)?'<link rel="icon" href="'+esc(cfg.image)+'">':''}
+<title>${esc(isErr?t.errt:t.thanks)}</title>${faviconTag(cfg)}
 ${pixelBlock(cfg,!isErr)}`;}
 function orderIdScript(cfg){var t=cfg.t;return `<script>(function(){var id=new URLSearchParams(location.search).get('order_id');if(id){var e=document.getElementById('order-id');if(e){e.textContent='${esc(t.ordno)}'+id;e.style.display='';}}})();<\/script>`;}
 function svgIcon(isErr){return `<svg viewBox="0 0 52 52">${isErr?'<path d="M26 15v16"/><path d="M26 37l.02 0"/>':'<path d="M15 27l7.5 7.5L38 18"/>'}</svg>`;}
@@ -2520,7 +2523,7 @@ function buildChest(cfg){var t=cfg.t,was=doubleCalc(cfg.price).full,now=cfg.pric
 <head><meta charset="UTF-8"><meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
 <title>${esc(t.action)}</title>
 <link href="css/styles.css" media="all" rel="stylesheet"><link href="css/css.css" media="all" rel="stylesheet">
-<link rel="icon" href="favicon.ico">
+${faviconTag(cfg)||'<link rel="icon" href="favicon.ico">'}
 <style>body{margin:0;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1a2b42;background:radial-gradient(1100px 520px at 50% -8%,#eaf2fb,#f6f9fc 60%)}.container{max-width:560px;margin:0 auto;padding:22px 16px 40px}.top_block h1{font-size:23px;line-height:1.4;text-align:center;margin:8px 0 6px}.vis_big{text-align:center;font-size:16px}.new_price_val{color:#e53935;font-weight:800}.select_block__title{font-size:16px;text-align:center;line-height:1.5}.text_big{font-size:15px;color:#4a5a70;text-align:center;line-height:1.6}.chest__title{font-size:20px;text-align:center;margin:14px 0 2px}.chest__subtitle{font-size:15px;color:#4a5a70;text-align:center;font-weight:500;margin:0 0 8px}
 /* у шаблона нет графики рулетки/bounce.js — прячем её, показываем промо-карточку с формой */
 .chest__button,.chest__img--dinamic,.chest__coins,#pushChest{display:none!important}.chest__order{display:block!important}</style>
