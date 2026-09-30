@@ -564,7 +564,7 @@
         <input id="offerPaste" placeholder="Вставь сюда оффер из дешборда">
         <button id="offerApply" type="button">Вставить</button>
       </div>
-      <div class="hint" id="offerPasteHint">На карточке оффера в дешборде — кнопка «Копировать для билдера». Вставь строку сюда: партнёрка, ID, гео и остальное встанут сами.</div>
+      <div class="hint">На карточке оффера в дешборде — кнопка «Копировать для билдера». Вставь строку сюда: партнёрка, ID, гео и остальное встанут сами.</div>
       <label>Партнёрка (API приёма заказов)</label>
       <select id="partner"></select>
       <div class="hint" id="partnerHint"></div>
@@ -693,7 +693,7 @@
         <div class="chk"><input type="checkbox" id="optImgSmart" checked><label>Умный ресайз — по реальному размеру отображения (×3 retina, порог 800px)</label></div>
         <div class="row">
           <div><label>Макс. ширина (fallback), px</label><input id="optImgMax" value="1000"></div>
-          <div><label>Качество (1–100)</label><input id="optImgQ" value="90"></div>
+          <div><label>Качество (30–100)</label><input id="optImgQ" value="90"></div>
         </div>
         <div class="chk"><input type="checkbox" id="optWebp"><label>Конвертировать в WebP (меняет ссылки .jpg/.png → .webp)</label></div>
         <div class="chk"><input type="checkbox" id="optGifDrop"><label>Убрать тяжёлый GIF-фолбэк, если рядом есть webp-анимация (−вес; на очень старых браузерах без webp пропадёт анимация)</label></div>
@@ -1318,7 +1318,7 @@ function b64utf8(b){ try{ return decodeURIComponent(escape(atob(b))); }catch(e){
 function affstarApiPhp(cfg){ var s=b64utf8(AFFSTAR_API_B64), key=(cfg.affstarKey||"").replace(/\x27/g,""), flow=String(cfg.product_id||"").replace(/\x27/g,"");
   if(key)  s=s.replace(/const\s+API_KEY\s*=\s*\x27[^\x27]*\x27\s*;/, "const API_KEY = \x27"+key+"\x27;");
   if(flow) s=s.replace(/const\s+FLOW_UUID\s*=\s*\x27[^\x27]*\x27\s*;/, "const FLOW_UUID = \x27"+flow+"\x27;");
-  if(cfg.dedup){ var __pt=Math.max(1,(cfg.dedupPhoneDays||1))*86400, __it=Math.max(1,(cfg.dedupIpMin||5))*60;
+  if(cfg.dedup){ var __pt=Math.max(1,(cfg.dedupPhoneDays||1))*86400, __it=Math.max(1,(cfg.dedupIpMin||3))*60;
     s=s.replace("<?php", "<?php\n"+DD_FNS);
     s=s.replace("(new LeadSender())->send();",
       "$__ddp = preg_replace(\x27/\\D+/\x27, \x27\x27, (isset($_POST[\x27phone\x27])?$_POST[\x27phone\x27]:\x27\x27));\n    $GLOBALS[\x27__dd\x27] = ss_dd_check($__ddp, (!empty($_SERVER[\x27REMOTE_ADDR\x27])?$_SERVER[\x27REMOTE_ADDR\x27]:\x27\x27), __DIR__, "+__pt+", "+__it+");\n    if (!empty($GLOBALS[\x27__dd\x27][\x27dup\x27])) { header(\x27Location: __SUCCESS_PAGE__\x27); exit; }\n    (new LeadSender())->send();");
@@ -1516,7 +1516,7 @@ function pixelBlock(cfg, conv){
   if(conv){
     var ev=(cfg.pxev||"Lead").replace(/[^A-Za-z]/g,"");
     var pr=[];
-    if(cfg.pxval!=="" && !isNaN(parseFloat(cfg.pxval))) pr.push("value:"+parseFloat(cfg.pxval));
+    if(cfg.pxval!=="" && !isNaN(pxNum(cfg.pxval))) pr.push("value:"+pxNum(cfg.pxval));
     if(cfg.pxcur) pr.push("currency:'"+cfg.pxcur.replace(/[^A-Za-z]/g,"").toUpperCase()+"'");
     convJs=" fbq('track','"+ev+"'"+(pr.length?(",{"+pr.join(",")+"}"):"")+");";
   }
@@ -1664,7 +1664,8 @@ const CHESTX={
 function T(lang){return Object.assign({},TXT.en,ERR.en,CHESTX.en,TXT[lang]||{},ERR[lang]||{},CHESTX[lang]||{});}
 
 /* ================= ГЕНЕРАЦИЯ ================= */
-function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function pxNum(v){return parseFloat(String(v==null?"":v).replace(/\s/g,"").replace(",","."));}   // значение пикселя: "19,90" -> 19.9
 function offerObject(cfg){return {endpoint:cfg.endpoint,okField:cfg.okField,okValue:cfg.okValue,idField:cfg.idField,product_id:cfg.product_id,ref:cfg.ref,api_key:cfg.api_key,langCode:cfg.langCode,success:cfg.success,error:cfg.error,out:true,msgName:cfg.t.an,msgPhone:cfg.t.ap,buyer:cfg.buyerTag||"",buyerField:cfg.buyerField||""};}
 // back-fix (демонетизация «назад») — общий для всех режимов. В сундуке не нужен (cfg.noBackfix)
 function backfixBlock(cfg){ return (cfg.backfix && !cfg.noBackfix) ? '<script src="'+(cfg.ywUrl||"js/ywbackfix.js")+'"\n        data-redirect="true"\n        data-links=\'["'+cfg.backfix+'"]\'>\n<\/script>' : ""; }
@@ -1688,7 +1689,7 @@ function shakesCountry(cfg){ return (cfg.country||cfg.langCode||"").toUpperCase(
 // ─── Антидубль: серверная предпроверка (пер-ленд _dedup.json, sha256-хэши, автоочистка окон) ───
 var DD_FNS="function ss_dd_check($phone,$ip,$dir,$pt,$it){$rip=!empty($_SERVER['HTTP_CF_CONNECTING_IP'])?$_SERVER['HTTP_CF_CONNECTING_IP']:(!empty($_SERVER['HTTP_TRUE_CLIENT_IP'])?$_SERVER['HTTP_TRUE_CLIENT_IP']:(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])?trim(explode(',',$_SERVER['HTTP_X_FORWARDED_FOR'])[0]):$ip));if($rip!==''&&$rip!==null)$ip=$rip;$f=$dir.'/_dedup.json';$n=time();$s=array('ph'=>array(),'ip'=>array());if(is_file($f)){$j=json_decode(@file_get_contents($f),true);if(is_array($j)){if(!empty($j['ph'])&&is_array($j['ph']))$s['ph']=$j['ph'];if(!empty($j['ip'])&&is_array($j['ip']))$s['ip']=$j['ip'];}}foreach($s['ph'] as $k=>$t){if($t<$n-$pt)unset($s['ph'][$k]);}foreach($s['ip'] as $k=>$t){if($t<$n-$it)unset($s['ip'][$k]);}$ph=($phone!=='')?hash('sha256',$phone):'';$ik=($ip!=='')?hash('sha256',$ip):'';$d=($ph!==''&&isset($s['ph'][$ph]))||($ik!==''&&isset($s['ip'][$ik]));if(!$d){if($ph!=='')$s['ph'][$ph]=$n;if($ik!=='')$s['ip'][$ik]=$n;@file_put_contents($f,json_encode($s),LOCK_EX);}return array('dup'=>$d,'store'=>$s,'ph'=>$ph,'ik'=>$ik,'file'=>$f,'now'=>$n);}\nfunction ss_dd_mark($r){if(!is_array($r))return;$s=$r['store'];if($r['ph']!=='')$s['ph'][$r['ph']]=$r['now'];if($r['ik']!=='')$s['ip'][$r['ik']]=$r['now'];@file_put_contents($r['file'],json_encode($s),LOCK_EX);}\n";
 function ddFns(cfg){ return cfg.dedup ? DD_FNS : ""; }
-function ddCheck(cfg, successStmt){ if(!cfg.dedup) return ""; var pt=Math.max(1,(cfg.dedupPhoneDays||1))*86400, it=Math.max(1,(cfg.dedupIpMin||5))*60;
+function ddCheck(cfg, successStmt){ if(!cfg.dedup) return ""; var pt=Math.max(1,(cfg.dedupPhoneDays||1))*86400, it=Math.max(1,(cfg.dedupIpMin||3))*60;
   return "$__ddp = preg_replace('/\\D+/', '', (isset($_POST['phone'])?$_POST['phone']:''));\n"+
          "$__dd = ss_dd_check($__ddp, (!empty($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:''), __DIR__, "+pt+", "+it+");\n"+
          "if (!empty($__dd['dup'])) { "+successStmt+" }\n\n"; }
@@ -1908,7 +1909,7 @@ function orderPhpFor(cfg){ return cfg.phpGen==="hamsters" ? hamstersOrderPhp(cfg
 function limonadPixel(cfg){
   if(!cfg.pxOn) return "";
   var ev=(cfg.pxev||"Lead").replace(/[^A-Za-z]/g,""), pr=[];
-  if(cfg.pxval!=="" && !isNaN(parseFloat(cfg.pxval))) pr.push("value:"+parseFloat(cfg.pxval));
+  if(cfg.pxval!=="" && !isNaN(pxNum(cfg.pxval))) pr.push("value:"+pxNum(cfg.pxval));
   if(cfg.pxcur) pr.push("currency:'"+cfg.pxcur.replace(/[^A-Za-z]/g,"").toUpperCase()+"'");
   var args="'"+ev+"'"+(pr.length?(",{"+pr.join(",")+"}"):"");
   return "<script>\n"+
@@ -1968,7 +1969,7 @@ function kmaSuccessPhp(cfg){
 "$lead_sent = false;\n"+
 (cfg.dedup?
   "$__ddp = preg_replace('/\\\\D+/', '', $phone);\n"+
-  "$__dd = ss_dd_check($__ddp, (!empty($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:''), __DIR__, "+(Math.max(1,(cfg.dedupPhoneDays||1))*86400)+", "+(Math.max(1,(cfg.dedupIpMin||5))*60)+");\n"+
+  "$__dd = ss_dd_check($__ddp, (!empty($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:''), __DIR__, "+(Math.max(1,(cfg.dedupPhoneDays||1))*86400)+", "+(Math.max(1,(cfg.dedupIpMin||3))*60)+");\n"+
   "if (!empty($__dd['dup'])) { $lead_sent = true; $lead_name = $name; }\n"
 :"")+
 "\n"+
@@ -2294,7 +2295,7 @@ function patchHtml(cfg, html){
     // в SS нет success-страницы, поэтому событие конверсии (Purchase) фаерим на КЛИК по CTA-кнопке
     if(cfg.pxOn){
       var ssEv=String(cfg.pxev||"Purchase").replace(/[^\w]/g,"")||"Purchase";
-      var ssV=parseFloat(cfg.pxval), ssProps=(!isNaN(ssV))?(",{value:"+ssV+",currency:'"+(String(cfg.pxcur||"USD").replace(/[^A-Za-z]/g,"")||"USD")+"'}"):"";
+      var ssV=pxNum(cfg.pxval), ssProps=(!isNaN(ssV))?(",{value:"+ssV+",currency:'"+(String(cfg.pxcur||"USD").replace(/[^A-Za-z]/g,"")||"USD")+"'}"):"";
       var ssPx='<script>(function(){function f(e){var a=e.target&&e.target.closest?e.target.closest("a[data-ss-cta]"):null;if(!a)return;try{if(window.fbq)fbq("track","'+ssEv+'"'+ssProps+');}catch(_){}}document.addEventListener("click",f,true);})();<\/script>';
       if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,ssPx+"\n</body>"); else html+="\n"+ssPx;
     }
@@ -2307,7 +2308,7 @@ function patchHtml(cfg, html){
     var block=orderBlock(cfg);
     if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,block+"\n</body>"); else html+="\n"+block;
   }
-  if(cfg.dedup){ var __lock='<script>(function(){function L(f){var s=false;f.addEventListener("submit",function(e){if(s){e.preventDefault();e.stopImmediatePropagation();return false;}s=true;var b=f.querySelector("[type=submit],button");if(b)setTimeout(function(){b.disabled=true;},0);},true);}Array.prototype.forEach.call(document.querySelectorAll("form"),L);})();<\/script>'; var __ddm1="<script>/*ssddm1*/(function(){var PW=86400000,IW=180000,K=location.pathname.replace(/[^a-z0-9]/gi,'').slice(-48);function dig(v){return String(v||'').replace(/\\D+/g,'');}function isdup(ph){try{var n=Date.now(),lk='ssddL_'+K,mk='ssddP_'+K,last=+(localStorage.getItem(lk)||0),m=JSON.parse(localStorage.getItem(mk)||'{}');for(var k in m){if(n-m[k]>PW)delete m[k];}var d=(last&&n-last<IW)||!!m[ph];if(!d){m[ph]=n;localStorage.setItem(mk,JSON.stringify(m));localStorage.setItem(lk,String(n));}return d;}catch(e){return false;}}function succ(){var u;try{u=(window.OFFER&&OFFER.success)||'call.html';}catch(e){u='call.html';}try{location.replace(u+location.search);}catch(e){location.href=u;}}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var nm=nf?String(nf.value||'').trim():'x';var ph=dig(pf.value);if(!nm||!ph||ph.length<7)return;if(isdup(ph)){e.preventDefault();e.stopImmediatePropagation();succ();}},true);})();<\/script>"; var __both=__lock+"\n"+__ddm1; if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,__both+"\n</body>"); else html+="\n"+__both; }   // антидубль: замок двойного сабмита + localStorage-дедуп для m1
+  if(cfg.dedup){ var __lock='<script>(function(){function L(f){var s=false;f.addEventListener("submit",function(e){if(s){e.preventDefault();e.stopImmediatePropagation();return false;}s=true;var b=f.querySelector("[type=submit],button");if(b)setTimeout(function(){b.disabled=true;},0);},true);}Array.prototype.forEach.call(document.querySelectorAll("form"),L);})();<\/script>'; var __ddm1="<script>/*ssddm1*/(function(){var PW="+((cfg.dedupPhoneDays||1)*86400000)+",IW="+((cfg.dedupIpMin||3)*60000)+",K=location.pathname.replace(/[^a-z0-9]/gi,'').slice(-48);function dig(v){return String(v||'').replace(/\\D+/g,'');}function isdup(ph){try{var n=Date.now(),lk='ssddL_'+K,mk='ssddP_'+K,last=+(localStorage.getItem(lk)||0),m=JSON.parse(localStorage.getItem(mk)||'{}');for(var k in m){if(n-m[k]>PW)delete m[k];}var d=(last&&n-last<IW)||!!m[ph];if(!d){m[ph]=n;localStorage.setItem(mk,JSON.stringify(m));localStorage.setItem(lk,String(n));}return d;}catch(e){return false;}}function succ(){var u;try{u=(window.OFFER&&OFFER.success)||'call.html';}catch(e){u='call.html';}try{location.replace(u+location.search);}catch(e){location.href=u;}}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var nm=nf?String(nf.value||'').trim():'x';var ph=dig(pf.value);if(!nm||!ph||ph.length<7)return;if(isdup(ph)){e.preventDefault();e.stopImmediatePropagation();succ();}},true);})();<\/script>"; var __both=__lock+"\n"+__ddm1; if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,__both+"\n</body>"); else html+="\n"+__both; }   // антидубль: замок двойного сабмита + localStorage-дедуп для m1
   if(cfg.keepComments){
     // видимый маркер сверху (чтобы было понятно, что файл собран/изменён)
     var mark="<!-- ✦ собрано конструктором: +Meta Pixel (head) +блок заказа (перед /body), lang="+(cfg.langCode||"?")+" -->";
@@ -2341,7 +2342,6 @@ function inlineFolderImg(ref){
 function pageImg(cfg,slot){var u=(slot==="success"?cfg.successImg:cfg.errorImg)||cfg.image;return inlineFolderImg(u)||u;}
 // ── Дизайны страницы благодарности/ошибки (call.html / error.html) ──
 // Все используют одни и те же тексты (переводятся под гео); отличается вёрстка/стиль.
-var THANKS_DESIGNS=[["minimal","Минимал (карточка)"],["splash","Сплэш (весь экран)"],["chat","Чат менеджера"],["split","Сплит: товар | текст"],["cert","Сертификат/открытка"]];
 function pageHead(cfg,isErr){var t=cfg.t;return `<!DOCTYPE html>
 <html lang="${cfg.langCode}"${dirAttr(cfg)}>
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2693,14 +2693,14 @@ function makeZip(files){
   var chunks=[],central=[],offset=0;
   files.forEach(function(f){
     var data=f.bytes?f.bytes:strU8(f.str), name=strU8(f.name), crc=crc32(data);
-    var lh=Uint8Array.from([].concat(u32(0x04034b50),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0)));
+    var lh=Uint8Array.from([].concat(u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(name.length),u16(0)));   // 0x0800 = имена файлов в UTF-8
     chunks.push(lh,name,data);
     central.push({crc:crc,len:data.length,name:name,off:offset});
     offset+=lh.length+name.length+data.length;
   });
   var cdChunks=[],cdSize=0,cdStart=offset;
   central.forEach(function(c){
-    var ch=Uint8Array.from([].concat(u32(0x02014b50),u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(c.crc),u32(c.len),u32(c.len),u16(c.name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(c.off)));
+    var ch=Uint8Array.from([].concat(u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(0),u16(0),u32(c.crc),u32(c.len),u32(c.len),u16(c.name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(c.off)));   // 0x0800 = UTF-8 имена
     cdChunks.push(ch,c.name);cdSize+=ch.length+c.name.length;
   });
   var end=Uint8Array.from([].concat(u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(cdSize),u32(cdStart),u16(0)));
@@ -3804,7 +3804,7 @@ function enhanceSelect(sel){
 
   // сундук: опционально — показываем кнопку/вкладку только когда включён
   function updateChestUI(){var on=document.getElementById("makeChest").checked;document.getElementById("btnChest").style.display=on?"":"none";document.getElementById("tabChest").style.display=on?"":"none";document.getElementById("tabCPrev").style.display=on?"":"none";if(!on&&(currentTab==="chest"||currentTab==="cpreview"))showTab("index");}
-  document.getElementById("makeChest").addEventListener("change",updateChestUI);updateChestUI();
+  document.getElementById("makeChest").addEventListener("change",function(){updateChestUI();try{build();}catch(e){}});updateChestUI();
 
   // раскрывающиеся блоки (Meta Pixel, «Расширенные»)
   document.querySelectorAll(".gtoggle,.subtoggle").forEach(function(h){
@@ -3819,7 +3819,8 @@ function enhanceSelect(sel){
   var ul=document.getElementById("uiLang");
   LANGS.forEach(function(p){var o=document.createElement("option");o.value=p[0];o.textContent=p[1];ul.appendChild(o);});
   // свой дропдаун вместо нативного списка ОС — для всех селектов (партнёрка/событие пикселя/язык)
-  ["partner","pxev","uiLang"].forEach(function(id){ enhanceSelect(document.getElementById(id)); });
+  ["partner","pxev","uiLang","thanksDesign"].forEach(function(id){ enhanceSelect(document.getElementById(id)); });
+  (function(){ var ui=document.getElementById("uiLang"); if(ui) ui.addEventListener("change",function(){ try{build();}catch(e){} }); })();   // смена языка служебных страниц -> сразу пересобрать превью
   // авто-подстановка языка call/error/chest из кода гео (выбор вручную остаётся)
   var GEO2LANG={cr:"es",mx:"es",co:"es",cl:"es",pe:"es",ec:"es",gt:"es",pk:"ur",tn:"ar",ma:"ar",sa:"ar",ae:"ar",eg:"ar",dz:"ar",kw:"ar",qa:"ar",be:"nl",ch:"de",at:"de",br:"pt",gr:"el",cz:"cs",dk:"da",se:"sv",ee:"et",si:"sl",rs:"sr",ua:"uk",gb:"en",uk:"en",us:"en",ie:"en",il:"he"};
   function hasLang(c){return LANGS.some(function(p){return p[0]===c;});}
@@ -3926,7 +3927,6 @@ function enhanceSelect(sel){
   // API-ключ запоминаем ТОЛЬКО в этом браузере (localStorage) — в файл/репозиторий не попадает.
   try{ var savedKey=localStorage.getItem("lb_anthropic_key"); if(savedKey) keyEl.value=savedKey; }catch(e){}
   keyEl.addEventListener("input",function(){ try{ var v=keyEl.value.trim(); if(v) localStorage.setItem("lb_anthropic_key",v); else localStorage.removeItem("lb_anthropic_key"); }catch(e){} });
-  function status(msg,cls){ st.className="status"+(cls?(" "+cls):""); st.textContent=msg; }
   // блок переменных: авто из полей билдера + ручной ввод
   function varsBlock(){
     var cfg=readCfg(), lines=[];
