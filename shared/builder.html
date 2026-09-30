@@ -2482,25 +2482,37 @@ function buildCall(cfg){return callPage(cfg,false);}
 function buildError(cfg){return callPage(cfg,true);}
 // половина от введённой цены (сохраняя валюту и разделители)
 // halfCalc -> {num:"5450", full:"5450 PKR"}: num — только число-половина, full — с валютой/текстом
+// разбор денежного токена: понимает десятичную часть (1–2 цифры после . или , в конце) и разряды
+// "59.00"->{val:59,dp:2,decSep:".",thou:""}  "1 299"->{val:1299,...}  "49,99"->{val:49.99,dp:2,decSep:","}
+function priceTok(token){
+  var t=String(token), m=t.match(/([.,])(\d{1,2})$/), decSep=".", dp=0, intPart=t;
+  if(m){ decSep=m[1]; dp=m[2].length; intPart=t.slice(0,m.index); }
+  var thou=(intPart.match(/[.,\s'’]/)||[""])[0];
+  var val=parseInt(intPart.replace(/\D/g,"")||"0",10) + (m?parseInt(m[2],10)/Math.pow(10,dp):0);
+  return {val:val, dp:dp, decSep:decSep, thou:thou};
+}
+function priceFmt(val,dp,decSep,thou){
+  var fixed=dp>0?val.toFixed(dp):String(Math.round(val));
+  var parts=fixed.split("."), ip=parts[0];
+  if(thou && Math.round(val)>=1000) ip=ip.replace(/\B(?=(\d{3})+(?!\d))/g, thou===" "?" ":thou);
+  return dp>0 ? ip+decSep+parts[1] : ip;
+}
 function halfCalc(s){
   s=String(s||""); var m=s.match(/\d[\d\s.,'’]*\d|\d/);
   if(!m) return {num:s, full:s};
-  var token=m[0], digits=token.replace(/\D/g,""); if(!digits) return {num:s, full:s};
-  var val=parseInt(digits,10), half=Math.round(val/2), sep=(token.match(/[.,\s'’]/)||[""])[0], num=String(half);
-  if(sep && val>=1000) num=half.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep===" "?" ":sep);
+  var token=m[0], p=priceTok(token); if(!isFinite(p.val)) return {num:s, full:s};
+  var num=priceFmt(p.val/2, p.dp, p.decSep, p.thou);
   return {num:num, full:s.replace(token, num)};
 }
 // введённая цена как есть -> {num:"39", full:"39 €"} (num — только число, для случая отдельной валюты)
 function priceParts(s){s=String(s||"");var m=s.match(/\d[\d\s.,'’]*\d|\d/);return {num:m?m[0]:s, full:s};}
-// «старая» (зачёркнутая) цена для сундука = удвоенная введённая, округлённая до круглого числа
-// doubleCalc("39 €") -> {num:"80", full:"80 €"}
+// «старая» (зачёркнутая) цена для сундука = удвоенная введённая
+// doubleCalc("39 €") -> {num:"78", full:"78 €"};  doubleCalc("59.00 EUR") -> {num:"118.00", full:"118.00 EUR"}
 function doubleCalc(s){
   s=String(s||""); var m=s.match(/\d[\d\s.,'’]*\d|\d/);
   if(!m) return {num:s, full:s};
-  var token=m[0], digits=token.replace(/\D/g,""); if(!digits) return {num:s, full:s};
-  var val=parseInt(digits,10), dbl=val*2;                             // ровно ×2 (39 -> 78)
-  var sep=(token.match(/[.,\s'’]/)||[""])[0], num=String(dbl);
-  if(sep && dbl>=1000) num=dbl.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep===" "?" ":sep);
+  var token=m[0], p=priceTok(token); if(!isFinite(p.val)) return {num:s, full:s};
+  var num=priceFmt(p.val*2, p.dp, p.decSep, p.thou);
   return {num:num, full:s.replace(token, num)};
 }
 function buildChest(cfg){var t=cfg.t,was=doubleCalc(cfg.price).full,now=cfg.price,isPhp=(cfg.mode==="php");
