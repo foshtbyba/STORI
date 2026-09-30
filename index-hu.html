@@ -5,40 +5,12 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script>
-document.addEventListener('wheel', function(e){
-  window.scrollBy(0, e.deltaY);
-}, {capture: true, passive: true});
-document.addEventListener('touchmove', function(){}, {capture: true, passive: true});
-</script>
   <link href="css/css.css" rel="stylesheet">
   <link rel="stylesheet" href="css/comments.css">
   <link rel="stylesheet" href="css/style_2.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
   <!-- <script src="js/scripts.js"></script> -->
   <script src="js/video3.js"></script>
-  <script>
-  $(document).ready(function(){
-    var origLock = window.lockBodyScroll;
-    window.lockBodyScroll = function(){};
-    document.body.style.position = '';
-    document.body.style.overflow = '';
-    document.body.style.touchAction = '';
-    document.body.style.top = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
-    document.body.style.width = '';
-    var mo = new MutationObserver(function(){
-      if (document.body.style.position === 'fixed') {
-        document.body.style.position = '';
-        document.body.style.overflow = '';
-        document.body.style.touchAction = '';
-        document.body.style.top = '';
-      }
-    });
-    mo.observe(document.body, {attributes: true, attributeFilter: ['style']});
-  });
-  </script>
   <script src="js/preload.js"></script>
   <title>Ultravix</title>
   <style>
@@ -111,14 +83,7 @@ document.addEventListener('touchmove', function(){}, {capture: true, passive: tr
     }
 
     html, body {
-      overflow-y: auto !important;
-      overflow-x: hidden !important;
-      height: auto !important;
-      position: static !important;
-      touch-action: auto !important;
-    }
-    *, *::before, *::after {
-      touch-action: auto !important;
+      overscroll-behavior: auto !important;
     }
   </style>
 <!-- Meta Pixel -->
