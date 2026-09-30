@@ -30,7 +30,9 @@ export default async function TreasuryPage() {
   const pct = (c: number) => (total > 0 ? Math.round((c / total) * 100) : 0);
 
   const sources = t.realBySource;
-  const snapDate = t.snapshot ? ymd(t.snapshot.date) : ymd(new Date());
+  // Дата снимка по умолчанию — ВСЕГДА сегодня, а не дата последнего снимка:
+  // иначе легко случайно перезаписать старый день.
+  const snapDate = ymd(new Date());
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -367,7 +369,7 @@ export default async function TreasuryPage() {
             <div className="text-[12px] text-dim">Снимков ещё не было.</div>
           ) : (
             <>
-              <div className="hidden grid-cols-[auto_repeat(5,1fr)_auto] gap-x-3 pb-1.5 sm:grid">
+              <div className="hidden grid-cols-[auto_repeat(5,1fr)_1.75rem] gap-x-3 pb-1.5 sm:grid">
                 <span className="lab">Дата</span>
                 <span className="lab text-right">Партнёрки</span>
                 <span className="lab text-right">Брокард</span>
@@ -383,7 +385,7 @@ export default async function TreasuryPage() {
                 return (
                   <div
                     key={s.id}
-                    className="grid grid-cols-[1fr_auto] items-center gap-x-3 border-t border-line py-2 text-[12.5px] sm:grid-cols-[auto_repeat(5,1fr)_auto]"
+                    className="grid grid-cols-[1fr_1.75rem] items-center gap-x-3 border-t border-line py-2 text-[12.5px] sm:grid-cols-[auto_repeat(5,1fr)_1.75rem]"
                   >
                     <span className="n text-soft">{ru(s.date)}</span>
                     <span className="n hidden text-right text-mute sm:block">{usd(s.partnersCents)}</span>
@@ -391,11 +393,11 @@ export default async function TreasuryPage() {
                     <span className="n hidden text-right text-mute sm:block">{usd(s.cardCents)}</span>
                     <span className="n hidden text-right text-mute sm:block">{usd(s.agentsCents)}</span>
                     <span className="n text-right font-semibold">{usd(tot)}</span>
-                    <span className="text-right">
+                    <span className="flex items-center justify-center">
                       {locked ? (
                         <span className="text-[11px] text-dim" title="Старше 3 дней — история заморожена">🔒</span>
                       ) : (
-                        <form action={deleteSnapshot} className="inline">
+                        <form action={deleteSnapshot} className="flex">
                           <input type="hidden" name="id" value={s.id} />
                           <button type="submit" className="text-[11px] text-dim transition hover:text-rust">✕</button>
                         </form>
