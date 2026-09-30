@@ -2324,7 +2324,17 @@ function stripBuildComments(html){
 function buildIndex(cfg){return patchHtml(cfg, cfg.html);}
 var THANKS_CSS="*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1a2b42;background:radial-gradient(1200px 600px at 50% -10%,#e8f2fa,#f5f8fb 55%)}.card{background:#fff;max-width:460px;width:100%;padding:38px 30px 30px;border-radius:22px;text-align:center;box-shadow:0 24px 60px rgba(10,40,80,.13);animation:pop .45s cubic-bezier(.2,.8,.2,1)}@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}.ic{width:92px;height:92px;margin:0 auto 12px}.ic svg{width:100%;height:100%;fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.ic.ok circle{fill:#eafaf1;stroke:#cdeede}.ic.ok path{stroke:#1e8449;stroke-dasharray:44;stroke-dashoffset:44;animation:draw .55s .2s forwards}.ic.wait circle{fill:#eef4fb;stroke:#d7e6f5}.ic.wait path{stroke:#0a5c9e}@keyframes draw{to{stroke-dashoffset:0}}.prod{max-width:160px;width:62%;height:auto;display:block;margin:8px auto 2px}h1{font-size:25px;line-height:1.25;margin:10px 0 8px;color:#1e8449}.card.err h1{color:#c0392b}.ic.err circle{fill:#fdecea;stroke:#f3ccc6}.ic.err path{stroke:#c0392b}.retry{display:inline-block;margin-top:18px;background:#0a5c9e;color:#fff;border:0;border-radius:12px;padding:13px 24px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;box-shadow:0 6px 18px rgba(10,92,158,.25)}.retry:hover{background:#084678}p{font-size:16px;line-height:1.6;margin:6px 0}.muted{color:#6b7a8f;font-size:14px}.oid{margin-top:16px;font-size:13px;color:#4a5a70;background:#f1f6fb;border:1px solid #e4ecf4;border-radius:30px;padding:7px 16px;display:inline-block}.trust{margin-top:18px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:12px;color:#8a93a3}.trust span{display:inline-flex;align-items:center;gap:5px}";
 function dirAttr(cfg){return cfg.t.rtl?' dir="rtl"':'';}
-function pageImg(cfg,slot){var u=(slot==="success"?cfg.successImg:cfg.errorImg)||cfg.image;return u;}
+// продуктовое фото из подключённой папки -> data-uri (call/error самодостаточны; относительный путь на готовом ленде мог не резолвиться = битая картинка)
+function inlineFolderImg(ref){
+  if(!ref || /^(data:|https?:|#)/i.test(ref)) return null;
+  var srcs=[]; if(typeof FOLDER!=="undefined"&&FOLDER&&FOLDER.files) srcs=srcs.concat(FOLDER.files); if(typeof CHEST_FOLDER!=="undefined"&&CHEST_FOLDER&&CHEST_FOLDER.files) srcs=srcs.concat(CHEST_FOLDER.files);
+  if(!srcs.length) return null;
+  var b=ref.split("?")[0].split("#")[0].split("/").pop().toLowerCase();
+  var f=srcs.filter(function(x){ return x.bytes && IMG_EXT.test(x.path) && baseName(x.path).toLowerCase()===b; })[0];
+  if(!f) return null;
+  try{ return "data:"+mimeOf(f.path)+";base64,"+bytesToB64(f.bytes); }catch(e){ return null; }
+}
+function pageImg(cfg,slot){var u=(slot==="success"?cfg.successImg:cfg.errorImg)||cfg.image;return inlineFolderImg(u)||u;}
 // ── Дизайны страницы благодарности/ошибки (call.html / error.html) ──
 // Все используют одни и те же тексты (переводятся под гео); отличается вёрстка/стиль.
 var THANKS_DESIGNS=[["minimal","Минимал (карточка)"],["splash","Сплэш (весь экран)"],["chat","Чат менеджера"],["split","Сплит: товар | текст"],["cert","Сертификат/открытка"]];
@@ -3413,7 +3423,7 @@ async function downloadZip(){
   }
 }
 // СУНДУК — отдельный самостоятельный сайт: главная = index.html
-function downloadChestZip(){
+async function downloadChestZip(){
   var cfg=readCfg(); cfg.makeChest=true;
   build();
   if(!FILES.chest){ alert("Не удалось собрать сундук."); return; }
@@ -3451,6 +3461,11 @@ function downloadChestZip(){
     out.forEach(function(f){ if(/(^|\/)api\/success\.php$/i.test(f.name||"")){ f.str=succPhp; delete f.bytes; hasSucc=true; } });
     if(!hasSucc) out.push({name:"api/success.php",str:succPhp});
   }
+  // оптимизация сундука (как у ленда): base64→файлы, пережатие картинок, чистка, удаление неиспользуемого
+  var optOn=cfg.optB64||cfg.optUnused||cfg.optImg||cfg.optJunk;
+  if(optOn){ var rep={b64:0,b64b:0,img:0,imgb:0,lib:0,libb:0,unused:0,unusedb:0,junk:0,junkList:[]}; rep.before=outBytes(out);
+    try{ out=await optimizeOut(out,cfg,rep); }catch(e){ console.warn("opt chest",e); }
+    rep.after=outBytes(out); try{ showOptReport(rep); }catch(e){} }
   dl(safeName(cfg.brand)+(cfg.langCode?("_"+cfg.langCode.toLowerCase()):"")+"_chest.zip", makeZip(out), "application/zip");
 }
 
