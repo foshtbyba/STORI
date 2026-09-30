@@ -1023,9 +1023,10 @@ model AutoRuleState {
   ruleId           String
   targetFbId       String    // FB id цели (кампания/адсет/объявление)
   targetType       String    @default("ad")
-  pausedByRule     Boolean   @default(false) // пауза от условия — вернуть при восстановлении
-  pausedBySchedule Boolean   @default(false) // пауза по расписанию — вернуть в on-time
-  lastScaleAt      DateTime?                  // антидребезг роста бюджета
+  pausedByRule     Boolean   @default(false) // выключено правилом — вернуть только это
+  pausedBySchedule Boolean   @default(false) // (задел) выключено расписанием
+  lastScaleAt      DateTime?                  // (легаси) антидребезг роста бюджета
+  lastActionAt     DateTime?                  // антидребезг любого действия (пауза/старт/бюджет)
   updatedAt        DateTime  @updatedAt
 
   @@unique([ruleId, targetFbId])

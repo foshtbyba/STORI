@@ -6,6 +6,7 @@ import { requireUser, requireAdmin } from '@/lib/auth';
 import { moneyInputToCents } from '@/lib/format';
 import { moveDomainToGroup, KeitaroError } from '@/lib/keitaro';
 import { syncStockFromKeitaro, DEFAULT_ZONE_PRICE_CENTS } from '@/lib/domain-stock';
+import { isWeekEditable } from '@/lib/period';
 
 /** Название категории расходников, куда падает покупка домена. */
 const DOMAIN_CONSUMABLE = 'Домены';
@@ -196,16 +197,23 @@ export async function buyDomains(formData: FormData) {
   const date = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
 
   const ktProblems: string[] = [];
+  const bought: typeof picked = [];
   for (const domain of picked) {
-    // Расход (по домену) + отметка продажи. Отдельная запись на домен — чтобы
+    // АТОМАРНЫЙ захват: помечаем продажу только если домен ВСЁ ЕЩЁ свободен.
+    // Так параллельная покупка/двойной клик не купят один домен дважды (иначе
+    // два расхода за один домен, а buyerId перезапишет последний).
+    const claim = await prisma.domain.updateMany({
+      where: { id: domain.id, status: 'available' },
+      data: { status: 'sold', buyerId, soldAt: new Date(), priceCents },
+    });
+    if (claim.count !== 1) continue; // кто-то уже забрал — пропускаем, без расхода
+    bought.push(domain);
+    // Расход (по домену) + привязка к домену. Отдельная запись на домен — чтобы
     // возврат одного домена снимал ровно его расход.
     const entry = await prisma.consumableEntry.create({
       data: { date, typeId: type.id, buyerId, qty: 1, totalCents: priceCents, note: `домен ${domain.name}` },
     });
-    await prisma.domain.update({
-      where: { id: domain.id },
-      data: { status: 'sold', buyerId, soldAt: new Date(), priceCents, consumableId: entry.id },
-    });
+    await prisma.domain.update({ where: { id: domain.id }, data: { consumableId: entry.id } });
     await prisma.auditLog.create({
       data: {
         actorId: user.id,
@@ -224,9 +232,10 @@ export async function buyDomains(formData: FormData) {
   revalidatePath('/consumables');
   revalidatePath('/dashboard');
 
-  const short = picked.length < qty ? ` (просили ${qty}, в зоне было столько)` : '';
+  if (bought.length === 0) return { ok: false, error: `В зоне .${zone} домены только что разобрали — попробуй ещё раз.` };
+  const short = bought.length < qty ? ` (просили ${qty}, взяли ${bought.length})` : '';
   const ktNote = ktProblems.length ? `КТ: ${ktProblems.length} не перенесено — см. столбец «КТ».` : '';
-  return { ok: true, bought: picked.length, requested: qty, note: `Куплено ${picked.length} шт.${short}`, ktNote };
+  return { ok: true, bought: bought.length, requested: qty, note: `Куплено ${bought.length} шт.${short}`, ktNote };
 }
 
 /** Вернуть проданный домен на склад: снять расход и обнулить продажу. Только админ. */
@@ -237,6 +246,11 @@ export async function returnDomain(formData: FormData) {
   if (!domain || domain.status !== 'sold') return;
 
   if (domain.consumableId) {
+    // Не трогаем расход из уже закрытой недели: иначе сдвинется исторический
+    // профит (как в catalog.deleteConsumable). Тогда и домен не возвращаем —
+    // без снятия расхода это был бы бесплатный возврат.
+    const entry = await prisma.consumableEntry.findUnique({ where: { id: domain.consumableId }, select: { date: true } });
+    if (entry && !isWeekEditable(entry.date)) return;
     await prisma.consumableEntry.delete({ where: { id: domain.consumableId } }).catch(() => {});
   }
   await prisma.domain.update({

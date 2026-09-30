@@ -83,7 +83,7 @@ export default function SyncAds() {
           {status!.info.length ? (
             <>
               {' · '}
-              <Tip label={<span className="flex flex-col gap-1">{status!.info.map((p) => <span key={p}>{p}</span>)}</span>}>
+              <Tip label={<span className="flex flex-col gap-1">{status!.info.map((p, i) => <span key={i}>{p}</span>)}</span>}>
                 <span className="cursor-help text-soft underline decoration-dotted">заливка</span>
               </Tip>
             </>
@@ -91,7 +91,7 @@ export default function SyncAds() {
           {status!.problems.length ? (
             <>
               {' · '}
-              <Tip label={<span className="flex flex-col gap-1">{status!.problems.map((p) => <span key={p}>{p}</span>)}</span>}>
+              <Tip label={<span className="flex flex-col gap-1">{status!.problems.map((p, i) => <span key={i}>{p}</span>)}</span>}>
                 <span className="cursor-help text-rust underline decoration-dotted">проблемы: {status!.problems.length}</span>
               </Tip>
             </>

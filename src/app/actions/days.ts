@@ -58,6 +58,11 @@ export async function saveDay(input: unknown): Promise<ActionResult> {
   const closed = await assertPeriodOpen(date);
   if (closed) return { ok: false, error: closed };
 
+  // Проверяем баера явно: иначе несуществующий buyerId роняет upsert FK-ошибкой
+  // (500) вместо понятного сообщения.
+  const buyerExists = await prisma.buyer.findUnique({ where: { id: data.buyerId }, select: { id: true } });
+  if (!buyerExists) return { ok: false, error: 'Баер не найден — обнови страницу.' };
+
   const method = data.paymentMethodId
     ? await prisma.paymentMethod.findUnique({ where: { id: data.paymentMethodId } })
     : null;

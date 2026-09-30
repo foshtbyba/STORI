@@ -50,7 +50,6 @@ const CARDINALS = [
   { t: 'W', deg: 225 },
   { t: 'N', deg: 315 },
 ];
-const RING_GAP = 26;
 const MARK = 40;
 const TICK = 17;
 const PER_QUARTER = 11;

@@ -169,7 +169,7 @@ export default function TiktokCampaigns({ accounts }: { accounts: TiktokAccountL
                     <td className="px-2 py-2">
                       <span className={`rounded-full px-2 py-0.5 text-[10px] ${TONE[st.tone]}`}>{st.label}</span>
                     </td>
-                    <td className="px-2 py-2 text-right text-soft">
+                    <td className="n px-2 py-2 text-right text-soft">
                       {row.budgetMode === 'BUDGET_MODE_INFINITE' ? '—' : (
                         <button type="button" onClick={() => onBudget(row)} className="underline decoration-dotted underline-offset-2 hover:text-teal" title="Изменить бюджет">
                           {money(row.budgetCents, cur)}
@@ -177,12 +177,12 @@ export default function TiktokCampaigns({ accounts }: { accounts: TiktokAccountL
                       )}
                       {mode ? <div className="text-[10px] text-dim">{mode}</div> : null}
                     </td>
-                    <td className="px-2 py-2 text-right text-soft">{money(row.spendCents, cur)}</td>
-                    <td className="px-2 py-2 text-right text-mute">{row.impressions.toLocaleString('ru-RU')}</td>
-                    <td className="px-2 py-2 text-right text-mute">{row.clicks.toLocaleString('ru-RU')}</td>
-                    <td className="px-2 py-2 text-right text-mute">{row.ctr.toFixed(2)}%</td>
-                    <td className="px-2 py-2 text-right text-mute">{money(row.cpcCents, cur)}</td>
-                    <td className="px-2 py-2 text-right text-mute">{row.conversions.toLocaleString('ru-RU')}</td>
+                    <td className="n px-2 py-2 text-right text-soft">{money(row.spendCents, cur)}</td>
+                    <td className="n px-2 py-2 text-right text-mute">{row.impressions.toLocaleString('ru-RU')}</td>
+                    <td className="n px-2 py-2 text-right text-mute">{row.clicks.toLocaleString('ru-RU')}</td>
+                    <td className="n px-2 py-2 text-right text-mute">{row.ctr.toFixed(2)}%</td>
+                    <td className="n px-2 py-2 text-right text-mute">{money(row.cpcCents, cur)}</td>
+                    <td className="n px-2 py-2 text-right text-mute">{row.conversions.toLocaleString('ru-RU')}</td>
                     <td className="px-2 py-2 text-right">
                       <button
                         type="button"

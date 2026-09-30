@@ -1,8 +1,14 @@
 import 'server-only';
 
 import { prisma } from './db';
-import { fbAccess, setAdStatus, setAdsetBudget, FbError } from './fb';
-import { sleep, shuffle } from './pace';
+import { fbAccess, setAdStatus, setAdsetBudget, FbError, fbErrorKind } from './fb';
+import { sleep, shuffle, humanPause, fbCooldownUntil } from './pace';
+import { grossUp, DEFAULT_COMMISSION_BPS } from './money';
+
+// Пол кулдауна для пауза/старт: даже если у правила нет своего кулдауна, не даём
+// одному правилу дёргать одну и ту же цель чаще, чем раз в столько минут — чтобы
+// не жечь API и не устраивать пинг-понг «пауза↔старт» между заходами крона.
+const PAUSE_START_COOLDOWN_MIN = 15;
 
 /**
  * Движок автоправил по модели FB/FBtool: гибкий конструктор
@@ -103,19 +109,28 @@ function windowRange(kind: string, now = new Date()): { gte?: Date; lt?: Date } 
 type Agg = { spend: number; impressions: number; clicks: number; leads: number; revenue: number };
 const emptyAgg = (): Agg => ({ spend: 0, impressions: 0, clicks: 0, leads: 0, revenue: 0 });
 
-/** Значение метрики в НАТУРАЛЬНЫХ единицах: $ / % / штуки. null — посчитать нельзя. */
-function metricValue(key: string, a: Agg): number | null {
+/**
+ * Значение метрики в НАТУРАЛЬНЫХ единицах: $ / % / штуки. null — посчитать нельзя.
+ *
+ * ВАЖНО: денежные метрики считаем от GROSS-расхода (с комиссией баера), как на
+ * дашборде (queries.ts: ROI = профит/spendGross·100, где профит = доход −
+ * spendGross). `a.spend` из FbAdDay — это СЫРОЙ (net) расход ФБ; gross передаём
+ * снаружи. Иначе «ROI 20%» в правиле значил бы не то, что видит баер на экране.
+ */
+function metricValue(key: string, a: Agg, grossSpendCents: number): number | null {
+  const gross = grossSpendCents / 100;
   switch (key) {
-    case 'spend': return a.spend / 100;
+    case 'spend': return gross;
     case 'revenue': return a.revenue / 100;
-    case 'roi': return a.spend > 0 ? (a.revenue / a.spend) * 100 : null;
+    // ROI по ПРИБЫЛИ (как дашборд), а не ROAS: (доход − расход_gross)/расход_gross.
+    case 'roi': return grossSpendCents > 0 ? ((a.revenue - grossSpendCents) / grossSpendCents) * 100 : null;
     case 'results': return a.leads;
-    case 'cpa': return a.leads > 0 ? a.spend / 100 / a.leads : null;
+    case 'cpa': return a.leads > 0 ? gross / a.leads : null;
     case 'impressions': return a.impressions;
     case 'clicks': return a.clicks;
     case 'ctr': return a.impressions > 0 ? (a.clicks / a.impressions) * 100 : null;
-    case 'cpc': return a.clicks > 0 ? a.spend / 100 / a.clicks : null;
-    case 'cpm': return a.impressions > 0 ? (a.spend / 100 / a.impressions) * 1000 : null;
+    case 'cpc': return a.clicks > 0 ? gross / a.clicks : null;
+    case 'cpm': return a.impressions > 0 ? (gross / a.impressions) * 1000 : null;
     default: return null;
   }
 }
@@ -171,6 +186,15 @@ export async function runAutoRules(force = false): Promise<AutoRulesResult> {
     if (!tok.enabled) continue;
     if (tok.pausedUntil && tok.pausedUntil > now) continue;
     const { token: access, net } = fbAccess(tok.token, { cookiesJson: tok.cookiesJson, proxyUrl: tok.proxyUrl });
+    // Комиссия для gross-расхода — та же глобальная, что синк применяет к расходу
+    // объявлений (см. sync.ts: const bps = DEFAULT_COMMISSION_BPS).
+    const bps = DEFAULT_COMMISSION_BPS;
+
+    // Состояния правил этого каба — для антидребезга (lastActionAt) и безопасной
+    // реактивации (включаем обратно только то, что ПРАВИЛО и выключило).
+    const stateRows = await prisma.autoRuleState.findMany({ where: { ruleId: { in: jobs.map((j) => j.rule.id) } } });
+    const stateBy = new Map(stateRows.map((s) => [`${s.ruleId}::${s.targetFbId}`, s]));
+    const pausedByRuleTargets = new Set(stateRows.filter((s) => s.pausedByRule).map((s) => s.targetFbId));
 
     const ads = await prisma.fbAd.findMany({
       where: { adAccountId: accId },
@@ -194,7 +218,9 @@ export async function runAutoRules(force = false): Promise<AutoRulesResult> {
       } });
     };
 
+    let stopAccount = false; // троттлинг/бан ФБ на этом токене — прекращаем долбить
     for (const job of jobs) {
+      if (stopAccount) break;
       ranRuleIds.add(job.rule.id);
       const { rule } = job;
       const level = (rule.level as Level) || 'adset';
@@ -243,12 +269,14 @@ export async function runAutoRules(force = false): Promise<AutoRulesResult> {
       else if (rule.statusFilter === 'paused') list = list.filter((t) => !t.anyActive);
 
       for (const t of list) {
+        if (stopAccount) break;
+        const grossSpend = grossUp(t.agg.spend, bps);
         // Проверка условий (И-логика). «Без условий» → срабатывает всегда (по времени).
         let reason = 'по расписанию';
         if (useConds) {
           let allOk = true; const parts: string[] = [];
           for (const c of conditions) {
-            const v = metricValue(c.metric, t.agg);
+            const v = metricValue(c.metric, t.agg, grossSpend);
             if (v == null || !cmp(c.op, v, c.value)) { allOk = false; break; }
             const m = METRICS.find((x) => x.key === c.metric);
             parts.push(`${m?.label ?? c.metric} ${c.op} ${c.value}${m?.unit === '$' ? '$' : m?.unit === '%' ? '%' : ''}`);
@@ -257,22 +285,39 @@ export async function runAutoRules(force = false): Promise<AutoRulesResult> {
           reason = parts.join(' И ');
         }
 
+        const st = stateBy.get(`${rule.id}::${t.key}`);
+        const setState = (data: { pausedByRule?: boolean; lastActionAt?: Date }) =>
+          prisma.autoRuleState.upsert({
+            where: { ruleId_targetFbId: { ruleId: rule.id, targetFbId: t.key } },
+            update: data, create: { ruleId: rule.id, targetFbId: t.key, targetType: level, ...data },
+          });
+
         try {
           if (rule.action === 'pause') {
+            // Антидребезг: одно правило не паузит одну цель чаще кулдауна.
+            const cdMin = Math.max(ap.cooldownMin ?? 0, PAUSE_START_COOLDOWN_MIN);
+            if (st?.lastActionAt && now.getTime() - st.lastActionAt.getTime() < cdMin * 60_000) continue;
             await setAdStatus(access, t.key, 'PAUSED', net);
+            await setState({ pausedByRule: true, lastActionAt: new Date() });
+            pausedByRuleTargets.add(t.key);
             await log(job, { type: level, key: t.key, name: t.name }, 'pause', reason);
           } else if (rule.action === 'start') {
+            // Включаем обратно ТОЛЬКО то, что выключило правило (не спорим с человеком).
+            if (!pausedByRuleTargets.has(t.key)) continue;
+            const cdMin = Math.max(ap.cooldownMin ?? 0, PAUSE_START_COOLDOWN_MIN);
+            if (st?.lastActionAt && now.getTime() - st.lastActionAt.getTime() < cdMin * 60_000) continue;
             await setAdStatus(access, t.key, 'ACTIVE', net);
+            // Снимаем флаг «выключено правилом» у всех правил по этой цели.
+            await prisma.autoRuleState.updateMany({ where: { targetFbId: t.key }, data: { pausedByRule: false } });
+            await setState({ pausedByRule: false, lastActionAt: new Date() });
+            pausedByRuleTargets.delete(t.key);
             await log(job, { type: level, key: t.key, name: t.name }, 'start', reason);
           } else if (rule.action === 'budget_daily') {
             if (!t.budgetId) continue;
             const cur = t.dailyBudget ?? 0;
-            // Антидребезг бюджета — по состоянию цели.
-            const cd = (ap.cooldownMin ?? 0) * 60_000;
-            if (cd > 0) {
-              const st = await prisma.autoRuleState.findUnique({ where: { ruleId_targetFbId: { ruleId: rule.id, targetFbId: t.key } } });
-              if (st?.lastScaleAt && now.getTime() - st.lastScaleAt.getTime() < cd) continue;
-            }
+            // Антидребезг бюджета: пол 60 мин, чтобы pct-рост без потолка не разгонялся.
+            const cdMin = Math.max(ap.cooldownMin ?? 0, 60);
+            if (st?.lastActionAt && now.getTime() - st.lastActionAt.getTime() < cdMin * 60_000) continue;
             let next: number;
             if (ap.mode === 'set') next = Math.max(0, Math.round(ap.value ?? 0));
             else next = Math.round(cur * (1 + (ap.value ?? 0) / 100)); // pct (может быть отрицательным)
@@ -280,24 +325,32 @@ export async function runAutoRules(force = false): Promise<AutoRulesResult> {
             if (ap.floorCents && ap.floorCents > 0) next = Math.max(next, ap.floorCents);
             if (next <= 0 || next === cur) continue;
             await setAdsetBudget(access, t.budgetId, next, net);
-            await prisma.autoRuleState.upsert({
-              where: { ruleId_targetFbId: { ruleId: rule.id, targetFbId: t.key } },
-              update: { lastScaleAt: new Date() },
-              create: { ruleId: rule.id, targetFbId: t.key, targetType: level, lastScaleAt: new Date() },
-            });
-            await log(job, { type: level, key: t.key, name: t.name }, 'budget_up', `${reason} — бюджет $${(cur / 100).toFixed(2)}→$${(next / 100).toFixed(2)}`);
+            await setState({ lastActionAt: new Date() });
+            const dir = next > cur ? 'budget_up' : 'budget_down';
+            await log(job, { type: level, key: t.key, name: t.name }, dir, `${reason} — бюджет $${(cur / 100).toFixed(2)}→$${(next / 100).toFixed(2)}`);
           } else {
             continue;
           }
           res.actions += 1;
-          await sleep(600);
+          await sleep(800);
         } catch (e) {
           res.errors += 1;
+          const kind = fbErrorKind(e);
           res.info.push(`${acc.name || acc.externalId}/${rule.name}: ${e instanceof FbError ? e.message : (e as Error).message}`);
           await log(job, { type: level, key: t.key, name: t.name }, 'error', `${reason} — ${e instanceof FbError ? e.message : (e as Error).message}`);
+          // Троттлинг/бан ФБ — НЕ долбим дальше этот токен: ставим кулдаун и уходим.
+          if (kind === 'throttle' || kind === 'blocked') {
+            const until = fbCooldownUntil(kind, now);
+            if (until) await prisma.adToken.update({ where: { id: tok.id }, data: { pausedUntil: until } }).catch(() => {});
+            stopAccount = true;
+            break;
+          }
         }
       }
     }
+
+    // Пауза между кабинетами — как в синке, чтобы не выглядеть роботом для ФБ.
+    await humanPause();
   }
 
   // Отметить прогон (гейт по частоте) для тех правил, что реально гонялись.

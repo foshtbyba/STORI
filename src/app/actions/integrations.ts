@@ -243,7 +243,6 @@ export async function addMyToken(_prev: ActionState, form: FormData): Promise<Ac
 
   revalidatePath('/ads');
   revalidatePath('/admin');
-  revalidatePath('/ads');
   await logActivity({
     kind: 'cabinet_added',
     message: `Добавлен кабинет: ${found.name} — кабинетов ${found.accounts.length}`,
@@ -564,6 +563,12 @@ export async function myBrocardTopUp(form: FormData): Promise<{ ok: boolean; err
   if (amount * 100 > obshchak.availableCents) {
     return { ok: false, error: 'На общем счёте недостаточно средств — обратитесь к овнеру.' };
   }
+  // Защита от двойного клика/двойного сабмита: если только что уже прошло
+  // самопополнение — не делаем второй перевод (иначе 300+300 за один клик).
+  const recent = await prisma.brocardTransfer.findFirst({
+    where: { buyerId: user.buyer.id, comment: 'самопополнение', status: 'ok', createdAt: { gte: new Date(Date.now() - 20_000) } },
+  });
+  if (recent) return { ok: false, error: 'Пополнение только что уже прошло — подожди пару секунд (защита от двойного нажатия).' };
 
   try {
     const { raw } = await createTransfer(cfg.apiKey, { from: obshchak.id, to: mine.id, amount, comment: 'Пополнение своего счёта' });

@@ -11,7 +11,7 @@ import {
 import {
   markAttendance, clearAttendance, approveAttendance, rejectAttendance,
 } from '@/app/actions/attendance';
-import { Panel, PanelHead, Sub, Avatar, Empty } from '@/components/ui';
+import { Panel, PanelHead, Avatar, Empty } from '@/components/ui';
 import Select from '@/components/Select';
 import DateField from '@/components/DateField';
 import { IconCalendar } from '@/components/icons';

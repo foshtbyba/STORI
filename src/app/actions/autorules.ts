@@ -13,6 +13,14 @@ async function teamGate() {
   const user = await requireUser();
   return { user, ok: canSeeTeam(user.role as Role) as boolean };
 }
+// Правила трогают деньги на ЛЮБЫХ кабинетах (listAssignableAccounts отдаёт все),
+// а прямое управление рекламой LEAD'у разрешено только по своим. Поэтому мутации
+// и выбор кабинетов — только ADMIN, чтобы LEAD не мог повесить pause/бюджет на
+// чужой каб в обход обычных ограничений. Просмотр правил/журнала — вся команда.
+async function adminGate() {
+  const user = await requireUser();
+  return { user, ok: (user.role as Role) === 'ADMIN' };
+}
 
 export type RuleRow = {
   id: string; name: string; level: Level; statusFilter: StatusFilter; action: ActionKind;
@@ -46,7 +54,7 @@ export async function listAutoRules(): Promise<{ ok: boolean; rules?: RuleRow[];
 }
 
 export async function listAssignableAccounts(): Promise<{ ok: boolean; accounts?: AssignAccount[]; error?: string }> {
-  const g = await teamGate();
+  const g = await adminGate();
   if (!g.ok) return { ok: false, error: 'Только для команды' };
   const rows = await prisma.adAccount.findMany({
     where: { enabled: true, adToken: { enabled: true } },
@@ -63,7 +71,7 @@ export type RuleInput = {
 };
 
 export async function saveAutoRule(input: RuleInput): Promise<{ ok: boolean; id?: string; error?: string }> {
-  const g = await teamGate();
+  const g = await adminGate();
   if (!g.ok) return { ok: false, error: 'Только для команды' };
   const name = input.name.trim();
   if (!name) return { ok: false, error: 'Впиши название правила' };
@@ -85,21 +93,21 @@ export async function saveAutoRule(input: RuleInput): Promise<{ ok: boolean; id?
 }
 
 export async function toggleAutoRule(id: string, enabled: boolean) {
-  const g = await teamGate();
+  const g = await adminGate();
   if (!g.ok) return { ok: false, error: 'Только для команды' };
   await prisma.autoRule.update({ where: { id }, data: { enabled } });
   return { ok: true };
 }
 
 export async function deleteAutoRule(id: string) {
-  const g = await teamGate();
+  const g = await adminGate();
   if (!g.ok) return { ok: false, error: 'Только для команды' };
   await prisma.autoRule.delete({ where: { id } });
   return { ok: true };
 }
 
 export async function setRuleAccounts(ruleId: string, accountIds: string[]) {
-  const g = await teamGate();
+  const g = await adminGate();
   if (!g.ok) return { ok: false, error: 'Только для команды' };
   const want = new Set(accountIds);
   const existing = await prisma.autoRuleAssignment.findMany({ where: { ruleId, scopeFbId: '' }, select: { id: true, adAccountId: true } });
@@ -123,7 +131,7 @@ export async function loadAutoRuleLog(limit = 80): Promise<{ ok: boolean; rows?:
 
 /** Прогнать сейчас — force (игнорируя частоту), для проверки из UI. */
 export async function runAutoRulesNow() {
-  const g = await teamGate();
+  const g = await adminGate();
   if (!g.ok) return { ok: false, error: 'Только для команды' };
   const r = await runAutoRules(true);
   return { ok: true, rules: r.rules, ran: r.ran, actions: r.actions, errors: r.errors };

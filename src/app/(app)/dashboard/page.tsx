@@ -3,7 +3,6 @@ import { canSeeTeam, type Role } from '@/lib/roles';
 import { currentPeriodKey, teamSummary, buyerSummary, allTimeProfit, payoutAcross, overheadMonths } from '@/lib/queries';
 import { usd, rub } from '@/lib/money';
 import {
-  periodRange, periodTitle,
   isWeekKey, rangeOf, titleOf, shiftKey, switchMode,
 } from '@/lib/period';
 import PeriodNav from '@/components/PeriodNav';

@@ -554,7 +554,11 @@ export type FbAdStatRow = {
  * для товарки — покупка/подписка. Расхождение с Ads Manager возможно, но порядок
  * тот же.
  */
-const LEAD_ACTIONS = /(^|\.)(lead|complete_registration|purchase|subscribe|start_trial|submit_application)$|lead_grouped/i;
+// Граница `(^|[._])` ловит и точечные (`onsite_conversion.lead`), и подчёркнутые
+// пиксельные типы (`offsite_conversion.fb_pixel_lead`, `..._purchase`,
+// `..._complete_registration`) — именно такие создаёт наш автозалив (pixel +
+// OFFSITE_CONVERSIONS). Со старой `(^|\.)` пиксельные конверсии не засчитывались.
+const LEAD_ACTIONS = /(^|[._])(lead|complete_registration|purchase|subscribe|start_trial|submit_application)$|lead_grouped/i;
 
 function leadsFromActions(actions: unknown): number {
   if (!Array.isArray(actions)) return 0;
@@ -1669,6 +1673,12 @@ export async function uploadAdImage(token: string, externalId: string, bytes: Bu
           const res = await fetch(url, { method: 'POST', headers, body: payload, cache: 'no-store', signal: ctrl.signal });
           status = res.status; text = await res.text();
         } finally { clearTimeout(t); }
+      }
+      // 408/429/5xx — временный сбой FB, повторяем (как в uploadVideo), а не роняем.
+      if ([408, 429, 500, 502, 503, 504].includes(status) && attempt < TRIES) {
+        lastNetErr = `HTTP ${status}`;
+        await new Promise((r) => setTimeout(r, 2000 * attempt));
+        continue;
       }
       sent = true;
       break;

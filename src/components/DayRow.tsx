@@ -71,7 +71,6 @@ export default function DayRow({ row, canEdit }: { row: DayRowData; canEdit: boo
   const profit = toCents(revenue) - gross - extraGross;
 
   // Итоги строки: расход и профит дня — это ФБ плюс агентка.
-  const netTotal = row.spendNetCents + (row.extra?.spendNetCents ?? 0);
   const grossTotal = row.spendGrossCents + (row.extra?.spendGrossCents ?? 0);
   const profitTotal = row.revenueCents - grossTotal;
 

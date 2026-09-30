@@ -141,7 +141,7 @@ export async function saveTemplate(_prev: TemplateState, form: FormData): Promis
   const ageMax = Math.max(ageMin, Math.min(65, Math.round(Number(form.get('ageMax')) || 65)));
   const genderRaw = String(form.get('genders') ?? ''); // ''|'1'|'2'
   const genders = genderRaw === '1' ? '1' : genderRaw === '2' ? '2' : '';
-  const budget = Math.max(1, Number(String(form.get('budget') ?? '').replace(',', '.')) || 20);
+  const budget = Math.max(1, Number(String(form.get('budget') ?? '').replace(/,/g, '.')) || 20);
   const dailyBudgetCents = Math.round(budget * 100);
   const event = EVENT_OPTIONS.includes(String(form.get('event'))) ? String(form.get('event')) : 'LEAD';
   const cta = CTA_OPTIONS.includes(String(form.get('cta'))) ? String(form.get('cta')) : 'LEARN_MORE';
@@ -648,7 +648,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     .replace(/\{\{\s*fb_?pixel\s*\}\}/gi, manualPixel);
 
   // Бюджет: из формы (доллары) либо из шаблона.
-  const budgetRaw = String(form.get('budget') ?? '').replace(',', '.');
+  const budgetRaw = String(form.get('budget') ?? '').replace(/,/g, '.');
   const dailyBudgetCents = budgetRaw ? Math.round((Number(budgetRaw) || 0) * 100) : tpl.dailyBudgetCents;
   if (!dailyBudgetCents || dailyBudgetCents < 100) return { ok: false, error: 'Дневной бюджет слишком мал' };
 
@@ -710,18 +710,26 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
   // Тип залива — для раздельных журналов: видео (ролик/языки) vs сторис/фото.
   const jobKind = (video || withLanguages) ? 'video' : 'static';
-  const job = await prisma.uploadJob.create({
-    data: {
-      buyerId: ctx.buyerId,
-      accountId: ctx.acc.id,
-      accountName: ctx.acc.name,
-      campaignName,
-      mode,
-      status: 'running',
-      kind: jobKind,
-      adsPlanned: files.length,
-    },
-  });
+  let job;
+  try {
+    job = await prisma.uploadJob.create({
+      data: {
+        buyerId: ctx.buyerId,
+        accountId: ctx.acc.id,
+        accountName: ctx.acc.name,
+        campaignName,
+        mode,
+        status: 'running',
+        kind: jobKind,
+        // План объявлений: картинки, либо ролики, либо (режим «только языки») ≥1 —
+        // иначе для видео/языков в журнале «запланировано» показывало 0.
+        adsPlanned: Math.max(files.length, videos.length, withLanguages ? 1 : 0),
+      },
+    });
+  } catch (e) {
+    inFlightUploads.delete(dedupKey); // не оставляем висеть замок от дубля на 10 мин
+    throw e;
+  }
 
   const finish = async (patch: { status: string; error?: string; campaignFbId?: string; adsCreated?: number }) => {
     inFlightUploads.delete(dedupKey); // залив завершён — снимаем замок от дубля

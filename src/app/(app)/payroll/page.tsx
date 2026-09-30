@@ -46,7 +46,6 @@ export default async function PayrollPage({
   );
   // Хвост: сколько минуса приехало с прошлых недель и сколько уедет дальше.
   const carriedCents = sum(rows, (r) => r.carriedCents);
-  const carryOutCents = sum(rows, (r) => r.carryOutCents);
 
   async function close() {
     'use server';
