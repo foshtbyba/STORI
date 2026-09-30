@@ -696,6 +696,7 @@
           <div><label>Качество (1–100)</label><input id="optImgQ" value="90"></div>
         </div>
         <div class="chk"><input type="checkbox" id="optWebp"><label>Конвертировать в WebP (меняет ссылки .jpg/.png → .webp)</label></div>
+        <div class="chk"><input type="checkbox" id="optGifDrop"><label>Убрать тяжёлый GIF-фолбэк, если рядом есть webp-анимация (−вес; на очень старых браузерах без webp пропадёт анимация)</label></div>
         <div class="chk"><input type="checkbox" id="optUnused" checked><label>Удалять неиспользуемые файлы (+ мёртвый jQuery)</label></div>
         <div class="chk"><input type="checkbox" id="optJunk"><label>Чистить подозрительный код (майнеры / eval / скрытые iframe)</label></div>
         <div class="hint" id="optReport">Уменьшает вес и ускоряет ленд. Base64 выносится в файлы, картинки жмутся под реальный размер, лишние/чужие файлы удаляются. После скачивания здесь появится отчёт: что сделано и сколько сэкономлено.</div>
@@ -2959,7 +2960,7 @@ function readCfg(){
     stripOld:document.getElementById("stripOld").checked,repCallErr:document.getElementById("repCallErr").checked,
     makeChest:document.getElementById("makeChest").checked,
     keepComments:document.getElementById("keepComments").checked,
-    optB64:chk("optB64"),optUnused:chk("optUnused"),optImg:chk("optImg"),optImgSmart:chk("optImgSmart"),optWebp:chk("optWebp"),optJunk:chk("optJunk"),
+    optB64:chk("optB64"),optUnused:chk("optUnused"),optImg:chk("optImg"),optImgSmart:chk("optImgSmart"),optWebp:chk("optWebp"),optGifDrop:chk("optGifDrop"),optJunk:chk("optJunk"),
     optImgMax:parseInt(val("optImgMax"),10)||1000,optImgQ:Math.min(1,Math.max(0.3,(parseInt(val("optImgQ"),10)||90)/100)),
     thanksDesign:(document.getElementById("thanksDesign")||{}).value||"minimal",
     dedup:chk("dedupOn"),dedupPhoneDays:parseInt(val("dedupPhoneDays"),10)||1,dedupIpMin:parseInt(val("dedupIpMin"),10)||3,
@@ -3369,10 +3370,29 @@ function inlineCallErrAssets(out, cfg){
     });
   });
 }
+// опц.: заменить тяжёлый GIF на webp-сиблинг ТОЛЬКО внутри <picture>, где webp уже отдаётся <source>.
+// Так у webp-браузеров ничего не меняется (они и так брали <source>), а <img>-фолбэк указывает на webp;
+// осиротевший .gif затем удалит optRemoveUnused. Трогаем исключительно gif внутри такого <picture>.
+function optGifToWebp(out, rep){
+  var webpStem={}; out.forEach(function(f){ if(f.bytes && /\.webp$/i.test(f.name)) webpStem[baseName(f.name).toLowerCase().replace(/\.webp$/,"")]=1; });
+  if(!Object.keys(webpStem).length) return;
+  out.forEach(function(f){
+    if(typeof f.str!=="string" || !/\.html?$/i.test(f.name)) return;
+    f.str=f.str.replace(/<picture\b[\s\S]*?<\/picture>/gi,function(block){
+      if(!/type=["']image\/webp["']|\.webp\b/i.test(block)) return block;   // webp-source обязателен
+      return block.replace(/(<img\b[^>]*\bsrc=["'])([^"']+?)\.gif(["'])/gi,function(m,a,stem,c){
+        if(!webpStem[baseName(stem).toLowerCase()]) return m;               // нет webp-сиблинга — не трогаем
+        rep.gif=(rep.gif||0)+1;
+        return a+stem+".webp"+c;
+      });
+    });
+  });
+}
 async function optimizeOut(out, cfg, rep){
   if(cfg.optB64) optExtractB64(out, rep);
   if(cfg.optJunk) optJunk(out, rep);
   if(cfg.optImg) await optImages(out, cfg, rep);
+  if(cfg.optGifDrop) optGifToWebp(out, rep);   // опц.: GIF-фолбэк -> webp (только где webp уже есть в <picture>)
   inlineCallErrAssets(out, cfg);   // call/error self-contained (после сжатия)
   if(cfg.optUnused){ optDeadLibs(out, rep); out=optRemoveUnused(out, rep); }
   return out;
@@ -3381,6 +3401,7 @@ function optReportText(rep){
   var p=[];
   if(rep.b64) p.push("base64→файлы: "+rep.b64+" ("+fmtSize(rep.b64b)+")");
   if(rep.img) p.push("картинок пережато: "+rep.img+" (−"+fmtSize(rep.imgb)+")");
+  if(rep.gif) p.push("GIF→webp: "+rep.gif);
   if(rep.lib) p.push("мёртвых библиотек: "+rep.lib);
   if(rep.unused) p.push("удалено файлов: "+rep.unused+" (−"+fmtSize(rep.unusedb)+")");
   if(rep.junk) p.push("вырезано подозрительного: "+rep.junk+(rep.junkList.length?" ["+rep.junkList.join(", ")+"]":""));
