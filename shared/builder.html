@@ -3358,11 +3358,32 @@ function optRemoveUnused(out, rep){
   var keep=[];
   out.forEach(function(f){ var nm=f.name||"";
     if(/\.(html?|php)$/i.test(nm)){ keep.push(f); return; }   // страницы/обработчики оставляем всегда
+    if(/\.(css|js|mjs|woff2?|ttf|otf|eot)$/i.test(nm)){ keep.push(f); return; }   // критичные: стили/скрипты/шрифты НИКОГДА не удаляем (иначе ленд ломается)
     var base=nm.split("/").pop();
     if(text.indexOf(base)>=0 || text.indexOf(nm)>=0){ keep.push(f); return; }
     rep.unused++; rep.unusedb += (f.bytes?f.bytes.length:(typeof f.str==="string"?f.str.length:0));
   });
   return keep;
+}
+// проверка комплектности: на что в ленде есть ссылка (link/script/img/url()), а файла в сборке нет -> вернём список,
+// чтобы билдер НЕ отдал молча нерабочий ленд.
+function missingAssets(out){
+  var have={}; out.forEach(function(f){ var n=(f.name||"").toLowerCase(); have[n]=1; have[baseName(n)]=1; });
+  var refs={};
+  function addref(u){
+    if(!u) return; u=String(u).trim();
+    if(/^(data:|https?:|\/\/|#|mailto:|tel:|javascript:)/i.test(u)) return;
+    var clean=u.split("?")[0].split("#")[0], base=clean.split("/").pop().toLowerCase();
+    if(!base || /\.(html?|php)$/i.test(base)) return;   // страницы не проверяем (могут генериться)
+    if(!/\.(css|js|mjs|png|jpe?g|webp|gif|svg|ico|avif|bmp|woff2?|ttf|otf|eot|mp4|webm|m4v|mov)$/i.test(base)) return;
+    if(!refs[base]) refs[base]=clean;
+  }
+  out.forEach(function(f){ if(typeof f.str!=="string") return;
+    if(/\.html?$/i.test(f.name)){ var re=/(?:href|src|srcset)\s*=\s*(['"])([^'"]+)\1/gi,m; while((m=re.exec(f.str))){ String(m[2]).split(",").forEach(function(part){ addref(part.trim().split(/\s+/)[0]); }); } }
+    if(/\.css$/i.test(f.name)){ var r2=/url\(\s*(['"]?)([^'")]+)\1\s*\)/gi,m2; while((m2=r2.exec(f.str))){ addref(m2[2]); } }
+  });
+  var miss=[]; Object.keys(refs).forEach(function(b){ if(!have[b]) miss.push(refs[b]); });
+  return miss;
 }
 
 // call/error -> самодостаточны: зашиваем их картинки/фавикон инлайном (уже сжатыми, после optImages).
@@ -3426,7 +3447,15 @@ async function optAndZip(list, cfg){
   if(optOn){ var rep={b64:0,b64b:0,img:0,imgb:0,lib:0,libb:0,unused:0,unusedb:0,junk:0,junkList:[]}; rep.before=outBytes(list);
     try{ list=await optimizeOut(list,cfg,rep); }catch(e){ console.warn("opt",e); }
     rep.after=outBytes(list); try{ showOptReport(rep); }catch(e){} }
+  try{ warnMissingAssets(list); }catch(e){}
   dl(zipName(cfg),makeZip(list),"application/zip");
+}
+// предупредить, если в собранном ленде не хватает файлов, на которые есть ссылки (чтобы не отдать нерабочий ленд)
+function warnMissingAssets(list){
+  var miss=missingAssets(list); if(!miss.length) return;
+  var st=document.getElementById("status");
+  if(st){ st.className="status warn"; st.textContent="⚠ В сборке не хватает файлов (ленд может не работать): "+miss.slice(0,12).join(", ")+(miss.length>12?(" и ещё "+(miss.length-12)):"")+". Загрузи папку ленда ЦЕЛИКОМ (css/js/images/fonts)."; }
+  try{ alert("⚠ Внимание: в ленде не хватает "+miss.length+" файл(ов), на которые есть ссылки:\n\n"+miss.slice(0,20).join("\n")+(miss.length>20?"\n…":"")+"\n\nЛенд может не работать. Проверь, что загрузил папку целиком."); }catch(e){}
 }
 async function downloadZip(){
   if(!FILES.index)build();
@@ -3532,6 +3561,7 @@ async function downloadChestZip(){
   if(optOn){ var rep={b64:0,b64b:0,img:0,imgb:0,lib:0,libb:0,unused:0,unusedb:0,junk:0,junkList:[]}; rep.before=outBytes(out);
     try{ out=await optimizeOut(out,cfg,rep); }catch(e){ console.warn("opt chest",e); }
     rep.after=outBytes(out); try{ showOptReport(rep); }catch(e){} }
+  try{ warnMissingAssets(out); }catch(e){}
   dl(safeName(cfg.brand)+(cfg.langCode?("_"+cfg.langCode.toLowerCase()):"")+"_chest.zip", makeZip(out), "application/zip");
 }
 
