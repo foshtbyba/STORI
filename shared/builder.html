@@ -767,6 +767,7 @@
       <div id="ddBody" class="grp-body" style="display:none">
         <div class="chk"><input type="checkbox" id="dedupOn" checked><label>Не отправлять повторные заявки в ПП (дедуп по номеру)</label></div>
         <div class="chk"><input type="checkbox" id="dedupIpFlood"><label>+ Антифлуд по IP (блок повторов с одного IP — для гео с мусором; на мобильном NAT может резать живых)</label></div>
+        <div class="chk"><input type="checkbox" id="valOn" checked><label>Проверять имя/телефон перед отправкой (не слать мусор: телефон 7–15 цифр, имя ≥2 букв)</label></div>
         <div class="row">
           <div><label>Окно по телефону, дней</label><input id="dedupPhoneDays" value="1"></div>
           <div><label>Окно антифлуда по IP, мин</label><input id="dedupIpMin" value="1"></div>
@@ -2244,6 +2245,7 @@ function wireSsForm(cfg, html){
 // Регэкспы «темперированные» — не пересекают границу закрывающего тега скрипта, т.е. режут только один блок и не заденут соседние.
 function stripPrevInjected(html){
   return html
+    .replace(/<script>\s*\/\*ssval\*\/(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"")                                    // валидация имя/телефон
     .replace(/<script>\s*\/\*ssddm1\*\/(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"")                                   // localStorage-дедуп (с guard и без)
     .replace(/<script>(?:(?!<\/script>)[\s\S])*?function L\(f\)\{var s=false;f\.addEventListener\("submit"(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"")  // замок кнопки __lock
     .replace(/<script>\s*window\.keitaro_subid\s*=\s*window\.keitaro_subid(?:(?!<\/script>)[\s\S])*?<\/script>/gi,"") // keitaro_subid
@@ -2321,6 +2323,7 @@ function patchHtml(cfg, html){
     var block=orderBlock(cfg);
     if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,block+"\n</body>"); else html+="\n"+block;
   }
+  if(cfg.validate){ var __val="<script>/*ssval*/(function(){if(window.__ssval)return;window.__ssval=1;function dig(v){return String(v||'').replace(/\\D+/g,'');}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var ph=dig(pf.value),nm=nf?String(nf.value||'').trim():'';var L=(nm.match(/\\p{L}/gu)||[]).length;if(ph.length<7||ph.length>15||(nf&&L<2)){e.preventDefault();e.stopImmediatePropagation();try{((nf&&L<2)?nf:pf).focus();}catch(_){}return false;}},true);})();<\/script>"; if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,__val+"\n</body>"); else html+="\n"+__val; }   // лёгкая валидация имя/телефон перед отправкой (anti-trash)
   if(cfg.dedup){ var __lock='<script>/*sslock*/(function(){if(window.__sslock)return;window.__sslock=1;function L(f){var s=false;f.addEventListener("submit",function(e){if(s){e.preventDefault();e.stopImmediatePropagation();return false;}s=true;var b=f.querySelector("[type=submit],button");if(b)setTimeout(function(){b.disabled=true;},0);},true);}Array.prototype.forEach.call(document.querySelectorAll("form"),L);})();<\/script>'; var __ddm1="<script>/*ssddm1*/(function(){if(window.__ssdd1)return;window.__ssdd1=1;var PW="+((cfg.dedupPhoneDays||1)*86400000)+",IW="+(cfg.dedupIpFlood?(cfg.dedupIpMin||1)*60000:0)+",K=location.pathname.replace(/[^a-z0-9]/gi,'').slice(-48);function dig(v){return String(v||'').replace(/\\D+/g,'');}function isdup(ph){try{var n=Date.now(),lk='ssddL_'+K,mk='ssddP_'+K,last=+(localStorage.getItem(lk)||0),m=JSON.parse(localStorage.getItem(mk)||'{}');for(var k in m){if(n-m[k]>PW)delete m[k];}var d=!!m[ph]||(IW>0&&last&&n-last<IW);if(!d){m[ph]=n;localStorage.setItem(mk,JSON.stringify(m));localStorage.setItem(lk,String(n));}return d;}catch(e){return false;}}function succ(){var u;try{u=(window.OFFER&&OFFER.success)||'call.html';}catch(e){u='call.html';}try{location.replace(u+location.search);}catch(e){location.href=u;}}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var nm=nf?String(nf.value||'').trim():'x';var ph=dig(pf.value);if(!nm||!ph||ph.length<7)return;if(isdup(ph)){e.preventDefault();e.stopImmediatePropagation();succ();}},true);})();<\/script>"; var __both=__lock+"\n"+__ddm1; if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,__both+"\n</body>"); else html+="\n"+__both; }   // антидубль: замок двойного сабмита + localStorage-дедуп для m1
   if(cfg.keepComments){
     // видимый маркер сверху (чтобы было понятно, что файл собран/изменён)
@@ -2976,7 +2979,7 @@ function readCfg(){
     optB64:chk("optB64"),optUnused:chk("optUnused"),optImg:chk("optImg"),optImgSmart:chk("optImgSmart"),optWebp:chk("optWebp"),optGifDrop:chk("optGifDrop"),optJunk:chk("optJunk"),
     optImgMax:parseInt(val("optImgMax"),10)||1000,optImgQ:Math.min(1,Math.max(0.3,(parseInt(val("optImgQ"),10)||90)/100)),
     thanksDesign:(document.getElementById("thanksDesign")||{}).value||"minimal",
-    dedup:chk("dedupOn"),dedupIpFlood:chk("dedupIpFlood"),dedupPhoneDays:parseInt(val("dedupPhoneDays"),10)||1,dedupIpMin:parseInt(val("dedupIpMin"),10)||1,
+    dedup:chk("dedupOn"),dedupIpFlood:chk("dedupIpFlood"),validate:chk("valOn"),dedupPhoneDays:parseInt(val("dedupPhoneDays"),10)||1,dedupIpMin:parseInt(val("dedupIpMin"),10)||1,
     uiLang:lang,
     t:T(lang)};
 }
