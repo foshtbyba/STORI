@@ -417,6 +417,22 @@
   }
   .toast .tx:hover{color:var(--fg)}
 
+  /* модалка-предупреждение в стиле билдера (вместо системного alert) */
+  .ssmodal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:20px;animation:ssfade .15s ease}
+  @keyframes ssfade{from{opacity:0}to{opacity:1}}
+  .ssmodal-card{background:var(--panel2);border:1px solid var(--line);border-radius:var(--r);max-width:460px;width:100%;padding:22px 24px 20px;box-shadow:0 24px 70px rgba(0,0,0,.55);animation:sspop .18s cubic-bezier(.2,.8,.2,1)}
+  @keyframes sspop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+  .ssmodal-title{font-size:16px;font-weight:700;color:var(--fg);margin:0 0 12px;display:flex;align-items:center;gap:9px;line-height:1.3}
+  .ssmodal-title .ic{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--warn-soft,rgba(230,160,40,.18));color:var(--warn,#e0a028);display:flex;align-items:center;justify-content:center;font-size:15px}
+  .ssmodal-body{font-size:14px;color:var(--mut);line-height:1.6;margin:0 0 18px}
+  .ssmodal-body ul{margin:0;padding-left:0;list-style:none}
+  .ssmodal-body li{position:relative;padding:8px 0 8px 18px;border-top:1px solid var(--line)}
+  .ssmodal-body li:first-child{border-top:0}
+  .ssmodal-body li::before{content:"•";position:absolute;left:2px;color:var(--warn,#e0a028);font-weight:700}
+  .ssmodal-body b,.ssmodal-body code{color:var(--fg)}
+  .ssmodal-ok{display:block;margin-left:auto;background:var(--acc);color:#fff;border:0;border-radius:var(--r-sm);padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+  .ssmodal-ok:hover{background:var(--acc-dark,var(--acc))}
+
   /* ── Правая колонка: выгрузка, вкладки, вывод ──────────────────────── */
   .dl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
   .dl button{
@@ -3411,10 +3427,7 @@ function missingAssets(out){
   var hasHandler=isKma||have['order.php']||have['api.php']||have['lemon.php'];
   var hasM1=out.some(function(f){ return typeof f.str==="string" && /\.html?$/i.test(f.name) && /m1\.top\/send_order|var OFFER\s*=\s*\{/.test(f.str); });
   if(!sawOrderForm && (hasHandler||hasM1)) critical.push("в ленде НЕТ формы заказа с полем телефона — лид отправлять неоткуда");
-  // shakes: пустой поток (streamCode) — платформа часто не принимает лид
-  out.forEach(function(f){ if(typeof f.str!=="string"||!/order\.php$/i.test(f.name)) return;
-    if(/\/api\/order\/in/.test(f.str) && /\$streamCode\s*=\s*''\s*;/.test(f.str)) critical.push("shakes: поток (streamCode) ПУСТОЙ — платформа может не принять лид, заполни поток");
-  });
+  // (поток/streamCode у shakes опционален — отдельно не проверяем)
   return {critical:critical, assets:assets};
 }
 
@@ -3483,15 +3496,30 @@ async function optAndZip(list, cfg){
   dl(zipName(cfg),makeZip(list),"application/zip");
 }
 // предупредить, если в собранном ленде не хватает файлов, на которые есть ссылки (чтобы не отдать нерабочий ленд)
+// модалка-предупреждение в стиле билдера (вместо системного alert)
+function ssAlert(title, lines){
+  try{
+    var o=document.createElement("div"); o.className="ssmodal";
+    var items=(lines||[]).map(function(x){return "<li>"+esc(String(x))+"</li>";}).join("");
+    o.innerHTML='<div class="ssmodal-card"><div class="ssmodal-title"><span class="ic">⚠</span>'+esc(title)+'</div><div class="ssmodal-body"><ul>'+items+'</ul></div><button class="ssmodal-ok" type="button">OK</button></div>';
+    function close(){ if(o.parentNode) o.parentNode.removeChild(o); document.removeEventListener("keydown",onKey); }
+    function onKey(e){ if(e.key==="Escape"||e.key==="Enter") close(); }
+    o.addEventListener("click",function(e){ if(e.target===o) close(); });
+    o.querySelector(".ssmodal-ok").addEventListener("click",close);
+    document.addEventListener("keydown",onKey);
+    document.body.appendChild(o);
+    try{ o.querySelector(".ssmodal-ok").focus(); }catch(_){}
+  }catch(e){ try{ alert(title+"\n\n"+(lines||[]).join("\n")); }catch(_){} }
+}
 function warnMissingAssets(list){
   var r=missingAssets(list);
   // косметика (картинки/шрифты/иконки) — тихо в консоль, пользователя не дёргаем
   if(r.assets && r.assets.length){ try{ console.warn("ss: не найдены ассеты ("+r.assets.length+"):", r.assets); }catch(e){} }
-  // критично — ломает отправку лида — громко
+  // критично — ломает отправку лида — громко, но в дизайне билдера
   if(!r.critical || !r.critical.length) return;
   var st=document.getElementById("status");
   if(st){ st.className="status warn"; st.textContent="⚠ ЛИД МОЖЕТ НЕ УЙТИ: "+r.critical.join(" · "); }
-  try{ alert("⚠ ВНИМАНИЕ — лид может не отправиться в ПП:\n\n• "+r.critical.join("\n• ")+"\n\nПроверь/пересобери ленд."); }catch(e){}
+  ssAlert("Лид может не уйти в ПП", r.critical);
 }
 async function downloadZip(){
   if(!FILES.index)build();
