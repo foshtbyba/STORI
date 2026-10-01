@@ -3379,10 +3379,21 @@ function missingAssets(out){
     if(!refs[base]) refs[base]=clean;
   }
   out.forEach(function(f){ if(typeof f.str!=="string") return;
+    if(/(^|\/)api\//i.test(f.name)) return;                        // внутренние файлы обработчика (админка KMA) — не ленд, не проверяем
     if(/\.html?$/i.test(f.name)){ var re=/(?:href|src|srcset)\s*=\s*(['"])([^'"]+)\1/gi,m; while((m=re.exec(f.str))){ String(m[2]).split(",").forEach(function(part){ addref(part.trim().split(/\s+/)[0]); }); } }
     if(/\.css$/i.test(f.name)){ var r2=/url\(\s*(['"]?)([^'")]+)\1\s*\)/gi,m2; while((m2=r2.exec(f.str))){ addref(m2[2]); } }
   });
   var miss=[]; Object.keys(refs).forEach(function(b){ if(!have[b]) miss.push(refs[b]); });
+  // обработчик формы заказа: action="order.php"/"api/success.php"/… ДОЛЖЕН существовать в сборке (иначе лид уходит в 404)
+  out.forEach(function(f){ if(typeof f.str!=="string"||!/\.html?$/i.test(f.name)||/(^|\/)api\//i.test(f.name)) return;
+    var re=/<form\b[^>]*\baction\s*=\s*(['"])([^'"]+)\1/gi,m;
+    while((m=re.exec(f.str))){ var a=String(m[2]).trim();
+      if(!a || /^(https?:|\/\/|#|javascript:|mailto:|tel:)/i.test(a)) continue;   // внешний/пустой action — не наш серверный обработчик
+      var base=a.split("?")[0].split("#")[0].toLowerCase().replace(/^\.\//,"");
+      if(!base) continue;
+      if(!have[base] && !have[baseName(base)]) miss.push(a+" (обработчик формы — лид уйдёт в 404!)");
+    }
+  });
   return miss;
 }
 
