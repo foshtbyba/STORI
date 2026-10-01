@@ -3385,15 +3385,27 @@ function missingAssets(out){
   });
   var miss=[]; Object.keys(refs).forEach(function(b){ if(!have[b]) miss.push(refs[b]); });
   // обработчик формы заказа: action="order.php"/"api/success.php"/… ДОЛЖЕН существовать в сборке (иначе лид уходит в 404)
+  var isKma=!!(have['api/kmalead.php'] || (have['api/success.php'] && have['api/config.php']));   // KMA-ленд по маркерам папки
+  var sawOrderForm=false, formActions=[];
   out.forEach(function(f){ if(typeof f.str!=="string"||!/\.html?$/i.test(f.name)||/(^|\/)api\//i.test(f.name)) return;
-    var re=/<form\b[^>]*\baction\s*=\s*(['"])([^'"]+)\1/gi,m;
-    while((m=re.exec(f.str))){ var a=String(m[2]).trim();
-      if(!a || /^(https?:|\/\/|#|javascript:|mailto:|tel:)/i.test(a)) continue;   // внешний/пустой action — не наш серверный обработчик
+    var re=/<form\b([^>]*)>([\s\S]*?)<\/form>/gi,m;
+    while((m=re.exec(f.str))){ var attrs=m[1], inner=m[2];
+      if(!/type\s*=\s*["']?tel\b|name\s*=\s*["']?phone\b/i.test(inner)) continue;   // не форма заказа (декоративные пропускаем)
+      sawOrderForm=true;
+      var am=attrs.match(/\baction\s*=\s*(['"]?)([^'"\s>]+)\1/i), a=am?String(am[2]).trim():"";
+      formActions.push(a);
+      if(!a || /^(https?:|\/\/|#|javascript:|mailto:|tel:)/i.test(a)) continue;
       var base=a.split("?")[0].split("#")[0].toLowerCase().replace(/^\.\//,"");
-      if(!base) continue;
-      if(!have[base] && !have[baseName(base)]) miss.push(a+" (обработчик формы — лид уйдёт в 404!)");
+      if(base && !have[base] && !have[baseName(base)]) miss.push(a+" (обработчик формы — лид уйдёт в 404!)");
     }
   });
+  // KMA-ленд, но форма заказа шлёт НЕ на api/success.php -> выбрана не та партнёрка (лид уйдёт не туда)
+  if(isKma && formActions.length && !formActions.some(function(a){return /(^|\/)api\/success\.php$/i.test((a||"").split("?")[0]);}))
+    miss.push("форма шлёт не на api/success.php, хотя это KMA-ленд → выбрана не та партнёрка!");
+  // вообще нет формы заказа с телефоном -> лид неоткуда отправлять (но у SS-прелендов формы и нет — там только CTA, не ругаемся)
+  var hasHandler=isKma||have['order.php']||have['api.php']||have['lemon.php'];
+  var hasM1=out.some(function(f){ return typeof f.str==="string" && /\.html?$/i.test(f.name) && /m1\.top\/send_order|var OFFER\s*=\s*\{/.test(f.str); });
+  if(!sawOrderForm && (hasHandler||hasM1)) miss.push("в ленде НЕТ формы заказа с полем телефона — лид отправлять неоткуда");
   return miss;
 }
 
