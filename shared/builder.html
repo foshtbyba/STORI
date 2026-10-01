@@ -1747,17 +1747,18 @@ ddCheck(cfg, "if (!empty($successPage) && is_file(__DIR__.'/'.$successPage)) { i
 "curl_setopt($curl, CURLOPT_POST, true);\n"+
 "curl_setopt($curl, CURLOPT_POSTFIELDS, $order);\n"+
 "curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);\n"+
-"try {\n"+
-"    $responseBody = curl_exec($curl);\n"+
-"    if (empty($responseBody)) { throw new Exception('Error: Empty response for order.'); }\n"+
-"    $response = json_decode($responseBody, true);\n"+
-"    if (empty($response)) { throw new Exception('Error: Broken json format for order.'); }\n"+
-"    if ($response['status'] != 'ok') { throw new Exception('Error: Order rejected.'); }\n"+
-"    curl_close($curl);\n"+
-"    "+ddMark(cfg)+"if (!empty($successPage) && is_file(__DIR__ . '/' . $successPage)) { include __DIR__ . '/' . $successPage; }\n"+
-"} catch (Exception $e) {\n"+
-"    if (!empty($errorPage) && is_file(__DIR__ . '/' . $errorPage)) { include __DIR__ . '/' . $errorPage; }\n"+
-"}\n";
+"$responseBody = curl_exec($curl);\n"+
+"$__http = curl_getinfo($curl, CURLINFO_RESPONSE_CODE); $__cerr = curl_error($curl);\n"+
+"curl_close($curl);\n"+
+"$response = json_decode($responseBody, true);\n"+
+"$__ok = (is_array($response) && isset($response['status']) && $response['status'] == 'ok');\n"+
+"if (!$__ok) {\n"+
+"    @file_put_contents(__DIR__ . '/_shakes_log.txt', date('c') . '  HTTP ' . $__http . ($__cerr?('  CURL_ERR: '.$__cerr):'') . '  RESP: ' . (string)$responseBody . '  | SENT: ' . json_encode($order, JSON_UNESCAPED_UNICODE) . \"\\n\", FILE_APPEND);\n"+
+"    if (!empty($errorPage) && is_file(__DIR__ . '/' . $errorPage)) { include __DIR__ . '/' . $errorPage; } else { header('Location: ' . $errorPage); }\n"+
+"    exit;\n"+
+"}\n"+
+ddMark(cfg)+"\n"+
+"if (!empty($successPage) && is_file(__DIR__ . '/' . $successPage)) { include __DIR__ . '/' . $successPage; } else { header('Location: ' . $successPage); }\n";
 }
 // hamsters.run (HUMST): лид уходит JSON-ом на api/leads/set, ключ оффера = OFFER_KEY (key_hash)
 function hamstersOrderPhp(cfg){
@@ -2047,7 +2048,7 @@ var KNOWN_HANDLERS=/^(?:lemon|subscribe1?|subscription|order|handler)\.php$/i;
 // какой обработчик нужен ТЕКУЩЕЙ партнёрке (иначе — ни одного). Имя = реальный файл обработчика (api.php у affstar, order.php у shakes/hamsters/skylead)
 function activeHandler(cfg){ return (cfg.needFile||"").toLowerCase() || ((cfg.mode==="php" && cfg.phpGen)?(cfg.phpAction||"order.php").toLowerCase():""); }
 // служебные лог-файлы обработчиков (пишутся на проде) — в сборку не тащим
-var JUNK_FILE=/^(?:debug_log|_skylead_log|_affstar_log|order_log|leads?_log)\.txt$|\.log$/i;
+var JUNK_FILE=/^(?:debug_log|_skylead_log|_affstar_log|_shakes_log|order_log|leads?_log)\.txt$|\.log$/i;
 // файл-обработчик ЧУЖОЙ партнёрки (напр. lemon.php при everad) — такой из папки выкидываем, чтобы не мусорил
 function isForeignHandler(name, cfg){ var b=String(name||"").toLowerCase(); return KNOWN_HANDLERS.test(b) && b!==activeHandler(cfg); }
 // файл, принадлежащий ДРУГОЙ партнёрке (не текущей) — выкидываем из сборки, чтобы не тащить чужое
