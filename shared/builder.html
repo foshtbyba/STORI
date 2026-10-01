@@ -2074,14 +2074,14 @@ function wireKmaForm(cfg, html){
   var done=false;
   html=html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
     if(done) return m;
-    if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа (декоративные/комменты оставляем)
+    if(!/type\s*=\s*["']?tel\b|name\s*=\s*["']?phone\b/i.test(inner)) return m;   // не форма заказа (декоративные/комменты оставляем) — кавычки необязательны (минифицированный html)
     done=true;
     // выкидываем старые action/method/onsubmit, ставим свои
     attrs=attrs.replace(/\s(?:action|method|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"");
     attrs=' action="api/success.php" method="POST"'+attrs;
     var body=inner;
-    if(!/name=["']data1["']/i.test(body)) body='\n        <input type="hidden" name="data1" value="{subid}">'+body;   // поле для subid, если его нет
-    if(cfg && cfg.buyerTag && cfg.buyerField && !new RegExp('name=["\']'+cfg.buyerField+'["\']').test(body))
+    if(!/name\s*=\s*["']?data1\b/i.test(body)) body='\n        <input type="hidden" name="data1" value="{subid}">'+body;   // поле для subid, если его нет
+    if(cfg && cfg.buyerTag && cfg.buyerField && !new RegExp('name\\s*=\\s*["\']?'+cfg.buyerField+'\\b').test(body))
       body='\n        <input type="hidden" name="'+cfg.buyerField+'" value="'+cfg.buyerTag+'">'+body;   // метка баера (KMA -> data2)
     return "<form"+attrs+">"+body+"</form>";
   });
@@ -2099,7 +2099,7 @@ function wireOrderPhpForm(cfg, html){
   // + чистим everad-остатки (если ленд раньше был everad): campaign_id/country_code/sid1/sid5 — иначе мусор в POST.
   var stripRe=new RegExp('<input[^>]*name=["\'](?:sub1|sub_id\\d+|subid|clickid|country'+extraStrip+'|campaign_id|country_code|sid\\d+|utm_[a-z]+|fbpxl?)["\'][^>]*>\\s*',"gi");
   return html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
-    if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа (декоративные оставляем)
+    if(!/type\s*=\s*["']?tel\b|name\s*=\s*["']?phone\b/i.test(inner)) return m;   // не форма заказа (кавычки необязательны)
     // target тоже срезаем: остаток target="ev_frame" от everad-сборки отправлял бы ответ order.php в скрытый iframe -> белый экран/404
     attrs=attrs.replace(/\s(?:action|method|target|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"").replace(/\sdata-order-form\b/gi,"");
     // класс order_form (гайд shakes: за него цепляется countries.js, если подключён)
@@ -2107,8 +2107,8 @@ function wireOrderPhpForm(cfg, html){
     else attrs=' class="order_form"'+attrs;
     attrs=' action="'+action+'" method="post"'+attrs;
     var body=inner;
-    if(!/name=["']name["']/i.test(body)) body=body.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i,'<input name="name"$1>');
-    if(!/name=["']phone["']/i.test(body)) body=body.replace(/<input\b([^>]*type=["']tel["'][^>]*)>/i,function(mm,a){return /name=/.test(a)?mm:'<input name="phone" '+a+'>';});
+    if(!/name\s*=\s*["']?name\b/i.test(body)) body=body.replace(/<input\b(?![^>]*type\s*=\s*["']?(?:tel|hidden|submit|checkbox|radio|file)\b)(?![^>]*\bname\s*=)([^>]*)>/i,'<input name="name"$1>');
+    if(!/name\s*=\s*["']?phone\b/i.test(body)) body=body.replace(/<input\b([^>]*\btype\s*=\s*["']?tel\b[^>]*)>/i,function(mm,a){return /\bname\s*=/.test(a)?mm:'<input name="phone" '+a+'>';});
     body=body.replace(stripRe,"");   // старые скрытые subid/country -> заменим своими
     return "<form"+attrs+">\n"+hidden+body+"</form>";
   });
@@ -2132,13 +2132,13 @@ function wireEveradForm(cfg, html){
   html=html.replace(/<iframe\b[^>]*name=["']ev_frame["'][^>]*>\s*<\/iframe>/gi,"");   // старый iframe уберём, добавим свой
   var stripRe=/<input[^>]*name=["'](?:campaign_id|country_code|sid1|sid5|sid\d|clickid|subid|sub1)["'][^>]*>\s*/gi;
   return html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
-    if(!/type=["']tel["']|name=["']phone["']/i.test(inner)) return m;   // не форма заказа — не трогаем
+    if(!/type\s*=\s*["']?tel\b|name\s*=\s*["']?phone\b/i.test(inner)) return m;   // не форма заказа — не трогаем (кавычки необязательны)
     // РОДНЫЕ id/class НЕ трогаем (иначе ломается CSS сундука вида #order_form .submit-roulette). Форму everad-скрипт найдёт по action.
     attrs=attrs.replace(/\s(?:action|method|target|onsubmit)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi,"");
     attrs=' action="'+action+'" method="post" target="ev_frame"'+attrs;
     var body=inner.replace(stripRe,"");
-    if(!/name=["']name["']/i.test(body)) body=body.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i,'<input name="name"$1>');
-    if(!/name=["']phone["']/i.test(body)) body=body.replace(/<input\b([^>]*type=["']tel["'][^>]*)>/i,function(mm,a){return /name=/.test(a)?mm:'<input name="phone" '+a+'>';});
+    if(!/name\s*=\s*["']?name\b/i.test(body)) body=body.replace(/<input\b(?![^>]*type\s*=\s*["']?(?:tel|hidden|submit|checkbox|radio|file)\b)(?![^>]*\bname\s*=)([^>]*)>/i,'<input name="name"$1>');
+    if(!/name\s*=\s*["']?phone\b/i.test(body)) body=body.replace(/<input\b([^>]*\btype\s*=\s*["']?tel\b[^>]*)>/i,function(mm,a){return /\bname\s*=/.test(a)?mm:'<input name="phone" '+a+'>';});
     return '<form'+attrs+'>\n        '+everadHidden(cfg)+body+'</form>\n      <iframe name="ev_frame" id="ev_frame" style="display:none;width:0;height:0;border:0"></iframe>';
   });
 }
@@ -2314,8 +2314,8 @@ function patchHtml(cfg, html){
   } else {
     if(cfg.autofix){
       html=html.replace(/<form\b(?![^>]*data-order-form)([^>]*)>/i,'<form data-order-form$1>');
-      if(!/name=["']name["']/i.test(html)) html=html.replace(/<input\b(?![^>]*type=["'](?:tel|hidden|submit|checkbox|radio|file)["'])(?![^>]*name=)([^>]*)>/i,'<input name="name"$1>');
-      if(!/name=["']phone["']/i.test(html)) html=html.replace(/<input\b([^>]*type=["']tel["'][^>]*)>/i,function(m,a){return /name=/.test(a)?m:'<input name="phone" '+a+'>';});
+      if(!/name\s*=\s*["']?name\b/i.test(html)) html=html.replace(/<input\b(?![^>]*type\s*=\s*["']?(?:tel|hidden|submit|checkbox|radio|file)\b)(?![^>]*\bname\s*=)([^>]*)>/i,'<input name="name"$1>');
+      if(!/name\s*=\s*["']?phone\b/i.test(html)) html=html.replace(/<input\b([^>]*\btype\s*=\s*["']?tel\b[^>]*)>/i,function(m,a){return /\bname\s*=/.test(a)?m:'<input name="phone" '+a+'>';});
     }
     var block=orderBlock(cfg);
     if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,block+"\n</body>"); else html+="\n"+block;
