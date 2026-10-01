@@ -17,6 +17,7 @@ export type Placement = {
 
 export const PLACEMENTS: Placement[] = [
   { key: 'fb_feed', label: 'FB лента', platform: 'facebook', field: 'facebook_positions', value: 'feed' },
+  { key: 'fb_profile_feed', label: 'FB лента профиля', platform: 'facebook', field: 'facebook_positions', value: 'profile_feed' },
   { key: 'fb_marketplace', label: 'FB Маркетплейс', platform: 'facebook', field: 'facebook_positions', value: 'marketplace' },
   { key: 'fb_video_feeds', label: 'FB видеолента', platform: 'facebook', field: 'facebook_positions', value: 'video_feeds' },
   { key: 'fb_story', label: 'FB Истории', platform: 'facebook', field: 'facebook_positions', value: 'story' },
