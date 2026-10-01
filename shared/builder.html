@@ -1748,12 +1748,10 @@ ddCheck(cfg, "if (!empty($successPage) && is_file(__DIR__.'/'.$successPage)) { i
 "curl_setopt($curl, CURLOPT_POSTFIELDS, $order);\n"+
 "curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);\n"+
 "$responseBody = curl_exec($curl);\n"+
-"$__http = curl_getinfo($curl, CURLINFO_RESPONSE_CODE); $__cerr = curl_error($curl);\n"+
 "curl_close($curl);\n"+
 "$response = json_decode($responseBody, true);\n"+
 "$__ok = (is_array($response) && isset($response['status']) && $response['status'] == 'ok');\n"+
 "if (!$__ok) {\n"+
-"    @file_put_contents(__DIR__ . '/_shakes_log.txt', date('c') . '  HTTP ' . $__http . ($__cerr?('  CURL_ERR: '.$__cerr):'') . '  RESP: ' . (string)$responseBody . '  | SENT: ' . json_encode($order, JSON_UNESCAPED_UNICODE) . \"\\n\", FILE_APPEND);\n"+
 "    if (!empty($errorPage) && is_file(__DIR__ . '/' . $errorPage)) { include __DIR__ . '/' . $errorPage; } else { header('Location: ' . $errorPage); }\n"+
 "    exit;\n"+
 "}\n"+
@@ -1846,7 +1844,7 @@ function skyleadOrderPhp(cfg){
 "$DEF_COUNTRY= '"+(shakesCountry(cfg)||"")+"';\n"+
 "$DIAL       = '"+dc+"';\n"+           // код страны (напр. 36 для HU), '' если неизвестен
 "$LOCAL_LEN  = "+dl+";\n"+             // длина локального номера без кода страны
-"$DEBUG_LOG  = true;\n\n"+            // писать ответ SkyLead в _skylead_log.txt при ошибке (для диагностики)
+"$DEBUG_LOG  = false;\n\n"+            // лог SkyLead выключен (по просьбе)
 ddFns(cfg)+
 "$name  = isset($_POST['name'])  ? trim($_POST['name'])  : '';\n"+
 "$phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';\n"+
