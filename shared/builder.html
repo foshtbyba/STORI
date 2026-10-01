@@ -767,7 +767,7 @@
       <div id="ddBody" class="grp-body" style="display:none">
         <div class="chk"><input type="checkbox" id="dedupOn" checked><label>Не отправлять повторные заявки в ПП (дедуп по номеру)</label></div>
         <div class="chk"><input type="checkbox" id="dedupIpFlood"><label>+ Антифлуд по IP (блок повторов с одного IP — для гео с мусором; на мобильном NAT может резать живых)</label></div>
-        <div class="chk"><input type="checkbox" id="valOn" checked><label>Проверять имя/телефон перед отправкой (не слать мусор: телефон 7–15 цифр, имя ≥2 букв)</label></div>
+        <div class="chk"><input type="checkbox" id="valOn" checked><label>Проверять имя/телефон перед отправкой (не слать мусор: телефон 6–15 цифр, имя ≥2 букв)</label></div>
         <div class="row">
           <div><label>Окно по телефону, дней</label><input id="dedupPhoneDays" value="1"></div>
           <div><label>Окно антифлуда по IP, мин</label><input id="dedupIpMin" value="1"></div>
@@ -2323,7 +2323,7 @@ function patchHtml(cfg, html){
     var block=orderBlock(cfg);
     if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,block+"\n</body>"); else html+="\n"+block;
   }
-  if(cfg.validate){ var __val="<script>/*ssval*/(function(){if(window.__ssval)return;window.__ssval=1;function dig(v){return String(v||'').replace(/\\D+/g,'');}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var ph=dig(pf.value),nm=nf?String(nf.value||'').trim():'';var L=(nm.match(/\\p{L}/gu)||[]).length;if(ph.length<7||ph.length>15||(nf&&L<2)){e.preventDefault();e.stopImmediatePropagation();try{((nf&&L<2)?nf:pf).focus();}catch(_){}return false;}},true);})();<\/script>"; if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,__val+"\n</body>"); else html+="\n"+__val; }   // лёгкая валидация имя/телефон перед отправкой (anti-trash)
+  if(cfg.validate){ var __val="<script>/*ssval*/(function(){if(window.__ssval)return;window.__ssval=1;function dig(v){return String(v||'').replace(/\\D+/g,'');}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var ph=dig(pf.value),nm=nf?String(nf.value||'').trim():'';var L=(nm.match(/\\p{L}/gu)||[]).length;if(ph.length<6||ph.length>15||(nf&&L<2)){e.preventDefault();e.stopImmediatePropagation();try{((nf&&L<2)?nf:pf).focus();}catch(_){}return false;}},true);})();<\/script>"; if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,__val+"\n</body>"); else html+="\n"+__val; }   // лёгкая валидация имя/телефон перед отправкой (anti-trash)
   if(cfg.dedup){ var __lock='<script>/*sslock*/(function(){if(window.__sslock)return;window.__sslock=1;function L(f){var s=false;f.addEventListener("submit",function(e){if(s){e.preventDefault();e.stopImmediatePropagation();return false;}s=true;var b=f.querySelector("[type=submit],button");if(b)setTimeout(function(){b.disabled=true;},0);},true);}Array.prototype.forEach.call(document.querySelectorAll("form"),L);})();<\/script>'; var __ddm1="<script>/*ssddm1*/(function(){if(window.__ssdd1)return;window.__ssdd1=1;var PW="+((cfg.dedupPhoneDays||1)*86400000)+",IW="+(cfg.dedupIpFlood?(cfg.dedupIpMin||1)*60000:0)+",K=location.pathname.replace(/[^a-z0-9]/gi,'').slice(-48);function dig(v){return String(v||'').replace(/\\D+/g,'');}function isdup(ph){try{var n=Date.now(),lk='ssddL_'+K,mk='ssddP_'+K,last=+(localStorage.getItem(lk)||0),m=JSON.parse(localStorage.getItem(mk)||'{}');for(var k in m){if(n-m[k]>PW)delete m[k];}var d=!!m[ph]||(IW>0&&last&&n-last<IW);if(!d){m[ph]=n;localStorage.setItem(mk,JSON.stringify(m));localStorage.setItem(lk,String(n));}return d;}catch(e){return false;}}function succ(){var u;try{u=(window.OFFER&&OFFER.success)||'call.html';}catch(e){u='call.html';}try{location.replace(u+location.search);}catch(e){location.href=u;}}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var nm=nf?String(nf.value||'').trim():'x';var ph=dig(pf.value);if(!nm||!ph||ph.length<7)return;if(isdup(ph)){e.preventDefault();e.stopImmediatePropagation();succ();}},true);})();<\/script>"; var __both=__lock+"\n"+__ddm1; if(/<\/body>/i.test(html)) html=html.replace(/<\/body>/i,__both+"\n</body>"); else html+="\n"+__both; }   // антидубль: замок двойного сабмита + localStorage-дедуп для m1
   if(cfg.keepComments){
     // видимый маркер сверху (чтобы было понятно, что файл собран/изменён)
@@ -3387,7 +3387,8 @@ function missingAssets(out){
     if(/\.html?$/i.test(f.name)){ var re=/(?:href|src|srcset)\s*=\s*(['"])([^'"]+)\1/gi,m; while((m=re.exec(f.str))){ String(m[2]).split(",").forEach(function(part){ addref(part.trim().split(/\s+/)[0]); }); } }
     if(/\.css$/i.test(f.name)){ var r2=/url\(\s*(['"]?)([^'")]+)\1\s*\)/gi,m2; while((m2=r2.exec(f.str))){ addref(m2[2]); } }
   });
-  var miss=[]; Object.keys(refs).forEach(function(b){ if(!have[b]) miss.push(refs[b]); });
+  var assets=[]; Object.keys(refs).forEach(function(b){ if(!have[b]) assets.push(refs[b]); });   // косметика (картинки/шрифты/иконки) — тихо
+  var critical=[];   // ломает ОТПРАВКУ лида — громко
   // обработчик формы заказа: action="order.php"/"api/success.php"/… ДОЛЖЕН существовать в сборке (иначе лид уходит в 404)
   var isKma=!!(have['api/kmalead.php'] || (have['api/success.php'] && have['api/config.php']));   // KMA-ленд по маркерам папки
   var sawOrderForm=false, formActions=[];
@@ -3400,17 +3401,21 @@ function missingAssets(out){
       formActions.push(a);
       if(!a || /^(https?:|\/\/|#|javascript:|mailto:|tel:)/i.test(a)) continue;
       var base=a.split("?")[0].split("#")[0].toLowerCase().replace(/^\.\//,"");
-      if(base && !have[base] && !have[baseName(base)]) miss.push(a+" (обработчик формы — лид уйдёт в 404!)");
+      if(base && !have[base] && !have[baseName(base)]) critical.push(a+" (обработчик формы — лид уйдёт в 404!)");
     }
   });
   // KMA-ленд, но форма заказа шлёт НЕ на api/success.php -> выбрана не та партнёрка (лид уйдёт не туда)
   if(isKma && formActions.length && !formActions.some(function(a){return /(^|\/)api\/success\.php$/i.test((a||"").split("?")[0]);}))
-    miss.push("форма шлёт не на api/success.php, хотя это KMA-ленд → выбрана не та партнёрка!");
+    critical.push("форма шлёт не на api/success.php, хотя это KMA-ленд → выбрана не та партнёрка!");
   // вообще нет формы заказа с телефоном -> лид неоткуда отправлять (но у SS-прелендов формы и нет — там только CTA, не ругаемся)
   var hasHandler=isKma||have['order.php']||have['api.php']||have['lemon.php'];
   var hasM1=out.some(function(f){ return typeof f.str==="string" && /\.html?$/i.test(f.name) && /m1\.top\/send_order|var OFFER\s*=\s*\{/.test(f.str); });
-  if(!sawOrderForm && (hasHandler||hasM1)) miss.push("в ленде НЕТ формы заказа с полем телефона — лид отправлять неоткуда");
-  return miss;
+  if(!sawOrderForm && (hasHandler||hasM1)) critical.push("в ленде НЕТ формы заказа с полем телефона — лид отправлять неоткуда");
+  // shakes: пустой поток (streamCode) — платформа часто не принимает лид
+  out.forEach(function(f){ if(typeof f.str!=="string"||!/order\.php$/i.test(f.name)) return;
+    if(/\/api\/order\/in/.test(f.str) && /\$streamCode\s*=\s*''\s*;/.test(f.str)) critical.push("shakes: поток (streamCode) ПУСТОЙ — платформа может не принять лид, заполни поток");
+  });
+  return {critical:critical, assets:assets};
 }
 
 // call/error -> самодостаточны: зашиваем их картинки/фавикон инлайном (уже сжатыми, после optImages).
@@ -3479,10 +3484,14 @@ async function optAndZip(list, cfg){
 }
 // предупредить, если в собранном ленде не хватает файлов, на которые есть ссылки (чтобы не отдать нерабочий ленд)
 function warnMissingAssets(list){
-  var miss=missingAssets(list); if(!miss.length) return;
+  var r=missingAssets(list);
+  // косметика (картинки/шрифты/иконки) — тихо в консоль, пользователя не дёргаем
+  if(r.assets && r.assets.length){ try{ console.warn("ss: не найдены ассеты ("+r.assets.length+"):", r.assets); }catch(e){} }
+  // критично — ломает отправку лида — громко
+  if(!r.critical || !r.critical.length) return;
   var st=document.getElementById("status");
-  if(st){ st.className="status warn"; st.textContent="⚠ В сборке не хватает файлов (ленд может не работать): "+miss.slice(0,12).join(", ")+(miss.length>12?(" и ещё "+(miss.length-12)):"")+". Загрузи папку ленда ЦЕЛИКОМ (css/js/images/fonts)."; }
-  try{ alert("⚠ Внимание: в ленде не хватает "+miss.length+" файл(ов), на которые есть ссылки:\n\n"+miss.slice(0,20).join("\n")+(miss.length>20?"\n…":"")+"\n\nЛенд может не работать. Проверь, что загрузил папку целиком."); }catch(e){}
+  if(st){ st.className="status warn"; st.textContent="⚠ ЛИД МОЖЕТ НЕ УЙТИ: "+r.critical.join(" · "); }
+  try{ alert("⚠ ВНИМАНИЕ — лид может не отправиться в ПП:\n\n• "+r.critical.join("\n• ")+"\n\nПроверь/пересобери ленд."); }catch(e){}
 }
 async function downloadZip(){
   if(!FILES.index)build();
