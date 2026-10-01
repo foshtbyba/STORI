@@ -212,7 +212,11 @@ export async function teamSummary(key: string, range?: Range, opts?: { owners?: 
 
     return {
       buyer,
-      days: mine.length,
+      // Именно дни, а не строки: на один день бывает несколько отчётов (разные
+      // офферы/источники — уникальность DayReport по [buyer, date, offer,
+      // source]), поэтому считаем различные даты, иначе «8 дн.» вылезает за
+      // семидневную неделю.
+      days: new Set(mine.map((d) => d.date.getTime())).size,
       revenueCents,
       spendNetCents,
       spendGrossCents,

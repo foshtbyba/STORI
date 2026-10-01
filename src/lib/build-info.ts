@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'capital-cleanup · 30.09 18:32';
+export const BUILD_INFO = 'owner-days-distinct · 01.10 22:11';
