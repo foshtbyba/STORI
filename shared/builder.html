@@ -3430,6 +3430,21 @@ function missingAssets(out){
   return {critical:critical, assets:assets};
 }
 
+// дубли картинок в <picture>: webp-<source> может перекрыть основную <img> и показать старый/чужой файл.
+// Убираем webp-<source>, чтобы показывалась ровно основная <img> — НО только если <img> указывает на реальную
+// картинку (не заглушку/плейсхолдер), иначе не ломаем ленивую загрузку. Арт-дирекшн <source media=…> не трогаем.
+function dedupPictureVariants(out){
+  var sz={}; out.forEach(function(f){ if(f.bytes && IMG_EXT.test(f.name)){ var b=baseName(f.name).toLowerCase(); if(!sz[b]||f.bytes.length>sz[b]) sz[b]=f.bytes.length; } });
+  function realImg(ref){ if(!ref||/^data:/i.test(ref)) return false; var b=ref.split("?")[0].split("#")[0].split("/").pop().toLowerCase(); return (sz[b]||0)>3000; }   // >3KB = настоящая картинка, не плейсхолдер
+  out.forEach(function(f){ if(typeof f.str!=="string"||!/\.html?$/i.test(f.name)) return;
+    f.str=f.str.replace(/<picture\b[^>]*>[\s\S]*?<\/picture>/gi,function(block){
+      var imgm=block.match(/<img\b[^>]*\bsrc\s*=\s*["']([^"']+)["']/i); if(!imgm||!realImg(imgm[1])) return block;   // нет реального <img> -> не трогаем (lazy-load)
+      var hadWebp=false;
+      var nb=block.replace(/<source\b[^>]*>/gi,function(s){ if(/type\s*=\s*["']?image\/webp|\.webp\b/i.test(s)){ hadWebp=true; return ""; } return s; });
+      return hadWebp?nb:block;
+    });
+  });
+}
 // call/error -> самодостаточны: зашиваем их картинки/фавикон инлайном (уже сжатыми, после optImages).
 // Иначе относительный путь (images/...) на задеплоенном ленде может не резолвиться = битая картинка.
 function inlineCallErrAssets(out, cfg){
@@ -3487,6 +3502,7 @@ function optReportText(rep){
 }
 function showOptReport(rep){ var el=document.getElementById("optReport"); if(el){ el.textContent="✓ "+optReportText(rep); el.style.color="var(--ok)"; } }
 async function optAndZip(list, cfg){
+  try{ dedupPictureVariants(list); }catch(e){}   // webp-дубль не должен перекрывать основную картинку
   var optOn=cfg.optB64||cfg.optUnused||cfg.optImg||cfg.optJunk;
   if(optOn){ var rep={b64:0,b64b:0,img:0,imgb:0,lib:0,libb:0,unused:0,unusedb:0,junk:0,junkList:[]}; rep.before=outBytes(list);
     try{ list=await optimizeOut(list,cfg,rep); }catch(e){ console.warn("opt",e); }
@@ -3619,6 +3635,7 @@ async function downloadChestZip(){
     out.forEach(function(f){ if(/(^|\/)api\/success\.php$/i.test(f.name||"")){ f.str=succPhp; delete f.bytes; hasSucc=true; } });
     if(!hasSucc) out.push({name:"api/success.php",str:succPhp});
   }
+  try{ dedupPictureVariants(out); }catch(e){}   // webp-дубль не должен перекрывать основную картинку
   // оптимизация сундука (как у ленда): base64→файлы, пережатие картинок, чистка, удаление неиспользуемого
   var optOn=cfg.optB64||cfg.optUnused||cfg.optImg||cfg.optJunk;
   if(optOn){ var rep={b64:0,b64b:0,img:0,imgb:0,lib:0,libb:0,unused:0,unusedb:0,junk:0,junkList:[]}; rep.before=outBytes(out);
