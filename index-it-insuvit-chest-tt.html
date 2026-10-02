@@ -215,16 +215,19 @@
     </script>
 <script>
 (function(){
+  var sent = false;
   document.addEventListener('submit', function(e) {
     var f = e.target;
     if (!f || !f.querySelector) return;
     var ph = f.querySelector('[name=phone],input[type=tel]');
-    if (ph && ph.value && ph.value.replace(/\D/g,'').length >= 7) {
-      try {
-        ttq.track('Purchase');
-      } catch(err) {}
+    if (ph && ph.value && ph.value.replace(/\D/g,'').length >= 7 && !sent) {
+      sent = true;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      try { ttq.track('Purchase'); } catch(err) {}
+      setTimeout(function(){ f.submit(); }, 300);
     }
-  }, false);
+  }, true);
 })();
 </script>
   <script>/*ssddlock*/(function(){function L(f){var s=false;f.addEventListener("submit",function(e){if(s){e.preventDefault();e.stopImmediatePropagation();return false;}s=true;var b=f.querySelector("[type=submit],button");if(b)setTimeout(function(){b.disabled=true;},0);},true);}Array.prototype.forEach.call(document.querySelectorAll("form"),L);})();</script>
