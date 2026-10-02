@@ -1010,9 +1010,21 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   });
   const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
 
+  // Профили, пропущенные на паузе (троттлинг/бан), в этом заходе не отчитываются
+  // — их расход не «исчез», а просто не собран сейчас. Вместе с runGaps (сбои по
+  // ходу захода) это признак НЕполного захода: при нём витрину расхода не чистим
+  // «по хвостам», чтобы не стереть реальные суммы недособранных кабинетов.
+  const pausedSkipped = all.length - tokens.length;
+  let runGaps = 0;
+
   // Дубли кабинетов (один act_ID под несколькими профилями): расход тянем только
   // с канонического, иначе он задвоится в заливке КТ.
   const canonical = await canonicalAccountIds(now);
+
+  // Снимок проблем ДО обхода: каждый слетевший по ходу профиль дописывает ровно
+  // одну запись в result.problems, так что разница после обхода = число упавших
+  // токенов. Нужно, чтобы отличить полный заход от неполного (см. витрину ниже).
+  const problemsBefore = result.problems.length;
 
   await pool(tokens, FB_CONCURRENCY, async (token) => {
     const work = async () => {
@@ -1247,6 +1259,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
           if (isTokenLevelError(e)) throw e;
           result.info.push(`${token.buyer.handle}/${acc.name || acc.externalId}: ${e instanceof FbError ? e.message : (e as Error).message}`);
           result.skipped += 1;
+          runGaps += 1; // кабинет не дособрал — заход неполный
         }
       }
 
@@ -1326,19 +1339,39 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
     await writeAgencyDay(buyerId, iso, cents, result);
   }
 
-  // Перезаписываем окно целиком: чистим дни отрезка и кладём свежие суммы, чтобы
-  // исчезнувший расход не оставался висеть за прошлые дни. В своём try, чтобы
-  // сбой записи витрины KtCostDay не сорвал главное — заливку расхода в сам КТ
-  // ниже (её админ и ждёт от кнопки «Обновить стату»).
+  // Витрину расхода обновляем УСТОЙЧИВО к неполному заходу. Было: стирали всё
+  // окно и заливали заново из `cost` — а `cost` содержит только то, что собрали
+  // ИМЕННО сейчас. Если заход оборвался в моменте (профиль слетел, троттлинг,
+  // пропуск кабинета), расход недособранных кабов исчезал из витрины до
+  // следующего полного захода — ровно та «обрушилась подтяжка и сбросила
+  // расход».
+  //
+  // Теперь: present-ключи всегда upsert-им (их данные свежие и не теряются), а
+  // «хвосты» (кампании без открута в этом окне) чистим ТОЛЬКО если заход прошёл
+  // ПОЛНОСТЬЮ — без упавших токенов, без пропущенных кабинетов и без профилей на
+  // паузе. При неполном заходе чужой расход остаётся как есть и дотянется в
+  // следующем заходе по своей очереди. Всё в своём try, чтобы сбой витрины не
+  // сорвал заливку в сам КТ ниже.
   try {
     const fromDate = atMidnight(from);
     const toDate = atMidnight(to);
-    await prisma.ktCostDay.deleteMany({ where: { date: { gte: fromDate, lte: toDate } } });
+    const present = new Set<string>();
     for (const [key, b] of cost) {
       const iso = key.split('|')[1];
-      await prisma.ktCostDay.create({
-        data: {
-          date: atMidnight(iso),
+      const dateAt = atMidnight(iso);
+      present.add(`${b.token}|${iso}`);
+      await prisma.ktCostDay.upsert({
+        where: { ktToken_date: { ktToken: b.token, date: dateAt } },
+        update: {
+          ktCampaignId: b.campId,
+          ktCampaignName: b.campName,
+          spendCents: b.cents,
+          clicks: b.clicks,
+          impressions: b.impressions,
+          currency: b.currency,
+        },
+        create: {
+          date: dateAt,
           ktToken: b.token,
           ktCampaignId: b.campId,
           ktCampaignName: b.campName,
@@ -1348,6 +1381,20 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
           currency: b.currency,
         },
       });
+    }
+    const tokenFailures = result.problems.length - problemsBefore;
+    const fullPass = tokenFailures === 0 && runGaps === 0 && pausedSkipped === 0;
+    if (fullPass) {
+      // Полный заход — можно смело снять «хвосты»: кампании окна, которых в
+      // `cost` нет, реально перестали крутить, а не просто не дособрались.
+      const windowRows = await prisma.ktCostDay.findMany({
+        where: { date: { gte: fromDate, lte: toDate } },
+        select: { id: true, ktToken: true, date: true },
+      });
+      const staleIds = windowRows
+        .filter((r) => !present.has(`${r.ktToken}|${dayKey(r.date)}`))
+        .map((r) => r.id);
+      if (staleIds.length) await prisma.ktCostDay.deleteMany({ where: { id: { in: staleIds } } });
     }
   } catch (e) {
     result.problems.push(`Витрина расхода KtCostDay: ${(e as Error).message}`);

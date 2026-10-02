@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'agency-day-from-fbadday · 02.10 18:58';
+export const BUILD_INFO = 'sync-no-reset-on-partial · 02.10 19:13';
