@@ -9,9 +9,9 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f4f4f4;
-      color: #222;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #0f0f0f;
+      color: #d6d6d6;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -19,41 +19,44 @@
       padding: 20px;
     }
     .thanks {
-      background: #fff;
+      background: #1a1a1a;
       max-width: 520px;
       width: 100%;
       text-align: center;
       padding: 40px 28px;
-      border-radius: 10px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, .08);
-      border-top: 6px solid #024476;
+      border-radius: 16px;
+      border: 1px solid #252525;
+      border-top: 6px solid #fe2c55;
     }
     .thanks__check {
       width: 84px;
       height: 84px;
       margin: 0 auto 20px;
       border-radius: 50%;
-      background: #024476;
+      background: #fe2c55;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .thanks__check svg { width: 44px; height: 44px; fill: none; stroke: #fff; stroke-width: 3; }
-    .thanks h1 { font-size: 26px; color: #024476; margin-bottom: 14px; }
-    .thanks p { font-size: 17px; line-height: 1.5; margin-bottom: 14px; }
-    .thanks__product { max-width: 180px; height: auto; margin: 10px auto 20px; display: block; }
+    .thanks h1 { font-size: 26px; color: #f1f1f2; margin-bottom: 14px; }
+    .thanks p { font-size: 17px; line-height: 1.5; margin-bottom: 14px; color: #bbb; }
+    .thanks p b { color: #f1f1f2; }
+    .thanks__product { max-width: 180px; height: auto; margin: 10px auto 20px; display: block; border-radius: 14px; }
     .thanks__note {
       font-size: 14px;
-      color: #666;
-      background: #fff7d6;
+      color: #ccc;
+      background: #252525;
       padding: 12px 14px;
-      border-radius: 6px;
+      border-radius: 10px;
       margin-top: 18px;
+      border: 1px solid #333;
     }
+    .thanks__note b { color: #fe2c55; }
     .thanks__home {
       display: inline-block;
       margin-top: 22px;
-      color: #024476;
+      color: #fe2c55;
       text-decoration: none;
       font-weight: bold;
     }
@@ -63,12 +66,12 @@
   <script>
   !function (w, d, t) {
     w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(
-    var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
-    ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
+  ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+
 
     ttq.load('DAVTHARC77U8O3I51K00');
     ttq.page();
-    ttq.track('Purchase');
   }(window, document, 'ttq');
   </script>
   <!-- TikTok Pixel Code End -->
