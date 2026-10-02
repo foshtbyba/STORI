@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="it-IT">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      transition: opacity ease-in 0.2s;
+    }
+
+    body[unresolved] {
+      opacity: 0;
+      display: block;
+      overflow: hidden;
+      position: relative;
+    }
+  </style>
+
+  <title>Insuvit</title>
+
+  <!-- comments.css removed — TT styles inline below -->
+  <link rel="stylesheet" href="css/css.css" />
+  <link rel="stylesheet" href="css/intlTelInput.css" />
+  <link rel="stylesheet" href="css/style_3.css" />
+  <link rel="stylesheet" href="css/hdr.css" />
+  <link rel="icon" href="images/Insuvit.png" />
+
+  <style>
+    .tv_icons {
+      flex-wrap: wrap;
+    }
+
+    @media screen and (max-width: 500px) {
+      .main_header {
+        font-size: 25px;
+      }
+    }
+
+    @media screen and (max-width: 360px) {
+      .main_header {
+        font-size: 30px;
+      }
+    }
+
+    #video {
+      pointer-events: none;
+    }
+
+    .iti {
+      width: 100%;
+    }
+
+    /* ── Global TT dark theme ── */
+    body {
+      background-color: #0f0f0f !important;
+      color: #d6d6d6 !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    }
+    .main_header {
+      color: #f1f1f2 !important;
+      line-height: 1.25;
+    }
+    .main_header .green_bg {
+      background-color: #fe2c55 !important;
+      padding: 2px 8px !important;
+      border-radius: 4px;
+    }
+    /* Header bar */
+    .d-flex.d-lg-block {
+      background-color: #111 !important;
+      border-bottom: 3px solid #fe2c55 !important;
+    }
+
+    /* TV block */
+    .block_tv {
+      background-color: #1a1a1a !important;
+      border-radius: 16px;
+      padding: 24px 20px !important;
+      margin-top: 24px;
+      border: 1px solid #222;
+    }
+    .block_tv p {
+      color: #ccc !important;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+    .tv_icons {
+      gap: 12px;
+    }
+    .tv_icons img {
+      filter: brightness(0.85) contrast(0.95);
+      border-radius: 8px;
+    }
+
+    /* Video */
+    #container_video {
+      background-color: #0f0f0f !important;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    #container_video video {
+      display: block;
+    }
+    #popup div {
+      background-color: rgba(18,18,18,0.95) !important;
+      color: #f1f1f2 !important;
+      border-radius: 12px;
+      padding: 16px !important;
+      backdrop-filter: blur(8px);
+    }
+    #play div, #open-video div {
+      background-color: rgba(0,0,0,0.75) !important;
+      color: #f1f1f2 !important;
+      backdrop-filter: blur(6px);
+      border-radius: 10px;
+    }
+    .red, .form-instock {
+      color: #fe2c55 !important;
+    }
+    .comments {
+      background-color: transparent !important;
+    }
+
+    /* ── Form ── */
+    .formTt {
+      max-width: 480px;
+      margin: 24px auto;
+      background: #1a1a1a;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #252525;
+    }
+    .formTt__container {
+      padding: 22px 20px;
+    }
+    .formTt__text {
+      color: #bbb;
+      font-size: 13px;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .formTt__action {
+      background: #fe2c55;
+      color: #fff !important;
+      padding: 10px 16px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .formTt__counter {
+      margin: 8px 0;
+    }
+    .formTt__img {
+      text-align: center;
+      padding: 14px 0;
+      display: flex !important;
+      justify-content: center;
+    }
+    .formTt__img img {
+      max-width: 180px;
+      border-radius: 14px;
+      margin: 0 auto;
+      display: block;
+    }
+    .formTt__price {
+      text-align: center;
+      padding: 12px 0 8px;
+    }
+    .formTt__price--txt {
+      color: #fe2c55 !important;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.5px;
+    }
+    .formTt__price--p {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      gap: 14px;
+      margin-top: 6px;
+    }
+    .formTt__price--old {
+      color: #666;
+      text-decoration: line-through;
+      font-size: 18px;
+    }
+    .formTt__price--new {
+      color: #f1f1f2;
+      font-size: 26px;
+      font-weight: 700;
+    }
+    .formTt__timer {
+      text-align: center;
+      padding: 8px 0;
+    }
+    .formTt__timer p {
+      color: #888 !important;
+      font-size: 12px;
+    }
+    .formTt__timer div {
+      color: #fe2c55 !important;
+    }
+    .formTt__inputs {
+      margin: 12px 0;
+    }
+    .formTt__inputs label {
+      color: #888;
+      font-size: 12px;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .formTt__inputs input {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      background: #252525;
+      color: #f1f1f2;
+      font-size: 15px;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+    .formTt__inputs input:focus {
+      border-color: #fe2c55;
+    }
+    .formTt__inputs input::placeholder {
+      color: #555;
+    }
+    .formTt__btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #fe2c55;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 14px;
+      transition: opacity 0.2s;
+      letter-spacing: 0.3px;
+    }
+    .formTt__btn:hover {
+      opacity: 0.9;
+    }
+
+    /* ── Comments ── */
+    .tt-comments {
+      background-color: #1a1a1a;
+      border-radius: 16px;
+      padding: 18px;
+      margin-top: 12px;
+      border: 1px solid #222;
+    }
+    .tt-comments-header {
+      color: #f1f1f2;
+      font-size: 15px;
+      font-weight: 600;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #252525;
+      margin-bottom: 6px;
+    }
+    .tt-comments-wrapper {
+      padding: 14px 0;
+      border-bottom: 1px solid #1f1f1f;
+    }
+    .tt-comments-wrapper:last-child {
+      border-bottom: none;
+    }
+    .tt-comments-comment {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .tt-comments-comment-img {
+      width: 48px;
+      min-width: 48px;
+      vertical-align: top;
+      padding-right: 12px;
+    }
+    .tt-comments-comment-img img {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      min-height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      aspect-ratio: 1/1;
+    }
+    .tt-comments-comment-name {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .tt-comments-comment-name name {
+      color: #9a9a9a;
+    }
+    .tt-comments-comment-text {
+      color: #d6d6d6;
+      font-size: 14px;
+      line-height: 1.45;
+      padding: 3px 0 2px;
+    }
+    .tt-comments-comment-actions {
+      color: #666;
+      font-size: 12px;
+      padding-top: 4px;
+    }
+    .tt-comments-comment-actions like {
+      color: #fe2c55;
+      cursor: pointer;
+    }
+    .tt-comments-comment-actions like::before {
+      content: "\2665 ";
+    }
+    .tt-comments-comment-actions reply {
+      color: #666;
+      cursor: pointer;
+    }
+    .tt-comments-comment-actions likes {
+      color: #777;
+    }
+    .tt-comments-comment-actions date {
+      color: #555;
+      font-size: 11px;
+    }
+    #more p {
+      color: #666;
+      text-align: center;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+    #more p strong span {
+      color: #666 !important;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+  <script src="js/date.js"></script>
+
+  <!-- TikTok Pixel Code Start -->
+  <script>
+  !function (w, d, t) {
+    w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(
+    var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
+    ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+
+    ttq.load('DAVTHARC77U8O3I51K00');
+    ttq.page();
+  }(window, document, 'ttq');
+  </script>
+  <!-- TikTok Pixel Code End -->
+</head>
+
+<body style="margin: 0">
+  <div class="d-flex d-lg-block" style="
+        z-index: 2000;
+        background-color: #111;
+        border-bottom: 3px solid #fe2c55;
+        height: 92px;
+        margin-left: 0px;
+        padding-right: 10px;
+        width: 100%;
+      ">
+    <div class="container">
+      <div class="d-flex container-fluid col-12 justify-content-between" style="max-width: 1280px">
+        <a class="text-muted pt-2" href="#" title="Ministero della Salute"><img src="images/IT1.png"
+            alt="Ministero della Salute" style="height: 72px" loading="lazy" /></a>
+        <div class="mt-3" style="display: flex; align-items: center">
+          <div class="search-container">
+            <form>
+              <input disabled class="search expandright" id="searchright" type="search" />
+              <label class="buttonSch searchbutton"><span class="mglass">⚲</span></label>
+            </form>
+          </div>
+
+          <div class="switcher-container">
+            <div class="lang-menu">
+              <div class="selected-lang ro">
+                <a href="#">
+                  <img src="images/IT2.png" alt="Italiano" class="ro" loading="lazy" /></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h1 class="main_header">
+    <span class="green_bg">UN MEDICO FAMOSO HA SCOPERTO IL PARASSITA CHE CAUSA IL DIABETE DI TIPO 2!</span>
+    <br> Il 94% degli spettatori che ha guardato questa intervista fino alla fine ha normalizzato i livelli di zucchero nel sangue in soli 40 giorni!
+  </h1>
+
+  <div id="container_video">
+    <div id="close"></div>
+    <div id="open-video">
+      <div>
+        <h4>Clicca qui per continuare a guardare</h4>
+      </div>
+    </div>
+    <div id="popup">
+      <div>
+        <h2>Sono rimasti solo 17 pacchi di Insuvit in magazzino.</h2>
+        <h2>Effettua subito il tuo ordine!</h2>
+      </div>
+    </div>
+    <div id="play">
+      <div>
+        <h4>Il video è già iniziato</h4>
+        <h4>Clicca per attivare l'audio!</h4>
+      </div>
+    </div>
+    <video id="video" autoplay="autoplay" muted="" playsinline="" webkit-playsinline="" preload="metadata">
+      <source src="it.mp4" />
+    </video>
+  </div>
+  <span id="oneform"></span>
+  <form id="order" action="order.php" method="POST">
+    <input type="hidden" name="sub1" value="{subid}" />
+        <input type="hidden" name="sub2" value="{sub_id_2}">
+    <input type="hidden" name="country" value="IT" />
+
+    <div id="formTt" class="formTt">
+      <div class="formTt__container">
+        <p class="formTt__action formTt__text">
+          <b>Affrettati!</b> I pacchetti scontati stanno finendo velocemente.
+        </p>
+        <p class="formTt__counter formTt__text">
+          <b>Aggiornamento:</b> oggi sono disponibili solo
+          <span class="form-instock red">17</span> confezioni
+          <span class="js-current-date">
+            <script>
+              dtime_nums(-1, true);
+            </script>
+          </span>.
+        </p>
+        <div class="formTt__img">
+          <img src="images/Insuvit.png" alt="" loading="lazy" />
+        </div>
+        <div class="formTt__price">
+          <p class="formTt__price--txt formTt__text">SCONTO -50%</p>
+          <span class="formTt__price--p">
+            <span class="oldPriceAndLabelForLandingInfoApi formTt__price--old"><span class="price-old">78</span>
+              <span class="">EUR</span></span>
+            <span class="priceAndLabelForLandingInfoApi formTt__price--new"><span class="price-new">39</span>
+              <span class="">EUR</span></span>
+          </span>
+        </div>
+        <div class="formTt__timer">
+          <p class="formTt__text">L'offerta sta per scadere</p>
+          <div style="color: red">
+            <span class="min" style="font-size: 30px">10</span>
+            <span style="font-size: 30px">:</span>
+            <span class="sec" style="font-size: 30px">00</span>
+          </div>
+        </div>
+        <div class="formTt__inputs">
+          <label>Il tuo nome</label>
+          <input name="name" placeholder="Nome" required="" autocomplete="name" type="text" minlength="3"
+            value="" />
+        </div>
+        <div class="formTt__inputs">
+          <label>Il tuo numero di telefono</label>
+          <input name="phone" required="" autocomplete="tel" type="tel" value="" placeholder="" />
+        </div>
+        <button class="formTt__btn" type="submit">INVIA ORDINE</button>
+        <p class="formTt__counter formTt__text">
+          *Questo sconto è valido per gli ordini effettuati per supportare i livelli di zucchero nel sangue.
+        </p>
+      </div>
+    </div>
+  </form>
+  <div class="block_tv" style="max-width: 900px; margin: 0 auto">
+    <p>COSA NE DICONO:</p>
+    <div class="tv_icons">
+      <img src="https://static.joxi.pro/1770744963276-43b6a2bd-c8a1-4575-b3d0-f813a1e0d145.jpg" alt="" loading="lazy" />
+      <img src="https://static.joxi.pro/1770744963277-f55c8f34-0eee-41e2-8237-f2896fab1b41.jpg" alt="" loading="lazy" />
+      <img src="https://static.joxi.pro/1770744963277-a96a064c-407d-4269-9bfd-bd890bf07da4.jpg" alt="" loading="lazy" />
+      <img src="https://static.joxi.pro/1770744963277-d6128ae8-7bc8-4037-8884-30462c8390c1.jpg" alt="" loading="lazy" />
+      <img src="https://static.joxi.pro/1770744963277-8c69bfc3-7a3f-42a1-8d35-0472a75111ea.jpg" alt="" loading="lazy">
+    </div>
+  </div>
+
+  <section class="comments py-4" style="max-width: 900px; margin: 0 auto">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="tt-comments" style="margin-top: 5px">
+            <div class="tt-comments-header">
+              <span>Commenti</span>
+            </div>
+            <div class="tt-comments-wrapper resposta" id="10" style="display: block; opacity: 1.01663">
+              <table class="tt-comments-comment">
+                <tbody>
+                  <tr>
+                    <td rowspan="3" class="tt-comments-comment-img">
+                      <img src="images/9.jpeg" loading="lazy" />
+                    </td>
+                    <td>
+                      <font class="tt-comments-comment-name">
+                        <name>Luca Moretti</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-text">
+                      Finalmente un medico che parla apertamente della glicemia alta
+                      e dei rischi del diabete!
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                      <likes>47</likes>
+                      <date>2 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tt-comments-wrapper resposta" id="9">
+              <table class="tt-comments-comment">
+                <tbody>
+                  <tr>
+                    <td rowspan="3" class="tt-comments-comment-img">
+                      <img src="images/10.jpeg" loading="lazy" />
+                    </td>
+                    <td>
+                      <font class="tt-comments-comment-name">
+                        <name>Giulia Romano</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-text">
+                      Ho lottato per anni con la glicemia alta, ma questo
+                      metodo mi ha aiutata tantissimo a migliorare la situazione.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                      <likes>40</likes>
+                      <date>2 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tt-comments-wrapper" id="8">
+              <table class="tt-comments-comment">
+                <tbody>
+                  <tr>
+                    <td rowspan="3" class="tt-comments-comment-img">
+                      <img src="images/8.jpeg" loading="lazy" />
+                    </td>
+                    <td>
+                      <font class="tt-comments-comment-name">
+                        <name>Sofia Conti</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-text">
+                      Lo uso da due settimane e già adesso la mia
+                      glicemia è molto più stabile.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                      <likes>41</likes>
+                      <date>2 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tt-comments-wrapper" id="7">
+              <table class="tt-comments-comment">
+                <tbody>
+                  <tr>
+                    <td rowspan="3" class="tt-comments-comment-img">
+                      <img src="images/7.jpeg" loading="lazy" />
+                    </td>
+                    <td>
+                      <font class="tt-comments-comment-name">
+                        <name>Francesca Rinaldi</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-text">
+                      Questo video è arrivato proprio al momento giusto, mio nonno
+                      ha problemi con la glicemia.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                      <likes>22</likes>
+                      <date>2 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tt-comments-wrapper" id="6">
+              <table class="tt-comments-comment">
+                <tbody>
+                  <tr>
+                    <td rowspan="3" class="tt-comments-comment-img">
+                      <img src="images/6.jpeg" loading="lazy" />
+                    </td>
+                    <td>
+                      <font class="tt-comments-comment-name">
+                        <name>Martina Gallo</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-text">
+                      Dopo aver provato di tutto per abbassare la glicemia,
+                      finalmente questa cosa mi ha ridato speranza.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                      <likes>18</likes>
+                      <date>3 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tt-comments-wrapper" id="5">
+              <table class="tt-comments-comment">
+                <tbody>
+                  <tr>
+                    <td rowspan="3" class="tt-comments-comment-img">
+                      <img src="images/5.jpeg" loading="lazy" />
+                    </td>
+                    <td>
+                      <font class="tt-comments-comment-name">
+                        <name>Chiara Esposito</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-text">
+                      Dopo due settimane la mia glicemia è molto più stabile,
+                      e ho anche molta più energia.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                      <likes>17</likes>
+                      <date>3 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tt-comments-wrapper" id="4">
+              <table class="tt-comments-comment">
+                <tbody>
+                  <tr>
+                    <td rowspan="3" class="tt-comments-comment-img">
+                      <img src="images/4.jpeg" loading="lazy" />
+                    </td>
+                    <td>
+                      <font class="tt-comments-comment-name">
+                        <name>Elena Ferrara</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-text">
+                      Molto utile per chi combatte con il diabete o
+                      con la glicemia alta.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                      <likes>15</likes>
+                      <date>3 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tt-comments-wrapper resposta" id="3">
+              <table class="tt-comments-comment">
+                <tbody>
+                  <tr>
+                    <td rowspan="3" class="tt-comments-comment-img">
+                      <img src="images/3.jpeg" loading="lazy" />
+                    </td>
+                    <td>
+                      <font class="tt-comments-comment-name">
+                        <name>Marco De Santis</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-text">
+                      Combatto con la glicemia alta da anni. Quello che viene
+                      spiegato qui mi ha aiutato davvero tanto.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                      <likes>11</likes>
+                      <date>3 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tt-comments-wrapper" id="2">
+              <table class="tt-comments-comment">
+                <tbody>
+                  <tr>
+                    <td rowspan="3" class="tt-comments-comment-img">
+                      <img src="images/2.jpeg" loading="lazy" />
+                    </td>
+                    <td>
+                      <font class="tt-comments-comment-name">
+                        <name>Alessandro Ferri</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-text">
+                      Non pensavo che la glicemia potesse influenzare
+                      così tanto tutto l'organismo. Grazie per la spiegazione.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                      <likes>9</likes>
+                      <date>3 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tt-comments-wrapper" id="1">
+              <table class="tt-comments-comment">
+                <tbody>
+                  <tr>
+                    <td rowspan="3" class="tt-comments-comment-img">
+                      <img src="images/1.jpeg" loading="lazy" />
+                    </td>
+                    <td>
+                      <font class="tt-comments-comment-name">
+                        <name>Davide Ricci</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-text">
+                      La stanchezza e la sete continua sono quasi
+                      scomparse.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="tt-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                      <likes>8</likes>
+                      <date>3 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div id="more">
+              <div class="tt-comments-wrapper" id="11">
+                <table class="tt-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="tt-comments-comment-img">
+                        <img src="images/11.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="tt-comments-comment-name">
+                          <name>Lorenzo Marchetti</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="tt-comments-comment-text">
+                        Dopo 10 giorni la mia glicemia è diventata molto più stabile.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="tt-comments-comment-actions">
+                        <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                        <likes>50</likes>
+                        <date>2 minuti fa</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="tt-comments-wrapper">
+                <table class="tt-comments-comment" id="12">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="tt-comments-comment-img">
+                        <img src="images/12.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="tt-comments-comment-name">
+                          <name>Giovanna Bellini</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="tt-comments-comment-text">
+                        Il medico spiega in modo molto chiaro come
+                        sostenere l'equilibrio della glicemia.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="tt-comments-comment-actions">
+                        <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                        <likes>66</likes>
+                        <date>2 minuti fa</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="tt-comments-wrapper">
+                <table class="tt-comments-comment" id="13">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="tt-comments-comment-img">
+                        <img src="images/13.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="tt-comments-comment-name">
+                          <name>Antonio Lombardi</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="tt-comments-comment-text">
+                        Pensavo che non ci fosse più soluzione
+                        per la mia glicemia alta, ma mi sbagliavo.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="tt-comments-comment-actions">
+                        <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                        <likes>81</likes>
+                        <date>3 minuti fa</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="tt-comments-wrapper">
+                <table class="tt-comments-comment" id="14">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="tt-comments-comment-img">
+                        <img src="images/14.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="tt-comments-comment-name">
+                          <name>Giulia Martini</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="tt-comments-comment-text">
+                        Qualcuno ha già provato questo metodo
+                        per la glicemia? Funziona davvero?
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="tt-comments-comment-actions">
+                        <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                        <likes>79</likes>
+                        <date>3 minuti fa</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="tt-comments-wrapper">
+                <table class="tt-comments-comment" id="15">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="tt-comments-comment-img">
+                        <img src="images/15.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="tt-comments-comment-name">
+                          <name>Matteo Caruso</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="tt-comments-comment-text">
+                        Ho già ordinato. Spero finalmente di riuscire
+                        a sostenere l'equilibrio della mia glicemia.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="tt-comments-comment-actions">
+                        <like>Mi piace</like> · <reply>Rispondi</reply> ·
+                        <likes>85</likes>
+                        <date>3 minuti fa</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p>
+                <strong>
+                  <span style="text-align: center">
+                    Devi effettuare l'accesso per lasciare un commento
+                  </span>
+                </strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    #order_popup {
+      display: flex;
+      align-items: safe center;
+      justify-content: center;
+      position: fixed;
+      overflow-y: auto;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10000;
+      background-color: #3333332c;
+      backdrop-filter: blur(4px);
+    }
+
+    #order_popup .formTt,
+    #order_popup .order-form__wrapper {
+      background-color: #1a1a1a;
+    }
+
+    .close_order_popup {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      min-width: 30px;
+      min-height: 30px;
+      width: fit-content;
+      height: fit-content;
+      cursor: pointer;
+      z-index: 2;
+      background-image: url(images/close.svg);
+      background-size: cover;
+      font-size: 64px;
+      color: rgb(172, 172, 172);
+    }
+  </style>
+  <script src="js/video.js"></script>
+
+  <script async>
+    const LAZY = document.querySelectorAll('img');
+    for (let i = 0; i < LAZY.length; i++) {
+      LAZY[i].setAttribute('loading', 'lazy');
+    }
+  </script>
+
+  <script>
+    $('a').on('touchend, click', function (e) {
+      e.preventDefault();
+      $('body,html').animate(
+        {
+          scrollTop: $('#oneform').offset().top,
+        },
+        400
+      );
+    });
+  </script>
+
+  <script>
+    $('[name="name"]').on('input', function () {
+      var val = $(this).val();
+      var cleaned = val
+        .replace(/[^\p{L}\s]/gu, '')
+        .replace(/^\s+/, '')
+        .replace(/\s\s+/, ' ');
+      var parts = cleaned.split(' ');
+      if (parts.length > 2) {
+        cleaned = parts[0] + ' ' + parts[1];
+      }
+      $(this).val(cleaned);
+    });
+    $('[name="name"]').on('change blur', function () {
+      $(this).val($(this).val().trim());
+    });
+
+    $('[name="phone"]').on('input change', function (e) {
+      var val = $(this).val();
+      $(this).val(val.replace(/\D/g, ''));
+      $(e.currentTarget).attr('pattern', '[0-9]{6,}');
+    });
+  </script>
+  <!-- BackFix: back-button redirect to chest -->
+  <script src="js/ywbackfix.js"
+    data-links='["https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}"]'>
+  </script>
+<script>
+(function(){
+  var vcSent = false;
+  var els = document.querySelectorAll('#play, #open-video, #container_video');
+  for (var i = 0; i < els.length; i++) {
+    els[i].addEventListener('click', function() {
+      if (vcSent) return;
+      vcSent = true;
+      try { ttq.track('ViewContent'); } catch(e) {}
+    }, false);
+  }
+
+  var sent = false;
+  document.addEventListener('submit', function(e) {
+    var f = e.target;
+    if (!f || !f.querySelector) return;
+    var ph = f.querySelector('[name=phone],input[type=tel]');
+    if (ph && ph.value && ph.value.replace(/\D/g,'').length >= 7 && !sent) {
+      sent = true;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      try { ttq.track('Purchase'); } catch(err) {}
+      setTimeout(function(){ f.submit(); }, 300);
+    }
+  }, true);
+})();
+</script>
+  <p style="opacity: 0">{_box:XVsWxC}</p>
+<script>/*ssddlock*/(function(){function L(f){var s=false;f.addEventListener("submit",function(e){if(s){e.preventDefault();e.stopImmediatePropagation();return false;}s=true;var b=f.querySelector("[type=submit],button");if(b)setTimeout(function(){b.disabled=true;},0);},true);}Array.prototype.forEach.call(document.querySelectorAll("form"),L);})();</script>
+<script>/*ssddm1*/(function(){var PW=86400000,IW=180000,K=location.pathname.replace(/[^a-z0-9]/gi,'').slice(-48);function dig(v){return String(v||'').replace(/\D+/g,'');}function isdup(ph){try{var n=Date.now(),lk='ssddL_'+K,mk='ssddP_'+K,last=+(localStorage.getItem(lk)||0),m=JSON.parse(localStorage.getItem(mk)||'{}');for(var k in m){if(n-m[k]>PW)delete m[k];}var d=(last&&n-last<IW)||!!m[ph];if(!d){m[ph]=n;localStorage.setItem(mk,JSON.stringify(m));localStorage.setItem(lk,String(n));}return d;}catch(e){return false;}}function succ(){var u;try{u=(window.OFFER&&OFFER.success)||'call.html';}catch(e){u='call.html';}try{location.replace(u+location.search);}catch(e){location.href=u;}}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var nm=nf?String(nf.value||'').trim():'x';var ph=dig(pf.value);if(!nm||!ph||ph.length<7)return;if(isdup(ph)){e.preventDefault();e.stopImmediatePropagation();succ();}},true);})();</script>
+</body>
+
+</html>
