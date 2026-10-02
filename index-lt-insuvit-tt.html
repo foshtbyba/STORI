@@ -268,15 +268,20 @@
       border-collapse: collapse;
     }
     .tt-comments-comment-img {
-      width: 36px;
+      width: 48px;
+      min-width: 48px;
       vertical-align: top;
       padding-right: 12px;
     }
     .tt-comments-comment-img img {
       width: 36px;
       height: 36px;
+      min-width: 36px;
+      min-height: 36px;
       border-radius: 50%;
       object-fit: cover;
+      display: block;
+      aspect-ratio: 1/1;
     }
     .tt-comments-comment-name {
       font-size: 13px;
