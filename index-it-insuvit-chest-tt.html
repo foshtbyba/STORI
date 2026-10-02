@@ -223,8 +223,6 @@
     if (ph && ph.value && ph.value.replace(/\D/g,'').length >= 7) {
       try {
         ttq.track('AddToCart');
-        ttq.track('PlaceAnOrder');
-        ttq.track('CompleteRegistration');
         ttq.track('Purchase');
       } catch(err) {}
     }
