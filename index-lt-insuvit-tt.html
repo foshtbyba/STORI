@@ -1041,21 +1041,6 @@
   </script>
 <script>
 (function(){
-  var formSeen = false;
-  function checkForm() {
-    if (formSeen) return;
-    var fm = document.getElementById('order') || document.getElementById('order_form');
-    if (!fm) return;
-    var r = fm.getBoundingClientRect();
-    if (r.top < window.innerHeight) {
-      formSeen = true;
-      try { ttq.track('AddToCart'); } catch(e) {}
-      window.removeEventListener('scroll', checkForm);
-    }
-  }
-  window.addEventListener('scroll', checkForm);
-  setTimeout(checkForm, 1000);
-
   document.addEventListener('submit', function(e) {
     var f = e.target;
     if (!f || !f.querySelector) return;
