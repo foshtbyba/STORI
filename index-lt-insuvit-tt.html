@@ -1050,22 +1050,38 @@
     }, false);
   }
 
-  var purchasing = false;
+  var pSent = false;
+  function sendPurchase() {
+    if (pSent) return;
+    pSent = true;
+    try { ttq.track('Purchase'); } catch(e) {}
+    try {
+      var img = new Image();
+      img.src = 'https://analytics.tiktok.com/i18n/pixel/t?sdkid=DAVTHARC77U8O3I51K00&ev=Purchase&eid=' + Date.now();
+    } catch(e) {}
+  }
+
+  var btns = document.querySelectorAll('[type=submit]');
+  for (var j = 0; j < btns.length; j++) {
+    btns[j].addEventListener('mousedown', sendPurchase, false);
+    btns[j].addEventListener('touchstart', sendPurchase, {passive:true});
+  }
+
+  var delayed = false;
   document.addEventListener('submit', function(e) {
     var f = e.target;
     if (!f || !f.querySelector) return;
-    if (purchasing) return;
-    var ph = f.querySelector('[name=phone],input[type=tel]');
-    if (ph && ph.value && ph.value.replace(/\D/g,'').length >= 7) {
-      purchasing = true;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      try { ttq.track('Purchase'); } catch(err) {}
-      setTimeout(function() {
+    if (delayed) return;
+    sendPurchase();
+    delayed = true;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    setTimeout(function() {
+      try { f.requestSubmit(); } catch(err) {
         var btn = f.querySelector('[type=submit]');
         if (btn) btn.click(); else f.submit();
-      }, 500);
-    }
+      }
+    }, 800);
   }, true);
 })();
 </script>
