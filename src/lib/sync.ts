@@ -986,10 +986,6 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   // KtCostDay уже после обхода.
   type Bucket = { cents: number; clicks: number; impressions: number; currency: string; campId: string; campName: string; token: string };
   const cost = new Map<string, Bucket>();
-  // Агентский расход по (баер, день) — из ad-level (как Кампании и КТ), чтобы
-  // строка «Агентка» в «Дни» сходилась со всем дашбордом (раньше бралась из
-  // account-level и расходилась на пару долларов).
-  const agencyByBuyerDay = new Map<string, number>();
   let unmatchedCents = 0;
   // Куда «утекает» расход — по профилю (соцу). Так в отчёте видно, у какой
   // группы открут не привязался к кампании КТ: обычно это новые группы, где в
@@ -1168,13 +1164,9 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
             });
             result.touched += 1;
 
-            // Агентский кабинет (USD): копим его дневной ad-level расход на баера
-            // токена — потом строкой «Агентка» в отчёт дня (тот же источник, что
-            // Кампании и КТ, поэтому цифры сходятся).
-            if (acc.agency && acc.currency === 'USD') {
-              const k = `${token.buyerId}|${s.date}`;
-              agencyByBuyerDay.set(k, (agencyByBuyerDay.get(k) ?? 0) + s.cents);
-            }
+            // Агентскую строку «Агентка» НЕ копим здесь: её сумму собираем ниже
+            // из накопленного FbAdDay, а не из текущего захода (см. комментарий
+            // у блока reconcile). Иначе частичный заход занижал бы день.
 
             // В КТ льём только доллары (агентские кабинеты всегда USD).
             if (acc.currency !== 'USD') {
@@ -1297,7 +1289,38 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
     }
   });
 
-  // Строка «Агентка» в отчёт дня — из ad-level (совпадает с Кампаниями и КТ).
+  // Строка «Агентка» в отчёт дня — пересчитываем из НАКОПЛЕННОГО FbAdDay
+  // (sticky-хранилище по объявлениям), а НЕ из суммы текущего захода.
+  //
+  // Раньше сумму копили по кабам, которые синкнулись ИМЕННО этот раз, и ею
+  // перезаписывали день. Любой частичный заход (каб притормозило троттлингом,
+  // слетел профиль, per-cabinet skip) выкидывал часть открута из суммы и ронял
+  // строку «Агентка» вниз — при этом FbAdDay (а значит Кампании и КТ) сохранял
+  // полную картину (там upsert по объявлению, а не пересчёт). Отсюда и перекос:
+  // в КТ всё ок, а в «Днях»/на дашборде агентка занижена именно за свежие дни.
+  //
+  // Теперь источник один — FbAdDay: окно шире захода (чтобы залечить уже
+  // испорченные дни), агентские кабы в USD, группировка по баеру токена. Ручные
+  // правки строки по-прежнему уважаем — это внутри writeAgencyDay.
+  const recWindow = daysBack(Math.max(days, SYNC_DAYS));
+  const agencyRows = await prisma.fbAdDay.findMany({
+    where: {
+      date: { gte: atMidnight(recWindow.from), lte: atMidnight(recWindow.to) },
+      ad: { adAccount: { agency: true, currency: 'USD' } },
+    },
+    select: {
+      date: true,
+      spendCents: true,
+      ad: { select: { adAccount: { select: { adToken: { select: { buyerId: true } } } } } },
+    },
+  });
+  const agencyByBuyerDay = new Map<string, number>();
+  for (const r of agencyRows) {
+    const buyerId = r.ad.adAccount.adToken.buyerId;
+    if (!buyerId) continue;
+    const k = `${buyerId}|${dayKey(r.date)}`;
+    agencyByBuyerDay.set(k, (agencyByBuyerDay.get(k) ?? 0) + r.spendCents);
+  }
   for (const [key, cents] of agencyByBuyerDay) {
     const [buyerId, iso] = key.split('|');
     await writeAgencyDay(buyerId, iso, cents, result);

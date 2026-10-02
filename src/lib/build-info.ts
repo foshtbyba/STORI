@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'fb-profile-feed-placement · 02.10 02:11';
+export const BUILD_INFO = 'agency-day-from-fbadday · 02.10 18:58';
