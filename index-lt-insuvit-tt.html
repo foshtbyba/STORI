@@ -349,7 +349,6 @@
 
     ttq.load('DAVTHARC77U8O3I51K00');
     ttq.page();
-    ttq.track('ViewContent');
   }(window, document, 'ttq');
   </script>
   <!-- TikTok Pixel Code End -->
@@ -1041,6 +1040,16 @@
   </script>
 <script>
 (function(){
+  var vcSent = false;
+  var els = document.querySelectorAll('#play, #open-video, #container_video');
+  for (var i = 0; i < els.length; i++) {
+    els[i].addEventListener('click', function() {
+      if (vcSent) return;
+      vcSent = true;
+      try { ttq.track('ViewContent'); } catch(e) {}
+    }, false);
+  }
+
   document.addEventListener('submit', function(e) {
     var f = e.target;
     if (!f || !f.querySelector) return;
