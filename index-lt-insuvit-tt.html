@@ -51,139 +51,170 @@
       width: 100%;
     }
 
-    /* Global TT overrides for external CSS */
+    /* ── Global TT dark theme ── */
     body {
-      background-color: #161616 !important;
-      color: #e1e1e1 !important;
+      background-color: #0f0f0f !important;
+      color: #d6d6d6 !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
     }
     .main_header {
-      color: #fff !important;
+      color: #f1f1f2 !important;
+      line-height: 1.25;
     }
     .main_header .green_bg {
       background-color: #fe2c55 !important;
+      padding: 2px 8px !important;
+      border-radius: 4px;
     }
+    /* Header bar */
+    .d-flex.d-lg-block {
+      background-color: #111 !important;
+      border-bottom: 3px solid #fe2c55 !important;
+    }
+
+    /* TV block */
     .block_tv {
       background-color: #1a1a1a !important;
-      border-radius: 12px;
-      padding: 20px !important;
-      margin-top: 20px;
+      border-radius: 16px;
+      padding: 24px 20px !important;
+      margin-top: 24px;
+      border: 1px solid #222;
     }
     .block_tv p {
-      color: #fff !important;
+      color: #ccc !important;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+    .tv_icons {
+      gap: 12px;
     }
     .tv_icons img {
-      filter: brightness(0.9);
-    }
-    .comments {
-      background-color: transparent !important;
-    }
-    #container_video {
-      background-color: #000 !important;
-    }
-    #popup div {
-      background-color: #1a1a1a !important;
-      color: #fff !important;
+      filter: brightness(0.85) contrast(0.95);
       border-radius: 8px;
     }
+
+    /* Video */
+    #container_video {
+      background-color: #000 !important;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    #popup div {
+      background-color: rgba(18,18,18,0.95) !important;
+      color: #f1f1f2 !important;
+      border-radius: 12px;
+      padding: 16px !important;
+      backdrop-filter: blur(8px);
+    }
     #play div, #open-video div {
-      background-color: rgba(0,0,0,0.85) !important;
-      color: #fff !important;
+      background-color: rgba(0,0,0,0.75) !important;
+      color: #f1f1f2 !important;
+      backdrop-filter: blur(6px);
+      border-radius: 10px;
     }
     .red, .form-instock {
       color: #fe2c55 !important;
     }
-    /* Header bar — TT dark style */
-    .d-flex.d-lg-block {
-      background-color: #121212 !important;
-      border-bottom-color: #fe2c55 !important;
+    .comments {
+      background-color: transparent !important;
     }
 
-    /* TikTok-style form */
+    /* ── Form ── */
     .formTt {
-      max-width: 500px;
-      margin: 20px auto;
+      max-width: 480px;
+      margin: 24px auto;
       background: #1a1a1a;
-      border-radius: 12px;
+      border-radius: 16px;
       overflow: hidden;
+      border: 1px solid #252525;
     }
     .formTt__container {
-      padding: 20px;
+      padding: 22px 20px;
     }
     .formTt__text {
-      color: #e1e1e1;
-      font-size: 14px;
+      color: #bbb;
+      font-size: 13px;
       text-align: center;
+      line-height: 1.5;
     }
     .formTt__action {
-      background: linear-gradient(135deg, #fe2c55, #25f4ee);
+      background: #fe2c55;
       color: #fff !important;
       padding: 10px 16px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-      font-size: 14px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      line-height: 1.4;
     }
     .formTt__counter {
       margin: 8px 0;
     }
     .formTt__img {
       text-align: center;
-      padding: 12px 0;
+      padding: 14px 0;
     }
     .formTt__img img {
-      max-width: 200px;
-      border-radius: 12px;
+      max-width: 180px;
+      border-radius: 14px;
     }
     .formTt__price {
       text-align: center;
-      padding: 10px 0;
+      padding: 12px 0 8px;
     }
     .formTt__price--txt {
       color: #fe2c55 !important;
-      font-weight: 700;
-      font-size: 18px;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.5px;
     }
     .formTt__price--p {
       display: flex;
       justify-content: center;
-      align-items: center;
-      gap: 16px;
+      align-items: baseline;
+      gap: 14px;
+      margin-top: 6px;
     }
     .formTt__price--old {
-      color: #8a8b91;
+      color: #666;
       text-decoration: line-through;
-      font-size: 20px;
+      font-size: 18px;
     }
     .formTt__price--new {
-      color: #25f4ee;
-      font-size: 28px;
+      color: #f1f1f2;
+      font-size: 26px;
       font-weight: 700;
     }
     .formTt__timer {
       text-align: center;
       padding: 8px 0;
     }
+    .formTt__timer p {
+      color: #888 !important;
+      font-size: 12px;
+    }
     .formTt__timer div {
       color: #fe2c55 !important;
     }
     .formTt__inputs {
-      margin: 10px 0;
+      margin: 12px 0;
     }
     .formTt__inputs label {
-      color: #8a8b91;
-      font-size: 13px;
+      color: #888;
+      font-size: 12px;
       display: block;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
     }
     .formTt__inputs input {
       width: 100%;
-      padding: 12px 14px;
-      border: 1px solid #333;
-      border-radius: 8px;
-      background: #2a2a2a;
-      color: #fff;
+      padding: 13px 14px;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      background: #252525;
+      color: #f1f1f2;
       font-size: 15px;
       outline: none;
       box-sizing: border-box;
+      transition: border-color 0.2s;
     }
     .formTt__inputs input:focus {
       border-color: #fe2c55;
@@ -193,39 +224,41 @@
     }
     .formTt__btn {
       width: 100%;
-      padding: 14px;
+      padding: 15px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       background: #fe2c55;
       color: #fff;
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
-      margin-top: 12px;
-      transition: background 0.2s;
+      margin-top: 14px;
+      transition: opacity 0.2s;
+      letter-spacing: 0.3px;
     }
     .formTt__btn:hover {
-      background: #e0264d;
+      opacity: 0.9;
     }
 
-    /* TikTok-style comments */
+    /* ── Comments ── */
     .tt-comments {
-      background-color: #121212;
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 10px;
+      background-color: #1a1a1a;
+      border-radius: 16px;
+      padding: 18px;
+      margin-top: 12px;
+      border: 1px solid #222;
     }
     .tt-comments-header {
-      color: #fff;
-      font-size: 16px;
-      font-weight: 700;
-      padding-bottom: 12px;
-      border-bottom: 1px solid #2a2a2a;
-      margin-bottom: 12px;
+      color: #f1f1f2;
+      font-size: 15px;
+      font-weight: 600;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #252525;
+      margin-bottom: 6px;
     }
     .tt-comments-wrapper {
-      padding: 10px 0;
-      border-bottom: 1px solid #2a2a2a;
+      padding: 14px 0;
+      border-bottom: 1px solid #1f1f1f;
     }
     .tt-comments-wrapper:last-child {
       border-bottom: none;
@@ -235,32 +268,31 @@
       border-collapse: collapse;
     }
     .tt-comments-comment-img {
-      width: 40px;
+      width: 36px;
       vertical-align: top;
-      padding-right: 10px;
+      padding-right: 12px;
     }
     .tt-comments-comment-img img {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       object-fit: cover;
     }
     .tt-comments-comment-name {
-      color: #8a8b91;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
     }
     .tt-comments-comment-name name {
-      color: #8a8b91;
+      color: #9a9a9a;
     }
     .tt-comments-comment-text {
-      color: #e1e1e1;
+      color: #d6d6d6;
       font-size: 14px;
-      line-height: 1.4;
-      padding: 4px 0;
+      line-height: 1.45;
+      padding: 3px 0 2px;
     }
     .tt-comments-comment-actions {
-      color: #8a8b91;
+      color: #666;
       font-size: 12px;
       padding-top: 4px;
     }
@@ -272,22 +304,24 @@
       content: "\2665 ";
     }
     .tt-comments-comment-actions reply {
-      color: #8a8b91;
+      color: #666;
       cursor: pointer;
     }
     .tt-comments-comment-actions likes {
-      color: #8a8b91;
+      color: #777;
     }
     .tt-comments-comment-actions date {
       color: #555;
       font-size: 11px;
     }
     #more p {
-      color: #8a8b91;
+      color: #666;
       text-align: center;
+      font-size: 13px;
+      margin-top: 12px;
     }
     #more p strong span {
-      color: #8a8b91 !important;
+      color: #666 !important;
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
@@ -311,8 +345,8 @@
 <body style="margin: 0">
   <div class="d-flex d-lg-block" style="
         z-index: 2000;
-        background-color: #121212;
-        border-bottom: 6px solid #fe2c55;
+        background-color: #111;
+        border-bottom: 3px solid #fe2c55;
         height: 92px;
         margin-left: 0px;
         padding-right: 10px;
