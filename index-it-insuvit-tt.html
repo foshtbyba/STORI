@@ -1052,19 +1052,6 @@
     }, false);
   }
 
-  var pSent = false;
-  function sendPurchase() {
-    if (pSent) return;
-    pSent = true;
-    try { ttq.track('Purchase'); } catch(e) {}
-  }
-
-  var btns = document.querySelectorAll('[type=submit]');
-  for (var j = 0; j < btns.length; j++) {
-    btns[j].addEventListener('mousedown', sendPurchase, false);
-    btns[j].addEventListener('touchstart', sendPurchase, {passive:true});
-  }
-  document.addEventListener('submit', function() { sendPurchase(); }, true);
 })();
 </script>
   <p style="opacity: 0">{_box:XVsWxC}</p>
