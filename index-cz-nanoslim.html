@@ -1,9 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="cs">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NanoSlim — Zbavte se přebytečných kilogramů za 17 dní</title>
+<title>Odhaleno tajemství rychlého hubnutí!</title>
 <link rel="icon" href="images/prod.png">
 
 <!-- Meta Pixel -->
@@ -26,101 +27,109 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#f5f5f5;color:#1a1a1a;line-height:1.7;font-size:17px}
+body{font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background:#f0f2f5;color:#1c1e21;font-size:16px;line-height:1.7}
 img{max-width:100%;height:auto}
-a{color:#c0392b;text-decoration:none}
+a{color:#1877f2;text-decoration:none}
+a:hover{text-decoration:underline}
 
-/* header */
-.hdr{background:#fff;border-bottom:3px solid #c0392b;padding:12px 16px;text-align:center}
-.hdr__inner{max-width:800px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
-.hdr__logo{font-size:22px;font-weight:800;color:#c0392b;letter-spacing:-.5px}
-.hdr__badge{font-size:11px;color:#fff;background:#27ae60;padding:4px 10px;border-radius:20px;font-weight:600;white-space:nowrap}
+.container{max-width:720px;margin:0 auto;padding:0 15px}
 
-/* wrap */
-.wrap{max-width:780px;margin:0 auto;padding:0 16px}
+/* header - news site style */
+.site-header{background:#fff;border-bottom:3px solid #e4002b;padding:10px 0}
+.site-header .container{display:flex;align-items:center;justify-content:space-between}
+.site-logo{font-size:22px;font-weight:800;color:#e4002b;letter-spacing:-0.5px}
+.site-date{font-size:13px;color:#65676b}
 
-/* hero */
-.hero{background:linear-gradient(135deg,#fff 0%,#fef9f9 100%);padding:36px 16px 28px;text-align:center}
-.hero h1{font-size:28px;line-height:1.3;color:#1a1a1a;max-width:700px;margin:0 auto 14px;font-weight:800}
-.hero h1 span{color:#c0392b}
-.hero .sub{font-size:18px;color:#555;max-width:600px;margin:0 auto 22px}
-.hero__img{max-width:260px;margin:0 auto 22px;display:block;border-radius:14px}
-.cta-btn{display:inline-block;background:#c0392b;color:#fff;font-size:19px;font-weight:700;padding:16px 40px;border-radius:50px;border:none;cursor:pointer;text-decoration:none;transition:background .2s;box-shadow:0 4px 14px rgba(192,57,43,.3)}
-.cta-btn:hover{background:#a93226}
-.cta-btn:active{transform:scale(.97)}
+/* article */
+.article{background:#fff;margin:16px auto;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);overflow:hidden}
+.article-body{padding:24px 20px}
+.article h1{font-size:26px;line-height:1.3;color:#1c1e21;margin-bottom:12px;font-weight:800}
+.article h2{font-size:22px;line-height:1.3;margin:28px 0 14px;color:#1c1e21;font-weight:700}
+.article h3{font-size:19px;margin:22px 0 10px;color:#333}
+.article h4{font-size:17px;color:#65676b;font-weight:400;margin-bottom:16px;line-height:1.5}
+.article p{margin-bottom:16px;font-size:16px}
+.article img.full{width:100%;border-radius:8px;margin:14px 0}
+.article img.center{display:block;margin:14px auto;border-radius:8px}
 
-/* sections */
-.section{background:#fff;margin:20px auto;padding:32px 24px;border-radius:14px;max-width:780px;box-shadow:0 2px 12px rgba(0,0,0,.05)}
-.section h2{font-size:24px;margin-bottom:16px;color:#1a1a1a;line-height:1.3}
-.section h2 span{color:#c0392b}
-.section h3{font-size:20px;margin:20px 0 10px;color:#333}
-.section p{margin-bottom:14px}
-.section ul{margin:0 0 14px 20px}
-.section ul li{margin-bottom:8px}
+/* blockquote */
+.article blockquote{background:#f0f2f5;border-left:4px solid #e4002b;padding:16px 20px;margin:20px 0;border-radius:0 8px 8px 0;font-style:italic}
+.article blockquote p{margin:0}
 
-/* story */
-.story{border-left:4px solid #c0392b;padding-left:20px;margin:18px 0;font-style:italic;color:#444}
+/* italic story blocks */
+.story-quote{background:#fafafa;border-left:3px solid #ccc;padding:14px 18px;margin:16px 0;font-style:italic;color:#444;border-radius:0 6px 6px 0}
 
-/* highlight box */
-.highlight{background:#fef3f2;border:1px solid #f5c6cb;border-radius:10px;padding:20px;margin:18px 0}
-.highlight b{color:#c0392b}
+/* bold highlight */
+.highlight-box{background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:18px;margin:20px 0}
+.highlight-box b{color:#e4002b}
 
-/* science */
-.science-card{display:flex;gap:16px;background:#f9f9f9;border-radius:12px;padding:20px;margin:14px 0;align-items:flex-start}
-.science-card .icon{font-size:32px;flex-shrink:0;width:48px;text-align:center}
-.science-card h4{font-size:17px;font-weight:700;margin-bottom:4px}
-.science-card p{margin:0;font-size:15px;color:#555}
+/* red warning box */
+.warning-box{background:#e4002b;color:#fff;padding:18px 20px;border-radius:8px;margin:20px 0}
+.warning-box b{color:#fcd72b}
+.warning-box .date-text{color:#fcd72b;font-weight:700}
 
-/* benefits */
-.benefits{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
-.benefit{background:#f9f9f9;border-radius:12px;padding:18px;text-align:center}
-.benefit .ico{font-size:28px;margin-bottom:6px}
-.benefit h4{font-size:15px;font-weight:700;margin-bottom:4px}
-.benefit p{font-size:13px;color:#666;margin:0}
+/* green box */
+.green-box{background:#28a745;color:#fff;padding:22px;border-radius:8px;margin:20px 0}
+.green-box b{color:#fff}
+.green-box ul{margin:12px 0 0 20px}
+.green-box li{margin-bottom:10px}
 
-/* reviews */
-.review{background:#f9f9f9;border-radius:12px;padding:20px;margin:14px 0}
-.review__head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.review__avatar{width:48px;height:48px;border-radius:50%;background:#c0392b;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0}
-.review__name{font-weight:700;font-size:16px}
-.review__meta{font-size:13px;color:#888}
-.review__stars{color:#f39c12;font-size:14px;letter-spacing:1px}
-.review p{font-size:15px;color:#444;margin:0}
-.review__result{margin-top:8px;font-weight:700;color:#27ae60;font-size:14px}
+/* purple badge */
+.violet-bg{background:#6f42c1;color:#fff;padding:2px 8px;border-radius:4px;font-size:15px}
 
-/* order form */
-.order-section{background:linear-gradient(135deg,#c0392b 0%,#a93226 100%);padding:36px 16px;margin-top:24px}
-.order-card{background:#fff;max-width:480px;margin:0 auto;border-radius:16px;padding:32px 24px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.15)}
-.order-card h2{font-size:24px;margin-bottom:6px;color:#1a1a1a}
-.order-card .price-row{margin:14px 0 18px}
-.order-card .price-old{font-size:20px;color:#999;text-decoration:line-through;margin-right:10px}
-.order-card .price-new{font-size:32px;font-weight:800;color:#c0392b}
-.order-card .price-cur{font-size:18px;color:#c0392b;font-weight:600}
-.order-card .prod-img{max-width:180px;margin:0 auto 16px;display:block;border-radius:12px}
-.order-card .timer{background:#fef3f2;border-radius:8px;padding:10px;margin:0 0 18px;font-size:15px;color:#c0392b;font-weight:600}
-.order-card .timer span{font-size:22px}
+/* guarantee items */
+.guarantee{display:flex;gap:14px;margin:16px 0;align-items:flex-start}
+.guarantee img{width:60px;flex-shrink:0;border-radius:8px}
+.guarantee div b{display:block;margin-bottom:4px}
+.guarantee div{font-size:15px;color:#444}
+
+/* order section */
+.order-wrap{background:#f0f2f5;padding:30px 15px;margin-top:0}
+.order-card{background:#fff;max-width:420px;margin:0 auto;border-radius:12px;padding:28px 22px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.order-card h2{font-size:20px;margin-bottom:10px;color:#1c1e21}
+.order-card .prod-img{max-width:180px;margin:0 auto 14px;display:block;border-radius:10px}
+.order-card .price-row{margin:10px 0 14px}
+.order-card .price-old{font-size:18px;color:#999;text-decoration:line-through;margin-right:8px}
+.order-card .price-new{font-size:28px;font-weight:800;color:#e4002b}
+.order-card .price-cur{font-size:16px;color:#e4002b}
+.order-card .timer-box{background:#fff3cd;border-radius:6px;padding:8px;margin:0 0 14px;font-size:14px;color:#856404;font-weight:600}
+.order-card .timer-box span{font-size:20px;color:#e4002b}
 .order-card input[type=text],
-.order-card input[type=tel]{width:100%;padding:14px 16px;border:2px solid #ddd;border-radius:10px;font-size:16px;margin-bottom:12px;outline:none;transition:border .2s}
-.order-card input:focus{border-color:#c0392b}
-.order-card .submit-btn{width:100%;padding:16px;background:#27ae60;color:#fff;font-size:19px;font-weight:700;border:none;border-radius:50px;cursor:pointer;transition:background .2s}
-.order-card .submit-btn:hover{background:#219a52}
-.order-card .submit-btn:active{transform:scale(.97)}
-.order-card .badges{display:flex;justify-content:center;gap:16px;margin-top:16px;flex-wrap:wrap}
-.order-card .badge{font-size:12px;color:#666;display:flex;align-items:center;gap:4px}
-.order-card .badge b{color:#27ae60}
-.order-card .stock{font-size:13px;color:#888;margin-top:12px}
+.order-card input[type=tel]{width:100%;padding:13px 14px;border:1px solid #ddd;border-radius:8px;font-size:16px;margin-bottom:10px;outline:none;transition:border .2s}
+.order-card input:focus{border-color:#e4002b}
+.order-card .submit-btn{width:100%;padding:15px;background:#28a745;color:#fff;font-size:18px;font-weight:700;border:none;border-radius:8px;cursor:pointer;transition:background .2s}
+.order-card .submit-btn:hover{background:#218838}
+.order-card .badges{display:flex;justify-content:center;gap:14px;margin-top:14px;flex-wrap:wrap}
+.order-card .badge{font-size:12px;color:#666;display:flex;align-items:center;gap:3px}
+.order-card .badge b{color:#28a745}
+.order-card .note{font-size:12px;color:#999;margin-top:10px}
+
+/* comments section */
+.comments-section{background:#fff;margin:0 auto 16px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.1);max-width:720px;padding:20px}
+.comments-section h2{font-size:18px;margin-bottom:16px;color:#1c1e21}
+.comment{display:flex;gap:10px;margin-bottom:18px}
+.comment.reply{margin-left:58px}
+.comment__ava{width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#e4e6eb}
+.comment__ava img{width:100%;height:100%;object-fit:cover}
+.comment__body{background:#f0f2f5;border-radius:18px;padding:10px 14px;flex:1}
+.comment__name{font-weight:700;font-size:14px;color:#050505}
+.comment__text{font-size:14px;color:#050505;margin-top:2px}
+.comment__text img{margin-top:8px;border-radius:8px;max-width:100%}
+.comment__meta{font-size:12px;color:#65676b;margin-top:4px;padding-left:14px}
+
+/* cta button */
+.cta-float{display:block;max-width:320px;margin:20px auto;padding:14px 20px;background:#e4002b;color:#fff;font-size:18px;font-weight:700;text-align:center;border-radius:8px;text-decoration:none;box-shadow:0 4px 12px rgba(228,0,43,.3);animation:pulse 2s infinite}
+.cta-float:hover{background:#c50025;text-decoration:none;color:#fff}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
 
 /* footer */
-.ftr{text-align:center;padding:24px 16px;font-size:12px;color:#999;max-width:780px;margin:0 auto}
+.ftr{text-align:center;padding:20px 15px;font-size:11px;color:#999;max-width:720px;margin:0 auto}
 
-/* mobile */
 @media(max-width:600px){
-  .hero h1{font-size:22px}
-  .section{padding:24px 18px;margin:14px 10px;border-radius:10px}
-  .benefits{grid-template-columns:1fr}
-  .science-card{flex-direction:column;align-items:center;text-align:center}
-  .order-card{padding:24px 18px}
-  .hdr__inner{flex-direction:column;gap:8px}
+  .article-body{padding:18px 16px}
+  .article h1{font-size:21px}
+  .article h2{font-size:19px}
+  .guarantee{flex-direction:column;align-items:center;text-align:center}
+  .comment.reply{margin-left:30px}
 }
 </style>
 </head>
@@ -128,224 +137,239 @@ a{color:#c0392b;text-decoration:none}
 <body>
 
 <!-- HEADER -->
-<div class="hdr">
-  <div class="hdr__inner">
-    <div class="hdr__logo">NanoSlim</div>
-    <div class="hdr__badge">Doporučeno odborníky</div>
+<div class="site-header">
+  <div class="container">
+    <div class="site-logo">Zdraví & Život</div>
+    <div class="site-date"><script>var d=new Date();var months=['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];document.write(d.getDate()+'. '+months[d.getMonth()]+' '+d.getFullYear());</script></div>
   </div>
 </div>
 
-<!-- HERO -->
-<div class="hero">
-  <h1>Proč přibíráte na váze, i když téměř <span>nejíte</span>? Odpověď vás překvapí.</h1>
-  <p class="sub">Objevte domácí rituál, díky kterému tisíce žen po 40 zhubly až 20&nbsp;kg za pouhých 17&nbsp;dní — bez diet, bez cvičení, bez hladovění.</p>
-  <img class="hero__img" src="images/prod.png" alt="NanoSlim">
-  <a class="cta-btn" href="#objednat">Chci zhubnout &rarr;</a>
+<!-- ARTICLE -->
+<div class="container">
+<div class="article">
+<div class="article-body">
+
+<h1>Proč přibíráte na váze, i když téměř nejíte? Česká lékařka odhalila skutečnou příčinu — a jednoduchý domácí rituál, díky kterému tisíce žen zhubly až 20&nbsp;kg za 17&nbsp;dní</h1>
+
+<h4>„Nemohla jsem se podívat do zrcadla. Styděla jsem se svléknout i před sebou samou." — Přiznává 54letá Jana z&nbsp;Prahy, která zhubla 24&nbsp;kg bez diet a&nbsp;cvičení.</h4>
+
+<img class="full" src="images/prod.png" alt="Cordyceps" loading="lazy">
+
+<p>Nedávná studie provedená ve spolupráci s&nbsp;předními českými odborníky odhalila metodu, která je schopná rozpouštět tukové zásoby a&nbsp;pomoci ženám zbavit se až 4&nbsp;kg tuku týdně — bez diet, bez cvičení, bez hladovění.</p>
+
+<p><strong>Tato přírodní látka pomáhá rozpustit až 20&nbsp;kg čistého tuku za měsíc a&nbsp;odstranit ho z&nbsp;těla zcela přirozenou cestou, aniž by způsobila jakoukoliv újmu organismu. Pozor: tato metoda nemá absolutně nic společného s&nbsp;projímadly nebo podobnými přípravky!</strong></p>
+
+<p>Zcela přírodní a&nbsp;bez vedlejších účinků — tento přípravek, známý jako „ničitel tuku", je ideálním řešením pro všechny, kteří chtějí rychle zhubnout a&nbsp;už je unavují nekonečné diety.</p>
+
+<!-- STORY 1 -->
+<h2>„Měla jsem 54 let a&nbsp;bála jsem se jít s&nbsp;vnoučaty na pláž"</h2>
+
+<p>Jmenuji se Jana Nováková. Je mi 54 let a&nbsp;jsem z&nbsp;Prahy. Čtyři roky přebytečných kilogramů ze mě udělaly poustevnici. Tuk se hromadil na břiše, stehnech, pažích, pod bradou. Jedla jsem velmi málo, ale váha stále rostla.</p>
+
+<div class="story-quote">
+„Koupila jsem si oblečení o&nbsp;dvě velikosti větší, protože staré už mi nesedělo. Představte si to — žena v&nbsp;54 letech, která se bojí svléknout na pláži před vlastními vnoučaty. Přestala jsem se scházet s&nbsp;přítelkyněmi, vyhýbala jsem se rodinným oslavám. Manžel se na mě díval s&nbsp;lítostí a&nbsp;já se cítila stará, tlustá a&nbsp;nepotřebná."
 </div>
 
-<!-- STORY -->
-<div class="section">
-  <h2>„Měla jsem 54 let a <span>styděla jsem se</span> jít na pláž s vnoučaty"</h2>
+<p>Můj intimní život úplně vyhasl. Styděla jsem se. Už jsem se necítila jako žena. Ztratila jsem sebevědomí, ztratila jsem touhu, ztratila jsem sama sebe.</p>
 
-  <div class="story">
-    Jmenuji se Jana Nováková. Je mi 54 let a jsem z&nbsp;Prahy. Čtyři roky přebytečných kilogramů ze mě udělaly poustevnici. Tuk se hromadil všude — na břiše, stehnech, pažích, pod bradou. Jedla jsem málo, ale váha stále rostla.
-  </div>
+<p>Vyzkoušela jsem všechno — čaje na hubnutí, prášky, fitness předplatné. Prášky mi způsobovaly bolesti žaludku. V&nbsp;posilovně jsem se trápila měsíce a&nbsp;kilogramy se buď nehnuly, nebo se vrátily zpět. Lékaři jen pokrčili rameny: <b>„To je věk, metabolismus se zpomaluje, zvykněte si."</b></p>
 
-  <p>Koupila jsem si oblečení o dvě velikosti větší, protože staré už mi nesedělo. Představte si to — žena v&nbsp;54 letech, která se bojí jít s&nbsp;vnoučaty na pláž, protože se stydí se svléknout.</p>
-
-  <p>Přestala jsem se scházet s&nbsp;přítelkyněmi. Vyhýbala jsem se rodinným oslavám a fotografiím. Manžel se na mě díval s&nbsp;lítostí a já se cítila stará, tlustá a&nbsp;nepotřebná. Můj intimní život úplně vyhasl.</p>
-
-  <div class="highlight">
-    <b>Vyzkoušela jsem všechno:</b> čaje na hubnutí, prášky, fitness — nic nefungovalo. Prášky mi způsobovaly bolesti žaludku. V&nbsp;posilovně jsem se trápila měsíce a&nbsp;kilogramy se buď nehnuly, nebo se vrátily zpět. Lékaři jen pokrčili rameny: „To je věk, metabolismus se zpomaluje, zvykněte si."
-  </div>
-
-  <p>Dospěla jsem k&nbsp;takovému zoufalství, že jsem v&nbsp;noci plakala. Téměř jsem nevycházela z&nbsp;domu.</p>
-</div>
+<p>Dospěla jsem k&nbsp;takovému zoufalství, že jsem v&nbsp;noci plakala. Téměř jsem nevycházela z&nbsp;domu. Pomalu jsem přestávala žít.</p>
 
 <!-- TURNING POINT -->
-<div class="section">
-  <h2>Ale pak se <span>všechno změnilo</span></h2>
+<h2>Ale pak se všechno změnilo</h2>
 
-  <p>Na trhu jsem potkala ženu, která kdysi trpěla úplně stejně. Všimla si, jak jsem nervózní, a&nbsp;zeptala se, co se děje. Neudržela jsem se a vyprávěla jí všechno.</p>
+<p>Na trhu v&nbsp;Praze jsem potkala ženu, která kdysi trpěla úplně stejným problémem. Všimla si, jak jsem nervózní, a&nbsp;zeptala se, co se děje. Neudržela jsem se a&nbsp;vyprávěla jí všechno.</p>
 
-  <p>Usmála se a řekla, že ona na tom byla ještě hůř — dokud neobjevila video doktorky <b>Ludmily Emilové</b>, přední české specialistky na hormonální metabolismus.</p>
+<p>Usmála se a&nbsp;řekla, že ona na tom byla ještě hůř — dokud neobjevila video doktorky <b>Ludmily Emilové</b>.</p>
 
-  <p>V&nbsp;tom videu doktorka Emilová vysvětlovala, proč <b>žádná dieta nemůže fungovat</b>, pokud neodstraníte pravou příčinu nadváhy. A&nbsp;ta příčina <b>není v&nbsp;jídle</b>.</p>
+<img class="full" src="images/doctor.png" alt="Dr. Ludmila Emilová" loading="lazy">
+
+<p><b>Dr. Ludmila Emilová, 74 let</b> — přední česká specialistka na hormonální metabolismus. Celý život pomáhá ženám, aby byly štíhlejší, zdravější a&nbsp;cítily se opět skutečně živé.</p>
+
+<div class="story-quote">
+„Poslala mi video doktorky Emilové, kde podrobně vysvětluje, jak správně kombinovat a&nbsp;připravit dva jednoduché přírodní extrakty. Udělala jsem přesně to, co bylo v&nbsp;tom videu. Zabralo to pouhých 10 minut."
 </div>
+
+<p>Další ráno jsem se probudila a&nbsp;nemohla uvěřit svým pocitům. Břicho bylo měkčí. Otoky splaskly. Za tři dny bylo oblečení volnější. <b>Nezměnila jsem zvlášť jídelníček. Nechodila jsem do posilovny. Prostě jsem následovala recept.</b></p>
+
+<p>Druhý den zmizela ta neustálá chuť k&nbsp;jídlu, která mě trápila roky. Třetí den jsem si oblékla džíny, které jsem nenosila dva roky.</p>
 
 <!-- SCIENCE -->
-<div class="section">
-  <h2>Pravá příčina nadváhy: <span>„hormon smrti"</span></h2>
+<h2>Proč přibíráte — i&nbsp;když nejíte?</h2>
 
-  <p>Spolu s&nbsp;týmem předních vědců doktorka Emilová odhalila jednoduchou pravdu, které zpočátku nikdo nevěřil:</p>
+<blockquote>
+<p>Spolu s&nbsp;týmem předních vědců doktorka Emilová odhalila jednoduchou pravdu, které zpočátku nikdo nevěřil: příčina vaší nadváhy <b>není na vašem talíři</b>.</p>
+</blockquote>
 
-  <div class="highlight">
-    Příčina vaší nadváhy <b>není na vašem talíři</b>. Je to hormon — <b>kortizol</b>, kterému říkáme „hormon smrti". Po 35–40 letech ho tělo produkuje stále více a&nbsp;každý den působí jako kapka jedu.
-  </div>
+<p>Viníkem jsou <b>hormony</b>, které blokují váš metabolismus po 35. roce. Konkrétně hormon, kterému říkáme <b>„hormon smrti" — kortizol</b>.</p>
 
-  <p>Kortizol ničí část vaší DNA odpovědnou za spalování tuků, zpomaluje metabolismus a&nbsp;nutí tělo ukládat tuky — <b>i&nbsp;z&nbsp;jogurtu, i&nbsp;když spíte</b>.</p>
+<p>Po 35–40 letech ho tělo produkuje stále více. Každý den působí jako kapka jedu:</p>
 
-  <div class="science-card">
-    <div class="icon">🔬</div>
-    <div>
-      <h4>Proto přibíráte rychleji než dříve</h4>
-      <p>Kortizol blokuje přirozené spalování tuků. Žádná dieta, trénink ani injekce nefungují, protože bojujete s&nbsp;následkem, ne s&nbsp;příčinou.</p>
-    </div>
-  </div>
+<ul style="margin:0 0 16px 20px">
+<li>Ničí část DNA odpovědnou za spalování tuků</li>
+<li>Zpomaluje metabolismus</li>
+<li>Nutí tělo ukládat tuk — <b>i&nbsp;z&nbsp;jogurtu, i&nbsp;když spíte</b></li>
+</ul>
 
-  <div class="science-card">
-    <div class="icon">🧪</div>
-    <div>
-      <h4>Dva klíčové přírodní extrakty</h4>
-      <p><b>Extrakt z&nbsp;hroznových jader</b> — normalizuje metabolismus, vyrovnává hladinu kortizolu, uvolňuje vnitřní křeče a&nbsp;snižuje stres. <b>Extrakt z&nbsp;kůry granátového jablka</b> — silný antioxidant, přepne tělo z&nbsp;režimu ukládání do režimu spalování.</p>
-    </div>
-  </div>
+<p>Proto přibíráte rychleji než dřív. Proto břicho nezmizí. Proto se objevují otoky, slabost, stárnutí. A&nbsp;proto <b>žádná dieta, trénink ani injekce nefunguje</b> — bojujete s&nbsp;následkem, ne s&nbsp;příčinou.</p>
 
-  <div class="science-card">
-    <div class="icon">⚗️</div>
-    <div>
-      <h4>Klíčem je přesná kombinace</h4>
-      <p>Samotné složky nestačí. Teprve ideální kombinace dávkování a&nbsp;formy extraktů přeměňuje tyto přírodní látky v&nbsp;účinný zabijáka příčiny nadváhy.</p>
-    </div>
-  </div>
+<div class="highlight-box">
+<b>Klíčové zjištění:</b> Doktorka Emilová a&nbsp;její tým našli způsob, jak normalizovat hladinu kortizolu. Právě to vedlo k&nbsp;vytvoření večerního rituálu, který už změnil tisíce životů.
 </div>
+
+<!-- KEY INGREDIENT -->
+<h2>Cordyceps sinensis — tajná zbraň proti nadváze</h2>
+
+<p>Vědci identifikovali přírodní složku, která dokáže v&nbsp;těle téměř nemožné — stabilizuje hormony, normalizuje kortizol a&nbsp;aktivuje přirozené spalování tuků. Je to <b>Cordyceps sinensis</b> — vzácná houba, kterou tradiční čínská medicína používá již tisíce let.</p>
+
+<p><b>Jak Cordyceps sinensis funguje?</b></p>
+<ul style="margin:0 0 16px 20px">
+<li>Je vysoce účinný při prevenci obezity a&nbsp;jako součást komplexní terapie pro snižování tělesné hmotnosti</li>
+<li>Ozdravuje organismus a&nbsp;podílí se na tvorbě zdravé střevní mikrobioty</li>
+<li>Zlepšuje metabolické ukazatele — tělo přestává ukládat tuk a&nbsp;začíná ho spalovat</li>
+<li>Stimuluje tvorbu <b>ATP</b> — organické sloučeniny, díky které se zvyšuje fyzická aktivita a&nbsp;vytrvalost</li>
+<li>Normalizuje hladinu kortizolu — hlavní příčiny nekontrolovaného přibírání na váze</li>
+</ul>
+
+<blockquote>
+<p>Doktorka Emilová: „Cordyceps sinensis je jedinečný tím, že nepůsobí jen na symptomy — útočí přímo na hormonální příčinu nadváhy. Tělo se přepne z&nbsp;režimu ukládání do <b>režimu spalování</b>. A&nbsp;to bez jakýchkoli vedlejších účinků."</p>
+</blockquote>
 
 <!-- PRODUCT -->
-<div class="section" style="text-align:center">
-  <h2>Představujeme <span>NanoSlim</span></h2>
-  <p style="max-width:600px;margin:0 auto 20px">První a&nbsp;jediný přírodní přípravek, který působí na skutečnou hormonální příčinu nadváhy a&nbsp;vrátí vám štíhlé, pevné tělo za pouhých <b>17&nbsp;dní</b>.</p>
+<h2>Cordyceps — první přípravek, který míří na skutečnou příčinu</h2>
 
-  <img src="images/prod.png" alt="NanoSlim" style="max-width:240px;border-radius:14px;margin:0 auto 20px;display:block">
+<img class="center" src="images/prod.png" alt="Cordyceps" style="max-width:300px" loading="lazy">
 
-  <div class="benefits">
-    <div class="benefit">
-      <div class="ico">🔥</div>
-      <h4>Spaluje tuky ve spánku</h4>
-      <p>Noční rituál aktivuje metabolismus, zatímco odpočíváte</p>
-    </div>
-    <div class="benefit">
-      <div class="ico">⚖️</div>
-      <h4>Reguluje hormony</h4>
-      <p>Vyrovnává kortizol a&nbsp;zastavuje ukládání tuků</p>
-    </div>
-    <div class="benefit">
-      <div class="ico">✨</div>
-      <h4>Zpevňuje pokožku</h4>
-      <p>Buňky se obnovují, pleť se stahuje, zmizí otoky</p>
-    </div>
-    <div class="benefit">
-      <div class="ico">💪</div>
-      <h4>Energie a&nbsp;vitalita</h4>
-      <p>Probudíte se lehčí, plní energie a&nbsp;chuti do života</p>
-    </div>
-  </div>
+<p>Spolu s&nbsp;předními odborníky vyvinula doktorka Emilová přípravek na bázi <b>Cordyceps sinensis</b> — aby vám dal lehké, krásné tělo <b>navždy</b>.</p>
 
-  <div class="highlight" style="text-align:left">
-    <b>Bez injekcí, bez diet, bez cvičení.</b> I&nbsp;když je vám 40, 60 nebo 80. I&nbsp;když máte cukrovku, vysoký tlak nebo chronickou únavu. I&nbsp;když jste už vyzkoušely všechno. NanoSlim byl vytvořen <b>přesně pro vás</b>.
-  </div>
+<p><b>Cordyceps</b> je přírodní přípravek ve formě kapslí (20&nbsp;ks v&nbsp;balení), který působí na skutečnou hormonální příčinu nadváhy a&nbsp;vrací vám pevnou, elastickou pokožku a&nbsp;sebevědomí — už od <b>17.&nbsp;dne</b> užívání.</p>
+
+<ul style="margin:0 0 16px 20px">
+<li>Bez injekcí, bez diet, bez cvičení</li>
+<li>I&nbsp;když je vám 40, 60 nebo 80</li>
+<li>I&nbsp;když máte cukrovku, vysoký tlak nebo chronickou únavu</li>
+<li>I&nbsp;když jste vyzkoušely úplně všechno</li>
+</ul>
+
+<p><b>Složení:</b> Cordyceps sinensis (Kordyceps čínský) — účinný při prevenci obezity, ozdravuje organismus, zlepšuje metabolické ukazatele, stimuluje tvorbu ATP pro zvýšení fyzické aktivity a&nbsp;vytrvalosti.</p>
+
+<p><b>Způsob užívání:</b> Dospělí užívají 1&nbsp;kapsli 2× denně při jídle.</p>
+
+<!-- COURSE APPLICATION -->
+<h2>Kurz aplikace Cordyceps — 3 měsíce, které změní váš život</h2>
+
+<p>Cordyceps je navržen pro <b>kurzové užívání</b>. Doporučená délka kurzu je <b>3&nbsp;měsíce</b>. Při potřebě lze kurz opakovat. A&nbsp;tady je to nejzajímavější — účinek se postupně <b>zesiluje</b>:</p>
+
+<p><b>1.–2. týden:</b> Tělo se přizpůsobuje. Cordyceps sinensis začíná normalizovat hladinu kortizolu. Mizí neustálá chuť k&nbsp;jídlu, ustupují otoky a&nbsp;zadržování vody. Cítíte se lehčí, máte více energie.</p>
+
+<p><b>3.–4. týden:</b> Metabolismus se rozjíždí. Tuk se začíná rozpouštět — nejprve viscerální (vnitřní) tuk, který obaluje orgány a&nbsp;je nejnebezpečnější. Zlepšuje se trávení, střevní mikrobiota se obnovuje. Oblečení začíná být volnější.</p>
+
+<p><b>5.–8. týden:</b> Probíhá hluboké čištění organismu. Tělo se zbavuje nahromaděných toxinů a&nbsp;odpadních látek. Otoky úplně zmizí, klouby přestávají bolet, pokožka se zpevňuje. Přibývá fyzická vytrvalost díky zvýšené produkci ATP.</p>
+
+<p><b>9.–12. týden:</b> Výsledky se stabilizují. Tělo přešlo do režimu spalování natrvalo. Normalizuje se krevní tlak, cholesterol. Cítíte se jako jiný člověk — lehčí, zdravější, plní energie. Výsledek hubnutí je <b>trvalý</b>.</p>
+
+<div class="highlight-box">
+<b>Důležité:</b> Kurzové užívání Cordycepsu neznamená jen hubnutí. Celý organismus se ozdravuje — čistí se střeva, mizí otoky, zlepšují se krevní hodnoty, ustupuje chronická únava. Je to <b>kompletní restart těla</b>.
 </div>
 
-<!-- REVIEWS -->
-<div class="section">
-  <h2>Co říkají <span>naše zákaznice</span></h2>
+<!-- RESULTS TABLE -->
+<h2>Podívejte se, jak jednoduché to je!</h2>
 
-  <div class="review">
-    <div class="review__head">
-      <div class="review__avatar">M</div>
-      <div>
-        <div class="review__name">Marie Dvořáková</div>
-        <div class="review__meta">Praha, 52 let</div>
-        <div class="review__stars">★★★★★</div>
-      </div>
-    </div>
-    <p>Zhubla jsem 18&nbsp;kg, ale nejdůležitější je, že se znovu cítím přitažlivá. Předtím jsem se schovávala, styděla se. Teď si s&nbsp;radostí dávám make-up, obléknám si nové spodní prádlo a&nbsp;manžel říká, že ho přitahuju od prvního pohledu. Všechno začalo s&nbsp;touto recepturou.</p>
-    <div class="review__result">Výsledek: −18 kg za 17 dní</div>
-  </div>
-
-  <div class="review">
-    <div class="review__head">
-      <div class="review__avatar">E</div>
-      <div>
-        <div class="review__name">Eva Procházková</div>
-        <div class="review__meta">Brno, 61 let</div>
-        <div class="review__stars">★★★★★</div>
-      </div>
-    </div>
-    <p>Bála jsem se podívat do zrcadla. Každý den strach, apatie, pocit konce. Když jsem viděla NanoSlim, už jsem nevěřila v&nbsp;nic, ale rozhodla jsem se zkusit to. Po 4 dnech jsem cítila lehkost, po týdnu −7&nbsp;kg, a&nbsp;po 17 dnech −24&nbsp;kg. Kůže jako po dovolené. V&nbsp;očích mi zase hoří oheň.</p>
-    <div class="review__result">Výsledek: −24 kg za 17 dní</div>
-  </div>
-
-  <div class="review">
-    <div class="review__head">
-      <div class="review__avatar">H</div>
-      <div>
-        <div class="review__name">Hana Šimková</div>
-        <div class="review__meta">Ostrava, 47 let</div>
-        <div class="review__stars">★★★★★</div>
-      </div>
-    </div>
-    <p>Upřímně — myslela jsem, že umřu tlustá. Břicho, strie, šedivá pleť, těžké nohy. A&nbsp;pak jsem dostala tuto recepturu. Po týdnu jsem si poprvé oblékla šaty bez rukávů. Kamarádky se nejdřív smály, teď volají a chtějí recept, protože viděly, jak jsem se změnila.</p>
-    <div class="review__result">Výsledek: −15 kg za 14 dní</div>
-  </div>
-
-  <div class="review">
-    <div class="review__head">
-      <div class="review__avatar">L</div>
-      <div>
-        <div class="review__name">Lenka Králová</div>
-        <div class="review__meta">Plzeň, 58 let</div>
-        <div class="review__stars">★★★★★</div>
-      </div>
-    </div>
-    <p>NanoSlim mě zachránil. Po 17 dnech jsem zhubla 32&nbsp;kg. Kůže se mi stala čistou a&nbsp;hladkou. Cítím se zdravě a&nbsp;sebevědomě jako před 20 lety. Žádný jiný přípravek mi nikdy nedal takový výsledek. Konečně jsem přestala být tlustá — teď jsem 100% štíhlá.</p>
-    <div class="review__result">Výsledek: −32 kg za 17 dní</div>
-  </div>
-
-  <div class="review">
-    <div class="review__head">
-      <div class="review__avatar">P</div>
-      <div>
-        <div class="review__name">Petra Benešová</div>
-        <div class="review__meta">Liberec, 65 let</div>
-        <div class="review__stars">★★★★★</div>
-      </div>
-    </div>
-    <p>Zhubla jsem 30&nbsp;kg. Konečně se mi vrátila energie a&nbsp;hlavně — cítím se o&nbsp;20 let mladší. Znovu jsem zdravá a&nbsp;vypadám neuvěřitelně. Děkuji celému týmu!</p>
-    <div class="review__result">Výsledek: −30 kg za 17 dní</div>
-  </div>
+<div class="green-box">
+<ul>
+<li><b>Bez diet a&nbsp;cvičení.</b> Nemusíte měsíce jíst jablka a&nbsp;saláty. Nemusíte se trápit v&nbsp;posilovně. Nemusíte ani vycházet z&nbsp;domu. Můžete jíst, co chcete. Cvičení není povinné.</li>
+<li><b>Z&nbsp;pohodlí domova.</b> Stačí užívat 1&nbsp;kapsli Cordyceps 2× denně při jídle — to je vše. Žijete normálně, zatímco se vaše tělo proměňuje ve spalovací stroj. Konečně vyjde na světlo štíhlá silueta, kterou jste v&nbsp;sobě vždy skrývaly.</li>
+<li><b>Bez velkých výdajů.</b> Žádné drahé kliniky, injekce nebo operace.</li>
+</ul>
 </div>
 
-<!-- FINAL CTA -->
-<div class="section" style="text-align:center">
-  <h2>Vaše proměna <span>začíná teď</span></h2>
-  <p>Můžete zůstat tam, kde jste — s&nbsp;nadváhou, únavou a&nbsp;tělem, které není šťastné. Nebo můžete stisknout tlačítko a&nbsp;začít cestu k&nbsp;nové sobě.</p>
-  <p><b>Lehká, krásná a&nbsp;skutečně šťastná.</b></p>
-  <br>
-  <a class="cta-btn" href="#objednat">Objednat NanoSlim &rarr;</a>
+<!-- SITUATIONS -->
+<h2>Pro koho je Cordyceps určen?</h2>
+
+<p><span class="violet-bg">1. Vážíte 100&nbsp;kg?</span></p>
+<p>Za 3 týdny budete vážit 90&nbsp;kg a&nbsp;za 12 týdnů 70&nbsp;kg! Garantujeme, že už v&nbsp;prvních 4 týdnech začnete ztrácet minimálně 10&nbsp;kg. Výsledky jsou potvrzeny klinickými studiemi provedenými na 27&nbsp;000 ženách a&nbsp;mužích ve věku 18 až 75 let.</p>
+
+<p><span class="violet-bg">2. Máte obavy o&nbsp;své zdraví?</span></p>
+<p>Vysoký cholesterol, vysoký krevní tlak, bolesti kloubů, nedostatek energie? Po pouhých 2 týdnech budou vaše výsledky vypadat výborně. Za 4 týdny bolesti zmizí. Nebudete už žít se strachem o&nbsp;své zdraví.</p>
+
+<p><span class="violet-bg">3. Milujete dobré jídlo a&nbsp;nedokážete držet dietu?</span></p>
+<p>Nemusíte. Přísné diety se ani nedoporučují. Můžete jíst, co chcete — jídlo neovlivňuje účinnost přípravku. Zhubnout neznamená, že se musíte všeho vzdát.</p>
+
+<p><span class="violet-bg">4. Nesnášíte sport?</span></p>
+<p>Nenuťte se cvičit. Vaše tělo je už pod tlakem kvůli nadváze. Doporučuje se začít s&nbsp;pohybem až za 2–4 týdny, když budete lehčí. Pak to bude i&nbsp;mnohem příjemnější.</p>
+
+<p><span class="violet-bg">5. Komplexují vás kvůli váze?</span></p>
+<p>Stále hůře hledáte oblečení, které vám padne? Necítíte se přitažlivá? Dejte si méně než měsíc. Konečně si budete moci oblékat krásné šaty o&nbsp;několik velikostí menší. Partner přestane koukat po štíhlejších ženách a&nbsp;znovu se zaměří na vás.</p>
+
+<p><span class="violet-bg">6. Máte strach, že to nebude fungovat?</span></p>
+<p>Cordyceps je přípravek se zárukou. Vyzkoušejte ho — a&nbsp;pokud nedosáhnete očekávaných výsledků, nic neztrácíte!</p>
+
+<!-- GUARANTEE -->
+<h2>Co získáte s&nbsp;objednávkou:</h2>
+
+<div class="guarantee">
+<img src="images/prod.png" alt="" loading="lazy">
+<div><b>Originální certifikovaný produkt</b> — dostanete autentický přípravek, dostupný výhradně na těchto stránkách.</div>
+</div>
+
+<div class="guarantee">
+<img src="images/prod.png" alt="" loading="lazy">
+<div><b>Kvalita podložená studiemi</b> — všechny složky jsou certifikovány jako bezpečné pro zdraví.</div>
+</div>
+
+<div class="guarantee">
+<img src="images/prod.png" alt="" loading="lazy">
+<div><b>Účinnost potvrzená 27&nbsp;000 uživateli</b> — laboratorní testy i&nbsp;skutečné recenze potvrzují výjimečnou účinnost.</div>
+</div>
+
+<blockquote>
+<p>Život je příliš krásný na to, abyste ho zmenšovaly nadbytečnými kily. Nemyslíte?</p>
+</blockquote>
+
+<p>Nemusíte trpět. Porazte nashromážděný tuk a&nbsp;chraňte své zdraví. <b>Neriskujete vůbec nic.</b> Jediné, co můžete ztratit, je 20, 30 nebo i&nbsp;50&nbsp;kg přebytečné váhy. Výměnou získáte štíhlou postavu, spoustu pozitivní energie a&nbsp;mnohem lepší zdraví.</p>
+
+<!-- URGENCY -->
+<div class="warning-box">
+<b class="date-text">POZOR:</b> tato nabídka platí pouze pro ty, kteří si vyžádají slevu na Cordyceps do <b class="date-text"><script>var d=new Date();var months=['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];document.write(d.getDate()+'. '+months[d.getMonth()]+' '+d.getFullYear());</script></b>. Pokud čtete tento článek po tomto datu, nabídka již nemusí být dostupná.
+</div>
+
+<p style="text-align:center;margin:20px 0">
+<img src="images/prod.png" alt="Cordyceps" style="max-width:260px;border-radius:10px" loading="lazy">
+</p>
+
+<p>Vyplňte krátký formulář níže a&nbsp;získejte <b>slevu 50&nbsp;%</b> na Cordyceps. <b>Nabídka je omezená!</b></p>
+
+<p>Není nutné platit předem. Nejprve vám náš asistent doručí zásilku zdarma, abyste si byli jisti, že dostáváte originální produkt. <b>Platíte až při převzetí.</b></p>
+
+<a class="cta-float" href="#objednat">Objednat Cordyceps se slevou 50&nbsp;%</a>
+
+</div>
+</div>
 </div>
 
 <!-- ORDER FORM -->
 <span id="objednat"></span>
-<div class="order-section">
+<div class="order-wrap">
   <form action="order.php" method="post" id="order_form">
     <input type="hidden" name="sub1" value="{subid}">
     <input type="hidden" name="sub2" value="{sub_id_2}">
     <input type="hidden" name="country" value="CZ">
 
     <div class="order-card">
-      <h2>Objednejte NanoSlim</h2>
-      <p style="color:#666;font-size:15px;margin-bottom:8px">Speciální nabídka — sleva 50&nbsp;%</p>
+      <h2>Objednejte Cordyceps</h2>
+      <p style="font-size:14px;color:#666;margin-bottom:8px">Vyplňte formulář a&nbsp;získejte slevu 50&nbsp;%</p>
 
-      <img class="prod-img" src="images/prod.png" alt="NanoSlim">
+      <img class="prod-img" src="images/prod.png" alt="Cordyceps">
 
-      <div class="price-row">
-        <span class="price-old">2380 Kč</span>
-        <span class="price-new">1190</span>
-        <span class="price-cur">Kč</span>
+      <div class="timer-box">
+        Zbývající čas: <span class="min">10</span>:<span class="sec">00</span>
       </div>
 
-      <div class="timer">
-        Nabídka vyprší za: <span class="min">10</span>:<span class="sec">00</span>
+      <div class="price-row">
+        <span class="price-old">1380 Kč</span>
+        <span class="price-new">690</span>
+        <span class="price-cur"> Kč</span>
       </div>
 
       <input type="text" name="name" placeholder="Vaše jméno" required autocomplete="name" minlength="2">
@@ -359,18 +383,147 @@ a{color:#c0392b;text-decoration:none}
         <div class="badge"><b>✓</b> Originální produkt</div>
       </div>
 
-      <p class="stock">Zbývá pouze <b style="color:#c0392b">97</b> balení</p>
+      <p class="note">Vaše osobní údaje jsou chráněny šifrováním.</p>
     </div>
   </form>
 </div>
 
-<!-- FOOTER -->
-<div class="ftr">
-  <p>Tento přípravek není určen k diagnostice, léčbě ani prevenci jakéhokoli onemocnění. Výsledky se mohou u jednotlivých osob lišit. Před použitím se poraďte se svým lékařem.</p>
-  <p style="margin-top:8px">&copy; 2025 NanoSlim. Všechna práva vyhrazena.</p>
+<!-- COMMENTS -->
+<div class="comments-section">
+  <h2>Komentáře:</h2>
+
+  <div class="comment">
+    <div class="comment__ava"><img src="images/ava1.png" alt="" loading="lazy"></div>
+    <div>
+      <div class="comment__body">
+        <div class="comment__name">Marie Dvořáková</div>
+        <div class="comment__text">Zhubla jsem za pouhých 17&nbsp;dní! To je opravdový zázrak! ❤️ Přes 10 let jsem se snažila zhubnout a&nbsp;teprve teď se mi to podařilo! Cordyceps nejen rozpustil tuk, ale také zcela zastavil přibírání na váze.</div>
+      </div>
+      <div class="comment__meta">To se mi líbí · Odpovědět · 2&nbsp;d</div>
+    </div>
+  </div>
+
+  <div class="comment">
+    <div class="comment__ava"><img src="images/ava2.png" alt="" loading="lazy"></div>
+    <div>
+      <div class="comment__body">
+        <div class="comment__name">Tomáš Procházka</div>
+        <div class="comment__text">Balíček dorazil za pouhé 2 dny. Bydlím v&nbsp;malé vesnici, kde zásilky občas trvají týdny — ale Cordyceps přišel za dva dny! Je vidět, že výrobce opravdu respektuje své zákazníky.</div>
+      </div>
+      <div class="comment__meta">To se mi líbí · Odpovědět · 3&nbsp;d</div>
+    </div>
+  </div>
+
+  <div class="comment">
+    <div class="comment__ava"><img src="images/ava3.png" alt="" loading="lazy"></div>
+    <div>
+      <div class="comment__body">
+        <div class="comment__name">Eva Procházková</div>
+        <div class="comment__text">Dostala jsem Cordyceps a&nbsp;jsem v&nbsp;šoku z&nbsp;výsledků. Za měsíc a&nbsp;půl jsem zhubla 20&nbsp;kg, svaly zůstaly pevné a&nbsp;neobjevila se ani jedna strie. Jako by mi udělali přírodní liposukci! Jedla jsem, co jsem chtěla, a&nbsp;přesto jsem prošla neuvěřitelnou proměnou.</div>
+      </div>
+      <div class="comment__meta">To se mi líbí · Odpovědět · 4&nbsp;d</div>
+    </div>
+  </div>
+
+  <div class="comment">
+    <div class="comment__ava"><img src="images/ava4.png" alt="" loading="lazy"></div>
+    <div>
+      <div class="comment__body">
+        <div class="comment__name">Anna Králová</div>
+        <div class="comment__text">Byla jsem vážně obézní — 120&nbsp;kg… Sotva jsem se udržela na nohou. Vycházela jsem z&nbsp;domu jen párkrát za měsíc. Teď jsem nekonečně vděčná tomuto přípravku! První měsíc −13&nbsp;kg, druhý měsíc dalších −15&nbsp;kg. Lékaři řekli, že nadváha už neohrožuje můj život. Děkuji z&nbsp;celého srdce! 🔥😍<br><img src="images/before-after1.png" alt="" loading="lazy"></div>
+      </div>
+      <div class="comment__meta">To se mi líbí · Odpovědět · 5&nbsp;d</div>
+    </div>
+  </div>
+
+  <div class="comment">
+    <div class="comment__ava"><img src="images/ava5.png" alt="" loading="lazy"></div>
+    <div>
+      <div class="comment__body">
+        <div class="comment__name">Robert Novotný</div>
+        <div class="comment__text">Úplně jsem zapomněl na posilovnu — samotná myšlenka na závaží a&nbsp;propocená trika mě děsí. Už tam nikdy nepůjdu! Proč taky, když mi Cordyceps pomohl shodit 4&nbsp;kg za pouhý jeden týden?<br><img src="images/before-after2.png" alt="" loading="lazy"></div>
+      </div>
+      <div class="comment__meta">To se mi líbí · Odpovědět · 6&nbsp;d</div>
+    </div>
+  </div>
+
+  <div class="comment">
+    <div class="comment__ava"><img src="images/ava6.png" alt="" loading="lazy"></div>
+    <div>
+      <div class="comment__body">
+        <div class="comment__name">Lenka Šimková</div>
+        <div class="comment__text">Za dva měsíce jsem zhubla 28&nbsp;kg! Podívejte se na výsledky! Jsem tak šťastná, že jsem si to objednala. Škoda jen, že to „lékárenská mafie" chce zastavit…<br><img src="images/before-after3.png" alt="" loading="lazy"></div>
+      </div>
+      <div class="comment__meta">To se mi líbí · Odpovědět · 1&nbsp;týden</div>
+    </div>
+  </div>
+
+  <div class="comment">
+    <div class="comment__ava"><img src="images/ava7.png" alt="" loading="lazy"></div>
+    <div>
+      <div class="comment__body">
+        <div class="comment__name">Petra Benešová</div>
+        <div class="comment__text">Zajímavý článek a&nbsp;skvělý produkt. Ale stále mi není úplně jasné, jak přesně to funguje.</div>
+      </div>
+      <div class="comment__meta">To se mi líbí · Odpovědět · 1&nbsp;týden</div>
+    </div>
+  </div>
+
+  <div class="comment reply">
+    <div class="comment__ava"><img src="images/ava8.png" alt="" loading="lazy"></div>
+    <div>
+      <div class="comment__body">
+        <div class="comment__name">Hana Kovářová</div>
+        <div class="comment__text">Cílem je zrychlit metabolismus. Tělo využívá sacharidy místo toho, aby je ukládalo, jíte méně (prostě necítíte tu potřebu), a&nbsp;organismus začíná spalovat staré tukové zásoby — břicho, „pupínky", viscerální tuk. Cordyceps je skvělý právě proti tomu vnitřnímu tuku!</div>
+      </div>
+      <div class="comment__meta">To se mi líbí · Odpovědět · 6&nbsp;d</div>
+    </div>
+  </div>
+
+  <div class="comment">
+    <div class="comment__ava"><img src="images/ava9.png" alt="" loading="lazy"></div>
+    <div>
+      <div class="comment__body">
+        <div class="comment__name">Julie Filipová</div>
+        <div class="comment__text">Není na tom nic složitého. Pokaždé, když jsem vzala Cordyceps, cítila jsem se lépe — fyzicky i&nbsp;psychicky. Nejen hubnutí — má to i&nbsp;zdravotní efekt. To je OPRAVDOVÝ ZÁZRAK. Škoda, že to v&nbsp;lékárnách nemají…</div>
+      </div>
+      <div class="comment__meta">To se mi líbí · Odpovědět · 1&nbsp;týden</div>
+    </div>
+  </div>
+
+  <div class="comment">
+    <div class="comment__ava"><img src="images/ava10.png" alt="" loading="lazy"></div>
+    <div>
+      <div class="comment__body">
+        <div class="comment__name">Emma Veselá</div>
+        <div class="comment__text">Všechno zní moc dobře, ale nechápu, proč se to neprodává v&nbsp;lékárnách.</div>
+      </div>
+      <div class="comment__meta">To se mi líbí · Odpovědět · 5&nbsp;d</div>
+    </div>
+  </div>
+
+  <div class="comment reply">
+    <div class="comment__ava"><img src="images/ava11.png" alt="" loading="lazy"></div>
+    <div>
+      <div class="comment__body">
+        <div class="comment__name">Marie Novotná</div>
+        <div class="comment__text">Možná jste si článek nepřečetla pozorně. Lékárny mají vlastní zájmy — prodej Cordycepsu se jim nevyplatí. Raději prodávají léky na tlak, na žaludek a&nbsp;podobně, které přinášejí miliony — a&nbsp;to všechno kvůli obezitě. Věřím, že se Cordyceps do lékáren dostane, ale za mnohem vyšší cenu.</div>
+      </div>
+      <div class="comment__meta">To se mi líbí · Odpovědět · 4&nbsp;d</div>
+    </div>
+  </div>
+
+  <!-- bottom CTA -->
+  <a class="cta-float" href="#objednat" style="margin-top:24px">Objednat Cordyceps</a>
 </div>
 
-<!-- TIMER SCRIPT -->
+<!-- FOOTER -->
+<div class="ftr">
+  <p>Tento přípravek není určen k&nbsp;diagnostice, léčbě ani prevenci jakéhokoli onemocnění. Výsledky se mohou u&nbsp;jednotlivých osob lišit. Před použitím se poraďte se svým lékařem.</p>
+  <p style="margin-top:6px">&copy; 2026 Cordyceps. Všechna práva vyhrazena.</p>
+</div>
+
+<!-- TIMER -->
 <script>
 (function(){
   var m=10,s=0;
@@ -413,7 +566,7 @@ a{color:#c0392b;text-decoration:none}
 
 <!-- CTA SCROLL -->
 <script>
-document.querySelectorAll('.cta-btn').forEach(function(b){
+document.querySelectorAll('.cta-float').forEach(function(b){
   b.addEventListener('click',function(e){
     e.preventDefault();
     var t=document.getElementById('objednat');
