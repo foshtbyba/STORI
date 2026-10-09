@@ -685,12 +685,6 @@
         <input id="ywUrl" placeholder="напр. https://msteam.top/js/ywbackfix.js — если хостишь скрипт централизованно">
         <div class="hint">Если заполнено — в ленд встанет <code>&lt;script src="этот URL"&gt;</code>, а локальный <code>js/ywbackfix.js</code> в архив НЕ кладётся (обновляешь скрипт в одном месте на сервере). Пусто — как раньше, скрипт кладётся в архив.</div>
       </div>
-      <div class="subtoggle" data-target="buyerAdv"><span class="chev">▸</span> Метка баера (для партнёрок)</div>
-      <div id="buyerAdv" style="display:none">
-        <label>Метка баера — Keitaro-макрос (пусто = не слать)</label>
-        <input id="buyerTag" value="{sub_id_2}">
-        <div class="hint">Код баера летит в партнёрку в её саб-поле. В Keitaro один раз на поток: Параметры → <code>sub_id_2</code> → имя <code>buyer</code>, значение = код баера (напр. <code>SKO</code>). Билдер сам кладёт <code>{sub_id_2}</code> в нужное поле: <b>shakes</b>→sub2, <b>SkyLead</b>→utm_content, <b>everad/rocketprofit</b>→sid2. (m1/KMA — добавлю по гайду.)</div>
-      </div>
       <label>Язык текстов call/error/chest</label>
       <select id="uiLang"></select>
       <div class="hint">На каком языке генерятся служебные страницы (спасибо/ошибка/сундук). На перевод самого ленда не влияет.</div>
@@ -917,6 +911,15 @@ inline-style, вёрстку. Чистка касается ТОЛЬКО скр�
           <button class="btn" id="trRunChest" type="button" style="margin-top:6px">🎁 Перевести сундук</button>
           <div class="status" id="trStatusChest"></div>
         </div>
+      </div>
+    </div>
+
+    <div class="grp" id="grpBuyer">
+      <h3 class="gtoggle" data-target="buyerBody"><span class="chev">▸</span> Метка баера (для партнёрок)</h3>
+      <div id="buyerBody" class="grp-body" style="display:none">
+        <label>Метка баера — Keitaro-макрос (пусто = не слать)</label>
+        <input id="buyerTag" value="{sub_id_2}">
+        <div class="hint">Код баера летит в партнёрку в её саб-поле. В Keitaro один раз на поток: Параметры → <code>sub_id_2</code> → имя <code>buyer</code>, значение = код баера (напр. <code>SKO</code>). Билдер сам кладёт <code>{sub_id_2}</code> в нужное поле: <b>shakes</b>→sub2, <b>SkyLead</b>→utm_content, <b>everad/rocketprofit</b>→sid2. (m1/KMA — добавлю по гайду.)</div>
       </div>
     </div>
 
@@ -4008,7 +4011,7 @@ function enhanceSelect(sel){
   // порядок панелей левого меню: сверху рабочие (часто юзаю), затем одна плашка «Доп. настройки», кнопка «Собрать» — в самом низу
   (function(){var L=document.querySelector(".panel.left"); if(!L) return;
     var CORE=["grpPartner","grpPages","grpOffer","grpSource","grpChest"];   // всегда на виду (Сундук тоже — частый)
-    var EXTRA=["grpDedup","grpOpt","grpPixel","trWrap"];                      // прячем в «Доп. настройки» (Перевод — последним)
+    var EXTRA=["grpBuyer","grpDedup","grpOpt","grpPixel","trWrap"];           // прячем в «Доп. настройки» (Метка баера — редкая; Перевод — последним)
     CORE.forEach(function(id){var el=document.getElementById(id); if(el) L.appendChild(el);});
     var box=document.getElementById("grpExtra"); if(box) L.appendChild(box);
     var eb=document.getElementById("extraBody");
