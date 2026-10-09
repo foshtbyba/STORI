@@ -599,12 +599,7 @@
         <label>URL оригинального лендинга (landingUrl) *</label>
         <input id="landingUrl" placeholder="https://… — адрес ленда ИЗ ОФФЕРА shakes">
         <div class="hint" style="margin-top:2px">⚠ <b>Обязательно.</b> Возьми точный URL лендинга со страницы оффера в shakes. Без него (или с чужим URL) партнёрка <b>не примет лид</b> — заявка не улетит.</div>
-        <div class="subtoggle" data-target="shakesAdv"><span class="chev">▸</span> Расширенные (код потока)</div>
-        <div id="shakesAdv" style="display:none">
-          <label>Код потока (streamCode) — опц.</label>
-          <input id="streamCode" placeholder="номер потока из shakes (обычно не нужен)">
-        </div>
-        <div class="hint">shakes: форма постит на серверный <b>order.php</b> (генерируется автоматически с твоим ключом, <b>ID оффера</b>, <b>landingUrl</b> и страницами call/error). ref не нужен, <b>страна</b> — авто из «Код гео», <b>streamCode</b> — только для статистики. Хост должен поддерживать <b>PHP</b>. Загружай ленд <b>папкой</b>.</div>
+        <div class="hint">shakes: форма постит на серверный <b>order.php</b> (генерируется автоматически с твоим ключом, <b>ID оффера</b>, <b>landingUrl</b> и страницами call/error). ref не нужен, <b>страна</b> — авто из «Код гео». <b>Код потока (streamCode) НЕ задаём</b> — он всегда пустой, иначе shakes отклоняет лид; роутинг идёт по офферу+ключу. Хост должен поддерживать <b>PHP</b>. Загружай ленд <b>папкой</b>.</div>
       </div>
       <div id="skyleadFields" style="display:none">
         <label>ID потока (flow) *</label>
@@ -1350,7 +1345,7 @@ const PARTNERS = {
     ref:"1029931", api_key:"2188aad9cfb9f55626bf1d64cf4e95e0", buyerField:"m",
     hint:"JS-приём заказа: POST send_order, ответ {result:'ok', id}. ref и api_key закреплены за этой партнёркой. Метка баера идёт в родной слот m1 «m» (кабинет фильтрует по S/W/T/P/M; S=clickid занят)." },
   "shakes.pro": { label:"shakes.pro", mode:"php", domain:"shakes.pro", api_key:"f825ffeff11da49a86dc5d095c648f3c", buyerField:"sub2",
-    php:{ gen:"shakes", subField:"sub1", country:true, landing:true, stream:true, idLabel:"ID оффера (offerId)" },
+    php:{ gen:"shakes", subField:"sub1", country:true, landing:true, stream:false, idLabel:"ID оффера (offerId)" },
     hint:"Серверный order.php (генерируется): форма постит на него. ID оффера = offerId, api_key закреплён, ref не нужен. Заполни ID оффера, страну и URL лендинга." },
   "hamsters.run": { label:"hamsters.run", buyerField:"subid2",
     php:{ gen:"hamsters", subField:"subid", country:false, landing:false, stream:false, idLabel:"OFFER_KEY (key_hash)" },
@@ -1719,7 +1714,7 @@ function shakesOrderPhp(cfg){
 "$domain = '"+(cfg.partnerDomain||"shakes.pro")+"';\n"+
 "$landingUrl = '"+(cfg.landingUrl||"")+"';\n"+
 "$offerId = '"+offerId+"';\n"+
-"$streamCode = '"+String(cfg.streamCode||"").replace(/'/g,"")+"';\n"+
+"$streamCode = '';\n"+   // ВСЕГДА пусто: непустой/чужой streamCode shakes отклоняет (лид не уходит). Роутинг идёт по offerId+ключу.
 "$successPage = '"+(cfg.success||"call.html")+"';\n"+
 "$errorPage = '"+(cfg.error||"error.html")+"';\n\n"+
 ddFns(cfg)+
@@ -2971,7 +2966,7 @@ function wirePagePick(id,slot,label){
 function val(id){return document.getElementById(id).value.trim();}
 function readCfg(){
   var pk=PARTNERS[document.getElementById("partner").value], lang=document.getElementById("uiLang").value, php=pk.php||null, ev=pk.ev||null, kma=pk.kma||null;
-  return {mode:php?"php":(ev?"everad":(kma?"kma":(pk.mode||"js"))),native:!!pk.native,partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:val("streamCode"),
+  return {mode:php?"php":(ev?"everad":(kma?"kma":(pk.mode||"js"))),native:!!pk.native,partnerDomain:pk.domain||"",country:val("country"),landingUrl:val("landingUrl"),streamCode:"",
     phpGen:php?php.gen:"",subField:php?php.subField:(ev?ev.subField:(kma?kma.subField:"")),phpCountry:!!(php&&php.country),phpLanding:!!(php&&php.landing),phpStream:!!(php&&php.stream),
     phpAction:php?(php.action||"order.php"):"",phpNoId:!!(php&&php.noId),mainExt:php?(php.mainExt||"html"):"html",phpExtraHidden:php?(php.extraHidden||""):"",
     evAction:ev?ev.action:"",evPxField:ev?ev.pxField:"",evCampaign:val("product_id"),kmaApi:!!(kma&&kma.apiFolder),
@@ -3426,7 +3421,7 @@ function missingAssets(out){
   var hasHandler=isKma||have['order.php']||have['api.php']||have['lemon.php'];
   var hasM1=out.some(function(f){ return typeof f.str==="string" && /\.html?$/i.test(f.name) && /m1\.top\/send_order|var OFFER\s*=\s*\{/.test(f.str); });
   if(!sawOrderForm && (hasHandler||hasM1)) critical.push("в ленде НЕТ формы заказа с полем телефона — лид отправлять неоткуда");
-  // (поток/streamCode у shakes опционален — отдельно не проверяем)
+  // (streamCode у shakes всегда пустой — задаётся в генераторе, поля в UI нет)
   return {critical:critical, assets:assets};
 }
 
@@ -3776,7 +3771,9 @@ function enhanceSelect(sel){
   (function(){
     var box=document.getElementById("offerPaste"), btn=document.getElementById("offerApply");
     if(!box||!btn) return;
-    var PLAIN={ offerId:"product_id", geo:"langCode", landingUrl:"landingUrl", streamCode:"streamCode",
+    // streamCode НЕ автозаполняем: для shakes он должен быть пустым (иначе лид не уходит),
+    // а для SkyLead поток кладётся отдельно в sl_flow ниже (data.streamCode).
+    var PLAIN={ offerId:"product_id", geo:"langCode", landingUrl:"landingUrl",
                 name:"brand", price:"price", image:"image", backfix:"backfix" };
 
     var applying=false;   // защита от двойного добавления (paste + клик/Enter одновременно)
