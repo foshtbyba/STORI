@@ -67,8 +67,13 @@ a:hover{text-decoration:underline}
 .timeline-item p{margin:0;font-size:15px}
 
 /* ===== GUARANTEE ===== */
-.guarantee{display:flex;gap:14px;margin:16px 0;align-items:flex-start}
+.guarantee{display:flex;gap:14px;margin:16px 0;align-items:center}
 .guarantee img{width:60px;flex-shrink:0;border-radius:8px}
+.g-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;font-style:normal;color:#fff;line-height:1}
+.g-icon--cert{background:#e4002b}
+.g-icon--lab{background:#0077b6}
+.g-icon--pulse{background:#28a745}
+.g-icon--box{background:#6f42c1}
 .guarantee div b{display:block;margin-bottom:4px;color:#1c1e21}
 .guarantee div{font-size:15px;color:#444}
 
