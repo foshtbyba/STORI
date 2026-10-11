@@ -410,7 +410,7 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
       // Порядок кабинетов внутри токена — вперемешку: одинаковый обход из раза
       // в раз тоже читается как автомат.
       const accounts = shuffle(
-        await prisma.adAccount.findMany({ where: { tokenId: token.id, enabled: true } }),
+        await prisma.adAccount.findMany({ where: { tokenId: token.id } }),
       );
 
       for (const acc of accounts) {
@@ -782,7 +782,7 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
   const now = new Date();
   const all = await prisma.adToken.findMany({
     where: { enabled: true },
-    include: { accounts: { where: { enabled: true } }, buyer: { select: { handle: true, userId: true } } },
+    include: { accounts: true, buyer: { select: { handle: true, userId: true } } },
   });
   const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
 
@@ -1006,7 +1006,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
 
   const all = await prisma.adToken.findMany({
     where: { enabled: true },
-    include: { accounts: { where: { enabled: true } }, buyer: { select: { handle: true, userId: true } } },
+    include: { accounts: true, buyer: { select: { handle: true, userId: true } } },
   });
   const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
 

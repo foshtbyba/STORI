@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'sync-no-reset-on-partial · 02.10 19:13';
+export const BUILD_INFO = 'mobile-tidy-accounts · 11.10 11:59';

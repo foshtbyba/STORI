@@ -51,7 +51,7 @@ export function PanelHead({
 }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-y-2.5">
-      <div className="flex min-w-0 items-center gap-2.5 sm:gap-[13px]">
+      <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 sm:flex-nowrap sm:gap-[13px]">
         {iconHref ? (
           <Link
             href={iconHref}
@@ -65,11 +65,11 @@ export function PanelHead({
         ) : (
           <Badge tint={tint}>{icon}</Badge>
         )}
-        <h2 className="text-[17px] font-semibold tracking-[-0.015em]">{title}</h2>
+        <h2 className="shrink-0 text-[17px] font-semibold tracking-[-0.015em]">{title}</h2>
         {aside ? (
           <>
             <span className="hidden h-5 w-px bg-line2 sm:block" />
-            {aside}
+            <span className="w-full sm:w-auto">{aside}</span>
           </>
         ) : null}
       </div>

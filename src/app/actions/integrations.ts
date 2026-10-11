@@ -600,15 +600,6 @@ export async function myBrocardTopUp(form: FormData): Promise<{ ok: boolean; err
   }
 }
 
-export async function toggleAccount(form: FormData) {
-  await requireAdmin();
-  const id = String(form.get('id') ?? '');
-  const acc = await prisma.adAccount.findUnique({ where: { id } });
-  if (acc) await prisma.adAccount.update({ where: { id }, data: { enabled: !acc.enabled } });
-  revalidatePath('/admin');
-  revalidatePath('/ads');
-}
-
 /**
  * Пометить кабинет агентским/основным среди дублей. Один act_ID виден под
  * несколькими профилями; помеченный считается за настоящий, дубли под другими

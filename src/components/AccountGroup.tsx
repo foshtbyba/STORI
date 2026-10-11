@@ -5,7 +5,7 @@ import { Avatar, Sub } from './ui';
 import TokenLabel from './TokenLabel';
 import ConfirmSubmit from './ConfirmSubmit';
 import ReplaceToken from './ReplaceToken';
-import { toggleAccount, toggleAgency, toggleToken, deleteToken, deleteMyToken } from '@/app/actions/integrations';
+import { toggleAgency, toggleToken, deleteToken, deleteMyToken } from '@/app/actions/integrations';
 import type { StatusTone } from '@/lib/fb-status';
 
 export type AccountRow = {
@@ -57,13 +57,11 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
   const [open, setOpen] = useState(defaultOpen);
   const [showBanned, setShowBanned] = useState(false);
 
-  // Короткая сводка для свёрнутого вида: считаем только кабинеты, что реально в
-  // трекинге. Выключенный из синхронизации кабинет (в том числе давно
-  // забаненный, который убрали) в сводку «бан N» вверху не попадает — иначе она
-  // копит мёртвые кабинеты и перестаёт отражать живую картину.
-  const tracked = group.accounts.filter((a) => a.enabled);
-  const bad = tracked.filter((a) => a.badge.tone === 'bad').length;
-  const warn = tracked.filter((a) => a.badge.tone === 'warn').length;
+  // Короткая сводка для свёрнутого вида: расход тянется со ВСЕХ кабинетов без
+  // исключений, поэтому и бан/риск считаем по всем — ручного «не тянуть» больше
+  // нет, забаненные просто глушатся в серый.
+  const bad = group.accounts.filter((a) => a.badge.tone === 'bad').length;
+  const warn = group.accounts.filter((a) => a.badge.tone === 'warn').length;
 
   // Забаненные (бан/закрыт/отключён) в открытом виде занимают половину экрана и
   // мешают смотреть на рабочие. Прячем их под кнопку, а рабочие показываем
@@ -74,11 +72,18 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
   const banned = sorted.filter((a) => a.badge.tone === 'bad');
 
   // Плитка кабинета — одна на рабочие и на забаненные, чтобы не расходились.
-  const renderAcc = (acc: AccountRow) => (
-    <Sub key={acc.id} className={`px-3.5 py-2 ${acc.enabled ? '' : 'opacity-55'}`}>
-      {/* Строка 1: имя + статус справа от него, сумма у правого края. */}
-      <div className="flex items-center gap-2">
-        <span className={`shrink-0 truncate text-[12.5px] ${acc.enabled ? 'text-soft' : 'text-dim line-through'}`}>
+  const renderAcc = (acc: AccountRow) => {
+    // Забаненный кабинет глушим в серый (grayscale + приглушённая прозрачность):
+    // цветные пилюли (агентский/остаток/статус) обесцвечиваются и перестают
+    // цеплять взгляд, но кабинет остаётся виден — «как будто не тянем».
+    const muted = acc.badge.tone === 'bad';
+    const dimClass = muted ? 'opacity-60' : '';
+    return (
+    <Sub key={acc.id} className={`px-3.5 py-2 ${muted ? 'grayscale' : ''} ${dimClass}`}>
+      {/* Строка 1: имя + статус справа от него, сумма у правого края. На узком
+          экране пилюли переносятся, а не уезжают за край. */}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+        <span className="shrink-0 truncate text-[12.5px] text-soft">
           {acc.name || acc.externalId.replace(/^act_/, '')}
         </span>
         <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${TONE[acc.badge.tone]}`}>
@@ -118,18 +123,6 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
 
       {group.admin ? (
         <div className="mt-1.5 flex items-center gap-1.5">
-          <form action={toggleAccount}>
-            <input type="hidden" name="id" value={acc.id} />
-            <button
-              type="submit"
-              title={acc.enabled ? 'Расход тянется — нажми, чтобы исключить из синхронизации' : 'Исключён из синхронизации — нажми, чтобы вернуть'}
-              className={`rounded-full px-2.5 py-1 text-[10.5px] transition ${
-                acc.enabled ? 'bg-sage-t text-sage' : 'bg-raise text-dim hover:text-soft'
-              }`}
-            >
-              {acc.enabled ? '✓ тянуть расход' : 'не тянуть'}
-            </button>
-          </form>
           <form action={toggleAgency}>
             <input type="hidden" name="id" value={acc.id} />
             <button
@@ -154,7 +147,8 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
         </div>
       )}
     </Sub>
-  );
+    );
+  };
 
   return (
     <div className="mt-3 border-t border-line pt-3">
