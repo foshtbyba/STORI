@@ -2076,7 +2076,7 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "$ok  = $res['ok'];\n"+
 (cfg.dedup?"if ($ok) { "+ddMark(cfg)+"}\n":"")+
 "\n"+
-"if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { include __DIR__ . '/' . $THANK_PAGE; }\n"+
+"if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { echo '<!-- aray_resp: ' . htmlspecialchars((string) $res['raw']) . ' -->'; include __DIR__ . '/' . $THANK_PAGE; }\n"+   // диагностика: ответ aray и на успехе (order_id/is_double) — view-source на спасибо
 "elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { echo '<!-- aray_resp: ' . htmlspecialchars((string) $res['raw']) . ' -->'; include __DIR__ . '/' . $ERROR_PAGE; }\n"+   // диагностика: ответ aray в невидимом комментарии (view-source на error)
 "else { header('Location: ' . ($ok ? $THANK_PAGE : $ERROR_PAGE)); }\n"+
 "exit;\n\n"+
