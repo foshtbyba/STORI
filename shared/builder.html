@@ -2075,7 +2075,7 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 (cfg.dedup?"if ($ok) { "+ddMark(cfg)+"}\n":"")+
 "\n"+
 "if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { include __DIR__ . '/' . $THANK_PAGE; }\n"+
-"elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { include __DIR__ . '/' . $ERROR_PAGE; }\n"+
+"elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { echo '<!-- aray_resp: ' . htmlspecialchars((string) $res['raw']) . ' -->'; include __DIR__ . '/' . $ERROR_PAGE; }\n"+   // диагностика: ответ aray в невидимом комментарии (view-source на error)
 "else { header('Location: ' . ($ok ? $THANK_PAGE : $ERROR_PAGE)); }\n"+
 "exit;\n\n"+
 "function sendLead($url, $data) {\n"+
@@ -2083,6 +2083,13 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "    $curl = curl_init();\n"+
 "    curl_setopt($curl, CURLOPT_URL, $full);\n"+
 "    curl_setopt($curl, CURLOPT_HTTPGET, true);\n"+
+"    // форвардим заголовки визитёра: иначе aray видит IP/UA СЕРВЕРА и оффер по гео отклоняется\n"+
+"    if (!empty($_SERVER['HTTP_USER_AGENT'])) curl_setopt($curl, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);\n"+
+"    $__rip = getUserIP(); $__hd = array();\n"+
+"    if ($__rip) { $__hd[] = 'X-Forwarded-For: ' . $__rip; $__hd[] = 'CF-Connecting-IP: ' . $__rip; $__hd[] = 'X-Real-IP: ' . $__rip; }\n"+
+"    if (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) $__hd[] = 'Accept-Language: ' . $_SERVER['HTTP_ACCEPT_LANGUAGE'];\n"+
+"    if (!empty($_SERVER['HTTP_REFERER'])) $__hd[] = 'Referer: ' . $_SERVER['HTTP_REFERER'];\n"+
+"    if ($__hd) curl_setopt($curl, CURLOPT_HTTPHEADER, $__hd);\n"+
 "    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);\n"+
 "    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);\n"+
 "    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);\n"+          // как в офиц. lib.php aray (verify_peer=false)
