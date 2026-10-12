@@ -2054,6 +2054,11 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "// base_url ДОЛЖЕН быть URL лендинга (aray по нему определяет оффер/лендинг). HTTP_REFERER, а если пуст —\n"+
 "// каталог лендинга (срезаем /order.php). НИКОГДА не хендлер — иначе валидация валит в error 1000.\n"+
 "$base = (!empty($_SERVER['HTTP_REFERER'])) ? $_SERVER['HTTP_REFERER'] : preg_replace('#/[^/?]*(\\?.*)?$#', '/', $self);\n\n"+
+"// clickid — идентификатор клика Keitaro для постбека aray (aray вернёт его как {clickid}).\n"+
+"// Берём из URL лендинга (HTTP_REFERER ?clickid/?subid), иначе из скрытого поля формы (пойманный subid).\n"+
+"$clickid = '';\n"+
+"if (!empty($_SERVER['HTTP_REFERER'])) { $__q = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_QUERY); if ($__q) { parse_str($__q, $__qa); if (!empty($__qa['clickid'])) $clickid = $__qa['clickid']; elseif (!empty($__qa['subid'])) $clickid = $__qa['subid']; } }\n"+
+"if ($clickid === '') { foreach (array('clickid','subacc','subid') as $__k) { $__v = arpv($__k); if ($__v !== '') { $clickid = $__v; break; } } }\n\n"+
 "$params = array(\n"+
 "    'api_key'      => $API_KEY,\n"+
 "    'offer_id'     => $OFFER_ID,\n"+
@@ -2064,6 +2069,7 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "    'ip'           => (!empty($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : ''),\n"+   // как в их sendorder.php/lib.php (REMOTE_ADDR, без форварда заголовков)
 "    'base_url'     => $base,\n"+
 "    'referrer'     => $base,\n"+
+"    'clickid'      => $clickid,\n"+                    // КЛЮЧЕВОЕ для постбека: aray вернёт этот clickid в постбеке -> Keitaro матчит subid={clickid}
 "    'subacc'       => arpv('subacc'),\n"+
 "    'subacc2'      => arpv('subacc2'),\n"+
 "    'subacc3'      => arpv('subacc3'),\n"+
@@ -2075,7 +2081,7 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "    'utm_content'  => arpv('utm_content'),\n"+
 ");\n"+
 "// пустые необязательные не отправляем\n"+
-"foreach (array('subacc','subacc2','subacc3','subacc4','utm_source','utm_medium','utm_campaign','utm_term','utm_content') as $k) { if ($params[$k] === '') unset($params[$k]); }\n\n"+
+"foreach (array('clickid','subacc','subacc2','subacc3','subacc4','utm_source','utm_medium','utm_campaign','utm_term','utm_content') as $k) { if ($params[$k] === '') unset($params[$k]); }\n\n"+
 "$res = sendLead('https://api.aray.com/api/v2/order/create/', $params);\n"+
 "$ok  = $res['ok'];\n"+
 (cfg.dedup?"if ($ok) { "+ddMark(cfg)+"}\n":"")+
@@ -2275,7 +2281,7 @@ function phpSubidScript(cfg){
 "  try {",
 "    var q = new URLSearchParams(location.search);",
 "    var ks = (typeof keitaro_subid !== \"undefined\" && String(keitaro_subid).indexOf(\"{\") === -1) ? keitaro_subid : \"\";",
-"    var s = q.get(\"s\") || q.get(\"subid\") || ks || \"\";",
+"    var s = q.get(\"clickid\") || q.get(\"s\") || q.get(\"subid\") || ks || \"\";",
 "    document.querySelectorAll('input[name=\""+sf+"\"]').forEach(function (el) {",
 "      if (s) el.value = s;",
 "      else if (String(el.value).indexOf(\"{\") !== -1) el.value = \"\";",
