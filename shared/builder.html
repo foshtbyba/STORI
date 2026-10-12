@@ -3478,6 +3478,61 @@ function optGifToWebp(out, rep){
     });
   });
 }
+// ── Правильный ФАВИКОН: одна КВАДРАТНАЯ мини-иконка (center-crop + ресайз 64×64 PNG, пара КБ) на ВСЕ страницы ──
+// Фото оффера обычно прямоугольное и тяжёлое: как favicon оно выглядит криво и вразнобой
+// (index ссылался путём, call/error/сундук — инлайном). Делаем аккуратный квадрат и ставим его
+// ОДИНАКОВО на index/call/error/сундук — самодостаточно (data-uri), без битых путей и webp-переименований.
+function faviconSrcInList(out, cfg){
+  if(!cfg || cfg.favicon===false) return null;
+  var img=String(cfg.image||"");
+  if(/^data:image\//i.test(img)) return {dataUri:img};                 // своё фото уже data-uri
+  var want=baseName(img).toLowerCase(), stem=want.replace(/\.[a-z0-9]+$/,"");
+  var byName=null, byStem=null;
+  out.forEach(function(f){
+    if(!(f.bytes && IMG_EXT.test(f.name)) || /\.svg$/i.test(f.name)) return;   // svg как источник канваса ненадёжен
+    var b=baseName(f.name).toLowerCase(), s=b.replace(/\.[a-z0-9]+$/,"");
+    if(want && b===want && !byName) byName=f;
+    if(stem && s===stem && !byStem) byStem=f;                          // стем ловит product.png -> product.webp после конвертации
+  });
+  var f=byName||byStem;
+  if(f) return {bytes:f.bytes, mime:mimeOf(f.name)};
+  var inl=inlineFolderImg(img); if(inl) return {dataUri:inl};
+  return null;
+}
+function squareFaviconUri(src, size){
+  size=size||64;
+  var du=src.dataUri || ("data:"+src.mime+";base64,"+bytesToB64(src.bytes));
+  return new Promise(function(res){
+    var im=new Image();
+    im.onload=function(){ try{
+      var iw=im.naturalWidth||im.width, ih=im.naturalHeight||im.height; if(!iw||!ih){ res(null); return; }
+      var c=document.createElement("canvas"); c.width=size; c.height=size;
+      var x=c.getContext("2d"); x.imageSmoothingEnabled=true; x.imageSmoothingQuality="high";
+      var s=Math.min(iw,ih), sx=(iw-s)/2, sy=(ih-s)/2;                  // центр-кроп в квадрат
+      x.drawImage(im, sx, sy, s, s, 0, 0, size, size);
+      res(c.toDataURL("image/png"));
+    }catch(e){ res(null); } };
+    im.onerror=function(){ res(null); };
+    try{ im.src=du; }catch(e){ res(null); }
+  });
+}
+async function faviconPass(out, cfg){
+  try{
+    if(!cfg || cfg.favicon===false) return;
+    var src=faviconSrcInList(out, cfg); if(!src) return;
+    var uri=await squareFaviconUri(src, 64); if(!uri) return;
+    var tag='<link rel="icon" type="image/png" href="'+uri+'">';
+    out.forEach(function(f){
+      if(typeof f.str!=="string" || !/\.(?:html?|php)$/i.test(f.name)) return;
+      if(/(^|\/)api\//i.test(f.name)) return;                          // partner-внутренности (KMA api/*) не трогаем
+      if(!/<\/head\s*>/i.test(f.str) && !/<head[\s>]/i.test(f.str)) return;  // не настоящая HTML-страница (напр. order.php) — пропускаем
+      var h=f.str.replace(/<link\b[^>]*\brel=["'][^"']*icon[^"']*["'][^>]*>\s*/gi,"");   // снять все старые/дубли иконок
+      if(/<\/head\s*>/i.test(h)) h=h.replace(/<\/head\s*>/i, tag+"\n</head>");
+      else h=h.replace(/<head[\s>][^>]*>/i,function(m){return m+"\n"+tag;});
+      f.str=h;
+    });
+  }catch(e){ try{console.warn("favicon",e);}catch(_){} }
+}
 async function optimizeOut(out, cfg, rep){
   if(cfg.optB64) optExtractB64(out, rep);
   if(cfg.optJunk) optJunk(out, rep);
@@ -3505,6 +3560,7 @@ async function optAndZip(list, cfg){
   if(optOn){ var rep={b64:0,b64b:0,img:0,imgb:0,lib:0,libb:0,unused:0,unusedb:0,junk:0,junkList:[]}; rep.before=outBytes(list);
     try{ list=await optimizeOut(list,cfg,rep); }catch(e){ console.warn("opt",e); }
     rep.after=outBytes(list); try{ showOptReport(rep); }catch(e){} }
+  await faviconPass(list, cfg);   // одинаковый квадратный фавикон на все страницы (независимо от галок оптимизации)
   try{ warnMissingAssets(list); }catch(e){}
   dl(zipName(cfg),makeZip(list),"application/zip");
 }
@@ -3639,6 +3695,7 @@ async function downloadChestZip(){
   if(optOn){ var rep={b64:0,b64b:0,img:0,imgb:0,lib:0,libb:0,unused:0,unusedb:0,junk:0,junkList:[]}; rep.before=outBytes(out);
     try{ out=await optimizeOut(out,cfg,rep); }catch(e){ console.warn("opt chest",e); }
     rep.after=outBytes(out); try{ showOptReport(rep); }catch(e){} }
+  await faviconPass(out, cfg);   // тот же квадратный фавикон и в сундуке
   try{ warnMissingAssets(out); }catch(e){}
   dl(safeName(cfg.brand)+(cfg.langCode?("_"+cfg.langCode.toLowerCase()):"")+"_chest.zip", makeZip(out), "application/zip");
 }
