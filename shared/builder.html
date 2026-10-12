@@ -2061,7 +2061,7 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "    'price'        => $PRICE,\n"+
 "    'name'         => $name,\n"+
 "    'phone'        => $phone,\n"+
-"    'ip'           => getUserIP(),\n"+
+"    'ip'           => (!empty($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : ''),\n"+   // как в их sendorder.php/lib.php (REMOTE_ADDR, без форварда заголовков)
 "    'base_url'     => $base,\n"+
 "    'referrer'     => $base,\n"+
 "    'subacc'       => arpv('subacc'),\n"+
@@ -2078,10 +2078,11 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "foreach (array('subacc','subacc2','subacc3','subacc4','utm_source','utm_medium','utm_campaign','utm_term','utm_content') as $k) { if ($params[$k] === '') unset($params[$k]); }\n\n"+
 "$res = sendLead('https://api.aray.com/api/v2/order/create/', $params);\n"+
 "$ok  = $res['ok'];\n"+
+"$__dbgurl = 'https://api.aray.com/api/v2/order/create/?' . http_build_query(array('api_key' => '***') + $params, '', '&');\n"+   // ВРЕМЕННО: диагностика (ключ скрыт)
 (cfg.dedup?"if ($ok) { "+ddMark(cfg)+"}\n":"")+
 "\n"+
-"if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { include __DIR__ . '/' . $THANK_PAGE; }\n"+
-"elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { include __DIR__ . '/' . $ERROR_PAGE; }\n"+
+"if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { echo '<!-- aray_req: ' . htmlspecialchars($__dbgurl) . ' | aray_resp: ' . htmlspecialchars((string) $res['raw']) . ' -->'; include __DIR__ . '/' . $THANK_PAGE; }\n"+
+"elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { echo '<!-- aray_req: ' . htmlspecialchars($__dbgurl) . ' | aray_resp: ' . htmlspecialchars((string) $res['raw']) . ' -->'; include __DIR__ . '/' . $ERROR_PAGE; }\n"+
 "else { header('Location: ' . ($ok ? $THANK_PAGE : $ERROR_PAGE)); }\n"+
 "exit;\n\n"+
 "function sendLead($url, $data) {\n"+
@@ -2089,13 +2090,6 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "    $curl = curl_init();\n"+
 "    curl_setopt($curl, CURLOPT_URL, $full);\n"+
 "    curl_setopt($curl, CURLOPT_HTTPGET, true);\n"+
-"    // форвардим заголовки визитёра: иначе aray видит IP/UA СЕРВЕРА и оффер по гео отклоняется\n"+
-"    if (!empty($_SERVER['HTTP_USER_AGENT'])) curl_setopt($curl, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);\n"+
-"    $__rip = getUserIP(); $__hd = array();\n"+
-"    if ($__rip) { $__hd[] = 'X-Forwarded-For: ' . $__rip; $__hd[] = 'CF-Connecting-IP: ' . $__rip; $__hd[] = 'X-Real-IP: ' . $__rip; }\n"+
-"    if (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) $__hd[] = 'Accept-Language: ' . $_SERVER['HTTP_ACCEPT_LANGUAGE'];\n"+
-"    if (!empty($_SERVER['HTTP_REFERER'])) $__hd[] = 'Referer: ' . $_SERVER['HTTP_REFERER'];\n"+
-"    if ($__hd) curl_setopt($curl, CURLOPT_HTTPHEADER, $__hd);\n"+
 "    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);\n"+
 "    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);\n"+
 "    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);\n"+          // как в офиц. lib.php aray (verify_peer=false)
