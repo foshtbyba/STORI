@@ -2051,8 +2051,10 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "$params = array(\n"+
 "    'api_key'      => $API_KEY,\n"+
 "    'offer_id'     => $OFFER_ID,\n"+
-"    'country'      => $country,\n"+
+"    'country_code' => $country,\n"+                 // aray ждёт country_code (не country!) — иначе валидация валит в error 1000
 "    'price'        => $PRICE,\n"+
+"    'validate_phone_enable'      => '0',\n"+        // валидацию телефона и дедуп aray выключаем — делаем свои (как в их нативной форме)
+"    'check_for_duplicate_enable' => '0',\n"+
 "    'name'         => $name,\n"+
 "    'phone'        => $phone,\n"+
 "    'ip'           => getUserIP(),\n"+
