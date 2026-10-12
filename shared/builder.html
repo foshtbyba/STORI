@@ -2047,14 +2047,15 @@ ddFns(cfg)+
 ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK_PAGE; } else { header('Location: '.$THANK_PAGE); } exit;")+
 "// трекинг: из скрытых полей формы (POST) с фолбэком на query-параметры (GET)\n"+
 "function arpv($k){ if (isset($_POST[$k]) && $_POST[$k] !== '') return (string) $_POST[$k]; if (isset($_GET[$k]) && $_GET[$k] !== '') return (string) $_GET[$k]; return ''; }\n"+
-"$base = (!empty($_SERVER['HTTP_REFERER'])) ? $_SERVER['HTTP_REFERER'] : ('https://' . (isset($_SERVER['HTTP_HOST'])?$_SERVER['HTTP_HOST']:'') . (isset($_SERVER['REQUEST_URI'])?$_SERVER['REQUEST_URI']:''));\n\n"+
+"$self = 'https://' . (isset($_SERVER['HTTP_HOST'])?$_SERVER['HTTP_HOST']:'') . (isset($_SERVER['REQUEST_URI'])?$_SERVER['REQUEST_URI']:'');\n"+
+"// base_url ДОЛЖЕН быть URL лендинга (aray по нему определяет оффер/лендинг). HTTP_REFERER, а если пуст —\n"+
+"// каталог лендинга (срезаем /order.php). НИКОГДА не хендлер — иначе валидация валит в error 1000.\n"+
+"$base = (!empty($_SERVER['HTTP_REFERER'])) ? $_SERVER['HTTP_REFERER'] : preg_replace('#/[^/?]*(\\?.*)?$#', '/', $self);\n\n"+
 "$params = array(\n"+
 "    'api_key'      => $API_KEY,\n"+
 "    'offer_id'     => $OFFER_ID,\n"+
-"    'country_code' => $country,\n"+                 // aray ждёт country_code (не country!) — иначе валидация валит в error 1000
+"    'country_code' => $country,\n"+
 "    'price'        => $PRICE,\n"+
-"    'validate_phone_enable'      => '0',\n"+        // валидацию телефона и дедуп aray выключаем — делаем свои (как в их нативной форме)
-"    'check_for_duplicate_enable' => '0',\n"+
 "    'name'         => $name,\n"+
 "    'phone'        => $phone,\n"+
 "    'ip'           => getUserIP(),\n"+
