@@ -1377,6 +1377,10 @@ const PARTNERS = {
   "skylead.biz": { label:"skylead.biz", mode:"php", domain:"skylead.biz", skylead:true, buyerField:"utm_content",
     php:{ gen:"skylead", subField:"subid", country:true, idLabel:"ID оффера (offer)" },
     hint:"SkyLead: серверный order.php (генерируется) — форма постит на него, лид уходит на api.skylead.biz/wm/push.json (POST). Заполни SkyLead API-ключ (из профиля, вид 3341-…), ID оффера (offer) и ID потока (flow). Страна (ISO) — авто из «Код гео», subid ловится сам. Хост должен поддерживать PHP+cURL. Загружай ленд папкой. call/error генерятся сами (перевод + пиксель)." },
+  "monadlead.com": { label:"monadlead.com", mode:"php", domain:"monadlead.com", monad:true,
+    api_key:"050ae11d936070590cbdd2cfcc4dafe5", buyerField:"sub_2",
+    php:{ gen:"monad", subField:"sub_1", country:true, idLabel:"ID оффера (offer_id)" },
+    hint:"monadlead: серверный order.php (генерируется) — форма постит на него, лид уходит JSON-ом на api.monadlead.com/api/v1/orders/create/. API-ключ закреплён за партнёркой, впиши только ID оффера (offer_id). Страна (ISO) — авто из «Код гео», subid → sub_1, метка баера → sub_2. Успех = HTTP 200 и type=success. call/error генерятся сами (перевод + пиксель). Хост с PHP+cURL. Загружай ленд папкой." },
   "ss.direct": { label:"SS — прямая продажа", mode:"ss", ss:true, ssOffer:"{offer}",
     hint:"SS / преленд: формы нет — CTA-кнопки ведут на {offer} (Keitaro click-ссылка кампании: редиректит на оффер и считает клик). Билдер НЕ генерит форму / order.php / call.html / error.html. Оставляет Meta Pixel; back-fix — опционально. Цен нет, только названия (в самой вёрстке). Ставь на кнопках href=\"{offer}\" (или билдер сам направит CTA-кнопки button-submit/pachino-btn на {offer}). Загружай ленд папкой или HTML." }
 };
@@ -1918,8 +1922,101 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "}\n"+
 "?>\n";
 }
+// monadlead.com: лид уходит JSON-ом POST на api.monadlead.com/api/v1/orders/create/.
+// api_key закреплён за аккаунтом (в PARTNERS), offer_id — из поля «ID оффера».
+// Успех = HTTP 200 И response.type == 'success' (как в офиц. post.php партнёрки).
+function monadleadOrderPhp(cfg){
+  var key=String(cfg.api_key||"").replace(/'/g,"");
+  var offer=String(cfg.product_id||"").replace(/[^0-9A-Za-z_-]/g,"");
+  return "<?php\n"+
+"/**\n"+
+" * order.php — Lead submission to monadlead (monadlead.com)\n"+
+" */\n\n"+
+"$API_KEY    = '"+key+"';\n"+
+"$OFFER_ID   = '"+offer+"';\n"+
+"$THANK_PAGE = '"+(cfg.success||"call.html")+"';\n"+
+"$ERROR_PAGE = '"+(cfg.error||"error.html")+"';\n"+
+"$DEF_COUNTRY= '"+(shakesCountry(cfg)||"")+"';\n\n"+
+ddFns(cfg)+
+"$name  = isset($_POST['name'])  ? trim($_POST['name'])  : '';\n"+
+"$phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';\n"+
+"$country = (isset($_POST['country_code']) && $_POST['country_code'] !== '') ? trim($_POST['country_code'])\n"+
+"         : ((isset($_POST['country']) && $_POST['country'] !== '') ? trim($_POST['country']) : $DEF_COUNTRY);\n\n"+
+"if ($name === '' || $phone === '') { header('Location: ' . $ERROR_PAGE); exit; }\n\n"+
+ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK_PAGE; } else { header('Location: '.$THANK_PAGE); } exit;")+
+"// трекинг: из скрытых полей формы (POST) с фолбэком на query-параметры (GET)\n"+
+"function mlpv($k){ if (isset($_POST[$k]) && $_POST[$k] !== '') return (string) $_POST[$k]; if (isset($_GET[$k]) && $_GET[$k] !== '') return (string) $_GET[$k]; return ''; }\n"+
+"$base = (!empty($_SERVER['HTTP_REFERER'])) ? $_SERVER['HTTP_REFERER'] : ('https://' . (isset($_SERVER['HTTP_HOST'])?$_SERVER['HTTP_HOST']:'') . (isset($_SERVER['REQUEST_URI'])?$_SERVER['REQUEST_URI']:''));\n\n"+
+"$payload = array(\n"+
+"    'api_key'      => $API_KEY,\n"+
+"    'name'         => $name,\n"+
+"    'phone'        => $phone,\n"+
+"    'offer_id'     => $OFFER_ID,\n"+
+"    'country_code' => $country,\n"+
+"    'base_url'     => $base,\n"+
+"    'referrer'     => $base,\n"+
+"    'user_ip'      => getUserIP(),\n"+
+"    'sub_1'        => mlpv('sub_1'),\n"+
+"    'sub_2'        => mlpv('sub_2'),\n"+
+"    'sub_3'        => mlpv('sub_3'),\n"+
+"    'sub_4'        => mlpv('sub_4'),\n"+
+"    'sub_5'        => mlpv('sub_5'),\n"+
+"    'utm_campaign' => mlpv('utm_campaign'),\n"+
+"    'utm_source'   => mlpv('utm_source'),\n"+
+"    'utm_medium'   => mlpv('utm_medium'),\n"+
+"    'utm_term'     => mlpv('utm_term'),\n"+
+"    'utm_content'  => mlpv('utm_content'),\n"+
+");\n\n"+
+"$res = sendLead('https://api.monadlead.com/api/v1/orders/create/', $payload);\n"+
+"$ok  = $res['ok'];\n"+
+(cfg.dedup?"if ($ok) { "+ddMark(cfg)+"}\n":"")+
+"\n"+
+"if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { include __DIR__ . '/' . $THANK_PAGE; }\n"+
+"elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { include __DIR__ . '/' . $ERROR_PAGE; }\n"+
+"else { header('Location: ' . ($ok ? $THANK_PAGE : $ERROR_PAGE)); }\n"+
+"exit;\n\n"+
+"function sendLead($url, $data) {\n"+
+"    $curl = curl_init();\n"+
+"    curl_setopt($curl, CURLOPT_URL, $url);\n"+
+"    curl_setopt($curl, CURLOPT_POST, true);\n"+
+"    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));\n"+
+"    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);\n"+
+"    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);\n"+
+"    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));\n"+
+"    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);\n"+
+"    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);\n"+
+"    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5);\n"+
+"    curl_setopt($curl, CURLOPT_TIMEOUT, 25);\n"+
+"    $last = '';\n"+
+"    for ($i = 0; $i < 3; $i++) {\n"+
+"        $raw  = curl_exec($curl);\n"+
+"        $code = (int) curl_getinfo($curl, CURLINFO_HTTP_CODE);\n"+
+"        if (curl_errno($curl)) { $last = 'curl_error: ' . curl_error($curl); }\n"+
+"        else {\n"+
+"            $last = is_string($raw) ? $raw : '';\n"+
+"            $resp = json_decode($last, true);\n"+
+"            if ($code === 200 && is_array($resp) && isset($resp['type'])) { curl_close($curl); return array('ok' => $resp['type'] === 'success', 'raw' => $last); }\n"+
+"            if ($code >= 400 && $code < 500) { curl_close($curl); return array('ok' => false, 'raw' => $last); }\n"+   // 4xx (валидация/дубль у ПП) — не ретраим
+"        }\n"+
+"        if ($i + 1 < 3) sleep($i + 1);\n"+
+"    }\n"+
+"    curl_close($curl);\n"+
+"    return array('ok' => false, 'raw' => $last);\n"+
+"}\n\n"+
+"function getUserIP() {\n"+
+"    foreach (array('HTTP_CF_CONNECTING_IP','HTTP_TRUE_CLIENT_IP','HTTP_X_FORWARDED_FOR','HTTP_X_REAL_IP','HTTP_CLIENT_IP','REMOTE_ADDR') as $key) {\n"+
+"        if (!empty($_SERVER[$key]) && is_string($_SERVER[$key])) {\n"+
+"            $ip = $_SERVER[$key];\n"+
+"            if ($key === 'HTTP_X_FORWARDED_FOR' && preg_match('/([^,\\s]+)\\s*$/', $ip, $m)) $ip = $m[1];\n"+
+"            if (filter_var($ip, FILTER_VALIDATE_IP) !== false) return $ip;\n"+
+"        }\n"+
+"    }\n"+
+"    return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null;\n"+
+"}\n"+
+"?>\n";
+}
 // какой order.php генерить под партнёрку
-function orderPhpFor(cfg){ return cfg.phpGen==="hamsters" ? hamstersOrderPhp(cfg) : (cfg.phpGen==="skylead" ? skyleadOrderPhp(cfg) : (cfg.phpGen==="affstar" ? affstarApiPhp(cfg) : shakesOrderPhp(cfg))); }
+function orderPhpFor(cfg){ return cfg.phpGen==="hamsters" ? hamstersOrderPhp(cfg) : (cfg.phpGen==="skylead" ? skyleadOrderPhp(cfg) : (cfg.phpGen==="affstar" ? affstarApiPhp(cfg) : (cfg.phpGen==="monad" ? monadleadOrderPhp(cfg) : shakesOrderPhp(cfg)))); }
 // FB-пиксель для success.php (limonad): id берётся из ?fbpxl или localStorage, срабатывает конверсия
 function limonadPixel(cfg){
   if(!cfg.pxOn) return "";
@@ -2112,7 +2209,7 @@ function wireOrderPhpForm(cfg, html){
   // SkyLead: скрытое поле offer/flow в форме -> ошибка no-api (по докам). Держим их только в order.php, из формы выкидываем.
   var extraStrip=(cfg.phpGen==="skylead")?"|offer|flow":"";
   // + чистим everad-остатки (если ленд раньше был everad): campaign_id/country_code/sid1/sid5 — иначе мусор в POST.
-  var stripRe=new RegExp('<input[^>]*name=["\'](?:sub1|sub_id\\d+|subid|clickid|country'+extraStrip+'|campaign_id|country_code|sid\\d+|utm_[a-z]+|fbpxl?)["\'][^>]*>\\s*',"gi");
+  var stripRe=new RegExp('<input[^>]*name=["\'](?:sub1|sub_\\d+|sub_id\\d+|subid|clickid|country'+extraStrip+'|campaign_id|country_code|sid\\d+|utm_[a-z]+|fbpxl?)["\'][^>]*>\\s*',"gi");
   return html.replace(/<form\b([^>]*)>([\s\S]*?)<\/form>/gi, function(m, attrs, inner){
     if(!/type\s*=\s*["']?tel\b|name\s*=\s*["']?phone\b/i.test(inner)) return m;   // не форма заказа (кавычки необязательны)
     // target тоже срезаем: остаток target="ev_frame" от everad-сборки отправлял бы ответ order.php в скрытый iframe -> белый экран/404
