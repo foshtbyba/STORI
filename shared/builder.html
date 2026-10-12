@@ -2074,10 +2074,11 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "foreach (array('subacc','subacc2','subacc3','subacc4','utm_source','utm_medium','utm_campaign','utm_term','utm_content') as $k) { if ($params[$k] === '') unset($params[$k]); }\n\n"+
 "$res = sendLead('https://api.aray.com/api/v2/order/create/', $params);\n"+
 "$ok  = $res['ok'];\n"+
+"$__dbgurl = 'https://api.aray.com/api/v2/order/create/?' . http_build_query(array('api_key' => '***') + $params, '', '&');\n"+   // диагностика: что именно уходит в aray (ключ скрыт)
 (cfg.dedup?"if ($ok) { "+ddMark(cfg)+"}\n":"")+
 "\n"+
-"if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { echo '<!-- aray_resp: ' . htmlspecialchars((string) $res['raw']) . ' -->'; include __DIR__ . '/' . $THANK_PAGE; }\n"+   // диагностика: ответ aray и на успехе (order_id/is_double) — view-source на спасибо
-"elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { echo '<!-- aray_resp: ' . htmlspecialchars((string) $res['raw']) . ' -->'; include __DIR__ . '/' . $ERROR_PAGE; }\n"+   // диагностика: ответ aray в невидимом комментарии (view-source на error)
+"if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { echo '<!-- aray_req: ' . htmlspecialchars($__dbgurl) . ' | aray_resp: ' . htmlspecialchars((string) $res['raw']) . ' -->'; include __DIR__ . '/' . $THANK_PAGE; }\n"+   // диагностика: ответ aray и на успехе (order_id/is_double) — view-source на спасибо
+"elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { echo '<!-- aray_req: ' . htmlspecialchars($__dbgurl) . ' | aray_resp: ' . htmlspecialchars((string) $res['raw']) . ' -->'; include __DIR__ . '/' . $ERROR_PAGE; }\n"+   // диагностика: ответ aray в невидимом комментарии (view-source на error)
 "else { header('Location: ' . ($ok ? $THANK_PAGE : $ERROR_PAGE)); }\n"+
 "exit;\n\n"+
 "function sendLead($url, $data) {\n"+
