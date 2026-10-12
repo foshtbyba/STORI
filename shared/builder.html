@@ -676,15 +676,6 @@
         <div><label>error</label><input id="error" value="error.html"></div>
       </div>
       <div class="hint">success — страница «спасибо» при успешном заказе (там срабатывает конверсия). error — при сбое отправки. Обычно оставляй как есть.</div>
-      <div class="subtoggle" data-target="backfixAdv"><span class="chev">▸</span> back-fix ссылка (обычно не трогаем)</div>
-      <div id="backfixAdv" style="display:none">
-        <label>back-fix ссылка (пусто = выкл)</label>
-        <input id="backfix" value="https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}">
-        <div class="hint">Куда увести юзера по кнопке «Назад» (демонетизация трафика). Пусто — выключить. Домен/путь берём из Keitaro: в кампании задай <code>sub_id_29</code> = домен (напр. <code>nutrivition.top</code>), <code>sub_id_30</code> = путь без слэша (напр. <code>VXsVxCX</code>) — только буквы/цифры, БЕЗ <code>/ : ?</code> (иначе Keitaro закодирует). <code>{campaign_alias}</code> = идентификатор кампании — подставляется сам. Протокол, слэши и <code>?sun=</code> держим в коде.</div>
-        <label style="margin-top:8px">URL скрипта ywbackfix (пусто = класть локально js/ywbackfix.js)</label>
-        <input id="ywUrl" placeholder="напр. https://msteam.top/js/ywbackfix.js — если хостишь скрипт централизованно">
-        <div class="hint">Если заполнено — в ленд встанет <code>&lt;script src="этот URL"&gt;</code>, а локальный <code>js/ywbackfix.js</code> в архив НЕ кладётся (обновляешь скрипт в одном месте на сервере). Пусто — как раньше, скрипт кладётся в архив.</div>
-      </div>
       <label>Язык текстов call/error/chest</label>
       <select id="uiLang"></select>
       <div class="hint">На каком языке генерятся служебные страницы (спасибо/ошибка/сундук). На перевод самого ленда не влияет.</div>
@@ -911,6 +902,18 @@ inline-style, вёрстку. Чистка касается ТОЛЬКО скр�
           <button class="btn" id="trRunChest" type="button" style="margin-top:6px">🎁 Перевести сундук</button>
           <div class="status" id="trStatusChest"></div>
         </div>
+      </div>
+    </div>
+
+    <div class="grp" id="grpBackfix">
+      <h3 class="gtoggle" data-target="backfixBody"><span class="chev">▸</span> back-fix ссылка (обычно не трогаем)</h3>
+      <div id="backfixBody" class="grp-body" style="display:none">
+        <label>back-fix ссылка (пусто = выкл)</label>
+        <input id="backfix" value="https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}">
+        <div class="hint">Куда увести юзера по кнопке «Назад» (демонетизация трафика). Пусто — выключить. Домен/путь берём из Keitaro: в кампании задай <code>sub_id_29</code> = домен (напр. <code>nutrivition.top</code>), <code>sub_id_30</code> = путь без слэша (напр. <code>VXsVxCX</code>) — только буквы/цифры, БЕЗ <code>/ : ?</code> (иначе Keitaro закодирует). <code>{campaign_alias}</code> = идентификатор кампании — подставляется сам. Протокол, слэши и <code>?sun=</code> держим в коде.</div>
+        <label style="margin-top:8px">URL скрипта ywbackfix (пусто = класть локально js/ywbackfix.js)</label>
+        <input id="ywUrl" placeholder="напр. https://msteam.top/js/ywbackfix.js — если хостишь скрипт централизованно">
+        <div class="hint">Если заполнено — в ленд встанет <code>&lt;script src="этот URL"&gt;</code>, а локальный <code>js/ywbackfix.js</code> в архив НЕ кладётся (обновляешь скрипт в одном месте на сервере). Пусто — как раньше, скрипт кладётся в архив.</div>
       </div>
     </div>
 
@@ -3263,11 +3266,14 @@ function runFind(mode){
   if(!matches.length){ if(cnt)cnt.textContent="0/0"; return; }
   if(mode==="reset") _findIdx=0; else _findIdx=((_findIdx||0)+(mode==="prev"?-1:1)+matches.length)%matches.length;
   var pos=matches[_findIdx];
-  out.setSelectionRange(pos,pos+q.length);
   var line=text.slice(0,pos).split("\n").length, lh=parseInt(getComputedStyle(out).lineHeight)||19;
-  out.scrollTop=Math.max(0,(line-4)*lh);
   // фокус переводим на код ТОЛЬКО при навигации (Enter/стрелки) — иначе воровали бы фокус у строки поиска при вводе
-  if(mode!=="reset"){ out.focus(); out.setSelectionRange(pos,pos+q.length); }
+  if(mode!=="reset") out.focus();
+  out.setSelectionRange(pos,pos+q.length);
+  // центрируем найденную строку в окне кода. scrollTop ставим ПОСЛЕ focus/selection,
+  // иначе браузер сам прокручивает к выделению (верх/низ) и результат «убегает».
+  var center=function(){ out.scrollTop=Math.max(0,(line-1)*lh-Math.max(0,(out.clientHeight-lh)/2)); };
+  center(); requestAnimationFrame(center);   // повтор в rAF — перекрывает авто-скролл фокуса
   if(cnt) cnt.textContent=(_findIdx+1)+"/"+matches.length;
 }
 // байты -> base64 (чанками, чтобы не переполнить стек)
@@ -4263,7 +4269,7 @@ function enhanceSelect(sel){
   // порядок панелей левого меню: сверху рабочие (часто юзаю), затем одна плашка «Доп. настройки», кнопка «Собрать» — в самом низу
   (function(){var L=document.querySelector(".panel.left"); if(!L) return;
     var CORE=["grpPartner","grpPages","grpOffer","grpSource","grpChest"];   // всегда на виду (Сундук тоже — частый)
-    var EXTRA=["grpBuyer","grpDedup","grpOpt","grpPixel","trWrap"];           // прячем в «Доп. настройки» (Метка баера — редкая; Перевод — последним)
+    var EXTRA=["grpBackfix","grpBuyer","grpDedup","grpOpt","grpPixel","trWrap"];   // прячем в «Доп. настройки» (back-fix/Метка баера — редкие; Перевод — последним)
     CORE.forEach(function(id){var el=document.getElementById(id); if(el) L.appendChild(el);});
     var box=document.getElementById("grpExtra"); if(box) L.appendChild(box);
     var eb=document.getElementById("extraBody");
