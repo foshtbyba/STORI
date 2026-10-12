@@ -748,6 +748,8 @@
         </div>
       </div>
 
+      <div class="subtoggle" data-target="srcAdv"><span class="chev">▸</span> Обработка ленда (обычно не трогаем)</div>
+      <div id="srcAdv" style="display:none">
       <div class="chk"><input type="checkbox" id="autofix" checked><label>Авто-починка формы (data-order-form + name/phone)</label></div>
       <div class="hint" style="margin-top:2px">Если форма на ленде без нужной разметки — сам проставит <code>data-order-form</code> и <code>name/phone</code>, чтобы заказ ловился. Оставляй включённым.</div>
       <div class="chk"><input type="checkbox" id="stripOld" checked><label>Вырезать старый обработчик отправки + старый пиксель</label></div>
@@ -756,6 +758,7 @@
       <div class="hint" style="margin-top:2px">Перегенерит эти страницы под наш шаблон и выбранный язык. Сними, если у тебя свои call/error, которые нужно сохранить.</div>
       <div class="chk"><input type="checkbox" id="keepComments"><label>Оставлять комментарии-пояснения в коде</label></div>
       <div class="hint" style="margin-top:2px">По умолчанию выключено: готовый ленд чистый, без служебных <code>&lt;!-- … --&gt;</code> конструктора. Включи, если хочешь видеть пометки, что и куда вставлено.</div>
+      </div>
     </div>
 
     <div class="grp" id="grpDedup">
