@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'mobile-tidy-accounts · 11.10 11:59';
+export const BUILD_INFO = 'autoupload-langs-locale-fix · 13.10 11:13';

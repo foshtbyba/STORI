@@ -1804,17 +1804,33 @@ export async function videoThumbnailUrl(token: string, videoId: string, net: FbN
 /** FB locale ID по названию языка. customization_spec.locales требует числовой
  *  ID (не код), берём его поиском /search?type=adlocale. Не нашли — 0. */
 export async function resolveLocaleId(token: string, name: string, net: FbNet = {}): Promise<number> {
-  const q = (name || '').trim();
-  if (!q) return 0;
-  try {
-    const body = await call('/search', token, { type: 'adlocale', q, limit: '20' }, net);
-    const data = ((body as { data?: { key?: number; name?: string }[] }).data) ?? [];
-    const exact = data.find((d) => (d.name ?? '').toLowerCase() === q.toLowerCase());
-    const pick = exact ?? data[0];
-    return Number(pick?.key ?? 0) || 0;
-  } catch {
-    return 0;
+  const full = (name || '').trim();
+  if (!full) return 0;
+  const fullL = full.toLowerCase();
+  // FB-поиск adlocale давится скобками: по «Spanish (Latin America)» он часто
+  // возвращает пусто, и язык гео молча не определялся (а залив сваливался в
+  // одноязычный). Ищем по БАЗОВОМУ слову (до скобки), а нужный вариант
+  // выбираем среди результатов по полному имени. Для простых имён («Welsh»)
+  // поведение прежнее. Плюс пара ретраев на транзиентный сбой сети/троттлинг.
+  const base = full.replace(/\s*\(.*$/, '').trim() || full;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const body = await call('/search', token, { type: 'adlocale', q: base, limit: '100' }, net);
+      const data = ((body as { data?: { key?: number; name?: string }[] }).data) ?? [];
+      const exact = data.find((d) => (d.name ?? '').toLowerCase() === fullL);
+      // Если запрашивали имя БЕЗ скобок и точного нет — берём первый результат
+      // (как раньше). Со скобками не угадываем: вернём 0, чтобы не подставить
+      // не тот испанский/португальский.
+      const pick = exact ?? (base.toLowerCase() === fullL ? data[0] : undefined);
+      const key = Number(pick?.key ?? 0) || 0;
+      if (key) return key;
+      if (data.length) return 0; // поиск отработал, но нужного нет — не долбим
+    } catch {
+      /* транзиентный сбой — ретраим ниже */
+    }
+    if (attempt < 3) await sleep(600 * attempt);
   }
+  return 0;
 }
 
 /** Загрузка ролика по прямой ссылке (file_url) — для языков, у которых видео

@@ -1221,6 +1221,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       if (geoCode) {
         mainLocaleId = await resolveLocaleId(token, localeName(geoCode), net);
         if (mainLocaleId) append(`Язык целевого гео по шаблону (${countries[0]}): ${localeName(geoCode)}`);
+        else append(`⚠ FB не отдал locale для языка гео (${localeName(geoCode)}) — повтори залив; если повторяется, скажи, проверю карту языков`);
       } else if (countries[0]) {
         append(`⚠ Язык страны ${countries[0]} неизвестен — целевой слой (основной ролик) не добавлю. Скажи, добавлю страну в карту языков.`);
       }
@@ -1242,9 +1243,23 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       /** Собрать креатив под ОДИН основной ролик (мультиязычный, если есть пак). */
       const buildCreativeForMain = async (mv: string): Promise<string> => {
         const thumb = mainThumbById.get(mv) || undefined;
-        if (packDefault && mainLocaleId && mainLocaleId !== packDefault.localeId) {
-          // Языки запрошены → делаем ИМЕННО мультиязычное объявление. Дефолт из
-          // пака + нейтральные слои + целевой слой (этот ролик на языке гео).
+        if (packDefault) {
+          // Языки ЗАПРОШЕНЫ (пак есть) → собираем ИМЕННО мультиязычное. Если язык
+          // гео не определился — это ошибка, а НЕ повод молча залить одноязычное:
+          // пользователь ждёт языки и должен увидеть, что чинить, а не получить
+          // «просто ролик» втихаря.
+          if (!mainLocaleId) {
+            throw new FbError(
+              `Язык целевого гео (${geoCode ? localeName(geoCode) : countries[0] || '—'}) не определился у FB — ` +
+              `мультиязычное объявление не собрать. Повтори залив; если повторяется — скажи, проверю локаль.`,
+            );
+          }
+          if (mainLocaleId === packDefault.localeId) {
+            throw new FbError(
+              'Язык гео совпал с первым (дефолтным) языком пака — поменяй первый язык пака на нетипичный для гео.',
+            );
+          }
+          // Дефолт из пака + нейтральные слои + целевой слой (этот ролик на языке гео).
           const rest = packNeutral.filter((l) => l.localeId !== mainLocaleId);
           rest.push({ localeId: mainLocaleId, videoId: mv, thumb, message, headline: headline || undefined, description: description || undefined, link });
           const cid = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
@@ -1263,7 +1278,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           if (!cid) throw new FbError('Мультиязычный креатив не собрался (после подрезки ключей улучшений)');
           return cid;
         }
-        // Языки не запрошены (пак пуст) — обычное одно-роликовое объявление.
+        // Пак пуст (языки не запрашивались) — обычное одно-роликовое объявление.
         const cid = await buildCreativeWithRetry(() => createVideoAdCreative(token, ext, {
           name: campaignName, pageId, videoId: mv, message, link, cta,
           urlTags: urlTags || undefined, headline: headline || undefined,
