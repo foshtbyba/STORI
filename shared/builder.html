@@ -713,6 +713,9 @@
       </div>
       <label>Цена</label>
       <input id="price" placeholder="39 €">
+      <label style="margin-top:8px">Старая цена (зачёркнутая) — пусто = −50% (×2)</label>
+      <input id="oldPrice" placeholder="пусто = авто −50% (напр. 39 € → 78 €). Впиши своё, чтобы задать скидку">
+      <div class="hint" style="margin-top:2px">Зачёркнутая «старая» цена на call/error и <b>сундуке</b> — для контроля размера скидки. Пусто — как раньше, ×2 (−50%). Можно вписать только число (валюта возьмётся из «Цена»: <code>78</code> → <code>78 €</code>) или целиком со своей валютой.</div>
       <label>Своё фото для call / error (опц.) — одно на обе страницы</label>
       <div class="imgpick" id="pick-page"><span class="t">＋ фото</span><b class="x">✕</b><input type="file" accept="image/*" hidden></div>
       <div class="hint">Не выбрано — на call/error встанет картинка оффера из поля <b>«Картинка»</b> выше. В режиме папки это поле заполняется автоматически (подбирается главное фото оффера из папки). Загрузишь своё — встроится прямо в страницу (data-uri), путь не нужен.</div>
@@ -2780,7 +2783,20 @@ function doubleCalc(s){
   var num=priceFmt(p.val*2, p.dp, p.decSep, p.thou);
   return {num:num, full:s.replace(token, num)};
 }
-function buildChest(cfg){var t=cfg.t,was=doubleCalc(cfg.price).full,now=cfg.price,isPhp=(cfg.mode==="php");
+// «старая» (зачёркнутая) цена: ручное поле cfg.oldPrice (контроль скидки), иначе — ×2 (−50%, как раньше).
+// Ввели только число ("78") -> подставим валюту/формат из основной цены ("78 €"). Ввели с валютой -> как есть.
+function oldPrice(cfg){
+  var manual=String((cfg&&cfg.oldPrice)||"").trim();
+  if(!manual) return doubleCalc(cfg.price);                 // пусто = как сейчас (−50%)
+  if(/^\d[\d\s.,'’]*\d$|^\d$/.test(manual)){                // только число
+    var pp=priceParts(cfg.price);
+    if(pp.num && pp.full && pp.full.indexOf(pp.num)>=0) return {num:manual, full:pp.full.replace(pp.num, manual)};
+    return {num:manual, full:manual};
+  }
+  var mm=manual.match(/\d[\d\s.,'’]*\d|\d/);                 // ввели с валютой целиком
+  return {num:mm?mm[0]:manual, full:manual};
+}
+function buildChest(cfg){var t=cfg.t,was=oldPrice(cfg).full,now=cfg.price,isPhp=(cfg.mode==="php");
   var formOpen, orderTail;
   if(isPhp){
     var sf=cfg.subField||"sub1";
@@ -2887,7 +2903,7 @@ var CHEST_FORM_FALLBACK="<style>"+
 "</style>";
 // ре-брендинг сундука из папки: имя оффера (.productName), цена (.new_price_val), фото товара (.prodImg)
 function brandChest(html, cfg){
-  var img=cfg.successImg, was=doubleCalc(cfg.price), now=priceParts(cfg.price);
+  var img=cfg.successImg, was=oldPrice(cfg), now=priceParts(cfg.price);
   var hasPrice=!!(cfg.price && cfg.price!=="—" && /\d/.test(cfg.price));
   // имя оффера (.productName). Закрывающий тег может быть многострочным: </span\n>
   html=html.replace(/(<span\b[^>]*class="[^"]*\bproductName\b[^"]*"[^>]*>)[\s\S]*?(<\/span\s*>)/gi,function(m,a,b){return a+esc(cfg.brand)+b;});
@@ -3225,7 +3241,7 @@ function readCfg(){
     affstar:!!pk.affstar,affstarKey:(function(){try{return atob(AFFSTAR_KEY_B64);}catch(e){return"";}})(),
     ss:!!pk.ss,ssOffer:pk.ssOffer||"{offer}",
     success:val("success")||"call.html",error:val("error")||"error.html",backfix:val("backfix"),ywUrl:val("ywUrl"),
-    brand:val("brand")||"Product",image:val("image")||"images/product.png",price:val("price")||"—",
+    brand:val("brand")||"Product",image:val("image")||"images/product.png",price:val("price")||"—",oldPrice:val("oldPrice"),
     favicon:chk("favOn"),
     successImg:PAGE_IMG.page,errorImg:PAGE_IMG.page,
     pxOn:document.getElementById("pxOn").checked,pxid:val("pxid"),pxev:val("pxev")||"Lead",pxval:val("pxval"),pxcur:val("pxcur"),
@@ -4344,7 +4360,7 @@ function enhanceSelect(sel){
   (function(){
     var reb; function kick(){ clearTimeout(reb); reb=setTimeout(function(){ try{build();}catch(e){} },220); }
     ["thanksDesign","favOn"].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener("change",function(){ try{build();}catch(_){} }); });
-    ["brand","image","price"].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener("input",kick); });
+    ["brand","image","price","oldPrice"].forEach(function(id){ var e=document.getElementById(id); if(e) e.addEventListener("input",kick); });
   })();
 
   function setMode(m){
@@ -4442,7 +4458,7 @@ function enhanceSelect(sel){
     if(cfg.langCode) lines.push("ГЕО (страна/код): "+cfg.langCode);
     if(cfg.price && cfg.price!=="—" && /\d/.test(cfg.price)){
       lines.push("ЦЕНА (на ленде): "+cfg.price);
-      try{ var was=doubleCalc(cfg.price).full; if(was) lines.push("СТАРАЯ ЦЕНА (зачёркнутая): "+was); }catch(e){}
+      try{ var was=oldPrice(cfg).full; if(was) lines.push("СТАРАЯ ЦЕНА (зачёркнутая): "+was); }catch(e){}
     }
     function v(id){ var e=document.getElementById(id); return e?(e.value||"").trim():""; }
     if(v("trForm"))  lines.push("ФОРМА ПРОДУКТА: "+v("trForm"));
