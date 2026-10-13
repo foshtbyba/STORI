@@ -3710,18 +3710,44 @@ function dedupPictureVariants(out){
 }
 // call/error -> самодостаточны: зашиваем их картинки/фавикон инлайном (уже сжатыми, после optImages).
 // Иначе относительный путь (images/...) на задеплоенном ленде может не резолвиться = битая картинка.
-function inlineCallErrAssets(out, cfg){
+// сжать картинку в миниатюру (для вшивания в call/error — там фото показывается мелким, незачем класть 1 МБ)
+async function imgToThumb(bytes, name, maxW, q){
+  try{
+    var url=URL.createObjectURL(new Blob([bytes],{type:mimeOf(name)})), im=null;
+    try{ im=await optLoadImg(url); }catch(e){} URL.revokeObjectURL(url);
+    if(!im) return null;
+    var iw=im.naturalWidth||im.width, ih=im.naturalHeight||im.height; if(!iw||!ih) return null;
+    var s=Math.min(1, (maxW||700)/iw), w=Math.max(1,Math.round(iw*s)), h=Math.max(1,Math.round(ih*s));
+    var c=document.createElement("canvas"); c.width=w; c.height=h;
+    var x=c.getContext("2d"); x.imageSmoothingEnabled=true; x.imageSmoothingQuality="high"; x.drawImage(im,0,0,w,h);
+    var o=c.toDataURL("image/webp", q||0.82);               // webp (мал, с альфой)
+    if(o.indexOf("data:image/webp")!==0) o=c.toDataURL("image/jpeg", q||0.82);   // нет webp-энкодера -> jpeg
+    return o;
+  }catch(e){ return null; }
+}
+async function inlineCallErrAssets(out, cfg){
   if(cfg && cfg.native) return;
   var succ=((cfg&&cfg.successName)||"call.html").toLowerCase(), errn=((cfg&&cfg.errorName)||"error.html").toLowerCase();
   var byBase={}; out.forEach(function(f){ if(f.bytes && IMG_EXT.test(f.name)){ var b=baseName(f.name).toLowerCase(); if(!byBase[b]) byBase[b]=f; } });
-  out.forEach(function(f){
-    if(typeof f.str!=="string") return;
-    var bn=baseName(f.name).toLowerCase(); if(bn!==succ && bn!==errn) return;
+  // 1) какие картинки реально встречаются в call/error
+  var want={};
+  out.forEach(function(f){ if(typeof f.str!=="string") return; var bn=baseName(f.name).toLowerCase(); if(bn!==succ && bn!==errn) return;
+    f.str.replace(/((?:src|href)\s*=\s*["'])([^"']+)(["'])/gi,function(m,a,ref,c){ if(!/^(data:|https?:|#|mailto:|tel:)/i.test(ref)){ var b=ref.split("?")[0].split("#")[0].split("/").pop().toLowerCase(); if(byBase[b]) want[b]=1; } return m; });
+  });
+  // 2) готовим data-uri: крупные растровые (>80КБ) жмём в миниатюру, мелкие/svg/gif/ico — как есть
+  var uri={}, keys=Object.keys(want);
+  for(var i=0;i<keys.length;i++){ var g=byBase[keys[i]];
+    var full=""; try{ full="data:"+mimeOf(g.name)+";base64,"+bytesToB64(g.bytes); }catch(e){ continue; }
+    if(/\.(svg|gif|ico)$/i.test(g.name) || g.bytes.length<80*1024){ uri[keys[i]]=full; continue; }
+    var thumb=await imgToThumb(g.bytes, g.name, 700, 0.82);
+    uri[keys[i]]=(thumb && thumb.length < full.length) ? thumb : full;
+  }
+  // 3) вшиваем (сжатую) data-uri в call/error
+  out.forEach(function(f){ if(typeof f.str!=="string") return; var bn=baseName(f.name).toLowerCase(); if(bn!==succ && bn!==errn) return;
     f.str=f.str.replace(/((?:src|href)\s*=\s*["'])([^"']+)(["'])/gi,function(m,a,ref,c){
       if(/^(data:|https?:|#|mailto:|tel:)/i.test(ref)) return m;
       var b=ref.split("?")[0].split("#")[0].split("/").pop().toLowerCase();
-      var g=byBase[b]; if(!g) return m;
-      try{ return a+"data:"+mimeOf(g.name)+";base64,"+bytesToB64(g.bytes)+c; }catch(e){ return m; }
+      var u=uri[b]; return u ? (a+u+c) : m;
     });
   });
 }
@@ -3810,7 +3836,7 @@ async function optimizeOut(out, cfg, rep){
   if(cfg.optJunk) optJunk(out, rep);
   if(cfg.optImg) await optImages(out, cfg, rep);
   if(cfg.optGifDrop) optGifToWebp(out, rep);   // опц.: GIF-фолбэк -> webp (только где webp уже есть в <picture>)
-  inlineCallErrAssets(out, cfg);   // call/error self-contained (после сжатия)
+  await inlineCallErrAssets(out, cfg);   // call/error self-contained (картинки вшиваем СЖАТОЙ миниатюрой)
   if(cfg.optUnused){ optDeadLibs(out, rep); out=optRemoveUnused(out, rep); }
   return out;
 }
@@ -4012,6 +4038,7 @@ async function downloadChestZip(){
       if(cfg.mode==="php" && baseName(f.path).toLowerCase()==="order.php") return;  // свой order.php уже добавлен
       if(pres[f.path]) return;
       if(nf && matchesNeedFile(f.path,nf)){ hadHandler=true; out.push(handlerLoaded()?handlerEntry(f.path):(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes})); return; }  // lemon.php / api/success.php: как есть
+      if(isForeignPartnerFile(f.path, cfg)) return;   // файлы чужой ПП (напр. KMA-папка api/ при заводе на M1/др.) — не тащим в сундук (иначе вес ×3)
       if(isForeignHandler(baseName(f.path), cfg)) return;   // чужой обработчик (lemon.php при everad и т.п.) — не тащим в сундук
       out.push(f.kind==="text"?{name:f.path,str:f.str}:{name:f.path,bytes:f.bytes});
     });
