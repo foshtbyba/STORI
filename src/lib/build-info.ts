@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'new-partners-aray-monad-ss · 13.10 15:01';
+export const BUILD_INFO = 'partners-drop-ssdirect · 13.10 16:55';
