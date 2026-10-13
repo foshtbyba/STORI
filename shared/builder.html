@@ -1367,12 +1367,12 @@ const PARTNERS = {
     hint:"Форма постит на lemon.php (index остаётся .html). ВАЖНО: файл lemon.php бери из архива оффера limonad и клади в папку ленда — конструктор его НЕ генерит (без него форма не отправит заказ). success.php и error.php конструктор генерит сам. subid идёт в поле clickid. ID оффера/ключи не нужны." },
   "everad.com": { label:"everad.com", mode:"everad", buyerField:"sid2",
     ev:{ action:"https://tracker.everad.com/conversion/new", subField:"sid5", pxField:"sid1",
-         idLabel:"Campaign ID (campaign_id)", country:true, successPage:"success.html", errorPage:"error.html" },
-    hint:"everad: форма постит в трекер everad через скрытый iframe, потом редирект на success.html. Нужен только Campaign ID оффера (country_code — авто из «Код гео»). subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." },
+         idLabel:"ID потока (campaign_id)", country:true, successPage:"success.html", errorPage:"error.html" },
+    hint:"everad: форма постит в трекер everad через скрытый iframe, потом редирект на success.html. В поле нужен <b>ID ПОТОКА</b> (в API это campaign_id) — НЕ ID оффера! Берётся из кабинета everad (раздел «Потоки»). country_code — авто из «Код гео». subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." },
   "rocketprofit.com": { label:"rocketprofit.com", mode:"everad", buyerField:"sid2",
     ev:{ action:"https://tracker.rocketprofit.com/conversion/new", subField:"sid5", pxField:"sid1",
-         idLabel:"Campaign ID (campaign_id)", country:true, successPage:"success.html", errorPage:"error.html" },
-    hint:"rocketprofit (как everad): форма постит в трекер rocketprofit через скрытый iframe, потом редирект на success.html. Нужен только Campaign ID (id потока); country_code — авто из «Код гео». subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." },
+         idLabel:"ID потока (campaign_id)", country:true, successPage:"success.html", errorPage:"error.html" },
+    hint:"rocketprofit (как everad): форма постит в трекер rocketprofit через скрытый iframe, потом редирект на success.html. В поле нужен <b>ID ПОТОКА</b> (в API это campaign_id) — НЕ ID оффера! country_code — авто из «Код гео». subid → sid5, пиксель → sid1. PHP не нужен. Загружай ленд папкой." },
   "KMA.pro": { label:"KMA.pro", mode:"kma", native:true, buyerField:"data2",
     kma:{ subField:"data1", apiFolder:true, successFile:"success.php" },
     hint:"KMA: нужна ПАПКА api из общего архива KMA (config.php, custom.min.js, KmaLead.php, success.php…) — ОБЯЗАТЕЛЬНО загрузи её в поле выше, конструктор положит её в ленд как api/. Файл api/success.php заменяется на наш (переведённый + пиксель). Форму/скрипты KMA не трогаем, ловим subid в data1, вставляем Meta Pixel и back-fix." },
@@ -4026,6 +4026,7 @@ function enhanceSelect(sel){
     document.getElementById("langWrap").style.gridColumn=cellUsed?"":"1 / -1";
     // подпись поля ID оффера под партнёрку
     document.getElementById("pidLabel").textContent=((php&&php.idLabel)||(ev&&ev.idLabel)||"ID оффера (product_id)")+" *";
+    try{ var pidEl=document.getElementById("product_id"); if(pidEl) pidEl.placeholder = ev ? "ID ПОТОКА из кабинета партнёрки (не оффера!)" : "ID оффера из кабинета партнёрки"; }catch(e){}
     if(needCountry){ try{ var cEl=document.getElementById("country"); if(cEl && (!cEl.value||cEl.dataset.auto==="1")){ var cc=ccFromGeo(document.getElementById("langCode").value); if(cc){ cEl.value=cc; cEl.dataset.auto="1"; } } }catch(e){} }
     try{ build(); }catch(e){}
   }
