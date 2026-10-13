@@ -2774,6 +2774,10 @@ function halfCalc(s){
 }
 // введённая цена как есть -> {num:"39", full:"39 €"} (num — только число, для случая отдельной валюты)
 function priceParts(s){s=String(s||"");var m=s.match(/\d[\d\s.,'’]*\d|\d/);return {num:m?m[0]:s, full:s};}
+// валюта из введённой цены: "849 CZK" -> "CZK", "39 €" -> "€"
+function currencyOf(s){s=String(s||"");var m=s.match(/\d[\d\s.,'’]*\d|\d/);if(!m)return "";return s.replace(m[0],"").replace(/^[\s—–:\-]+|[\s—–:\-]+$/g,"").trim();}
+// известные валютные токены (для зачистки валюты шаблона в сундуке; не слова вроде nur/for)
+var CUR_TOK="EUR|USD|GBP|CZK|PLN|RON|HUF|BGN|HRK|CHF|SEK|NOK|DKK|TRY|UAH|KZT|RUB|MXN|COP|PEN|CLP|ARS|BRL|INR|THB|VND|IDR|MYR|KRW|JPY|CNY|AUD|CAD|ZAR|AED|SAR|ILS|Kč|zł|лв|Ft|lei|грн|₴|€|\\$|£|₸|₺|₦|฿|₫|₪";
 // «старая» (зачёркнутая) цена для сундука = удвоенная введённая
 // doubleCalc("39 €") -> {num:"78", full:"78 €"};  doubleCalc("59.00 EUR") -> {num:"118.00", full:"118.00 EUR"}
 function doubleCalc(s){
@@ -2908,13 +2912,19 @@ function brandChest(html, cfg){
   // имя оффера (.productName). Закрывающий тег может быть многострочным: </span\n>
   html=html.replace(/(<span\b[^>]*class="[^"]*\bproductName\b[^"]*"[^>]*>)[\s\S]*?(<\/span\s*>)/gi,function(m,a,b){return a+esc(cfg.brand)+b;});
   if(hasPrice){
-    // уже существующая зачёркнутая «старая» цена -> удвоенная (напр. 39 -> 78)
+    var uc=currencyOf(cfg.price);
+    // зачёркнутая «старая» цена -> наша полная (с валютой пользователя)
     html=html.replace(/(<(?:b|span|strong)\b[^>]*line-through[^>]*>)[\s\S]*?(<\/(?:b|span|strong)\s*>)/gi,function(m,a,b){return a+esc(was.full)+b;});
-    // итоговая цена (.new_price_val) -> введённая цена. Если рядом отдельная .new_price_cur — только число (иначе валюта задвоится)
-    html=html.replace(/(<(?:b|span|strong)\b[^>]*class="[^"]*\bnew_price_val\b[^"]*"[^>]*>)([\s\S]*?)(<\/(?:b|span|strong)\s*>)/gi,function(m,a,inner,b){
-      var t=inner.replace(/&nbsp;|&#160;|\s/g,""); var onlyNum=/^[\d.,'’]+$/.test(t);
-      return a+esc(onlyNum?now.num:now.full)+b;
-    });
+    // итоговая и старая цена целиком -> наша ПОЛНАЯ цена (валюта пользователя), а не только число (иначе остаётся валюта шаблона, напр. EUR)
+    html=html.replace(/(<(?:b|span|strong)\b[^>]*class="[^"]*\bnew_price_val\b[^"]*"[^>]*>)([\s\S]*?)(<\/(?:b|span|strong)\s*>)/gi,function(m,a,inner,b){ return a+esc(now.full)+b; });
+    html=html.replace(/(<(?:b|span|strong)\b[^>]*class="[^"]*\bold_price_val\b[^"]*"[^>]*>)([\s\S]*?)(<\/(?:b|span|strong)\s*>)/gi,function(m,a,inner,b){ return a+esc(was.full)+b; });
+    // отдельные валютные элементы шаблона (.new_price_cur/.currency/…) очищаем — валюта уже внутри цены
+    html=html.replace(/(<(?:b|span|strong|i|em|sup)\b[^>]*class="[^"]*\b(?:new_price_cur|old_price_cur|price_cur|currency|valute|valuta)\b[^"]*"[^>]*>)([\s\S]*?)(<\/(?:b|span|strong|i|em|sup)\s*>)/gi,function(m,a,inner,b){ return a+b; });
+    // плоский валютный токен сразу ПОСЛЕ цены (EUR/€/CZK…) — убираем (валюта уже в цене). Только известные валюты (не слова nur/for).
+    try{
+      var reCur=new RegExp('(class="[^"]*\\bnew_price_val\\b[^"]*"[^>]*>[\\s\\S]*?<\\/(?:b|span|strong)\\s*>)([\\s\\u00a0]*)(?:<(?:span|b|i|em|sup)[^>]*>[\\s\\u00a0]*)?('+CUR_TOK+')(\\s*<\\/(?:span|b|i|em|sup)\\s*>)?','gi');
+      html=html.replace(reCur,function(m,pre,gap){ return pre+gap; });
+    }catch(e){}
     // если перед итоговой ценой НЕТ зачёркнутой старой — вставляем её («78 € →» перед «39 €»)
     html=html.replace(/(<(?:b|span|strong)\b[^>]*class="[^"]*\bnew_price_val\b[^"]*"[^>]*>)/gi,function(m,tag,offset){
       var before=html.slice(Math.max(0,offset-90),offset);
