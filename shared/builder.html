@@ -3699,17 +3699,24 @@ function faviconSrcInList(out, cfg){
   if(!cfg || cfg.favicon===false) return null;
   var img=String(cfg.image||"");
   if(/^data:image\//i.test(img)) return {dataUri:img};                 // своё фото уже data-uri
+  var skip=/(chest|coin|animation|favicon|logo|sprite|icon|arrow|star|badge|bg|background|pixel|1x1|loader|spinner|comm|review|avatar|user|client)/i;
   var want=baseName(img).toLowerCase(), stem=want.replace(/\.[a-z0-9]+$/,"");
   var byName=null, byStem=null;
   out.forEach(function(f){
-    if(!(f.bytes && IMG_EXT.test(f.name)) || /\.svg$/i.test(f.name)) return;   // svg как источник канваса ненадёжен
+    if(!(f.bytes && IMG_EXT.test(f.name)) || /\.svg$/i.test(f.name) || f.comment) return;   // svg ненадёжен; аватары комментов — мимо
     var b=baseName(f.name).toLowerCase(), s=b.replace(/\.[a-z0-9]+$/,"");
     if(want && b===want && !byName) byName=f;
     if(stem && s===stem && !byStem) byStem=f;                          // стем ловит product.png -> product.webp после конвертации
   });
   var f=byName||byStem;
   if(f) return {bytes:f.bytes, mime:mimeOf(f.name)};
-  var inl=inlineFolderImg(img); if(inl) return {dataUri:inl};
+  // cfg.image не нашёлся в сборке (частый случай для СУНДУКА — у него свои файлы): инлайним по имени из папок ленда/сундука
+  if(want && !skip.test(want)){ var inl=inlineFolderImg(img); if(inl) return {dataUri:inl}; }
+  // фолбэк: главное фото оффера (продукт, не аватар/иконка/сундук) — из основной папки ленда, иначе из папки сундука
+  try{
+    var srcs=[]; if(typeof FOLDER!=="undefined" && FOLDER) srcs.push(FOLDER); if(typeof CHEST_FOLDER!=="undefined" && CHEST_FOLDER) srcs.push(CHEST_FOLDER);
+    for(var i=0;i<srcs.length;i++){ var gp=guessOfferImage(srcs[i]); if(gp){ var du=inlineFolderImg(gp); if(du) return {dataUri:du}; } }
+  }catch(e){}
   return null;
 }
 function squareFaviconUri(src, size){
