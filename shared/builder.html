@@ -711,10 +711,10 @@
         <div><label>Бренд</label><input id="brand" placeholder="Имя оффера"></div>
         <div><label>Картинка</label><input id="image" placeholder="images/product.png"></div>
       </div>
-      <label>Цена</label>
-      <input id="price" placeholder="39 €">
-      <label style="margin-top:8px">Старая цена (зачёркнутая) — пусто = −50% (×2)</label>
-      <input id="oldPrice" placeholder="пусто = авто −50% (напр. 39 € → 78 €). Впиши своё, чтобы задать скидку">
+      <div class="row">
+        <div><label>Цена</label><input id="price" placeholder="39 €"></div>
+        <div><label>Старая цена (зачёркнутая)</label><input id="oldPrice" placeholder="пусто = −50% (×2)"></div>
+      </div>
       <div class="hint" style="margin-top:2px">Зачёркнутая «старая» цена на call/error и <b>сундуке</b> — для контроля размера скидки. Пусто — как раньше, ×2 (−50%). Можно вписать только число (валюта возьмётся из «Цена»: <code>78</code> → <code>78 €</code>) или целиком со своей валютой.</div>
       <label>Своё фото для call / error (опц.) — одно на обе страницы</label>
       <div class="imgpick" id="pick-page"><span class="t">＋ фото</span><b class="x">✕</b><input type="file" accept="image/*" hidden></div>
