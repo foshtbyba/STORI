@@ -3020,7 +3020,7 @@ async function ingest(items){ // items:[{file, rel}] где rel = "folder/sub/fi
   var allText=out.filter(function(x){return x.kind==="text";}).map(function(x){return x.str;}).join("\n");
 
   // фото комментариев/аватары: по классам аватаров в разметке
-  var comm={}, re=/(comments__item-avatar|custom-form__ava)[^>]*?(?:src|href)="([^"]+)"/gi, m;
+  var comm={}, re=/(comments__item-avatar|custom-form__ava|fb-comments-comment-img|comment[-_](?:img|avatar|photo|ava)|review[-_](?:img|avatar|photo)|(?:user|author)[-_](?:avatar|photo|pic))[^>]*?(?:src|href)="([^"]+)"/gi, m;
   while(m=re.exec(allText)){ comm[baseName(m[2])]=true; }
 
   // «100% не используется» — ТОЛЬКО растровые картинки/видео. CSS, JS, шрифты, SVG, HTML НЕ трогаем никогда.
@@ -3088,13 +3088,22 @@ function guessOfferImage(F){
   if(!F||!F.indexPath) return null;
   var idx=F.files.filter(function(x){return x.path===F.indexPath;})[0]; if(!idx) return null;
   var html=idx.str;
-  var skip=/(chest|coin|animation|favicon|logo|sprite|icon|arrow|star|badge|bg|background|pixel|1x1|loader|spinner)/i;
-  var cand=F.files.filter(function(x){return IMG_EXT.test(x.path) && !x.comment && !skip.test(baseName(x.path));});
-  if(!cand.length) cand=F.files.filter(function(x){return IMG_EXT.test(x.path) && !x.comment;});
+  var skip=/(chest|coin|animation|favicon|logo|sprite|icon|arrow|star|badge|bg|background|pixel|1x1|loader|spinner|comm|review|avatar|user|client)/i;
+  // SVG не кандидат (иконки/логотипы, и как фавикон-источник ненадёжен)
+  var cand=F.files.filter(function(x){return IMG_EXT.test(x.path) && !/\.svg$/i.test(x.path) && !x.comment && !skip.test(baseName(x.path));});
+  if(!cand.length) cand=F.files.filter(function(x){return IMG_EXT.test(x.path) && !/\.svg$/i.test(x.path) && !x.comment;});
   if(!cand.length) return null;
   function refN(p){var b=baseName(p),n=0,i=html.indexOf(b);while(i>=0){n++;i=html.indexOf(b,i+1);}return n;}
-  cand.sort(function(a,b){var d=refN(b.path)-refN(a.path); if(d) return d; var sa=a.bytes?a.bytes.length:0,sb=b.bytes?b.bytes.length:0; return sb-sa;});
-  return refN(cand[0].path)>0 ? cand[0].path : null;
+  function numeric(p){return /^\d+\.\w+$/.test(baseName(p));}   // 1.jpeg/12.png — обычно галерея/отзывы, не продукт
+  // кандидаты, реально упомянутые в index (иначе берём все)
+  var refd=cand.filter(function(x){return refN(x.path)>0;}); if(refd.length) cand=refd;
+  // продукт = обычно самое КРУПНОЕ фото (hi-res мокап). Числовые имена — в конец. При равном размере — чаще упоминается.
+  cand.sort(function(a,b){
+    var an=numeric(a.path), bn=numeric(b.path); if(an!==bn) return an?1:-1;
+    var sa=a.bytes?a.bytes.length:0, sb=b.bytes?b.bytes.length:0; if(sb!==sa) return sb-sa;
+    return refN(b.path)-refN(a.path);
+  });
+  return cand[0] ? cand[0].path : null;
 }
 function imgTile(x, container){
   var url=URL.createObjectURL(fileBlob(x));
