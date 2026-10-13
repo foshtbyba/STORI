@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        transition: opacity ease-in 0.2s;
+      }
+
+      body[unresolved] {
+        opacity: 0;
+        display: block;
+        overflow: hidden;
+        position: relative;
+      }
+    </style>
+
+    <title>Diaform+</title>
+
+    <link rel="stylesheet" href="css/comments.css" />
+    <link rel="stylesheet" href="css/css.css" />
+    <link rel="stylesheet" href="css/intlTelInput.css" />
+    <link rel="stylesheet" href="css/style_3.css" />
+    <link rel="stylesheet" href="css/hdr.css" />
+    <style>
+      .tv_icons {
+        flex-wrap: wrap;
+      }
+
+      @media screen and (max-width: 500px) {
+        .main_header {
+          font-size: 25px;
+        }
+      }
+
+      @media screen and (max-width: 360px) {
+        .main_header {
+          font-size: 30px;
+        }
+
+        .tv_icons > img {
+          scale: 0.7;
+        }
+      }
+
+      #video {
+        pointer-events: none;
+      }
+
+      .iti {
+        width: 100%;
+      }
+    </style>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="js/date.js"></script>
+
+    <!-- Meta Pixel (lead tracking) -->
+
+    <!-- End Meta Pixel -->
+
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+(function () {
+  var PID = '';
+  var u = new URLSearchParams(location.search).get('fbpx');
+  if (u) PID = u;
+  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }
+  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }
+  if (PID) {
+    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}
+    fbq('init', PID);
+    fbq('track', 'PageView');
+  }
+})();
+</script>
+
+<!-- End Meta Pixel -->
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+84	</head>
+
+  <body style="margin: 0">
+    <div
+      class="d-flex d-lg-block"
+      style="
+        z-index: 2000;
+        background-color: #024476;
+        border-bottom: 6px solid #024476;
+        height: 92px;
+        margin-left: 0px;
+        padding-right: 10px;
+        width: 100%;
+      "
+    >
+      <div class="container">
+        <div
+          class="d-flex container-fluid col-12 justify-content-between"
+          style="max-width: 1280px"
+        >
+          <a class="text-muted pt-2" href="#" title="Ministerstvo zdravotnictví"
+            ><img
+              src="images/hr2.svg"
+              alt="Ministerstvo zdravotnictví"
+              style="height: 72px"
+              loading="lazy"
+          /></a>
+          <div class="mt-3" style="display: flex; align-items: center">
+            <div class="search-container">
+              <form>
+                <input disabled
+                  class="search expandright"
+                  id="searchright"
+                  type="search"
+                />
+                <label class="buttonSch searchbutton"
+                  ><span class="mglass">⚲</span></label
+                >
+              </form>
+            </div>
+
+            <div class="switcher-container">
+              <div class="lang-menu">
+                <div class="selected-lang ro">
+                  <a href="#">
+                    <img
+                      src="images/IT2.png"
+                      alt="Čeština"
+                      class="ro"
+                      loading="lazy"
+                  /></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   <h1 class="main_header">
+   <span class="green_bg">ZNÁMÝ LÉKAŘ ODHALIL PARAZITA, KTERÝ ZPŮSOBUJE CUKROVKU 2. TYPU!</span>
+   <br> 94 % diváků, kteří zhlédli tento rozhovor do konce, si normalizovalo hladinu cukru v krvi během pouhých 40 dnů!
+  </h1>
+
+    <div id="container_video">
+      <div id="close"></div>
+      <div id="open-video">
+        <div>
+          <h4>Klikněte sem pro pokračování ve sledování</h4>
+        </div>
+      </div>
+      <div id="popup">
+        <div>
+          <h2>Na skladě zbývá pouze 17 balení Diaform+.</h2>
+          <h2>Objednejte ihned!</h2>
+        </div>
+      </div>
+      <div id="play">
+        <div>
+          <h4>Video již začalo</h4>
+          <h4>Klikněte pro zapnutí zvuku!</h4>
+        </div>
+      </div>
+      <video
+        id="video"
+        autoplay="autoplay"
+        muted=""
+        playsinline=""
+        webkit-playsinline=""
+        preload="metadata"
+      >
+        <source src="cz.mp4" />
+      </video>
+    </div>
+    <span id="oneform"></span>
+    <form action="https://tracker.everad.com/conversion/new" method="post" target="ev_frame" class="order_form" id="order">
+        <input type="hidden" name="campaign_id" value="1498839">
+        <input type="hidden" name="country_code" value="CZ">
+        <input type="hidden" name="sid1" value="" id="ev_sid1">
+        <input type="hidden" name="sid5" value="{subid}">
+        <input type="hidden" name="sid2" value="{sub_id_2}">
+
+<input type="hidden" name="subid2" value="{sub_id_2}">
+
+<input type="hidden" name="sub2" value="{sub_id_2}">
+
+      <input type="hidden" name="sub2" value="{sub_id_2}">
+      <div id="formFb" class="formFb">
+        <div class="formFb__container">
+          <p class="formFb__action formFb__text">
+            <b>Pospěšte si!</b> Zlevněné balíčky rychle docházejí.
+          </p>
+          <p class="formFb__counter formFb__text">
+            <b>Aktualizace:</b> dnes je k dispozici pouze
+            <span class="form-instock red">17</span> balení
+            <span class="js-current-date">
+              <script>
+                dtime_nums(-1, true);
+              </script> </span
+            >.
+          </p>
+          <div class="formFb__img">
+            <img src="images/DIAF.png" alt="" loading="lazy" />
+          </div>
+          <div class="formFb__price">
+            <p class="formFb__price--txt formFb__text">SLEVA -50%</p>
+            <span class="formFb__price--p">
+              <span class="oldPriceAndLabelForLandingInfoApi formFb__price--old"
+                ><span class="price-old">1698</span>
+                <span class="">CZK</span></span
+              >
+              <span class="priceAndLabelForLandingInfoApi formFb__price--new"
+                ><span class="price-new">849</span>
+                <span class="">CZK</span></span
+              >
+            </span>
+          </div>
+          <div class="formFb__timer">
+            <p class="formFb__text">Nabídka brzy vyprší</p>
+            <div style="color: red">
+              <span class="min" style="font-size: 30px">10</span>
+              <span style="font-size: 30px">:</span>
+              <span class="sec" style="font-size: 30px">00</span>
+            </div>
+          </div>
+          <div class="formFb__inputs">
+            <label>Vaše jméno</label>
+            <input
+              name="name"
+              placeholder="Jméno"
+              required=""
+              autocomplete="name"
+              type="text"
+              minlength="3"
+              value=""
+            />
+          </div>
+          <div class="formFb__inputs">
+            <label>Vaše telefonní číslo</label>
+            <input
+              name="phone"
+              required=""
+              autocomplete="tel"
+              type="tel"
+              value=""
+              placeholder=""
+            />
+          </div>
+          <button class="formFb__btn" type="submit">ODESLAT OBJEDNÁVKU</button>
+          <p class="formFb__counter formFb__text">
+            *Tato sleva platí pro objednávky na podporu hladiny cukru v krvi.
+          </p>
+        </div>
+      </div>
+    </form>
+      <iframe name="ev_frame" id="ev_frame" style="display:none;width:0;height:0;border:0"></iframe>
+
+    <div class="block_tv" style="max-width: 900px; margin: 0 auto">
+      <p>CO ŘÍKAJÍ MÉDIA:</p>
+      <div class="tv_icons">
+        <img src="https://static.joxi.pro/1770744963276-43b6a2bd-c8a1-4575-b3d0-f813a1e0d145.jpg" alt="" loading="lazy" />
+        <img src="https://static.joxi.pro/1770744963277-f55c8f34-0eee-41e2-8237-f2896fab1b41.jpg" alt="" loading="lazy" />
+        <img src="https://static.joxi.pro/1770744963277-a96a064c-407d-4269-9bfd-bd890bf07da4.jpg" alt="" loading="lazy" />
+        <img src="https://static.joxi.pro/1770744963277-d6128ae8-7bc8-4037-8884-30462c8390c1.jpg" alt="" loading="lazy" />
+        <img src="https://static.joxi.pro/1770744963277-8c69bfc3-7a3f-42a1-8d35-0472a75111ea.jpg" alt="" loading="lazy">
+      </div>
+    </div>
+    <section class="comments py-4" style="max-width: 900px; margin: 0 auto">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="fb-comments" style="margin-top: 5px">
+              <div class="fb-comments-header">
+                <span>Komentáře</span>
+              </div>
+              <div
+                class="fb-comments-wrapper resposta"
+                id="10"
+                style="display: block; opacity: 1.01663"
+              >
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/9.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Jan Novák</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Konečně lékař, který otevřeně mluví o vysokém cukru
+                        a rizicích cukrovky!
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                        <likes>47</likes> <date>před 2 min</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper resposta" id="9">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/10.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Marie Dvořáková</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Léta jsem bojovala s vysokým cukrem, ale tato
+                        metoda mi opravdu pomohla situaci zlepšit.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                        <likes>40</likes> <date>před 2 min</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="8">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/8.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Eva Procházková</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Používám to dva týdny a už teď je moje
+                        hladina cukru mnohem stabilnější.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                        <likes>41</likes> <date>před 2 min</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="7">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/7.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Tomáš Veselý</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Tohle video přišlo přesně ve správný čas, můj děda
+                        má problémy s cukrem v krvi.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                        <likes>22</likes> <date>před 2 min</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="6">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/6.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Hana Králová</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Poté, co jsem vyzkoušela všechno na snížení cukru,
+                        tohle mi konečně vrátilo naději.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                        <likes>18</likes> <date>před 3 min</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="5">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/5.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Petra Šimková</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Po dvou týdnech je můj cukr mnohem stabilnější
+                        a mám také mnohem více energie.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                        <likes>17</likes> <date>před 3 min</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="4">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/4.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Josef Fiala</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Velmi užitečné pro všechny, kdo bojují s cukrovkou nebo
+                        vysokým cukrem v krvi.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                        <likes>15</likes> <date>před 3 min</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="fb-comments-wrapper resposta" id="3">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/3.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Pavel Černý</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Léta bojuji s vysokým cukrem. To, co je
+                        zde vysvětleno, mi opravdu hodně pomohlo.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                        <likes>11</likes> <date>před 3 min</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="2">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/2.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Martin Kučera</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Ani jsem nevěděl, že cukr v krvi může tolik
+                        ovlivnit celý organismus. Díky za vysvětlení.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                        <likes>9</likes> <date>před 3 min</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="1">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/1.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Lukáš Pokorný</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Únava a neustálá žízeň téměř
+                        zmizely.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                        <likes>8</likes> <date>před 3 min</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div id="more">
+                <div class="fb-comments-wrapper" id="11">
+                  <table class="fb-comments-comment">
+                    <tbody>
+                      <tr>
+                        <td rowspan="3" class="fb-comments-comment-img">
+                          <img src="images/11.jpeg" loading="lazy" />
+                        </td>
+                        <td>
+                          <font class="fb-comments-comment-name">
+                            <name>Lenka Marková</name>
+                          </font>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-text">
+                          Po 10 dnech se můj cukr stal mnohem stabilnějším.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-actions">
+                          <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                          <likes>50</likes> <date>před 2 min</date>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="fb-comments-wrapper">
+                  <table class="fb-comments-comment" id="12">
+                    <tbody>
+                      <tr>
+                        <td rowspan="3" class="fb-comments-comment-img">
+                          <img src="images/12.jpeg" loading="lazy" />
+                        </td>
+                        <td>
+                          <font class="fb-comments-comment-name">
+                            <name>Jiří Bartoš</name>
+                          </font>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-text">
+                          Lékař velmi srozumitelně vysvětluje, jak
+                          podpořit rovnováhu cukru v krvi.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-actions">
+                          <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                          <likes>66</likes> <date>před 2 min</date>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="fb-comments-wrapper">
+                  <table class="fb-comments-comment" id="13">
+                    <tbody>
+                      <tr>
+                        <td rowspan="3" class="fb-comments-comment-img">
+                          <img src="images/13.jpeg" loading="lazy" />
+                        </td>
+                        <td>
+                          <font class="fb-comments-comment-name">
+                            <name>Karel Svoboda</name>
+                          </font>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-text">
+                          Myslel jsem, že už neexistuje řešení
+                          pro můj vysoký cukr, ale mýlil jsem se.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-actions">
+                          <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                          <likes>81</likes> <date>před 3 min</date>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="fb-comments-wrapper">
+                  <table class="fb-comments-comment" id="14">
+                    <tbody>
+                      <tr>
+                        <td rowspan="3" class="fb-comments-comment-img">
+                          <img src="images/14.jpeg" loading="lazy" />
+                        </td>
+                        <td>
+                          <font class="fb-comments-comment-name">
+                            <name>Tereza Horáková</name>
+                          </font>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-text">
+                          Zkoušel už někdo tuto metodu
+                          na cukr v krvi? Opravdu funguje?
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-actions">
+                          <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                          <likes>79</likes> <date>před 3 min</date>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="fb-comments-wrapper">
+                  <table class="fb-comments-comment" id="15">
+                    <tbody>
+                      <tr>
+                        <td rowspan="3" class="fb-comments-comment-img">
+                          <img src="images/15.jpeg" loading="lazy" />
+                        </td>
+                        <td>
+                          <font class="fb-comments-comment-name">
+                            <name>Michal Říha</name>
+                          </font>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-text">
+                          Už jsem objednal. Doufám, že se mi konečně podaří
+                          udržet rovnováhu cukru v krvi.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-actions">
+                          <like>To se mi líbí</like> · <reply>Odpovědět</reply> ·
+                          <likes>85</likes> <date>před 3 min</date>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p>
+                  <strong>
+                    <span style="text-align: center">
+                      Pro zanechání komentáře se musíte přihlásit
+                    </span>
+                  </strong>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <style>
+      #order_popup {
+        display: flex;
+        align-items: safe center;
+        justify-content: center;
+        position: fixed;
+        overflow-y: auto;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10000;
+        background-color: #3333332c;
+        backdrop-filter: blur(4px);
+      }
+
+      #order_popup .formFb,
+      #order_popup .order-form__wrapper {
+        background-color: #fff;
+      }
+
+      .close_order_popup {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        min-width: 30px;
+        min-height: 30px;
+        width: fit-content;
+        height: fit-content;
+        cursor: pointer;
+        z-index: 2;
+        background-image: url(images/close.svg);
+        background-size: cover;
+        font-size: 64px;
+        color: rgb(172, 172, 172);
+      }
+    </style>
+
+    <script src="js/video.js"></script>
+
+<script async>
+  const LAZY = document.querySelectorAll('img');
+  for (let i = 0; i < LAZY.length; i++) {
+    LAZY[i].setAttribute('loading', 'lazy');
+  } </script>
+<script>
+  $("a").on("touchend, click", function (e) {
+    e.preventDefault();
+    $('body,html').animate({
+      scrollTop: $('#oneform').offset().top
+    }, 400);
+  });
+</script>
+<script>
+  $('[name="name"]').on("input", function () {
+    var val = $(this).val();
+    var cleaned = val
+      .replace(/[^\p{L}\s]/gu, "")
+      .replace(/^\s+/, "")
+      .replace(/\s\s+/, " ");
+    var parts = cleaned.split(" ");
+    if (parts.length > 2) {
+      cleaned = parts[0] + " " + parts[1];
+    }
+    $(this).val(cleaned);
+  });
+  $('[name="name"]').on("change blur", function () {
+    $(this).val($(this).val().trim());
+  });
+  $('[name="phone"]').on("input change", function (e) {
+    var val = $(this).val();
+    $(this).val(val.replace(/\D/g, ""));
+    $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+  });
+</script>
+    <!-- BackFix: back-button redirect to chest -->
+
+    <p style="opacity: 0">{_box:XVsWxC}</p>
+
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var ks = (typeof keitaro_subid !== "undefined" && String(keitaro_subid).indexOf("{") === -1) ? keitaro_subid : "";
+    var s = q.get("s") || q.get("subid") || ks || "";
+    document.querySelectorAll('input[name="subid"]').forEach(function (el) {
+      if (s) el.value = s;
+      else if (String(el.value).indexOf("{") !== -1) el.value = "";
+    });
+  } catch (e) {}
+})();
+</script>
+
+<script>
+(function(){
+  try{
+    var q=new URLSearchParams(location.search);
+    var ks=(typeof keitaro_subid!=="undefined" && String(keitaro_subid).indexOf("{")===-1)?keitaro_subid:"";
+    var s=q.get("s")||q.get("subid")||ks||"";
+    document.querySelectorAll('input[name="sid5"]').forEach(function(el){ if(s) el.value=s; else if(String(el.value).indexOf("{")!==-1) el.value=""; });
+    var p=q.get("fbpx"); if(!p){ try{ p=localStorage.getItem("fb_pixel")||""; }catch(e){} }
+    var s1=document.querySelector('input[name="sid1"]'); if(s1&&p) s1.value=p;
+  }catch(e){}
+})();
+(function(){
+  var form=document.querySelector('form[action*="/conversion/new"]');
+  if(!form){ var ci=document.querySelector('input[name="campaign_id"]'); form=ci?ci.closest('form'):null; }
+  if(!form) return;
+  var btn=form.querySelector('[type="submit"], button');
+  form.addEventListener('submit', function(e){
+    var ph=form.querySelector('[name="phone"]');
+    if(ph){
+      var v=String(ph.value).replace(/\D/g,''); if(v.length===9){ v='420'+v; } ph.value=v;
+    }
+    if(btn){ btn.disabled=true; btn.style.opacity='0.7'; }
+    var done=false; function go(){ if(done) return; done=true; window.location.href='success.html'; }
+    var ifr=document.getElementById('ev_frame');
+    if(ifr) ifr.addEventListener('load', function(){ setTimeout(go,500); }, {once:true});
+    setTimeout(go,3000);
+  });
+})();
+</script>
+<script src="js/ywbackfix.js"
+        data-redirect="true"
+        data-links='["https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}"]'>
+</script>
+<script>/*ssval*/(function(){if(window.__ssval)return;window.__ssval=1;function dig(v){return String(v||'').replace(/\D+/g,'');}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var ph=dig(pf.value),nm=nf?String(nf.value||'').trim():'';var L=(nm.match(/\p{L}/gu)||[]).length;if(ph.length<6||ph.length>15||(nf&&L<2)){e.preventDefault();e.stopImmediatePropagation();try{((nf&&L<2)?nf:pf).focus();}catch(_){}return false;}},true);})();</script>
+<script>/*sslock*/(function(){if(window.__sslock)return;window.__sslock=1;function L(f){var s=false;f.addEventListener("submit",function(e){if(s){e.preventDefault();e.stopImmediatePropagation();return false;}s=true;var b=f.querySelector("[type=submit],button");if(b)setTimeout(function(){b.disabled=true;},0);},true);}Array.prototype.forEach.call(document.querySelectorAll("form"),L);})();</script>
+<script>/*ssddm1*/(function(){if(window.__ssdd1)return;window.__ssdd1=1;var PW=86400000,IW=0,K=location.pathname.replace(/[^a-z0-9]/gi,'').slice(-48);function dig(v){return String(v||'').replace(/\D+/g,'');}function isdup(ph){try{var n=Date.now(),lk='ssddL_'+K,mk='ssddP_'+K,last=+(localStorage.getItem(lk)||0),m=JSON.parse(localStorage.getItem(mk)||'{}');for(var k in m){if(n-m[k]>PW)delete m[k];}var d=!!m[ph]||(IW>0&&last&&n-last<IW);if(!d){m[ph]=n;localStorage.setItem(mk,JSON.stringify(m));localStorage.setItem(lk,String(n));}return d;}catch(e){return false;}}function succ(){var u;try{u=(window.OFFER&&OFFER.success)||'call.html';}catch(e){u='call.html';}try{location.replace(u+location.search);}catch(e){location.href=u;}}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var nm=nf?String(nf.value||'').trim():'x';var ph=dig(pf.value);if(!nm||!ph||ph.length<7)return;if(isdup(ph)){e.preventDefault();e.stopImmediatePropagation();succ();}},true);})();</script>
+</body>
+</html>
