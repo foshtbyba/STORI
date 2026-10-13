@@ -24,6 +24,8 @@ export type Partner = {
   hasStream?: boolean;
   /** Без потока партнёрка лид не примет — спрашиваем его как обязательный. */
   needsStream?: boolean;
+  /** Партнёрка требует цену товара в заказе (aray: без неё лид не уйдёт). */
+  needsPrice?: boolean;
   note?: string;
 };
 
@@ -67,6 +69,26 @@ export const PARTNERS: Partner[] = [
     label: 'affstar.com',
     idLabel: 'FLOW_UUID (хеш потока)',
     note: 'Серверный order.php генерируется сам (API-ключ вшит, FLOW_UUID из поля). Нужен FLOW_UUID (хеш потока); страна подставится из кода гео. Метка баера → sub_id2, subid → sub_id1. Хост под ленд должен уметь PHP с cURL.',
+  },
+  {
+    key: 'monadlead.com',
+    label: 'monadlead.com',
+    idLabel: 'ID оффера (offer_id)',
+    note: 'Серверный order.php генерируется сам (API-ключ вшит). Нужен только ID оффера (offer_id); страна подставится из кода гео. Метка баера → sub_2, subid → sub_1. Хост под ленд должен уметь PHP с cURL.',
+  },
+  {
+    key: 'aray.com',
+    label: 'aray.com',
+    idLabel: 'ID оффера (offer_id)',
+    needsPrice: true,
+    note: 'Серверный order.php генерируется сам (API-ключ вшит). Нужны ID оффера (offer_id) и ОБЯЗАТЕЛЬНО цена товара как на ленде (поле «Цена»); страна — из кода гео. subid → subacc, метка баера → subacc2. Хост под ленд должен уметь PHP с cURL.',
+  },
+  {
+    key: 'ss.direct',
+    label: 'SS — прямая продажа',
+    idLabel: '',
+    noId: true,
+    note: 'Прямая продажа / преленд: формы нет, CTA-кнопки ведут на click-ссылку кампании Keitaro ({offer}). Конструктор не генерит форму и order.php. ID оффера и цена не нужны.',
   },
 ];
 // «Другая (вручную)» в этом списке нет намеренно. В конструкторе такой режим
@@ -166,5 +188,6 @@ export function builderGaps(o: BuilderOffer): string[] {
   if (!o.langCode.trim()) gaps.push('код гео');
   if (partner.needsLanding && !o.landingUrl.trim()) gaps.push('URL лендинга');
   if (partner.needsStream && !o.streamCode.trim()) gaps.push('код потока');
+  if (partner.needsPrice && !o.price.trim()) gaps.push('цена');
   return gaps;
 }

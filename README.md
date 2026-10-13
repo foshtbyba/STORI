@@ -276,6 +276,11 @@ Facebook кидает аккаунт в чекпоинт за роботопод
 7 * * * * sleep $((RANDOM \% 2400)); curl -fsS --max-time 900 -H "X-Sync-Key: КЛЮЧ" "https://ДОМЕН/api/sync?days=1"
 # глубокий заход раз в сутки, сдвиг 0–90 мин
 13 4 * * * sleep $((RANDOM \% 5400)); curl -fsS --max-time 1200 -H "X-Sync-Key: КЛЮЧ" "https://ДОМЕН/api/sync?days=14"
+# УТРЕННИЙ ПОДКИД в 9:00 по Москве: расход за вчера+сегодня и заливка cost в
+# Keitaro, чтобы к 10:00 вся стата уже была на месте. Разброс маленький (0–5 мин),
+# чтобы успеть. Часы — в ЧАСОВОМ ПОЯСЕ СЕРВЕРА: 9:00 MSK = 6:00 UTC (сверь `date`).
+0 6 * * * sleep $((RANDOM \% 300)); curl -fsS --max-time 1800 -H "X-Sync-Key: КЛЮЧ" "https://ДОМЕН/api/sync?days=2"
+5 6 * * * sleep $((RANDOM \% 300)); curl -fsS --max-time 1800 -H "X-Sync-Key: КЛЮЧ" "https://ДОМЕН/api/sync?only=ads&days=2"
 ```
 
 Заход с паузами длится минуты — `--max-time` большой намеренно, иначе curl
