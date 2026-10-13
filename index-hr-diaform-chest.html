@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="hr">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <meta
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+      name="viewport"
+    />
+    <title>Posebno izvlačenje</title>
+    <link href="css/styles.css" media="all" rel="stylesheet" />
+    <link href="css/css.css" media="all" rel="stylesheet" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+      referrerpolicy="no-referrer"
+    ></script>
+
+<style>:where(.my_form .prodImg){max-width:220px;height:auto}:where(.my_form .input-roulette){display:block;width:100%;margin:10px 0;padding:14px 16px;font-size:16px;border:1.5px solid #d9e2ec;border-radius:12px;background:#fff;color:#1a2b42;font-family:inherit}:where(.my_form .submit-roulette){display:block;width:100%;margin-top:10px;padding:16px;border:0;border-radius:14px;background:#e53935;color:#fff;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit}:where(.my_form .ring-loading){display:none}</style>
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+(function () {
+  var PID = '';
+  var u = new URLSearchParams(location.search).get('fbpx');
+  if (u) PID = u;
+  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }
+  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }
+  if (PID) {
+    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}
+    fbq('init', PID);
+    fbq('track', 'PageView');
+  }
+})();
+</script>
+
+<!-- End Meta Pixel -->
+<link rel="icon" href="images/1.jpeg">
+<style>:where(.my_form .prodImg){max-width:220px;height:auto}:where(.my_form .input-roulette){display:block;width:100%;margin:10px 0;padding:14px 16px;font-size:16px;border:1.5px solid #d9e2ec;border-radius:12px;background:#fff;color:#1a2b42;font-family:inherit}:where(.my_form .submit-roulette){display:block;width:100%;margin-top:10px;padding:16px;border:0;border-radius:14px;background:#e53935;color:#fff;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit}:where(.my_form .ring-loading){display:none}</style>
+</head>
+
+  <body>
+    <span id="oneform"></span>
+    <div class="container">
+      <div class="chest">
+        <div class="top_block">
+          <h1>
+            Postali ste sudionik promocije "<span
+              class="productName"
+              >Diaform+</span
+            >"!
+          </h1>
+          <p class="vis_big">
+            <span style="font-weight: 500">
+              Svaki sudionik kampanje može postati vlasnik prirodnog
+              i učinkovitog lijeka za
+              <span style="text-decoration:line-through;color:#9aa3ad;font-weight:600;margin-right:7px">78 EUR</span><b class="new_price_val">39</b>&nbsp;<b class="new_price_cur"
+                >EUR</b
+              >!</span
+            >
+          </p>
+        </div>
+      </div>
+      <div class="select_block">
+        <h2 class="select_block__title">
+          <span style="color: red">Pažnja:</span> zbog velike
+          potražnje ne možemo obraditi sve zahtjeve
+          stanovnika naše zemlje.
+        </h2>
+        <p class="text_big">
+          Zato smo kreirali ovo izvlačenje, u kojem se odabire jedan po jedan
+          pobjednik i daje mu se prilika da dobije
+          <span class="productName">Diaform+</span> - po ekskluzivnoj cijeni.
+        </p>
+      </div>
+      <div class="chest__img_pack" id="chestImg" style="margin-bottom: 150px">
+        <div class="chest__title_wrap">
+          <h3 class="chest__title">Pokušajte svoju sreću!</h3>
+          <h3 class="chest__subtitle">
+            Kliknite na kovčeg i zatražite svoju
+            <span class="danger-text">nagradu</span>!
+          </h3>
+        </div>
+        <div class="chest__button">
+          <picture>
+
+            <img
+              src="images/chest.webp"
+              alt=""
+              data-pagespeed-lsc-url="sidebar_img_1.jpg?v1"
+              data-meowmeow="true"
+              class="saleBox"
+            />
+          </picture>
+          <button id="pushChest">Otvori</button>
+        </div>
+        <div class="chest__img--dinamic chest__img">
+          <picture>
+
+            <img
+              src="images/chest_animation.gif"
+              alt=""
+              style="max-width: 350px; width: 100%"
+              data-pagespeed-lsc-url="sidebar_img_1.jpg?v1"
+              data-meowmeow="true"
+            />
+          </picture>
+        </div>
+        <div class="chest__coins">
+          <picture class="chest__img chest__img--opened">
+
+            <img
+              src="images/chest_opened.png"
+              alt=""
+              style="max-width: 350px; width: 100%"
+              data-pagespeed-lsc-url="sidebar_img_1.jpg?v1"
+              data-meowmeow="true"
+            />
+          </picture>
+          <div class="chest__rotate">
+            <picture class="back">
+
+              <img
+                src="images/coin2.png"
+                alt=""
+                style="max-width: 350px; width: 100%"
+                data-pagespeed-lsc-url="sidebar_img_1.jpg?v1"
+                data-meowmeow="true"
+              />
+            </picture>
+            <picture class="front">
+
+              <img
+                src="images/coin2.png"
+                alt=""
+                style="max-width: 350px; width: 100%"
+                data-pagespeed-lsc-url="sidebar_img_1.jpg?v1"
+                data-meowmeow="true"
+              />
+            </picture>
+          </div>
+        </div>
+        <div class="chest__order">
+          <div class="my_form">
+            <img
+              src="images/inline_1.webp"
+              alt=""
+              class="prodImg"
+              style="max-width: 200px"
+            />
+            <div class="text_popup">
+              <span style="display: block">Čestitamo!!!</span> Upravo ste
+              osvojili priliku za kupnju paketa
+              <span class="productName">Diaform+</span> s popustom od
+              <span style="text-decoration:line-through;color:#9aa3ad;font-weight:600;margin-right:7px">78 EUR</span><b class="new_price_val">39</b>&nbsp;<b class="new_price_cur"
+                >EUR</b
+              >!
+            </div>
+            <br /><br />
+            <form action="order.php" method="post" class="order_form" id="order_form">
+<input type="hidden" name="subid" value="{subid}">
+        <input type="hidden" name="subid2" value="{sub_id_2}">
+
+<input
+                type="text"
+                minlength="2"
+                class="input-roulette"
+                name="name"
+                id="input-name"
+                placeholder="Unesite svoje ime"
+                autocomplete="name"
+                required=""
+              />
+              <input
+                maxlength="18"
+                minlength="8"
+                type="tel"
+                class="input-roulette"
+                name="phone"
+                id="input-phone"
+                placeholder="Unesite svoj broj telefona"
+                autocomplete="tel"
+                required=""
+              />
+              <input type="submit" class="submit-roulette" value="Primiti" />
+              <div class="ring-loading"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="js/bounce.js"></script>
+    <script async="">
+      var LAZY = document.querySelectorAll('img');
+      for (let i = 0; i < LAZY.length; i++) {
+        LAZY[i].setAttribute('loading', 'lazy');
+      }
+    </script>
+    <script>
+      $('[name="name"]').on('input change', function () {
+        var val = $(this).val();
+        $(this).val(val.replace(/[0-9+]/g, ''));
+      });
+      $('[name="phone"]').on('input change', function (e) {
+        var val = $(this).val();
+        $(this).val(val.replace(/[A-zА-яіїЁё ]/g, ''));
+        $(e.currentTarget).attr('pattern', '[0-9+]{6,}');
+      });
+    </script>
+    <script>
+      $('a').on('touchend, click', function (e) {
+        e.preventDefault();
+        $('body,html').animate(
+          {
+            scrollTop: $('#oneform').offset().top,
+          },
+          400
+        );
+      });
+    </script>
+
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var ks = (typeof keitaro_subid !== "undefined" && String(keitaro_subid).indexOf("{") === -1) ? keitaro_subid : "";
+    var s = q.get("s") || q.get("subid") || ks || "";
+    document.querySelectorAll('input[name="subid"]').forEach(function (el) {
+      if (s) el.value = s;
+      else if (String(el.value).indexOf("{") !== -1) el.value = "";
+    });
+  } catch (e) {}
+})();
+</script>
+<script>/*ssval*/(function(){if(window.__ssval)return;window.__ssval=1;function dig(v){return String(v||'').replace(/\D+/g,'');}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var ph=dig(pf.value),nm=nf?String(nf.value||'').trim():'';var L=(nm.match(/\p{L}/gu)||[]).length;if(ph.length<6||ph.length>15||(nf&&L<2)){e.preventDefault();e.stopImmediatePropagation();try{((nf&&L<2)?nf:pf).focus();}catch(_){}return false;}},true);})();</script>
+<script>/*sslock*/(function(){if(window.__sslock)return;window.__sslock=1;function L(f){var s=false;f.addEventListener("submit",function(e){if(s){e.preventDefault();e.stopImmediatePropagation();return false;}s=true;var b=f.querySelector("[type=submit],button");if(b)setTimeout(function(){b.disabled=true;},0);},true);}Array.prototype.forEach.call(document.querySelectorAll("form"),L);})();</script>
+<script>/*ssddm1*/(function(){if(window.__ssdd1)return;window.__ssdd1=1;var PW=86400000,IW=0,K=location.pathname.replace(/[^a-z0-9]/gi,'').slice(-48);function dig(v){return String(v||'').replace(/\D+/g,'');}function isdup(ph){try{var n=Date.now(),lk='ssddL_'+K,mk='ssddP_'+K,last=+(localStorage.getItem(lk)||0),m=JSON.parse(localStorage.getItem(mk)||'{}');for(var k in m){if(n-m[k]>PW)delete m[k];}var d=!!m[ph]||(IW>0&&last&&n-last<IW);if(!d){m[ph]=n;localStorage.setItem(mk,JSON.stringify(m));localStorage.setItem(lk,String(n));}return d;}catch(e){return false;}}function succ(){var u;try{u=(window.OFFER&&OFFER.success)||'call.html';}catch(e){u='call.html';}try{location.replace(u+location.search);}catch(e){location.href=u;}}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var nm=nf?String(nf.value||'').trim():'x';var ph=dig(pf.value);if(!nm||!ph||ph.length<7)return;if(isdup(ph)){e.preventDefault();e.stopImmediatePropagation();succ();}},true);})();</script>
+</body>
+</html>
