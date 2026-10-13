@@ -1817,14 +1817,23 @@ export async function resolveLocaleId(token: string, name: string, net: FbNet = 
     try {
       const body = await call('/search', token, { type: 'adlocale', q: base, limit: '100' }, net);
       const data = ((body as { data?: { key?: number; name?: string }[] }).data) ?? [];
-      const exact = data.find((d) => (d.name ?? '').toLowerCase() === fullL);
-      // Если запрашивали имя БЕЗ скобок и точного нет — берём первый результат
-      // (как раньше). Со скобками не угадываем: вернём 0, чтобы не подставить
-      // не тот испанский/португальский.
-      const pick = exact ?? (base.toLowerCase() === fullL ? data[0] : undefined);
+      const nm = (d: { name?: string }) => (d.name ?? '').toLowerCase();
+      const baseL = base.toLowerCase();
+      // Выбор варианта по убыванию точности:
+      //  1) точное полное имя («Spanish (Latin America)»);
+      //  2) точное базовое имя («Spanish») — у FB часто НЕТ регионального
+      //     варианта, а есть общий язык: для слоя гео он подходит (таргетит всех
+      //     говорящих, в т.ч. MX). Без этого MX/LatAm не определялись вовсе;
+      //  3) любой вариант, начинающийся с базового слова («Spanish …»);
+      //  4) первый результат — только если имя и так было без скобок.
+      const pick =
+        data.find((d) => nm(d) === fullL) ??
+        data.find((d) => nm(d) === baseL) ??
+        data.find((d) => nm(d).startsWith(baseL)) ??
+        (baseL === fullL ? data[0] : undefined);
       const key = Number(pick?.key ?? 0) || 0;
       if (key) return key;
-      if (data.length) return 0; // поиск отработал, но нужного нет — не долбим
+      if (data.length) return 0; // поиск отработал, но подходящего нет — не долбим
     } catch {
       /* транзиентный сбой — ретраим ниже */
     }

@@ -1220,7 +1220,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       const geoCode = geoDefaultLocale(countries[0] || '');
       if (geoCode) {
         mainLocaleId = await resolveLocaleId(token, localeName(geoCode), net);
-        if (mainLocaleId) append(`Язык целевого гео по шаблону (${countries[0]}): ${localeName(geoCode)}`);
+        if (mainLocaleId) append(`Язык целевого гео по шаблону (${countries[0]}): ${localeName(geoCode)} → FB locale ${mainLocaleId}`);
         else append(`⚠ FB не отдал locale для языка гео (${localeName(geoCode)}) — повтори залив; если повторяется, скажи, проверю карту языков`);
       } else if (countries[0]) {
         append(`⚠ Язык страны ${countries[0]} неизвестен — целевой слой (основной ролик) не добавлю. Скажи, добавлю страну в карту языков.`);
