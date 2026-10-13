@@ -2254,6 +2254,8 @@ var KNOWN_HANDLERS=/^(?:lemon|subscribe1?|subscription|order|handler)\.php$/i;
 function activeHandler(cfg){ return (cfg.needFile||"").toLowerCase() || ((cfg.mode==="php" && cfg.phpGen)?(cfg.phpAction||"order.php").toLowerCase():""); }
 // служебные лог-файлы обработчиков (пишутся на проде) — в сборку не тащим
 var JUNK_FILE=/^(?:debug_log|_skylead_log|_affstar_log|_shakes_log|order_log|leads?_log)\.txt$|\.log$/i;
+// превью-миниатюры платформы (Keitaro показывает ленд по _preview.png) — в коде не упоминаются, но удалять НЕЛЬЗЯ
+var META_KEEP=/^_?(?:preview|screenshot|thumbnail|thumb|poster)\.(?:png|jpe?g|webp|gif)$/i;
 // файл-обработчик ЧУЖОЙ партнёрки (напр. lemon.php при everad) — такой из папки выкидываем, чтобы не мусорил
 function isForeignHandler(name, cfg){ var b=String(name||"").toLowerCase(); return KNOWN_HANDLERS.test(b) && b!==activeHandler(cfg); }
 // файл, принадлежащий ДРУГОЙ партнёрке (не текущей) — выкидываем из сборки, чтобы не тащить чужое
@@ -3038,7 +3040,7 @@ async function ingest(items){ // items:[{file, rel}] где rel = "folder/sub/fi
       return;
     }
     if(!CLEAN_EXT.test(b)) return;                       // css/js/шрифты/svg — не трогаем
-    if(KEEP[b]) return;
+    if(KEEP[b] || META_KEEP.test(b)) return;             // favicon.ico + превью Keitaro (_preview.png) — не трогаем
     if(refCount(x.path)<=0) unused.push(x.path);         // неиспользуемое фото/видео
   });
 
@@ -3590,6 +3592,7 @@ function optRemoveUnused(out, rep){
     if(/\.(html?|php)$/i.test(nm)){ keep.push(f); return; }   // страницы/обработчики оставляем всегда
     if(/\.(css|js|mjs|woff2?|ttf|otf|eot)$/i.test(nm)){ keep.push(f); return; }   // критичные: стили/скрипты/шрифты НИКОГДА не удаляем (иначе ленд ломается)
     var base=nm.split("/").pop();
+    if(META_KEEP.test(base)){ keep.push(f); return; }   // превью Keitaro (_preview.png) — не в коде, но нужно платформе
     if(text.indexOf(base)>=0 || text.indexOf(nm)>=0){ keep.push(f); return; }
     rep.unused++; rep.unusedb += (f.bytes?f.bytes.length:(typeof f.str==="string"?f.str.length:0));
   });
