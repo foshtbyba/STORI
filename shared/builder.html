@@ -4383,11 +4383,26 @@ function enhanceSelect(sel){
   // авто-подстановка языка call/error/chest из кода гео (выбор вручную остаётся)
   var GEO2LANG={cr:"es",mx:"es",co:"es",cl:"es",pe:"es",ec:"es",gt:"es",pk:"ur",tn:"ar",ma:"ar",sa:"ar",ae:"ar",eg:"ar",dz:"ar",kw:"ar",qa:"ar",be:"nl",ch:"de",at:"de",br:"pt",gr:"el",cz:"cs",dk:"da",se:"sv",ee:"et",si:"sl",rs:"sr",ua:"uk",gb:"en",uk:"en",us:"en",ie:"en",il:"he"};
   function hasLang(c){return LANGS.some(function(p){return p[0]===c;});}
-  function langFromGeo(c){c=(c||"").toLowerCase().trim();var base=c.split(/[-_]/)[0];return GEO2LANG[c]||GEO2LANG[base]||(hasLang(c)?c:(hasLang(base)?base:null));}
+  // "BE fr"/"fr-BE"/"fr BE"/"cr" -> язык call/error. Разбираем по пробелу/дефису/подчёркиванию, любой порядок.
+  function langFromGeo(c){
+    c=(c||"").toLowerCase().trim(); if(!c) return null;
+    if(GEO2LANG[c]) return GEO2LANG[c];
+    var parts=c.split(/[-_\s]+/).filter(Boolean);
+    for(var i=0;i<parts.length;i++){ if(hasLang(parts[i])) return parts[i]; }          // явный язык-токен (fr, de…)
+    for(var j=0;j<parts.length;j++){ if(GEO2LANG[parts[j]]) return GEO2LANG[parts[j]]; } // гео-токен -> язык (be->nl, cr->es)
+    return hasLang(parts[0])?parts[0]:null;
+  }
   var langEl=document.getElementById("langCode");
   // код гео/языка -> ISO-2 страна для shakes (fr-BE -> BE, cs -> CZ, pk -> PK, cr -> CR …)
   var LANG2CC={cs:"CZ",da:"DK",sv:"SE",el:"GR",ur:"PK",he:"IL",uk:"UA",et:"EE",sl:"SI",ja:"JP",ko:"KR",zh:"CN",nb:"NO",nn:"NO",ca:"ES",fa:"IR",hi:"IN",vi:"VN",hy:"AM",kk:"KZ",ka:"GE",ky:"KG",bs:"BA",sq:"AL",ms:"MY"};
-  function ccFromGeo(v){ v=(v||"").trim(); if(!v) return ""; var m=v.match(/[-_]([a-z]{2})$/i); if(m) return m[1].toUpperCase(); var base=v.slice(0,2).toLowerCase(); return (LANG2CC[base]||base).toUpperCase(); }
+  function ccFromGeo(v){
+    v=(v||"").trim(); if(!v) return "";
+    var parts=v.toLowerCase().split(/[-_\s]+/).filter(Boolean);
+    // 2-буквенный токен, который НЕ язык, — это страна ("BE fr" -> BE, "fr-BE" -> BE)
+    for(var i=0;i<parts.length;i++){ var p=parts[i]; if(/^[a-z]{2}$/.test(p) && !hasLang(p)) return p.toUpperCase(); }
+    // иначе одиночный язык-токен -> его страна (cs->CZ, fr->FR, de->DE)
+    var b=parts[0]||""; return (LANG2CC[b]||b.slice(0,2)).toUpperCase();
+  }
   var countryEl=document.getElementById("country");
   function autoFillCountry(){ if(!countryEl) return; if(!countryEl.value || countryEl.dataset.auto==="1"){ var cc=ccFromGeo(langEl.value); if(cc){ countryEl.value=cc; countryEl.dataset.auto="1"; } } }
   langEl.addEventListener("input",function(){ var L=langFromGeo(langEl.value); if(L){ul.value=L; ul.dispatchEvent(new Event("change"));} autoFillCountry(); try{build();}catch(e){} });
