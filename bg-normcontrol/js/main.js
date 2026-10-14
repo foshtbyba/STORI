@@ -47,8 +47,8 @@ document.querySelectorAll('.cta-float').forEach(function(b){
   var els=document.querySelectorAll('.js-date');
   if(!els.length)return;
   var d=new Date();
-  var months=['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
-  var str=d.getDate()+'. '+months[d.getMonth()]+' '+d.getFullYear();
+  var months=['януари','февруари','март','април','май','юни','юли','август','септември','октомври','ноември','декември'];
+  var str=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
   els.forEach(function(el){el.textContent=str;});
 })();
 
