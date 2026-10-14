@@ -11,12 +11,12 @@
   },1000);
 })();
 
-/* Name validation - Czech chars only */
+/* Name validation - Spanish chars only */
 (function(){
   var n=document.querySelector('[name="name"]');
   if(!n)return;
   n.addEventListener('input',function(){
-    var v=this.value.replace(/[^a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ ]/g,'').replace(/^\s+/,'').replace(/\s\s+/g,' ');
+    var v=this.value.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ ]/g,'').replace(/^\s+/,'').replace(/\s\s+/g,' ');
     var p=v.split(' ');if(p.length>2)v=p[0]+' '+p[1];
     this.value=v;
   });
@@ -47,7 +47,7 @@ document.querySelectorAll('.cta-float').forEach(function(b){
   var els=document.querySelectorAll('.js-date');
   if(!els.length)return;
   var d=new Date();
-  var months=['януари','февруари','март','април','май','юни','юли','август','септември','октомври','ноември','декември'];
+  var months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   var str=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
   els.forEach(function(el){el.textContent=str;});
 })();
