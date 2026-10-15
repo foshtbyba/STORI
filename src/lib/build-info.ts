@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'fire-buyer + leads-max · 16.10 00:27';
+export const BUILD_INFO = 'geo-cis-locales · 16.10 02:10';

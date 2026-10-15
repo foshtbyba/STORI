@@ -79,6 +79,10 @@ const GEO_LOCALE: Record<string, string> = {
   IT: 'it_IT', PT: 'pt_PT', PL: 'pl_PL', NL: 'nl_NL', CZ: 'cs_CZ', SK: 'sk_SK',
   HU: 'hu_HU', TR: 'tr_TR', RU: 'ru_RU', UA: 'uk_UA', SE: 'sv_SE', NO: 'nb_NO',
   DK: 'da_DK', FI: 'fi_FI', EE: 'et_EE', LV: 'lv_LV', LT: 'lt_LT', AL: 'sq_AL',
+  // СНГ — для FB-залива таргетим по-русски (киргизский/узбекский/… у FB как
+  // язык рекламы не завозят, рынок русскоязычный). Молдова — румынский.
+  KZ: 'ru_RU', BY: 'ru_RU', KG: 'ru_RU', UZ: 'ru_RU', TJ: 'ru_RU', TM: 'ru_RU',
+  AM: 'ru_RU', AZ: 'ru_RU', GE: 'ru_RU', MD: 'ro_RO',
   GB: 'en_GB', IE: 'en_GB', AU: 'en_GB', NZ: 'en_GB', ZA: 'en_GB', US: 'en_US',
   CA: 'en_US', MX: 'es_LA', CL: 'es_LA', AR: 'es_LA', CO: 'es_LA', PE: 'es_LA',
   EC: 'es_LA', BO: 'es_LA', PY: 'es_LA', UY: 'es_LA', CR: 'es_LA', PA: 'es_LA',
