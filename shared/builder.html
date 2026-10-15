@@ -3138,7 +3138,7 @@ function guessOfferImage(F){
   if(!F||!F.indexPath) return null;
   var idx=F.files.filter(function(x){return x.path===F.indexPath;})[0]; if(!idx) return null;
   var html=idx.str;
-  var skip=/(chest|coin|animation|favicon|logo|sprite|icon|arrow|star|badge|bg|background|pixel|1x1|loader|spinner|comm|review|avatar|user|client)/i;
+  var skip=/(chest|coin|animation|favicon|logo|sprite|icon|arrow|star|badge|bg|background|pixel|1x1|loader|spinner|comm|review|avatar|user|client|flag|escudo|sello|gob|cofepris|anvisa|cert|seal|stamp|emblem|coat|garant|warrant|guarant|official|gov\b|ribbon|medal|award|trust|secure)/i;
   // SVG не кандидат (иконки/логотипы, и как фавикон-источник ненадёжен)
   var cand=F.files.filter(function(x){return IMG_EXT.test(x.path) && !/\.svg$/i.test(x.path) && !x.comment && !skip.test(baseName(x.path));});
   if(!cand.length) cand=F.files.filter(function(x){return IMG_EXT.test(x.path) && !/\.svg$/i.test(x.path) && !x.comment;});
@@ -3785,9 +3785,11 @@ function optGifToWebp(out, rep){
 // ОДИНАКОВО на index/call/error/сундук — самодостаточно (data-uri), без битых путей и webp-переименований.
 function faviconSrcInList(out, cfg){
   if(!cfg || cfg.favicon===false) return null;
+  // приоритет: загруженное «Своё фото для call/error» (прямой выбор продукта пользователем)
+  if(cfg.successImg && /^data:image\//i.test(cfg.successImg)) return {dataUri:cfg.successImg};
   var img=String(cfg.image||"");
   if(/^data:image\//i.test(img)) return {dataUri:img};                 // своё фото уже data-uri
-  var skip=/(chest|coin|animation|favicon|logo|sprite|icon|arrow|star|badge|bg|background|pixel|1x1|loader|spinner|comm|review|avatar|user|client)/i;
+  var skip=/(chest|coin|animation|favicon|logo|sprite|icon|arrow|star|badge|bg|background|pixel|1x1|loader|spinner|comm|review|avatar|user|client|flag|escudo|sello|gob|cofepris|anvisa|cert|seal|stamp|emblem|coat|garant|warrant|guarant|official|gov\b|ribbon|medal|award|trust|secure)/i;
   var want=baseName(img).toLowerCase(), stem=want.replace(/\.[a-z0-9]+$/,"");
   var byName=null, byStem=null;
   out.forEach(function(f){
