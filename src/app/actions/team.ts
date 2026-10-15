@@ -203,3 +203,42 @@ export async function setBuyerAccess(buyerId: string, active: boolean): Promise<
   revalidatePath('/admin');
   return { ok: true };
 }
+
+/**
+ * Уволить / вернуть баера.
+ *
+ * Увольнение (fired=true): ставим дату ухода, архивируем и закрываем вход.
+ * Человек пропадает из всех текущих списков и из статистики (их фильтр уже
+ * `archived: false`), но периоды, что он отработал ДО даты ухода, остаются в
+ * истории и в командных итогах — это разруливает `teamSummary` по `endedAt`.
+ * Возврат (fired=false): снимаем дату ухода и архив, открываем вход обратно.
+ */
+export async function setBuyerFired(buyerId: string, fired: boolean): Promise<ActionResult> {
+  const admin = await requireAdmin();
+  if (!buyerId) return { ok: false, error: 'Не указан баер.' };
+
+  const buyer = await prisma.buyer.findUnique({ where: { id: buyerId }, include: { user: true } });
+  if (!buyer) return { ok: false, error: 'Такого баера нет.' };
+  if (buyer.userId === admin.id) return { ok: false, error: 'Себя уволить нельзя.' };
+
+  await prisma.buyer.update({
+    where: { id: buyerId },
+    data: { archived: fired, endedAt: fired ? new Date() : null },
+  });
+  // Вход закрываем при увольнении и открываем при возврате — за компанию.
+  await prisma.user.update({ where: { id: buyer.userId }, data: { active: !fired } });
+  await prisma.auditLog.create({
+    data: {
+      actorId: admin.id,
+      actorName: admin.name,
+      entity: 'Buyer',
+      entityId: buyerId,
+      action: fired ? 'buyer:fire' : 'buyer:rehire',
+      diffJson: JSON.stringify({ handle: buyer.handle }),
+    },
+  });
+
+  revalidatePath('/admin');
+  revalidatePath('/dashboard');
+  return { ok: true };
+}

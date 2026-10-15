@@ -134,7 +134,7 @@ export async function teamSummary(key: string, range?: Range, opts?: { owners?: 
   const [period, allBuyers, days, consumables, bonuses] = await Promise.all([
     getPeriod(key),
     prisma.buyer.findMany({
-      where: { archived: false },
+      where: {},
       include: { user: true, salaryRule: true },
       orderBy: { handle: 'asc' },
     }),
@@ -148,16 +148,19 @@ export async function teamSummary(key: string, range?: Range, opts?: { owners?: 
 
   // Овнеры и баеры считаются раздельными листами и никогда не смешиваются:
   // командный отчёт не видит овнеров вовсе, а лист овнеров — только их.
-  // Баер, кроме того, попадает в лист, только если к концу отрезка он уже вышел
-  // в команду: неделю, целиком прошедшую до его даты выхода, не показываем и
-  // оклад за неё не платим — до прихода человека платить было не за что. `to` —
-  // граница отрезка (следующий понедельник), поэтому вышедший в любой день
-  // недели (startedAt < to) в неё уже входит.
+  // Баер попадает в лист, только если в ЭТОМ отрезке он реально работал:
+  //  • вышел до конца отрезка (startedAt < to) — неделю до его прихода не платим;
+  //  • НЕ уволен до начала отрезка (!endedAt || endedAt >= from) — после ухода
+  //    человек пропадает из статистики, но периоды, что он отработал, остаются.
+  // Архивных БЕЗ даты увольнения (служебные/тестовые) не показываем вовсе —
+  // в историю их пускает только явная дата ухода.
+  const worksIn = (b: (typeof allBuyers)[number]) =>
+    (!b.startedAt || b.startedAt.getTime() < to.getTime()) &&
+    (!b.endedAt || b.endedAt.getTime() >= from.getTime()) &&
+    !(b.archived && !b.endedAt);
   const buyers = opts?.owners
-    ? allBuyers.filter((b) => b.owner)
-    : allBuyers.filter(
-        (b) => !b.owner && (!b.startedAt || b.startedAt.getTime() < to.getTime()),
-      );
+    ? allBuyers.filter((b) => b.owner && !b.archived)
+    : allBuyers.filter((b) => !b.owner && worksIn(b));
 
   // Будущая неделя ещё не наступила — оклад за неё не начисляем. Работы не
   // было, платить не за что; профит и так ноль. Как только неделя началась
@@ -368,10 +371,24 @@ export async function firstToCross(key: string, thresholdCents: number) {
       where: { date: { gte: from, lt: to } },
       orderBy: { date: 'asc' },
     }),
-    prisma.buyer.findMany({ where: { archived: false, owner: false } }),
+    prisma.buyer.findMany({
+      where: { owner: false },
+      select: { id: true, handle: true, startedAt: true, endedAt: true, archived: true },
+    }),
   ]);
   // Овнер в командном бонусе не участвует: его дни в гонку за порогом не берём.
-  const buyerIds = new Set(buyers.map((b) => b.id));
+  // Уволенных считаем только в периодах, что они реально отработали (как в
+  // teamSummary), а служебно-архивных (без даты ухода) — не берём вовсе.
+  const buyerIds = new Set(
+    buyers
+      .filter(
+        (b) =>
+          (!b.startedAt || b.startedAt.getTime() < to.getTime()) &&
+          (!b.endedAt || b.endedAt.getTime() >= from.getTime()) &&
+          !(b.archived && !b.endedAt),
+      )
+      .map((b) => b.id),
+  );
 
   const running = new Map<string, number>();
   const reached: { buyerId: string; date: Date }[] = [];

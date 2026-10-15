@@ -543,7 +543,7 @@ export type FbAdStatRow = {
   /** Клики по ссылке (inline_link_clicks) и показы — для CTR/CPC. */
   clicks: number;
   impressions: number;
-  /** Результаты/лиды из FB (сумма конверсионных actions). */
+  /** Результаты/лиды из FB (макс. среди совпавших конверсионных actions). */
   leads: number;
 };
 
@@ -562,13 +562,20 @@ const LEAD_ACTIONS = /(^|[._])(lead|complete_registration|purchase|subscribe|sta
 
 function leadsFromActions(actions: unknown): number {
   if (!Array.isArray(actions)) return 0;
-  let total = 0;
+  // Facebook отдаёт ОДНУ конверсию сразу под НЕСКОЛЬКИМИ типами: лид приходит и
+  // как `lead`, и как `offsite_conversion.fb_pixel_lead`, и как
+  // `onsite_conversion.lead_grouped`. Суммировать их — двойной-тройной счёт: в
+  // дешборде выходило 72 там, где в Ads Manager 25. Берём МАКСИМУМ среди
+  // совпавших типов — для объявления с одной целью оптимизации это и есть число
+  // результатов, как его показывает Ads Manager.
+  let best = 0;
   for (const a of actions as { action_type?: string; value?: string }[]) {
     if (a.action_type && LEAD_ACTIONS.test(a.action_type)) {
-      total += Math.round(Number(a.value ?? 0)) || 0;
+      const v = Math.round(Number(a.value ?? 0)) || 0;
+      if (v > best) best = v;
     }
   }
-  return total;
+  return best;
 }
 
 /**

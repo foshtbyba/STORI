@@ -91,11 +91,13 @@ export default async function AdminPage({
 
   const rosterRows: RosterRow[] = (
     await prisma.buyer.findMany({
-      where: { archived: false },
+      // Активные + уволенные (архив с датой ухода), чтобы уволенного можно было
+      // вернуть. Служебно-архивных без даты ухода в ростер не тянем.
+      where: { OR: [{ archived: false }, { endedAt: { not: null } }] },
       orderBy: [{ owner: 'asc' }, { handle: 'asc' }],
       select: {
         id: true, handle: true, initials: true, color: true,
-        startedAt: true, birthday: true, position: true, owner: true,
+        startedAt: true, endedAt: true, birthday: true, position: true, owner: true,
         user: { select: { active: true } },
       },
     })
@@ -109,6 +111,8 @@ export default async function AdminPage({
     position: b.position ?? '',
     owner: b.owner,
     blocked: !b.user.active,
+    fired: !!b.endedAt,
+    endedAt: b.endedAt ? b.endedAt.toISOString().slice(0, 10) : '',
   }));
 
   // Лесенка по умолчанию — базовая, на неё завязаны все, у кого нет своей.

@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { saveBuyerProfile, setBuyerAccess } from '@/app/actions/team';
+import { saveBuyerProfile, setBuyerAccess, setBuyerFired } from '@/app/actions/team';
 import { Avatar } from './ui';
 import Select from './Select';
 
@@ -19,6 +19,10 @@ export type RosterRow = {
   owner: boolean;
   /** Доступ ко входу перекрыт — аккаунт не может залогиниться. */
   blocked: boolean;
+  /** Уволен: пропал из текущих списков и статистики, история осталась. */
+  fired: boolean;
+  /** Дата увольнения YYYY-MM-DD или ''. */
+  endedAt: string;
 };
 
 /**
@@ -105,6 +109,59 @@ function RosterLine({ row }: { row: RosterRow }) {
     access(false);
   }
 
+  // Увольнение — тоже в два клика. Отдельный взвод, чтобы не путать с «закрыть
+  // доступ»: увольнение убирает человека из статистики, доступ — только вход.
+  const [armedFire, setArmedFire] = useState(false);
+  const fireTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  function fire(fired: boolean) {
+    setError(null);
+    start(async () => {
+      const res = await setBuyerFired(row.id, fired);
+      if (!res.ok) return setError(res.error);
+      setArmedFire(false);
+      router.refresh();
+    });
+  }
+  function clickFire() {
+    if (!armedFire) {
+      setArmedFire(true);
+      if (fireTimer.current) clearTimeout(fireTimer.current);
+      fireTimer.current = setTimeout(() => setArmedFire(false), 3000);
+      return;
+    }
+    fire(true);
+  }
+
+  // Уволенный — свёрнутая строка: только кто, дата ухода и кнопка вернуть.
+  // Статистика за отработанные периоды осталась, профиль правит не нужно.
+  if (row.fired) {
+    return (
+      <div className="flex items-center justify-between gap-3 border-t border-line py-3 opacity-70">
+        <span className="flex items-center gap-3">
+          <Avatar initials={row.initials} color={row.color} size={30} />
+          <span className="flex flex-col">
+            <span className="flex items-center gap-2 text-[14px] font-semibold text-mute">
+              {row.handle}
+              <span className="rounded-full bg-sub px-2 py-0.5 text-[10px] text-dim">
+                уволен{row.endedAt ? ` ${row.endedAt.slice(8, 10)}.${row.endedAt.slice(5, 7)}.${row.endedAt.slice(0, 4)}` : ''}
+              </span>
+            </span>
+            {error ? <span className="text-[11px] text-rust">{error}</span> : null}
+          </span>
+        </span>
+        <button
+          type="button"
+          onClick={() => fire(false)}
+          disabled={pending}
+          className="h-8 rounded-full bg-sage-t px-3 text-[11.5px] text-sage transition hover:opacity-90 disabled:opacity-40"
+          title="Вернуть в команду: снова появится в списках и статистике"
+        >
+          вернуть в команду
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-2 items-center gap-3 border-t border-line py-3 md:grid-cols-[1.4fr_1fr_1fr_0.9fr_auto]">
       <span className="col-span-2 flex items-center gap-3 md:col-span-1">
@@ -179,6 +236,19 @@ function RosterLine({ row }: { row: RosterRow }) {
             {armed ? 'точно закрыть?' : 'закрыть доступ'}
           </button>
         )}
+        {!row.owner ? (
+          <button
+            type="button"
+            onClick={clickFire}
+            disabled={pending}
+            className={`h-8 rounded-full px-3 text-[11.5px] transition disabled:opacity-40 ${
+              armedFire ? 'bg-rust text-bg font-semibold' : 'bg-sub text-mute hover:text-rust'
+            }`}
+            title="Уволить: человек пропадёт из списков и статистики, но отработанные периоды останутся в истории"
+          >
+            {armedFire ? 'точно уволить?' : 'уволить'}
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={() => commit()}

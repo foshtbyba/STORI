@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'partners-drop-ssdirect · 13.10 16:55';
+export const BUILD_INFO = 'fire-buyer + leads-max · 16.10 00:27';
