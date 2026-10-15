@@ -3905,26 +3905,53 @@ async function genPreviewFromOut(out){
     var h2c=await loadH2C();
     ifr=document.createElement("iframe");
     ifr.setAttribute("sandbox","allow-same-origin");   // same-origin для чтения DOM, но БЕЗ скриптов -> ленд не редиректит
-    ifr.style.cssText="position:fixed;left:-99999px;top:0;width:1000px;height:1600px;border:0;background:#fff;";
+    ifr.style.cssText="position:fixed;left:-99999px;top:0;width:1000px;height:1700px;border:0;background:#fff;";
     document.body.appendChild(ifr);
     await new Promise(function(r){ var done=false,fin=function(){ if(!done){done=true;r();} }; ifr.onload=function(){ setTimeout(fin,700); }; ifr.srcdoc=idx.str; setTimeout(fin,6000); });
     var d=ifr.contentDocument; if(!d||!d.body) return null;
     inlineDocFromOut(d, out);
-    await new Promise(function(r){ setTimeout(r,600); });   // дать картинкам декодироваться
-    var H=Math.min(Math.max(d.body.scrollHeight||800, 400), 4000);
-    var canvas=await h2c(d.body,{backgroundColor:"#ffffff",width:1000,height:H,windowWidth:1000,windowHeight:H,scale:1,useCORS:true,allowTaint:true,logging:false,imageTimeout:4000});
-    var tw=600, th=Math.max(1,Math.round(canvas.height*(tw/Math.max(1,canvas.width))));
+    // ВНЕШНИЕ (http) картинки убираем — иначе «портят» canvas (taint) и экспорт падает (битое превью)
+    try{
+      d.querySelectorAll("img").forEach(function(im){ var s=im.getAttribute("src")||""; if(/^(https?:)?\/\//i.test(s)){ im.removeAttribute("src"); im.removeAttribute("srcset"); } });
+      d.querySelectorAll("source").forEach(function(so){ var s=so.getAttribute("srcset")||""; if(/^(https?:)?\/\//i.test(s)) so.removeAttribute("srcset"); });
+    }catch(e){}
+    await new Promise(function(r){ setTimeout(r,500); });   // дать картинкам декодироваться
+    var H=Math.min(Math.max(d.body.scrollHeight||800, 400), 1700);   // верхний экран ленда — надёжнее и легче, чем вся простыня
+    var canvas=await h2c(d.body,{backgroundColor:"#ffffff",width:1000,height:H,windowWidth:1000,windowHeight:H,scale:1,useCORS:true,logging:false,imageTimeout:3500});
+    if(!canvas || !canvas.width || !canvas.height) return null;
+    var tw=600, th=Math.max(1,Math.round(canvas.height*(tw/canvas.width)));
     var c2=document.createElement("canvas"); c2.width=tw; c2.height=th;
     var x=c2.getContext("2d"); x.imageSmoothingEnabled=true; x.imageSmoothingQuality="high"; x.fillStyle="#fff"; x.fillRect(0,0,tw,th); x.drawImage(canvas,0,0,tw,th);
-    return c2.toDataURL("image/png");
+    var durl=c2.toDataURL("image/png");
+    return (durl && durl.length>2000) ? durl : null;
   }catch(e){ try{console.warn("genPreview",e);}catch(_){} return null; }
   finally{ if(ifr&&ifr.parentNode) ifr.parentNode.removeChild(ifr); }
+}
+// фолбэк превью: аккуратная карточка (фото продукта + бренд на светлом) — всегда валидна
+async function genCardPreview(out, cfg){
+  try{
+    var src=(typeof faviconSrcInList==="function")?faviconSrcInList(out, cfg):null;
+    if(!src) return null;
+    var du=src.dataUri || ("data:"+src.mime+";base64,"+bytesToB64(src.bytes));
+    var im=await optLoadImg(du); if(!im) return null;
+    var W=600,Ht=600, c=document.createElement("canvas"); c.width=W;c.height=Ht;
+    var x=c.getContext("2d"); x.fillStyle="#f6f9fc"; x.fillRect(0,0,W,Ht);
+    var iw=im.naturalWidth||im.width, ih=im.naturalHeight||im.height; if(!iw||!ih) return null;
+    var s=Math.min((W*0.82)/iw,(Ht*0.66)/ih), w=iw*s, h=ih*s;
+    x.imageSmoothingEnabled=true; x.imageSmoothingQuality="high"; x.drawImage(im,(W-w)/2,(Ht-h)/2-26,w,h);
+    try{ x.fillStyle="#1a2b42"; x.textAlign="center"; x.font="bold 36px Arial,Helvetica,sans-serif"; x.fillText(String(cfg&&cfg.brand||"").slice(0,22),W/2,Ht-46); }catch(e){}
+    var durl=c.toDataURL("image/png");
+    return (durl && durl.length>1000) ? durl : null;
+  }catch(e){ return null; }
 }
 async function addPreviewPng(out, cfg){
   if(!cfg || cfg.makePreview===false) return;
   try{
-    var durl=await genPreviewFromOut(out); if(!durl) return;
+    var durl=await genPreviewFromOut(out);        // 1) скриншот собранного ленда
+    if(!durl) durl=await genCardPreview(out, cfg);  // 2) фолбэк: карточка продукта (чтобы НИКОГДА не было битого превью)
+    if(!durl) return;                               // 3) не вышло — оставляем исходный _preview, если был
     var b64=durl.split(",")[1]; if(!b64) return; var bytes=b64ToBytes(b64);
+    if(!bytes || bytes.length<500) return;          // защита от пустого/битого файла
     var ex=out.filter(function(f){ return /(^|\/)_preview\.(png|jpe?g|webp|gif)$/i.test(f.name||""); });
     if(ex.length){ ex.forEach(function(f){ f.name=(f.name||"_preview.png").replace(/\.(jpe?g|webp|gif)$/i,".png"); f.bytes=bytes; delete f.str; }); }
     else out.push({name:"_preview.png", bytes:bytes});
