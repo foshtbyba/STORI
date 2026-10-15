@@ -1910,13 +1910,27 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
   const linkUrls: Record<string, unknown>[] = [];
   const rules: Record<string, unknown>[] = [];
 
+  // Заголовок и описание должны быть у ВСЕХ слоёв или НИ У КОГО: FB запрещает
+  // применить к одному правилу несколько ассетов (код 1885878 «Multiple
+  // descriptions/titles assets cannot be applied to rule»). Если у языка пака
+  // своего заголовка/описания нет, а у целевого слоя есть — массив становится
+  // неоднородным, и правило без своего label ловит сразу все. Поэтому берём
+  // значения основного объявления как общий фолбэк: есть у основного — даём
+  // всем (своё или фолбэк), нет — не используем вовсе.
+  const titleFallback = i.main.headline || '';
+  const descFallback = i.main.description || '';
+  const effTitle = (own?: string) => (titleFallback ? own || titleFallback : '');
+  const effDesc = (own?: string) => (descFallback ? own || descFallback : '');
+
   const pushVariant = (tag: string, v: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string }) => {
     const vid: Record<string, unknown> = { video_id: v.videoId, adlabels: [{ name: `vid_${tag}` }] };
     if (v.thumb) vid.thumbnail_url = v.thumb;
     videos.push(vid);
     bodies.push({ text: v.message, adlabels: [{ name: `body_${tag}` }] });
-    if (v.headline) titles.push({ text: v.headline, adlabels: [{ name: `title_${tag}` }] });
-    if (v.description) descriptions.push({ text: v.description, adlabels: [{ name: `desc_${tag}` }] });
+    const t = effTitle(v.headline);
+    if (t) titles.push({ text: t, adlabels: [{ name: `title_${tag}` }] });
+    const d = effDesc(v.description);
+    if (d) descriptions.push({ text: d, adlabels: [{ name: `desc_${tag}` }] });
     // link_url для каждого варианта свой (у языка может быть свой лендинг).
     linkUrls.push({ website_url: v.link, adlabels: [{ name: `link_${tag}` }] });
   };
@@ -1932,8 +1946,8 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
       body_label: { name: `body_l${idx}` },
       link_url_label: { name: `link_l${idx}` },
     };
-    if (l.headline) rule.title_label = { name: `title_l${idx}` };
-    if (l.description) rule.description_label = { name: `desc_l${idx}` };
+    if (effTitle(l.headline)) rule.title_label = { name: `title_l${idx}` };
+    if (effDesc(l.description)) rule.description_label = { name: `desc_l${idx}` };
     rules.push(rule);
   });
   // Дефолтное правило: is_default + locale ОСНОВНОГО языка (не пустой спек!).
@@ -1944,8 +1958,8 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
     body_label: { name: 'body_def' },
     link_url_label: { name: 'link_def' },
   };
-  if (i.main.headline) defRule.title_label = { name: 'title_def' };
-  if (i.main.description) defRule.description_label = { name: 'desc_def' };
+  if (effTitle(i.main.headline)) defRule.title_label = { name: 'title_def' };
+  if (effDesc(i.main.description)) defRule.description_label = { name: 'desc_def' };
   rules.push(defRule);
 
   const assetFeedSpec: Record<string, unknown> = {

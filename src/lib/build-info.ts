@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'geo-cis-locales · 16.10 02:10';
+export const BUILD_INFO = 'multilang-desc-consistent · 16.10 02:18';
