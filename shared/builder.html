@@ -634,10 +634,11 @@
     </div>
 
     <div class="grp" id="grpChest">
-      <h3 class="gtoggle" data-target="chestBody"><span class="chev">▸</span> Сундук (chest.html)</h3>
+      <h3 class="gtoggle" data-target="chestBody"><span class="chev">▸</span> Сундук (chest.html)
+        <label style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;cursor:pointer" title="Делать сундук или нет" onclick="event.stopPropagation()"><input type="checkbox" id="makeChest" onclick="event.stopPropagation()" style="margin:0"> Делать</label>
+      </h3>
       <div id="chestBody" class="grp-body" style="display:none">
-        <div class="chk"><input type="checkbox" id="makeChest"><label>Делать сундук (chest.html)</label></div>
-        <div class="hint">Отдельная страница-рулетка «крутите — выиграли скидку». Нужна не всегда. Если включено — появится кнопка «⬇ Сундук», текст переводится на язык ленда, фото берётся то же, что на call/error.</div>
+        <div class="hint">Отдельная страница-рулетка «крутите — выиграли скидку». Включается галкой «Делать» справа. Текст переводится на язык ленда, фото берётся то же, что на call/error. Ниже — встроенный сундук (без папки) или своя папка.</div>
         <div class="chk" style="margin-top:6px"><input type="checkbox" id="chestBuiltin" checked><label>Встроенный сундук (с анимацией, БЕЗ загрузки папки)</label></div>
         <div class="hint" style="margin-top:2px">Собирает готовый сундук из <b>вшитого чистого шаблона</b> (анимация открытия + монеты, webp-картинки) — папку грузить не нужно. Подставляет фото продукта, бренд, цену (старая/новая) и переводит под гео ленда. Сними галку, если хочешь свой сундук из папки ниже.</div>
         <label style="margin-top:8px">Или своя папка сундука (опц.) — почистится и отпатчится как ленд</label>
