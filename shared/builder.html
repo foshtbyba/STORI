@@ -4035,6 +4035,10 @@ async function addPreviewPng(out, cfg){
     var ex=out.filter(function(f){ return /(^|\/)_preview\.(png|jpe?g|webp|gif)$/i.test(f.name||""); });
     if(ex.length){ ex.forEach(function(f){ f.name=(f.name||"_preview.png").replace(/\.(jpe?g|webp|gif)$/i,".png"); f.bytes=bytes; delete f.str; }); }
     else out.push({name:"_preview.png", bytes:bytes});
+    // дубль без подчёркивания в КОРНЕ: часть версий/сборок Keitaro ищет превью как preview.png (не _preview.png) -> кладём оба, покрываем обе схемы именования
+    var exP=out.filter(function(f){ return /(^|\/)preview\.(png|jpe?g|webp|gif)$/i.test(f.name||"") && !/_preview\./i.test(f.name||""); });
+    if(exP.length){ exP.forEach(function(f){ f.name=(f.name||"preview.png").replace(/\.(jpe?g|webp|gif)$/i,".png"); f.bytes=bytes; delete f.str; }); }
+    else out.push({name:"preview.png", bytes:bytes});
   }catch(e){ try{console.warn("addPreviewPng",e);}catch(_){} }
 }
 async function optAndZip(list, cfg){
