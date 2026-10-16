@@ -1877,11 +1877,9 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "$res = sendLead($data);\n"+
 "$ok  = $res['ok'];\n"+
 (cfg.dedup?"if ($ok) { "+ddMark(cfg)+"}\n":"")+
-"$__sent = $data; $__sent['key_hash'] = '***';\n"+
-"$__dbg = '<!-- ham_req: ' . htmlspecialchars(json_encode($__sent), ENT_QUOTES) . ' | ham_resp: ' . htmlspecialchars((string) $res['raw'], ENT_QUOTES) . ' -->';\n"+   // ВРЕМЕННО: диагностика (ключ скрыт)
 "\n"+
-"if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { echo $__dbg; include __DIR__ . '/' . $THANK_PAGE; }\n"+
-"elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { echo $__dbg; include __DIR__ . '/' . $ERROR_PAGE; }\n"+
+"if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { include __DIR__ . '/' . $THANK_PAGE; }\n"+
+"elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { include __DIR__ . '/' . $ERROR_PAGE; }\n"+
 "else { header('Location: ' . ($ok ? $THANK_PAGE : $ERROR_PAGE)); }\n"+
 "exit;\n\n"+
 "function sendLead($data) {\n"+
