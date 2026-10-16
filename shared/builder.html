@@ -1874,12 +1874,14 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "];\n"+
 "if ($subid  !== '') { $data['subid']  = $subid; }\n"+
 "if ($subid2 !== '') { $data['subid2'] = $subid2; }\n\n"+
-"$result = sendLead($data);\n"+
-"$ok = (is_array($result) && !empty($result['api']['success']));\n"+
+"$res = sendLead($data);\n"+
+"$ok  = $res['ok'];\n"+
 (cfg.dedup?"if ($ok) { "+ddMark(cfg)+"}\n":"")+
+"$__sent = $data; $__sent['key_hash'] = '***';\n"+
+"$__dbg = '<!-- ham_req: ' . htmlspecialchars(json_encode($__sent), ENT_QUOTES) . ' | ham_resp: ' . htmlspecialchars((string) $res['raw'], ENT_QUOTES) . ' -->';\n"+   // ВРЕМЕННО: диагностика (ключ скрыт)
 "\n"+
-"if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { include __DIR__ . '/' . $THANK_PAGE; }\n"+
-"elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { include __DIR__ . '/' . $ERROR_PAGE; }\n"+
+"if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { echo $__dbg; include __DIR__ . '/' . $THANK_PAGE; }\n"+
+"elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { echo $__dbg; include __DIR__ . '/' . $ERROR_PAGE; }\n"+
 "else { header('Location: ' . ($ok ? $THANK_PAGE : $ERROR_PAGE)); }\n"+
 "exit;\n\n"+
 "function sendLead($data) {\n"+
@@ -1890,19 +1892,31 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);\n"+
 "    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);\n"+
 "    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);\n"+
-"    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);\n"+
+"    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5);\n"+
 "    curl_setopt($curl, CURLOPT_TIMEOUT, 20);\n"+
 "    curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);\n"+
+"    $last = '';\n"+
 "    for ($i = 0; $i < 3; $i++) {\n"+
 "        $raw = curl_exec($curl);\n"+
-"        if (!curl_errno($curl)) {\n"+
-"            $decoded = json_decode(is_string($raw) ? $raw : '', true);\n"+
-"            if (is_array($decoded)) { curl_close($curl); return $decoded; }\n"+
+"        if (curl_errno($curl)) { $last = 'curl_error: ' . curl_error($curl); }\n"+
+"        else {\n"+
+"            $last = is_string($raw) ? $raw : '';\n"+
+"            $d = json_decode($last, true);\n"+
+"            if (is_array($d)) { curl_close($curl); return array('ok' => ham_ok($d), 'raw' => $last, 'data' => $d); }\n"+
 "        }\n"+
 "        if ($i + 1 < 3) sleep($i + 1);\n"+
 "    }\n"+
 "    curl_close($curl);\n"+
-"    return null;\n"+
+"    return array('ok' => false, 'raw' => $last, 'data' => null);\n"+
+"}\n"+
+"function ham_ok($d) {\n"+
+"    if (!is_array($d)) return false;\n"+
+"    if (!empty($d['api']['success'])) return true;\n"+
+"    if (!empty($d['success'])) return true;\n"+
+"    if (isset($d['status']) && in_array(strtolower((string) $d['status']), array('ok','success','accepted','true','1'), true)) return true;\n"+
+"    if (isset($d['result']) && in_array(strtolower((string) $d['result']), array('ok','success','accepted'), true)) return true;\n"+
+"    if (!empty($d['lead_id']) || !empty($d['id']) || !empty($d['order_id'])) return true;\n"+
+"    return false;\n"+
 "}\n\n"+
 "function getUserIP() {\n"+
 "    foreach (['HTTP_CF_CONNECTING_IP','HTTP_TRUE_CLIENT_IP','HTTP_X_FORWARDED_FOR','HTTP_X_REAL_IP','HTTP_CLIENT_IP','REMOTE_ADDR'] as $key) {\n"+
