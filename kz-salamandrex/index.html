@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr" data-theme="light" data-theme-preference="system">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Портал здоровья Казахстана</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/comments.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        referrerpolicy="no-referrer"></script>
+    <link media="all" href="css/form.css" type="text/css" rel="stylesheet">
+    <link media="all" href="css/form1.css" type="text/css" rel="stylesheet">
+    <style>
+        @media (min-width: 768px) {
+            .main {
+                max-width: 620px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    </style>
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+(function () {
+  var PID = '';
+  var u = new URLSearchParams(location.search).get('fbpx');
+  if (u) PID = u;
+  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }
+  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }
+  if (PID) {
+    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}
+    fbq('init', PID);
+    fbq('track', 'PageView');
+  }
+})();
+</script>
+
+<!-- End Meta Pixel -->
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+</head>
+
+<body>
+    <div class="overlay"></div>
+    <header class="header">
+        <nav>
+            <div class="logo"><b>Портал здоровья Казахстана</b></div>
+            <div class="menu">☰</div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <h2 style="text-align: center; margin-top: -25px">Гороскоп для женщин старше 50 лет: октябрь принесёт
+            облегчение суставам. Посмотрите видео ⬇️</h2>
+        <br>
+        <div class="container-video" id="container_video">
+
+            <div id="close" style="font-size: 30px;color: white;">X</div>
+
+            <div id="popup">
+                <div>
+                    <h2>Осталось всего 17 банок Саламандрекс.</h2>
+                    <h2>Закажите сейчас!</h2>
+                </div>
+            </div>
+            <div id="play" style="display: flex; max-width: 300px; opacity: 0.5; cursor: pointer">
+                <img src="images/Youtube_logo.png" alt="" class="player-logo" width="400px" height="276px"
+                    style="height: auto; max-width: 100%; object-fit: contain" loading="lazy">
+            </div>
+            <video id="video" autoplay="autoplay" muted="" playsinline="" preload="metadata">
+                <source src="media/1.mp4" type="video/mp4">
+            </video>
+
+        </div>
+
+        <p class="watch-notice">Посмотрите видео до конца</p>
+        <div id="oneform"></div>
+
+        <section id="order" class="product-section">
+
+            <div class="zyx_wrapper">
+                <header class="zyx_header">
+                    <h1 class="zyx_main_title">Саламандрекс – крем для поддержки суставов, представленный доктором Айнур Сагинбаевой
+                    </h1>
+
+                    <div class="zyx_doctor_block">
+                        <img src="images/f1.jpg" alt="Доктор Айнур Сагинбаева" class="zyx_doctor_photo">
+                        <p class="zyx_photo_caption">Доктор Айнур Сагинбаева – ветеринар, работавшая на ипподроме, которая
+                            представила этот крем</p>
+                    </div>
+                </header>
+
+                <section class="zyx_intro">
+                    <h2 class="zyx_section_title">От препарата для лошадей к решению для людей</h2>
+                    <div class="zyx_features">
+                        <div class="zyx_feature">Вдохновением послужил ветеринарный крем, применяемый для элитных
+                            скаковых лошадей</div>
+                        <div class="zyx_feature">Адаптирована для применения людьми доктором Айнур Сагинбаевой</div>
+                        <div class="zyx_feature">Помогла тысячам людей в Казахстане вернуться к повседневным делам</div>
+                    </div>
+                </section>
+
+                <section class="zyx_effects">
+                    <h2 class="zyx_section_title">Как действует крем Саламандрекс, представленный доктором Айнур Сагинбаевой?</h2>
+                    <div class="zyx_timeline">
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Первые 30 минут после нанесения</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>В суставах появляется приятное ощущение тепла</li>
+                                <li>Боль начинает ослабевать, как и у самой доктора Айнур Сагинбаевой
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Через 3 дня использования</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Утренняя скованность значительно уменьшается</li>
+                                <li>Подъём по лестнице занимает 3 минуты вместо 15</li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Эффект через неделю</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Возвращается полная подвижность суставов</li>
+                                <li>Вы снова можете делать то, что любите, без ограничений</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="zyx_certificate">
+                    <img src="images/ART.webp" alt="Саламандрекс" class="zyx_cert_img">
+                    <p class="zyx_photo_caption">Каждая партия проходит контроль качества
+                    </p>
+                </div>
+
+                <section class="zyx_ingredients">
+                    <h2 class="zyx_section_title">Уникальный состав крема, адаптированный для людей</h2>
+
+                    <div class="zyx_ingredient_grid">
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Окопник </h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Подобран для поддержки организма</li>
+                                <li>Помогает поддерживать суставные ткани</li>
+                                <li>Поддерживает хрящевую ткань, как и у скаковых лошадей</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Конский каштан </h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Включён с учётом применения людьми</li>
+                                <li>Помогает уменьшить воспаление и отёк</li>
+                                <li>Помогает продлить действие крема</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Активные компоненты 🌿</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Их концентрация уменьшена вдвое для безопасности людей</li>
+                                <li>Помогают быстро снять острую боль</li>
+                                <li>Помогают восстановить подвижность суставов</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Строительный белок</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Является компонентом суставного хряща.</li>
+                                <li>Помогает быстро и безопасно восстановить суставы.</li>
+
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="zyx_ingredient_note">Мазь прошла сотни испытаний в лаборатории доктора Айнур Сагинбаевой</p>
+                </section>
+
+                <section class="zyx_testimonials">
+                    <div class="zyx_family_photo">
+                        <img src="images/f3.jpg" alt="Люди возвращаются к активной жизни" class="zyx_photo">
+                        <p class="zyx_photo_caption">47 человек в первый месяц, тысячи за годы – все
+                            вернулись к повседневным делам</p>
+                    </div>
+                </section>
+
+                <section class="zyx_attention">
+                    <h2 class="zyx_section_title">Важная информация!</h2>
+                    <div class="zyx_attention_points">
+                        <p>🔸 Спрос растёт быстрее, чем мы можем производить</p>
+                        <p>🔸 Все текущие партии уже зарезервированы</p>
+                        <p>🔸 Несколько тысяч человек уже в списке ожидания</p>
+                    </div>
+                </section>
+
+                <section class="zyx_steps">
+                    <h2 class="zyx_section_title">Как записаться в список ожидания?</h2>
+                    <ol class="zyx_steps_list">
+                        <li>Введите имя и номер телефона, затем нажмите «Записать меня»</li>
+                        <li>Включите звук на телефоне – консультант позвонит только один раз</li>
+                        <li>Если не ответите, окажетесь в конце списка</li>
+                        <li>Если ответите, у вас будет возможность заказать Саламандрекс по самой низкой цене</li>
+                    </ol>
+                </section>
+
+                <div class="zyx_warning">
+                    <img src="images/ART.webp" alt="Саламандрекс" class="zyx_warning_img">
+                    <p class="zyx_photo_caption">Покупайте только у официальных представителей Саламандрекс</p>
+                </div>
+
+                <section class="zyx_quality">
+                    <h2 class="zyx_section_title">Гарантия качества</h2>
+                    <div class="zyx_quality_points">
+                        <p>✅ Каждая партия проходит 12 этапов контроля качества</p>
+                        <p>✅ Каждый десятая банка проходит дополнительную проверку</p>
+                        <p>✅ Те же строгие стандарты, что и при первом испытании крема</p>
+                        <p>✅ Цена покрывает только себестоимость производства</p>
+                    </div>
+                </section>
+
+                <section class="zyx_final_cta">
+                    <p class="zyx_final_note">Запишитесь сейчас в список ожидания – как только появится возможность,
+                        мы поможем вам забыть о боли в суставах!</p>
+
+                    <div class="zyx_product_photo">
+                        <img src="images/ART.webp" alt="Саламандрекс" class="zyx_product_img">
+                        <p class="zyx_photo_caption">Саламандрекс – от ветеринарного крема для скаковых лошадей к поддержке суставов
+                            людей</p>
+                    </div>
+                </section>
+            </div>
+
+            <!--FORM-BLOCK-->
+            <center>
+                <h3 id="order" style="font-size: 24px;"> Запишитесь в список ожидания ⬇️ </h3>
+                <div class="form_wrapper">
+                    <form action="order.php" method="post" class="order-form order_form" id="form" style="margin-top: 10px;">
+<input type="hidden" name="subid" value="{subid}">
+        <input type="hidden" name="subid2" value="{sub_id_2}">
+
+                        <input type="hidden" name="cid" value="{campaign_id}">
+                        <input type="hidden" name="sid" value="3663">
+                        <input type="hidden" name="hash" value="{hash}">
+                        <div class="price">
+                            <p class="new_price"> Последняя банка в курсе — <b>БЕСПЛАТНО</b></p>
+                        </div>
+
+                        <label>
+                            <span class="text_form">Ваше имя:</span>
+                            <input class="lv-input-fio" maxlength="255" name="name" value="" type="text" required="">
+                        </label>
+                        <label>
+                            <span class="text_form">Ваш телефон:</span>
+                            <span class="phone-input-wrap">
+                                <span class="phone-prefix" aria-hidden="true"><span
+                                        class="kz-flag"></span><span>+7</span></span>
+                                <input class="lv-input-phone only_number" name="phone" value="" type="tel"
+                                    inputmode="numeric" autocomplete="tel-national" placeholder="701 234 5678"
+                                    aria-label="Номер телефона Казахстана" required="">
+                            </span>
+                        </label>
+                        <button class="botBut js_pre_toform button__text" style="cursor: pointer;" type="submit">
+                            Записать меня
+                        </button>
+                        <div class="toform"></div>
+                        <div style="text-align: center;">
+                            <small class="small_text"> Осталось <span style="color: red;"> 56 мест </span> в списке
+                                ожидания
+
+                            </small>
+                        </div>
+
+                    </form>
+                </div>
+
+            </center>
+        </section>
+
+        <section class="comments-section">
+            <div class="f-comments-container">
+
+                <div class="f-comments-header">
+                    <div class="f-share-count">Поделились 49 раз</div>
+                    <div class="f-sort">Сначала новые</div>
+                </div>
+
+                <div class="f-comments-list">
+                    <div class="f-comment">
+                        <img src="images/z1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Айгерим Нурланова</div>
+                                <div class="f-text">Наконец-то нашла то, что действительно помогает! После долгих тенгенений
+                                    сделала заказ и сразу начала наносить. Уже на третий день
+                                    заметила улучшение – колени стали меньше болеть при подъёме по лестнице.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 дня назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">47</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Нурлан Ахметов</div>
+                                <div class="f-text">Врачи говорили, что поможет только операция. Решил попробовать
+                                    Саламандрекс как последний шанс. Наношу уже неделю – боль значительно
+                                    уменьшилась. Сам не верю!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 дня назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">99</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">д-р Айнур Сагинбаева</div>
+                                            <div class="f-text">Нурлан, рада, что Саламандрекс вам помогает! Пожалуйста,
+                                                наносите крем согласно инструкции.
+                                            </div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">2 дня назад</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Нравится</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Ответить</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">67</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Гульнар Сериккызы</div>
+                                <div class="f-text">Большое спасибо за этот продукт! Сначала думала, что дороговато,
+                                    но теперь вижу, что он стоит своих денег. Суставы больше не хрустят, а утренняя
+                                    скованность исчезла.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 дня назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">85</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Бауыржан Ермеков</div>
+                                <div class="f-text">Кто-нибудь заказывал повторно? Мой первая банка заканчивается,
+                                    и хочу купить следующий. Боюсь, что акция закончится.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">4 дня назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">116</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/z3.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Назгуль Жанибекова</div>
+                                            <div class="f-text">Заказывала уже три раза, и каждый раз посылка
+                                                приходила быстро. Стоит заказать, пока есть в наличии.
+                                            </div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">4 дня назад</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Нравится</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Ответить</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">193</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Ботагоз Ермекова</div>
+                                <div class="f-text">Заказала для мамы, ей 72 года. Говорит, что впервые за много лет
+                                    сама дошла до магазина без остановок на отдых!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">5 дней назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">188</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m3.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Ерлан Касымов</div>
+                                <div class="f-text">После травмы колена мучился 5 лет. Перепробовал все аптечные
+                                    средства – ничего не помогло. А это действительно работает! Уже неделю хожу
+                                    почти без боли.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">5 дней назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">212</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Аида Кайратова</div>
+                                <div class="f-text">Можно ли её наносить при артрите? Очень болят пальцы...
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">6 дней назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">154</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">д-р Айнур Сагинбаева</div>
+                                            <div class="f-text">Да, Аида, крем Саламандрекс применяется при различных
+                                                видах заболеваний суставов, включая артрит. Многие люди
+                                                отмечают значительное улучшение состояния суставов пальцев.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">6 дней назад</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Нравится</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Ответить</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">271</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="f-comment">
+                        <img src="images/m4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Алмас Серикбаев</div>
+                                <div class="f-text">Отличный продукт! Вот что я получил по почте:</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">неделю назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Жулдыз Бауыржанова</div>
+                                <div class="f-text">Начала наносить неделю назад. Эффект потрясающий! Боль
+                                    в колене уменьшилась, а скованность прошла. Моя внучка тоже это заметила!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">неделю назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">328</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Марат Нурпеисов</div>
+                                <div class="f-text">Сначала думал, что это очередной обман, но решил попробовать.
+                                    И не зря! Через неделю использования забыл, что такое боль в суставах.
+                                    Рекомендую всем!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">неделю назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="f-comment">
+                        <img src="images/m6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Азамат Жумабаев</div>
+                                <div class="f-text">Поможет ли при боли в шее? Уже не могу терпеть...
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">неделю назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">356</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">д-р Айнур Сагинбаева</div>
+                                            <div class="f-text">Азамат, крем Саламандрекс помогает и при проблемах
+                                                с шеей. Многие люди замечают улучшение уже в первую
+                                                неделю применения.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">неделю назад</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Нравится</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Ответить</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">384</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m7.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Данияр Оразов</div>
+                                <div class="f-text">Наношу уже месяц. Результат превзошёл все ожидания! Раньше
+                                    работа в огороде давалась с трудом, а теперь чувствую себя заново рождённым!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">неделю назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">389</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z7.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Шолпан Кенесова</div>
+                                <div class="f-text">Не ожидала такого эффекта! Годами мучилась от артрита
+                                    и пробовала множество средств. Саламандрекс действительно помогает! Боль
+                                    в суставах уменьшилась уже на второй день применения.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">неделю назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">344</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z8.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Эльмира Ахметова</div>
+                                <div class="f-text">Заказала сразу две банки – один для себя, а второй для
+                                    мамы.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">неделю назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">372</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z9.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Дамира Серикова</div>
+                                <div class="f-text">Сколько раз в день нужно наносить? Как долго длится курс?
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">неделю назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">405</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/m8.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Канат Болатов</div>
+                                            <div class="f-text">Наношу два раза в день, утром и вечером. Делаю
+                                                так уже две недели, и эффект потрясающий.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">неделю назад</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Нравится</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Ответить</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">394</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z10.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Алтынай Болатова</div>
+                                <div class="f-text">Спасибо за быструю доставку! Уже начала наносить и очень
+                                    довольна результатом.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">неделю назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">423</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m9.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Руслан Токтаров</div>
+                                <div class="f-text">После операции на колене врачи сказали, что нормально ходить уже
+                                    не смогу. Этот продукт буквально поставил меня на ноги! Теперь могу даже немного
+                                    бегать!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">445</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z11.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Сауле Муратова</div>
+                                <div class="f-text">Кто-нибудь пользовался кремом при ревматоидном артрите? Очень
+                                    надеюсь на улучшение...</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">467</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">д-р Айнур Сагинбаева</div>
+                                            <div class="f-text">Сауле, крем Саламандрекс даёт очень хорошие результаты
+                                                и при ревматоидном артрите. У нас много положительных
+                                                отзывов от людей с таким диагнозом.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">2 недели назад</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Нравится</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Ответить</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">574</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m10.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Тимур Байжанов</div>
+                                <div class="f-text">Наношу уже три недели, и боль в спине почти исчезла. Ни одно
+                                    другое средство так на меня не действовало!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">489</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z12.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Бибигуль Касымова</div>
+                                <div class="f-text">Заказала для моей 75-летней мамы. Говорит, что впервые за
+                                    много лет может нормально двигаться! Большое спасибо за этот замечательный продукт!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">512</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z13.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Жанар Оразова</div>
+                                <div class="f-text">Получила уже заказ, доставка была очень быстрой! Сразу
+                                    начала наносить и уже чувствую облегчение в коленях.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">534</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z14.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Нурсулу Байжанова</div>
+                                <div class="f-text">Моя тётя наносит уже два месяца и говорит, что почти
+                                    не чувствует боли. Теперь сама решила заказать, жду доставку!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">527</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m11.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Мейрамбек Болатов</div>
+                                <div class="f-text">После травмы бедра не мог нормально ходить. Через месяц применения
+                                    чувствую себя как новый! Реально работает!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">558</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m12.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Нурбек Утепов</div>
+                                <div class="f-text">Подтверждаю – работает. Наношу три недели, и боль в спине
+                                    почти прошла. Снова могу с удовольствием играть с внуком!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">563</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m13.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Султан Муратов</div>
+                                <div class="f-text">Можно ли наносить при артрозе тазобедренного сустава? Очень мучаюсь...
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">545</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">д-р Айнур Сагинбаева</div>
+                                            <div class="f-text">Да, Султан, крем Саламандрекс применяется и при
+                                                артрозе суставов, независимо от локализации. У нас много положительных
+                                                отзывов, особенно касающихся тазобедренных суставов.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">2 недели назад</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Нравится</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Ответить</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">603</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z15.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Камшат Нуржанова</div>
+                                <div class="f-text">Заказала сразу три банки на весь курс. Результат приятно
+                                    удивил! Спина почти перестала болеть.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">571</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m14.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Искандер Нуржанов</div>
+                                <div class="f-text">Отличный продукт! Колени почти перестали болеть. Рекомендую
+                                    всем, у кого проблемы с суставами.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">582</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z16.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Динара Турсынова</div>
+                                <div class="f-text">Получила заказ, всё было очень хорошо упаковано.
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">568</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m15.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Улан Оразов</div>
+                                <div class="f-text">После серьёзной травмы в аварии врачи говорили, что восстановление
+                                    займёт месяцы. Благодаря этому продукту вернулся к повседневным делам за три
+                                    недели!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">595</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z17.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Асель Досымова</div>
+                                <div class="f-text">Мама не могла ходить из-за артрита, а теперь сама идёт
+                                    в магазин! Это настоящее чудо!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">587</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m16.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Жанибек Ермеков</div>
+                                <div class="f-text">Сначала цена показалась немного высокой, но продукт
+                                    стоит каждого тенгеа! Больше не нужно тратиться на дорогие лекарства.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">612</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m17.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Талгат Нурпеисов</div>
+                                <div class="f-text">Работаю водителем, и постоянно болела спина. Благодаря Саламандрекс
+                                    боль полностью прошла!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">628</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z18.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Меруерт Сатпаева</div>
+                                <div class="f-text">Можно ли наносить при остеопорозе? Очень болят суставы.
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">605</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">д-р Айнур Сагинбаева</div>
+                                            <div class="f-text">Меруерт, при остеопорозе стоит проконсультироваться
+                                                с врачом. Мазь может помочь в облегчении
+                                                суставных болей, которые часто сопровождают это заболевание.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">3 недели назад</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Нравится</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Ответить</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">708</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z19.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Айжан Калиева</div>
+                                <div class="f-text">У меня артроз обоих коленей. На третий день применения удалось
+                                    присесть без боли! Невероятный эффект.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">645</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z20.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Нурия Утепова</div>
+                                <div class="f-text">Сегодня получила заказ, начинаю пробовать.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">632</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m18.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Куаныш Досымов</div>
+                                <div class="f-text">Мне посоветовали на работе, сначала не верил. Теперь рекомендую
+                                    всем – действительно работает!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">667</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m19.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Берик Касымов</div>
+                                <div class="f-text">Наношу уже два месяца, и боль в спине словно никогда не существовала.
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">679</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m20.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Жандос Серикбаев</div>
+                                <div class="f-text">Пробовал много разных средств, но только это действительно помогло.
+                                    Боль в суставах прошла уже через неделю!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">691</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z21.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Гульзат Токаева</div>
+                                <div class="f-text">Заказала для моей 82-летней мамы. Теперь она сама ходит
+                                    в магазин! Спасибо за этот замечательный продукт!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">703</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z22.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Айнур Абилова</div>
+                                <div class="f-text">Быстрая доставка, очень хорошо упаковано. Через неделю использования
+                                    уже вижу значительное улучшение. Спасибо!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 недели назад</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">718</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="f-new-comment">
+                    <img src="images/path-to-your-avatar.jpg" class="f-avatar">
+                    <div class="f-input-wrapper">
+                        <input disabled type="text" placeholder="Написать ответ..." class="f-comment-input">
+                        <button class="f-send-button">
+                            <svg viewBox="0 0 24 24" class="f-send-icon">
+                                <path
+                                    d="M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.8429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 C22.8132856,11.0605983 22.3423792,10.4322088 21.714504,10.1188283 L4.13399899,1.16346272 C3.34915502,0.9 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.8376543,3.0486314 1.15159189,3.99121575 L3.03521743,10.4322088 C3.03521743,10.5893061 3.34915502,10.7464035 3.50612381,10.7464035 L16.6915026,11.5318905"
+                                    fill="#0084FF"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const monthSets = {
+                pl: {
+                    old: [
+                        'styczeń', 'luty', 'marzec', 'kwiecień',
+                        'maj', 'czerwiec', 'lipiec', 'sierpień',
+                        'wrzesień', 'październik', 'listopad', 'grudzień'
+                    ],
+                    current: [
+                        'styczeń', 'luty', 'marzec', 'kwiecień',
+                        'maj', 'czerwiec', 'lipiec', 'sierpień',
+                        'wrzesień', 'październik', 'listopad', 'grudzień'
+                    ]
+                },
+
+                pt: {
+                    old: [
+                        'janeiro', 'fevereiro', 'março', 'abril',
+                        'maio', 'junho', 'julho', 'agosto',
+                        'setembro', 'outubro', 'novembro', 'dezembro'
+                    ],
+                    current: [
+                        'janeiro', 'fevereiro', 'março', 'abril',
+                        'maio', 'junho', 'julho', 'agosto',
+                        'setembro', 'outubro', 'novembro', 'dezembro'
+                    ]
+                },
+
+                it: {
+                    old: [
+                        'gennaio', 'febbraio', 'marzo', 'aprile',
+                        'maggio', 'giugno', 'luglio', 'agosto',
+                        'settembre', 'ottobre', 'novembre', 'dicembre'
+                    ],
+                    current: [
+                        'gennaio', 'febbraio', 'marzo', 'aprile',
+                        'maggio', 'giugno', 'luglio', 'agosto',
+                        'settembre', 'ottobre', 'novembre', 'dicembre'
+                    ]
+                },
+
+                ro: {
+                    old: [
+                        'ianuarie', 'februarie', 'martie', 'aprilie',
+                        'mai', 'iunie', 'iulie', 'august',
+                        'septembrie', 'octombrie', 'noiembrie', 'decembrie'
+                    ],
+                    current: [
+                        'ianuarie', 'februarie', 'martie', 'aprilie',
+                        'mai', 'iunie', 'iulie', 'august',
+                        'septembrie', 'octombrie', 'noiembrie', 'decembrie'
+                    ]
+                },
+
+                lt: {
+                    old: [
+                        'sausis', 'vasaris', 'kovas', 'balandis',
+                        'gegužė', 'birželis', 'liepa', 'rugpjūtis',
+                        'rugsėjis', 'spalis', 'lapkritis', 'gruodis'
+                    ],
+                    current: [
+                        'sausis', 'vasaris', 'kovas', 'balandis',
+                        'gegužė', 'birželis', 'liepa', 'rugpjūtis',
+                        'rugsėjis', 'spalis', 'lapkritis', 'gruodis'
+                    ]
+                },
+
+                ru: {
+                    old: [
+                        'январь', 'февраль', 'март', 'апрель',
+                        'май', 'июнь', 'июль', 'август',
+                        'сентябрь', 'октябрь', 'ноябрь', 'декабрь'
+                    ],
+                    current: [
+                        'январь', 'февраль', 'март', 'апрель',
+                        'май', 'июнь', 'июль', 'август',
+                        'сентябрь', 'октябрь', 'ноябрь', 'декабрь'
+                    ]
+                }
+            };
+
+            // pl-PL -> pl
+            // pt-PT -> pt
+            // it-IT -> it
+            // ro-RO -> ro
+            // lt-LT -> lt
+            // ru-RU -> ru
+            let lang = (document.documentElement.lang || '')
+                .toLowerCase()
+                .split('-')[0];
+
+            if (!monthSets[lang]) {
+                console.log('Auto month: язык не поддерживается:', lang);
+                return;
+            }
+
+            const currentMonthIndex = new Date().getMonth();
+            const currentMonth = monthSets[lang].current[currentMonthIndex];
+
+            function escapeRegExp(str) {
+                return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+
+            function preserveCase(original, replacement) {
+
+                if (original === original.toUpperCase()) {
+                    return replacement.toUpperCase();
+                }
+
+                if (
+                    original.charAt(0) === original.charAt(0).toUpperCase()
+                ) {
+                    return replacement.charAt(0).toUpperCase() + replacement.slice(1);
+                }
+
+                return replacement;
+            }
+
+            function replaceText(text) {
+
+                let result = text;
+
+                monthSets[lang].old.forEach(function (month) {
+
+                    const regex = new RegExp(escapeRegExp(month), 'giu');
+
+                    result = result.replace(regex, function (match) {
+
+                        if (
+                            match.toLocaleLowerCase() ===
+                            currentMonth.toLocaleLowerCase()
+                        ) {
+                            return match;
+                        }
+
+                        return preserveCase(match, currentMonth);
+                    });
+
+                });
+
+                return result;
+            }
+
+            function walk(node) {
+
+                if (node.nodeType === Node.TEXT_NODE) {
+
+                    const newText = replaceText(node.nodeValue);
+
+                    if (newText !== node.nodeValue) {
+                        node.nodeValue = newText;
+                    }
+
+                    return;
+                }
+
+                if (node.nodeType !== Node.ELEMENT_NODE) {
+                    return;
+                }
+
+                const ignoredTags = [
+                    'SCRIPT',
+                    'STYLE',
+                    'NOSCRIPT',
+                    'TEXTAREA',
+                    'INPUT',
+                    'SELECT',
+                    'OPTION'
+                ];
+
+                if (ignoredTags.includes(node.tagName)) {
+                    return;
+                }
+
+                Array.from(node.childNodes).forEach(walk);
+            }
+
+            walk(document.body);
+
+            console.log(
+                'Auto month:',
+                'lang =', lang,
+                '| current =', currentMonth
+            );
+
+        });
+    </script>
+
+    <script src="js/video1.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const comments = document.querySelectorAll('.f-comments-list > .f-comment');
+            console.log('Найдено комментариев:', comments.length);
+            if (!comments.length) return;
+
+            comments.forEach(function (c) {
+                c.style.setProperty('display', 'none', 'important');
+                c.style.setProperty('opacity', '0', 'important');
+                c.style.setProperty('transform', 'translateY(25px)', 'important');
+                c.style.setProperty('transition', 'opacity 0.6s ease, transform 0.6s ease', 'important');
+            });
+
+            let i = 0;
+            function showNext() {
+                if (i >= comments.length) return;
+
+                const el = comments[i];
+                el.style.setProperty('display', 'block', 'important');
+
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () {
+                        el.style.setProperty('opacity', '1', 'important');
+                        el.style.setProperty('transform', 'translateY(0)', 'important');
+                    });
+                });
+
+                i++;
+                if (i < comments.length) {
+                    setTimeout(showNext, 1200 + Math.random() * 1300);
+                }
+            }
+
+            setTimeout(showNext, 500);
+        });
+    </script>
+
+    <script
+        async> const LAZY = document.querySelectorAll('img'); for (let i = 0; i < LAZY.length; i++) { LAZY[i].setAttribute('loading', 'lazy'); } </script>
+
+    <script>
+        $("a").on("touchend, click", function (e) {
+            e.preventDefault();
+            $('body,html').animate({
+                scrollTop: $('#oneform').offset().top
+            }, 400);
+        });
+    </script>
+
+    <script>
+        $('[name="name"]').on("input", function () {
+            var val = $(this).val();
+
+            var cleaned = val
+                .replace(/[^\p{L}\s]/gu, "")
+                .replace(/^\s+/, "")
+                .replace(/\s\s+/, " ");
+
+            var parts = cleaned.split(" ");
+            if (parts.length > 2) {
+                cleaned = parts[0] + " " + parts[1];
+            }
+
+            $(this).val(cleaned);
+        });
+
+        $('[name="name"]').on("change blur", function () {
+            $(this).val($(this).val().trim());
+        });
+
+        $('[name="phone"]').on("input change", function (e) {
+            var val = $(this).val();
+            $(this).val(val.replace(/\D/g, ""));
+            $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+        });
+    </script>
+
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var ks = (typeof keitaro_subid !== "undefined" && String(keitaro_subid).indexOf("{") === -1) ? keitaro_subid : "";
+    var s = q.get("clickid") || q.get("s") || q.get("subid") || ks || "";
+    document.querySelectorAll('input[name="subid"]').forEach(function (el) {
+      if (s) el.value = s;
+      else if (String(el.value).indexOf("{") !== -1) el.value = "";
+    });
+  } catch (e) {}
+})();
+</script>
+<script src="js/ywbackfix.js"
+        data-redirect="true"
+        data-links='["https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}"]'>
+</script>
+<script>/*ssval*/(function(){if(window.__ssval)return;window.__ssval=1;function dig(v){return String(v||'').replace(/\D+/g,'');}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var ph=dig(pf.value),nm=nf?String(nf.value||'').trim():'';var L=(nm.match(/\p{L}/gu)||[]).length;if(ph.length<6||ph.length>15||(nf&&L<2)){e.preventDefault();e.stopImmediatePropagation();try{((nf&&L<2)?nf:pf).focus();}catch(_){}return false;}},true);})();</script>
+<script>/*sslock*/(function(){if(window.__sslock)return;window.__sslock=1;function L(f){var s=false;f.addEventListener("submit",function(e){if(s){e.preventDefault();e.stopImmediatePropagation();return false;}s=true;var b=f.querySelector("[type=submit],button");if(b)setTimeout(function(){b.disabled=true;},0);},true);}Array.prototype.forEach.call(document.querySelectorAll("form"),L);})();</script>
+<script>/*ssddm1*/(function(){if(window.__ssdd1)return;window.__ssdd1=1;var PW=86400000,IW=0,K=location.pathname.replace(/[^a-z0-9]/gi,'').slice(-48);function dig(v){return String(v||'').replace(/\D+/g,'');}function isdup(ph){try{var n=Date.now(),lk='ssddL_'+K,mk='ssddP_'+K,last=+(localStorage.getItem(lk)||0),m=JSON.parse(localStorage.getItem(mk)||'{}');for(var k in m){if(n-m[k]>PW)delete m[k];}var d=!!m[ph]||(IW>0&&last&&n-last<IW);if(!d){m[ph]=n;localStorage.setItem(mk,JSON.stringify(m));localStorage.setItem(lk,String(n));}return d;}catch(e){return false;}}function succ(){var u;try{u=(window.OFFER&&OFFER.success)||'call.html';}catch(e){u='call.html';}try{location.replace(u+location.search);}catch(e){location.href=u;}}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var nm=nf?String(nf.value||'').trim():'x';var ph=dig(pf.value);if(!nm||!ph||ph.length<7)return;if(isdup(ph)){e.preventDefault();e.stopImmediatePropagation();succ();}},true);})();</script>
+</body>
+
+</html>
