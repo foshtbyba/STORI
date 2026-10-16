@@ -2900,7 +2900,7 @@ function buildChest(cfg){var t=cfg.t,was=oldPrice(cfg).full,now=cfg.price,isPhp=
 <link href="css/styles.css" media="all" rel="stylesheet"><link href="css/css.css" media="all" rel="stylesheet">
 ${faviconTag(cfg)||'<link rel="icon" href="favicon.ico">'}
 ${full?"":"<style>body{margin:0;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1a2b42;background:radial-gradient(1100px 520px at 50% -8%,#eaf2fb,#f6f9fc 60%)}.container{max-width:560px;margin:0 auto;padding:22px 16px 40px}.top_block h1{font-size:23px;line-height:1.4;text-align:center;margin:8px 0 6px}.vis_big{text-align:center;font-size:16px}.new_price_val{color:#e53935;font-weight:800}.select_block__title{font-size:16px;text-align:center;line-height:1.5}.text_big{font-size:15px;color:#4a5a70;text-align:center;line-height:1.6}.chest__title{font-size:20px;text-align:center;margin:14px 0 2px}.chest__subtitle{font-size:15px;color:#4a5a70;text-align:center;font-weight:500;margin:0 0 8px}.chest__button,.chest__img--dinamic,.chest__coins,#pushChest{display:none!important}.chest__order{display:block!important}</style>"}
-${CHEST_FORM_CSS}
+${full?CHEST_FORM_FALLBACK:CHEST_FORM_CSS}
 ${pixelBlock(cfg,false)}
 </head>
 <body>
