@@ -1874,9 +1874,13 @@ ddCheck(cfg, "if (is_file(__DIR__.'/'.$THANK_PAGE)) { include __DIR__.'/'.$THANK
 "];\n"+
 "if ($subid  !== '') { $data['subid']  = $subid; }\n"+
 "if ($subid2 !== '') { $data['subid2'] = $subid2; }\n\n"+
-"$result = sendLead($data);\n\n"+
-"if (is_array($result) && !empty($result['api']['success'])) { "+ddMark(cfg)+"header('Location: ' . $THANK_PAGE); }\n"+
-"else { header('Location: ' . $ERROR_PAGE); }\n"+
+"$result = sendLead($data);\n"+
+"$ok = (is_array($result) && !empty($result['api']['success']));\n"+
+(cfg.dedup?"if ($ok) { "+ddMark(cfg)+"}\n":"")+
+"\n"+
+"if ($ok && is_file(__DIR__ . '/' . $THANK_PAGE)) { include __DIR__ . '/' . $THANK_PAGE; }\n"+
+"elseif (!$ok && is_file(__DIR__ . '/' . $ERROR_PAGE)) { include __DIR__ . '/' . $ERROR_PAGE; }\n"+
+"else { header('Location: ' . ($ok ? $THANK_PAGE : $ERROR_PAGE)); }\n"+
 "exit;\n\n"+
 "function sendLead($data) {\n"+
 "    $curl = curl_init();\n"+
