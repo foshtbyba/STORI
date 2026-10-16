@@ -2969,7 +2969,7 @@ function cleanChestHtml(html){
 }
 // источник сундука: своя папка -> чистим+патчим; иначе существующий chest.html из папки ленда -> патч; иначе шаблон
 // чистый стиль формы сундука — чтобы форма всегда выглядела аккуратно, даже если css сундука кривой/не подгрузился
-var CHEST_FORM_CSS="<style>/* chest-form-fix (шаблон)*/.my_form{max-width:420px;margin:16px auto 0;background:#fff;border:1px solid #e4ecf4;border-radius:18px;padding:22px 20px;box-shadow:0 16px 40px rgba(10,40,80,.10);text-align:center;box-sizing:border-box}.my_form .prodImg{max-width:200px;width:70%;height:auto;display:block;margin:0 auto 8px}.my_form .text_popup{font-size:15px;line-height:1.55;margin:0 0 12px;color:#1a2b42}.my_form .text_popup>span:first-child{display:block;font-weight:800;color:#1e8449;font-size:18px;margin-bottom:4px}.my_form form{margin:0}.my_form .input-roulette{display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:14px 16px;font-size:16px;border:1.5px solid #d9e2ec;border-radius:26px;outline:none;background:#fff;color:#1a2b42;font-family:inherit;height:auto;text-align:left}.my_form .input-roulette:focus{border-color:#4aa47c;box-shadow:0 0 0 3px rgba(74,164,124,.15)}.my_form .input-roulette::placeholder{color:#9aa6b6}.my_form .submit-roulette{display:block;width:100%;margin:14px auto 0;padding:16px 20px;border:0;border-radius:40px;background:#4aa47c;color:#fff;font-size:19px;font-weight:700;text-align:center;line-height:1.2;letter-spacing:.2px;cursor:pointer;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;box-shadow:0 8px 20px rgba(74,164,124,.30)}.my_form .submit-roulette:hover{filter:brightness(1.05)}.my_form .ring-loading{display:none}</style>";
+var CHEST_FORM_CSS="<style>/* chest-form-fix (шаблон)*/.my_form{max-width:420px;margin:16px auto 0;background:#fff;border:1px solid #e4ecf4;border-radius:18px;padding:22px 20px;box-shadow:0 16px 40px rgba(10,40,80,.10);text-align:center;box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif}.my_form p,.my_form .text_popup{font-family:inherit}.my_form .prodImg{max-width:200px;width:70%;height:auto;display:block;margin:0 auto 8px}.my_form .text_popup{font-size:15px;line-height:1.55;margin:0 0 12px;color:#1a2b42}.my_form .text_popup>span:first-child{display:block;font-weight:800;color:#1e8449;font-size:18px;margin-bottom:4px}.my_form form{margin:0}.my_form .input-roulette{display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:14px 16px;font-size:16px;border:1.5px solid #d9e2ec;border-radius:26px;outline:none;background:#fff;color:#1a2b42;font-family:inherit;height:auto;text-align:left}.my_form .input-roulette:focus{border-color:#4aa47c;box-shadow:0 0 0 3px rgba(74,164,124,.15)}.my_form .input-roulette::placeholder{color:#9aa6b6}.my_form .submit-roulette{display:block;width:100%;margin:14px auto 0;padding:16px 20px;border:0;border-radius:40px;background:#4aa47c;color:#fff;font-size:19px;font-weight:700;text-align:center;line-height:1.2;letter-spacing:.2px;cursor:pointer;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;box-shadow:0 8px 20px rgba(74,164,124,.30)}.my_form .submit-roulette:hover{filter:brightness(1.05)}.my_form .ring-loading{display:none}</style>";
 // для сундука ИЗ ПАПКИ — только страховочный минимум с НУЛЕВОЙ специфичностью (:where): родной css старого сундука всегда побеждает, форму не ломаем
 // ТОЛЬКО страховочный фолбэк с нулевой специфичностью (:where): если у сундука есть свой css —
 // он полностью побеждает, вид остаётся как в оригинале. Фолбэк применяется только если стилей нет вообще.
@@ -3453,6 +3453,11 @@ function renderPreview(target){
   PREVIEW_TARGET=target;
   // для сундука ассеты берём из его папки (если есть) + папки ленда; фото можно менять и на ленде, и в сундуке
   var srcFiles=(target==="chest"&&CHEST_FOLDER&&CHEST_FOLDER.files.length)?CHEST_FOLDER.files.concat(FOLDER?FOLDER.files:[]):(FOLDER?FOLDER.files:[]);
+  // встроенный сундук: css/styles.css, css/css.css, js/bounce.js и webp-картинки вшиты в билдер (не в папке) —
+  // без них превью сундука было без стилей и не открывалось. Подкидываем их в срс-файлы -> инлайнятся как <style>/<script>/data-uri.
+  if(target==="chest" && typeof chk==="function" && chk("chestBuiltin") && typeof hasBuiltinChest==="function" && hasBuiltinChest()){
+    try{ var __bcf=builtinChestFiles().map(function(f){ return {path:f.name, kind:f.bytes?"bin":"text", bytes:f.bytes, str:f.str}; }); srcFiles=__bcf.concat(srcFiles); }catch(e){}
+  }
   var editable=(target==="index"||target==="chest");
   var editExt=(target==="index");   // внешние (CDN) картинки заменяем только на ленде
   prev.onload=function(){
@@ -4035,10 +4040,6 @@ async function addPreviewPng(out, cfg){
     var ex=out.filter(function(f){ return /(^|\/)_preview\.(png|jpe?g|webp|gif)$/i.test(f.name||""); });
     if(ex.length){ ex.forEach(function(f){ f.name=(f.name||"_preview.png").replace(/\.(jpe?g|webp|gif)$/i,".png"); f.bytes=bytes; delete f.str; }); }
     else out.push({name:"_preview.png", bytes:bytes});
-    // дубль без подчёркивания в КОРНЕ: часть версий/сборок Keitaro ищет превью как preview.png (не _preview.png) -> кладём оба, покрываем обе схемы именования
-    var exP=out.filter(function(f){ return /(^|\/)preview\.(png|jpe?g|webp|gif)$/i.test(f.name||"") && !/_preview\./i.test(f.name||""); });
-    if(exP.length){ exP.forEach(function(f){ f.name=(f.name||"preview.png").replace(/\.(jpe?g|webp|gif)$/i,".png"); f.bytes=bytes; delete f.str; }); }
-    else out.push({name:"preview.png", bytes:bytes});
   }catch(e){ try{console.warn("addPreviewPng",e);}catch(_){} }
 }
 async function optAndZip(list, cfg){
