@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        transition: opacity ease-in 0.2s;
+      }
+
+      body[unresolved] {
+        opacity: 0;
+        display: block;
+        overflow: hidden;
+        position: relative;
+      }
+    </style>
+
+    <title>DiaformRX</title>
+
+    <link rel="stylesheet" href="css/comments.css" />
+    <link rel="stylesheet" href="css/css.css" />
+    <link rel="stylesheet" href="css/intlTelInput.css" />
+    <link rel="stylesheet" href="css/style_3.css" />
+    <link rel="stylesheet" href="css/hdr.css" />
+    <style>
+      .tv_icons {
+        flex-wrap: wrap;
+      }
+
+      @media screen and (max-width: 500px) {
+        .main_header {
+          font-size: 25px;
+        }
+      }
+
+      @media screen and (max-width: 360px) {
+        .main_header {
+          font-size: 30px;
+        }
+      }
+
+      #video {
+        pointer-events: none;
+      }
+
+      .iti {
+        width: 100%;
+      }
+    </style>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="js/date.js"></script>
+
+    <!-- Meta Pixel (lead tracking) -->
+
+    <!-- End Meta Pixel -->
+
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+(function () {
+  var PID = '';
+  var u = new URLSearchParams(location.search).get('fbpx');
+  if (u) PID = u;
+  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }
+  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }
+  if (PID) {
+    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}
+    fbq('init', PID);
+    fbq('track', 'PageView');
+  }
+})();
+</script>
+
+<!-- End Meta Pixel -->
+<link rel="icon" href="images/1.jpeg">
+</head>
+
+  <body style="margin: 0">
+    <div
+      class="d-flex d-lg-block"
+      style="
+        z-index: 2000;
+        background-color: #024476;
+        border-bottom: 6px solid #024476;
+        height: 92px;
+        margin-left: 0px;
+        padding-right: 10px;
+        width: 100%;
+      "
+    >
+      <div class="container">
+        <div
+          class="d-flex container-fluid col-12 justify-content-between"
+          style="max-width: 1280px"
+        >
+          <a class="text-muted pt-2" href="#" title="Портал здоров'я України"
+            ><img
+              src="images/IT1.png"
+              alt="Портал здоров'я України"
+              style="height: 72px"
+              loading="lazy"
+          /></a>
+          <div class="mt-3" style="display: flex; align-items: center">
+            <div class="search-container">
+              <form>
+                <input disabled
+                  class="search expandright"
+                  id="searchright"
+                  type="search"
+                />
+                <label class="buttonSch searchbutton"
+                  ><span class="mglass">⚲</span></label
+                >
+              </form>
+            </div>
+
+            <div class="switcher-container">
+              <div class="lang-menu">
+                <div class="selected-lang ro">
+                  <a href="#">
+                    <img
+                      src="images/IT2.png"
+                      alt="Українська"
+                      class="ro"
+                      loading="lazy"
+                  /></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   <h1 class="main_header">
+   <span class="green_bg">ВІДОМИЙ ЛІКАР ВИЯВИВ ПАРАЗИТА, ЯКИЙ СПРИЧИНЯЄ ДІАБЕТ 2 ТИПУ!</span>
+   <br> 94% глядачів, які переглянули це інтерв'ю до кінця, нормалізували рівень цукру в крові всього за 40 днів!
+  </h1>
+
+    <div id="container_video">
+      <div id="close"></div>
+      <div id="open-video">
+        <div>
+          <h4>Натисніть тут, щоб продовжити перегляд</h4>
+        </div>
+      </div>
+      <div id="popup">
+        <div>
+          <h2>На складі залишилося лише 17 упаковок DiaformRX.</h2>
+          <h2>Зробіть замовлення прямо зараз!</h2>
+        </div>
+      </div>
+      <div id="play">
+        <div>
+          <h4>Відео вже почалося</h4>
+          <h4>Натисніть, щоб увімкнути звук!</h4>
+        </div>
+      </div>
+      <video
+        id="video"
+        autoplay="autoplay"
+        muted=""
+        playsinline=""
+        webkit-playsinline=""
+        preload="metadata"
+      >
+        <source src="it.mp4" />
+      </video>
+    </div>
+    <span id="oneform"></span>
+    <form action="order.php" method="post" class="order_form" id="order">
+<input type="hidden" name="subid" value="{subid}">
+        <input type="hidden" name="subid2" value="{sub_id_2}">
+
+<input type="hidden" name="sub2" value="{sub_id_2}">
+
+      <input type="hidden" name="sub2" value="{sub_id_2}">
+      <div id="formFb" class="formFb">
+        <div class="formFb__container">
+          <p class="formFb__action formFb__text">
+            <b>Поспішайте!</b> Упаковки зі знижкою швидко закінчуються.
+          </p>
+          <p class="formFb__counter formFb__text">
+            <b>Оновлення:</b> сьогодні доступно лише
+            <span class="form-instock red">17</span> упаковок
+            <span class="js-current-date">
+              <script>
+                dtime_nums(-1, true);
+              </script> </span
+            >.
+          </p>
+          <div class="formFb__img">
+            <img src="images/Glucadin.png" alt="" loading="lazy" />
+          </div>
+          <div class="formFb__price">
+            <p class="formFb__price--txt formFb__text">ЗНИЖКА -50%</p>
+            <span class="formFb__price--p">
+              <span class="oldPriceAndLabelForLandingInfoApi formFb__price--old"
+                ><span class="price-old">1598</span>
+                <span class="">грн</span></span
+              >
+              <span class="priceAndLabelForLandingInfoApi formFb__price--new"
+                ><span class="price-new">799</span>
+                <span class="">грн</span></span
+              >
+            </span>
+          </div>
+          <div class="formFb__timer">
+            <p class="formFb__text">Пропозиція скоро закінчиться</p>
+            <div style="color: red">
+              <span class="min" style="font-size: 30px">10</span>
+              <span style="font-size: 30px">:</span>
+              <span class="sec" style="font-size: 30px">00</span>
+            </div>
+          </div>
+          <div class="formFb__inputs">
+            <label>Ваше ім'я</label>
+            <input
+              name="name"
+              placeholder="Ім'я"
+              required=""
+              autocomplete="name"
+              type="text"
+              minlength="3"
+              value=""
+            />
+          </div>
+          <div class="formFb__inputs">
+            <label>Ваш номер телефону</label>
+            <input
+              name="phone"
+              required=""
+              autocomplete="tel"
+              type="tel"
+              value=""
+              placeholder=""
+            />
+          </div>
+          <button class="formFb__btn" type="submit">НАДІСЛАТИ ЗАМОВЛЕННЯ</button>
+          <p class="formFb__counter formFb__text">
+            *Ця знижка діє для замовлень, спрямованих на підтримку рівня цукру в крові.
+          </p>
+        </div>
+      </div>
+    </form>
+
+    <div class="block_tv" style="max-width: 900px; margin: 0 auto">
+      <p>ПРО НАС ГОВОРЯТЬ:</p>
+      <div class="tv_icons">
+        <img src="https://static.joxi.pro/1770744963276-43b6a2bd-c8a1-4575-b3d0-f813a1e0d145.jpg" alt="" loading="lazy" />
+        <img src="https://static.joxi.pro/1770744963277-f55c8f34-0eee-41e2-8237-f2896fab1b41.jpg" alt="" loading="lazy" />
+        <img src="https://static.joxi.pro/1770744963277-a96a064c-407d-4269-9bfd-bd890bf07da4.jpg" alt="" loading="lazy" />
+        <img src="https://static.joxi.pro/1770744963277-d6128ae8-7bc8-4037-8884-30462c8390c1.jpg" alt="" loading="lazy" />
+        <img src="https://static.joxi.pro/1770744963277-8c69bfc3-7a3f-42a1-8d35-0472a75111ea.jpg" alt="" loading="lazy">
+      </div>
+    </div>
+    <section class="comments py-4" style="max-width: 900px; margin: 0 auto">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="fb-comments" style="margin-top: 5px">
+              <div class="fb-comments-header">
+                <span>Коментарі</span>
+              </div>
+              <div
+                class="fb-comments-wrapper resposta"
+                id="10"
+                style="display: block; opacity: 1.01663"
+              >
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/9.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Олександр Мельник</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Нарешті лікар, який відверто говорить про підвищений цукор
+                        та ризики діабету!
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>Подобається</like> · <reply>Відповісти</reply> ·
+                        <likes>47</likes> <date>2 хвилини тому</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper resposta" id="9">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/10.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Ірина Коваленко</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Роками боролася з підвищеним цукром, але цей засіб
+                        справді допоміг мені покращити ситуацію.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>Подобається</like> · <reply>Відповісти</reply> ·
+                        <likes>40</likes> <date>2 хвилини тому</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="8">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/8.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Наталія Бондаренко</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Вживаю два тижні і вже зараз мій рівень цукру
+                        набагато стабільніший.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>Подобається</like> · <reply>Відповісти</reply> ·
+                        <likes>41</likes> <date>2 хвилини тому</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="7">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/7.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Тетяна Шевченко</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Це відео з'явилося якраз вчасно, у мого дідуся
+                        проблеми з рівнем цукру в крові.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>Подобається</like> · <reply>Відповісти</reply> ·
+                        <likes>22</likes> <date>2 хвилини тому</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="6">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/6.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Андрій Кравченко</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Після того як перепробував усе для зниження цукру,
+                        нарешті цей засіб повернув мені надію.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>Подобається</like> · <reply>Відповісти</reply> ·
+                        <likes>18</likes> <date>3 хвилини тому</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="5">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/5.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Марія Ткаченко</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Через два тижні мій рівень цукру став набагато стабільнішим,
+                        і в мене з'явилося значно більше енергії.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>Подобається</like> · <reply>Відповісти</reply> ·
+                        <likes>17</likes> <date>3 хвилини тому</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="4">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/4.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Олена Полтавська</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Дуже корисно для тих, хто бореться з діабетом або
+                        підвищеним рівнем цукру в крові.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>Подобається</like> · <reply>Відповісти</reply> ·
+                        <likes>15</likes> <date>3 хвилини тому</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="fb-comments-wrapper resposta" id="3">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/3.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Сергій Мороз</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Борюся з підвищеним цукром роками. Те, що тут пояснюють,
+                        справді мені дуже допомогло.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>Подобається</like> · <reply>Відповісти</reply> ·
+                        <likes>11</likes> <date>3 хвилини тому</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="2">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/2.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Дмитро Олійник</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Не думав, що рівень цукру може так сильно впливати
+                        на весь організм. Дякую за пояснення.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>Подобається</like> · <reply>Відповісти</reply> ·
+                        <likes>9</likes> <date>3 хвилини тому</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="fb-comments-wrapper" id="1">
+                <table class="fb-comments-comment">
+                  <tbody>
+                    <tr>
+                      <td rowspan="3" class="fb-comments-comment-img">
+                        <img src="images/1.jpeg" loading="lazy" />
+                      </td>
+                      <td>
+                        <font class="fb-comments-comment-name">
+                          <name>Юлія Савченко</name>
+                        </font>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-text">
+                        Втома та постійна спрага майже повністю
+                        зникли.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="fb-comments-comment-actions">
+                        <like>Подобається</like> · <reply>Відповісти</reply> ·
+                        <likes>8</likes> <date>3 хвилини тому</date>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div id="more">
+                <div class="fb-comments-wrapper" id="11">
+                  <table class="fb-comments-comment">
+                    <tbody>
+                      <tr>
+                        <td rowspan="3" class="fb-comments-comment-img">
+                          <img src="images/11.jpeg" loading="lazy" />
+                        </td>
+                        <td>
+                          <font class="fb-comments-comment-name">
+                            <name>Василь Петренко</name>
+                          </font>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-text">
+                          Через 10 днів мій рівень цукру став набагато стабільнішим.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-actions">
+                          <like>Подобається</like> · <reply>Відповісти</reply> ·
+                          <likes>50</likes> <date>2 хвилини тому</date>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="fb-comments-wrapper">
+                  <table class="fb-comments-comment" id="12">
+                    <tbody>
+                      <tr>
+                        <td rowspan="3" class="fb-comments-comment-img">
+                          <img src="images/12.jpeg" loading="lazy" />
+                        </td>
+                        <td>
+                          <font class="fb-comments-comment-name">
+                            <name>Оксана Лисенко</name>
+                          </font>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-text">
+                          Лікар дуже зрозуміло пояснює, як підтримувати
+                          баланс рівня цукру в крові.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-actions">
+                          <like>Подобається</like> · <reply>Відповісти</reply> ·
+                          <likes>66</likes> <date>2 хвилини тому</date>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="fb-comments-wrapper">
+                  <table class="fb-comments-comment" id="13">
+                    <tbody>
+                      <tr>
+                        <td rowspan="3" class="fb-comments-comment-img">
+                          <img src="images/13.jpeg" loading="lazy" />
+                        </td>
+                        <td>
+                          <font class="fb-comments-comment-name">
+                            <name>Ігор Гончаренко</name>
+                          </font>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-text">
+                          Думав, що вже немає рішення для мого підвищеного
+                          цукру, але я помилявся.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-actions">
+                          <like>Подобається</like> · <reply>Відповісти</reply> ·
+                          <likes>81</likes> <date>3 хвилини тому</date>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="fb-comments-wrapper">
+                  <table class="fb-comments-comment" id="14">
+                    <tbody>
+                      <tr>
+                        <td rowspan="3" class="fb-comments-comment-img">
+                          <img src="images/14.jpeg" loading="lazy" />
+                        </td>
+                        <td>
+                          <font class="fb-comments-comment-name">
+                            <name>Катерина Руденко</name>
+                          </font>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-text">
+                          Хтось вже пробував цей засіб для цукру?
+                          Він справді допомагає?
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-actions">
+                          <like>Подобається</like> · <reply>Відповісти</reply> ·
+                          <likes>79</likes> <date>3 хвилини тому</date>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="fb-comments-wrapper">
+                  <table class="fb-comments-comment" id="15">
+                    <tbody>
+                      <tr>
+                        <td rowspan="3" class="fb-comments-comment-img">
+                          <img src="images/15.jpeg" loading="lazy" />
+                        </td>
+                        <td>
+                          <font class="fb-comments-comment-name">
+                            <name>Микола Тимошенко</name>
+                          </font>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-text">
+                          Вже замовив. Сподіваюся, нарешті вдасться
+                          підтримати нормальний рівень цукру.
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fb-comments-comment-actions">
+                          <like>Подобається</like> · <reply>Відповісти</reply> ·
+                          <likes>85</likes> <date>3 хвилини тому</date>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p>
+                  <strong>
+                    <span style="text-align: center">
+                      Щоб залишити коментар, необхідно увійти в систему
+                    </span>
+                  </strong>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <style>
+      #order_popup {
+        display: flex;
+        align-items: safe center;
+        justify-content: center;
+        position: fixed;
+        overflow-y: auto;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10000;
+        background-color: #3333332c;
+        backdrop-filter: blur(4px);
+      }
+
+      #order_popup .formFb,
+      #order_popup .order-form__wrapper {
+        background-color: #fff;
+      }
+
+      .close_order_popup {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        min-width: 30px;
+        min-height: 30px;
+        width: fit-content;
+        height: fit-content;
+        cursor: pointer;
+        z-index: 2;
+        background-image: url(images/close.svg);
+        background-size: cover;
+        font-size: 64px;
+        color: rgb(172, 172, 172);
+      }
+    </style>
+
+    <script src="js/video.js"></script>
+
+<script async>
+  const LAZY = document.querySelectorAll('img');
+  for (let i = 0; i < LAZY.length; i++) {
+    LAZY[i].setAttribute('loading', 'lazy');
+  } </script>
+<script>
+  $("a").on("touchend, click", function (e) {
+    e.preventDefault();
+    $('body,html').animate({
+      scrollTop: $('#oneform').offset().top
+    }, 400);
+  });
+</script>
+<script>
+  $('[name="name"]').on("input", function () {
+    var val = $(this).val();
+    var cleaned = val
+      .replace(/[^\p{L}\s]/gu, "")
+      .replace(/^\s+/, "")
+      .replace(/\s\s+/, " ");
+    var parts = cleaned.split(" ");
+    if (parts.length > 2) {
+      cleaned = parts[0] + " " + parts[1];
+    }
+    $(this).val(cleaned);
+  });
+  $('[name="name"]').on("change blur", function () {
+    $(this).val($(this).val().trim());
+  });
+  $('[name="phone"]').on("input change", function (e) {
+    var val = $(this).val();
+    $(this).val(val.replace(/\D/g, ""));
+    $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+  });
+</script>
+    <!-- BackFix: back-button redirect to chest -->
+
+    <p style="opacity: 0">{_box:XVsWxC}</p>
+
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var ks = (typeof keitaro_subid !== "undefined" && String(keitaro_subid).indexOf("{") === -1) ? keitaro_subid : "";
+    var s = q.get("s") || q.get("subid") || ks || "";
+    document.querySelectorAll('input[name="subid"]').forEach(function (el) {
+      if (s) el.value = s;
+      else if (String(el.value).indexOf("{") !== -1) el.value = "";
+    });
+  } catch (e) {}
+})();
+</script>
+<script src="js/ywbackfix.js"
+        data-redirect="true"
+        data-links='["https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}"]'>
+</script>
+<script>/*ssval*/(function(){if(window.__ssval)return;window.__ssval=1;function dig(v){return String(v||'').replace(/\D+/g,'');}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var ph=dig(pf.value),nm=nf?String(nf.value||'').trim():'';var L=(nm.match(/\p{L}/gu)||[]).length;if(ph.length<6||ph.length>15||(nf&&L<2)){e.preventDefault();e.stopImmediatePropagation();try{((nf&&L<2)?nf:pf).focus();}catch(_){}return false;}},true);})();</script>
+<script>/*sslock*/(function(){if(window.__sslock)return;window.__sslock=1;function L(f){var s=false;f.addEventListener("submit",function(e){if(s){e.preventDefault();e.stopImmediatePropagation();return false;}s=true;var b=f.querySelector("[type=submit],button");if(b)setTimeout(function(){b.disabled=true;},0);},true);}Array.prototype.forEach.call(document.querySelectorAll("form"),L);})();</script>
+<script>/*ssddm1*/(function(){if(window.__ssdd1)return;window.__ssdd1=1;var PW=86400000,IW=0,K=location.pathname.replace(/[^a-z0-9]/gi,'').slice(-48);function dig(v){return String(v||'').replace(/\D+/g,'');}function isdup(ph){try{var n=Date.now(),lk='ssddL_'+K,mk='ssddP_'+K,last=+(localStorage.getItem(lk)||0),m=JSON.parse(localStorage.getItem(mk)||'{}');for(var k in m){if(n-m[k]>PW)delete m[k];}var d=!!m[ph]||(IW>0&&last&&n-last<IW);if(!d){m[ph]=n;localStorage.setItem(mk,JSON.stringify(m));localStorage.setItem(lk,String(n));}return d;}catch(e){return false;}}function succ(){var u;try{u=(window.OFFER&&OFFER.success)||'call.html';}catch(e){u='call.html';}try{location.replace(u+location.search);}catch(e){location.href=u;}}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var nm=nf?String(nf.value||'').trim():'x';var ph=dig(pf.value);if(!nm||!ph||ph.length<7)return;if(isdup(ph)){e.preventDefault();e.stopImmediatePropagation();succ();}},true);})();</script>
+</body>
+</html>
