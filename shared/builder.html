@@ -4029,14 +4029,38 @@ async function genCardPreview(out, cfg){
     return (durl && durl.length>1000) ? durl : null;
   }catch(e){ return null; }
 }
+// ПОСЛЕДНИЙ РЕЗЕРВ: плашка с названием+ценой на градиенте. Чистый canvas (без html2canvas и внешних картинок) ->
+// никогда не tainted, toDataURL всегда даёт валидный PNG. Гарантия, что файл превью есть ВСЕГДА (иначе в Keitaro пусто).
+function genPlaceholderPreview(cfg){
+  try{
+    var W=600,Ht=600,c=document.createElement("canvas"); c.width=W; c.height=Ht;
+    var x=c.getContext("2d"); if(!x) return null;
+    var g=x.createLinearGradient(0,0,0,Ht); g.addColorStop(0,"#eaf2fb"); g.addColorStop(1,"#f6f9fc");
+    x.fillStyle=g; x.fillRect(0,0,W,Ht);
+    x.textAlign="center"; x.textBaseline="middle";
+    var brand=String(cfg&&cfg.brand||"").trim()||"Landing";
+    // перенос длинного названия на 2 строки
+    x.fillStyle="#1a2b42"; x.font="bold 48px Arial,Helvetica,sans-serif";
+    var words=brand.split(/\s+/), line="", lines=[];
+    for(var i=0;i<words.length;i++){ var test=(line?line+" ":"")+words[i]; if(x.measureText(test).width>W*0.84 && line){ lines.push(line); line=words[i]; } else line=test; }
+    if(line) lines.push(line); lines=lines.slice(0,3);
+    var ly=Ht/2-(lines.length-1)*30-(cfg&&cfg.price?24:0);
+    for(var j=0;j<lines.length;j++){ x.fillText(lines[j].slice(0,26),W/2,ly+j*58); }
+    if(cfg&&cfg.price){ x.fillStyle="#e53935"; x.font="bold 36px Arial,Helvetica,sans-serif"; x.fillText(String(cfg.price).slice(0,22),W/2,ly+lines.length*58+14); }
+    var durl=c.toDataURL("image/png");
+    return (durl && durl.length>500) ? durl : null;
+  }catch(e){ return null; }
+}
 async function addPreviewPng(out, cfg){
   if(!cfg || cfg.makePreview===false) return;
   try{
-    var durl=await genPreviewFromOut(out);        // 1) скриншот собранного ленда
-    if(!durl) durl=await genCardPreview(out, cfg);  // 2) фолбэк: карточка продукта (чтобы НИКОГДА не было битого превью)
-    if(!durl) return;                               // 3) не вышло — оставляем исходный _preview, если был
+    var durl=null;
+    try{ durl=await genPreviewFromOut(out); }catch(e){}       // 1) скриншот собранного ленда (лучший вид)
+    if(!durl){ try{ durl=await genCardPreview(out, cfg); }catch(e){} }  // 2) фолбэк: карточка продукта
+    if(!durl) durl=genPlaceholderPreview(cfg);                // 3) ЖЕЛЕЗОБЕТОННЫЙ резерв: плашка бренд+цена -> файл есть ВСЕГДА
+    if(!durl) return;
     var b64=durl.split(",")[1]; if(!b64) return; var bytes=b64ToBytes(b64);
-    if(!bytes || bytes.length<500) return;          // защита от пустого/битого файла
+    if(!bytes || bytes.length<300) return;          // защита от пустого/битого файла
     var ex=out.filter(function(f){ return /(^|\/)_preview\.(png|jpe?g|webp|gif)$/i.test(f.name||""); });
     if(ex.length){ ex.forEach(function(f){ f.name=(f.name||"_preview.png").replace(/\.(jpe?g|webp|gif)$/i,".png"); f.bytes=bytes; delete f.str; }); }
     else out.push({name:"_preview.png", bytes:bytes});
