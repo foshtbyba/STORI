@@ -1467,7 +1467,7 @@
 
                 monthSets[lang].old.forEach(function (month) {
 
-                    const regex = new RegExp(escapeRegExp(month), 'giu');
+                    const regex = new RegExp('\\b' + escapeRegExp(month) + '\\b', 'giu');
 
                     result = result.replace(regex, function (match) {
 
