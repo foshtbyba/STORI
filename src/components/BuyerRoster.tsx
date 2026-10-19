@@ -31,6 +31,11 @@ export type RosterRow = {
  * человека в отдельный лист. Правит только админ.
  */
 export default function BuyerRoster({ rows }: { rows: RosterRow[] }) {
+  // Уволенных в основном списке не держим — прячем под кнопку, чтобы ростер
+  // активных не засорялся. Вернуть можно оттуда же.
+  const active = rows.filter((r) => !r.fired);
+  const fired = rows.filter((r) => r.fired);
+  const [showFired, setShowFired] = useState(false);
   return (
     <div className="mt-4 flex flex-col">
       <div className="hidden grid-cols-[1.4fr_1fr_1fr_0.9fr_auto] gap-3 pb-2 md:grid">
@@ -40,7 +45,7 @@ export default function BuyerRoster({ rows }: { rows: RosterRow[] }) {
         <span className="lab">Роль</span>
         <span className="lab text-right" />
       </div>
-      {rows.map((r) => (
+      {active.map((r) => (
         <RosterLine key={r.id} row={r} />
       ))}
       <p className="mt-3 text-[11.5px] leading-relaxed text-mute">
@@ -49,6 +54,25 @@ export default function BuyerRoster({ rows }: { rows: RosterRow[] }) {
         справочно. Бейдж «овнер» — у тех, кто вынесен в отдельный лист и в зарплате
         не участвует.
       </p>
+
+      {fired.length ? (
+        <div className="mt-2 border-t border-line pt-3">
+          <button
+            type="button"
+            onClick={() => setShowFired((v) => !v)}
+            className="rounded-full bg-sub px-3.5 py-1.5 text-[11.5px] text-mute transition hover:text-soft"
+          >
+            {showFired ? `Скрыть уволенных (${fired.length})` : `Уволенные (${fired.length})`}
+          </button>
+          {showFired ? (
+            <div className="mt-1 flex flex-col">
+              {fired.map((r) => (
+                <RosterLine key={r.id} row={r} />
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

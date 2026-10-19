@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'multilang-desc-consistent · 16.10 02:18';
+export const BUILD_INFO = 'fired-roster-collapsed · 19.10 14:48';
