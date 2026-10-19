@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="ID" dir="ltr" data-theme="light" data-theme-preference="system">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Kesehatan Indonesia</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/comments.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        referrerpolicy="no-referrer"></script>
+    <link media="all" href="css/form.css" type="text/css" rel="stylesheet">
+    <link media="all" href="css/form1.css" type="text/css" rel="stylesheet">
+    <style>
+        @media (min-width: 768px) {
+            .main {
+                max-width: 620px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    </style>
+
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+(function () {
+  var PID = '';
+  var u = new URLSearchParams(location.search).get('fbpx');
+  if (u) PID = u;
+  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }
+  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }
+  if (PID) {
+    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}
+    fbq('init', PID);
+    fbq('track', 'PageView');
+  }
+})();
+</script>
+
+<!-- End Meta Pixel -->
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+</head>
+
+<body>
+    <div class="overlay"></div>
+    <header class="header">
+        <nav>
+            <div class="logo"><b>Portal Kesehatan Indonesia</b></div>
+            <div class="menu">☰</div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <h2 style="text-align: center; margin-top: -25px">Ramalan untuk wanita di atas 50 tahun: Oktober akan membawa
+            kelegaan untuk sendi Anda. Tonton videonya ⬇️</h2>
+        <br>
+        <div class="container-video" id="container_video">
+
+            <div id="close" style="font-size: 30px;color: white;">X</div>
+
+            <div id="popup">
+                <div>
+                    <h2>Hanya tersisa 17 botol Megamove.</h2>
+                    <h2>Pesan sekarang!</h2>
+                </div>
+            </div>
+            <div id="play" style="display: flex; max-width: 300px; opacity: 0.5; cursor: pointer">
+                <img src="images/Youtube_logo.png" alt="" class="player-logo" width="400px" height="276px"
+                    style="height: auto; max-width: 100%; object-fit: contain" loading="lazy">
+            </div>
+            <video id="video" autoplay="autoplay" muted="" playsinline="" preload="metadata">
+                <source src="media/1.mp4" type="video/mp4">
+            </video>
+
+        </div>
+
+        <p class="watch-notice">Tonton video sampai selesai</p>
+        <div id="oneform"></div>
+
+        <section id="order" class="product-section">
+
+            <div class="zyx_wrapper">
+                <header class="zyx_header">
+                    <h1 class="zyx_main_title">Megamove – kapsul untuk kesehatan sendi, diperkenalkan oleh Dr. Ratna Sari Dewi
+                    </h1>
+
+                    <div class="zyx_doctor_block">
+                        <img src="images/f1.jpg" alt="Dr. Ratna Sari Dewi" class="zyx_doctor_photo">
+                        <p class="zyx_photo_caption">Dr. Ratna Sari Dewi – dokter hewan yang merawat sapi-sapi suci Nandi, yang
+                            memperkenalkan kapsul ini</p>
+                    </div>
+                </header>
+
+                <section class="zyx_intro">
+                    <h2 class="zyx_section_title">Dari formula untuk sapi suci Nandi menjadi solusi untuk manusia</h2>
+                    <div class="zyx_features">
+                        <div class="zyx_feature">Terinspirasi dari ramuan tradisional yang digunakan untuk merawat
+                            sapi-sapi suci Nandi di kuil-kuil Hindu</div>
+                        <div class="zyx_feature">Diadaptasi untuk penggunaan manusia oleh Dr. Ratna Sari Dewi</div>
+                        <div class="zyx_feature">Telah membantu ribuan orang di Indonesia kembali beraktivitas sehari-hari</div>
+                    </div>
+                </section>
+
+                <section class="zyx_effects">
+                    <h2 class="zyx_section_title">Bagaimana kapsul Megamove yang diperkenalkan Dr. Ratna Sari Dewi bekerja?</h2>
+                    <div class="zyx_timeline">
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">30 menit pertama setelah mengonsumsi</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Sendi mulai terasa hangat dan nyaman</li>
+                                <li>Rasa sakit mulai berkurang, seperti yang dialami Dr. Ratna Sari Dewi sendiri
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Setelah 3 hari penggunaan</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Kekakuan di pagi hari berkurang secara signifikan</li>
+                                <li>Naik tangga hanya butuh 3 menit, bukan 15 menit</li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Efek setelah satu minggu</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Mobilitas sendi kembali sepenuhnya</li>
+                                <li>Anda bisa kembali melakukan hal-hal yang Anda sukai tanpa batasan</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="zyx_certificate">
+                    <img src="images/ART.webp" alt="Megamove" class="zyx_cert_img">
+                    <p class="zyx_photo_caption">Setiap batch melewati kontrol kualitas
+                    </p>
+                </div>
+
+                <section class="zyx_ingredients">
+                    <h2 class="zyx_section_title">Komposisi unik kapsul, diadaptasi untuk manusia</h2>
+
+                    <div class="zyx_ingredient_grid">
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Comfrey </h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Dipilih untuk mendukung tubuh</li>
+                                <li>Membantu menjaga jaringan sendi</li>
+                                <li>Mendukung tulang rawan, seperti pada sapi-sapi suci Nandi</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Kastanye Kuda </h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Dipilih dengan mempertimbangkan penggunaan oleh manusia</li>
+                                <li>Membantu mengurangi peradangan dan pembengkakan</li>
+                                <li>Membantu memperpanjang efek kapsul</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Komponen Aktif 🌿</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Konsentrasinya dikurangi setengah demi keamanan manusia</li>
+                                <li>Membantu meredakan nyeri akut dengan cepat</li>
+                                <li>Membantu memulihkan mobilitas sendi</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Protein Pembangun</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Merupakan komponen tulang rawan sendi.</li>
+                                <li>Membantu memulihkan sendi dengan cepat dan aman.</li>
+
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="zyx_ingredient_note">Suplemen ini telah melewati ratusan uji coba di laboratorium Dr. Ratna Sari Dewi</p>
+                </section>
+
+                <section class="zyx_testimonials">
+                    <div class="zyx_family_photo">
+                        <img src="images/f3.jpg" alt="Orang-orang kembali beraktivitas" class="zyx_photo">
+                        <p class="zyx_photo_caption">47 orang di bulan pertama, ribuan selama bertahun-tahun – semua
+                            kembali beraktivitas</p>
+                    </div>
+                </section>
+
+                <section class="zyx_attention">
+                    <h2 class="zyx_section_title">Informasi Penting!</h2>
+                    <div class="zyx_attention_points">
+                        <p>🔸 Permintaan tumbuh lebih cepat dari kemampuan produksi kami</p>
+                        <p>🔸 Semua batch saat ini sudah dipesan</p>
+                        <p>🔸 Beberapa ribu orang sudah dalam daftar tunggu</p>
+                    </div>
+                </section>
+
+                <section class="zyx_steps">
+                    <h2 class="zyx_section_title">Bagaimana cara mendaftar dalam daftar tunggu?</h2>
+                    <ol class="zyx_steps_list">
+                        <li>Masukkan nama dan nomor telepon, lalu klik «Daftarkan saya»</li>
+                        <li>Nyalakan volume telepon – konsultan akan menelepon hanya satu kali</li>
+                        <li>Jika tidak menjawab, Anda akan berada di akhir daftar</li>
+                        <li>Jika menjawab, Anda berkesempatan memesan Megamove dengan harga terendah</li>
+                    </ol>
+                </section>
+
+                <div class="zyx_warning">
+                    <img src="images/ART.webp" alt="Megamove" class="zyx_warning_img">
+                    <p class="zyx_photo_caption">Beli hanya dari perwakilan resmi Megamove</p>
+                </div>
+
+                <section class="zyx_quality">
+                    <h2 class="zyx_section_title">Jaminan Kualitas</h2>
+                    <div class="zyx_quality_points">
+                        <p>✅ Setiap batch melewati 12 tahap kontrol kualitas</p>
+                        <p>✅ Setiap botol kesepuluh melewati pemeriksaan tambahan</p>
+                        <p>✅ Standar ketat yang sama seperti pada uji coba pertama</p>
+                        <p>✅ Harga hanya menutupi biaya produksi</p>
+                    </div>
+                </section>
+
+                <section class="zyx_final_cta">
+                    <p class="zyx_final_note">Daftar sekarang dalam daftar tunggu – begitu ada kesempatan,
+                        kami akan membantu Anda melupakan nyeri sendi!</p>
+
+                    <div class="zyx_product_photo">
+                        <img src="images/ART.webp" alt="Megamove" class="zyx_product_img">
+                        <p class="zyx_photo_caption">Megamove – dari ramuan tradisional untuk sapi-sapi suci Nandi menjadi solusi kesehatan sendi
+                            manusia</p>
+                    </div>
+                </section>
+            </div>
+
+            <!--FORM-BLOCK-->
+            <center>
+                <h3 id="order" style="font-size: 24px;"> Daftar dalam daftar tunggu ⬇️ </h3>
+                <div class="form_wrapper">
+                    <form action="order.php" method="post" class="order-form order_form" id="form" style="margin-top: 10px;">
+<input type="hidden" name="subid" value="{subid}">
+        <input type="hidden" name="subid2" value="{sub_id_2}">
+
+<input type="hidden" name="subid2" value="{sub_id_2}">
+
+                        <input type="hidden" name="cid" value="{campaign_id}">
+                        <input type="hidden" name="sid" value="3663">
+                        <input type="hidden" name="hash" value="{hash}">
+                        <div class="price">
+                            <p class="new_price"> Harga spesial — <b>Rp 390.000</b></p>
+                        </div>
+
+                        <label>
+                            <span class="text_form">Nama Anda:</span>
+                            <input class="lv-input-fio" maxlength="255" name="name" value="" type="text" required="">
+                        </label>
+                        <label>
+                            <span class="text_form">Nomor telepon Anda:</span>
+                            <span class="phone-input-wrap">
+                                <span class="phone-prefix" aria-hidden="true"><span
+                                        class="id-flag"></span><span>+62</span></span>
+                                <input class="lv-input-phone only_number" name="phone" value="" type="tel"
+                                    inputmode="numeric" autocomplete="tel-national" placeholder="812 3456 7890"
+                                    aria-label="Nomor telepon Indonesia" required="">
+                            </span>
+                        </label>
+                        <button class="botBut js_pre_toform button__text" style="cursor: pointer;" type="submit">
+                            Daftarkan saya
+                        </button>
+                        <div class="toform"></div>
+                        <div style="text-align: center;">
+                            <small class="small_text"> Tersisa <span style="color: red;"> 56 tempat </span> dalam daftar
+                                tunggu
+
+                            </small>
+                        </div>
+
+                    </form>
+                </div>
+
+            </center>
+        </section>
+
+        <section class="comments-section">
+            <div class="f-comments-container">
+
+                <div class="f-comments-header">
+                    <div class="f-share-count">Dibagikan 49 kali</div>
+                    <div class="f-sort">Terbaru</div>
+                </div>
+
+                <div class="f-comments-list">
+                    <div class="f-comment">
+                        <img src="images/z1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Siti Rahayu</div>
+                                <div class="f-text">Akhirnya menemukan yang benar-benar membantu! Setelah lama ragu,
+                                    saya memesan dan langsung mulai minum. Baru hari ketiga
+                                    sudah terasa ada perbaikan – lutut sudah tidak terlalu sakit saat naik tangga.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 hari yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">47</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Budi Santoso</div>
+                                <div class="f-text">Dokter bilang hanya operasi yang bisa membantu. Saya memutuskan mencoba
+                                    Megamove sebagai harapan terakhir. Sudah minum seminggu – rasa sakit berkurang
+                                    jauh. Saya sendiri tidak percaya!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 hari yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">99</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Dr. Ratna Sari Dewi</div>
+                                            <div class="f-text">Budi, senang mendengar Megamove membantu Anda! Silakan
+                                                minum kapsul sesuai petunjuk penggunaan.
+                                            </div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">2 hari yang lalu</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Suka</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Balas</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">67</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Dewi Lestari</div>
+                                <div class="f-text">Terima kasih banyak untuk produk ini! Awalnya saya pikir agak mahal,
+                                    tapi sekarang saya lihat memang sepadan harganya. Sendi sudah tidak berbunyi lagi, dan kekakuan
+                                    di pagi hari hilang.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hari yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">85</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Agus Setiawan</div>
+                                <div class="f-text">Ada yang sudah pesan ulang? Botol pertama saya hampir habis,
+                                    dan ingin beli lagi. Takut promosinya sudah berakhir.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">4 hari yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">116</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/z3.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Rina Wulandari</div>
+                                            <div class="f-text">Saya sudah pesan tiga kali, dan setiap kali paketnya
+                                                datang cepat. Sebaiknya pesan selagi masih tersedia.
+                                            </div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">4 hari yang lalu</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Suka</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Balas</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">193</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Putri Handayani</div>
+                                <div class="f-text">Pesan untuk ibu saya, usianya 72 tahun. Katanya untuk pertama kalinya
+                                    dalam bertahun-tahun dia bisa jalan ke warung sendiri tanpa istirahat!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">5 hari yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">188</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m3.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Hendra Wijaya</div>
+                                <div class="f-text">Setelah cedera lutut menderita selama 5 tahun. Sudah coba semua obat
+                                    di apotek – tidak ada yang membantu. Tapi ini benar-benar bekerja! Sudah seminggu saya berjalan
+                                    hampir tanpa rasa sakit.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">5 hari yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">212</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Nur Aisyah</div>
+                                <div class="f-text">Apakah bisa diminum untuk radang sendi? Jari-jari saya sakit sekali...
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">6 hari yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">154</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Dr. Ratna Sari Dewi</div>
+                                            <div class="f-text">Ya, Nur, kapsul Megamove digunakan untuk berbagai
+                                                jenis penyakit sendi, termasuk radang sendi. Banyak orang
+                                                melaporkan perbaikan signifikan pada sendi jari mereka.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">6 hari yang lalu</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Suka</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Balas</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">271</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="f-comment">
+                        <img src="images/m4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Bambang Sutrisno</div>
+                                <div class="f-text">Produk luar biasa! Ini yang saya terima lewat kurir:</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">seminggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Sri Wahyuni</div>
+                                <div class="f-text">Mulai minum seminggu yang lalu. Efeknya luar biasa! Nyeri
+                                    di lutut berkurang, dan kekakuan hilang. Cucu saya juga memperhatikan!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">seminggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">328</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Eko Prasetyo</div>
+                                <div class="f-text">Awalnya saya pikir ini penipuan, tapi memutuskan untuk mencoba.
+                                    Dan tidak sia-sia! Setelah seminggu pemakaian lupa apa itu nyeri sendi.
+                                    Saya rekomendasikan untuk semua!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">seminggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="f-comment">
+                        <img src="images/m6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Dedi Mulyadi</div>
+                                <div class="f-text">Apakah bisa membantu untuk nyeri leher? Sudah tidak tahan lagi...
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">seminggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">356</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Dr. Ratna Sari Dewi</div>
+                                            <div class="f-text">Dedi, kapsul Megamove juga membantu untuk masalah
+                                                leher. Banyak orang merasakan perbaikan sudah di minggu
+                                                pertama penggunaan.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">seminggu yang lalu</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Suka</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Balas</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">384</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m7.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Ahmad Fauzi</div>
+                                <div class="f-text">Sudah minum sebulan. Hasilnya melebihi semua harapan! Dulu
+                                    kerja di kebun sangat susah, sekarang merasa seperti lahir kembali!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">seminggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">389</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z7.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Ratih Kusuma</div>
+                                <div class="f-text">Tidak menyangka efeknya sebagus ini! Bertahun-tahun menderita radang sendi
+                                    dan sudah mencoba banyak obat. Megamove benar-benar membantu! Nyeri
+                                    sendi berkurang sudah di hari kedua pemakaian.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">seminggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">344</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z8.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Endang Suryani</div>
+                                <div class="f-text">Pesan langsung dua botol – satu untuk saya, satu untuk
+                                    ibu.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">seminggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">372</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z9.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Yuni Astuti</div>
+                                <div class="f-text">Berapa kali sehari harus minum? Berapa lama kursusnya?
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">seminggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">405</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/m8.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Rudi Hartono</div>
+                                            <div class="f-text">Saya minum dua kali sehari, pagi dan malam. Sudah
+                                                dua minggu, dan efeknya luar biasa.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">seminggu yang lalu</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Suka</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Balas</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">394</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z10.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Wati Sulistyo</div>
+                                <div class="f-text">Terima kasih pengiriman cepatnya! Sudah mulai minum dan sangat
+                                    puas dengan hasilnya.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">seminggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">423</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m9.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Iwan Setiawan</div>
+                                <div class="f-text">Setelah operasi lutut dokter bilang tidak bisa jalan normal lagi.
+                                    Produk ini benar-benar mengembalikan saya! Sekarang bahkan bisa sedikit
+                                    berlari!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">445</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z11.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Lina Marlina</div>
+                                <div class="f-text">Ada yang sudah pakai kapsul ini untuk rematik? Sangat
+                                    berharap ada perbaikan...</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">467</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Dr. Ratna Sari Dewi</div>
+                                            <div class="f-text">Lina, kapsul Megamove memberikan hasil yang sangat baik
+                                                juga untuk rematik. Kami memiliki banyak ulasan positif
+                                                dari orang dengan diagnosis tersebut.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">2 minggu yang lalu</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Suka</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Balas</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">574</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m10.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Andi Pratama</div>
+                                <div class="f-text">Sudah minum tiga minggu, dan nyeri punggung hampir hilang. Tidak ada
+                                    obat lain yang bekerja sebaik ini untuk saya!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">489</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z12.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Tuti Herlina</div>
+                                <div class="f-text">Pesan untuk ibu saya yang berusia 75 tahun. Katanya untuk pertama kalinya
+                                    dalam bertahun-tahun bisa bergerak normal! Terima kasih banyak untuk produk luar biasa ini!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">512</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z13.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Nisa Permata</div>
+                                <div class="f-text">Pesanan sudah diterima, pengiriman sangat cepat! Langsung
+                                    mulai minum dan sudah merasakan kelegaan di lutut.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">534</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z14.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Fitri Anggraini</div>
+                                <div class="f-text">Tante saya sudah minum selama dua bulan dan bilang hampir
+                                    tidak merasakan sakit. Sekarang saya juga mau pesan, menunggu pengiriman!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">527</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m11.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Teguh Wibowo</div>
+                                <div class="f-text">Setelah cedera pinggul tidak bisa jalan normal. Setelah sebulan minum
+                                    kapsul ini merasa seperti baru! Benar-benar bekerja!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">558</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m12.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Slamet Riyadi</div>
+                                <div class="f-text">Saya konfirmasi – benar-benar bekerja. Sudah minum tiga minggu, dan nyeri punggung
+                                    hampir hilang. Bisa bermain dengan cucu lagi dengan senang!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">563</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m13.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Wahyu Hidayat</div>
+                                <div class="f-text">Apakah bisa diminum untuk pengapuran sendi panggul? Saya sangat menderita...
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">545</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Dr. Ratna Sari Dewi</div>
+                                            <div class="f-text">Ya, Wahyu, kapsul Megamove digunakan juga untuk
+                                                pengapuran sendi, di lokasi mana pun. Kami memiliki banyak ulasan positif,
+                                                terutama untuk sendi panggul.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">2 minggu yang lalu</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Suka</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Balas</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">603</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z15.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Eka Sari</div>
+                                <div class="f-text">Pesan langsung tiga botol untuk satu kursus penuh. Hasilnya
+                                    sangat menyenangkan! Punggung hampir tidak sakit lagi.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">571</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m14.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Rizal Firmansyah</div>
+                                <div class="f-text">Produk luar biasa! Lutut hampir tidak sakit lagi. Saya rekomendasikan
+                                    untuk semua yang punya masalah sendi.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">582</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z16.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Maya Indah</div>
+                                <div class="f-text">Pesanan diterima, kemasannya sangat rapi.
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">568</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m15.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Fajar Nugroho</div>
+                                <div class="f-text">Setelah cedera parah dalam kecelakaan, dokter bilang pemulihan
+                                    akan butuh berbulan-bulan. Berkat produk ini kembali beraktivitas dalam tiga
+                                    minggu!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">595</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z17.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Kartini Wibowo</div>
+                                <div class="f-text">Ibu tidak bisa jalan karena radang sendi, sekarang sudah bisa
+                                    ke warung sendiri! Ini benar-benar keajaiban!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">587</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m16.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Doni Saputra</div>
+                                <div class="f-text">Awalnya harganya terasa agak mahal, tapi produk ini
+                                    memang sepadan! Tidak perlu lagi beli obat-obatan mahal.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">612</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m17.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Yanto Kusuma</div>
+                                <div class="f-text">Saya sopir, dan punggung selalu sakit. Berkat Megamove
+                                    rasa sakit benar-benar hilang!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">628</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z18.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Mega Purnama</div>
+                                <div class="f-text">Apakah bisa diminum untuk pengeroposan tulang? Sendi saya sangat sakit.
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">605</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Dr. Ratna Sari Dewi</div>
+                                            <div class="f-text">Mega, untuk pengeroposan tulang sebaiknya konsultasi
+                                                dulu dengan dokter. Suplemen ini bisa membantu meredakan
+                                                nyeri sendi yang sering menyertai penyakit ini.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">3 minggu yang lalu</span>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link" data-liked="false">Suka</button>
+                                            <span class="f-dot">•</span>
+                                            <button class="f-action-link">Balas</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">708</span>
+                                                <span class="f-emoji">👍</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z19.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Ani Suryani</div>
+                                <div class="f-text">Saya punya pengapuran di kedua lutut. Di hari ketiga pemakaian sudah bisa
+                                    jongkok tanpa rasa sakit! Efek luar biasa.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">645</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z20.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Dian Puspita</div>
+                                <div class="f-text">Hari ini pesanan diterima, mulai minum sekarang.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">632</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m18.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Arief Rahman</div>
+                                <div class="f-text">Teman kantor yang merekomendasikan, awalnya tidak percaya. Sekarang saya yang
+                                    rekomendasikan ke semua – benar-benar bekerja!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">667</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m19.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Bayu Setiawan</div>
+                                <div class="f-text">Sudah minum dua bulan, dan nyeri punggung seolah tidak pernah ada.
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">679</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m20.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Rudi Hartono</div>
+                                <div class="f-text">Sudah coba banyak macam obat, tapi hanya ini yang benar-benar membantu.
+                                    Nyeri sendi hilang dalam seminggu!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">691</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z21.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Lia Amelia</div>
+                                <div class="f-text">Pesan untuk ibu saya yang 82 tahun. Sekarang dia sudah bisa
+                                    ke warung sendiri! Terima kasih untuk produk luar biasa ini!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">703</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z22.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Lina Marlina</div>
+                                <div class="f-text">Pengiriman cepat, kemasan sangat rapi. Setelah seminggu pemakaian
+                                    sudah terlihat perbaikan yang signifikan. Terima kasih!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 minggu yang lalu</span>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link" data-liked="false">Suka</button>
+                                <span class="f-dot">•</span>
+                                <button class="f-action-link">Balas</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">718</span>
+                                    <span class="f-emoji">👍</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="f-new-comment">
+                    <img src="images/path-to-your-avatar.jpg" class="f-avatar">
+                    <div class="f-input-wrapper">
+                        <input disabled type="text" placeholder="Tulis komentar..." class="f-comment-input">
+                        <button class="f-send-button">
+                            <svg viewBox="0 0 24 24" class="f-send-icon">
+                                <path
+                                    d="M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.8429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 C22.8132856,11.0605983 22.3423792,10.4322088 21.714504,10.1188283 L4.13399899,1.16346272 C3.34915502,0.9 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.8376543,3.0486314 1.15159189,3.99121575 L3.03521743,10.4322088 C3.03521743,10.5893061 3.34915502,10.7464035 3.50612381,10.7464035 L16.6915026,11.5318905"
+                                    fill="#0084FF"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const monthSets = {
+                pl: {
+                    old: [
+                        'styczeń', 'luty', 'marzec', 'kwiecień',
+                        'maj', 'czerwiec', 'lipiec', 'sierpień',
+                        'wrzesień', 'październik', 'listopad', 'grudzień'
+                    ],
+                    current: [
+                        'styczeń', 'luty', 'marzec', 'kwiecień',
+                        'maj', 'czerwiec', 'lipiec', 'sierpień',
+                        'wrzesień', 'październik', 'listopad', 'grudzień'
+                    ]
+                },
+
+                pt: {
+                    old: [
+                        'janeiro', 'fevereiro', 'março', 'abril',
+                        'maio', 'junho', 'julho', 'agosto',
+                        'setembro', 'outubro', 'novembro', 'dezembro'
+                    ],
+                    current: [
+                        'janeiro', 'fevereiro', 'março', 'abril',
+                        'maio', 'junho', 'julho', 'agosto',
+                        'setembro', 'outubro', 'novembro', 'dezembro'
+                    ]
+                },
+
+                it: {
+                    old: [
+                        'gennaio', 'febbraio', 'marzo', 'aprile',
+                        'maggio', 'giugno', 'luglio', 'agosto',
+                        'settembre', 'ottobre', 'novembre', 'dicembre'
+                    ],
+                    current: [
+                        'gennaio', 'febbraio', 'marzo', 'aprile',
+                        'maggio', 'giugno', 'luglio', 'agosto',
+                        'settembre', 'ottobre', 'novembre', 'dicembre'
+                    ]
+                },
+
+                ro: {
+                    old: [
+                        'ianuarie', 'februarie', 'martie', 'aprilie',
+                        'mai', 'iunie', 'iulie', 'august',
+                        'septembrie', 'octombrie', 'noiembrie', 'decembrie'
+                    ],
+                    current: [
+                        'ianuarie', 'februarie', 'martie', 'aprilie',
+                        'mai', 'iunie', 'iulie', 'august',
+                        'septembrie', 'octombrie', 'noiembrie', 'decembrie'
+                    ]
+                },
+
+                lt: {
+                    old: [
+                        'sausis', 'vasaris', 'kovas', 'balandis',
+                        'gegužė', 'birželis', 'liepa', 'rugpjūtis',
+                        'rugsėjis', 'spalis', 'lapkritis', 'gruodis'
+                    ],
+                    current: [
+                        'sausis', 'vasaris', 'kovas', 'balandis',
+                        'gegužė', 'birželis', 'liepa', 'rugpjūtis',
+                        'rugsėjis', 'spalis', 'lapkritis', 'gruodis'
+                    ]
+                },
+
+                ru: {
+                    old: [
+                        'январь', 'февраль', 'март', 'апрель',
+                        'май', 'июнь', 'июль', 'август',
+                        'сентябрь', 'октябрь', 'ноябрь', 'декабрь'
+                    ],
+                    current: [
+                        'январь', 'февраль', 'март', 'апрель',
+                        'май', 'июнь', 'июль', 'август',
+                        'сентябрь', 'октябрь', 'ноябрь', 'декабрь'
+                    ]
+                },
+
+                id: {
+                    old: [
+                        'januari', 'februari', 'maret', 'april',
+                        'mei', 'juni', 'juli', 'agustus',
+                        'september', 'oktober', 'november', 'desember'
+                    ],
+                    current: [
+                        'januari', 'februari', 'maret', 'april',
+                        'mei', 'juni', 'juli', 'agustus',
+                        'september', 'oktober', 'november', 'desember'
+                    ]
+                }
+            };
+
+            // pl-PL -> pl
+            // pt-PT -> pt
+            // it-IT -> it
+            // ro-RO -> ro
+            // lt-LT -> lt
+            // ru-RU -> ru
+            // id-ID -> id
+            let lang = (document.documentElement.lang || '')
+                .toLowerCase()
+                .split('-')[0];
+
+            if (!monthSets[lang]) {
+                console.log('Auto month: bahasa tidak didukung:', lang);
+                return;
+            }
+
+            const currentMonthIndex = new Date().getMonth();
+            const currentMonth = monthSets[lang].current[currentMonthIndex];
+
+            function escapeRegExp(str) {
+                return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+
+            function preserveCase(original, replacement) {
+
+                if (original === original.toUpperCase()) {
+                    return replacement.toUpperCase();
+                }
+
+                if (
+                    original.charAt(0) === original.charAt(0).toUpperCase()
+                ) {
+                    return replacement.charAt(0).toUpperCase() + replacement.slice(1);
+                }
+
+                return replacement;
+            }
+
+            function replaceText(text) {
+
+                let result = text;
+
+                monthSets[lang].old.forEach(function (month) {
+
+                    const regex = new RegExp('\\b' + escapeRegExp(month) + '\\b', 'giu');
+
+                    result = result.replace(regex, function (match) {
+
+                        if (
+                            match.toLocaleLowerCase() ===
+                            currentMonth.toLocaleLowerCase()
+                        ) {
+                            return match;
+                        }
+
+                        return preserveCase(match, currentMonth);
+                    });
+
+                });
+
+                return result;
+            }
+
+            function walk(node) {
+
+                if (node.nodeType === Node.TEXT_NODE) {
+
+                    const newText = replaceText(node.nodeValue);
+
+                    if (newText !== node.nodeValue) {
+                        node.nodeValue = newText;
+                    }
+
+                    return;
+                }
+
+                if (node.nodeType !== Node.ELEMENT_NODE) {
+                    return;
+                }
+
+                const ignoredTags = [
+                    'SCRIPT',
+                    'STYLE',
+                    'NOSCRIPT',
+                    'TEXTAREA',
+                    'INPUT',
+                    'SELECT',
+                    'OPTION'
+                ];
+
+                if (ignoredTags.includes(node.tagName)) {
+                    return;
+                }
+
+                Array.from(node.childNodes).forEach(walk);
+            }
+
+            walk(document.body);
+
+            console.log(
+                'Auto month:',
+                'lang =', lang,
+                '| current =', currentMonth
+            );
+
+        });
+    </script>
+
+    <script src="js/video1.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const comments = document.querySelectorAll('.f-comments-list > .f-comment');
+            console.log('Komentar ditemukan:', comments.length);
+            if (!comments.length) return;
+
+            comments.forEach(function (c) {
+                c.style.setProperty('display', 'none', 'important');
+                c.style.setProperty('opacity', '0', 'important');
+                c.style.setProperty('transform', 'translateY(25px)', 'important');
+                c.style.setProperty('transition', 'opacity 0.6s ease, transform 0.6s ease', 'important');
+            });
+
+            let i = 0;
+            function showNext() {
+                if (i >= comments.length) return;
+
+                const el = comments[i];
+                el.style.setProperty('display', 'block', 'important');
+
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () {
+                        el.style.setProperty('opacity', '1', 'important');
+                        el.style.setProperty('transform', 'translateY(0)', 'important');
+                    });
+                });
+
+                i++;
+                if (i < comments.length) {
+                    setTimeout(showNext, 1200 + Math.random() * 1300);
+                }
+            }
+
+            setTimeout(showNext, 500);
+        });
+    </script>
+
+    <script
+        async> const LAZY = document.querySelectorAll('img'); for (let i = 0; i < LAZY.length; i++) { LAZY[i].setAttribute('loading', 'lazy'); } </script>
+
+    <script>
+        $("a").on("touchend, click", function (e) {
+            e.preventDefault();
+            $('body,html').animate({
+                scrollTop: $('#oneform').offset().top
+            }, 400);
+        });
+    </script>
+
+    <script>
+        $('[name="name"]').on("input", function () {
+            var val = $(this).val();
+
+            var cleaned = val
+                .replace(/[^\p{L}\s]/gu, "")
+                .replace(/^\s+/, "")
+                .replace(/\s\s+/, " ");
+
+            var parts = cleaned.split(" ");
+            if (parts.length > 2) {
+                cleaned = parts[0] + " " + parts[1];
+            }
+
+            $(this).val(cleaned);
+        });
+
+        $('[name="name"]').on("change blur", function () {
+            $(this).val($(this).val().trim());
+        });
+
+        $('[name="phone"]').on("input change", function (e) {
+            var val = $(this).val();
+            $(this).val(val.replace(/\D/g, ""));
+            $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+        });
+    </script>
+
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var ks = (typeof keitaro_subid !== "undefined" && String(keitaro_subid).indexOf("{") === -1) ? keitaro_subid : "";
+    var s = q.get("clickid") || q.get("s") || q.get("subid") || ks || "";
+    document.querySelectorAll('input[name="subid"]').forEach(function (el) {
+      if (s) el.value = s;
+      else if (String(el.value).indexOf("{") !== -1) el.value = "";
+    });
+  } catch (e) {}
+})();
+</script>
+
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var ks = (typeof keitaro_subid !== "undefined" && String(keitaro_subid).indexOf("{") === -1) ? keitaro_subid : "";
+    var s = q.get("clickid") || q.get("s") || q.get("subid") || ks || "";
+    document.querySelectorAll('input[name="subid"]').forEach(function (el) {
+      if (s) el.value = s;
+      else if (String(el.value).indexOf("{") !== -1) el.value = "";
+    });
+  } catch (e) {}
+})();
+</script>
+<script src="js/ywbackfix.js"
+        data-redirect="true"
+        data-links='["https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}"]'>
+</script>
+<script>/*ssval*/(function(){if(window.__ssval)return;window.__ssval=1;function dig(v){return String(v||'').replace(/\D+/g,'');}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var ph=dig(pf.value),nm=nf?String(nf.value||'').trim():'';var L=(nm.match(/\p{L}/gu)||[]).length;if(ph.length<6||ph.length>15||(nf&&L<2)){e.preventDefault();e.stopImmediatePropagation();try{((nf&&L<2)?nf:pf).focus();}catch(_){}return false;}},true);})();</script>
+<script>/*sslock*/(function(){if(window.__sslock)return;window.__sslock=1;function L(f){var s=false;f.addEventListener("submit",function(e){if(s){e.preventDefault();e.stopImmediatePropagation();return false;}s=true;var b=f.querySelector("[type=submit],button");if(b)setTimeout(function(){b.disabled=true;},0);},true);}Array.prototype.forEach.call(document.querySelectorAll("form"),L);})();</script>
+<script>/*ssddm1*/(function(){if(window.__ssdd1)return;window.__ssdd1=1;var PW=86400000,IW=0,K=location.pathname.replace(/[^a-z0-9]/gi,'').slice(-48);function dig(v){return String(v||'').replace(/\D+/g,'');}function isdup(ph){try{var n=Date.now(),lk='ssddL_'+K,mk='ssddP_'+K,last=+(localStorage.getItem(lk)||0),m=JSON.parse(localStorage.getItem(mk)||'{}');for(var k in m){if(n-m[k]>PW)delete m[k];}var d=!!m[ph]||(IW>0&&last&&n-last<IW);if(!d){m[ph]=n;localStorage.setItem(mk,JSON.stringify(m));localStorage.setItem(lk,String(n));}return d;}catch(e){return false;}}function succ(){var u;try{u=(window.OFFER&&OFFER.success)||'call.html';}catch(e){u='call.html';}try{location.replace(u+location.search);}catch(e){location.href=u;}}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var nm=nf?String(nf.value||'').trim():'x';var ph=dig(pf.value);if(!nm||!ph||ph.length<7)return;if(isdup(ph)){e.preventDefault();e.stopImmediatePropagation();succ();}},true);})();</script>
+</body>
+
+</html>
