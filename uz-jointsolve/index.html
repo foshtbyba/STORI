@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="UZ" dir="ltr" data-theme="light" data-theme-preference="system">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O'zbekiston sog'liq portali</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/comments.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        referrerpolicy="no-referrer"></script>
+    <link media="all" href="css/form.css" type="text/css" rel="stylesheet">
+    <link media="all" href="css/form1.css" type="text/css" rel="stylesheet">
+    <style>
+        @media (min-width: 768px) {
+            .main {
+                max-width: 620px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    </style>
+
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+(function () {
+  var PID = '';
+  var u = new URLSearchParams(location.search).get('fbpx');
+  if (u) PID = u;
+  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }
+  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }
+  if (PID) {
+    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}
+    fbq('init', PID);
+    fbq('track', 'PageView');
+  }
+})();
+</script>
+
+<!-- End Meta Pixel -->
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+</head>
+
+<body>
+    <div class="overlay"></div>
+    <header class="header">
+        <nav>
+            <div class="logo"><b>O'zbekiston sog'liq portali</b></div>
+            <div class="menu">&#9776;</div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <h2 style="text-align: center; margin-top: -25px">50 yoshdan oshgan ayollar uchun goroskop: oktabr bo'g'imlarga yengillik olib keladi. Videoni ko'ring &#11015;&#65039;</h2>
+        <br>
+        <div class="container-video" id="container_video">
+
+            <div id="close" style="font-size: 30px;color: white;">X</div>
+
+            <div id="popup">
+                <div>
+                    <h2>Atigi 17 ta Joint Solve qoldi.</h2>
+                    <h2>Hoziroq buyurtma bering!</h2>
+                </div>
+            </div>
+            <div id="play" style="display: flex; max-width: 300px; opacity: 0.5; cursor: pointer">
+                <img src="images/Youtube_logo.png" alt="" class="player-logo" width="400px" height="276px"
+                    style="height: auto; max-width: 100%; object-fit: contain" loading="lazy">
+            </div>
+            <video id="video" autoplay="autoplay" muted="" playsinline="" preload="metadata">
+                <source src="media/1.mp4" type="video/mp4">
+            </video>
+
+        </div>
+
+        <p class="watch-notice">Videoni oxirigacha ko'ring</p>
+        <div id="oneform"></div>
+
+        <section id="order" class="product-section">
+
+            <div class="zyx_wrapper">
+                <header class="zyx_header">
+                    <h1 class="zyx_main_title">Joint Solve – bo'g'imlarni qo'llab-quvvatlash kremi, doktor Dilnoza Karimova tomonidan taqdim etilgan
+                    </h1>
+
+                    <div class="zyx_doctor_block">
+                        <img src="images/f1.jpg" alt="Doktor Dilnoza Karimova" class="zyx_doctor_photo">
+                        <p class="zyx_photo_caption">Doktor Dilnoza Karimova – veterinar, ot poygasi maydonida ishlagan, ushbu kremni taqdim etgan</p>
+                    </div>
+                </header>
+
+                <section class="zyx_intro">
+                    <h2 class="zyx_section_title">Otlar uchun preparatdan odamlar uchun yechimga</h2>
+                    <div class="zyx_features">
+                        <div class="zyx_feature">Ilhom manbai — elit poyga otlari uchun ishlatiladigan veterinariya kremi</div>
+                        <div class="zyx_feature">Doktor Dilnoza Karimova tomonidan odamlar uchun moslashtirilgan</div>
+                        <div class="zyx_feature">O'zbekistonda minglab odamlarga kundalik ishlariga qaytishga yordam berdi</div>
+                    </div>
+                </section>
+
+                <section class="zyx_effects">
+                    <h2 class="zyx_section_title">Doktor Dilnoza Karimova tomonidan taqdim etilgan Joint Solve kremi qanday ta'sir qiladi?</h2>
+                    <div class="zyx_timeline">
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Surganidan keyingi dastlabki 30 daqiqa</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Bo'g'imlarda yoqimli issiqlik seziladi</li>
+                                <li>Og'riq kamaya boshlaydi, xuddi doktor Dilnoza Karimovaning o'zida bo'lgani kabi
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">3 kun ishlatgandan keyin</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Ertalabki qotishlik sezilarli darajada kamayadi</li>
+                                <li>Zinapoyadan ko'tarilish 15 daqiqa o'rniga 3 daqiqa davom etadi</li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Bir haftadan keyingi ta'sir</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Bo'g'imlarning to'liq harakatchanligi qaytadi</li>
+                                <li>Siz yana cheklovsiz sevgan ishlaringizni qila olasiz</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="zyx_certificate">
+                    <img src="images/ART.webp" alt="Joint Solve" class="zyx_cert_img">
+                    <p class="zyx_photo_caption">Har bir partiya sifat nazoratidan o'tadi
+                    </p>
+                </div>
+
+                <section class="zyx_ingredients">
+                    <h2 class="zyx_section_title">Odamlar uchun moslashtirilgan kremning noyob tarkibi</h2>
+
+                    <div class="zyx_ingredient_grid">
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Okopnik</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Organizmni qo'llab-quvvatlash uchun tanlangan</li>
+                                <li>Bo'g'im to'qimalarini qo'llab-quvvatlashga yordam beradi</li>
+                                <li>Tog'ay to'qimasini qo'llab-quvvatlaydi, xuddi poyga otlaridagi kabi</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Ot kashtan</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Odamlar tomonidan qo'llanilishini hisobga olgan holda kiritilgan</li>
+                                <li>Yallig'lanish va shishni kamaytirishga yordam beradi</li>
+                                <li>Krem ta'sirini uzaytirishga yordam beradi</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Faol komponentlar &#127807;</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Odamlar xavfsizligi uchun ularning konsentratsiyasi ikki baravar kamaytirilgan</li>
+                                <li>O'tkir og'riqni tezda bartaraf etishga yordam beradi</li>
+                                <li>Bo'g'imlar harakatchanligini tiklashga yordam beradi</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Qurilish oqsili</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Bo'g'im tog'ayining tarkibiy qismi hisoblanadi.</li>
+                                <li>Bo'g'imlarni tez va xavfsiz tiklashga yordam beradi.</li>
+
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="zyx_ingredient_note">Malham doktor Dilnoza Karimova laboratoriyasida yuzlab sinovlardan o'tgan</p>
+                </section>
+
+                <section class="zyx_testimonials">
+                    <div class="zyx_family_photo">
+                        <img src="images/f3.jpg" alt="Odamlar faol hayotga qaytmoqda" class="zyx_photo">
+                        <p class="zyx_photo_caption">Birinchi oyda 47 kishi, yillar davomida minglab — barchasi kundalik ishlariga qaytdi</p>
+                    </div>
+                </section>
+
+                <section class="zyx_attention">
+                    <h2 class="zyx_section_title">Muhim ma'lumot!</h2>
+                    <div class="zyx_attention_points">
+                        <p>&#128312; Talab biz ishlab chiqara olganidan tezroq o'smoqda</p>
+                        <p>&#128312; Barcha joriy partiyalar allaqachon band qilingan</p>
+                        <p>&#128312; Bir necha ming kishi allaqachon kutish ro'yxatida</p>
+                    </div>
+                </section>
+
+                <section class="zyx_steps">
+                    <h2 class="zyx_section_title">Kutish ro'yxatiga qanday yozilish mumkin?</h2>
+                    <ol class="zyx_steps_list">
+                        <li>Ism va telefon raqamingizni kiriting, so'ng «Meni yozish» tugmasini bosing</li>
+                        <li>Telefonda ovozni yoqing – maslahatchi faqat bir marta qo'ng'iroq qiladi</li>
+                        <li>Agar javob bermasangiz, ro'yxat oxiriga tushib qolasiz</li>
+                        <li>Agar javob bersangiz, Joint Solveni eng past narxda buyurtma qilish imkoniyatiga ega bo'lasiz</li>
+                    </ol>
+                </section>
+
+                <div class="zyx_warning">
+                    <img src="images/ART.webp" alt="Joint Solve" class="zyx_warning_img">
+                    <p class="zyx_photo_caption">Faqat Joint Solve rasmiy vakillaridan xarid qiling</p>
+                </div>
+
+                <section class="zyx_quality">
+                    <h2 class="zyx_section_title">Sifat kafolati</h2>
+                    <div class="zyx_quality_points">
+                        <p>&#9989; Har bir partiya 12 bosqichli sifat nazoratidan o'tadi</p>
+                        <p>&#9989; Har o'ninchi idish qo'shimcha tekshiruvdan o'tadi</p>
+                        <p>&#9989; Kremning birinchi sinovida bo'lgani kabi qat'iy standartlar</p>
+                        <p>&#9989; Narx faqat ishlab chiqarish tannarxini qoplaydi</p>
+                    </div>
+                </section>
+
+                <section class="zyx_final_cta">
+                    <p class="zyx_final_note">Hoziroq kutish ro'yxatiga yoziling – imkoniyat paydo bo'lishi bilan biz sizga bo'g'im og'riqlarini unutishga yordam beramiz!</p>
+
+                    <div class="zyx_product_photo">
+                        <img src="images/ART.webp" alt="Joint Solve" class="zyx_product_img">
+                        <p class="zyx_photo_caption">Joint Solve – poyga otlari uchun veterinariya kremidan odamlar bo'g'imlarini qo'llab-quvvatlashga</p>
+                    </div>
+                </section>
+            </div>
+
+            <!--FORM-BLOCK-->
+            <center>
+                <h3 id="order" style="font-size: 24px;"> Kutish ro'yxatiga yoziling &#11015;&#65039; </h3>
+                <div class="form_wrapper">
+                    <form action="order.php" method="post" class="order-form order_form" id="form" style="margin-top: 10px;">
+<input type="hidden" name="subid" value="{subid}">
+        <input type="hidden" name="subid2" value="{sub_id_2}">
+
+<input type="hidden" name="subid2" value="{sub_id_2}">
+
+<input type="hidden" name="subid2" value="{sub_id_2}">
+
+                        <input type="hidden" name="cid" value="{campaign_id}">
+                        <input type="hidden" name="sid" value="3663">
+                        <input type="hidden" name="hash" value="{hash}">
+                        <div class="price">
+                            <p class="new_price"> Kursdagi oxirgi idish — <b>100% CHEGIRMA</b></p>
+                        </div>
+
+                        <label>
+                            <span class="text_form">Ismingiz:</span>
+                            <input class="lv-input-fio" maxlength="255" name="name" value="" type="text" required="">
+                        </label>
+                        <label>
+                            <span class="text_form">Telefon raqamingiz:</span>
+                            <span class="phone-input-wrap">
+                                <span class="phone-prefix" aria-hidden="true"><span
+                                        class="uz-flag"></span><span>+998</span></span>
+                                <input class="lv-input-phone only_number" name="phone" value="" type="tel"
+                                    inputmode="numeric" autocomplete="tel-national" placeholder="90 123 45 67"
+                                    aria-label="O'zbekiston telefon raqami" required="">
+                            </span>
+                        </label>
+                        <button class="botBut js_pre_toform button__text" style="cursor: pointer;" type="submit">
+                            Meni yozish
+                        </button>
+                        <div class="toform"></div>
+                        <div style="text-align: center;">
+                            <small class="small_text"> Kutish ro'yxatida <span style="color: red;"> 56 ta joy </span> qoldi
+
+                            </small>
+                        </div>
+
+                    </form>
+                </div>
+
+            </center>
+        </section>
+
+        <section class="comments-section">
+            <div class="f-comments-container">
+
+                <div class="f-comments-header">
+                    <div class="f-share-count">49 marta ulashildi</div>
+                    <div class="f-sort">Avval yangilari</div>
+                </div>
+
+                <div class="f-comments-list">
+                    <div class="f-comment">
+                        <img src="images/z1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Gulnora Karimova</div>
+                                <div class="f-text">Nihoyat haqiqatan yordam beradigan narsani topdim! Uzoq o'ylashlardan keyin buyurtma berdim va darhol surashni boshladim. Allaqachon uchinchi kuni yaxshilanish sezdim – zinapoyadan ko'tarilganda tizzalarim kamroq og'riy boshladi.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 kun oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">47</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Rustam Ahmedov</div>
+                                <div class="f-text">Shifokorlar faqat operatsiya yordam beradi deyishdi. Joint Solveni oxirgi umid sifatida sinab ko'rishga qaror qildim. Bir haftadan beri surayapman – og'riq sezilarli darajada kamaydi. O'zim ham ishonmayapman!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 kun oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">99</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">dr. Dilnoza Karimova</div>
+                                            <div class="f-text">Rustam, Joint Solve sizga yordam berayotganidan xursandman! Iltimos, kremni ko'rsatmaga muvofiq suring.
+                                            </div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">2 kun oldin</span>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link">Javob berish</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">67</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Shahlo Mirzoeva</div>
+                                <div class="f-text">Bu mahsulot uchun katta rahmat! Avvaliga qimmatroq deb o'yladim, lekin endi o'z pulini to'liq oqlashini ko'ryapman. Bo'g'imlar endi g'irchillamaydi, ertalabki qotishlik yo'qoldi.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 kun oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">85</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Alisher Umarov</div>
+                                <div class="f-text">Kimdir qayta buyurtma berganmi? Birinchi idishim tugayapti, keyingisini sotib olmoqchiman. Aksiya tugab qolishidan qo'rqyapman.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">4 kun oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">116</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/z3.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Mohira Toshmatova</div>
+                                            <div class="f-text">Allaqachon uch marta buyurtma berdim, har safar jo'natma tez keldi. Mavjud bo'lganida buyurtma bergan ma'qul.
+                                            </div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">4 kun oldin</span>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link">Javob berish</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">193</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Nazira Rashidova</div>
+                                <div class="f-text">Onam uchun buyurtma berdim, u 72 yoshda. Aytishicha, ko'p yillar ichida birinchi marta do'konga o'zi to'xtamasdan borgan!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">5 kun oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">188</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m3.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Bobur Hasanov</div>
+                                <div class="f-text">Tizza jarohati tufayli 5 yil azob chekdim. Dorilarning hammasini sinab ko'rdim – hech narsa yordam bermadi. Bu esa haqiqatan ishlaydi! Allaqachon bir haftadan beri deyarli og'riqsiz yuryapman.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">5 kun oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">212</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Barno Yuldasheva</div>
+                                <div class="f-text">Artritda sursa bo'ladimi? Barmoqlarim juda og'riydi...
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">6 kun oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">154</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">dr. Dilnoza Karimova</div>
+                                            <div class="f-text">Ha, Barno, Joint Solve kremi bo'g'im kasalliklarining turli xillarida, shu jumladan artritda qo'llaniladi. Ko'plab odamlar barmoq bo'g'imlarining holatida sezilarli yaxshilanishni qayd etishgan.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">6 kun oldin</span>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link">Javob berish</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">271</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Jamshid Normatov</div>
+                                <div class="f-text">Ajoyib mahsulot! Mana pochta orqali olganim:</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">bir hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Zulfiya Saidova</div>
+                                <div class="f-text">Bir hafta oldin surashni boshladim. Natija hayratlanarli! Tizzadagi og'riq kamaydi, qotishlik yo'qoldi. Nevaramga ham sezdirdi!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">bir hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">328</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Sherzod Rahimov</div>
+                                <div class="f-text">Avvaliga aldamchi deb o'yladim, lekin sinab ko'rishga qaror qildim. Va bekor qilmadim! Bir hafta ishlatgandan keyin bo'g'im og'rig'i nima ekanini unutdim. Hammaga tavsiya qilaman!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">bir hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Ulugbek Tursunov</div>
+                                <div class="f-text">Bo'yin og'rig'ida yordam beradimi? Endi chidab bo'lmaydi...
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">bir hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">356</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">dr. Dilnoza Karimova</div>
+                                            <div class="f-text">Ulugbek, Joint Solve kremi bo'yin muammolarida ham yordam beradi. Ko'plab odamlar qo'llashning birinchi haftasidayoq yaxshilanishni sezishgan.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">bir hafta oldin</span>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link">Javob berish</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">384</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m7.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Ravshan Qodirov</div>
+                                <div class="f-text">Bir oydan beri surayapman. Natija barcha kutganlarimdan oshib ketdi! Avval bog'da ishlash qiyin edi, endi o'zimni qaytadan tug'ilgandek his qilyapman!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">bir hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">389</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z7.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Feruza Abdullayeva</div>
+                                <div class="f-text">Bunday ta'sir kutmagandim! Yillar davomida artritdan azob chekdim va ko'plab vositalarni sinab ko'rdim. Joint Solve haqiqatan yordam beradi! Bo'g'im og'rig'i qo'llashning ikkinchi kunidayoq kamaydi.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">bir hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">344</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z8.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Nilufar Ismoilova</div>
+                                <div class="f-text">Darhol ikkita idish buyurtma berdim – biri o'zim uchun, ikkinchisi onam uchun.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">bir hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">372</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z9.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Kamola Nazarova</div>
+                                <div class="f-text">Kuniga necha marta surish kerak? Kurs qancha davom etadi?
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">bir hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">405</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/m8.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Nodir Xolmatov</div>
+                                            <div class="f-text">Kuniga ikki marta surayapman, ertalab va kechqurun. Ikki haftadan beri shunday qilayapman, ta'siri hayratlanarli.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">bir hafta oldin</span>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link">Javob berish</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">394</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z10.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Dilorom Tojiboyeva</div>
+                                <div class="f-text">Tez yetkazib berganingiz uchun rahmat! Allaqachon surashni boshladim va natijadan juda mamnunman.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">bir hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">423</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m9.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Otabek Mirzayev</div>
+                                <div class="f-text">Tizza operatsiyasidan keyin shifokorlar normal yura olmayman deyishdi. Bu mahsulot meni tom ma'noda oyoqqa turg'izdi! Endi biroz yugurishim ham mumkin!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">445</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z11.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Muazzam Sultonova</div>
+                                <div class="f-text">Kimdir revmatoid artritda krem ishlatganmi? Yaxshilanishga juda umid qilayapman...</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">467</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">dr. Dilnoza Karimova</div>
+                                            <div class="f-text">Muazzam, Joint Solve kremi revmatoid artritda ham juda yaxshi natijalar beradi. Bizda bunday tashxis qo'yilgan odamlardan ko'plab ijobiy fikrlar bor.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">2 hafta oldin</span>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link">Javob berish</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">574</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m10.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Farhod Ergashev</div>
+                                <div class="f-text">Uch haftadan beri surayapman, bel og'rig'i deyarli yo'qoldi. Boshqa hech qanday vosita menga bunday ta'sir qilmagan edi!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">489</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z12.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Oydin Mamatova</div>
+                                <div class="f-text">75 yoshli onam uchun buyurtma berdim. Aytishicha, ko'p yillar ichida birinchi marta normal harakat qila olyapti! Bu ajoyib mahsulot uchun katta rahmat!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">512</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z13.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Sarvinoz Xoliqova</div>
+                                <div class="f-text">Buyurtmani allaqachon oldim, yetkazib berish juda tez bo'ldi! Darhol surashni boshladim va tizzalarda yengillik sezyapman.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">534</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z14.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Robiya Nazarova</div>
+                                <div class="f-text">Xolam ikki oydan beri surayapti va deyarli og'riq sezmayapti deydi. Endi o'zim ham buyurtma berishga qaror qildim, yetkazib berishni kutyapman!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">527</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m11.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Jasur Toshpulatov</div>
+                                <div class="f-text">Son jarohati tufayli normal yura olmay yurdim. Bir oy surganidan keyin o'zimni yangiday his qilyapman! Haqiqatan ishlaydi!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">558</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m12.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Sardor Ruziyev</div>
+                                <div class="f-text">Tasdiqlayman – ishlaydi. Uch haftadan beri surayapman, bel og'rig'i deyarli yo'qoldi. Yana nevaramga bilan o'ynay olyapman!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">563</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m13.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Dilshod Murodov</div>
+                                <div class="f-text">Tos-son bo'g'imi artrozida sursa bo'ladimi? Juda azob chekyapman...
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">545</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">dr. Dilnoza Karimova</div>
+                                            <div class="f-text">Ha, Dilshod, Joint Solve kremi bo'g'im artrozida ham, joylashuvidan qat'i nazar qo'llaniladi. Bizda ayniqsa tos-son bo'g'imlari bo'yicha ko'plab ijobiy fikrlar bor.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">2 hafta oldin</span>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link">Javob berish</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">603</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z15.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Hulkar Usmonova</div>
+                                <div class="f-text">Darhol butun kurs uchun uchta idish buyurtma berdim. Natija yoqimli hayratga soldi! Bel deyarli og'rimay qo'ydi.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">571</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m14.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Bekzod Xasanov</div>
+                                <div class="f-text">Ajoyib mahsulot! Tizzalarim deyarli og'rimay qo'ydi. Bo'g'im muammosi borlarning hammasiga tavsiya qilaman.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">582</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z16.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Mavluda Ergasheva</div>
+                                <div class="f-text">Buyurtmani oldim, juda yaxshi qadoqlangan edi.
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">568</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m15.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Akbar Salimov</div>
+                                <div class="f-text">Avariyadagi og'ir jarohatdan keyin shifokorlar tiklanish bir necha oy davom etadi deyishdi. Bu mahsulot tufayli uch haftada kundalik ishlarimga qaytdim!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">595</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z17.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Nargiza Rahimova</div>
+                                <div class="f-text">Onam artrit tufayli yura olmay yurdi, endi o'zi do'konga borayapti! Bu haqiqiy mo'jiza!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">587</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m16.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Anvar Yusupov</div>
+                                <div class="f-text">Avvaliga narxi biroz qimmatroq tuyuldi, lekin mahsulot har bir so'mga arziydi! Endi qimmat dorilarga pul sarflash shart emas.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">612</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m17.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Behruz Nazarov</div>
+                                <div class="f-text">Haydovchi bo'lib ishlayman, doim belim og'rib yurardi. Joint Solve tufayli og'riq butunlay yo'qoldi!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">628</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z18.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Aziza Qodirova</div>
+                                <div class="f-text">Osteoporozda sursa bo'ladimi? Bo'g'imlarim juda og'riydi.
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">605</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">dr. Dilnoza Karimova</div>
+                                            <div class="f-text">Aziza, osteoporozda shifokor bilan maslahatlashish kerak. Malham bu kasallikka ko'pincha hamroh bo'ladigan bo'g'im og'riqlarini yengillashtirish-ga yordam berishi mumkin.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">3 hafta oldin</span>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                            <span class="f-dot">&middot;</span>
+                                            <button class="f-action-link">Javob berish</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">708</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z19.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Madina Xasanova</div>
+                                <div class="f-text">Ikkala tizzamda artroz bor. Qo'llashning uchinchi kuni og'riqsiz o'tirish-turish uddaladim! Ajoyib ta'sir.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">645</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z20.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Yulduz Tojiboyeva</div>
+                                <div class="f-text">Bugun buyurtmani oldim, sinab ko'rishni boshlayman.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">632</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m18.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Timur Sharipov</div>
+                                <div class="f-text">Ishda maslahat berishdi, avvaliga ishonmadim. Endi hammaga tavsiya qilayapman – haqiqatan ishlaydi!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">667</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m19.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Sanjar Alimov</div>
+                                <div class="f-text">Ikki oydan beri surayapman, bel og'rig'i go'yo hech qachon bo'lmagandek.
+                                </div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">679</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m20.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Zafar Tursunov</div>
+                                <div class="f-text">Ko'plab turli vositalarni sinab ko'rdim, lekin faqat shu haqiqatan yordam berdi. Bo'g'im og'rig'i bir haftada yo'qoldi!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">691</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z21.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Sabohat Abdullayeva</div>
+                                <div class="f-text">82 yoshli onam uchun buyurtma berdim. Endi o'zi do'konga borayapti! Bu ajoyib mahsulot uchun rahmat!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">703</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z22.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Dilnoza Mirzayeva</div>
+                                <div class="f-text">Tez yetkazib berish, juda yaxshi qadoqlangan. Bir hafta ishlatgandan keyin allaqachon sezilarli yaxshilanish ko'ryapman. Rahmat!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 hafta oldin</span>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link" data-liked="false">Yoqdi</button>
+                                <span class="f-dot">&middot;</span>
+                                <button class="f-action-link">Javob berish</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">718</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="f-new-comment">
+                    <img src="images/path-to-your-avatar.jpg" class="f-avatar">
+                    <div class="f-input-wrapper">
+                        <input disabled type="text" placeholder="Javob yozish..." class="f-comment-input">
+                        <button class="f-send-button">
+                            <svg viewBox="0 0 24 24" class="f-send-icon">
+                                <path
+                                    d="M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.8429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 C22.8132856,11.0605983 22.3423792,10.4322088 21.714504,10.1188283 L4.13399899,1.16346272 C3.34915502,0.9 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.8376543,3.0486314 1.15159189,3.99121575 L3.03521743,10.4322088 C3.03521743,10.5893061 3.34915502,10.7464035 3.50612381,10.7464035 L16.6915026,11.5318905"
+                                    fill="#0084FF"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const monthSets = {
+                pl: {
+                    old: [
+                        'styczeń', 'luty', 'marzec', 'kwiecień',
+                        'maj', 'czerwiec', 'lipiec', 'sierpień',
+                        'wrzesień', 'październik', 'listopad', 'grudzień'
+                    ],
+                    current: [
+                        'styczeń', 'luty', 'marzec', 'kwiecień',
+                        'maj', 'czerwiec', 'lipiec', 'sierpień',
+                        'wrzesień', 'październik', 'listopad', 'grudzień'
+                    ]
+                },
+
+                pt: {
+                    old: [
+                        'janeiro', 'fevereiro', 'março', 'abril',
+                        'maio', 'junho', 'julho', 'agosto',
+                        'setembro', 'outubro', 'novembro', 'dezembro'
+                    ],
+                    current: [
+                        'janeiro', 'fevereiro', 'março', 'abril',
+                        'maio', 'junho', 'julho', 'agosto',
+                        'setembro', 'outubro', 'novembro', 'dezembro'
+                    ]
+                },
+
+                it: {
+                    old: [
+                        'gennaio', 'febbraio', 'marzo', 'aprile',
+                        'maggio', 'giugno', 'luglio', 'agosto',
+                        'settembre', 'ottobre', 'novembre', 'dicembre'
+                    ],
+                    current: [
+                        'gennaio', 'febbraio', 'marzo', 'aprile',
+                        'maggio', 'giugno', 'luglio', 'agosto',
+                        'settembre', 'ottobre', 'novembre', 'dicembre'
+                    ]
+                },
+
+                ro: {
+                    old: [
+                        'ianuarie', 'februarie', 'martie', 'aprilie',
+                        'mai', 'iunie', 'iulie', 'august',
+                        'septembrie', 'octombrie', 'noiembrie', 'decembrie'
+                    ],
+                    current: [
+                        'ianuarie', 'februarie', 'martie', 'aprilie',
+                        'mai', 'iunie', 'iulie', 'august',
+                        'septembrie', 'octombrie', 'noiembrie', 'decembrie'
+                    ]
+                },
+
+                lt: {
+                    old: [
+                        'sausis', 'vasaris', 'kovas', 'balandis',
+                        'gegužė', 'birželis', 'liepa', 'rugpjūtis',
+                        'rugsėjis', 'spalis', 'lapkritis', 'gruodis'
+                    ],
+                    current: [
+                        'sausis', 'vasaris', 'kovas', 'balandis',
+                        'gegužė', 'birželis', 'liepa', 'rugpjūtis',
+                        'rugsėjis', 'spalis', 'lapkritis', 'gruodis'
+                    ]
+                },
+
+                ru: {
+                    old: [
+                        'январь', 'февраль', 'март', 'апрель',
+                        'май', 'июнь', 'июль', 'август',
+                        'сентябрь', 'октябрь', 'ноябрь', 'декабрь'
+                    ],
+                    current: [
+                        'январь', 'февраль', 'март', 'апрель',
+                        'май', 'июнь', 'июль', 'август',
+                        'сентябрь', 'октябрь', 'ноябрь', 'декабрь'
+                    ]
+                },
+
+                uz: {
+                    old: [
+                        'yanvar', 'fevral', 'mart', 'aprel',
+                        'may', 'iyun', 'iyul', 'avgust',
+                        'sentabr', 'oktabr', 'noyabr', 'dekabr'
+                    ],
+                    current: [
+                        'yanvar', 'fevral', 'mart', 'aprel',
+                        'may', 'iyun', 'iyul', 'avgust',
+                        'sentabr', 'oktabr', 'noyabr', 'dekabr'
+                    ]
+                }
+            };
+
+            let lang = (document.documentElement.lang || '')
+                .toLowerCase()
+                .split('-')[0];
+
+            if (!monthSets[lang]) {
+                console.log('Auto month: язык не поддерживается:', lang);
+                return;
+            }
+
+            const currentMonthIndex = new Date().getMonth();
+            const currentMonth = monthSets[lang].current[currentMonthIndex];
+
+            function escapeRegExp(str) {
+                return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+
+            function preserveCase(original, replacement) {
+
+                if (original === original.toUpperCase()) {
+                    return replacement.toUpperCase();
+                }
+
+                if (
+                    original.charAt(0) === original.charAt(0).toUpperCase()
+                ) {
+                    return replacement.charAt(0).toUpperCase() + replacement.slice(1);
+                }
+
+                return replacement;
+            }
+
+            function replaceText(text) {
+
+                let result = text;
+
+                monthSets[lang].old.forEach(function (month) {
+
+                    const regex = new RegExp('\\b' + escapeRegExp(month) + '\\b', 'giu');
+
+                    result = result.replace(regex, function (match) {
+
+                        if (
+                            match.toLocaleLowerCase() ===
+                            currentMonth.toLocaleLowerCase()
+                        ) {
+                            return match;
+                        }
+
+                        return preserveCase(match, currentMonth);
+                    });
+
+                });
+
+                return result;
+            }
+
+            function walk(node) {
+
+                if (node.nodeType === Node.TEXT_NODE) {
+
+                    const newText = replaceText(node.nodeValue);
+
+                    if (newText !== node.nodeValue) {
+                        node.nodeValue = newText;
+                    }
+
+                    return;
+                }
+
+                if (node.nodeType !== Node.ELEMENT_NODE) {
+                    return;
+                }
+
+                const ignoredTags = [
+                    'SCRIPT',
+                    'STYLE',
+                    'NOSCRIPT',
+                    'TEXTAREA',
+                    'INPUT',
+                    'SELECT',
+                    'OPTION'
+                ];
+
+                if (ignoredTags.includes(node.tagName)) {
+                    return;
+                }
+
+                Array.from(node.childNodes).forEach(walk);
+            }
+
+            walk(document.body);
+
+            console.log(
+                'Auto month:',
+                'lang =', lang,
+                '| current =', currentMonth
+            );
+
+        });
+    </script>
+
+    <script src="js/video1.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const comments = document.querySelectorAll('.f-comments-list > .f-comment');
+            console.log('Found comments:', comments.length);
+            if (!comments.length) return;
+
+            comments.forEach(function (c) {
+                c.style.setProperty('display', 'none', 'important');
+                c.style.setProperty('opacity', '0', 'important');
+                c.style.setProperty('transform', 'translateY(25px)', 'important');
+                c.style.setProperty('transition', 'opacity 0.6s ease, transform 0.6s ease', 'important');
+            });
+
+            let i = 0;
+            function showNext() {
+                if (i >= comments.length) return;
+
+                const el = comments[i];
+                el.style.setProperty('display', 'block', 'important');
+
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () {
+                        el.style.setProperty('opacity', '1', 'important');
+                        el.style.setProperty('transform', 'translateY(0)', 'important');
+                    });
+                });
+
+                i++;
+                if (i < comments.length) {
+                    setTimeout(showNext, 1200 + Math.random() * 1300);
+                }
+            }
+
+            setTimeout(showNext, 500);
+        });
+    </script>
+
+    <script
+        async> const LAZY = document.querySelectorAll('img'); for (let i = 0; i < LAZY.length; i++) { LAZY[i].setAttribute('loading', 'lazy'); } </script>
+
+    <script>
+        $("a").on("touchend, click", function (e) {
+            e.preventDefault();
+            $('body,html').animate({
+                scrollTop: $('#oneform').offset().top
+            }, 400);
+        });
+    </script>
+
+    <script>
+        $('[name="name"]').on("input", function () {
+            var val = $(this).val();
+
+            var cleaned = val
+                .replace(/[^\p{L}\s]/gu, "")
+                .replace(/^\s+/, "")
+                .replace(/\s\s+/, " ");
+
+            var parts = cleaned.split(" ");
+            if (parts.length > 2) {
+                cleaned = parts[0] + " " + parts[1];
+            }
+
+            $(this).val(cleaned);
+        });
+
+        $('[name="name"]').on("change blur", function () {
+            $(this).val($(this).val().trim());
+        });
+
+        $('[name="phone"]').on("input change", function (e) {
+            var val = $(this).val();
+            $(this).val(val.replace(/\D/g, ""));
+            $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+        });
+    </script>
+
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var ks = (typeof keitaro_subid !== "undefined" && String(keitaro_subid).indexOf("{") === -1) ? keitaro_subid : "";
+    var s = q.get("clickid") || q.get("s") || q.get("subid") || ks || "";
+    document.querySelectorAll('input[name="subid"]').forEach(function (el) {
+      if (s) el.value = s;
+      else if (String(el.value).indexOf("{") !== -1) el.value = "";
+    });
+  } catch (e) {}
+})();
+</script>
+
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var ks = (typeof keitaro_subid !== "undefined" && String(keitaro_subid).indexOf("{") === -1) ? keitaro_subid : "";
+    var s = q.get("clickid") || q.get("s") || q.get("subid") || ks || "";
+    document.querySelectorAll('input[name="subid"]').forEach(function (el) {
+      if (s) el.value = s;
+      else if (String(el.value).indexOf("{") !== -1) el.value = "";
+    });
+  } catch (e) {}
+})();
+</script>
+
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var ks = (typeof keitaro_subid !== "undefined" && String(keitaro_subid).indexOf("{") === -1) ? keitaro_subid : "";
+    var s = q.get("clickid") || q.get("s") || q.get("subid") || ks || "";
+    document.querySelectorAll('input[name="subid"]').forEach(function (el) {
+      if (s) el.value = s;
+      else if (String(el.value).indexOf("{") !== -1) el.value = "";
+    });
+  } catch (e) {}
+})();
+</script>
+<script src="js/ywbackfix.js"
+        data-redirect="true"
+        data-links='["https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}"]'>
+</script>
+<script>/*ssval*/(function(){if(window.__ssval)return;window.__ssval=1;function dig(v){return String(v||'').replace(/\D+/g,'');}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var ph=dig(pf.value),nm=nf?String(nf.value||'').trim():'';var L=(nm.match(/\p{L}/gu)||[]).length;if(ph.length<6||ph.length>15||(nf&&L<2)){e.preventDefault();e.stopImmediatePropagation();try{((nf&&L<2)?nf:pf).focus();}catch(_){}return false;}},true);})();</script>
+<script>/*sslock*/(function(){if(window.__sslock)return;window.__sslock=1;function L(f){var s=false;f.addEventListener("submit",function(e){if(s){e.preventDefault();e.stopImmediatePropagation();return false;}s=true;var b=f.querySelector("[type=submit],button");if(b)setTimeout(function(){b.disabled=true;},0);},true);}Array.prototype.forEach.call(document.querySelectorAll("form"),L);})();</script>
+<script>/*ssddm1*/(function(){if(window.__ssdd1)return;window.__ssdd1=1;var PW=86400000,IW=0,K=location.pathname.replace(/[^a-z0-9]/gi,'').slice(-48);function dig(v){return String(v||'').replace(/\D+/g,'');}function isdup(ph){try{var n=Date.now(),lk='ssddL_'+K,mk='ssddP_'+K,last=+(localStorage.getItem(lk)||0),m=JSON.parse(localStorage.getItem(mk)||'{}');for(var k in m){if(n-m[k]>PW)delete m[k];}var d=!!m[ph]||(IW>0&&last&&n-last<IW);if(!d){m[ph]=n;localStorage.setItem(mk,JSON.stringify(m));localStorage.setItem(lk,String(n));}return d;}catch(e){return false;}}function succ(){var u;try{u=(window.OFFER&&OFFER.success)||'call.html';}catch(e){u='call.html';}try{location.replace(u+location.search);}catch(e){location.href=u;}}document.addEventListener('submit',function(e){var f=e.target;if(!f||!f.querySelector)return;var pf=f.querySelector('[name=phone],[data-order-phone],input[type=tel]');if(!pf)return;var nf=f.querySelector('[name=name],[data-order-name]');var nm=nf?String(nf.value||'').trim():'x';var ph=dig(pf.value);if(!nm||!ph||ph.length<7)return;if(isdup(ph)){e.preventDefault();e.stopImmediatePropagation();succ();}},true);})();</script>
+</body>
+
+</html>
