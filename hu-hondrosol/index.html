@@ -1,0 +1,448 @@
+<!DOCTYPE html> <html lang="HU" style="--vh:485px"><head><meta charset="utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="stylesheet_2.css" rel="stylesheet">
+    <link rel="stylesheet" href="stylesheet_1.css">
+    <link rel="stylesheet" href="stylesheet_0.css">
+    <script referrerpolicy="no-referrer" src="scripts/3.js"></script>
+    <script src="scripts/4.js"></script>
+    <script src="scripts/5.js"></script>
+    <title>Hondro Sol</title>
+
+    <style>
+      .formFb__img{max-width:350px!important}
+      @media screen and (max-width:360px){.main_header{font-size:30px}}
+      @media screen and (max-width:500px){.main_header{font-size:25px}#open-video,#popup,#play{font-size:1rem}}
+      @media screen and (max-width:380px){.main_header{font-size:30px}}
+
+      .video_wrapper {
+        width: 100%;
+        max-width: 620px;
+        margin: 0 auto;
+        padding: 0 10px;
+        box-sizing: border-box;
+      }
+      #container_video {
+        position: relative;
+        width: 100%;
+      }
+      #container_video video {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 8px;
+      }
+      #play, #open-video, #popup {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+        cursor: pointer;
+      }
+      #play > div, #open-video > div, #popup > div {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
+      #play { background: rgba(0,0,0,0.3); }
+      #open-video { display: none; background: rgba(0,0,0,0.5); z-index: 3; }
+      #popup { display: none; z-index: 4; }
+      #play h4, #open-video h4 {
+        color: #fff;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+      }
+      #popup > div {
+        background: linear-gradient(135deg, #e53935, #d32f2f);
+        border-radius: 12px;
+        padding: 20px 30px;
+        color: #fff;
+        border: 2px solid rgba(255,255,255,0.3);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        width: max-content;
+        max-width: 80%;
+      }
+      #popup h2 { margin: 8px 0; }
+      #close-popup {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 24px;
+        cursor: pointer;
+        float: right;
+      }
+      #close {
+        display: none;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 5;
+        width: 36px;
+        height: 36px;
+        background: rgba(0,0,0,0.6);
+        border-radius: 50%;
+        cursor: pointer;
+        color: #fff;
+        font-size: 20px;
+        line-height: 36px;
+        text-align: center;
+      }
+      #close::after { content: '✕'; }
+      #order { display: none; }
+      #container_video.exiting #open-video { display: block; }
+      .main_header {
+        text-align: center;
+        padding: 10px 16px;
+      }
+      #formFb {
+        max-width: 620px;
+        margin: 0 auto;
+        padding: 0 10px;
+      }
+      #container_video {
+        transition: none !important;
+      }
+      #container_video.fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: var(--vh, 100vh);
+        z-index: 9999;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0;
+      }
+      #container_video.fullscreen video {
+        border-radius: 0;
+        max-height: 100%;
+      }
+      #container_video.exiting {
+        transition: none !important;
+        width: auto !important;
+        position: relative !important;
+      }
+    </style>
+  <meta name="referrer" content="no-referrer"><link rel="shortcut icon" href="images/2.png" type="image/x-icon">
+
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window,document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+
+    var defined_pixel = '{fbpx}';
+    var defined_pixel_2 = '';
+    var defined_pixel_3 = '';
+
+    var defined_pixels = [defined_pixel, defined_pixel_2, defined_pixel_3];
+    for (var i = 0; i < defined_pixels.length; i++) {
+      if (defined_pixels[i]) {
+        fbq('init', defined_pixels[i]);
+      }
+    }
+
+    var localPixel = localStorage.getItem('fb_pixel');
+    if (localPixel && localPixel !== defined_pixel && localPixel !== defined_pixel_2 && localPixel !== defined_pixel_3) {
+      fbq('init', localPixel);
+    }
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var urlPixel = urlParams.get('fbpx') || urlParams.get('pixel');
+    if (urlPixel && urlPixel !== defined_pixel && urlPixel !== defined_pixel_2 && urlPixel !== defined_pixel_3) {
+      fbq('init', urlPixel);
+      localStorage.setItem('fb_pixel', urlPixel);
+    }
+
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id={fbpx}&ev=PageView&noscript=1" /></noscript>
+
+</head>
+  <body>
+    <h1 class="main_header">
+      A LEGHATÉKONYABB OTTHONI RECEPT
+      <span class="green_bg">A HÁT- ÉS TÉRDFÁJDALOM ENYHÍTÉSÉRE MINDÖSSZE 4 ÓRA ALATT!</span>, AZOK KÖZÜL, AKIK VÉGIGNÉZTÉK EZT A VIDEÓT, 94% MEGSZABADULT
+      AZ ÍZÜLETI FÁJDALMAKTÓL 4 ÓRA ALATT!
+    </h1>
+    <div id="oneform"></div>
+    <div class="video_wrapper">
+      <div id="container_video">
+        <div id="close"></div>
+        <div id="open-video">
+          <div>
+            <h4>Kattintson, hogy online maradjon</h4>
+          </div>
+        </div>
+        <div id="popup">
+          <div>
+            <button id="close-popup">×</button>
+            <h2>Már csak 17 csomag Hondro Sol maradt</h2>
+            <h2>Rendeljen most!</h2>
+          </div>
+        </div>
+        <div id="play">
+          <div>
+            <h4>A videó elindult</h4>
+            <h4>Kattintson a hanghoz!</h4>
+          </div>
+        </div>
+        <video id="video" class="productVideo" src="video15.mp4" controls playsinline preload="metadata"></video>
+        <div class="preload_container Deactivate">
+          <div class="preload_box">
+            <span class="preload_text">A videó betöltődik. Kérjük, várjon.</span>
+            <span class="preload_timer">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <form id="order" class="order_form" action="order.php" method="POST">
+      <input type="hidden" name="subid" value="{subid}">
+      <input type="hidden" name="subid2" value="{sub_id_2}">
+      <input type="hidden" name="cid" value="{campaign_id}">
+      <input type="hidden" name="sid" value="5769">
+      <input type="hidden" name="hash" value="{hash}">
+      <input type="hidden" name="country" value="HU">
+      <div id="formFb" class="formFb">
+        <div class="formFb__container">
+          <p class="formFb__action formFb__text">
+            <b>SIESSEN!</b> A Hondro Sol akciós csomagjai hamarosan elfogynak.
+          </p>
+          <p class="formFb__counter formFb__text">
+            <b>Frissítés:</b> már csak
+            <span class="prod_left_val form-instock red">15</span> darab maradt
+            <span class="js-current-date"></span>-én.
+          </p>
+          <script>
+            document.addEventListener('DOMContentLoaded', function () {
+              const leftPackElement = document.querySelector('.prod_left_val');
+              function decrementNumber() {
+                let currentNumber = parseInt(leftPackElement.textContent, 10);
+                if (!isNaN(currentNumber)) {
+                  if (currentNumber > 3) {
+                    currentNumber -= 1;
+                    leftPackElement.textContent = currentNumber;
+                  } else {
+                    clearInterval(intervalId);
+                  }
+                }
+              }
+              const intervalId = setInterval(decrementNumber, 30000);
+            });
+          </script>
+          <div class="formFb__img" style="text-align:center">
+            <img src="images/2.png" alt style="width:50%!important" loading="lazy">
+          </div>
+          <div style="margin-bottom:10px;display:flex;flex-direction:column;align-items:center">
+              <div style="text-decoration:line-through;color:gray">22800 HUF</div>
+              <div style="color:red;font-size:24px">11400 HUF</div>
+            </div>
+          <div class="formFb__inputs">
+            <label>Az Ön neve:</label>
+            <input name="name" placeholder="János" style="padding:0.5em 0.65em" required="required" autocomplete="name" type="text" minlength="3" value>
+          </div>
+          <div class="formFb__inputs">
+            <label>Az Ön telefonszáma:</label>
+            <input placeholder="+36 20 123 4567" name="phone" class="phone input-flag" required="required" autocomplete="tel" type="text" style value>
+          </div>
+          <button class="formFb__btn" type="submit">RENDELÉS ELKÜLDÉSE</button>
+        </div>
+      </div>
+    </form>
+    <script>
+      (function () {
+        var EVENT_NAME = 'VideoView25';
+        var THRESHOLD = 0.25;
+        var EPS_SECONDS = 1;
+        var MIN_DURATION = 0.5;
+        var v = document.querySelector('.productVideo');
+        if (!v) return;
+        var fired = false;
+        function getVideoId() {
+          return (
+            v.getAttribute('data-video-id') ||
+            v.id ||
+            v.currentSrc ||
+            v.src ||
+            'video'
+          );
+        }
+        function send(payload) {
+          (function trySend(i) {
+            if (typeof fbq === 'function') {
+              fbq('trackCustom', EVENT_NAME, payload);
+            } else if (i < 20) {
+              setTimeout(function () {
+                trySend(i + 1);
+              }, 250);
+            }
+          })(0);
+        }
+        function check() {
+          if (fired) return;
+          var dur = v.duration;
+          if (!isFinite(dur) || dur < MIN_DURATION) return;
+          var cur = v.currentTime || 0;
+          var thresholdSec = Math.max(dur * THRESHOLD - EPS_SECONDS, 0);
+          if (cur >= thresholdSec) {
+            fired = true;
+            v.removeEventListener('timeupdate', check);
+            v.removeEventListener('play', check);
+            v.removeEventListener('loadedmetadata', check);
+            send({
+              percent: 25,
+              videoId: getVideoId(),
+              duration: Math.round(dur),
+              currentTime: Math.round(cur),
+              source: 'html5',
+            });
+          }
+        }
+        if (v.readyState >= 1) setTimeout(check, 0);
+        v.addEventListener('loadedmetadata', check);
+        v.addEventListener('play', check);
+        v.addEventListener('timeupdate', check);
+      })();
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var comments = document.querySelectorAll('.fb-comments-wrapper');
+        function fadeInElement(element, duration) {
+          var start = null;
+          function step(timestamp) {
+            if (!start) start = timestamp;
+            var progress = timestamp - start;
+            element.style.opacity = progress / duration;
+            if (progress < duration) {
+              window.requestAnimationFrame(step);
+            }
+          }
+          window.requestAnimationFrame(step);
+        }
+        function displayCommentsSequentially(index) {
+          if (index >= comments.length) {
+            return;
+          }
+          var comment = comments[index];
+          comment.style.display = 'block';
+          fadeInElement(comment, 500);
+          if (index > 0) {
+            comments[index - 1].parentNode.insertBefore(
+              comment,
+              comments[index - 1]
+            );
+          }
+          setTimeout(function () {
+            displayCommentsSequentially(index + 1);
+          }, 10000);
+        }
+        displayCommentsSequentially(0);
+      });
+    </script>
+<script async>
+  const LAZY = document.querySelectorAll('img');
+  for (let i = 0; i < LAZY.length; i++) {
+    LAZY[i].setAttribute('loading', 'lazy');
+  } </script>
+<script>
+  $("a").on("touchend, click", function (e) {
+    e.preventDefault();
+    $('body,html').animate({
+      scrollTop: $('#oneform').offset().top
+    }, 400);
+  });
+</script>
+<script>
+  $('[name="name"]').on("input", function () {
+    var val = $(this).val();
+    var cleaned = val
+      .replace(/[^\p{L}\s]/gu, "")
+      .replace(/^\s+/, "")
+      .replace(/\s\s+/, " ");
+    var parts = cleaned.split(" ");
+    if (parts.length > 2) {
+      cleaned = parts[0] + " " + parts[1];
+    }
+    $(this).val(cleaned);
+  });
+  $('[name="name"]').on("change blur", function () {
+    $(this).val($(this).val().trim());
+  });
+  $('[name="phone"]').on("input change", function (e) {
+    var val = $(this).val();
+    $(this).val(val.replace(/\D/g, ""));
+    $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+  });
+</script>
+
+<script>
+  var subParams = new URLSearchParams(window.location.search);
+  var sub_subid = subParams.get('subid') || subParams.get('sub_id') || '';
+  if (sub_subid) {
+    var subField = document.querySelector('[name="subid"]');
+    if (subField && (!subField.value || subField.value === '{subid}')) subField.value = sub_subid;
+  }
+  var sub_subid2 = subParams.get('sub_id_2') || '';
+  if (sub_subid2) {
+    var sub2Field = document.querySelector('[name="subid2"]');
+    if (sub2Field && (!sub2Field.value || sub2Field.value === '{sub_id_2}')) sub2Field.value = sub_subid2;
+  }
+</script>
+
+<script>
+  $(document).ready(function() {
+    var scrollPos = 0;
+
+    function doUnlock() {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+
+    $('#close').off('click').on('click', function() {
+      scrollPos = Math.abs(parseInt(document.body.style.top || '0'));
+      var $cont = $('#container_video');
+      $cont.removeClass('fullscreen');
+      $cont.removeClass('exiting');
+      $cont.css({ transition: 'none', opacity: 1 });
+      doUnlock();
+      window.scrollTo(0, scrollPos);
+      $('#close').hide();
+      $('#open-video').fadeIn('fast');
+      $('#popup').fadeOut('fast');
+    });
+
+    $('#video').on('ended', function() {
+      var v = this;
+      v.pause();
+      v.removeAttribute('src');
+      v.load();
+      $('#play').remove();
+      $('#open-video').remove();
+      $('#container_video').removeClass('fullscreen exiting');
+      $('#container_video').css({ opacity: 1 });
+      doUnlock();
+      window.scrollTo(0, 0);
+      $('#popup').fadeOut();
+      $('#close').fadeOut();
+      $('#video').fadeOut('fast');
+      $('#order').fadeIn();
+    });
+  });
+</script>
+
+</body></html>
