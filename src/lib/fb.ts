@@ -1887,6 +1887,15 @@ export type CreateMultiLangVideoInput = {
   langs: LangVariant[];
   /** IG-идентичность для Instagram-плейсментов (см. resolveInstagramActor). */
   instagramActorId?: string;
+  /**
+   * Заголовок/описание, которые баер задал в форме ОБЪЯВЛЕНИЯ (а не язык пака).
+   * По ним решаем, использовать ли вообще заголовок/описание: если баер оставил
+   * описание пустым — не навязываем его и НЕ подтягиваем из языков пака (иначе
+   * в основном объявлении всплывало чужое описание). Не переданы — поведение по
+   * дефолтному слою, как раньше.
+   */
+  primaryHeadline?: string;
+  primaryDescription?: string;
 };
 
 /**
@@ -1912,13 +1921,13 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
 
   // Заголовок и описание должны быть у ВСЕХ слоёв или НИ У КОГО: FB запрещает
   // применить к одному правилу несколько ассетов (код 1885878 «Multiple
-  // descriptions/titles assets cannot be applied to rule»). Если у языка пака
-  // своего заголовка/описания нет, а у целевого слоя есть — массив становится
-  // неоднородным, и правило без своего label ловит сразу все. Поэтому берём
-  // значения основного объявления как общий фолбэк: есть у основного — даём
-  // всем (своё или фолбэк), нет — не используем вовсе.
-  const titleFallback = i.main.headline || '';
-  const descFallback = i.main.description || '';
+  // descriptions/titles assets cannot be applied to rule»). Решаем по тому, что
+  // баер задал в ФОРМЕ ОБЪЯВЛЕНИЯ (primaryHeadline/primaryDescription), а не по
+  // языку пака: пусто у баера — описания/заголовка нет НИГДЕ (не тянем из пака);
+  // задано — даём всем (своё или это значение как фолбэк). Если primary не
+  // передан — опираемся на дефолтный слой, как раньше.
+  const titleFallback = (i.primaryHeadline !== undefined ? i.primaryHeadline : i.main.headline) || '';
+  const descFallback = (i.primaryDescription !== undefined ? i.primaryDescription : i.main.description) || '';
   const effTitle = (own?: string) => (titleFallback ? own || titleFallback : '');
   const effDesc = (own?: string) => (descFallback ? own || descFallback : '');
 

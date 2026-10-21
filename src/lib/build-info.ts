@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'sync-ignore-missing-token · 21.10 15:22';
+export const BUILD_INFO = 'multilang-desc-from-form · 22.10 00:32';

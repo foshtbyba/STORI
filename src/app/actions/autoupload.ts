@@ -1272,6 +1272,8 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
             mainLocaleId: packDefault.localeId,
             langs: rest,
             instagramActorId: igActor || undefined,
+            primaryHeadline: headline,
+            primaryDescription: description,
           }, net));
           // НЕ подменяем молча одноязычным: смысл залива — именно языки. Не
           // собралось — отдаём ошибку наверх, чтобы было видно, что чинить.
