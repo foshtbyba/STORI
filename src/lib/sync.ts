@@ -94,6 +94,16 @@ function atMidnight(iso: string) {
 }
 
 /**
+ * Глушилка для `.catch(...)` у апдейтов токена: если запись исчезла по ходу
+ * захода (P2025 — профиль удалили/пересоздали, пока синк шёл), это не ошибка,
+ * обновлять уже нечего. Прочие ошибки пробрасываем как есть.
+ */
+function ignoreMissing(e: unknown): void {
+  if ((e as { code?: string })?.code === 'P2025') return;
+  throw e;
+}
+
+/**
  * Один и тот же кабинет (act_ID) бывает виден сразу под несколькими профилями —
  * это ДУБЛИ. Если тянуть расход с обоих, он задвоится. Поэтому на каждый
  * externalId выбираем ОДИН «канонический» кабинет и синкаем только его, а дубли
@@ -305,7 +315,7 @@ export async function refreshTokenFromCookies(t: {
     cookies = [];
   }
   const blob = Buffer.from(JSON.stringify({ cookies, ua, token: fresh })).toString('base64');
-  await prisma.adToken.update({ where: { id: t.id }, data: { token: blob } });
+  await prisma.adToken.update({ where: { id: t.id }, data: { token: blob } }).catch(ignoreMissing);
   t.token = blob;
   return true;
 }
@@ -491,7 +501,7 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
       await prisma.adToken.update({
         where: { id: token.id },
         data: { lastSyncAt: new Date(), lastError: '', pausedUntil: null },
-      });
+      }).catch(ignoreMissing);
     };
 
     try {
@@ -534,7 +544,7 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
       await prisma.adToken.update({
         where: { id: token.id },
         data: { lastError: note, lastSyncAt: new Date(), pausedUntil },
-      });
+      }).catch(ignoreMissing);
 
       // Токен слетел (не троттлинг) — уведомляем баера/админов, но не чаще раза
       // в 12 часов на профиль (дедуп по нику), чтобы не заспамить.
@@ -828,7 +838,7 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
       await prisma.adToken.update({
         where: { id: token.id },
         data: { lastSyncAt: new Date(), lastError: '', pausedUntil: null },
-      });
+      }).catch(ignoreMissing);
     };
 
     try {
@@ -860,7 +870,7 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
       await prisma.adToken.update({
         where: { id: token.id },
         data: { lastError: note, lastSyncAt: new Date(), pausedUntil },
-      });
+      }).catch(ignoreMissing);
 
       // Токен слетел (не троттлинг) — уведомляем баера/админов, но не чаще раза
       // в 12 часов на профиль (дедуп по нику), чтобы не заспамить.
@@ -1266,7 +1276,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       await prisma.adToken.update({
         where: { id: token.id },
         data: { lastSyncAt: new Date(), lastError: '', pausedUntil: null },
-      });
+      }).catch(ignoreMissing);
     };
 
     try {
@@ -1298,7 +1308,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
       await prisma.adToken.update({
         where: { id: token.id },
         data: { lastError: note, lastSyncAt: new Date(), pausedUntil },
-      });
+      }).catch(ignoreMissing);
     }
   });
 
