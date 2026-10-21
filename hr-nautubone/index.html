@@ -44,6 +44,13 @@
 	</script>
 
 	<style>
+      .video_wrapper {
+        width: 100%;
+        max-width: 620px;
+        margin: 0 auto;
+        padding: 0 10px;
+        box-sizing: border-box;
+      }
       #container_video {
         position: relative;
         width: 100%;
@@ -52,6 +59,7 @@
         width: 100%;
         height: auto;
         display: block;
+        border-radius: 8px;
       }
       #play, #open-video, #popup {
         position: absolute;
@@ -105,6 +113,15 @@
       }
       #close::after { content: '✕'; }
       #order { display: none; }
+      #formFb {
+        max-width: 620px;
+        margin: 0 auto;
+        padding: 0 10px;
+      }
+      .main_header {
+        text-align: center;
+        padding: 10px 16px;
+      }
       #container_video {
         transition: none !important;
       }
@@ -187,82 +204,83 @@
 
 
 
-		<div id="container_video">
-			<div id="close"></div>
-			<div id="open-video">
-				<div>
-					<h4>Kliknite za nastavak gledanja</h4>
-				</div>
-			</div>
-			<div id="popup">
-				<div>
-					<h2 class="popup-title" data-pattern="Preostalo je samo {left} kutija Nautubone.">
-						Preostalo je samo 73 kutije Nautubone.
-					</h2>
-					<h2>Naručite sada!</h2>
-				</div>
-			</div>
-			<div id="play">
-				<div>
-					<h4>Video je započeo</h4>
-					<h4>Kliknite za uključivanje zvuka!</h4>
-				</div>
-			</div>
-			<video id="video" class="productVideo" src="video.mp4" controls playsinline preload="metadata"></video>
-
-			<form id="order" action="order.php" method="POST">
-				<div id="formFb" class="formFb">
-					<div class="formFb__container">
-						<input type="hidden" name="subid" value="{subid}">
-						<input type="hidden" name="subid2" value="{sub_id_2}">
-						<input type="hidden" name="cid" value="{campaign_id}">
-						<input type="hidden" name="hash" value="{hash}">
-						<input type="hidden" name="country" value="HR">
-						<input type="hidden" name="product_price" id="product_price" value="39">
-						<input type="hidden" name="product_currency" id="product_currency" value="EUR">
-
-						<p class="formFb__action formFb__text"><b>Sada!</b> Promotivni paketi Nautubone gotovo su rasprodani.
-						</p>
-						<p class="formFb__counter formFb__text"><b>Obavijest:</b> Danas je ostalo samo <span class="form-instock red">17</span>
-							komada. <span class="js-current-date"></span>.
-						</p>
-						<div class="formFb__img"><img src="images/5.webp" alt></div>
-						<div class="formFb__price">
-							<p class="formFb__price--txt formFb__text">85% popusta</p>
-							<span class="formFb__price--p">
-								<span class="oldPriceAndLabelForLandingInfoApi formFb__price--old"><span class="price-old">78</span> <span class="currency">EUR</span></span>
-								<span class="priceAndLabelForLandingInfoApi formFb__price--new"><span class="price-new">39</span> <span class="currency">EUR</span></span>
-							</span>
-						</div>
-						<div class="formFb__timer">
-							<p class="formFb__text">Preostalo vrijeme</p>
-							<div class="timer">
-								<span id="timer">08:10</span>
-							</div>
-						</div>
-
-						<div class="formFb__inputs">
-							<label>Vaše ime:</label>
-							<input name="name" placeholder="Ime" required="required" autocomplete="name" type="text" minlength="3" value style>
-						</div>
-
-						<div class="formFb__inputs">
-							<label>Vaš broj telefona:</label>
-							<div class="iti iti--separate-dial-code"><div class="iti__flag-container"><div class="iti__selected-flag" role="combobox" aria-controls="iti-0__country-listbox" aria-owns="iti-0__country-listbox" aria-expanded="false" title="Croatia (Hrvatska): +385"><div class="iti__flag iti__hr"></div><div class="iti__selected-dial-code">+385</div></div></div><input name="phone" placeholder="9X XXX XXXX" required="required" autocomplete="tel" type="tel" value data-intl-tel-input-id="0" style="padding-left:82px"><input type="hidden" name="full_phone" style value></div>
-						</div>
-						<button class="formFb__btn" type="submit">Naručite sada</button>
-						<div class="formFb__steps">
-							<div class="formFb__step formFb__step--one"><img src="images/6.png" alt></div>
-							<div class="formFb__step--line"></div>
-							<div class="formFb__step formFb__step--one"><img src="images/7.png" alt></div>
-							<div class="formFb__step--line"></div>
-							<div class="formFb__step"><img src="images/8.png" alt></div>
-						</div>
-						<p class="formFb__counter formFb__text">*Ovaj popust vrijedi samo za jednu kutiju pri kupnji cijelog tretmana.</p>
+		<div class="video_wrapper">
+			<div id="container_video">
+				<div id="close"></div>
+				<div id="open-video">
+					<div>
+						<h4>Kliknite za nastavak gledanja</h4>
 					</div>
 				</div>
-			</form>
+				<div id="popup">
+					<div>
+						<h2 class="popup-title" data-pattern="Preostalo je samo {left} kutija Nautubone.">
+							Preostalo je samo 73 kutije Nautubone.
+						</h2>
+						<h2>Naručite sada!</h2>
+					</div>
+				</div>
+				<div id="play">
+					<div>
+						<h4>Video je započeo</h4>
+						<h4>Kliknite za uključivanje zvuka!</h4>
+					</div>
+				</div>
+				<video id="video" class="productVideo" src="video.mp4" controls playsinline preload="metadata"></video>
+			</div>
 		</div>
+		<form id="order" action="order.php" method="POST">
+			<div id="formFb" class="formFb">
+				<div class="formFb__container">
+					<input type="hidden" name="subid" value="{subid}">
+					<input type="hidden" name="subid2" value="{sub_id_2}">
+					<input type="hidden" name="cid" value="{campaign_id}">
+					<input type="hidden" name="hash" value="{hash}">
+					<input type="hidden" name="country" value="HR">
+					<input type="hidden" name="product_price" id="product_price" value="39">
+					<input type="hidden" name="product_currency" id="product_currency" value="EUR">
+
+					<p class="formFb__action formFb__text"><b>Sada!</b> Promotivni paketi Nautubone gotovo su rasprodani.
+					</p>
+					<p class="formFb__counter formFb__text"><b>Obavijest:</b> Danas je ostalo samo <span class="form-instock red">17</span>
+						komada. <span class="js-current-date"></span>.
+					</p>
+					<div class="formFb__img"><img src="images/5.webp" alt></div>
+					<div class="formFb__price">
+						<p class="formFb__price--txt formFb__text">85% popusta</p>
+						<span class="formFb__price--p">
+							<span class="oldPriceAndLabelForLandingInfoApi formFb__price--old"><span class="price-old">78</span> <span class="currency">EUR</span></span>
+							<span class="priceAndLabelForLandingInfoApi formFb__price--new"><span class="price-new">39</span> <span class="currency">EUR</span></span>
+						</span>
+					</div>
+					<div class="formFb__timer">
+						<p class="formFb__text">Preostalo vrijeme</p>
+						<div class="timer">
+							<span id="timer">08:10</span>
+						</div>
+					</div>
+
+					<div class="formFb__inputs">
+						<label>Vaše ime:</label>
+						<input name="name" placeholder="Ime" required="required" autocomplete="name" type="text" minlength="3" value style>
+					</div>
+
+					<div class="formFb__inputs">
+						<label>Vaš broj telefona:</label>
+						<div class="iti iti--separate-dial-code"><div class="iti__flag-container"><div class="iti__selected-flag" role="combobox" aria-controls="iti-0__country-listbox" aria-owns="iti-0__country-listbox" aria-expanded="false" title="Croatia (Hrvatska): +385"><div class="iti__flag iti__hr"></div><div class="iti__selected-dial-code">+385</div></div></div><input name="phone" placeholder="9X XXX XXXX" required="required" autocomplete="tel" type="tel" value data-intl-tel-input-id="0" style="padding-left:82px"><input type="hidden" name="full_phone" style value></div>
+					</div>
+					<button class="formFb__btn" type="submit">Naručite sada</button>
+					<div class="formFb__steps">
+						<div class="formFb__step formFb__step--one"><img src="images/6.png" alt></div>
+						<div class="formFb__step--line"></div>
+						<div class="formFb__step formFb__step--one"><img src="images/7.png" alt></div>
+						<div class="formFb__step--line"></div>
+						<div class="formFb__step"><img src="images/8.png" alt></div>
+					</div>
+					<p class="formFb__counter formFb__text">*Ovaj popust vrijedi samo za jednu kutiju pri kupnji cijelog tretmana.</p>
+				</div>
+			</div>
+		</form>
 
 		<p class="loading-note">
 			Pričekajte nekoliko sekundi, prezentacija se učitava. Provjerite je li zvuk uključen.
