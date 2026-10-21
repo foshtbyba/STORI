@@ -400,27 +400,53 @@
 
 <script>
   $(document).ready(function() {
+    var scrollPos = 0;
+
+    function doUnlock() {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+
+    // Fix close: fade out IN fullscreen, then exit
     $('#close').off('click').on('click', function() {
+      scrollPos = Math.abs(parseInt(document.body.style.top || '0'));
       var $cont = $('#container_video');
-      $cont.animate({ opacity: 0 }, 300, function() {
-        $(this).hide();
+      var $video = $('#video');
+
+      $video.animate({ opacity: 0 }, 250);
+      $cont.delay(50).animate({ opacity: 0 }, 250, function() {
         $cont.removeClass('fullscreen exiting');
-        $cont.css({ opacity: '', display: '' });
-        if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
-        else {
-          document.body.style.position = '';
-          document.body.style.top = '';
-          document.body.style.left = '';
-          document.body.style.right = '';
-          document.body.style.width = '';
-          document.body.style.overflow = '';
-          document.body.style.touchAction = '';
-          window.scrollTo(0, parseInt(document.body.style.top || '0') * -1);
-        }
+        $cont.css({ opacity: 1 });
+        $video.css({ opacity: 1 });
+        doUnlock();
+        window.scrollTo(0, scrollPos);
         $('#close').hide();
         $('#open-video').fadeIn('fast');
         $('#popup').fadeOut('fast');
       });
+    });
+
+    // Fix ended: stop video, prevent 5.js from restarting it
+    $('#video').on('ended', function() {
+      var v = this;
+      v.pause();
+      v.removeAttribute('src');
+      v.load();
+      $('#play').remove();
+      $('#open-video').remove();
+      $('#container_video').removeClass('fullscreen exiting');
+      $('#container_video').css({ opacity: 1 });
+      doUnlock();
+      window.scrollTo(0, 0);
+      $('#popup').fadeOut();
+      $('#close').fadeOut();
+      $('#video').fadeOut('fast');
+      $('#order').fadeIn();
     });
   });
 </script>
