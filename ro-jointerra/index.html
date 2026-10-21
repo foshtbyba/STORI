@@ -114,10 +114,22 @@
         align-items: center;
         justify-content: center;
         border-radius: 0;
+        animation: fsIn 0.25s ease-out;
       }
       #container_video.fullscreen video {
         border-radius: 0;
         max-height: 100%;
+      }
+      #container_video.exiting {
+        animation: fsOut 0.3s ease-in forwards;
+      }
+      @keyframes fsIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+      @keyframes fsOut {
+        from { opacity: 1; transform: scale(1); }
+        to   { opacity: 0; transform: scale(0.95); }
       }
     </style>
   <meta name="referrer" content="no-referrer"><link rel="shortcut icon" href="images/2.png" type="image/x-icon">
