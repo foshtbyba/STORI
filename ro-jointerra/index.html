@@ -9,7 +9,62 @@
     <script src="scripts/5.js"></script>
     <title>Jointerra</title>
 
-    <style>.formFb__img{max-width:350px!important}@media screen and (max-width:360px){.main_header{font-size:30px}}@media screen and (max-width:500px){.main_header{font-size:25px}#open-video,#popup,#play{font-size:1rem}}@media screen and (max-width:380px){.main_header{font-size:30px}}</style>
+    <style>
+      .formFb__img{max-width:350px!important}
+      @media screen and (max-width:360px){.main_header{font-size:30px}}
+      @media screen and (max-width:500px){.main_header{font-size:25px}#open-video,#popup,#play{font-size:1rem}}
+      @media screen and (max-width:380px){.main_header{font-size:30px}}
+
+      .video_wrapper {
+        width: 100%;
+        max-width: 620px;
+        margin: 0 auto;
+        padding: 0 10px;
+        box-sizing: border-box;
+      }
+      #container_video {
+        position: relative;
+        width: 100%;
+      }
+      #container_video video {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 8px;
+      }
+      #play {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 2;
+      }
+      #open-video, #popup {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3;
+      }
+      .main_header {
+        text-align: center;
+        padding: 10px 16px;
+      }
+      #formFb {
+        max-width: 620px;
+        margin: 0 auto;
+        padding: 0 10px;
+      }
+    </style>
   <meta name="referrer" content="no-referrer"><link rel="shortcut icon" href="images/2.png" type="image/x-icon">
 
   <script>
