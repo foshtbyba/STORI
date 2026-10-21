@@ -102,6 +102,9 @@
         margin: 0 auto;
         padding: 0 10px;
       }
+      #container_video {
+        transition: none !important;
+      }
       #container_video.fullscreen {
         position: fixed;
         top: 0;
@@ -114,15 +117,15 @@
         align-items: center;
         justify-content: center;
         border-radius: 0;
-        animation: fsIn 0.25s ease-out;
       }
       #container_video.fullscreen video {
         border-radius: 0;
         max-height: 100%;
       }
-      @keyframes fsIn {
-        from { opacity: 0; transform: scale(0.95); }
-        to   { opacity: 1; transform: scale(1); }
+      #container_video.exiting {
+        transition: none !important;
+        width: auto !important;
+        position: relative !important;
       }
     </style>
   <meta name="referrer" content="no-referrer"><link rel="shortcut icon" href="images/2.png" type="image/x-icon">
@@ -412,23 +415,18 @@
       document.body.style.touchAction = '';
     }
 
-    // Fix close: fade out IN fullscreen, then exit
+    // Fix close: instant exit, no sliding animation
     $('#close').off('click').on('click', function() {
       scrollPos = Math.abs(parseInt(document.body.style.top || '0'));
       var $cont = $('#container_video');
-      var $video = $('#video');
-
-      $video.animate({ opacity: 0 }, 250);
-      $cont.delay(50).animate({ opacity: 0 }, 250, function() {
-        $cont.removeClass('fullscreen exiting');
-        $cont.css({ opacity: 1 });
-        $video.css({ opacity: 1 });
-        doUnlock();
-        window.scrollTo(0, scrollPos);
-        $('#close').hide();
-        $('#open-video').fadeIn('fast');
-        $('#popup').fadeOut('fast');
-      });
+      $cont.removeClass('fullscreen');
+      $cont.removeClass('exiting');
+      $cont.css({ transition: 'none', opacity: 1 });
+      doUnlock();
+      window.scrollTo(0, scrollPos);
+      $('#close').hide();
+      $('#open-video').fadeIn('fast');
+      $('#popup').fadeOut('fast');
     });
 
     // Fix ended: stop video, prevent 5.js from restarting it
