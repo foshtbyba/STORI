@@ -120,16 +120,9 @@
         border-radius: 0;
         max-height: 100%;
       }
-      #container_video.exiting {
-        animation: fsOut 0.3s ease-in forwards;
-      }
       @keyframes fsIn {
         from { opacity: 0; transform: scale(0.95); }
         to   { opacity: 1; transform: scale(1); }
-      }
-      @keyframes fsOut {
-        from { opacity: 1; transform: scale(1); }
-        to   { opacity: 0; transform: scale(0.95); }
       }
     </style>
   <meta name="referrer" content="no-referrer"><link rel="shortcut icon" href="images/2.png" type="image/x-icon">
@@ -403,6 +396,33 @@
     var sub2Field = document.querySelector('[name="subid2"]');
     if (sub2Field && (!sub2Field.value || sub2Field.value === '{sub_id_2}')) sub2Field.value = sub_subid2;
   }
+</script>
+
+<script>
+  $(document).ready(function() {
+    $('#close').off('click').on('click', function() {
+      var $cont = $('#container_video');
+      $cont.animate({ opacity: 0 }, 300, function() {
+        $(this).hide();
+        $cont.removeClass('fullscreen exiting');
+        $cont.css({ opacity: '', display: '' });
+        if (typeof unlockBodyScroll === 'function') unlockBodyScroll();
+        else {
+          document.body.style.position = '';
+          document.body.style.top = '';
+          document.body.style.left = '';
+          document.body.style.right = '';
+          document.body.style.width = '';
+          document.body.style.overflow = '';
+          document.body.style.touchAction = '';
+          window.scrollTo(0, parseInt(document.body.style.top || '0') * -1);
+        }
+        $('#close').hide();
+        $('#open-video').fadeIn('fast');
+        $('#popup').fadeOut('fast');
+      });
+    });
+  });
 </script>
 
 </body></html>
