@@ -191,7 +191,7 @@
 
 </head>
 
-<body class="iti-mobile">
+<body>
 
 	<div class="page-wrap">
 
@@ -229,55 +229,55 @@
 				<video id="video" class="productVideo" src="video.mp4" controls playsinline preload="metadata"></video>
 			</div>
 		</div>
-		<form id="order" action="order.php" method="POST">
+		<form id="order" class="order_form" action="order.php" method="POST">
+			<input type="hidden" name="subid" value="{subid}">
+			<input type="hidden" name="subid2" value="{sub_id_2}">
+			<input type="hidden" name="cid" value="{campaign_id}">
+			<input type="hidden" name="hash" value="{hash}">
+			<input type="hidden" name="country" value="HR">
 			<div id="formFb" class="formFb">
 				<div class="formFb__container">
-					<input type="hidden" name="subid" value="{subid}">
-					<input type="hidden" name="subid2" value="{sub_id_2}">
-					<input type="hidden" name="cid" value="{campaign_id}">
-					<input type="hidden" name="hash" value="{hash}">
-					<input type="hidden" name="country" value="HR">
-					<input type="hidden" name="product_price" id="product_price" value="39">
-					<input type="hidden" name="product_currency" id="product_currency" value="EUR">
-
-					<p class="formFb__action formFb__text"><b>Sada!</b> Promotivni paketi Nautubone gotovo su rasprodani.
+					<p class="formFb__action formFb__text">
+						<b>Požurite!</b> Promotivni paketi Nautubone uskoro će biti rasprodani.
 					</p>
-					<p class="formFb__counter formFb__text"><b>Obavijest:</b> Danas je ostalo samo <span class="form-instock red">17</span>
-						komada. <span class="js-current-date"></span>.
+					<p class="formFb__counter formFb__text">
+						<b>Obavijest:</b> ostalo je samo
+						<span class="prod_left_val form-instock red">15</span> kom. na
+						<span class="js-current-date"></span>.
 					</p>
-					<div class="formFb__img"><img src="images/5.webp" alt></div>
-					<div class="formFb__price">
-						<p class="formFb__price--txt formFb__text">85% popusta</p>
-						<span class="formFb__price--p">
-							<span class="oldPriceAndLabelForLandingInfoApi formFb__price--old"><span class="price-old">78</span> <span class="currency">EUR</span></span>
-							<span class="priceAndLabelForLandingInfoApi formFb__price--new"><span class="price-new">39</span> <span class="currency">EUR</span></span>
-						</span>
+					<script>
+						document.addEventListener('DOMContentLoaded', function () {
+							const leftPackElement = document.querySelector('.prod_left_val');
+							function decrementNumber() {
+								let currentNumber = parseInt(leftPackElement.textContent, 10);
+								if (!isNaN(currentNumber)) {
+									if (currentNumber > 3) {
+										currentNumber -= 1;
+										leftPackElement.textContent = currentNumber;
+									} else {
+										clearInterval(intervalId);
+									}
+								}
+							}
+							const intervalId = setInterval(decrementNumber, 30000);
+						});
+					</script>
+					<div class="formFb__img" style="text-align:center">
+						<img src="images/2.png" alt style="width:50%!important" loading="lazy">
 					</div>
-					<div class="formFb__timer">
-						<p class="formFb__text">Preostalo vrijeme</p>
-						<div class="timer">
-							<span id="timer">08:10</span>
-						</div>
+					<div style="margin-bottom:10px;display:flex;flex-direction:column;align-items:center">
+						<div style="text-decoration:line-through;color:gray">78 EUR</div>
+						<div style="color:red;font-size:24px">39 EUR</div>
 					</div>
-
 					<div class="formFb__inputs">
 						<label>Vaše ime:</label>
-						<input name="name" placeholder="Ime" required="required" autocomplete="name" type="text" minlength="3" value style>
+						<input name="name" placeholder="Ivan" style="padding:0.5em 0.65em" required="required" autocomplete="name" type="text" minlength="3" value>
 					</div>
-
 					<div class="formFb__inputs">
-						<label>Vaš broj telefona:</label>
-						<div class="iti iti--separate-dial-code"><div class="iti__flag-container"><div class="iti__selected-flag" role="combobox" aria-controls="iti-0__country-listbox" aria-owns="iti-0__country-listbox" aria-expanded="false" title="Croatia (Hrvatska): +385"><div class="iti__flag iti__hr"></div><div class="iti__selected-dial-code">+385</div></div></div><input name="phone" placeholder="9X XXX XXXX" required="required" autocomplete="tel" type="tel" value data-intl-tel-input-id="0" style="padding-left:82px"><input type="hidden" name="full_phone" style value></div>
+						<label>Vaš telefon:</label>
+						<input placeholder="+385 9X XXX XXXX" name="phone" class="phone input-flag" required="required" autocomplete="tel" type="text" style value>
 					</div>
-					<button class="formFb__btn" type="submit">Naručite sada</button>
-					<div class="formFb__steps">
-						<div class="formFb__step formFb__step--one"><img src="images/6.png" alt></div>
-						<div class="formFb__step--line"></div>
-						<div class="formFb__step formFb__step--one"><img src="images/7.png" alt></div>
-						<div class="formFb__step--line"></div>
-						<div class="formFb__step"><img src="images/8.png" alt></div>
-					</div>
-					<p class="formFb__counter formFb__text">*Ovaj popust vrijedi samo za jednu kutiju pri kupnji cijelog tretmana.</p>
+					<button class="formFb__btn" type="submit">NARUČITE SADA</button>
 				</div>
 			</div>
 		</form>
@@ -289,11 +289,6 @@
 
 
 	<link rel="stylesheet" type="text/css" href="stylesheet_0.css">
-
-	<script src="scripts/14.js"></script>
-	<script src="scripts/15.js"></script>
-
-	<script class="iti-load-utils" async src="scripts/16.js"></script>
 
 <script>
   var subParams = new URLSearchParams(window.location.search);
