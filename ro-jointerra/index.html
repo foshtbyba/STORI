@@ -32,61 +32,38 @@
         display: block;
         border-radius: 8px;
       }
-      #play {
+      #play, #open-video, #popup {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
         z-index: 2;
-        background: rgba(0,0,0,0.3);
-      }
-      #play h4 {
-        color: #fff;
-        text-align: center;
-        text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-      }
-      #open-video {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 3;
-        background: rgba(0,0,0,0.5);
         cursor: pointer;
       }
-      #open-video h4 {
-        color: #fff;
-        text-align: center;
-        text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-      }
-      #popup {
+      #play > div, #open-video > div, #popup > div {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 4;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
+      #play { background: rgba(0,0,0,0.3); }
+      #open-video { display: none; background: rgba(0,0,0,0.5); z-index: 3; }
+      #popup { display: none; z-index: 4; }
+      #play h4, #open-video h4 {
+        color: #fff;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.6);
       }
       #popup > div {
         background: linear-gradient(135deg, #e53935, #d32f2f);
         border-radius: 12px;
         padding: 20px 30px;
-        text-align: center;
         color: #fff;
         border: 2px solid rgba(255,255,255,0.3);
         box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        width: max-content;
+        max-width: 80%;
       }
       #popup h2 { margin: 8px 0; }
       #close-popup {
@@ -114,9 +91,8 @@
         text-align: center;
       }
       #close::after { content: '✕'; }
-      #order {
-        display: none;
-      }
+      #order { display: none; }
+      #container_video.exiting #open-video { display: block; }
       .main_header {
         text-align: center;
         padding: 10px 16px;
