@@ -1,0 +1,331 @@
+<!DOCTYPE html> <html lang="hr-HR"><head><meta charset="utf-8">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Nautubone</title>
+
+	<script src="scripts/9.js"></script>
+	<script src="scripts/10.js"></script>
+
+	<script src="scripts/11.js"></script>
+	<script src="scripts/12.js"></script>
+	<script src="scripts/13.js"></script>
+
+	<link rel="stylesheet" href="stylesheet_1.css">
+
+	<script>
+		var subid = '{subid}',
+			kt_campaign = '{kt_campaign}',
+			kt_offer = '{kt_offer}',
+			kt_landing = '{kt_landing}',
+			offer_name = '',
+			product = "Nautubone",
+			priceOld = 78,
+			priceNew = 39,
+			currency = "EUR";
+
+		document.addEventListener('DOMContentLoaded', function () {
+			var p = (typeof priceNew !== 'undefined') ? priceNew : '';
+			var c = (typeof currency !== 'undefined') ? currency : '';
+			var priceEl = document.getElementById('product_price');
+			var currEl = document.getElementById('product_currency');
+			if (priceEl) priceEl.value = p;
+			if (currEl) currEl.value = c;
+		});
+	</script>
+
+	<script>
+
+		var start1 = 14 * 60 + 10;  // 14:10
+		var duration1 = (14 * 60 + 26) - start1;  // 14:26
+
+		var start2 = 17 * 60 + 28;  // 17:28
+		var duration2 = (17 * 60 + 48) - start2;  // 17:48
+
+	</script>
+
+	<style>
+      #play, #open-video, #popup {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+        cursor: pointer;
+      }
+      #play > div, #open-video > div, #popup > div {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
+      #play { background: rgba(0,0,0,0.3); }
+      #open-video { display: none; background: rgba(0,0,0,0.5); z-index: 3; }
+      #popup { display: none; z-index: 4; }
+      #play h4, #open-video h4 {
+        color: #fff;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+      }
+      #popup > div {
+        background: linear-gradient(135deg, #e53935, #d32f2f);
+        border-radius: 12px;
+        padding: 20px 30px;
+        color: #fff;
+        border: 2px solid rgba(255,255,255,0.3);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        width: max-content;
+        max-width: 80%;
+      }
+      #popup h2 { margin: 8px 0; }
+      #close {
+        display: none;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 5;
+        width: 36px;
+        height: 36px;
+        background: rgba(0,0,0,0.6);
+        border-radius: 50%;
+        cursor: pointer;
+        color: #fff;
+        font-size: 20px;
+        line-height: 36px;
+        text-align: center;
+      }
+      #close::after { content: '✕'; }
+      #order { display: none; }
+      #container_video {
+        transition: none !important;
+      }
+      #container_video.fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: var(--vh, 100vh);
+        z-index: 9999;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0;
+      }
+      #container_video.fullscreen video {
+        border-radius: 0;
+        max-height: 100%;
+      }
+      #container_video.exiting {
+        transition: none !important;
+        width: auto !important;
+        position: relative !important;
+      }
+    </style>
+
+  <meta name="referrer" content="no-referrer">
+
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window,document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+
+    var defined_pixel = '{fbpx}';
+    var defined_pixel_2 = '';
+    var defined_pixel_3 = '';
+
+    var defined_pixels = [defined_pixel, defined_pixel_2, defined_pixel_3];
+    for (var i = 0; i < defined_pixels.length; i++) {
+      if (defined_pixels[i]) {
+        fbq('init', defined_pixels[i]);
+      }
+    }
+
+    var localPixel = localStorage.getItem('fb_pixel');
+    if (localPixel && localPixel !== defined_pixel && localPixel !== defined_pixel_2 && localPixel !== defined_pixel_3) {
+      fbq('init', localPixel);
+    }
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var urlPixel = urlParams.get('fbpx') || urlParams.get('pixel');
+    if (urlPixel && urlPixel !== defined_pixel && urlPixel !== defined_pixel_2 && urlPixel !== defined_pixel_3) {
+      fbq('init', urlPixel);
+      localStorage.setItem('fb_pixel', urlPixel);
+    }
+
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id={fbpx}&ev=PageView&noscript=1" /></noscript>
+
+</head>
+
+<body class="iti-mobile">
+
+	<div class="page-wrap">
+
+		<h1 class="main_header">
+			NAJUČINKOVITIJI KUĆNI RECEPT
+			<span class="green_bg">ZA UBLAŽAVANJE BOLOVA U LEĐIMA I KOLJENIMA SAMO ZA 4 SATA!</span>, 94% LJUDI KOJI SU
+			POGLEDALI OVAJ VIDEO DO KRAJA,
+			RIJEŠILI SU SE ZGLOBNIH BOLOVA ZA 4 SATA!
+		</h1>
+
+
+
+		<div id="container_video">
+			<div id="close"></div>
+			<div id="open-video">
+				<div>
+					<h4>Kliknite za nastavak gledanja</h4>
+				</div>
+			</div>
+			<div id="popup">
+				<div>
+					<h2 class="popup-title" data-pattern="Preostalo je samo {left} kutija Nautubone.">
+						Preostalo je samo 73 kutije Nautubone.
+					</h2>
+					<h2>Naručite sada!</h2>
+				</div>
+			</div>
+			<div id="play">
+				<div>
+					<h4>Video je započeo</h4>
+					<h4>Kliknite za uključivanje zvuka!</h4>
+				</div>
+			</div>
+			<video id="video" class="productVideo" src="video.mp4" controls playsinline preload="metadata"></video>
+
+			<form id="order" action="order.php" method="POST">
+				<div id="formFb" class="formFb">
+					<div class="formFb__container">
+						<input type="hidden" name="subid" value="{subid}">
+						<input type="hidden" name="subid2" value="{sub_id_2}">
+						<input type="hidden" name="cid" value="{campaign_id}">
+						<input type="hidden" name="hash" value="{hash}">
+						<input type="hidden" name="country" value="HR">
+						<input type="hidden" name="product_price" id="product_price" value="39">
+						<input type="hidden" name="product_currency" id="product_currency" value="EUR">
+
+						<p class="formFb__action formFb__text"><b>Sada!</b> Promotivni paketi Nautubone gotovo su rasprodani.
+						</p>
+						<p class="formFb__counter formFb__text"><b>Obavijest:</b> Danas je ostalo samo <span class="form-instock red">17</span>
+							komada. <span class="js-current-date"></span>.
+						</p>
+						<div class="formFb__img"><img src="images/5.webp" alt></div>
+						<div class="formFb__price">
+							<p class="formFb__price--txt formFb__text">85% popusta</p>
+							<span class="formFb__price--p">
+								<span class="oldPriceAndLabelForLandingInfoApi formFb__price--old"><span class="price-old">78</span> <span class="currency">EUR</span></span>
+								<span class="priceAndLabelForLandingInfoApi formFb__price--new"><span class="price-new">39</span> <span class="currency">EUR</span></span>
+							</span>
+						</div>
+						<div class="formFb__timer">
+							<p class="formFb__text">Preostalo vrijeme</p>
+							<div class="timer">
+								<span id="timer">08:10</span>
+							</div>
+						</div>
+
+						<div class="formFb__inputs">
+							<label>Vaše ime:</label>
+							<input name="name" placeholder="Ime" required="required" autocomplete="name" type="text" minlength="3" value style>
+						</div>
+
+						<div class="formFb__inputs">
+							<label>Vaš broj telefona:</label>
+							<div class="iti iti--separate-dial-code"><div class="iti__flag-container"><div class="iti__selected-flag" role="combobox" aria-controls="iti-0__country-listbox" aria-owns="iti-0__country-listbox" aria-expanded="false" title="Croatia (Hrvatska): +385"><div class="iti__flag iti__hr"></div><div class="iti__selected-dial-code">+385</div></div></div><input name="phone" placeholder="9X XXX XXXX" required="required" autocomplete="tel" type="tel" value data-intl-tel-input-id="0" style="padding-left:82px"><input type="hidden" name="full_phone" style value></div>
+						</div>
+						<button class="formFb__btn" type="submit">Naručite sada</button>
+						<div class="formFb__steps">
+							<div class="formFb__step formFb__step--one"><img src="images/6.png" alt></div>
+							<div class="formFb__step--line"></div>
+							<div class="formFb__step formFb__step--one"><img src="images/7.png" alt></div>
+							<div class="formFb__step--line"></div>
+							<div class="formFb__step"><img src="images/8.png" alt></div>
+						</div>
+						<p class="formFb__counter formFb__text">*Ovaj popust vrijedi samo za jednu kutiju pri kupnji cijelog tretmana.</p>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<p class="loading-note">
+			Pričekajte nekoliko sekundi, prezentacija se učitava. Provjerite je li zvuk uključen.
+		</p>
+	</div>
+
+
+	<link rel="stylesheet" type="text/css" href="stylesheet_0.css">
+
+	<script src="scripts/14.js"></script>
+	<script src="scripts/15.js"></script>
+
+	<script class="iti-load-utils" async src="scripts/16.js"></script>
+
+<script>
+  var subParams = new URLSearchParams(window.location.search);
+  var sub_subid = subParams.get('subid') || subParams.get('sub_id') || '';
+  if (sub_subid) {
+    var subField = document.querySelector('[name="subid"]');
+    if (subField && (!subField.value || subField.value === '{subid}')) subField.value = sub_subid;
+  }
+  var sub_subid2 = subParams.get('sub_id_2') || '';
+  if (sub_subid2) {
+    var sub2Field = document.querySelector('[name="subid2"]');
+    if (sub2Field && (!sub2Field.value || sub2Field.value === '{sub_id_2}')) sub2Field.value = sub_subid2;
+  }
+</script>
+
+<script>
+  $(document).ready(function() {
+    var scrollPos = 0;
+
+    function doUnlock() {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+
+    $('#close').off('click').on('click', function() {
+      scrollPos = Math.abs(parseInt(document.body.style.top || '0'));
+      var $cont = $('#container_video');
+      $cont.removeClass('fullscreen');
+      $cont.removeClass('exiting');
+      $cont.css({ transition: 'none', opacity: 1 });
+      doUnlock();
+      window.scrollTo(0, scrollPos);
+      $('#close').hide();
+      $('#open-video').fadeIn('fast');
+      $('#popup').fadeOut('fast');
+    });
+
+    $('#video').on('ended', function() {
+      var v = this;
+      v.pause();
+      v.removeAttribute('src');
+      v.load();
+      $('#play').remove();
+      $('#open-video').remove();
+      $('#container_video').removeClass('fullscreen exiting');
+      $('#container_video').css({ opacity: 1 });
+      doUnlock();
+      window.scrollTo(0, 0);
+      $('#popup').fadeOut();
+      $('#close').fadeOut();
+      $('#video').fadeOut('fast');
+      $('#order').fadeIn();
+    });
+  });
+</script>
+
+</body></html>
