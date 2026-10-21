@@ -2347,6 +2347,9 @@ var KNOWN_HANDLERS=/^(?:lemon|subscribe1?|subscription|order|handler)\.php$/i;
 function activeHandler(cfg){ return (cfg.needFile||"").toLowerCase() || ((cfg.mode==="php" && cfg.phpGen)?(cfg.phpAction||"order.php").toLowerCase():""); }
 // служебные лог-файлы обработчиков (пишутся на проде) — в сборку не тащим
 var JUNK_FILE=/^(?:debug_log|_skylead_log|_affstar_log|_shakes_log|order_log|leads?_log)\.txt$|\.log$/i;
+// мусор ОС (macOS/Windows): .DS_Store, __MACOSX/, AppleDouble ._*, Thumbs.db, desktop.ini — в ленд/сундук НЕ тащим
+var JUNK_PATH=/(^|\/)\.DS_Store$|(^|\/)__MACOSX(\/|$)|(^|\/)\._[^\/]*$|(^|\/)Thumbs\.db$|(^|\/)desktop\.ini$|(^|\/)\.Spotlight-|(^|\/)\.Trashes$|(^|\/)\.fseventsd(\/|$)/i;
+function stripJunk(list){ try{ return (list||[]).filter(function(f){ return !JUNK_PATH.test((f&&(f.name||f.path))||""); }); }catch(e){ return list; } }
 // превью-миниатюры платформы (Keitaro показывает ленд по _preview.png) — в коде не упоминаются, но удалять НЕЛЬЗЯ
 var META_KEEP=/^_?(?:preview|screenshot|thumbnail|thumb|poster)\.(?:png|jpe?g|webp|gif)$/i;
 // файл-обработчик ЧУЖОЙ партнёрки (напр. lemon.php при everad) — такой из папки выкидываем, чтобы не мусорил
@@ -3137,6 +3140,7 @@ async function ingest(items){ // items:[{file, rel}] где rel = "folder/sub/fi
   for(var i=0;i<items.length;i++){
     var f=items[i].file;
     var rel=(items[i].rel||f.name).split("/").slice(1).join("/")||f.name; // срезаем верхнюю папку
+    if(JUNK_PATH.test(rel)) continue;   // .DS_Store / __MACOSX / ._* / Thumbs.db — не грузим
     if(TEXT_EXT.test(rel)) out.push({path:rel,kind:"text",str:await f.text()});
     else out.push({path:rel,kind:"bin",bytes:new Uint8Array(await f.arrayBuffer())});
   }
@@ -4072,6 +4076,7 @@ async function addPreviewPng(out, cfg){
   }catch(e){ try{console.warn("addPreviewPng",e);}catch(_){} }
 }
 async function optAndZip(list, cfg){
+  list=stripJunk(list);   // мусор ОС (.DS_Store/__MACOSX/._*) — в архив не кладём
   try{ dedupPictureVariants(list); }catch(e){}   // webp-дубль не должен перекрывать основную картинку
   var optOn=cfg.optB64||cfg.optUnused||cfg.optImg||cfg.optJunk;
   if(optOn){ var rep={b64:0,b64b:0,img:0,imgb:0,lib:0,libb:0,unused:0,unusedb:0,junk:0,junkList:[]}; rep.before=outBytes(list);
@@ -4221,6 +4226,7 @@ async function downloadChestZip(){
     rep.after=outBytes(out); try{ showOptReport(rep); }catch(e){} }
   await faviconPass(out, cfg);   // тот же квадратный фавикон и в сундуке
   await addPreviewPng(out, cfg);   // свежий _preview.png и для сундука
+  out=stripJunk(out);   // мусор ОС (.DS_Store/__MACOSX/._*) — в архив сундука не кладём
   try{ warnMissingAssets(out); }catch(e){}
   dl(safeName(cfg.brand)+(cfg.langCode?("_"+cfg.langCode.toLowerCase()):"")+"_chest.zip", makeZip(out), "application/zip");
 }
