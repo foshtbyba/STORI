@@ -22,6 +22,8 @@ type VideoDraft = {
   campaignName: string; link: string; budget: string;
   message: string; headline: string; description: string;
   fbPixelKey: string; fbPixelNum: string; mode: Mode; startLocal: string;
+  /** Публиковать без клоаки: метку fb_pixel в ссылку НЕ добавляем. */
+  noCloak: boolean;
   withLanguages: boolean;
   videos: File[];    // один или несколько роликов — каждый станет объявлением
   structure: string; // 1-1-1 | 1-2-1 | 1-1-2 — как раскладываем ролики
@@ -94,6 +96,8 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
   //  • число (после «=», напр. 5645645435) — меняется часто, НЕ запоминаем.
   const [fbPixelKey, setFbPixelKey] = useState('fb_pixel');
   const [fbPixelNum, setFbPixelNum] = useState('');
+  // Публикация без клоаки: метку fb_pixel в ссылку не добавляем, число не нужно.
+  const [noCloak, setNoCloak] = useState(false);
   const [mode, setMode] = useState<Mode>('paused');
   const [startLocal, setStartLocal] = useState('');
   const [withLanguages, setWithLanguages] = useState(languages.length > 0);
@@ -247,7 +251,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
     if (videos.length === 0 && !mainOptional) return 'Добавь хотя бы один ролик (видеофайл) или включи языки с видео';
     if (!/^https?:\/\//i.test(link.trim())) return 'Ссылка должна начинаться с http(s)://';
     if (!message.trim()) return 'Текст объявления пустой';
-    if (!fbPixelNum.trim()) return 'Впиши число fb_pixel';
+    if (!noCloak && !fbPixelNum.trim()) return 'Впиши число fb_pixel (или включи «без клоаки»)';
     for (const c of selectedList) {
       if (!assets[c.id]) return `Подтяни ФП/пиксели: ${c.name || c.externalId}`;
       if (!pageByAcc[c.id]) return `Выбери страницу: ${c.name || c.externalId}`;
@@ -275,6 +279,7 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
       campaignName: campaignName.trim(), link: link.trim(), budget: budget.trim(),
       message: message.trim(), headline: headline.trim(), description: description.trim(),
       fbPixelKey: (fbPixelKey.trim() || 'fb_pixel'), fbPixelNum: fbPixelNum.trim(), mode, startLocal,
+      noCloak,
       withLanguages,
       videos,
       structure,
@@ -322,8 +327,10 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
         fd.set('headline', d.headline);
         fd.set('description', d.description);
         // fbpx=ПИКСЕЛЬ — автоподстановка пикселя кабинета ({{pixel}}).
-        // fb_pixel собираем сами: <ключ>=<число> (ключ запомнен, число — из формы).
-        const tags = `ad_id={{ad.id}}&fbpx={{pixel}}&${d.fbPixelKey || 'fb_pixel'}=${d.fbPixelNum}&account_id={{account.id}}&campaign_id={{campaign.id}}`;
+        // fb_pixel (клоака) собираем сами: <ключ>=<число>. Без клоаки — метку
+        // fb_pixel в ссылку не добавляем вовсе (fbpx-пиксель кабинета остаётся).
+        const cloak = d.noCloak ? '' : `${d.fbPixelKey || 'fb_pixel'}=${d.fbPixelNum}&`;
+        const tags = `ad_id={{ad.id}}&fbpx={{pixel}}&${cloak}account_id={{account.id}}&campaign_id={{campaign.id}}`;
         fd.set('urlTags', tags);
         fd.set('mode', d.mode);
         fd.set('structure', d.structure || '1-1-1');
@@ -572,17 +579,27 @@ export default function VideoUpload({ cabinets, templates, languages = [], admin
             <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Описание под ссылкой (опц.)" className={inp} />
           </div>
           <div className="rounded-xl border border-amber/40 bg-amber-t/40 px-3 py-2">
-            <div className="mb-1 text-[11.5px] font-semibold text-amber">Метка fb_pixel в ссылке <span className="font-normal text-dim">· fbpx подставим автоматически (пиксель кабинета)</span></div>
-            <div className="grid gap-2 sm:grid-cols-[200px_1fr]">
-              <div>
-                <input value={fbPixelKey} onChange={(e) => setFbPixelKey(e.target.value.trim())} placeholder="fb_pixel" className={`n ${inp}`} />
-                <p className="mt-1 text-[11px] text-dim">Ключ (до «=») · меняется редко, запоминаем за {owner || 'вами'}.</p>
-              </div>
-              <div>
-                <input value={fbPixelNum} onChange={(e) => setFbPixelNum(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder="напр. 5645645435" className={`n ${inp}`} />
-                <p className="mt-1 text-[11px] text-dim">Число (после «=») · меняется часто, вставляй каждый залив.</p>
-              </div>
+            <div className="mb-1 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+              <div className="text-[11.5px] font-semibold text-amber">Метка fb_pixel в ссылке <span className="font-normal text-dim">· fbpx подставим автоматически (пиксель кабинета)</span></div>
+              <label className="flex cursor-pointer items-center gap-1.5 whitespace-nowrap text-[11.5px] text-mute transition hover:text-soft">
+                <input type="checkbox" checked={noCloak} onChange={(e) => setNoCloak(e.target.checked)} className="accent-[#b4c68c]" />
+                без клоаки (без fb_pixel)
+              </label>
             </div>
+            {noCloak ? (
+              <p className="text-[11px] text-dim">Клоака отключена: метку <code className="text-mute">fb_pixel</code> в ссылку не добавляем, число вводить не нужно. Пиксель кабинета (<code className="text-mute">fbpx</code>) остаётся.</p>
+            ) : (
+              <div className="grid gap-2 sm:grid-cols-[200px_1fr]">
+                <div>
+                  <input value={fbPixelKey} onChange={(e) => setFbPixelKey(e.target.value.trim())} placeholder="fb_pixel" className={`n ${inp}`} />
+                  <p className="mt-1 text-[11px] text-dim">Ключ (до «=») · меняется редко, запоминаем за {owner || 'вами'}.</p>
+                </div>
+                <div>
+                  <input value={fbPixelNum} onChange={(e) => setFbPixelNum(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder="напр. 5645645435" className={`n ${inp}`} />
+                  <p className="mt-1 text-[11px] text-dim">Число (после «=») · меняется часто, вставляй каждый залив.</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
