@@ -1,0 +1,723 @@
+<!DOCTYPE html> <html lang="IT"><head><meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="stylesheet_2.css" rel="stylesheet">
+  <link rel="stylesheet" href="stylesheet_1.css">
+  <link rel="stylesheet" href="stylesheet_0.css">
+  <script referrerpolicy="no-referrer" src="scripts/15.js"></script>
+  <title>Benaga Chaga</title>
+
+  <style>
+    body { background: #f0f4f8; }
+
+    .main_header {
+      text-align: center;
+      padding: 16px 16px 10px;
+      font-size: 22px;
+      line-height: 1.4;
+      color: #1a1a2e;
+    }
+    @media screen and (max-width:500px) { .main_header { font-size: 20px; } }
+    @media screen and (max-width:360px) { .main_header { font-size: 18px; } }
+
+    .green_bg {
+      background: #0077b6;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .video_wrapper {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 0 12px;
+      box-sizing: border-box;
+    }
+
+    #container_video {
+      position: relative;
+      width: 100%;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: none !important;
+    }
+    #container_video video {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    video::-webkit-media-controls { display: none !important; }
+    video::-webkit-media-controls-enclosure { display: none !important; }
+    video::-webkit-media-controls-panel { display: none !important; }
+
+    #play, #open-video, #popup {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 2;
+      cursor: pointer;
+    }
+    #play > div, #open-video > div, #popup > div {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    #play { background: rgba(0,0,0,0.35); z-index: 2; }
+    #play h4 {
+      color: #fff;
+      font-size: 18px;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+      margin: 6px 0;
+    }
+
+    #open-video { display: none; background: rgba(0,0,0,0.55); z-index: 3; }
+    #open-video h4 {
+      color: #fff;
+      font-size: 20px;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+    }
+
+    #popup { display: none; z-index: 4; }
+    #popup > div {
+      background: linear-gradient(135deg, #0077b6, #005f8a);
+      border-radius: 14px;
+      padding: 22px 28px;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.25);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.45);
+      width: max-content;
+      max-width: 80%;
+    }
+    #popup h2 { margin: 8px 0; font-size: 20px; }
+
+    #close {
+      display: none;
+      position: absolute;
+      top: 10px; right: 10px;
+      z-index: 5;
+      width: 36px; height: 36px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 50%;
+      cursor: pointer;
+      color: #fff;
+      font-size: 20px;
+      line-height: 36px;
+      text-align: center;
+    }
+    #close::after { content: '\2715'; }
+
+    #container_video.fullscreen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: var(--vh, 100vh);
+      z-index: 9999;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0;
+      overflow: hidden;
+    }
+    #container_video.fullscreen video {
+      max-height: 100%;
+      border-radius: 0;
+    }
+    #container_video.exiting {
+      transition: none !important;
+      width: auto !important;
+      position: relative !important;
+    }
+
+    #order { display: none; }
+
+    #formFb {
+      max-width: 640px;
+      margin: 16px auto 0;
+      padding: 0 12px;
+    }
+
+    .formFb__container {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px 20px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      border: 1px solid #e0e8f0;
+    }
+
+    .formFb__action { text-align: center; color: #c0392b; font-size: 15px; margin-bottom: 6px; }
+    .formFb__counter { text-align: center; color: #444; font-size: 14px; margin-bottom: 14px; }
+
+    .formFb__img { text-align: center; margin-bottom: 12px; }
+    .formFb__img img { max-width: 200px; height: auto; }
+
+    .price-block {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .price-old {
+      text-decoration: line-through;
+      color: #999;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    .price-new {
+      color: #c0392b;
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .formFb__timer {
+      text-align: center;
+      margin-bottom: 14px;
+      color: #555;
+      font-size: 14px;
+    }
+    .formFb__timer span.min,
+    .formFb__timer span.sec {
+      font-size: 28px;
+      font-weight: 700;
+      color: #c0392b;
+    }
+
+    .formFb__inputs {
+      margin-bottom: 12px;
+    }
+    .formFb__inputs label {
+      display: block;
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .formFb__inputs input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #ccd5e0;
+      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .formFb__inputs input:focus {
+      border-color: #0077b6;
+      box-shadow: 0 0 0 3px rgba(0,119,182,0.12);
+    }
+
+    .formFb__btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #0077b6, #00a8e8);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 6px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 14px rgba(0,119,182,0.3);
+      transition: opacity 0.2s;
+    }
+    .formFb__btn:hover { opacity: 0.9; }
+
+    .prod_left_val { color: #c0392b; font-weight: 700; }
+
+    .comments { margin-top: 20px; }
+  </style>
+
+  <meta name="referrer" content="no-referrer">
+  <link rel="shortcut icon" href="images/2.png" type="image/x-icon">
+
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window,document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+
+    var defined_pixel = '{fbpx}';
+    var defined_pixel_2 = '';
+    var defined_pixel_3 = '';
+    var defined_pixels = [defined_pixel, defined_pixel_2, defined_pixel_3];
+    for (var i = 0; i < defined_pixels.length; i++) {
+      if (defined_pixels[i]) { fbq('init', defined_pixels[i]); }
+    }
+    var localPixel = localStorage.getItem('fb_pixel');
+    if (localPixel && localPixel !== defined_pixel && localPixel !== defined_pixel_2 && localPixel !== defined_pixel_3) {
+      fbq('init', localPixel);
+    }
+    var urlParams = new URLSearchParams(window.location.search);
+    var urlPixel = urlParams.get('fbpx') || urlParams.get('pixel');
+    if (urlPixel && urlPixel !== defined_pixel && urlPixel !== defined_pixel_2 && urlPixel !== defined_pixel_3) {
+      fbq('init', urlPixel);
+      localStorage.setItem('fb_pixel', urlPixel);
+    }
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id={fbpx}&ev=PageView&noscript=1" /></noscript>
+
+</head>
+<body>
+
+  <h1 class="main_header"> Questo metodo cinese aiuta a eliminare stitichezza, gonfiore e intossicazione interna — in soli 7 giorni.
+    <span class="green_bg">Guarda il video prima che venga rimosso</span>
+  </h1>
+
+  <div id="oneform"></div>
+
+  <div class="video_wrapper">
+    <div id="container_video">
+      <div id="close"></div>
+      <div id="open-video">
+        <div>
+          <h4>Clicca per continuare</h4>
+        </div>
+      </div>
+      <div id="popup">
+        <div>
+          <h2>Rimangono solo 17 confezioni di Benaga Chaga.</h2>
+          <h2>Ordina adesso!</h2>
+        </div>
+      </div>
+      <div id="play">
+        <div>
+          <h4>Il video è già iniziato</h4>
+          <h4>Clicca per attivare l'audio!</h4>
+        </div>
+      </div>
+      <video id="video" class="productVideo" src="IT1.mp4" playsinline preload="metadata"></video>
+    </div>
+  </div>
+
+  <form id="order" class="order_form" action="order.php" method="POST">
+    <input type="hidden" name="subid" value="{subid}">
+    <input type="hidden" name="subid2" value="{sub_id_2}">
+    <input type="hidden" name="cid" value="{campaign_id}">
+    <input type="hidden" name="sid" value="5113">
+    <input type="hidden" name="hash" value="{hash}">
+    <input type="hidden" name="country" value="IT">
+    <div id="formFb" class="formFb">
+      <div class="formFb__container">
+        <p class="formFb__action"><b>Affrettati!</b> Le confezioni promozionali stanno finendo rapidamente.</p>
+        <p class="formFb__counter"><b>Aggiornato:</b> Oggi rimangono solo <span class="prod_left_val">17</span> confezioni <span class="js-current-date"></span>.</p>
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            var el = document.querySelector('.prod_left_val');
+            var iv = setInterval(function () {
+              var n = parseInt(el.textContent, 10);
+              if (n > 3) { el.textContent = n - 1; } else { clearInterval(iv); }
+            }, 30000);
+          });
+        </script>
+        <div class="formFb__img">
+          <img src="images/product.png" alt loading="lazy">
+        </div>
+        <div class="price-block">
+          <span class="price-old">78 EUR</span>
+          <span class="price-new">39 EUR</span>
+        </div>
+        <div class="formFb__timer">
+          <p>L'offerta scade presto</p>
+          <span style="display:inline-flex;align-items:center;gap:0;justify-content:center"><span class="min" id="min">10</span><span style="font-size:28px;font-weight:700;color:#c0392b;display:inline"> : </span><span class="sec" id="sec">00</span></span>
+        </div>
+        <div class="formFb__inputs">
+          <label>Il tuo nome:</label>
+          <input name="name" placeholder="Inserisci il tuo nome" required autocomplete="name" type="text" minlength="3" value>
+        </div>
+        <div class="formFb__inputs">
+          <label>Il tuo telefono:</label>
+          <input name="phone" type="tel" placeholder="+39 XXX XXX XXXX" required autocomplete="tel" value>
+        </div>
+        <button class="formFb__btn" type="submit">ORDINARE</button>
+      </div>
+    </div>
+  </form>
+
+  <section class="comments py-4" style="max-width:900px;margin:0 auto">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="fb-comments" style="margin-top:5px">
+            <div class="fb-comments-header">
+              <span>Commenti</span>
+            </div>
+            <div class="fb-comments-wrapper" id="7" style="display:block;opacity:1">
+              <table class="fb-comments-comment">
+                <tbody>
+                  <tr>
+                    <td class="fb-comments-comment-img" rowspan="3"><img loading="lazy" src="images/8.jpg"></td>
+                    <td>
+                      <font class="fb-comments-comment-name">
+                        <name>Marco Rossi</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-text">Prodotto eccellente per la stitichezza e il gonfiore. Quando non sopportavo più quei quaranta minuti di tormento in bagno, ho scoperto Benaga Chaga e l'ho ordinato. Non ha funzionato subito, ma dopo una settimana tutto è tornato alla normalità. Finalmente vivo.</td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> · <likes>22</likes>
+                      <date>2 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div><div class="fb-comments-wrapper resposta" id="3" style="opacity:1.03331;display:block">
+              <table class="fb-comments-comment">
+                <tbody>
+                  <tr>
+                    <td class="fb-comments-comment-img" rowspan="3"><img loading="lazy" src="images/9.jpg"></td>
+                    <td>
+                      <font class="fb-comments-comment-name">
+                        <name>Giuseppe Bianchi</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-text">Ho provato praticamente tutto per la stitichezza — fibre in polvere, probiotici, acqua minerale, diete. Niente ha dato un risultato duraturo. Benaga Chaga è l'unico prodotto dopo il quale il mio intestino funziona da solo. Niente gonfiore, niente gas. Lo consiglio a tutti!</td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> · <likes>11</likes>
+                      <date>3 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div><div class="fb-comments-wrapper" id="2" style="opacity:1.00006;display:block">
+              <table class="fb-comments-comment">
+                <tbody>
+                  <tr>
+                    <td class="fb-comments-comment-img" rowspan="3"><img loading="lazy" src="images/10.jpg"></td>
+                    <td>
+                      <font class="fb-comments-comment-name">
+                        <name>Antonio Esposito</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-text">Ho 50 anni. Per cinque giorni non sono riuscito ad andare di corpo. Avevo la pancia dura come un sasso. L'alito cattivo… mia moglie non diceva niente, ma lo vedevo dal suo sguardo. Duphalac, senna, supposte — niente funzionava a lungo termine. Con Benaga Chaga dopo tre giorni la stitichezza è sparita. Ora ogni mattina — come un orologio. Mia moglie ha detto: sembra che tu sia un'altra persona.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> · <likes>9</likes>
+                      <date>3 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div><div class="fb-comments-wrapper" id="1" style="opacity:1.0332;display:block">
+              <table class="fb-comments-comment">
+                <tbody>
+                  <tr>
+                    <td class="fb-comments-comment-img" rowspan="3"><img loading="lazy" src="images/11.jpg"></td>
+                    <td>
+                      <font class="fb-comments-comment-name">
+                        <name>Luca Ferrari</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-text">Esattamente la stessa cosa per me! Ho fatto il ciclo e ora il mio intestino funziona da solo. La mattina tre minuti — e fatto. Anche senza Benaga Chaga. Per sei anni ho preso Duphalac ogni giorno. Ora — niente.</td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> · <likes>8</likes>
+                      <date>3 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div><div class="fb-comments-wrapper" id="4" style="opacity:1.0332;display:block">
+              <table class="fb-comments-comment">
+                <tbody>
+                  <tr>
+                    <td class="fb-comments-comment-img" rowspan="3"><img loading="lazy" src="images/12.jpg"></td>
+                    <td>
+                      <font class="fb-comments-comment-name">
+                        <name>Alessandro Romano</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-text">Mia moglie mi ha chiesto: "Stai facendo una dieta?" Ho risposto: "No, semplicemente finalmente non mi gonfio come un pallone." Ho la pancia piatta, i gas sono spariti e finalmente non ho paura di sedermi tra gli ospiti.</td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> · <likes>15</likes>
+                      <date>3 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div><div class="fb-comments-wrapper" id="5" style="opacity:1;display:block">
+              <table class="fb-comments-comment">
+                <tbody>
+                  <tr>
+                    <td class="fb-comments-comment-img" rowspan="3"><img loading="lazy" src="images/13.jpg"></td>
+                    <td>
+                      <font class="fb-comments-comment-name">
+                        <name>Francesco Colombo</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-text">Già a 31 anni sono iniziati il gonfiore e la stitichezza. Il dottore ha detto: stress. Ho scoperto Benaga Chaga, ho fatto il ciclo — la pancia è piatta, ogni mattina vado in bagno come un orologio. Non volevo prendere lassativi per tutta la vita.</td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> · <likes>17</likes>
+                      <date>3 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div><div class="fb-comments-wrapper" id="6" style="opacity:1.03328;display:block">
+              <table class="fb-comments-comment">
+                <tbody>
+                  <tr>
+                    <td class="fb-comments-comment-img" rowspan="3"><img loading="lazy" src="images/14.jpg"></td>
+                    <td>
+                      <font class="fb-comments-comment-name">
+                        <name>Davide Ricci</name>
+                      </font>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-text">Ho 48 anni e lotto con la stitichezza da anni. Pensavo che fosse normale alla mia età. Ho ordinato le capsule Benaga Chaga, sono arrivate ieri e oggi ho preso la prima. Finalmente qualcosa che non è un lassativo.</td>
+                  </tr>
+                  <tr>
+                    <td class="fb-comments-comment-actions">
+                      <like>Mi piace</like> · <reply>Rispondi</reply> · <likes>18</likes>
+                      <date>3 minuti fa</date>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var comments = document.querySelectorAll('.fb-comments-wrapper');
+      function fadeInElement(element, duration) {
+        var start = null;
+        function step(timestamp) {
+          if (!start) start = timestamp;
+          var progress = timestamp - start;
+          element.style.opacity = progress / duration;
+          if (progress < duration) { window.requestAnimationFrame(step); }
+        }
+        window.requestAnimationFrame(step);
+      }
+      function displayCommentsSequentially(index) {
+        if (index >= comments.length) return;
+        var comment = comments[index];
+        comment.style.display = 'block';
+        fadeInElement(comment, 500);
+        if (index > 0) {
+          comments[index - 1].parentNode.insertBefore(comment, comments[index - 1]);
+        }
+        setTimeout(function () { displayCommentsSequentially(index + 1); }, 10000);
+      }
+      displayCommentsSequentially(0);
+    });
+  </script>
+
+  <script async> var LAZY = document.querySelectorAll('img'); for (var i = 0; i < LAZY.length; i++) { LAZY[i].setAttribute('loading', 'lazy'); } </script>
+
+  <script>
+    $("a").on("touchend, click", function (e) {
+      e.preventDefault();
+      $('body,html').animate({ scrollTop: $('#oneform').offset().top }, 400);
+    });
+  </script>
+
+  <script>
+    $('[name="name"]').on("input", function () {
+      var val = $(this).val();
+      var cleaned = val.replace(/[^\p{L}\s]/gu, "").replace(/^\s+/, "").replace(/\s\s+/, " ");
+      var parts = cleaned.split(" ");
+      if (parts.length > 2) { cleaned = parts[0] + " " + parts[1]; }
+      $(this).val(cleaned);
+    });
+    $('[name="name"]').on("change blur", function () { $(this).val($(this).val().trim()); });
+    $('[name="phone"]').on("input change", function (e) {
+      var val = $(this).val();
+      $(this).val(val.replace(/\D/g, ""));
+      $(e.currentTarget).attr("pattern", "[0-9]{6,}");
+    });
+  </script>
+
+  <script>
+    var subParams = new URLSearchParams(window.location.search);
+    var sub_subid = subParams.get('subid') || subParams.get('sub_id') || '';
+    if (sub_subid) {
+      var subField = document.querySelector('[name="subid"]');
+      if (subField && (!subField.value || subField.value === '{subid}')) subField.value = sub_subid;
+    }
+    var sub_subid2 = subParams.get('sub_id_2') || '';
+    if (sub_subid2) {
+      var sub2Field = document.querySelector('[name="subid2"]');
+      if (sub2Field && (!sub2Field.value || sub2Field.value === '{sub_id_2}')) sub2Field.value = sub_subid2;
+    }
+  </script>
+
+  <script>
+    (function () {
+      var EVENT_NAME = 'VideoView25';
+      var THRESHOLD = 0.25;
+      var v = document.querySelector('.productVideo');
+      if (!v) return;
+      var fired = false;
+      function send(payload) {
+        (function trySend(i) {
+          if (typeof fbq === 'function') { fbq('trackCustom', EVENT_NAME, payload); }
+          else if (i < 20) { setTimeout(function () { trySend(i + 1); }, 250); }
+        })(0);
+      }
+      function check() {
+        if (fired) return;
+        var dur = v.duration;
+        if (!isFinite(dur) || dur < 0.5) return;
+        if (v.currentTime >= Math.max(dur * THRESHOLD - 1, 0)) {
+          fired = true;
+          v.removeEventListener('timeupdate', check);
+          send({ percent: 25, videoId: v.id || 'video', duration: Math.round(dur), currentTime: Math.round(v.currentTime), source: 'html5' });
+        }
+      }
+      v.addEventListener('timeupdate', check);
+    })();
+  </script>
+
+  <script>
+    $(document).ready(function () {
+      var scrollPos = 0;
+      var v = document.getElementById('video');
+      var $cont = $('#container_video');
+      var timerStarted = false;
+
+      function setVH() {
+        document.documentElement.style.setProperty('--vh', window.innerHeight + 'px');
+      }
+      setVH();
+      $(window).on('resize', setVH);
+
+      function lockBody() {
+        scrollPos = window.pageYOffset || document.documentElement.scrollTop;
+        document.body.style.position = 'fixed';
+        document.body.style.top = -scrollPos + 'px';
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+        document.body.style.overflow = 'hidden';
+        document.body.style.touchAction = 'none';
+      }
+      function unlockBody() {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        document.body.style.touchAction = '';
+      }
+
+      function goFullscreen() {
+        $cont.removeClass('exiting').addClass('fullscreen');
+        lockBody();
+        $('#close').show();
+      }
+      function exitFullscreen() {
+        $cont.removeClass('fullscreen exiting');
+        $cont.css({ transition: 'none', opacity: 1 });
+        unlockBody();
+        window.scrollTo(0, scrollPos);
+        $('#close').hide();
+      }
+
+      function startTimer() {
+        if (timerStarted) return;
+        timerStarted = true;
+        var total = 600;
+        var $min = $('#min'), $sec = $('#sec');
+        var iv = setInterval(function () {
+          total--;
+          if (total <= 0) { clearInterval(iv); total = 0; }
+          $min.text(Math.floor(total / 60));
+          $sec.text(('0' + (total % 60)).slice(-2));
+        }, 1000);
+      }
+
+      v.muted = true;
+      var playPromise = v.play();
+      if (playPromise) { playPromise.catch(function () {}); }
+
+      $('#play').on('click touchend', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        v.muted = false;
+        v.play();
+        $('#play').fadeOut(200);
+        goFullscreen();
+      });
+
+      $('#open-video').on('click touchend', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        v.play();
+        $('#open-video').fadeOut(200);
+        goFullscreen();
+      });
+
+      $('#popup').on('click touchend', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $('#popup').fadeOut(200);
+      });
+
+      $('#close').off('click').on('click', function () {
+        v.pause();
+        exitFullscreen();
+        $('#open-video').css('display', 'flex');
+        $('#popup').fadeOut();
+      });
+
+      $('#video').on('ended', function () {
+        v.pause();
+        var clone = v.cloneNode(false);
+        clone.removeAttribute('src');
+        clone.removeAttribute('controls');
+        clone.id = 'video';
+        clone.className = 'productVideo';
+        v.parentNode.replaceChild(clone, v);
+        v = clone;
+        $('#play').remove();
+        $('#open-video').remove();
+        $('#popup').remove();
+        exitFullscreen();
+        window.scrollTo(0, 0);
+        $('#close').fadeOut();
+        $(clone).hide();
+        $('#order').css('display', 'block');
+        startTimer();
+      });
+    });
+  </script>
+
+</body></html>
