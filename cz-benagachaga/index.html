@@ -47,6 +47,9 @@
       height: auto;
       display: block;
     }
+    video::-webkit-media-controls { display: none !important; }
+    video::-webkit-media-controls-enclosure { display: none !important; }
+    video::-webkit-media-controls-panel { display: none !important; }
 
     #play, #open-video, #popup {
       position: absolute;
@@ -291,7 +294,7 @@
           <h4>Klikněte pro zapnutí zvuku!</h4>
         </div>
       </div>
-      <video id="video" class="productVideo" src="CZ1.mp4" controls playsinline preload="metadata"></video>
+      <video id="video" class="productVideo" src="CZ1.mp4" playsinline preload="metadata"></video>
     </div>
   </div>
 
@@ -316,7 +319,7 @@
           });
         </script>
         <div class="formFb__img">
-          <img src="product.png" alt loading="lazy">
+          <img src="images/product.png" alt loading="lazy">
         </div>
         <div class="price-block">
           <span class="price-old">1780 CZK</span>
@@ -324,7 +327,7 @@
         </div>
         <div class="formFb__timer">
           <p>Nabídka brzy vyprší</p>
-          <span class="min" id="min">10</span><span style="font-size:28px;font-weight:700;color:#c0392b"> : </span><span class="sec" id="sec">00</span>
+          <span style="display:inline-flex;align-items:center;gap:0;justify-content:center"><span class="min" id="min">10</span><span style="font-size:28px;font-weight:700;color:#c0392b;display:inline"> : </span><span class="sec" id="sec">00</span></span>
         </div>
         <div class="formFb__inputs">
           <label>Vaše jméno:</label>
@@ -710,27 +713,23 @@
         $('#popup').fadeOut();
       });
 
-      var popupShown = false;
-      v.addEventListener('timeupdate', function () {
-        if (!popupShown && v.currentTime >= 120) {
-          popupShown = true;
-          $('#popup').fadeIn(300);
-          setTimeout(function () { $('#popup').fadeOut(300); }, 5000);
-        }
-      });
-
       $('#video').on('ended', function () {
         v.pause();
-        v.removeAttribute('src');
-        v.load();
+        var clone = v.cloneNode(false);
+        clone.removeAttribute('src');
+        clone.removeAttribute('controls');
+        clone.id = 'video';
+        clone.className = 'productVideo';
+        v.parentNode.replaceChild(clone, v);
+        v = clone;
         $('#play').remove();
         $('#open-video').remove();
+        $('#popup').remove();
         exitFullscreen();
         window.scrollTo(0, 0);
-        $('#popup').fadeOut();
         $('#close').fadeOut();
-        $('#video').fadeOut('fast');
-        $('#order').fadeIn();
+        $(clone).hide();
+        $('#order').css('display', 'block');
         startTimer();
       });
     });
