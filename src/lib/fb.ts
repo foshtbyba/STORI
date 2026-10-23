@@ -1867,6 +1867,12 @@ export type LangVariant = {
   headline?: string;
   description?: string;
   link?: string;
+  /** Целевой слой (язык гео) — реальное объявление, которое видит аудитория.
+   *  У него при пустом описании НЕ подставляем заголовок, а ставим пробел
+   *  (объява без описания, как хотел баер). У языков-пустышек пака подставляем
+   *  заголовок — чтобы у каждого языка было описание (требование FB), но их
+   *  почти никто не видит. */
+  primary?: boolean;
 };
 
 export type CreateMultiLangVideoInput = {
@@ -1925,18 +1931,23 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
   const effTitle = (own?: string) => (titleFallback ? own || titleFallback : '');
 
   // Все слои одним списком: языковые (не-дефолтные) + основной (is_default).
-  type Layer = { localeId: number; isDefault: boolean; videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string };
+  type Layer = { localeId: number; isDefault: boolean; primary: boolean; videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string };
   const layers: Layer[] = [
-    ...i.langs.map((l) => ({ localeId: l.localeId, isDefault: false, videoId: l.videoId, thumb: l.thumb, message: l.message, headline: l.headline, description: l.description, link: l.link || i.main.link })),
-    { localeId: i.mainLocaleId, isDefault: true, videoId: i.main.videoId, thumb: i.main.thumb, message: i.main.message, headline: i.main.headline, description: i.main.description, link: i.main.link },
+    ...i.langs.map((l) => ({ localeId: l.localeId, isDefault: false, primary: !!l.primary, videoId: l.videoId, thumb: l.thumb, message: l.message, headline: l.headline, description: l.description, link: l.link || i.main.link })),
+    { localeId: i.mainLocaleId, isDefault: true, primary: false, videoId: i.main.videoId, thumb: i.main.thumb, message: i.main.message, headline: i.main.headline, description: i.main.description, link: i.main.link },
   ];
   const uniq = (xs: string[]) => Array.from(new Set(xs.filter(Boolean)));
   const titleTextOf = (l: Layer) => effTitle(l.headline);
-  // Описание слоя: своё → его заголовок → обрезанный основной текст → пробел.
-  // Гарантированно НЕ пустое, чтобы у каждого языка описание было (требование FB).
+  // Описание слоя (FB требует его на КАЖДЫЙ язык). Приоритет:
+  //   • своё описание (из формы/пака) — если задано;
+  //   • ЦЕЛЕВОЙ слой с пустым описанием → пробел: реальная объява без описания,
+  //     как хотел баер (пробел = «нет текста», но поле формально заполнено);
+  //   • язык-пустышка пака с пустым описанием → его заголовок (чтобы тексты по
+  //     языкам оставались РАЗНЫМИ и FB не схлопывал их; этих почти не видят).
   const descTextOf = (l: Layer): string => {
     const own = (l.description ?? '').trim();
     if (own) return own;
+    if (l.primary) return ' ';
     const h = (l.headline ?? '').trim();
     if (h) return h;
     const b = (l.message ?? '').trim();

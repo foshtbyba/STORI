@@ -1261,7 +1261,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           }
           // Дефолт из пака + нейтральные слои + целевой слой (этот ролик на языке гео).
           const rest = packNeutral.filter((l) => l.localeId !== mainLocaleId);
-          rest.push({ localeId: mainLocaleId, videoId: mv, thumb, message, headline: headline || undefined, description: description || undefined, link });
+          rest.push({ localeId: mainLocaleId, videoId: mv, thumb, message, headline: headline || undefined, description: description || undefined, link, primary: true });
           const cid = await buildCreativeWithRetry(() => createMultiLangVideoCreative(token, ext, {
             name: campaignName, pageId, cta, urlTags: urlTags || undefined, optOutKeys: optOut, countries,
             main: { videoId: packDefault.videoId, thumb: packDefault.thumb, message: packDefault.message, headline: packDefault.headline, description: packDefault.description, link: packDefault.link || link },
