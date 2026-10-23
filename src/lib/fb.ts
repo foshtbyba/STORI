@@ -1920,55 +1920,82 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
   const rules: Record<string, unknown>[] = [];
 
   // Заголовок и описание должны быть у ВСЕХ слоёв или НИ У КОГО: FB запрещает
-  // применить к одному правилу несколько ассетов (код 1885878 «Multiple
-  // descriptions/titles assets cannot be applied to rule»). Решаем по тому, что
-  // баер задал в ФОРМЕ ОБЪЯВЛЕНИЯ (primaryHeadline/primaryDescription), а не по
-  // языку пака: пусто у баера — описания/заголовка нет НИГДЕ (не тянем из пака);
-  // задано — даём всем (своё или это значение как фолбэк). Если primary не
-  // передан — опираемся на дефолтный слой, как раньше.
+  // применить к одному правилу несколько ассетов (код 1885878 «Multiple…»).
+  // Решаем по тому, что баер задал в ФОРМЕ ОБЪЯВЛЕНИЯ (primaryHeadline/
+  // primaryDescription), а не по языку пака: пусто у баера — описания/заголовка
+  // нет НИГДЕ; задано — даём всем (своё или это значение как фолбэк).
   const titleFallback = (i.primaryHeadline !== undefined ? i.primaryHeadline : i.main.headline) || '';
   const descFallback = (i.primaryDescription !== undefined ? i.primaryDescription : i.main.description) || '';
   const effTitle = (own?: string) => (titleFallback ? own || titleFallback : '');
   const effDesc = (own?: string) => (descFallback ? own || descFallback : '');
 
-  const pushVariant = (tag: string, v: { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string }) => {
-    const vid: Record<string, unknown> = { video_id: v.videoId, adlabels: [{ name: `vid_${tag}` }] };
-    if (v.thumb) vid.thumbnail_url = v.thumb;
-    videos.push(vid);
-    bodies.push({ text: v.message, adlabels: [{ name: `body_${tag}` }] });
+  // Ассеты ДЕДУПИМ по значению: FB схлопывает одинаковые тексты в один ассет, и
+  // если разные правила ссылались на разные label одного и того же текста,
+  // часть label повисала в пустоте → код 1885817 «Too few … description texts …
+  // for each language». Одинаковое значение = один ассет и один label, который
+  // делят все правила с таким текстом.
+  let seq = 0;
+  const dedup = (
+    arr: Record<string, unknown>[],
+    map: Map<string, string>,
+    key: string,
+    build: () => Record<string, unknown>,
+  ): string => {
+    let label = map.get(key);
+    if (!label) {
+      label = `a${seq++}`;
+      arr.push({ ...build(), adlabels: [{ name: label }] });
+      map.set(key, label);
+    }
+    return label;
+  };
+  const vMap = new Map<string, string>();
+  const bMap = new Map<string, string>();
+  const tMap = new Map<string, string>();
+  const dMap = new Map<string, string>();
+  const lMap = new Map<string, string>();
+
+  type Layer = { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string };
+  // Собрать label'ы одного слоя (создаёт недостающие ассеты, общие — переиспользует).
+  const labelsOf = (v: Layer) => {
+    const videoLabel = dedup(videos, vMap, `${v.videoId}|${v.thumb ?? ''}`, () => {
+      const o: Record<string, unknown> = { video_id: v.videoId };
+      if (v.thumb) o.thumbnail_url = v.thumb;
+      return o;
+    });
+    const bodyLabel = dedup(bodies, bMap, v.message, () => ({ text: v.message }));
+    const linkLabel = dedup(linkUrls, lMap, v.link, () => ({ website_url: v.link }));
     const t = effTitle(v.headline);
-    if (t) titles.push({ text: t, adlabels: [{ name: `title_${tag}` }] });
+    const titleLabel = t ? dedup(titles, tMap, t, () => ({ text: t })) : undefined;
     const d = effDesc(v.description);
-    if (d) descriptions.push({ text: d, adlabels: [{ name: `desc_${tag}` }] });
-    // link_url для каждого варианта свой (у языка может быть свой лендинг).
-    linkUrls.push({ website_url: v.link, adlabels: [{ name: `link_${tag}` }] });
+    const descLabel = d ? dedup(descriptions, dMap, d, () => ({ text: d })) : undefined;
+    return { videoLabel, bodyLabel, linkLabel, titleLabel, descLabel };
   };
 
-  // Основной вариант (пойдёт в дефолтное правило под свой язык).
-  pushVariant('def', { ...i.main });
-  // Языковые варианты — по одному не-дефолтному правилу на каждый (только locale).
-  i.langs.forEach((l, idx) => {
-    pushVariant(`l${idx}`, { videoId: l.videoId, thumb: l.thumb, message: l.message, headline: l.headline, description: l.description, link: l.link || i.main.link });
+  // Языковые слои — по одному не-дефолтному правилу на каждый (только locale).
+  for (const l of i.langs) {
+    const lab = labelsOf({ videoId: l.videoId, thumb: l.thumb, message: l.message, headline: l.headline, description: l.description, link: l.link || i.main.link });
     const rule: Record<string, unknown> = {
       customization_spec: { locales: [l.localeId] },
-      video_label: { name: `vid_l${idx}` },
-      body_label: { name: `body_l${idx}` },
-      link_url_label: { name: `link_l${idx}` },
+      video_label: { name: lab.videoLabel },
+      body_label: { name: lab.bodyLabel },
+      link_url_label: { name: lab.linkLabel },
     };
-    if (effTitle(l.headline)) rule.title_label = { name: `title_l${idx}` };
-    if (effDesc(l.description)) rule.description_label = { name: `desc_l${idx}` };
+    if (lab.titleLabel) rule.title_label = { name: lab.titleLabel };
+    if (lab.descLabel) rule.description_label = { name: lab.descLabel };
     rules.push(rule);
-  });
+  }
   // Дефолтное правило: is_default + locale ОСНОВНОГО языка (не пустой спек!).
+  const dlab = labelsOf({ ...i.main });
   const defRule: Record<string, unknown> = {
     is_default: true,
     customization_spec: { locales: [i.mainLocaleId] },
-    video_label: { name: 'vid_def' },
-    body_label: { name: 'body_def' },
-    link_url_label: { name: 'link_def' },
+    video_label: { name: dlab.videoLabel },
+    body_label: { name: dlab.bodyLabel },
+    link_url_label: { name: dlab.linkLabel },
   };
-  if (effTitle(i.main.headline)) defRule.title_label = { name: 'title_def' };
-  if (effDesc(i.main.description)) defRule.description_label = { name: 'desc_def' };
+  if (dlab.titleLabel) defRule.title_label = { name: dlab.titleLabel };
+  if (dlab.descLabel) defRule.description_label = { name: dlab.descLabel };
   rules.push(defRule);
 
   const assetFeedSpec: Record<string, unknown> = {

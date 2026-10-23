@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'video-upload-no-cloak · 22.10 16:44';
+export const BUILD_INFO = 'multilang-desc-dedup · 23.10 11:41';
