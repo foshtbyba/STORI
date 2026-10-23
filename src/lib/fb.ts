@@ -1929,11 +1929,9 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
   const effTitle = (own?: string) => (titleFallback ? own || titleFallback : '');
   const effDesc = (own?: string) => (descFallback ? own || descFallback : '');
 
-  // Ассеты ДЕДУПИМ по значению: FB схлопывает одинаковые тексты в один ассет, и
-  // если разные правила ссылались на разные label одного и того же текста,
-  // часть label повисала в пустоте → код 1885817 «Too few … description texts …
-  // for each language». Одинаковое значение = один ассет и один label, который
-  // делят все правила с таким текстом.
+  // Видео/тело/ссылка ДЕДУПЯТСЯ по значению и всегда привязаны к каждому правилу
+  // (это обязательные ассеты). Одинаковое значение = один ассет + один label,
+  // который делят правила с таким значением.
   let seq = 0;
   const dedup = (
     arr: Record<string, unknown>[],
@@ -1951,52 +1949,58 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
   };
   const vMap = new Map<string, string>();
   const bMap = new Map<string, string>();
-  const tMap = new Map<string, string>();
-  const dMap = new Map<string, string>();
   const lMap = new Map<string, string>();
 
-  type Layer = { videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string };
-  // Собрать label'ы одного слоя (создаёт недостающие ассеты, общие — переиспользует).
-  const labelsOf = (v: Layer) => {
-    const videoLabel = dedup(videos, vMap, `${v.videoId}|${v.thumb ?? ''}`, () => {
-      const o: Record<string, unknown> = { video_id: v.videoId };
-      if (v.thumb) o.thumbnail_url = v.thumb;
+  // Все слои одним списком: языковые (не-дефолтные) + основной (is_default).
+  type Layer = { localeId: number; isDefault: boolean; videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string };
+  const layers: Layer[] = [
+    ...i.langs.map((l) => ({ localeId: l.localeId, isDefault: false, videoId: l.videoId, thumb: l.thumb, message: l.message, headline: l.headline, description: l.description, link: l.link || i.main.link })),
+    { localeId: i.mainLocaleId, isDefault: true, videoId: i.main.videoId, thumb: i.main.thumb, message: i.main.message, headline: i.main.headline, description: i.main.description, link: i.main.link },
+  ];
+
+  // Заголовок/описание — ОПЦИОНАЛЬНЫЕ ассеты, и у FB для них особая проверка:
+  //   • текст ОДИН на всех → кладём ГЛОБАЛЬНО, БЕЗ *_label ни на одном правиле
+  //     (FB применит ко всем языкам). Привязать один текст к языковым правилам
+  //     нельзя — FB считает «мало текстов на каждый язык» (код 1885817).
+  //   • текстов НЕСКОЛЬКО (реальные переводы) → каждый свой ассет, привязываем
+  //     к своему языку (*_label на каждом правиле).
+  //   • текста НЕТ нигде → ассетов нет совсем.
+  // Иначе ловим либо 1885817 (too few), либо 1885878 (multiple … to rule).
+  const effTitleOf = (l: Layer) => effTitle(l.headline);
+  const effDescOf = (l: Layer) => effDesc(l.description);
+  const uniq = (xs: string[]) => Array.from(new Set(xs.filter(Boolean)));
+  const uniqTitles = uniq(layers.map(effTitleOf));
+  const uniqDescs = uniq(layers.map(effDescOf));
+  const titlePerLang = uniqTitles.length >= 2;
+  const descPerLang = uniqDescs.length >= 2;
+  // Метки для режима «несколько»; для «один»/«нет» метки не нужны.
+  const tMap = new Map<string, string>();
+  const dMap = new Map<string, string>();
+  if (titlePerLang) for (const t of uniqTitles) { const n = `t${seq++}`; titles.push({ text: t, adlabels: [{ name: n }] }); tMap.set(t, n); }
+  else if (uniqTitles.length === 1) titles.push({ text: uniqTitles[0] }); // глобально, без метки
+  if (descPerLang) for (const d of uniqDescs) { const n = `d${seq++}`; descriptions.push({ text: d, adlabels: [{ name: n }] }); dMap.set(d, n); }
+  else if (uniqDescs.length === 1) descriptions.push({ text: uniqDescs[0] }); // глобально, без метки
+
+  for (const l of layers) {
+    const videoLabel = dedup(videos, vMap, `${l.videoId}|${l.thumb ?? ''}`, () => {
+      const o: Record<string, unknown> = { video_id: l.videoId };
+      if (l.thumb) o.thumbnail_url = l.thumb;
       return o;
     });
-    const bodyLabel = dedup(bodies, bMap, v.message, () => ({ text: v.message }));
-    const linkLabel = dedup(linkUrls, lMap, v.link, () => ({ website_url: v.link }));
-    const t = effTitle(v.headline);
-    const titleLabel = t ? dedup(titles, tMap, t, () => ({ text: t })) : undefined;
-    const d = effDesc(v.description);
-    const descLabel = d ? dedup(descriptions, dMap, d, () => ({ text: d })) : undefined;
-    return { videoLabel, bodyLabel, linkLabel, titleLabel, descLabel };
-  };
-
-  // Языковые слои — по одному не-дефолтному правилу на каждый (только locale).
-  for (const l of i.langs) {
-    const lab = labelsOf({ videoId: l.videoId, thumb: l.thumb, message: l.message, headline: l.headline, description: l.description, link: l.link || i.main.link });
+    const bodyLabel = dedup(bodies, bMap, l.message, () => ({ text: l.message }));
+    const linkLabel = dedup(linkUrls, lMap, l.link, () => ({ website_url: l.link }));
     const rule: Record<string, unknown> = {
-      customization_spec: { locales: [l.localeId] },
-      video_label: { name: lab.videoLabel },
-      body_label: { name: lab.bodyLabel },
-      link_url_label: { name: lab.linkLabel },
+      video_label: { name: videoLabel },
+      body_label: { name: bodyLabel },
+      link_url_label: { name: linkLabel },
     };
-    if (lab.titleLabel) rule.title_label = { name: lab.titleLabel };
-    if (lab.descLabel) rule.description_label = { name: lab.descLabel };
+    if (l.isDefault) { rule.is_default = true; rule.customization_spec = { locales: [i.mainLocaleId] }; }
+    else rule.customization_spec = { locales: [l.localeId] };
+    // *_label ставим ТОЛЬКО в режиме «несколько текстов» (глобальный применится сам).
+    if (titlePerLang) { const t = effTitleOf(l); if (t) rule.title_label = { name: tMap.get(t) }; }
+    if (descPerLang) { const d = effDescOf(l); if (d) rule.description_label = { name: dMap.get(d) }; }
     rules.push(rule);
   }
-  // Дефолтное правило: is_default + locale ОСНОВНОГО языка (не пустой спек!).
-  const dlab = labelsOf({ ...i.main });
-  const defRule: Record<string, unknown> = {
-    is_default: true,
-    customization_spec: { locales: [i.mainLocaleId] },
-    video_label: { name: dlab.videoLabel },
-    body_label: { name: dlab.bodyLabel },
-    link_url_label: { name: dlab.linkLabel },
-  };
-  if (dlab.titleLabel) defRule.title_label = { name: dlab.titleLabel };
-  if (dlab.descLabel) defRule.description_label = { name: dlab.descLabel };
-  rules.push(defRule);
 
   const assetFeedSpec: Record<string, unknown> = {
     ad_formats: ['SINGLE_VIDEO'],
