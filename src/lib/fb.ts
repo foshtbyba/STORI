@@ -1896,6 +1896,9 @@ export type CreateMultiLangVideoInput = {
    */
   primaryHeadline?: string;
   primaryDescription?: string;
+  /** Необязательный логгер: пишет в поток автозалива, что именно уходит в FB
+   *  (длины массивов ассетов, какую сборку пробуем). Нужен для диагностики. */
+  onDebug?: (s: string) => void;
 };
 
 /**
@@ -1912,44 +1915,13 @@ export type CreateMultiLangVideoInput = {
  */
 export async function createMultiLangVideoCreative(token: string, externalId: string, i: CreateMultiLangVideoInput, net: FbNet = {}) {
   if (!i.mainLocaleId) throw new FbError('Мультиязычный креатив: не задан locale основного языка');
-  const videos: Record<string, unknown>[] = [];
-  const bodies: Record<string, unknown>[] = [];
-  const titles: Record<string, unknown>[] = [];
-  const descriptions: Record<string, unknown>[] = [];
-  const linkUrls: Record<string, unknown>[] = [];
-  const rules: Record<string, unknown>[] = [];
-
-  // Заголовок и описание должны быть у ВСЕХ слоёв или НИ У КОГО: FB запрещает
-  // применить к одному правилу несколько ассетов (код 1885878 «Multiple…»).
-  // Решаем по тому, что баер задал в ФОРМЕ ОБЪЯВЛЕНИЯ (primaryHeadline/
-  // primaryDescription), а не по языку пака: пусто у баера — описания/заголовка
-  // нет НИГДЕ; задано — даём всем (своё или это значение как фолбэк).
+  // Заголовок и описание берём из того, что баер задал в ФОРМЕ ОБЪЯВЛЕНИЯ
+  // (primaryHeadline/primaryDescription), а не из языка пака: пусто у баера —
+  // текста нет нигде; задано — даём всем (своё или это значение как фолбэк).
   const titleFallback = (i.primaryHeadline !== undefined ? i.primaryHeadline : i.main.headline) || '';
   const descFallback = (i.primaryDescription !== undefined ? i.primaryDescription : i.main.description) || '';
   const effTitle = (own?: string) => (titleFallback ? own || titleFallback : '');
   const effDesc = (own?: string) => (descFallback ? own || descFallback : '');
-
-  // Видео/тело/ссылка ДЕДУПЯТСЯ по значению и всегда привязаны к каждому правилу
-  // (это обязательные ассеты). Одинаковое значение = один ассет + один label,
-  // который делят правила с таким значением.
-  let seq = 0;
-  const dedup = (
-    arr: Record<string, unknown>[],
-    map: Map<string, string>,
-    key: string,
-    build: () => Record<string, unknown>,
-  ): string => {
-    let label = map.get(key);
-    if (!label) {
-      label = `a${seq++}`;
-      arr.push({ ...build(), adlabels: [{ name: label }] });
-      map.set(key, label);
-    }
-    return label;
-  };
-  const vMap = new Map<string, string>();
-  const bMap = new Map<string, string>();
-  const lMap = new Map<string, string>();
 
   // Все слои одним списком: языковые (не-дефолтные) + основной (is_default).
   type Layer = { localeId: number; isDefault: boolean; videoId: string; thumb?: string; message: string; headline?: string; description?: string; link: string };
@@ -1957,61 +1929,75 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
     ...i.langs.map((l) => ({ localeId: l.localeId, isDefault: false, videoId: l.videoId, thumb: l.thumb, message: l.message, headline: l.headline, description: l.description, link: l.link || i.main.link })),
     { localeId: i.mainLocaleId, isDefault: true, videoId: i.main.videoId, thumb: i.main.thumb, message: i.main.message, headline: i.main.headline, description: i.main.description, link: i.main.link },
   ];
-
-  // Заголовок/описание — ОПЦИОНАЛЬНЫЕ ассеты, и у FB для них особая проверка:
-  //   • текст ОДИН на всех → кладём ГЛОБАЛЬНО, БЕЗ *_label ни на одном правиле
-  //     (FB применит ко всем языкам). Привязать один текст к языковым правилам
-  //     нельзя — FB считает «мало текстов на каждый язык» (код 1885817).
-  //   • текстов НЕСКОЛЬКО (реальные переводы) → каждый свой ассет, привязываем
-  //     к своему языку (*_label на каждом правиле).
-  //   • текста НЕТ нигде → ассетов нет совсем.
-  // Иначе ловим либо 1885817 (too few), либо 1885878 (multiple … to rule).
-  const effTitleOf = (l: Layer) => effTitle(l.headline);
-  const effDescOf = (l: Layer) => effDesc(l.description);
   const uniq = (xs: string[]) => Array.from(new Set(xs.filter(Boolean)));
-  const uniqTitles = uniq(layers.map(effTitleOf));
-  const uniqDescs = uniq(layers.map(effDescOf));
-  const titlePerLang = uniqTitles.length >= 2;
-  const descPerLang = uniqDescs.length >= 2;
-  // Метки для режима «несколько»; для «один»/«нет» метки не нужны.
-  const tMap = new Map<string, string>();
-  const dMap = new Map<string, string>();
-  if (titlePerLang) for (const t of uniqTitles) { const n = `t${seq++}`; titles.push({ text: t, adlabels: [{ name: n }] }); tMap.set(t, n); }
-  else if (uniqTitles.length === 1) titles.push({ text: uniqTitles[0] }); // глобально, без метки
-  if (descPerLang) for (const d of uniqDescs) { const n = `d${seq++}`; descriptions.push({ text: d, adlabels: [{ name: n }] }); dMap.set(d, n); }
-  else if (uniqDescs.length === 1) descriptions.push({ text: uniqDescs[0] }); // глобально, без метки
 
-  for (const l of layers) {
-    const videoLabel = dedup(videos, vMap, `${l.videoId}|${l.thumb ?? ''}`, () => {
-      const o: Record<string, unknown> = { video_id: l.videoId };
-      if (l.thumb) o.thumbnail_url = l.thumb;
-      return o;
-    });
-    const bodyLabel = dedup(bodies, bMap, l.message, () => ({ text: l.message }));
-    const linkLabel = dedup(linkUrls, lMap, l.link, () => ({ website_url: l.link }));
-    const rule: Record<string, unknown> = {
-      video_label: { name: videoLabel },
-      body_label: { name: bodyLabel },
-      link_url_label: { name: linkLabel },
+  /**
+   * Собрать asset_feed_spec. Заголовок/описание — ОПЦИОНАЛЬНЫЕ ассеты, которые
+   * FB в мультиязычной схеме капризно валидирует (коды 1885817/1885878). Их
+   * можно отключать (withTitles/withDesc=false) и пересобирать без них, если FB
+   * отбил именно их — обязательные видео/тело/ссылка/CTA по каждому языку всё
+   * равно уедут. Логика опциональных: один общий текст → кладём ГЛОБАЛЬНО без
+   * *_label (FB применит ко всем языкам); несколько разных → свой ассет на язык
+   * с *_label; нет текста → нет ассета. Обязательные видео/тело/ссылка дедупятся
+   * по значению и привязаны к каждому правилу.
+   */
+  const assemble = (withTitles: boolean, withDesc: boolean) => {
+    const videos: Record<string, unknown>[] = [];
+    const bodies: Record<string, unknown>[] = [];
+    const titles: Record<string, unknown>[] = [];
+    const descriptions: Record<string, unknown>[] = [];
+    const linkUrls: Record<string, unknown>[] = [];
+    const rules: Record<string, unknown>[] = [];
+    let seq = 0;
+    const dedup = (arr: Record<string, unknown>[], map: Map<string, string>, key: string, build: () => Record<string, unknown>): string => {
+      let label = map.get(key);
+      if (!label) { label = `a${seq++}`; arr.push({ ...build(), adlabels: [{ name: label }] }); map.set(key, label); }
+      return label;
     };
-    if (l.isDefault) { rule.is_default = true; rule.customization_spec = { locales: [i.mainLocaleId] }; }
-    else rule.customization_spec = { locales: [l.localeId] };
-    // *_label ставим ТОЛЬКО в режиме «несколько текстов» (глобальный применится сам).
-    if (titlePerLang) { const t = effTitleOf(l); if (t) rule.title_label = { name: tMap.get(t) }; }
-    if (descPerLang) { const d = effDescOf(l); if (d) rule.description_label = { name: dMap.get(d) }; }
-    rules.push(rule);
-  }
-
-  const assetFeedSpec: Record<string, unknown> = {
-    ad_formats: ['SINGLE_VIDEO'],
-    videos,
-    bodies,
-    link_urls: linkUrls,
-    call_to_action_types: [i.cta || 'LEARN_MORE'],
-    asset_customization_rules: rules,
+    const vMap = new Map<string, string>();
+    const bMap = new Map<string, string>();
+    const lMap = new Map<string, string>();
+    const tMap = new Map<string, string>();
+    const dMap = new Map<string, string>();
+    const uniqTitles = withTitles ? uniq(layers.map((l) => effTitle(l.headline))) : [];
+    const uniqDescs = withDesc ? uniq(layers.map((l) => effDesc(l.description))) : [];
+    const titlePerLang = uniqTitles.length >= 2;
+    const descPerLang = uniqDescs.length >= 2;
+    if (titlePerLang) for (const t of uniqTitles) { const n = `t${seq++}`; titles.push({ text: t, adlabels: [{ name: n }] }); tMap.set(t, n); }
+    else if (uniqTitles.length === 1) titles.push({ text: uniqTitles[0] });
+    if (descPerLang) for (const d of uniqDescs) { const n = `d${seq++}`; descriptions.push({ text: d, adlabels: [{ name: n }] }); dMap.set(d, n); }
+    else if (uniqDescs.length === 1) descriptions.push({ text: uniqDescs[0] });
+    for (const l of layers) {
+      const videoLabel = dedup(videos, vMap, `${l.videoId}|${l.thumb ?? ''}`, () => {
+        const o: Record<string, unknown> = { video_id: l.videoId };
+        if (l.thumb) o.thumbnail_url = l.thumb;
+        return o;
+      });
+      const bodyLabel = dedup(bodies, bMap, l.message, () => ({ text: l.message }));
+      const linkLabel = dedup(linkUrls, lMap, l.link, () => ({ website_url: l.link }));
+      const rule: Record<string, unknown> = {
+        video_label: { name: videoLabel },
+        body_label: { name: bodyLabel },
+        link_url_label: { name: linkLabel },
+      };
+      if (l.isDefault) { rule.is_default = true; rule.customization_spec = { locales: [i.mainLocaleId] }; }
+      else rule.customization_spec = { locales: [l.localeId] };
+      if (titlePerLang) { const t = effTitle(l.headline); if (t) rule.title_label = { name: tMap.get(t) }; }
+      if (descPerLang) { const d = effDesc(l.description); if (d) rule.description_label = { name: dMap.get(d) }; }
+      rules.push(rule);
+    }
+    const spec: Record<string, unknown> = {
+      ad_formats: ['SINGLE_VIDEO'],
+      videos,
+      bodies,
+      link_urls: linkUrls,
+      call_to_action_types: [i.cta || 'LEARN_MORE'],
+      asset_customization_rules: rules,
+    };
+    if (titles.length) spec.titles = titles;
+    if (descriptions.length) spec.descriptions = descriptions;
+    return { spec, titles: titles.length, descriptions: descriptions.length, bodies: bodies.length, videos: videos.length, rules: rules.length, titlePerLang, descPerLang };
   };
-  if (titles.length) assetFeedSpec.titles = titles;
-  if (descriptions.length) assetFeedSpec.descriptions = descriptions;
 
   const storySpec: Record<string, unknown> = { page_id: i.pageId };
   // Есть явный IG-аккаунт — ставим его; нет — просим FB представлять бизнес в
@@ -2019,39 +2005,66 @@ export async function createMultiLangVideoCreative(token: string, externalId: st
   // IG-плейсменты идут без явной IG-идентичности и без ошибок 1772103/1815199.
   if (i.instagramActorId) storySpec.instagram_actor_id = i.instagramActorId;
   else storySpec.use_page_actor_override = true;
-  const params: Record<string, string> = {
+  const baseParams: Record<string, string> = {
     name: i.name,
     object_story_spec: JSON.stringify(storySpec),
-    asset_feed_spec: JSON.stringify(assetFeedSpec),
   };
   const optOut = i.optOutKeys ?? ['standard_enhancements'];
   if (optOut.length) {
     const spec: Record<string, { enroll_status: 'OPT_OUT' }> = {};
     for (const k of optOut) spec[k] = { enroll_status: 'OPT_OUT' };
-    params.degrees_of_freedom_spec = JSON.stringify({ creative_features_spec: spec });
+    baseParams.degrees_of_freedom_spec = JSON.stringify({ creative_features_spec: spec });
   }
   // Multi-advertiser ads выключаем на КРЕАТИВЕ (не адсете): contextual_multi_ads
   // ФБ принимает как JSON-ОБЪЕКТ {enroll_status:'OPT_OUT'} (на строку отвечает
   // «must be a JSON object»). Так объявление не идёт в общую ленту с чужими.
-  params.contextual_multi_ads = JSON.stringify({ enroll_status: 'OPT_OUT' });
-  if (i.urlTags && i.urlTags.trim()) params.url_tags = i.urlTags.trim();
+  baseParams.contextual_multi_ads = JSON.stringify({ enroll_status: 'OPT_OUT' });
+  if (i.urlTags && i.urlTags.trim()) baseParams.url_tags = i.urlTags.trim();
 
-  // Языковая кастомизация по locale поддержана в актуальных версиях. Если кабинет
-  // на новой версии вдруг отобьёт как «сегментную» (код 2715) — повторяем на v21.
-  const post = async (ver: string) => {
-    const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST', ver);
-    const id = body.id as string | undefined;
-    if (!id) throw new FbError('Мультиязычный креатив не создан: нет id');
-    return id;
-  };
-  try {
-    return await post(CREATE_API_VERSION);
-  } catch (e) {
-    if (/\b2715\b|Segment Asset Customization/i.test((e as Error).message)) {
-      return await post('v21.0');
+  // Отправка одной сборки. Языковая кастомизация по locale поддержана в
+  // актуальных версиях; если кабинет отобьёт как «сегментную» (код 2715) —
+  // повторяем ту же сборку на v21.
+  const postSpec = async (spec: Record<string, unknown>) => {
+    const params = { ...baseParams, asset_feed_spec: JSON.stringify(spec) };
+    const once = async (ver: string) => {
+      const body = await call(`/${externalId}/adcreatives`, token, params, net, 'POST', ver);
+      const id = body.id as string | undefined;
+      if (!id) throw new FbError('Мультиязычный креатив не создан: нет id');
+      return id;
+    };
+    try { return await once(CREATE_API_VERSION); }
+    catch (e) {
+      if (/\b2715\b|Segment Asset Customization/i.test((e as Error).message)) return await once('v21.0');
+      throw e;
     }
-    throw e;
+  };
+
+  // Лестница сборок: полная → без описания → без описания и заголовка. FB
+  // капризен к опциональным заголовку/описанию в мультиязычной схеме (1885817/
+  // 1885878) — если отбил именно их, пересобираем без них, сохраняя обязательные
+  // видео/тело/ссылку/CTA по каждому языку.
+  const ladder: Array<[boolean, boolean]> = [[true, true], [true, false], [false, false]];
+  let lastErr: unknown;
+  for (let k = 0; k < ladder.length; k++) {
+    const [wT, wD] = ladder[k];
+    const built = assemble(wT, wD);
+    i.onDebug?.(`креатив: видео=${built.videos} тело=${built.bodies} заголовки=${built.titles} описания=${built.descriptions} правил=${built.rules} (titlePerLang=${built.titlePerLang} descPerLang=${built.descPerLang})`);
+    try {
+      return await postSpec(built.spec);
+    } catch (e) {
+      lastErr = e;
+      const m = (e as Error).message || '';
+      const assetIssue = /1885817|1885878|1885985|too few|cannot be applied|News Feed link description|description text|title text/i.test(m);
+      const next = ladder[k + 1];
+      if (next && assetIssue) {
+        const dropped = next[0] && !next[1] ? 'описания' : 'описания и заголовка';
+        i.onDebug?.(`⚠ FB отбил креатив (${m.slice(0, 90)}) — пересобираю без ${dropped}`);
+        continue;
+      }
+      throw e;
+    }
   }
+  throw lastErr;
 }
 
 export type CreateVideoCreativeInput = {

@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'multilang-desc-global · 23.10 12:06';
+export const BUILD_INFO = 'multilang-desc-fallback · 23.10 12:25';

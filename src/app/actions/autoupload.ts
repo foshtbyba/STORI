@@ -1274,6 +1274,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
             instagramActorId: igActor || undefined,
             primaryHeadline: headline,
             primaryDescription: description,
+            onDebug: (s) => append(s),
           }, net));
           // НЕ подменяем молча одноязычным: смысл залива — именно языки. Не
           // собралось — отдаём ошибку наверх, чтобы было видно, что чинить.
@@ -1310,6 +1311,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           mainLocaleId: packDefault.localeId,
           langs: packNeutral,
           instagramActorId: igActor || undefined,
+          onDebug: (s) => append(s),
         }, net));
         if (!cid) throw new FbError('Мультиязычный креатив не собрался (после подрезки ключей улучшений)');
         creativeIds.push(cid);
