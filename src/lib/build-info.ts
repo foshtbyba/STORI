@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'multilang-desc-blank-target · 23.10 13:29';
+export const BUILD_INFO = 'agents-per-percent · 23.10 20:43';

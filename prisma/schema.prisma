@@ -260,12 +260,32 @@ model DayReport {
   revenueSyncedCents Int?
   syncedAt           DateTime?
 
+  /// Агент агентского кабинета для строки «Агентка». У разных агентов разный
+  /// процент; commissionBps выше — снапшот именно его ставки на момент записи.
+  agentId String?
+  agent   Agent?  @relation(fields: [agentId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([buyerId, date, offerId, source])
   @@index([date])
   @@index([buyerId, date])
+}
+
+/// Агент (агентство), через которое пополняют агентские кабинеты. У каждого
+/// свой процент — в отличие от прежней фиксированной ставки 6%. Процент
+/// снапшотится в строку дня (DayReport.commissionBps), чтобы смена ставки не
+/// переписывала прошлые цифры (как у PaymentMethod).
+model Agent {
+  id            String      @id @default(cuid())
+  name          String      @unique
+  /// Комиссия агента в базисных пунктах: 600 = 6.00%.
+  commissionBps Int         @default(600)
+  archived      Boolean     @default(false)
+  sort          Int         @default(0)
+  createdAt     DateTime    @default(now())
+  days          DayReport[]
 }
 
 model ConsumableType {

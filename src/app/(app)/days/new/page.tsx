@@ -21,7 +21,7 @@ export default async function NewDayPage({
   const day = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : today;
   const when = new Date(`${day}T00:00:00.000Z`);
 
-  const [buyers, owners, types, saved, entries, period] = await Promise.all([
+  const [buyers, owners, types, saved, entries, period, agents] = await Promise.all([
     prisma.buyer.findMany({ where: { archived: false, owner: false }, orderBy: { handle: 'asc' } }),
     // Овнеры идут в ту же таблицу с пометкой «овнер»: их доход/расход тоже
     // заводят руками, но в командный итог они не попадают.
@@ -30,6 +30,7 @@ export default async function NewDayPage({
     prisma.dayReport.findMany({ where: { date: when } }),
     prisma.consumableEntry.findMany({ where: { date: when, note: GRID_CONSUMABLE_NOTE } }),
     prisma.period.findUnique({ where: { key: periodKeyOf(when) } }),
+    prisma.agent.findMany({ where: { archived: false }, orderBy: [{ sort: 'asc' }, { name: 'asc' }] }),
   ]);
 
   const defaultBps = DEFAULT_COMMISSION_BPS;
@@ -57,6 +58,7 @@ export default async function NewDayPage({
       buyerId: b.id,
       spend: row ? num(row.spendNetCents) : '',
       note: row?.note ?? '',
+      agentId: row?.agentId ?? '',
     };
   });
 
@@ -86,6 +88,7 @@ export default async function NewDayPage({
           ...buyers.map((b) => ({ id: b.id, handle: b.handle, initials: b.initials, color: b.color })),
           ...owners.map((b) => ({ id: b.id, handle: b.handle, initials: b.initials, color: b.color, owner: true })),
         ]}
+        agents={agents.map((a) => ({ id: a.id, name: a.name, commissionBps: a.commissionBps }))}
         seed={extraSeed}
         locked={period?.status === 'CLOSED' || !isEditable(when)}
       />

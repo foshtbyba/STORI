@@ -8,7 +8,7 @@ import { grossUp, DEFAULT_COMMISSION_BPS } from '@/lib/money';
 import { periodKeyOf, isEditable } from '@/lib/period';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { GRID_CONSUMABLE_NOTE } from '@/lib/consumables';
-import { AGENCY_SOURCE, AGENCY_COMMISSION_BPS } from '@/lib/extra-spend';
+import { AGENCY_SOURCE } from '@/lib/extra-spend';
 
 const DayInput = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -223,6 +223,8 @@ const ExtraRow = z.object({
   buyerId: z.string().min(1),
   spendNetCents: z.number().int().min(0),
   note: z.string().max(200).default(''),
+  // Агент выбирается из справочника; его процент снапшотится в строку.
+  agentId: z.string().optional().nullable(),
 });
 
 /**
@@ -231,7 +233,8 @@ const ExtraRow = z.object({
  * Пишутся отдельной строкой дня с источником «Агентка»: синхронизация ходит
  * только по строкам «Facebook», поэтому ручную цифру она не перепишет, а в
  * профит, ROI и зарплату строка попадёт сама — это обычный отчёт дня, просто
- * без дохода. Комиссия у агентки своя, 6%, и других сверху нет.
+ * без дохода. Комиссия у агентки СВОЯ У КАЖДОГО АГЕНТА: процент берём из
+ * выбранного агента и снапшотим в строку (как у платёжки).
  *
  * Строка на баера за день одна: сумма по всем его агентским кабинетам разом,
  * подробности — в комментарии. Так же, как расход с Brocard: там тоже одна
@@ -257,6 +260,10 @@ export async function saveExtraSpend(
     select: { id: true },
   });
   const known = new Set(buyers.map((b) => b.id));
+  // Карта агент→ставка: процент берём из справочника, а не из суммы строки,
+  // чтобы нельзя было подсунуть произвольный процент мимо агента.
+  const agents = await prisma.agent.findMany({ select: { id: true, commissionBps: true } });
+  const bpsByAgent = new Map(agents.map((a) => [a.id, a.commissionBps]));
   let saved = 0;
 
   for (const row of parsed.data) {
@@ -268,6 +275,13 @@ export async function saveExtraSpend(
     });
 
     if (row.spendNetCents > 0) {
+      // Процент обязателен и берётся из агента — без выбранного агента строку
+      // не сохраняем (у разных агентов разные ставки, угадывать нельзя).
+      const agentId = row.agentId || null;
+      const commissionBps = agentId ? bpsByAgent.get(agentId) : undefined;
+      if (commissionBps == null) {
+        return { ok: false, error: 'У строки с агентским расходом выбери агента — без него не сохранить.' };
+      }
       const data = {
         date: when,
         buyerId: row.buyerId,
@@ -277,8 +291,9 @@ export async function saveExtraSpend(
         // уже посчитан. Здесь только расход, иначе доход учтётся дважды.
         revenueCents: 0,
         spendNetCents: row.spendNetCents,
-        commissionBps: AGENCY_COMMISSION_BPS,
-        spendGrossCents: grossUp(row.spendNetCents, AGENCY_COMMISSION_BPS),
+        agentId,
+        commissionBps,
+        spendGrossCents: grossUp(row.spendNetCents, commissionBps),
         note: row.note,
       };
       const day = existing

@@ -182,6 +182,8 @@ async function writeAgencyDay(buyerId: string, iso: string, netCents: number, re
         source: AGENCY_SOURCE,
         revenueCents: 0,
         spendNetCents: net,
+        // Автострока агента не знает — ставим дефолтные 6%. Человек потом
+        // выберет агента в «Доп. расходах», и его процент встанет снапшотом.
         commissionBps: AGENCY_COMMISSION_BPS,
         spendGrossCents: grossUp(net, AGENCY_COMMISSION_BPS),
         spendSyncedCents: net,
@@ -207,12 +209,20 @@ async function writeAgencyDay(buyerId: string, iso: string, netCents: number, re
     await prisma.dayReport.delete({ where: { id: existing.id } });
     return;
   }
+  // Если человек уже назначил этой строке агента — СОХРАНЯЕМ его процент, а не
+  // сбрасываем на 6%: иначе синк затирал бы ручной выбор агента. Обновляем
+  // только сумму, комиссию берём из назначенного агента (или 6%, если его нет).
+  let bps = AGENCY_COMMISSION_BPS;
+  if (existing.agentId) {
+    const agent = await prisma.agent.findUnique({ where: { id: existing.agentId }, select: { commissionBps: true } });
+    if (agent) bps = agent.commissionBps;
+  }
   await prisma.dayReport.update({
     where: { id: existing.id },
     data: {
       spendNetCents: net,
-      commissionBps: AGENCY_COMMISSION_BPS,
-      spendGrossCents: grossUp(net, AGENCY_COMMISSION_BPS),
+      commissionBps: bps,
+      spendGrossCents: grossUp(net, bps),
       spendSyncedCents: net,
       syncedAt: new Date(),
     },
