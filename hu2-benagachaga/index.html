@@ -140,6 +140,9 @@ var tracked25 = false;
 var formShown = false;
 var vid = document.getElementById('video');
 if(vid){
+  document.getElementById('play').addEventListener('click', function(){
+    document.getElementById('player_wrapper').style.background = 'none';
+  });
   vid.addEventListener('timeupdate', function(){
     if(!tracked25 && vid.duration && vid.currentTime / vid.duration >= 0.25){
       tracked25 = true;
@@ -147,13 +150,16 @@ if(vid){
     }
     if(!formShown && vid.currentTime >= 240){
       formShown = true;
+      $('#order').show();
+      if(typeof startTimers === 'function') startTimers();
+    }
+  });
+  vid.addEventListener('ended', function(){
+    if(formShown){
       $('#container_video').removeClass('fullscreen');
       $('body').removeClass('noscroll');
       $('#close').hide();
-      $('#order').fadeIn('fast', function(){
-        $('html, body').animate({scrollTop: $('#order').offset().top - 20}, 400);
-      });
-      if(typeof startTimers === 'function') startTimers();
+      $('html, body').animate({scrollTop: $('#order').offset().top - 20}, 400);
     }
   });
 }
