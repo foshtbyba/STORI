@@ -53,7 +53,7 @@ fbq('track', 'PageView');
 </svg>
 
 <div id="container_video" style="margin:0 auto">
-<video id="video" src="video.mp4" playsinline preload="metadata"></video>
+<video id="video" src="video.mp4" controls playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;background:#000"></video>
 <div class="blurred" id="player_wrapper">
 <div class="player_controller">
 <div class="play_button" id="play">
@@ -68,7 +68,7 @@ fbq('track', 'PageView');
 <div data-vi="1" id="open-video" style="display:none"><div><h4>Kattintson a folytatáshoz</h4></div></div>
 </div>
 
-<style>#container_video{max-width:max-content}#player_wrapper{position:absolute;inset:0;margin:auto;display:flex;align-items:center;justify-content:center}.play_button_img{width:100%;height:100%;max-width:400px;@media (max-width:500px){max-width:150px}}.play_button{cursor:pointer}.close_btn{font-size:40px;color:white;text-shadow:0 0 5px black;user-select:none}</style>
+<style>#container_video{max-width:800px;width:100%}#player_wrapper{position:absolute;inset:0;margin:auto;display:flex;align-items:center;justify-content:center}.play_button_img{width:100%;height:100%;max-width:400px;@media (max-width:500px){max-width:150px}}.play_button{cursor:pointer}.close_btn{font-size:40px;color:white;text-shadow:0 0 5px black;user-select:none}</style>
 
 <form action="order.php" data-order-form="1" id="order" method="POST">
 <div class="formFb" id="formFb" style="background-color:white;margin-top:3rem">
