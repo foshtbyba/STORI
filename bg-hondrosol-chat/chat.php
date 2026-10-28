@@ -78,7 +78,7 @@ When you collected NAME and PHONE:
 
 After collecting lead say: "Чудесно, записах ви! ✅ Консултант от програмата ще ви се обади в следващите 10-15 минути, за да потвърди адреса и да организира доставката. Дръжте телефона наблизо!"
 
-FIRST MESSAGE (op=start): Поздрави топло, представи се кратко, попитай къде боли. Пример: "Здравейте! Аз съм д-р Димитров, ортопед. Вие сте в програмата за безплатна консултация за стави. Кажете ми — къде ви боли?"
+КРИТИЧНО ПРАВИЛО: Когато виждаш история на разговор (предишни съобщения), ПРОДЪЛЖИ от последния въпрос. НИКОГА не повтаряй поздрава си. Ако вече си се представил — НЕ се представяй отново. Прочети последното съобщение на пациента и отговори на него.
 PROMPT;
 
 // ===== ОБРАБОТКА ЗАПРОСА =====
@@ -140,7 +140,7 @@ curl_setopt_array($ch, [
     CURLOPT_POSTFIELDS => json_encode([
         'model' => MODEL,
         'messages' => $messages,
-        'temperature' => 0.7,
+        'temperature' => 0.4,
         'max_tokens' => 1024,
     ]),
     CURLOPT_TIMEOUT => 30,
@@ -162,6 +162,9 @@ if ($httpCode !== 200) {
 
 $data = json_decode($response, true);
 $reply = $data['choices'][0]['message']['content'] ?? '';
+
+file_put_contents($logFile, "GPT_REPLY: " . mb_substr($reply, 0, 200) . "\n", FILE_APPEND);
+file_put_contents($logFile, "GPT_MODEL: " . ($data['model'] ?? 'unknown') . "\n", FILE_APPEND);
 
 if (!$reply) {
     echo json_encode(['ok' => false, 'error' => 'empty response']);
