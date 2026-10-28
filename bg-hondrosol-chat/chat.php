@@ -173,10 +173,18 @@ $msgs = array_values(array_filter(
 ));
 if (empty($msgs)) $msgs = [$reply];
 
+// ===== DEBUG: логируем что отправили в GPT =====
+$debugMsgs = [];
+foreach ($messages as $m) {
+    $debugMsgs[] = $m['role'] . ': ' . mb_substr($m['content'], 0, 80);
+}
+
 // ===== ОТВЕТ =====
 echo json_encode([
     'ok' => true,
     'messages' => $msgs,
     'quick_replies' => $buttons,
     'lead' => $lead,
+    '_debug_sent' => $debugMsgs,
+    '_debug_raw_reply' => mb_substr($data['choices'][0]['message']['content'] ?? '', 0, 300),
 ], JSON_UNESCAPED_UNICODE);
