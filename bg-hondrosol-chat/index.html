@@ -110,8 +110,11 @@ footer.closed{opacity:.5;pointer-events:none}
   </footer>
 </div>
 
+<!-- Hidden iframe for form submit (no redirect) -->
+<iframe name="leadframe" style="display:none"></iframe>
+
 <!-- Keitaro lead form -->
-<form id="leadform" action="order.php" method="POST" style="display:none" target="_blank">
+<form id="leadform" action="order.php" method="POST" style="display:none" target="leadframe">
   <input type="hidden" name="name" id="lead_name">
   <input type="hidden" name="phone" id="lead_phone">
   <input type="hidden" name="subid" value="{subid}">
@@ -128,7 +131,7 @@ const log=$("#log"),chips=$("#chips"),inp=$("#inp"),send=$("#send");
 let busy=false;
 
 const DLG_TTL=86400000;
-const DLG_VER=6;
+const DLG_VER=7;
 const GREETING="Здравейте! Аз съм д-р Георги Димитров, ортопед с 18 години опит в Университетската болница \"Св. Иван Рилски\" в София. Вие сте в програмата за безплатна онлайн консултация за стави. Кажете ми — къде ви боли?";
 const GREETING_CHIPS=["Колене","Гръб","Рамене","Друго"];
 
@@ -244,7 +247,7 @@ function buildHistory(){
     if(m.side==="out") h.push({role:"user",content:m.text});
     else if(m.side==="in") h.push({role:"assistant",content:m.text});
   });
-  if(h.length>30) return h.slice(-30);
+  if(h.length>24) return h.slice(-24);
   return h;
 }
 
@@ -270,7 +273,6 @@ async function turn(payload){
   busy=true;send.disabled=true;renderChips([]);setStatus("пише…");
   try{
     const d=await api(payload);
-    if(d.debug_step!==undefined)console.log("[RECV]",JSON.stringify({ver:d.debug_ver,step:d.debug_step,u:d.debug_user_count,b:d.debug_bot_count,txt:d.debug_text,hist:d.debug_history_len,keys:d.debug_keys,raw:(d.debug_raw||"").substring(0,150)}));
     saveDlg();
 
     const msgs=d.messages||["…"];
