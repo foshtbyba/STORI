@@ -123,11 +123,14 @@ const log=$("#log"),chips=$("#chips"),inp=$("#inp"),send=$("#send");
 let busy=false;
 
 const DLG_TTL=86400000;
-const DLG_VER=4;
+const DLG_VER=5;
+const GREETING="Здравейте! Аз съм д-р Георги Димитров, ортопед с 18 години опит в Университетската болница \"Св. Иван Рилски\" в София. Вие сте в програмата за безплатна онлайн консултация за стави. Кажете ми — къде ви боли?";
+const GREETING_CHIPS=["Колене","Гръб","Рамене","Друго"];
+
 function storeKey(){return "hondrosol_bg_chat";}
 function blankDlg(){
   return {id:Date.now().toString(36)+Math.random().toString(36).slice(2,8),
-          ver:DLG_VER,chat:[],history:[],chips:[],lead_sent:false,closed:false,ts:Date.now()};
+          ver:DLG_VER,chat:[],chips:[],lead_sent:false,closed:false,ts:Date.now()};
 }
 function loadDlg(){
   try{
@@ -229,14 +232,10 @@ function postLead(lead){
 
 function buildHistory(){
   const h=[];
-  let firstIn=true;
   DLG.chat.forEach(function(m){
     if(m.text&&(m.text.indexOf("Грешка:")===0||m.text.indexOf("⚠️")===0))return;
-    if(m.side==="in"&&firstIn){
-      firstIn=false;
-      h.push({role:"user",content:"[Потребителят отвори чата.]"});
-      h.push({role:"assistant",content:m.text});
-    } else if(m.side==="out") h.push({role:"user",content:m.text});
+    if(m.side==="sys")return;
+    if(m.side==="out") h.push({role:"user",content:m.text});
     else if(m.side==="in") h.push({role:"assistant",content:m.text});
   });
   if(h.length>30) return h.slice(-30);
@@ -246,17 +245,13 @@ function buildHistory(){
 async function api(payload){
   const body=Object.assign({},payload);
   body.history=buildHistory();
-  console.log("DLG.chat length:",DLG.chat.length);
-  console.log("DLG.chat:",JSON.stringify(DLG.chat));
-  console.log("history sent:",JSON.stringify(body.history));
-  console.log("payload:",JSON.stringify(body));
   let r;
   try{
     r=await fetch("chat.php",{
       method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)
     });
   }catch(e){
-    throw new Error("Fetch failed: "+e.message+". Проверь что chat.php лежит рядом и сервер поддерживает PHP");
+    throw new Error("Fetch failed: "+e.message);
   }
   const txt=await r.text();
   if(!r.ok)throw new Error("HTTP "+r.status+": "+txt.substring(0,200));
@@ -306,8 +301,7 @@ function handleUser(text){
   turn({op:"say",text:text});
 }
 
-function start(){
-  if(!DLG.chat.length){try{fbq('track','InitiateCheckout');}catch(e){}}
+async function start(){
   log.innerHTML="";chips.innerHTML="";
   if(DLG.chat.length){
     DLG.chat.forEach(m=>addBubble(m.text,m.side,true));
@@ -315,7 +309,10 @@ function start(){
     if(DLG.closed)closeChat();
     return;
   }
-  turn({op:"start"});
+  try{fbq('track','InitiateCheckout');}catch(e){}
+  await typeBot(GREETING);
+  renderChips(GREETING_CHIPS);
+  DLG.chips=GREETING_CHIPS;saveDlg();
 }
 
 setTimeout(function(){const s=document.getElementById("splash");if(s)s.classList.add("hide");},1700);

@@ -15,39 +15,27 @@ if (!function_exists('curl_init')) {
 define('OPENAI_API_KEY', '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');
 define('MODEL', 'gpt-4o');
 
-$SYSTEM_PROMPT = <<<'PROMPT'
-Ти си д-р Георги Димитров — ортопед с 18 години опит в Университетската болница "Св. Иван Рилски" в София.
+$PERSONA = <<<'PROMPT'
+Ти си д-р Георги Димитров — ортопед с 18 години опит, работиш в Университетската болница "Св. Иван Рилски" в София. Сега си онлайн консултант в национална програма за лечение на стави.
 
-ЕЗИК: Пиши САМО на български.
+ХАРАКТЕР И СТИЛ:
+- Говори като истински доктор — топло, спокойно, с увереност
+- Използвай кратки изречения, разговорен стил
+- Показвай загриженост: "Разбирам колко е трудно...", "Това е болезнена ситуация..."
+- Добавяй лични детайли: "При моите пациенти виждам това всеки ден"
+- НЕ звучи като робот. Бъди естествен, като в истински чат
+- Пиши по 2-4 изречения, не повече
 
-СТИЛ: Топло, спокойно, кратко (2-4 изречения). Добавяй лични детайли от практиката.
+ЕЗИК: САМО на български. НИКОГА на руски!
 
-ПРОДУКТ (САМО след стъпка 7):
-Hondro Sol — гел за стави. Колаген II, куркума, глюкозамин, хондроитин. 25 EUR вместо 40 EUR.
+Ако питат дали си робот: "Не, аз съм д-р Димитров, жив човек 😊 Просто консултирам онлайн в тази програма."
 
-ПЛАН (по 1 въпрос наведнъж):
-1. Попитай къде боли
-2. На колко години е
-3. От колко време е болката
-4. Скованост сутрин? Хрускане?
-5. Какво е пробвал досега
-6. Обясни: хрущялът се износва, кост трие о кост
-7. Хапчетата само маскират, не лекуват
-8. Представи Hondro Sol
-9. Цена: 25 EUR вместо 40
-10. "Искате ли да ви запиша?"
-11. Питай име, после телефон
-
-ПРАВИЛА:
-- НИКОГА не повтаряй поздрава. Поздравявай САМО веднъж — в първото си съобщение
-- Ако вече си питал нещо — НЕ питай пак
-- Кратък отговор като "Колене", "31-40" = валиден отговор, премини напред
-
-TAG FORMAT (Latin letters ONLY):
+TAG FORMAT — ЗАДЪЛЖИТЕЛНО в края на ВСЕКИ отговор (латински букви!):
 <<BUTTONS>>бутон1|бутон2|бутон3<</BUTTONS>>
-<<LEAD>>name=Име|phone=+359...<</LEAD>>
+Максимум 4 бутона, кратък текст (2-4 думи) на български.
 
-Ако питат дали си робот: "Не, жив лекар съм 😊"
+Когато събереш ИМЕ и ТЕЛЕФОН:
+<<LEAD>>name=Иван Петров|phone=+359888123456<</LEAD>>
 PROMPT;
 
 $input = json_decode(file_get_contents('php://input'), true);
@@ -58,111 +46,137 @@ if (!$input) {
 
 $op = $input['op'] ?? '';
 $history = $input['history'] ?? [];
-$text = $input['text'] ?? '';
 
-// Чистим историю: оставляем только ПЕРВОЕ приветствие, убираем повторные
-function cleanHistory($history) {
-    $cleaned = [];
-    $greetingSeen = false;
-    $greetingPatterns = ['Здравейте', 'Аз съм д-р', 'къде ви боли'];
-
-    foreach ($history as $msg) {
-        if (!isset($msg['role']) || !isset($msg['content'])) continue;
-
-        if ($msg['role'] === 'assistant') {
-            $isGreeting = false;
-            foreach ($greetingPatterns as $p) {
-                if (mb_strpos($msg['content'], $p) !== false) {
-                    $isGreeting = true;
-                    break;
-                }
-            }
-            if ($isGreeting) {
-                if ($greetingSeen) continue;
-                $greetingSeen = true;
-            }
-        }
-
-        $clean = preg_replace('#<<[^>]*>>#u', '', $msg['content']);
-        $role = ($msg['role'] === 'assistant') ? 'assistant' : 'user';
-        $cleaned[] = ['role' => $role, 'content' => trim($clean)];
+// Считаем реальные сообщения пользователя (без системных)
+$userMsgs = [];
+$botMsgs = [];
+foreach ($history as $msg) {
+    if (!isset($msg['role']) || !isset($msg['content'])) continue;
+    $c = trim($msg['content']);
+    if ($msg['role'] === 'user' && $c !== '[Потребителят отвори чата.]') {
+        $userMsgs[] = $c;
     }
-    return $cleaned;
-}
-
-function callGPT($messages) {
-    $ch = curl_init('https://api.openai.com/v1/chat/completions');
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST => true,
-        CURLOPT_HTTPHEADER => [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . OPENAI_API_KEY,
-        ],
-        CURLOPT_POSTFIELDS => json_encode([
-            'model' => MODEL,
-            'messages' => $messages,
-            'temperature' => 0.4,
-            'max_tokens' => 1024,
-        ]),
-        CURLOPT_TIMEOUT => 30,
-    ]);
-    $response = curl_exec($ch);
-    $curlErr = curl_error($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    if ($curlErr) return ['error' => 'curl: ' . $curlErr];
-    if ($httpCode !== 200) return ['error' => 'API error: HTTP ' . $httpCode];
-
-    $data = json_decode($response, true);
-    $reply = $data['choices'][0]['message']['content'] ?? '';
-    if (!$reply) return ['error' => 'empty response'];
-
-    return ['reply' => $reply, 'model' => $data['model'] ?? 'unknown'];
-}
-
-function isGreeting($text) {
-    $patterns = ['Здравейте', 'Аз съм д-р', 'къде ви боли?', 'Кажете ми —'];
-    $count = 0;
-    foreach ($patterns as $p) {
-        if (mb_strpos($text, $p) !== false) $count++;
+    if ($msg['role'] === 'assistant') {
+        $botMsgs[] = $c;
     }
-    return $count >= 2;
+}
+$step = count($userMsgs);
+
+// Строим КОНКРЕТНУЮ инструкцию для GPT на основании шага
+if ($op === 'start') {
+    $instruction = 'Поздрави пациента топло. Представи се — д-р Георги Димитров, ортопед с 18 години опит, работиш в Университетската болница "Св. Иван Рилски" в София. Кажи му, че е в програмата за безплатна онлайн консултация за стави. Попитай къде го боли — в коленете, гърба, раменете или другаде. Добави бутони: Колене|Гръб|Рамене|Друго';
+} else {
+    $last = end($userMsgs) ?: '';
+
+    switch ($step) {
+        case 1: // Пациентът каза къде го боли → питай възраст
+            $instruction = "Пациентът каза, че го боли: \"$last\". Покажи съчувствие (1-2 изречения, лично — например \"При моите пациенти виждам това всеки ден\" или \"Разбирам, това е много неприятно\"). Попитай на колко години е. Добави бутони: Под 40|40-55|55-70|Над 70";
+            break;
+
+        case 2: // Каза възрастта → питай от колко време
+            $bodyPart = $userMsgs[0] ?? '';
+            $instruction = "Пациентът е на $last години, боли го: $bodyPart. Кажи нещо кратко, свързано с възрастта (\"На тази възраст хрущялът вече се износва\" или \"Разбирам, с годините ставите стават по-крехки\"). Попитай от колко време го боли. Добави бутони: По-малко от година|1-3 години|Повече от 3 години";
+            break;
+
+        case 3: // Каза от колко време → питай за скованост/хрускане
+            $instruction = "Болката е от $last. Кажи \"Хмм, доста време...\" или подобно (1 изречение). Попитай дали сутрин, когато става от леглото, чувства скованост в ставите. И дали чува хрускане при движение. Добави бутони: Да, и двете|Само скованост|Само хрускане|Не, нищо такова";
+            break;
+
+        case 4: // Каза за скованост → питай какво е пробвал
+            $instruction = "Пациентът каза: \"$last\" за скованост и хрускане. Кажи, че това са типични признаци за износване на хрущяла (1-2 изречения). Попитай какво е пробвал досега — хапчета за болка, гелове от аптеката, физиотерапия, или нищо не е правил? Добави бутони: Хапчета за болка|Гелове от аптеката|Физиотерапия|Нищо не помага";
+            break;
+
+        case 5: // Каза какво е пробвал → обясни проблема
+            $bodyPart = $userMsgs[0] ?? 'ставите';
+            $instruction = "Пациентът е пробвал: \"$last\". Сега обясни какво се случва в ставата — просто, като на приятел. Хрущялът — тази гладка повърхност между костите — се износва с времето. Синовиалната течност (\"смазката\" на ставата) намалява. Кост започва да трие о кост — затова болката се засилва. Кажи го с примери от практиката (\"Точно миналата седмица дойде жена с подобен проблем\"). Добави бутони: Какво да правя?|Има ли лечение?";
+            break;
+
+        case 6: // Попита какво да прави → обясни защо хапчетата не помагат
+            $instruction = "Обясни защо обезболяващите НЕ решават проблема: \"Хапчетата за болка само маскират. Все едно пиете обезболяващо за счупен крак — болката спира, но кракът не зараства.\" Трябва нещо, което подхранва самия хрущял и възстановява синовиалната течност. Попитай дали иска да чуе какво препоръчваш от практиката си. Добави бутони: Какво препоръчвате?|Има ли такова нещо?";
+            break;
+
+        case 7: // Попита за решение → представи Hondro Sol
+            $instruction = "Представи Hondro Sol — гел за стави. Кажи го лично: \"Аз лично го препоръчвам на пациентите си вече 2 години.\" Съставки: колаген тип II, глюкозамин, хондроитин, куркума, силиций. Нанася се 2-3 пъти на ден с лек масаж. Не натоварва стомаха — за разлика от хапчетата. Клинично изпитание: 2100 души, 91% подобрение за 2 седмици. Курс 30 дни. Добави бутони: Колко струва?|Къде се купува?|Наистина помага ли?";
+            break;
+
+        case 8: // Попита за цена → кажи цената
+            $instruction = "Кажи цената: \"В момента имаме специална програма — 25 EUR вместо обичайните 40 EUR. Промоцията е за ограничен период и бройките са ограничени.\" Плащането е при получаване, без предплащане. Попитай дали иска да го запишеш за доставка. Добави бутони: Да, искам!|Запишете ме|Имам въпрос";
+            break;
+
+        case 9: // Иска да поръча → питай името
+            $instruction = "Пациентът иска да поръча! Кажи \"Чудесно! 😊 Радвам се, че решихте да се погрижите за здравето си.\" Помоли за името му — \"Как се казвате?\". НЕ добавяй бутони за този отговор.";
+            break;
+
+        case 10: // Каза името → питай телефона
+            $instruction = "Пациентът каза името си: \"$last\". Кажи \"Приятно ми е, $last!\" Помоли за телефонен номер за връзка — \"На кой номер да ви се обадят за потвърждение на адреса?\". НЕ добавяй бутони за този отговор.";
+            break;
+
+        case 11: // Каза телефона → завърши
+            $name = isset($userMsgs[9]) ? $userMsgs[9] : 'Пациент';
+            $phone = $last;
+            $instruction = "Пациентът даде телефон: \"$phone\". Име: \"$name\". Кажи: \"Чудесно, записах ви! ✅ Консултант от програмата ще ви се обади в следващите 10-15 минути, за да потвърди адреса и да организира доставката. Дръжте телефона наблизо! Бъдете здрав/а! 🙏\" Добави тага: <<LEAD>>name=$name|phone=$phone<</LEAD>>";
+            break;
+
+        default:
+            // Шаг > 11 или нестандартен случай — свободен разговор с контекст
+            $chatSummary = '';
+            for ($i = 0; $i < count($userMsgs); $i++) {
+                $botText = isset($botMsgs[$i]) ? mb_substr(preg_replace('#<<[^>]*>>#u', '', $botMsgs[$i]), 0, 100) : '';
+                $chatSummary .= "Д-р: " . $botText . "\nПациент: " . $userMsgs[$i] . "\n";
+            }
+            if (isset($botMsgs[count($userMsgs)])) {
+                $chatSummary .= "Д-р: " . mb_substr(preg_replace('#<<[^>]*>>#u', '', $botMsgs[count($userMsgs)]), 0, 100) . "\n";
+            }
+            $instruction = "Ето резюме на разговора:\n$chatSummary\nПродължи разговора естествено. Ако пациентът задава въпрос — отговори. Ако вече е готов да поръча и не е дал име/телефон — събери ги. Ако вече е дал — потвърди поръчката. Добави подходящи бутони.";
+            break;
+    }
 }
 
+// Изпращаме САМО system + 1 user message — без история!
+// GPT получава точна инструкция какво да каже
 $messages = [
-    ['role' => 'system', 'content' => $SYSTEM_PROMPT],
+    ['role' => 'system', 'content' => $PERSONA],
+    ['role' => 'user', 'content' => $instruction],
 ];
 
-if ($op === 'start') {
-    $messages[] = ['role' => 'user', 'content' => 'Започни разговора — поздрави и попитай къде боли.'];
-} else {
-    $cleanedHistory = cleanHistory($history);
-    foreach ($cleanedHistory as $msg) {
-        $messages[] = $msg;
-    }
-}
+$ch = curl_init('https://api.openai.com/v1/chat/completions');
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . OPENAI_API_KEY,
+    ],
+    CURLOPT_POSTFIELDS => json_encode([
+        'model' => MODEL,
+        'messages' => $messages,
+        'temperature' => 0.6,
+        'max_tokens' => 1024,
+    ]),
+    CURLOPT_TIMEOUT => 30,
+]);
+$response = curl_exec($ch);
+$curlErr = curl_error($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
 
-$result = callGPT($messages);
-if (isset($result['error'])) {
-    echo json_encode(['ok' => false, 'error' => $result['error']]);
+if ($curlErr) {
+    echo json_encode(['ok' => false, 'error' => 'curl: ' . $curlErr]);
+    exit;
+}
+if ($httpCode !== 200) {
+    echo json_encode(['ok' => false, 'error' => 'API error: HTTP ' . $httpCode]);
     exit;
 }
 
-$reply = $result['reply'];
-
-// ЗАЩИТА: если GPT ответил приветствием НЕ на старте — перезапрос с жёстким указанием
-if ($op !== 'start' && isGreeting($reply)) {
-    $messages[] = ['role' => 'assistant', 'content' => $reply];
-    $messages[] = ['role' => 'user', 'content' => 'СТОП! Ти вече се представи. НЕ повтаряй поздрава. Отговори на последното съобщение на пациента и задай СЛЕДВАЩИЯ въпрос от плана. Започни директно, БЕЗ "Здравейте".'];
-
-    $result2 = callGPT($messages);
-    if (isset($result2['reply'])) {
-        $reply = $result2['reply'];
-    }
+$data = json_decode($response, true);
+$reply = $data['choices'][0]['message']['content'] ?? '';
+if (!$reply) {
+    echo json_encode(['ok' => false, 'error' => 'empty response']);
+    exit;
 }
 
+// Парсим ответ
 $buttons = [];
 $lead = null;
 
@@ -175,8 +189,10 @@ if (preg_match('#<<(?:LEAD|ЛИД)>>(.+?)<<\/(?:LEAD|ЛИД)>>#su', $reply, $m))
     $parts = explode('|', $m[1]);
     $lead = [];
     foreach ($parts as $p) {
-        list($k, $v) = explode('=', $p, 2);
-        $lead[trim($k)] = trim($v);
+        $kv = explode('=', $p, 2);
+        if (count($kv) === 2) {
+            $lead[trim($kv[0])] = trim($kv[1]);
+        }
     }
     $reply = trim(preg_replace('#<<(?:LEAD|ЛИД)>>(.+?)<<\/(?:LEAD|ЛИД)>>#su', '', $reply));
 }
