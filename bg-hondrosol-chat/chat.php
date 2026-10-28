@@ -92,6 +92,16 @@ $op = $input['op'] ?? '';
 $history = $input['history'] ?? [];
 $text = $input['text'] ?? '';
 
+// DEBUG LOG
+$logFile = __DIR__ . '/debug.log';
+file_put_contents($logFile, "\n===== " . date('H:i:s') . " =====\n", FILE_APPEND);
+file_put_contents($logFile, "op=$op text=$text history_count=" . count($history) . "\n", FILE_APPEND);
+foreach ($history as $i => $msg) {
+    $r = $msg['role'] ?? '?';
+    $c = mb_substr($msg['content'] ?? '', 0, 60);
+    file_put_contents($logFile, "  [$i] $r: $c\n", FILE_APPEND);
+}
+
 // Собираем историю как текст
 $chatLog = '';
 foreach ($history as $msg) {
@@ -114,6 +124,9 @@ if ($op === 'start') {
 } else {
     $userMsg = "Ето разговора досега:\n\n" . $chatLog . "\nПРАВИЛА:\n1. Прочети внимателно целия разговор по-горе.\n2. НЕ повтаряй въпрос, който вече си задал. Ако вече си питал за възраст — НЕ питай пак.\n3. Ако пациентът е отговорил с кратък текст (напр. \"31-40\", \"Колене\") — това Е отговор. Приеми го.\n4. Определи на коя стъпка от плана си и задай СЛЕДВАЩИЯ въпрос.\n5. Отговори САМО като д-р Димитров, на български.";
 }
+
+// LOG user message sent to GPT
+file_put_contents($logFile, "USER_MSG:\n$userMsg\n", FILE_APPEND);
 
 $messages = [
     ['role' => 'system', 'content' => $SYSTEM_PROMPT],
