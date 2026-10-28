@@ -137,23 +137,34 @@ function extractPhone($text) {
     return $clean;
 }
 
-function findNameInHistory($botMsgs, $userMsgs) {
-    for ($i = 0; $i < count($botMsgs); $i++) {
-        if (mb_strpos($botMsgs[$i], 'Как се казвате') !== false
-         || mb_strpos($botMsgs[$i], 'Приятно ми е') !== false
-         || mb_strpos($botMsgs[$i], 'Нека ви запиша') !== false
-         || mb_strpos($botMsgs[$i], 'как се казвате') !== false) {
-            if (isset($userMsgs[$i + 1])) {
-                return $userMsgs[$i + 1];
+function findNameInHistory($history) {
+    $expectName = false;
+    foreach ($history as $msg) {
+        if ($expectName && $msg['role'] === 'user') {
+            $name = trim($msg['content']);
+            if (mb_strlen($name) > 0 && mb_strlen($name) < 50
+                && !preg_match('/^\d|^0[1-9]|^\+?359/u', $name)) {
+                return $name;
+            }
+            $expectName = false;
+        }
+        if ($msg['role'] === 'assistant') {
+            $c = $msg['content'];
+            if (mb_strpos($c, 'Как се казвате') !== false
+             || mb_strpos($c, 'как се казвате') !== false
+             || mb_strpos($c, 'Нека ви запиша') !== false) {
+                $expectName = true;
+            } else {
+                $expectName = false;
             }
         }
     }
-    return isset($userMsgs[9]) ? $userMsgs[9] : 'Пациент';
+    return 'Пациент';
 }
 
 // --- Детект вопроса о цене на ЛЮБОМ шаге ---
 $asksPrice = preg_match('/колко\s*струва|цена|стойност|скъп|евро|лев|пари|сколько\s*стоит|цена|стоимость|price|how\s*much/iu', $last);
-$asksOrder = preg_match('/запиш\w*\s*ме|поръч|да\s*,?\s*искам|искам\s*(да\s*)?(поръчам|купя|запиш)|давай(те)?\s*(да\s*)?(поръчам|запиш|купя)|запишете\s*ме|хочу\s*(заказать|купить)|закажи/iu', $last);
+$asksOrder = preg_match('/запиш\w*\s*ме|\bпоръча[мйя]?\b|да\s*,?\s*искам|искам\s*(да\s*)?(поръчам|купя|запиш)|давай(те)?\s*(да\s*)?(поръчам|запиш|купя)|запишете\s*ме|хочу\s*(заказать|купить)|закажи/iu', $last);
 $priceOverride = false;
 
 if ($asksPrice && $step >= 2 && $step <= 8) {
@@ -166,15 +177,17 @@ if ($asksPrice && $step >= 2 && $step <= 8) {
     exit;
 }
 
-if ($asksOrder && $step >= 2 && $step < 9 && !$priceOverride) {
-    $priceOverride = true;
-    if ($step < 8) {
-        $instruction = "Пациентът иска да поръча: \"$last\". Отговори КРАТКО с ентусиазъм: \"Чудесно! Ще ви разкажа за условията.\" След това кажи програмната цена: 25 EUR вместо 40 EUR (40% отстъпка). Плащане при получаване. Завърши с: \"Искате ли да ви запиша за доставка?\" Пиши САМО на БЪЛГАРСКИ!";
-        $stepButtons[$step] = ['Да, искам!', 'Запишете ме', 'Имам въпрос'];
-    } else {
-        $instruction = "Пациентът иска да поръча: \"$last\". Кажи: \"Чудесно решение! Нека ви запиша. Как се казвате?\" Пиши САМО на БЪЛГАРСКИ!";
-        $stepButtons[$step] = [];
-    }
+if ($asksOrder && $step >= 2 && $step < 8 && !$priceOverride) {
+    echo json_encode([
+        'ok' => true,
+        'messages' => [
+            "Чудесно, че искате да действате! Hondro Sol обикновено струва 40 EUR, но по програмата имате специална цена — само 25 EUR. Това е почти 40% отстъпка!",
+            "Плащането е при получаване — не плащате нищо предварително. Куриерът доставя, харесва ви — плащате. Искате ли да ви запиша за доставка?"
+        ],
+        'quick_replies' => ['Да, искам!', 'Запишете ме', 'Имам въпрос'],
+        'lead' => null,
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 if (!$priceOverride)
@@ -395,7 +408,7 @@ INS;
 
     case 11:
         $phone = extractPhone($last);
-        $name = findNameInHistory($botMsgs, $userMsgs);
+        $name = findNameInHistory($history);
 
         if (!isValidBGPhone($phone)) {
             $instruction = "Пациентът написа: \"$last\", но това не е валиден български телефонен номер. Кажи ЛЮБЕЗНО и КРАТКО: \"Хм, този номер не изглежда правилен 🤔 Моля, напишете български мобилен номер — например 088 123 4567 или +359 88 123 4567. Така консултантът ще може да ви се обади.\" ВАЖНО: Пиши САМО на БЪЛГАРСКИ!";
@@ -428,7 +441,7 @@ INS;
             $instruction = "Пациентът ВЕЧЕ е записан за доставка. Консултант ще му се обади. Пациентът пише: \"$last\". Отговори КРАТКО и ПРИЯТЕЛСКИ (1-2 изречения). Основно послание: \"Консултантът ще ви се обади всеки момент. Моля, дръжте телефона наблизо и отговорете, когато звънне!\" Ако пита нещо конкретно — отговори кратко и пак напомни за обаждането. ВАЖНО: Пиши САМО на БЪЛГАРСКИ!";
         } elseif ($phoneAsked) {
             $phone = extractPhone($last);
-            $name = findNameInHistory($botMsgs, $userMsgs);
+            $name = findNameInHistory($history);
 
             if (isValidBGPhone($phone)) {
                 echo json_encode([
