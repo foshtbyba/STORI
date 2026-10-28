@@ -271,7 +271,7 @@ async function turn(payload){
   busy=true;send.disabled=true;renderChips([]);setStatus("пише…");
   try{
     const d=await api(payload);
-    if(d.debug_step!==undefined)console.log("[DEBUG] step="+d.debug_step+" users="+d.debug_user_count+" bots="+d.debug_bot_count);
+    if(d.debug_step!==undefined)console.log("[DEBUG] ver="+d.debug_ver+" step="+d.debug_step+" users="+d.debug_user_count+" bots="+d.debug_bot_count+" text="+d.debug_text+" hist="+d.debug_history_len);
     saveDlg();
 
     const msgs=d.messages||["…"];

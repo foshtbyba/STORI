@@ -240,4 +240,7 @@ echo json_encode([
     'debug_step' => $step,
     'debug_user_count' => count($userMsgs),
     'debug_bot_count' => count($botMsgs),
+    'debug_text' => $currentText,
+    'debug_history_len' => count($history),
+    'debug_ver' => 'v8',
 ], JSON_UNESCAPED_UNICODE);
