@@ -89,10 +89,12 @@ $text = $input['text'] ?? '';
 // Собираем messages для OpenAI
 $messages = [['role' => 'system', 'content' => $SYSTEM_PROMPT]];
 
-// Добавляем историю
+// Добавляем историю (чистим теги на случай если они просочились)
 foreach ($history as $msg) {
     if (isset($msg['role']) && isset($msg['content'])) {
-        $messages[] = ['role' => $msg['role'], 'content' => $msg['content']];
+        $clean = preg_replace('#<<\/?(BUTTONS|LEAD|КНОПКИ|ЛИД)>>.*?<<\/?(BUTTONS|LEAD|КНОПКИ|ЛИД)>>#su', '', $msg['content']);
+        $clean = preg_replace('#<<\/?(BUTTONS|LEAD|КНОПКИ|ЛИД)>>#u', '', $clean);
+        $messages[] = ['role' => $msg['role'], 'content' => trim($clean)];
     }
 }
 

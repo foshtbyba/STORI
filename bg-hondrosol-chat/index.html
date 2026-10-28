@@ -123,15 +123,16 @@ const log=$("#log"),chips=$("#chips"),inp=$("#inp"),send=$("#send");
 let busy=false;
 
 const DLG_TTL=86400000;
+const DLG_VER=2;
 function storeKey(){return "hondrosol_bg_chat";}
 function blankDlg(){
   return {id:Date.now().toString(36)+Math.random().toString(36).slice(2,8),
-          chat:[],history:[],chips:[],lead_sent:false,closed:false,ts:Date.now()};
+          ver:DLG_VER,chat:[],history:[],chips:[],lead_sent:false,closed:false,ts:Date.now()};
 }
 function loadDlg(){
   try{
     const raw=localStorage.getItem(storeKey());
-    if(raw){const d=JSON.parse(raw);if(d&&d.ts&&Date.now()-d.ts<DLG_TTL&&Array.isArray(d.chat))return d;}
+    if(raw){const d=JSON.parse(raw);if(d&&d.ver===DLG_VER&&d.ts&&Date.now()-d.ts<DLG_TTL&&Array.isArray(d.chat))return d;}
   }catch(e){}
   return blankDlg();
 }
