@@ -133,20 +133,20 @@ $buttons = [];
 $lead = null;
 
 // Извлекаем кнопки
-if (preg_match('/<<BUTTONS>>(.+?)<</BUTTONS>>/s', $reply, $m)) {
+if (preg_match('#<<BUTTONS>>(.+?)<<\/BUTTONS>>#s', $reply, $m)) {
     $buttons = array_map('trim', explode('|', $m[1]));
-    $reply = trim(preg_replace('/<<BUTTONS>>(.+?)<</BUTTONS>>/s', '', $reply));
+    $reply = trim(preg_replace('#<<BUTTONS>>(.+?)<<\/BUTTONS>>#s', '', $reply));
 }
 
 // Извлекаем lead
-if (preg_match('/<<LEAD>>(.+?)<</LEAD>>/s', $reply, $m)) {
+if (preg_match('#<<LEAD>>(.+?)<<\/LEAD>>#s', $reply, $m)) {
     $parts = explode('|', $m[1]);
     $lead = [];
     foreach ($parts as $p) {
         list($k, $v) = explode('=', $p, 2);
         $lead[trim($k)] = trim($v);
     }
-    $reply = trim(preg_replace('/<<LEAD>>(.+?)<</LEAD>>/s', '', $reply));
+    $reply = trim(preg_replace('#<<LEAD>>(.+?)<<\/LEAD>>#s', '', $reply));
 }
 
 // Разбиваем на несколько пузырей по двойному переносу
