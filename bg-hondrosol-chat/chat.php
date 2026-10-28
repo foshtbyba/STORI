@@ -561,6 +561,7 @@ INS;
             } else {
                 $phone = extractPhone($last);
                 $name = $hasName ? $patientName : findNameInHistory($history);
+                $wantsOrderDefault = preg_match('/да|добре|искам|запиш|поръч|давай|хайде|съгласен|супер|опитам|нека|може/iu', $last);
 
                 if (isValidBGPhone($phone)) {
                     echo json_encode([
@@ -570,6 +571,8 @@ INS;
                         'lead' => ['name' => $name, 'phone' => $phone],
                     ], JSON_UNESCAPED_UNICODE);
                     exit;
+                } elseif ($wantsOrderDefault && !preg_match('/\d/', $last)) {
+                    $instruction = "Пациентът се съгласи: \"$last\". Потвърди КРАТКО (1 изречение) и поискай телефон: \"Чудесно{$nameAddr}! Моля, напишете телефонния си номер — български мобилен, започващ с 08... или +359.\" ВАЖНО: Пиши САМО на БЪЛГАРСКИ!";
                 } else {
                     $instruction = "Пациентът написа: \"$last\", но номерът не е валиден. Кажи: \"Номерът не изглежда правилен. Моля, напишете български мобилен — например 088 123 4567 или +359 88 123 4567.\" ВАЖНО: Пиши САМО на БЪЛГАРСКИ!";
                 }
