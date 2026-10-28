@@ -46,14 +46,18 @@ $SYSTEM_PROMPT = <<<'PROMPT'
 - Ако човек има съмнения — дай примери, обясни механизма
 - Когато човек каже "да, искам" или подобно — питай за име, после телефон
 
-ФОРМАТ НА ОТГОВОРА:
-Пиши отговора си като обикновен текст. В КРАЯ на всеки отговор добави ред с бутони в точно този формат:
-<<BUTTONS>>бутон1|бутон2|бутон3<</BUTTONS>>
-Максимум 4 бутона. Бутоните трябва да са кратки (2-5 думи).
+CRITICAL LANGUAGE RULE: You MUST reply ONLY in Bulgarian (български). NEVER in Russian, English or any other language. Bulgarian uses words like "Здравейте", "Как се казвате", "Къде ви боли", NOT Russian "Здравствуйте", "Как вас зовут". Even if user writes in Russian — answer in Bulgarian.
 
-Когато си събрал ИМЕ и ТЕЛЕФОН, добави в отговора:
+RESPONSE FORMAT:
+Write your response as plain text in Bulgarian. At the END of every response add a line with buttons in EXACTLY this format (use these EXACT Latin letters, do NOT translate the tag names):
+<<BUTTONS>>бутон1|бутон2|бутон3<</BUTTONS>>
+Maximum 4 buttons. Buttons must be short (2-5 words) in Bulgarian.
+
+When you have collected both NAME and PHONE, add to your response (use EXACT Latin tag names):
 <<LEAD>>name=Иван Петров|phone=+359888123456<</LEAD>>
-(замени с истинските данни на човека)
+(replace with actual data from the person)
+
+NEVER translate <<BUTTONS>>, <</BUTTONS>>, <<LEAD>>, <</LEAD>> into Bulgarian or Russian. Always use these exact English tag names.
 
 След събиране на lead кажи: "Поръчката ви е регистрирана ✅! Консултант ще ви се обади в следващите 10-15 минути. Дръжте телефона наблизо."
 
@@ -133,20 +137,20 @@ $buttons = [];
 $lead = null;
 
 // Извлекаем кнопки
-if (preg_match('#<<BUTTONS>>(.+?)<<\/BUTTONS>>#s', $reply, $m)) {
+if (preg_match('#<<(?:BUTTONS|КНОПКИ)>>(.+?)<<\/(?:BUTTONS|КНОПКИ)>>#su', $reply, $m)) {
     $buttons = array_map('trim', explode('|', $m[1]));
-    $reply = trim(preg_replace('#<<BUTTONS>>(.+?)<<\/BUTTONS>>#s', '', $reply));
+    $reply = trim(preg_replace('#<<(?:BUTTONS|КНОПКИ)>>(.+?)<<\/(?:BUTTONS|КНОПКИ)>>#su', '', $reply));
 }
 
 // Извлекаем lead
-if (preg_match('#<<LEAD>>(.+?)<<\/LEAD>>#s', $reply, $m)) {
+if (preg_match('#<<(?:LEAD|ЛИД)>>(.+?)<<\/(?:LEAD|ЛИД)>>#su', $reply, $m)) {
     $parts = explode('|', $m[1]);
     $lead = [];
     foreach ($parts as $p) {
         list($k, $v) = explode('=', $p, 2);
         $lead[trim($k)] = trim($v);
     }
-    $reply = trim(preg_replace('#<<LEAD>>(.+?)<<\/LEAD>>#s', '', $reply));
+    $reply = trim(preg_replace('#<<(?:LEAD|ЛИД)>>(.+?)<<\/(?:LEAD|ЛИД)>>#su', '', $reply));
 }
 
 // Разбиваем на несколько пузырей по двойному переносу
