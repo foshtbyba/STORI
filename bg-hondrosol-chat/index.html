@@ -251,6 +251,7 @@ function buildHistory(){
 async function api(payload){
   const body=Object.assign({},payload);
   body.history=buildHistory();
+  console.log("[SEND]",JSON.stringify(body).substring(0,300));
   let r;
   try{
     r=await fetch("chat.php",{
@@ -271,7 +272,7 @@ async function turn(payload){
   busy=true;send.disabled=true;renderChips([]);setStatus("пише…");
   try{
     const d=await api(payload);
-    if(d.debug_step!==undefined)console.log("[DEBUG] ver="+d.debug_ver+" step="+d.debug_step+" users="+d.debug_user_count+" bots="+d.debug_bot_count+" text="+d.debug_text+" hist="+d.debug_history_len);
+    if(d.debug_step!==undefined)console.log("[RECV]",JSON.stringify({ver:d.debug_ver,step:d.debug_step,u:d.debug_user_count,b:d.debug_bot_count,txt:d.debug_text,hist:d.debug_history_len,keys:d.debug_keys,raw:(d.debug_raw||"").substring(0,150)}));
     saveDlg();
 
     const msgs=d.messages||["…"];
