@@ -102,36 +102,31 @@ foreach ($history as $i => $msg) {
     file_put_contents($logFile, "  [$i] $r: $c\n", FILE_APPEND);
 }
 
-// Собираем историю как текст
-$chatLog = '';
-foreach ($history as $msg) {
-    if (isset($msg['role']) && isset($msg['content'])) {
-        $clean = preg_replace('#<<[^>]*>>#u', '', $msg['content']);
-        $label = ($msg['role'] === 'user') ? 'Пациент' : 'Д-р Димитров';
-        $chatLog .= $label . ': ' . trim($clean) . "\n";
-    }
-}
-
-// Добавляем новое сообщение
-if ($op === 'say' && $text) {
-    $chatLog .= 'Пациент: ' . $text . "\n";
-}
-
-// Собираем prompt для GPT
-$userMsg = '';
-if ($op === 'start') {
-    $userMsg = 'Пациентът отвори чата. Започни разговора — поздрави и попитай къде го боли.';
-} else {
-    $userMsg = "Ето разговора досега:\n\n" . $chatLog . "\nПРАВИЛА:\n1. Прочети внимателно целия разговор по-горе.\n2. НЕ повтаряй въпрос, който вече си задал. Ако вече си питал за възраст — НЕ питай пак.\n3. Ако пациентът е отговорил с кратък текст (напр. \"31-40\", \"Колене\") — това Е отговор. Приеми го.\n4. Определи на коя стъпка от плана си и задай СЛЕДВАЩИЯ въпрос.\n5. Отговори САМО като д-р Димитров, на български.";
-}
-
-// LOG user message sent to GPT
-file_put_contents($logFile, "USER_MSG:\n$userMsg\n", FILE_APPEND);
-
+// Собираем messages для OpenAI API
 $messages = [
     ['role' => 'system', 'content' => $SYSTEM_PROMPT],
-    ['role' => 'user', 'content' => $userMsg],
 ];
+
+if ($op === 'start') {
+    $messages[] = ['role' => 'user', 'content' => 'Пациентът отвори чата. Започни разговора — поздрави и попитай къде го боли.'];
+} else {
+    // Добавляем историю как нормальные messages
+    foreach ($history as $msg) {
+        if (isset($msg['role']) && isset($msg['content'])) {
+            $clean = preg_replace('#<<[^>]*>>#u', '', $msg['content']);
+            $role = ($msg['role'] === 'assistant') ? 'assistant' : 'user';
+            $messages[] = ['role' => $role, 'content' => trim($clean)];
+        }
+    }
+    // text уже в history (фронтенд добавляет его в DLG.chat до отправки)
+    // НЕ дублируем
+}
+
+// LOG
+file_put_contents($logFile, "messages_count=" . count($messages) . "\n", FILE_APPEND);
+foreach ($messages as $i => $m) {
+    file_put_contents($logFile, "  msg[$i] " . $m['role'] . ": " . mb_substr($m['content'], 0, 80) . "\n", FILE_APPEND);
+}
 
 // ===== ВЫЗОВ OpenAI API =====
 $ch = curl_init('https://api.openai.com/v1/chat/completions');
