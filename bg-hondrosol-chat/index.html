@@ -131,7 +131,7 @@ const log=$("#log"),chips=$("#chips"),inp=$("#inp"),send=$("#send");
 let busy=false;
 
 const DLG_TTL=86400000;
-const DLG_VER=7;
+const DLG_VER=8;
 const GREETING="Здравейте! Аз съм д-р Георги Димитров, ортопед с 18 години опит в Университетската болница \"Св. Иван Рилски\" в София. Вие сте в програмата за безплатна онлайн консултация за стави. Кажете ми — къде ви боли?";
 const GREETING_CHIPS=["Колене","Гръб","Рамене","Друго"];
 
@@ -239,6 +239,11 @@ function postLead(lead){
   try{fbq('track','Lead');}catch(e){}
 }
 
+function countUserMsgs(){
+  let n=0;
+  DLG.chat.forEach(function(m){if(m.side==="out")n++;});
+  return n;
+}
 function buildHistory(){
   const h=[];
   DLG.chat.forEach(function(m){
@@ -254,6 +259,7 @@ function buildHistory(){
 async function api(payload){
   const body=Object.assign({},payload);
   body.history=buildHistory();
+  body.step=countUserMsgs();
   const fd=new FormData();
   fd.append("d",JSON.stringify(body));
   let r;

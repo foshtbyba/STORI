@@ -89,7 +89,11 @@ $currentText = isset($input['text']) ? trim($input['text']) : '';
 if (empty($userMsgs) && $currentText !== '') {
     $userMsgs[] = $currentText;
 }
-$step = count($userMsgs);
+if (isset($input['step']) && is_int($input['step']) && $input['step'] >= 0) {
+    $step = $input['step'];
+} else {
+    $step = count($userMsgs);
+}
 if ($step > 11) $step = 99;
 
 $stepButtons = [
@@ -149,7 +153,7 @@ function findNameInHistory($botMsgs, $userMsgs) {
 
 // --- Детект вопроса о цене на ЛЮБОМ шаге ---
 $asksPrice = preg_match('/колко\s*струва|цена|стойност|скъп|евро|лев|пари|сколько\s*стоит|цена|стоимость|price|how\s*much/iu', $last);
-$asksOrder = preg_match('/да|искам|запиш|поръч|давай|хайде|разбира се|може|добре|съгласен|супер|запишите|хочу|закажи/iu', $last);
+$asksOrder = preg_match('/запиш\w*\s*ме|поръч|да\s*,?\s*искам|искам\s*(да\s*)?(поръчам|купя|запиш)|давай(те)?\s*(да\s*)?(поръчам|запиш|купя)|запишете\s*ме|хочу\s*(заказать|купить)|закажи/iu', $last);
 $priceOverride = false;
 
 if ($asksPrice && $step >= 2 && $step <= 8) {
@@ -164,8 +168,13 @@ if ($asksPrice && $step >= 2 && $step <= 8) {
 
 if ($asksOrder && $step >= 2 && $step < 9 && !$priceOverride) {
     $priceOverride = true;
-    $instruction = "Пациентът иска да поръча: \"$last\". Кажи: \"Чудесно решение! Нека ви запиша. Как се казвате?\" Пиши САМО на БЪЛГАРСКИ!";
-    $stepButtons[$step] = [];
+    if ($step < 8) {
+        $instruction = "Пациентът иска да поръча: \"$last\". Отговори КРАТКО с ентусиазъм: \"Чудесно! Ще ви разкажа за условията.\" След това кажи програмната цена: 25 EUR вместо 40 EUR (40% отстъпка). Плащане при получаване. Завърши с: \"Искате ли да ви запиша за доставка?\" Пиши САМО на БЪЛГАРСКИ!";
+        $stepButtons[$step] = ['Да, искам!', 'Запишете ме', 'Имам въпрос'];
+    } else {
+        $instruction = "Пациентът иска да поръча: \"$last\". Кажи: \"Чудесно решение! Нека ви запиша. Как се казвате?\" Пиши САМО на БЪЛГАРСКИ!";
+        $stepButtons[$step] = [];
+    }
 }
 
 if (!$priceOverride)
