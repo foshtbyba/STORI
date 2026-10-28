@@ -165,7 +165,7 @@ function addBubble(text,side,hist){
     b.append(document.createTextNode(text));row.appendChild(b);
   }
   log.appendChild(row);
-  requestAnimationFrame(()=>{row.scrollIntoView({block:"end",behavior:"smooth"});});
+  setTimeout(()=>{log.scrollTop=log.scrollHeight;},50);
   if(!hist){
     DLG.chat.push({side:side,text:text});
     if(DLG.chat.length>200)DLG.chat=DLG.chat.slice(-200);
@@ -189,7 +189,7 @@ function typeBot(text){
         if(DLG.chat.length>200)DLG.chat=DLG.chat.slice(-200);
         saveDlg();res();return;
       }
-      const ch=chars[i++];span.textContent+=ch;row.scrollIntoView({block:"end"});
+      const ch=chars[i++];span.textContent+=ch;log.scrollTop=log.scrollHeight;
       let d=18;if(ch===" ")d=10;else if(".,!?…:".indexOf(ch)>=0)d=85;else if(ch==="\n")d=55;
       setTimeout(step,d);
     })();
@@ -201,7 +201,7 @@ function typing(on){
   if(on){if(e)return;const row=document.createElement("div");row.className="row in";row.id="tp";
     row.appendChild(avEl());
     const b=document.createElement("div");b.className="typing";b.innerHTML="<span></span><span></span><span></span>";
-    row.appendChild(b);log.appendChild(row);requestAnimationFrame(()=>{row.scrollIntoView({block:"end",behavior:"smooth"});});}
+    row.appendChild(b);log.appendChild(row);setTimeout(()=>{log.scrollTop=log.scrollHeight;},50);}
   else if(e)e.remove();
 }
 
@@ -280,7 +280,9 @@ async function turn(payload){
       await wait(500+Math.min(1200,(msgs[i]||"").length*18));
       typing(false);
       await typeBot(msgs[i]);
+      log.scrollTop=log.scrollHeight;
     }
+    setTimeout(()=>{log.scrollTop=log.scrollHeight;},100);
     setStatus("на линия");
 
     if(d.lead){
