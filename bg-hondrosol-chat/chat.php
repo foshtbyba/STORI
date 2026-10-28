@@ -210,4 +210,7 @@ echo json_encode([
     'messages' => $msgs,
     'quick_replies' => $buttons,
     'lead' => $lead,
+    'debug_step' => $step,
+    'debug_user_count' => count($userMsgs),
+    'debug_bot_count' => count($botMsgs),
 ], JSON_UNESCAPED_UNICODE);
