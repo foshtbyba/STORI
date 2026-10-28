@@ -245,6 +245,10 @@ function buildHistory(){
 async function api(payload){
   const body=Object.assign({},payload);
   body.history=buildHistory();
+  console.log("DLG.chat length:",DLG.chat.length);
+  console.log("DLG.chat:",JSON.stringify(DLG.chat));
+  console.log("history sent:",JSON.stringify(body.history));
+  console.log("payload:",JSON.stringify(body));
   let r;
   try{
     r=await fetch("chat.php",{
