@@ -33,10 +33,11 @@ $PERSONA = <<<'PROMPT'
 Ако питат дали си робот: "Не, аз съм д-р Димитров, жив човек 😊 Просто консултирам онлайн. Вече 3 години помагам на хора в тази програма."
 PROMPT;
 
-$rawBody = file_get_contents('php://input');
+// Keitaro перехватывает php://input — читаем данные из GET параметра
+$rawBody = isset($_GET['d']) ? urldecode($_GET['d']) : file_get_contents('php://input');
 $input = json_decode($rawBody, true);
-if (!$input) {
-    echo json_encode(['ok' => false, 'error' => 'invalid request', 'debug_raw' => mb_substr($rawBody, 0, 300)]);
+if (!$input || !isset($input['op'])) {
+    echo json_encode(['ok' => false, 'error' => 'invalid request']);
     exit;
 }
 
