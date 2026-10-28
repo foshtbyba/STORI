@@ -86,24 +86,33 @@ $op = $input['op'] ?? '';
 $history = $input['history'] ?? [];
 $text = $input['text'] ?? '';
 
-// Собираем messages для OpenAI
-$messages = [['role' => 'system', 'content' => $SYSTEM_PROMPT]];
-
-// Добавляем историю (чистим теги на случай если они просочились)
+// Собираем историю как текст
+$chatLog = '';
 foreach ($history as $msg) {
     if (isset($msg['role']) && isset($msg['content'])) {
-        $clean = preg_replace('#<<\/?(BUTTONS|LEAD|КНОПКИ|ЛИД)>>.*?<<\/?(BUTTONS|LEAD|КНОПКИ|ЛИД)>>#su', '', $msg['content']);
-        $clean = preg_replace('#<<\/?(BUTTONS|LEAD|КНОПКИ|ЛИД)>>#u', '', $clean);
-        $messages[] = ['role' => $msg['role'], 'content' => trim($clean)];
+        $clean = preg_replace('#<<[^>]*>>#u', '', $msg['content']);
+        $label = ($msg['role'] === 'user') ? 'Пациент' : 'Д-р Димитров';
+        $chatLog .= $label . ': ' . trim($clean) . "\n";
     }
 }
 
 // Добавляем новое сообщение
 if ($op === 'say' && $text) {
-    $messages[] = ['role' => 'user', 'content' => $text];
-} elseif ($op === 'start') {
-    $messages[] = ['role' => 'user', 'content' => '[Потребителят отвори чата. Започни разговора.]'];
+    $chatLog .= 'Пациент: ' . $text . "\n";
 }
+
+// Собираем prompt для GPT
+$userMsg = '';
+if ($op === 'start') {
+    $userMsg = 'Пациентът отвори чата. Започни разговора — поздрави и попитай къде го боли.';
+} else {
+    $userMsg = "Ето разговора досега:\n\n" . $chatLog . "\nОтговори като д-р Димитров. Продължи разговора от там, където е спрял. НЕ повтаряй поздрава. Задай СЛЕДВАЩИЯ въпрос.";
+}
+
+$messages = [
+    ['role' => 'system', 'content' => $SYSTEM_PROMPT],
+    ['role' => 'user', 'content' => $userMsg],
+];
 
 // ===== ВЫЗОВ OpenAI API =====
 $ch = curl_init('https://api.openai.com/v1/chat/completions');
@@ -173,18 +182,10 @@ $msgs = array_values(array_filter(
 ));
 if (empty($msgs)) $msgs = [$reply];
 
-// ===== DEBUG: логируем что отправили в GPT =====
-$debugMsgs = [];
-foreach ($messages as $m) {
-    $debugMsgs[] = $m['role'] . ': ' . mb_substr($m['content'], 0, 80);
-}
-
 // ===== ОТВЕТ =====
 echo json_encode([
     'ok' => true,
     'messages' => $msgs,
     'quick_replies' => $buttons,
     'lead' => $lead,
-    '_debug_sent' => $debugMsgs,
-    '_debug_raw_reply' => mb_substr($data['choices'][0]['message']['content'] ?? '', 0, 300),
 ], JSON_UNESCAPED_UNICODE);
