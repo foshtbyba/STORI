@@ -12,76 +12,44 @@ if (!function_exists('curl_init')) {
     exit;
 }
 
-// ===== ВСТАВЬ СВОЙ API КЛЮЧ =====
-define('OPENAI_API_KEY', 'sk-XXXXXXXXXXXXXXXXXXXXXXXX');
+define('OPENAI_API_KEY', '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');
 define('MODEL', 'gpt-4o');
 
-// ===== SYSTEM PROMPT =====
 $SYSTEM_PROMPT = <<<'PROMPT'
-Ти си д-р Георги Димитров — ортопед с 18 години опит, работиш в Университетската болница "Св. Иван Рилски" в София. Сега си онлайн консултант в национална програма за лечение на стави.
+Ти си д-р Георги Димитров — ортопед с 18 години опит в Университетската болница "Св. Иван Рилски" в София.
 
-ЕЗИК: Пиши САМО на български. НИКОГА на руски!
-Български: "Здравейте", "Къде ви боли", "Как се казвате", "На колко години сте", "Разбирам ви", "Кажете ми"
-ЗАБРАНЕНИ руски думи: "Здравствуйте", "Как вас зовут", "Сколько вам лет", "Расскажите", "Скажите", "Понимаю"
-Дори ако пациентът пише на руски — ТИ отговаряй САМО на български.
+ЕЗИК: Пиши САМО на български.
 
-ХАРАКТЕР И СТИЛ:
-- Говори като истински доктор — топло, спокойно, с увереност
-- Използвай кратки изречения, разговорен стил
-- Показвай загриженост: "Разбирам колко е трудно...", "Това е болезнена ситуация..."
-- Добавяй лични детайли: "При моите пациенти виждам това всеки ден", "Точно миналата седмица дойде жена с подобен проблем"
-- НЕ звучи като робот или шаблон. Бъди естествен, като в истински чат
-- Пиши по 2-4 изречения, не повече. Кратко и ясно
+СТИЛ: Топло, спокойно, кратко (2-4 изречения). Добавяй лични детайли от практиката.
 
-ПРОДУКТ (спомени САМО когато стигнеш до стъпка 7-8):
-Hondro Sol — гел за стави. Колаген тип II, куркума, глюкозамин, хондроитин, силиций. Нанася се 2-3 пъти дневно с лек масаж. Не натоварва стомаха. Курс 30 дни. Клинично изпитание: 2100 души, 91% подобрение за 2 седмици.
-ЦЕНА: 25 EUR вместо 40 EUR — промоция, ограничен брой.
+ПРОДУКТ (САМО след стъпка 7):
+Hondro Sol — гел за стави. Колаген II, куркума, глюкозамин, хондроитин. 25 EUR вместо 40 EUR.
 
-ПЛАН НА РАЗГОВОРА (следвай стъпка по стъпка, по 1 въпрос):
-1. Поздрави, представи се. Попитай къде боли
-2. Попитай на колко години е
+ПЛАН (по 1 въпрос наведнъж):
+1. Попитай къде боли
+2. На колко години е
 3. От колко време е болката
-4. Попитай дали сутрин има скованост и дали чува хрускане
-5. Какво е пробвал досега (хапчета, гелове, физиотерапия)
-6. Обясни какво се случва в ставата — хрущялът се износва, синовиалната течност намалява, кост трие о кост. Затова боли
-7. Обясни защо хапчетата само маскират — не възстановяват хрущяла. "Това е като да пиете обезболяващо за счупен крак — болката спира, но кракът не зараства"
-8. Представи Hondro Sol — подхранва хрущяла, възстановява синовиалната течност. "Аз лично го препоръчвам на пациентите си от 2 години"
-9. Кажи цената: "В момента имаме програма — 25 EUR вместо обичайните 40. Но бройките са ограничени"
-10. Попитай "Искате ли да ви запиша за доставка?"
-11. Ако да — питай името, после телефонен номер
+4. Скованост сутрин? Хрускане?
+5. Какво е пробвал досега
+6. Обясни: хрущялът се износва, кост трие о кост
+7. Хапчетата само маскират, не лекуват
+8. Представи Hondro Sol
+9. Цена: 25 EUR вместо 40
+10. "Искате ли да ви запиша?"
+11. Питай име, после телефон
 
-ПРИМЕРИ ЗА ДОБРИ ОТГОВОРИ:
-- "Разбирам ви, болката в коленете е много неприятна, особено когато ви пречи да ходите нормално. Кажете ми, на колко години сте?"
-- "Хмм, 3 години е доста време... Забелязвате ли скованост сутрин, когато ставате от леглото? Чувате ли хрускане?"
-- "Знаете ли какво се случва в ставата? Хрущялът — тази гладка повърхност между костите — се износва. Кост започва да трие о кост. Затова болката се засилва с времето."
-- "Хапчетата за болка само маскират проблема. Все едно пиете обезболяващо за счупен крак — болката спира, но кракът не зараства. Трябва нещо, което да подхрани самия хрущял."
+ПРАВИЛА:
+- НИКОГА не повтаряй поздрава. Поздравявай САМО веднъж — в първото си съобщение
+- Ако вече си питал нещо — НЕ питай пак
+- Кратък отговор като "Колене", "31-40" = валиден отговор, премини напред
 
-ВАЖНИ ПРАВИЛА:
-- САМО 1 въпрос наведнъж. Никога 2 въпроса в едно съобщение
-- НИКОГА не повтаряй въпрос, който вече си задал. Прочети историята — ако вече си питал нещо, НЕ го питай пак
-- Когато пациентът отговаря с кратък текст като "31-40", "40-60", "Под 40", "Над 60", "Колене", "Гръб" — това Е неговият отговор. Приеми го и премини към СЛЕДВАЩИЯ въпрос от плана
-- Следи на коя стъпка от плана си. Ако вече си на стъпка 2 (възраст) и пациентът е отговорил — премини на стъпка 3 (от колко време е болката)
-- НЕ споменавай продукта преди стъпка 7. Първо изгради доверие
-- Ако човек пита нещо извън темата — отговори кратко и върни разговора: "Мога да ви помогна най-вече по темата за ставите. Кажете ми..."
-- Ако човек се съмнява — не натискай, дай пример: "Миналия месец имах пациентка на 62, с артрит в коленете от 5 години. След 3 седмици с гела вече се разхожда без болка"
-- Когато човек каже "да" или "искам да поръчам" — питай ПЪРВО името, после телефона. Не питай двете наведнъж
-
-Ако човек пита "ти робот ли си", "ти AI ли си", "жив човек ли си": Отговори "Не, аз съм д-р Димитров, жив човек 😊 Просто консултирам онлайн в тази програма. Кажете ми как мога да ви помогна?"
-
-TAG FORMAT (CRITICAL — use EXACT Latin letters, NEVER translate):
-At the END of every response, add buttons:
+TAG FORMAT (Latin letters ONLY):
 <<BUTTONS>>бутон1|бутон2|бутон3<</BUTTONS>>
-Max 4 buttons, short text (2-4 words) in Bulgarian.
+<<LEAD>>name=Име|phone=+359...<</LEAD>>
 
-When you collected NAME and PHONE:
-<<LEAD>>name=Иван Петров|phone=+359888123456<</LEAD>>
-
-After collecting lead say: "Чудесно, записах ви! ✅ Консултант от програмата ще ви се обади в следващите 10-15 минути, за да потвърди адреса и да организира доставката. Дръжте телефона наблизо!"
-
-КРИТИЧНО ПРАВИЛО: Когато виждаш история на разговор (предишни съобщения), ПРОДЪЛЖИ от последния въпрос. НИКОГА не повтаряй поздрава си. Ако вече си се представил — НЕ се представяй отново. Прочети последното съобщение на пациента и отговори на него.
+Ако питат дали си робот: "Не, жив лекар съм 😊"
 PROMPT;
 
-// ===== ОБРАБОТКА ЗАПРОСА =====
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input) {
     echo json_encode(['ok' => false, 'error' => 'invalid request']);
@@ -92,96 +60,117 @@ $op = $input['op'] ?? '';
 $history = $input['history'] ?? [];
 $text = $input['text'] ?? '';
 
-// DEBUG LOG
-$logFile = __DIR__ . '/debug.log';
-file_put_contents($logFile, "\n===== " . date('H:i:s') . " =====\n", FILE_APPEND);
-file_put_contents($logFile, "op=$op text=$text history_count=" . count($history) . "\n", FILE_APPEND);
-foreach ($history as $i => $msg) {
-    $r = $msg['role'] ?? '?';
-    $c = mb_substr($msg['content'] ?? '', 0, 60);
-    file_put_contents($logFile, "  [$i] $r: $c\n", FILE_APPEND);
+// Чистим историю: оставляем только ПЕРВОЕ приветствие, убираем повторные
+function cleanHistory($history) {
+    $cleaned = [];
+    $greetingSeen = false;
+    $greetingPatterns = ['Здравейте', 'Аз съм д-р', 'къде ви боли'];
+
+    foreach ($history as $msg) {
+        if (!isset($msg['role']) || !isset($msg['content'])) continue;
+
+        if ($msg['role'] === 'assistant') {
+            $isGreeting = false;
+            foreach ($greetingPatterns as $p) {
+                if (mb_strpos($msg['content'], $p) !== false) {
+                    $isGreeting = true;
+                    break;
+                }
+            }
+            if ($isGreeting) {
+                if ($greetingSeen) continue;
+                $greetingSeen = true;
+            }
+        }
+
+        $clean = preg_replace('#<<[^>]*>>#u', '', $msg['content']);
+        $role = ($msg['role'] === 'assistant') ? 'assistant' : 'user';
+        $cleaned[] = ['role' => $role, 'content' => trim($clean)];
+    }
+    return $cleaned;
 }
 
-// Собираем messages для OpenAI API
+function callGPT($messages) {
+    $ch = curl_init('https://api.openai.com/v1/chat/completions');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . OPENAI_API_KEY,
+        ],
+        CURLOPT_POSTFIELDS => json_encode([
+            'model' => MODEL,
+            'messages' => $messages,
+            'temperature' => 0.4,
+            'max_tokens' => 1024,
+        ]),
+        CURLOPT_TIMEOUT => 30,
+    ]);
+    $response = curl_exec($ch);
+    $curlErr = curl_error($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($curlErr) return ['error' => 'curl: ' . $curlErr];
+    if ($httpCode !== 200) return ['error' => 'API error: HTTP ' . $httpCode];
+
+    $data = json_decode($response, true);
+    $reply = $data['choices'][0]['message']['content'] ?? '';
+    if (!$reply) return ['error' => 'empty response'];
+
+    return ['reply' => $reply, 'model' => $data['model'] ?? 'unknown'];
+}
+
+function isGreeting($text) {
+    $patterns = ['Здравейте', 'Аз съм д-р', 'къде ви боли?', 'Кажете ми —'];
+    $count = 0;
+    foreach ($patterns as $p) {
+        if (mb_strpos($text, $p) !== false) $count++;
+    }
+    return $count >= 2;
+}
+
 $messages = [
     ['role' => 'system', 'content' => $SYSTEM_PROMPT],
 ];
 
 if ($op === 'start') {
-    $messages[] = ['role' => 'user', 'content' => 'Пациентът отвори чата. Започни разговора — поздрави и попитай къде го боли.'];
+    $messages[] = ['role' => 'user', 'content' => 'Започни разговора — поздрави и попитай къде боли.'];
 } else {
-    // Добавляем историю как нормальные messages
-    foreach ($history as $msg) {
-        if (isset($msg['role']) && isset($msg['content'])) {
-            $clean = preg_replace('#<<[^>]*>>#u', '', $msg['content']);
-            $role = ($msg['role'] === 'assistant') ? 'assistant' : 'user';
-            $messages[] = ['role' => $role, 'content' => trim($clean)];
-        }
+    $cleanedHistory = cleanHistory($history);
+    foreach ($cleanedHistory as $msg) {
+        $messages[] = $msg;
     }
-    // text уже в history (фронтенд добавляет его в DLG.chat до отправки)
-    // НЕ дублируем
 }
 
-// LOG
-file_put_contents($logFile, "messages_count=" . count($messages) . "\n", FILE_APPEND);
-foreach ($messages as $i => $m) {
-    file_put_contents($logFile, "  msg[$i] " . $m['role'] . ": " . mb_substr($m['content'], 0, 80) . "\n", FILE_APPEND);
-}
-
-// ===== ВЫЗОВ OpenAI API =====
-$ch = curl_init('https://api.openai.com/v1/chat/completions');
-curl_setopt_array($ch, [
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST => true,
-    CURLOPT_HTTPHEADER => [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . OPENAI_API_KEY,
-    ],
-    CURLOPT_POSTFIELDS => json_encode([
-        'model' => MODEL,
-        'messages' => $messages,
-        'temperature' => 0.4,
-        'max_tokens' => 1024,
-    ]),
-    CURLOPT_TIMEOUT => 30,
-]);
-$response = curl_exec($ch);
-$curlErr = curl_error($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($curlErr) {
-    echo json_encode(['ok' => false, 'error' => 'curl: ' . $curlErr]);
+$result = callGPT($messages);
+if (isset($result['error'])) {
+    echo json_encode(['ok' => false, 'error' => $result['error']]);
     exit;
 }
 
-if ($httpCode !== 200) {
-    echo json_encode(['ok' => false, 'error' => 'API error: HTTP ' . $httpCode]);
-    exit;
+$reply = $result['reply'];
+
+// ЗАЩИТА: если GPT ответил приветствием НЕ на старте — перезапрос с жёстким указанием
+if ($op !== 'start' && isGreeting($reply)) {
+    $messages[] = ['role' => 'assistant', 'content' => $reply];
+    $messages[] = ['role' => 'user', 'content' => 'СТОП! Ти вече се представи. НЕ повтаряй поздрава. Отговори на последното съобщение на пациента и задай СЛЕДВАЩИЯ въпрос от плана. Започни директно, БЕЗ "Здравейте".'];
+
+    $result2 = callGPT($messages);
+    if (isset($result2['reply'])) {
+        $reply = $result2['reply'];
+    }
 }
 
-$data = json_decode($response, true);
-$reply = $data['choices'][0]['message']['content'] ?? '';
-
-file_put_contents($logFile, "GPT_REPLY: " . mb_substr($reply, 0, 200) . "\n", FILE_APPEND);
-file_put_contents($logFile, "GPT_MODEL: " . ($data['model'] ?? 'unknown') . "\n", FILE_APPEND);
-
-if (!$reply) {
-    echo json_encode(['ok' => false, 'error' => 'empty response']);
-    exit;
-}
-
-// ===== ПАРСИМ ОТВЕТ =====
 $buttons = [];
 $lead = null;
 
-// Извлекаем кнопки
 if (preg_match('#<<(?:BUTTONS|КНОПКИ)>>(.+?)<<\/(?:BUTTONS|КНОПКИ)>>#su', $reply, $m)) {
     $buttons = array_map('trim', explode('|', $m[1]));
     $reply = trim(preg_replace('#<<(?:BUTTONS|КНОПКИ)>>(.+?)<<\/(?:BUTTONS|КНОПКИ)>>#su', '', $reply));
 }
 
-// Извлекаем lead
 if (preg_match('#<<(?:LEAD|ЛИД)>>(.+?)<<\/(?:LEAD|ЛИД)>>#su', $reply, $m)) {
     $parts = explode('|', $m[1]);
     $lead = [];
@@ -192,14 +181,12 @@ if (preg_match('#<<(?:LEAD|ЛИД)>>(.+?)<<\/(?:LEAD|ЛИД)>>#su', $reply, $m))
     $reply = trim(preg_replace('#<<(?:LEAD|ЛИД)>>(.+?)<<\/(?:LEAD|ЛИД)>>#su', '', $reply));
 }
 
-// Разбиваем на несколько пузырей по двойному переносу
 $msgs = array_values(array_filter(
     array_map('trim', preg_split('/\n{2,}/', $reply)),
     function($s) { return $s !== ''; }
 ));
 if (empty($msgs)) $msgs = [$reply];
 
-// ===== ОТВЕТ =====
 echo json_encode([
     'ok' => true,
     'messages' => $msgs,
