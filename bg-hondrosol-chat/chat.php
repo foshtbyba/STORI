@@ -173,25 +173,10 @@ $msgs = array_values(array_filter(
 ));
 if (empty($msgs)) $msgs = [$reply];
 
-// Обновляем историю
-$newHistory = $history;
-if ($op === 'start') {
-    $newHistory[] = ['role' => 'user', 'content' => '[Потребителят отвори чата.]'];
-} elseif ($text) {
-    $newHistory[] = ['role' => 'user', 'content' => $text];
-}
-$newHistory[] = ['role' => 'assistant', 'content' => $reply];
-
-// Ограничиваем историю (последние 40 сообщений)
-if (count($newHistory) > 40) {
-    $newHistory = array_slice($newHistory, -40);
-}
-
 // ===== ОТВЕТ =====
 echo json_encode([
     'ok' => true,
     'messages' => $msgs,
     'quick_replies' => $buttons,
-    'history' => array_values($newHistory),
     'lead' => $lead,
 ], JSON_UNESCAPED_UNICODE);
