@@ -301,7 +301,7 @@ async function turn(payload){
     renderChips(showChips);
     DLG.chips=showChips;saveDlg();
   }catch(e){
-    setStatus("на линия");addBubble("⚠️ Грешка: "+e.message,"in");
+    setStatus("на линия");addBubble("Връзката прекъсна. Моля, проверете интернет връзката си и опитайте отново.","in");
   }
   busy=false;send.disabled=false;
 }
