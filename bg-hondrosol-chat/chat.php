@@ -14,7 +14,7 @@ if (!function_exists('curl_init')) {
 
 // ===== ВСТАВЬ СВОЙ API КЛЮЧ =====
 define('OPENAI_API_KEY', 'sk-XXXXXXXXXXXXXXXXXXXXXXXX');
-define('MODEL', 'gpt-4o-mini');
+define('MODEL', 'gpt-4o');
 
 // ===== SYSTEM PROMPT =====
 $SYSTEM_PROMPT = <<<'PROMPT'
