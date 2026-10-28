@@ -254,10 +254,11 @@ function buildHistory(){
 async function api(payload){
   const body=Object.assign({},payload);
   body.history=buildHistory();
-  const encoded=encodeURIComponent(JSON.stringify(body));
+  const fd=new FormData();
+  fd.append("d",JSON.stringify(body));
   let r;
   try{
-    r=await fetch("chat.php?d="+encoded,{method:"POST"});
+    r=await fetch("chat.php",{method:"POST",body:fd});
   }catch(e){
     throw new Error("Fetch failed: "+e.message);
   }

@@ -53,8 +53,17 @@ $PERSONA = <<<'PROMPT'
 Ако питат дали си робот/AI: "Не, аз съм д-р Димитров 😊 Жив човек. Просто консултирам онлайн в програмата. Вече 3 години помагам на хора тук."
 PROMPT;
 
-// Keitaro перехватывает php://input — читаем из GET параметра
-$rawBody = isset($_GET['d']) ? urldecode($_GET['d']) : file_get_contents('php://input');
+// Keitaro перехватывает php://input (подменяет JSON body своим конфигом).
+// Решение: фронтенд шлёт данные через FormData (multipart/form-data) —
+// Keitaro его не трогает. Fallback на GET ?d= и php://input для совместимости.
+$rawBody = '';
+if (isset($_POST['d'])) {
+    $rawBody = $_POST['d'];
+} elseif (isset($_GET['d'])) {
+    $rawBody = urldecode($_GET['d']);
+} else {
+    $rawBody = file_get_contents('php://input');
+}
 $input = json_decode($rawBody, true);
 if (!$input || !isset($input['op'])) {
     echo json_encode(['ok' => false, 'error' => 'invalid request']);
