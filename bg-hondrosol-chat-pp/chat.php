@@ -408,7 +408,7 @@ INS;
             && mb_strlen($last) <= 40
             && mb_substr_count($last, ' ') <= 3
             && !preg_match('/\?|!$/u', $last)
-            && !preg_match('/какв|колко|защо|кога|може\s*ли|има\s*ли|дали|състав|цена|помага|действа|доставка|гаранция|връщане|какой|какая|сколько|состав|почему|что\b|как\s+раб|как\s+дейст|помогает|работает|сколько|where|what|how/iu', $last)
+            && !preg_match('/какв|колко|защо|кога|може\s*ли|има\s*ли|дали|състав|цена|помага|действа|доставка|гаранция|връщане|плащане|безплатн|отстъпк|побочн|страничн|нежелан|ефект|противопоказан|рецепт|аптек|бърз|колко\s*дни|срок|курс|колко\s*врем|какой|какая|сколько|состав|почему|что\b|как\s+раб|как\s+дейст|помогает|работает|доставк|гарант|оплат|бесплатн|побочн|рецепт|аптек|цена|скидк|where|what|how|when|price|deliver/iu', $last)
             && !preg_match('/^\d|^0[1-9]|^\+?359/u', $last);
 
         if ($looksLikeName) {
@@ -500,8 +500,14 @@ INS;
 
 $messages = [
     ['role' => 'system', 'content' => $PERSONA],
-    ['role' => 'user', 'content' => $instruction],
 ];
+$recentHistory = array_slice($history, -14);
+foreach ($recentHistory as $msg) {
+    if (!isset($msg['role']) || !isset($msg['content'])) continue;
+    $role = ($msg['role'] === 'user') ? 'user' : 'assistant';
+    $messages[] = ['role' => $role, 'content' => $msg['content']];
+}
+$messages[] = ['role' => 'system', 'content' => $instruction];
 
 $ch = curl_init('https://api.openai.com/v1/chat/completions');
 curl_setopt_array($ch, [
