@@ -591,8 +591,31 @@ INS;
         break;
 
     case 12:
+        $phone12 = extractPhone($last);
         $wantsOrder = preg_match('/да|искам|запиш|поръч|давай|хайде|разбира се|може|добре|съгласен|супер/iu', $last);
-        if ($wantsOrder) {
+        if (isValidBGPhone($phone12)) {
+            $name = $hasName ? $patientName : findNameInHistory($history);
+            echo json_encode([
+                'ok' => true,
+                'messages' => ["Записах ви, $name! ✅ Консултант от програмата ще ви се обади в следващите 10-15 минути, за да потвърди адреса и да организира доставката.\n\nДръжте телефона наблизо! Бъдете здрави! 🙏"],
+                'quick_replies' => [],
+                'lead' => ['name' => $name, 'phone' => $phone12],
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        } elseif (!$hasName && looksLikeName($last)) {
+            $patientName = mb_convert_case($last, MB_CASE_TITLE, 'UTF-8');
+            $hasName = true;
+            $nameAddr = ", $patientName";
+            $instruction = <<<INS
+Пациентът каза името си: "$patientName".
+
+ЗАДАЧА: Поздрави по име (1 изречение). Поискай телефон.
+
+Стил: "Приятно ми е, $patientName! Моля, напишете телефонния си номер — български мобилен (08... или +359), за да ви се обади консултант."
+
+ВАЖНО: Пиши САМО на БЪЛГАРСКИ! НИКОГА на руски!
+INS;
+        } elseif ($wantsOrder) {
             if (!$hasName) {
                 $instruction = <<<INS
 Пациентът иска да се запише! Каза: "$last".
