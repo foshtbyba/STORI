@@ -1,5 +1,16 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+
+error_reporting(0);
+
+if (!function_exists('curl_init')) {
+    echo json_encode(['ok' => false, 'error' => 'curl not installed on server']);
+    exit;
+}
 
 // ===== ВСТАВЬ СВОЙ API КЛЮЧ =====
 define('OPENAI_API_KEY', 'sk-XXXXXXXXXXXXXXXXXXXXXXXX');
@@ -95,8 +106,14 @@ curl_setopt_array($ch, [
     CURLOPT_TIMEOUT => 30,
 ]);
 $response = curl_exec($ch);
+$curlErr = curl_error($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
+
+if ($curlErr) {
+    echo json_encode(['ok' => false, 'error' => 'curl: ' . $curlErr]);
+    exit;
+}
 
 if ($httpCode !== 200) {
     echo json_encode(['ok' => false, 'error' => 'API error: HTTP ' . $httpCode]);
