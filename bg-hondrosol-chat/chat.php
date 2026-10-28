@@ -33,9 +33,10 @@ $PERSONA = <<<'PROMPT'
 Ако питат дали си робот: "Не, аз съм д-р Димитров, жив човек 😊 Просто консултирам онлайн. Вече 3 години помагам на хора в тази програма."
 PROMPT;
 
-$input = json_decode(file_get_contents('php://input'), true);
+$rawBody = file_get_contents('php://input');
+$input = json_decode($rawBody, true);
 if (!$input) {
-    echo json_encode(['ok' => false, 'error' => 'invalid request']);
+    echo json_encode(['ok' => false, 'error' => 'invalid request', 'debug_raw' => mb_substr($rawBody, 0, 300)]);
     exit;
 }
 
@@ -242,5 +243,7 @@ echo json_encode([
     'debug_bot_count' => count($botMsgs),
     'debug_text' => $currentText,
     'debug_history_len' => count($history),
-    'debug_ver' => 'v8',
+    'debug_ver' => 'v9',
+    'debug_keys' => array_keys($input),
+    'debug_raw' => mb_substr($rawBody, 0, 200),
 ], JSON_UNESCAPED_UNICODE);
