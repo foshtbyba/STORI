@@ -238,7 +238,7 @@ $lastBotMsg = !empty($botMsgs) ? end($botMsgs) : '';
 $lastBotAskedNamePre = (mb_strpos($lastBotMsg, 'как ви е името') !== false || mb_strpos($lastBotMsg, 'Как ви е името') !== false || mb_strpos($lastBotMsg, 'как се казвате') !== false || mb_strpos($lastBotMsg, 'Как се казвате') !== false);
 $lastBotAskedPhonePre = (mb_strpos($lastBotMsg, 'телефон') !== false || mb_strpos($lastBotMsg, 'мобилен') !== false || mb_strpos($lastBotMsg, '+359') !== false);
 
-if ($lastBotAskedPhonePre && $step >= 3) {
+if ($lastBotAskedPhonePre && $step >= 5) {
     $phoneEarly = extractPhone($last);
     if (isValidBGPhone($phoneEarly)) {
         $name = $hasName ? $patientName : findNameInHistory($history);
@@ -252,7 +252,7 @@ if ($lastBotAskedPhonePre && $step >= 3) {
     }
 }
 
-if ($lastBotAskedNamePre && looksLikeName($last) && $step >= 3) {
+if ($lastBotAskedNamePre && looksLikeName($last) && $step >= 5) {
     $patientName = mb_convert_case($last, MB_CASE_TITLE, 'UTF-8');
     $hasName = true;
     $nameAddr = ", $patientName";
@@ -318,6 +318,8 @@ switch ($step) {
 
 КРАТКО — 2-3 изречения максимум. Завърши с "На колко години сте?"
 
+ЗАБРАНЕНО: НЕ питай за име! НЕ питай за телефон! САМО възраст!
+
 ВАЖНО: Пиши САМО на БЪЛГАРСКИ! НИКОГА на руски!
 INS;
         break;
@@ -333,6 +335,8 @@ INS;
 
 КРАТКО — 2-3 изречения. ЗАДЪЛЖИТЕЛНО завърши с "От колко време ви безпокои тази болка?"
 
+ЗАБРАНЕНО: НЕ питай за име! НЕ питай за телефон! САМО продължителност!
+
 ВАЖНО: Пиши САМО на БЪЛГАРСКИ! НИКОГА на руски!
 INS;
         break;
@@ -346,6 +350,8 @@ INS;
 Примерен стил: "$last... Това вече е доста{$nameAddr}. Колкото по-дълго чакате, толкова повече се износва хрущялът. А какво приемате в момента — хапчета, мазила, или нищо?"
 
 КРАТКО — 2-3 изречения. Завърши с въпрос какво приема.
+
+ЗАБРАНЕНО: НЕ питай за име! НЕ питай за телефон! САМО какво приема!
 
 ВАЖНО: Пиши САМО на БЪЛГАРСКИ! НИКОГА на руски!
 INS;
@@ -748,6 +754,12 @@ $reply = preg_replace('/  +/u', ' ', $reply);
 $reply = preg_replace('/^ +| +$/mu', '', $reply);
 
 $reply = trim($reply);
+
+if ($step >= 1 && $step <= 4) {
+    $reply = preg_replace('/\s*(А\s+)?[Кк]ак\s+(ви\s+е\s+името|се\s+казвате)[^.!?\n]*[.!?]?\s*/u', ' ', $reply);
+    $reply = preg_replace('/\s*[Мм]оля[,]?\s*(напишете|кажете)\s+(телефон|номер|мобилен)[^.!?\n]*[.!?]?\s*/u', ' ', $reply);
+    $reply = trim($reply);
+}
 
 $lead = null;
 
