@@ -474,20 +474,6 @@ body {
   text-align: center;
 }
 
-.product-image-placeholder {
-  width: 220px;
-  height: 280px;
-  margin: 0 auto 20px;
-  background: var(--bg-light);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-light);
-  font-size: 14px;
-  border: 1px dashed var(--border);
-}
-
 .product-name {
   font-family: 'PT Serif', Georgia, serif;
   font-size: 22px;
@@ -885,7 +871,7 @@ body {
       </div>
       <span class="logo-text">Здравен Хоризонт</span>
     </a>
-    <span class="header-date">29 октомври 2026</span>
+    <span class="header-date" id="headerDate"></span>
   </div>
   <nav class="header-nav">
     <a href="#" onclick="return false;">Новини</a>
@@ -909,13 +895,13 @@ body {
     <div class="author-avatar">ДП</div>
     <div class="author-info">
       <span class="author-name">Десислава Петкова</span>
-      <span class="article-date">28 октомври 2026 · 8 мин. четене</span>
+      <span class="article-date"><span id="articleDate"></span> · 8 мин. четене</span>
     </div>
   </div>
 
   <div class="review-badge">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
-    <span>Медицински преглед: д-р Николай Георгиев, ортопед · Актуализирано: 28.10.2026</span>
+    <span>Медицински преглед: д-р Николай Георгиев, ортопед · Актуализирано: <span id="reviewDate"></span></span>
   </div>
 
   <!-- INTRO -->
@@ -937,48 +923,50 @@ body {
     <div class="pain-selector-title">Къде ви боли?</div>
     <div class="pain-selector-sub">Натиснете върху областта, която ви безпокои</div>
     <div class="body-map">
-      <svg viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg">
-        <!-- Body silhouette -->
-        <path d="M100 30 C88 30 78 20 78 8 78 -4 88 -4 100 8 112 -4 122 -4 122 8 122 20 112 30 100 30Z" fill="#d5dbe3" opacity="0"/>
+      <svg viewBox="0 0 200 440" xmlns="http://www.w3.org/2000/svg">
         <!-- Head -->
-        <ellipse cx="100" cy="42" rx="22" ry="26" fill="#dde4ed"/>
+        <ellipse cx="100" cy="38" rx="20" ry="24" fill="#c8d2de"/>
         <!-- Neck -->
-        <rect x="92" y="68" width="16" height="14" rx="4" fill="#dde4ed"/>
-        <!-- Torso -->
-        <path d="M68 82 L132 82 L138 200 L62 200 Z" rx="8" fill="#dde4ed"/>
-        <!-- Arms -->
-        <path d="M68 82 L42 140 L36 190 L48 192 L56 148 L62 100" fill="#dde4ed"/>
-        <path d="M132 82 L158 140 L164 190 L152 192 L144 148 L138 100" fill="#dde4ed"/>
-        <!-- Hands -->
-        <ellipse cx="36" cy="196" rx="10" ry="12" fill="#dde4ed"/>
-        <ellipse cx="164" cy="196" rx="10" ry="12" fill="#dde4ed"/>
-        <!-- Legs -->
-        <path d="M72 200 L66 300 L60 380 L80 382 L84 306 L90 200" fill="#dde4ed"/>
-        <path d="M110 200 L116 306 L120 382 L140 380 L134 300 L128 200" fill="#dde4ed"/>
-        <!-- Feet -->
-        <ellipse cx="70" cy="390" rx="16" ry="10" fill="#dde4ed"/>
-        <ellipse cx="130" cy="390" rx="16" ry="10" fill="#dde4ed"/>
+        <path d="M92 60 Q92 68 88 74 L112 74 Q108 68 108 60 Z" fill="#c8d2de"/>
+        <!-- Shoulders + Torso -->
+        <path d="M88 74 Q60 76 56 88 L56 96 Q58 100 64 102 L64 102 Q66 98 68 96 L72 200 Q80 210 100 210 Q120 210 128 200 L132 96 Q134 98 136 102 L136 102 Q142 100 144 96 L144 88 Q140 76 112 74 Z" fill="#c8d2de"/>
+        <!-- Left arm -->
+        <path d="M64 102 Q52 130 44 158 Q38 178 36 192 Q34 200 38 202 Q42 204 46 198 Q50 182 56 160 Q62 138 68 118" fill="#c8d2de"/>
+        <!-- Right arm -->
+        <path d="M136 102 Q148 130 156 158 Q162 178 164 192 Q166 200 162 202 Q158 204 154 198 Q150 182 144 160 Q138 138 132 118" fill="#c8d2de"/>
+        <!-- Left hand -->
+        <path d="M36 192 Q32 204 34 210 Q36 216 40 214 Q44 210 42 202 Z" fill="#c8d2de"/>
+        <!-- Right hand -->
+        <path d="M164 192 Q168 204 166 210 Q164 216 160 214 Q156 210 158 202 Z" fill="#c8d2de"/>
+        <!-- Left leg -->
+        <path d="M82 206 Q78 250 76 296 Q74 330 72 360 Q70 376 66 386 Q64 392 68 394 Q76 396 80 388 Q84 372 84 356 Q86 320 86 296 Q88 260 90 220" fill="#c8d2de"/>
+        <!-- Right leg -->
+        <path d="M110 220 Q112 260 114 296 Q114 320 116 356 Q116 372 120 388 Q124 396 132 394 Q136 392 128 386 Q126 376 126 360 Q128 330 124 296 Q122 250 118 206" fill="#c8d2de"/>
+        <!-- Left foot -->
+        <path d="M66 386 Q58 390 54 394 Q52 398 56 400 Q64 402 76 398 Q80 394 80 388 Z" fill="#c8d2de"/>
+        <!-- Right foot -->
+        <path d="M128 386 Q120 394 120 398 Q124 402 136 402 Q144 400 148 394 Q148 390 142 388 Q136 386 132 388 Z" fill="#c8d2de"/>
 
         <!-- JOINT POINTS -->
         <g class="joint-point" data-joint="shoulders" onclick="showPainResult(this)">
-          <circle cx="62" cy="92" r="14"/>
-          <circle cx="138" cy="92" r="14"/>
+          <circle cx="60" cy="88" r="14"/>
+          <circle cx="140" cy="88" r="14"/>
         </g>
         <g class="joint-point" data-joint="hands" onclick="showPainResult(this)">
-          <circle cx="36" cy="196" r="14"/>
-          <circle cx="164" cy="196" r="14"/>
+          <circle cx="38" cy="200" r="14"/>
+          <circle cx="162" cy="200" r="14"/>
         </g>
         <g class="joint-point" data-joint="hips" onclick="showPainResult(this)">
-          <circle cx="80" cy="200" r="14"/>
-          <circle cx="120" cy="200" r="14"/>
+          <circle cx="82" cy="206" r="14"/>
+          <circle cx="118" cy="206" r="14"/>
         </g>
         <g class="joint-point" data-joint="knees" onclick="showPainResult(this)">
-          <circle cx="74" cy="296" r="16"/>
-          <circle cx="126" cy="296" r="16"/>
+          <circle cx="78" cy="296" r="16"/>
+          <circle cx="122" cy="296" r="16"/>
         </g>
         <g class="joint-point" data-joint="ankles" onclick="showPainResult(this)">
-          <circle cx="66" cy="370" r="12"/>
-          <circle cx="134" cy="370" r="12"/>
+          <circle cx="70" cy="380" r="12"/>
+          <circle cx="132" cy="380" r="12"/>
         </g>
       </svg>
     </div>
@@ -1027,17 +1015,27 @@ body {
   <!-- ENZYME DIAGRAM -->
   <div class="enzyme-diagram">
     <div class="enzyme-step">
-      <div class="enzyme-icon bad">🔴</div>
+      <div class="enzyme-icon bad">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c53030" stroke-width="2" stroke-linecap="round"><path d="M12 8v4m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
+      </div>
       <div class="enzyme-label">Ензимът 15-PGDH<br>се натрупва</div>
     </div>
-    <div class="enzyme-arrow">→</div>
+    <div class="enzyme-arrow">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"><path d="M5 12h14m-4-4l4 4-4 4"/></svg>
+    </div>
     <div class="enzyme-step">
-      <div class="enzyme-icon neutral">⛔</div>
+      <div class="enzyme-icon neutral">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#4a6fa5" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9l6 6m0-6l-6 6"/></svg>
+      </div>
       <div class="enzyme-label">Блокира<br>регенерацията</div>
     </div>
-    <div class="enzyme-arrow">→</div>
+    <div class="enzyme-arrow">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"><path d="M5 12h14m-4-4l4 4-4 4"/></svg>
+    </div>
     <div class="enzyme-step">
-      <div class="enzyme-icon good">✅</div>
+      <div class="enzyme-icon good">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>
+      </div>
       <div class="enzyme-label">Потиснете ензима =<br>хрущялът расте отново</div>
     </div>
   </div>
@@ -1074,7 +1072,7 @@ body {
 
   <!-- PRODUCT -->
   <div class="product-section">
-    <div class="product-image-placeholder">[ Снимка на продукта ]</div>
+    <img src="img/product.jpg" alt="Hondro Sol Joint Care Spray" style="width:220px;height:auto;margin:0 auto 20px;display:block;border-radius:8px;">
     <div class="product-name">Hondro Sol</div>
     <div class="product-type">Спрей за стави · 50 мл</div>
     <p class="product-desc">Натурална формула, насочена към потискане на ензима 15-PGDH и подпомагане на естествената регенерация на хрущяла. Нанася се локално върху засегнатата област.</p>
@@ -1139,10 +1137,10 @@ body {
           <div class="review-name">Мария Колева</div>
           <div class="review-location">Пловдив</div>
         </div>
-        <div class="review-stars">★★★★★</div>
+        <div class="review-stars"><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg></div>
       </div>
       <div class="review-text">На 14-тия ден слязох от автобуса без да се хващам за перилото. Последно го бях правила преди 3 години. Плаках на спирката.</div>
-      <div class="review-date">15 октомври 2026</div>
+      <div class="review-date review-date-dynamic" data-days="14"></div>
     </div>
 
     <div class="review-card">
@@ -1152,10 +1150,10 @@ body {
           <div class="review-name">Георги Тодоров</div>
           <div class="review-location">Бургас</div>
         </div>
-        <div class="review-stars">★★★★☆</div>
+        <div class="review-stars"><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#d4d4d4"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg></div>
       </div>
       <div class="review-text">Честно — първата седмица не усетих нищо. Вече щях да спра. Но жена ми каза да продължа. На 10-тия ден нещо се промени. Сега е трета седмица и вече ходя до магазина без бастуна.</div>
-      <div class="review-date">9 октомври 2026</div>
+      <div class="review-date review-date-dynamic" data-days="20"></div>
     </div>
 
     <div class="review-card">
@@ -1165,10 +1163,10 @@ body {
           <div class="review-name">Елена Димитрова</div>
           <div class="review-location">Стара Загора</div>
         </div>
-        <div class="review-stars">★★★★★</div>
+        <div class="review-stars"><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg><svg width="14" height="14" viewBox="0 0 24 24" fill="#e8a838"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14 2 9.27l6.91-1.01z"/></svg></div>
       </div>
       <div class="review-text">Градината ми беше запустяла две години — не можех да се навеждам. Сега прибирам доматите сама. Не знам дали е ензимът или нещо друго, но знам че работи.</div>
-      <div class="review-date">22 октомври 2026</div>
+      <div class="review-date review-date-dynamic" data-days="7"></div>
     </div>
   </div>
 
@@ -1326,6 +1324,31 @@ function postLead() {
   try { fbq('track', 'Lead'); } catch(e) {}
   return true;
 }
+
+// Dynamic dates
+(function() {
+  var months = ['януари','февруари','март','април','май','юни','юли','август','септември','октомври','ноември','декември'];
+  var now = new Date();
+  var today = now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  var yesterday = new Date(now - 86400000);
+  var yesterdayStr = yesterday.getDate() + ' ' + months[yesterday.getMonth()] + ' ' + yesterday.getFullYear();
+  var dd = String(now.getDate()).padStart(2,'0');
+  var mm = String(now.getMonth()+1).padStart(2,'0');
+
+  var h = document.getElementById('headerDate');
+  if (h) h.textContent = today;
+  var a = document.getElementById('articleDate');
+  if (a) a.textContent = yesterdayStr;
+  var r = document.getElementById('reviewDate');
+  if (r) r.textContent = dd + '.' + mm + '.' + now.getFullYear();
+
+  var revDates = document.querySelectorAll('.review-date-dynamic');
+  for (var i = 0; i < revDates.length; i++) {
+    var daysAgo = parseInt(revDates[i].getAttribute('data-days')) || 7;
+    var d = new Date(now - daysAgo * 86400000);
+    revDates[i].textContent = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+})();
 </script>
 
 </body>
