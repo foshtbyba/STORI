@@ -1084,64 +1084,6 @@ body {
 
   <div class="section-divider"></div>
 
-  <!-- PAIN SELECTOR -->
-  <div class="pain-selector">
-    <div class="pain-selector-title">Къде ви боли?</div>
-    <div class="pain-selector-sub">Натиснете върху областта, която ви безпокои</div>
-    <div class="body-map">
-      <svg viewBox="0 0 200 440" xmlns="http://www.w3.org/2000/svg">
-        <!-- Head -->
-        <ellipse cx="100" cy="38" rx="20" ry="24" fill="#c8d2de"/>
-        <!-- Neck -->
-        <path d="M92 60 Q92 68 88 74 L112 74 Q108 68 108 60 Z" fill="#c8d2de"/>
-        <!-- Shoulders + Torso -->
-        <path d="M88 74 Q60 76 56 88 L56 96 Q58 100 64 102 L64 102 Q66 98 68 96 L72 200 Q80 210 100 210 Q120 210 128 200 L132 96 Q134 98 136 102 L136 102 Q142 100 144 96 L144 88 Q140 76 112 74 Z" fill="#c8d2de"/>
-        <!-- Left arm -->
-        <path d="M64 102 Q52 130 44 158 Q38 178 36 192 Q34 200 38 202 Q42 204 46 198 Q50 182 56 160 Q62 138 68 118" fill="#c8d2de"/>
-        <!-- Right arm -->
-        <path d="M136 102 Q148 130 156 158 Q162 178 164 192 Q166 200 162 202 Q158 204 154 198 Q150 182 144 160 Q138 138 132 118" fill="#c8d2de"/>
-        <!-- Left hand -->
-        <path d="M36 192 Q32 204 34 210 Q36 216 40 214 Q44 210 42 202 Z" fill="#c8d2de"/>
-        <!-- Right hand -->
-        <path d="M164 192 Q168 204 166 210 Q164 216 160 214 Q156 210 158 202 Z" fill="#c8d2de"/>
-        <!-- Left leg -->
-        <path d="M82 206 Q78 250 76 296 Q74 330 72 360 Q70 376 66 386 Q64 392 68 394 Q76 396 80 388 Q84 372 84 356 Q86 320 86 296 Q88 260 90 220" fill="#c8d2de"/>
-        <!-- Right leg -->
-        <path d="M110 220 Q112 260 114 296 Q114 320 116 356 Q116 372 120 388 Q124 396 132 394 Q136 392 128 386 Q126 376 126 360 Q128 330 124 296 Q122 250 118 206" fill="#c8d2de"/>
-        <!-- Left foot -->
-        <path d="M66 386 Q58 390 54 394 Q52 398 56 400 Q64 402 76 398 Q80 394 80 388 Z" fill="#c8d2de"/>
-        <!-- Right foot -->
-        <path d="M128 386 Q120 394 120 398 Q124 402 136 402 Q144 400 148 394 Q148 390 142 388 Q136 386 132 388 Z" fill="#c8d2de"/>
-
-        <!-- JOINT POINTS -->
-        <g class="joint-point" data-joint="shoulders" onclick="showPainResult(this)">
-          <circle cx="60" cy="88" r="14"/>
-          <circle cx="140" cy="88" r="14"/>
-        </g>
-        <g class="joint-point" data-joint="hands" onclick="showPainResult(this)">
-          <circle cx="38" cy="200" r="14"/>
-          <circle cx="162" cy="200" r="14"/>
-        </g>
-        <g class="joint-point" data-joint="hips" onclick="showPainResult(this)">
-          <circle cx="82" cy="206" r="14"/>
-          <circle cx="118" cy="206" r="14"/>
-        </g>
-        <g class="joint-point" data-joint="knees" onclick="showPainResult(this)">
-          <circle cx="78" cy="296" r="16"/>
-          <circle cx="122" cy="296" r="16"/>
-        </g>
-        <g class="joint-point" data-joint="ankles" onclick="showPainResult(this)">
-          <circle cx="70" cy="380" r="12"/>
-          <circle cx="132" cy="380" r="12"/>
-        </g>
-      </svg>
-    </div>
-    <div class="pain-result" id="painResult">
-      <div class="pain-result-title" id="painResultTitle"></div>
-      <p class="pain-result-text" id="painResultText"></p>
-    </div>
-  </div>
-
   <!-- SECTION: SHAM SURGERY -->
   <h2>Операцията, която не работи</h2>
 
@@ -1158,6 +1100,14 @@ body {
 
   <div class="warning-box">
     <p><strong>С други думи:</strong> най-скъпият и най-инвазивният метод за лечение на стави — не работи по-добре от разрез по кожата. А хиляди хора продължават да плащат за него всеки ден.</p>
+  </div>
+
+  <p>А какво правят повечето хора? Пият обезболяващи — ибупрофен, диклофенак, нимезулид. Всеки ден, с месеци.</p>
+
+  <p>Но обезболяващите <strong>не лекуват</strong>. Те само крият болката. А междувременно увреждат стомаха, черния дроб и бъбреците. Според Европейската агенция по лекарствата (EMA), дългосрочната употреба на НПВС повишава риска от стомашни язви с <strong>до 400%</strong>.</p>
+
+  <div class="highlight-box">
+    <p><strong>Проблемът:</strong> Без реално лечение хрущялът продължава да се разрушава. Всяка изгубена година прави възстановяването по-трудно. Болката не е сигнал за търпение — тя е сигнал, че нещо трябва да се промени.</p>
   </div>
 
   <div class="section-divider"></div>
@@ -1242,6 +1192,7 @@ body {
     <div class="product-name">Hondro Sol</div>
     <div class="product-type">Спрей за стави · 50 мл</div>
     <p class="product-desc">Натурална формула, насочена към потискане на ензима 15-PGDH и подпомагане на естествената регенерация на хрущяла. Нанася се локално върху засегнатата област.</p>
+    <button onclick="scrollToForm()" style="margin-top:18px;padding:14px 32px;font-size:16px;font-weight:600;color:#fff;background:var(--cta-primary);border:none;border-radius:8px;cursor:pointer;font-family:inherit;">Поръчайте с безплатна доставка</button>
   </div>
 
   <!-- TIMELINE -->
@@ -1290,11 +1241,119 @@ body {
     </li>
   </ul>
 
+  <!-- PAIN SELECTOR -->
+  <div class="pain-selector">
+    <div class="pain-selector-title">Къде точно ви боли?</div>
+    <div class="pain-selector-sub">Натиснете върху областта — ще видите какво се случва с ензима именно там</div>
+    <div class="body-map">
+      <svg viewBox="0 0 200 440" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="100" cy="38" rx="20" ry="24" fill="#c8d2de"/>
+        <path d="M92 60 Q92 68 88 74 L112 74 Q108 68 108 60 Z" fill="#c8d2de"/>
+        <path d="M88 74 Q60 76 56 88 L56 96 Q58 100 64 102 L64 102 Q66 98 68 96 L72 200 Q80 210 100 210 Q120 210 128 200 L132 96 Q134 98 136 102 L136 102 Q142 100 144 96 L144 88 Q140 76 112 74 Z" fill="#c8d2de"/>
+        <path d="M64 102 Q52 130 44 158 Q38 178 36 192 Q34 200 38 202 Q42 204 46 198 Q50 182 56 160 Q62 138 68 118" fill="#c8d2de"/>
+        <path d="M136 102 Q148 130 156 158 Q162 178 164 192 Q166 200 162 202 Q158 204 154 198 Q150 182 144 160 Q138 138 132 118" fill="#c8d2de"/>
+        <path d="M36 192 Q32 204 34 210 Q36 216 40 214 Q44 210 42 202 Z" fill="#c8d2de"/>
+        <path d="M164 192 Q168 204 166 210 Q164 216 160 214 Q156 210 158 202 Z" fill="#c8d2de"/>
+        <path d="M82 206 Q78 250 76 296 Q74 330 72 360 Q70 376 66 386 Q64 392 68 394 Q76 396 80 388 Q84 372 84 356 Q86 320 86 296 Q88 260 90 220" fill="#c8d2de"/>
+        <path d="M110 220 Q112 260 114 296 Q114 320 116 356 Q116 372 120 388 Q124 396 132 394 Q136 392 128 386 Q126 376 126 360 Q128 330 124 296 Q122 250 118 206" fill="#c8d2de"/>
+        <path d="M66 386 Q58 390 54 394 Q52 398 56 400 Q64 402 76 398 Q80 394 80 388 Z" fill="#c8d2de"/>
+        <path d="M128 386 Q120 394 120 398 Q124 402 136 402 Q144 400 148 394 Q148 390 142 388 Q136 386 132 388 Z" fill="#c8d2de"/>
+        <g class="joint-point" data-joint="shoulders" onclick="showPainResult(this)">
+          <circle cx="60" cy="88" r="14"/><circle cx="140" cy="88" r="14"/>
+        </g>
+        <g class="joint-point" data-joint="hands" onclick="showPainResult(this)">
+          <circle cx="38" cy="200" r="14"/><circle cx="162" cy="200" r="14"/>
+        </g>
+        <g class="joint-point" data-joint="hips" onclick="showPainResult(this)">
+          <circle cx="82" cy="206" r="14"/><circle cx="118" cy="206" r="14"/>
+        </g>
+        <g class="joint-point" data-joint="knees" onclick="showPainResult(this)">
+          <circle cx="78" cy="296" r="16"/><circle cx="122" cy="296" r="16"/>
+        </g>
+        <g class="joint-point" data-joint="ankles" onclick="showPainResult(this)">
+          <circle cx="70" cy="380" r="12"/><circle cx="132" cy="380" r="12"/>
+        </g>
+      </svg>
+    </div>
+    <div class="pain-result" id="painResult">
+      <div class="pain-result-title" id="painResultTitle"></div>
+      <p class="pain-result-text" id="painResultText"></p>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- PAIN CALCULATOR -->
+  <div class="calc-section" id="calcSection">
+    <div class="calc-title">Проверете какъв курс ви трябва</div>
+    <div class="calc-sub">4 кратки въпроса — отнема 30 секунди</div>
+
+    <div class="calc-progress" id="calcProgress">
+      <div class="calc-progress-dot" data-step="0"></div>
+      <div class="calc-progress-dot" data-step="1"></div>
+      <div class="calc-progress-dot" data-step="2"></div>
+      <div class="calc-progress-dot" data-step="3"></div>
+    </div>
+
+    <div class="calc-step active" data-step="0">
+      <div class="calc-step-num">Въпрос 1 от 4</div>
+      <div class="calc-question">Откога усещате болка в ставите?</div>
+      <div class="calc-options">
+        <button class="calc-opt" onclick="calcAnswer(0,1)">По-малко от 6 месеца</button>
+        <button class="calc-opt" onclick="calcAnswer(0,2)">6 месеца – 1 година</button>
+        <button class="calc-opt" onclick="calcAnswer(0,3)">1 – 3 години</button>
+        <button class="calc-opt" onclick="calcAnswer(0,4)">Повече от 3 години</button>
+      </div>
+    </div>
+
+    <div class="calc-step" data-step="1">
+      <div class="calc-step-num">Въпрос 2 от 4</div>
+      <div class="calc-question">Имате ли сутрешна скованост?</div>
+      <div class="calc-options">
+        <button class="calc-opt" onclick="calcAnswer(1,1)">Не, движа се нормално</button>
+        <button class="calc-opt" onclick="calcAnswer(1,2)">Да, 10–15 минути докато се размърдам</button>
+        <button class="calc-opt" onclick="calcAnswer(1,3)">Да, 30+ минути, много трудно ставам</button>
+      </div>
+    </div>
+
+    <div class="calc-step" data-step="2">
+      <div class="calc-step-num">Въпрос 3 от 4</div>
+      <div class="calc-question">Чувате ли хрущене или пукане в ставите?</div>
+      <div class="calc-options">
+        <button class="calc-opt" onclick="calcAnswer(2,1)">Не / много рядко</button>
+        <button class="calc-opt" onclick="calcAnswer(2,2)">Понякога, при определени движения</button>
+        <button class="calc-opt" onclick="calcAnswer(2,3)">Постоянно, при почти всяко движение</button>
+      </div>
+    </div>
+
+    <div class="calc-step" data-step="3">
+      <div class="calc-step-num">Въпрос 4 от 4</div>
+      <div class="calc-question">Кога усещате най-силна болка?</div>
+      <div class="calc-options">
+        <button class="calc-opt" onclick="calcAnswer(3,1)">Само при тежко натоварване</button>
+        <button class="calc-opt" onclick="calcAnswer(3,2)">При ходене, стълби, навеждане</button>
+        <button class="calc-opt" onclick="calcAnswer(3,3)">Дори в покой и през нощта</button>
+      </div>
+    </div>
+
+    <div class="calc-result" id="calcResult">
+      <div id="calcBadge" class="calc-result-badge"></div>
+      <div id="calcResultTitle" class="calc-result-title"></div>
+      <p id="calcResultText" class="calc-result-text"></p>
+      <ul class="calc-result-list" id="calcResultList"></ul>
+      <div class="calc-trust-note">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>След поръчката ще ви се обади консултант от редакцията на Здравен Хоризонт, за да потвърди адреса и да отговори на въпросите ви.</span>
+      </div>
+    </div>
+  </div>
+
   <div class="section-divider"></div>
 
   <!-- REVIEWS -->
   <div class="reviews-section">
     <h2 class="reviews-title">Какво казват хората</h2>
+    <p style="font-size:13px;color:var(--text-light);margin-top:-14px;margin-bottom:18px;">Над 4 200 души в България вече опитаха Hondro Sol</p>
 
     <div class="review-card">
       <div class="review-header">
@@ -1336,77 +1395,12 @@ body {
     </div>
   </div>
 
-  <div class="section-divider"></div>
-
-  <!-- PAIN CALCULATOR -->
-  <div class="calc-section" id="calcSection">
-    <div class="calc-title">Проверете какъв курс ви трябва</div>
-    <div class="calc-sub">4 кратки въпроса — отнема 30 секунди</div>
-
-    <div class="calc-progress" id="calcProgress">
-      <div class="calc-progress-dot" data-step="0"></div>
-      <div class="calc-progress-dot" data-step="1"></div>
-      <div class="calc-progress-dot" data-step="2"></div>
-      <div class="calc-progress-dot" data-step="3"></div>
-    </div>
-
-    <!-- Q1 -->
-    <div class="calc-step active" data-step="0">
-      <div class="calc-step-num">Въпрос 1 от 4</div>
-      <div class="calc-question">Откога усещате болка в ставите?</div>
-      <div class="calc-options">
-        <button class="calc-opt" onclick="calcAnswer(0,1)">По-малко от 6 месеца</button>
-        <button class="calc-opt" onclick="calcAnswer(0,2)">6 месеца – 1 година</button>
-        <button class="calc-opt" onclick="calcAnswer(0,3)">1 – 3 години</button>
-        <button class="calc-opt" onclick="calcAnswer(0,4)">Повече от 3 години</button>
-      </div>
-    </div>
-
-    <!-- Q2 -->
-    <div class="calc-step" data-step="1">
-      <div class="calc-step-num">Въпрос 2 от 4</div>
-      <div class="calc-question">Имате ли сутрешна скованост?</div>
-      <div class="calc-options">
-        <button class="calc-opt" onclick="calcAnswer(1,1)">Не, движа се нормално</button>
-        <button class="calc-opt" onclick="calcAnswer(1,2)">Да, 10–15 минути докато се размърдам</button>
-        <button class="calc-opt" onclick="calcAnswer(1,3)">Да, 30+ минути, много трудно ставам</button>
-      </div>
-    </div>
-
-    <!-- Q3 -->
-    <div class="calc-step" data-step="2">
-      <div class="calc-step-num">Въпрос 3 от 4</div>
-      <div class="calc-question">Чувате ли хрущене или пукане в ставите?</div>
-      <div class="calc-options">
-        <button class="calc-opt" onclick="calcAnswer(2,1)">Не / много рядко</button>
-        <button class="calc-opt" onclick="calcAnswer(2,2)">Понякога, при определени движения</button>
-        <button class="calc-opt" onclick="calcAnswer(2,3)">Постоянно, при почти всяко движение</button>
-      </div>
-    </div>
-
-    <!-- Q4 -->
-    <div class="calc-step" data-step="3">
-      <div class="calc-step-num">Въпрос 4 от 4</div>
-      <div class="calc-question">Кога усещате най-силна болка?</div>
-      <div class="calc-options">
-        <button class="calc-opt" onclick="calcAnswer(3,1)">Само при тежко натоварване</button>
-        <button class="calc-opt" onclick="calcAnswer(3,2)">При ходене, стълби, навеждане</button>
-        <button class="calc-opt" onclick="calcAnswer(3,3)">Дори в покой и през нощта</button>
-      </div>
-    </div>
-
-    <!-- RESULT -->
-    <div class="calc-result" id="calcResult">
-      <div id="calcBadge" class="calc-result-badge"></div>
-      <div id="calcResultTitle" class="calc-result-title"></div>
-      <p id="calcResultText" class="calc-result-text"></p>
-      <ul class="calc-result-list" id="calcResultList"></ul>
-      <div class="calc-trust-note">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span>След поръчката ще ви се обади консултант от редакцията на Здравен Хоризонт, за да потвърди адреса и да отговори на въпросите ви.</span>
-      </div>
-    </div>
+  <div style="text-align:center;margin:20px 0;">
+    <button onclick="scrollToForm()" style="padding:14px 32px;font-size:16px;font-weight:600;color:#fff;background:var(--cta-primary);border:none;border-radius:8px;cursor:pointer;font-family:inherit;">Поръчайте Hondro Sol — 29 €</button>
+    <div style="font-size:12px;color:var(--text-light);margin-top:8px;">Без риск — плащате само при получаване</div>
   </div>
+
+  <div class="section-divider"></div>
 
   <!-- PRICE CONTRAST -->
   <div class="price-contrast">
@@ -1454,6 +1448,10 @@ body {
         <input type="tel" id="phone" name="phone" placeholder="0888 123 456" required>
       </div>
       <button type="submit" class="submit-btn">Поръчайте сега — 29 €</button>
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;font-size:12px;color:var(--trust-green);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Без риск — ако не ви хареса, просто не приемайте пратката
+      </div>
       <div class="form-note">Безплатна доставка · Плащане при получаване · Без предплащане</div>
       <div style="display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:12px 14px;background:#f0f7f4;border-radius:6px;font-size:12px;color:var(--trust-green);line-height:1.5;text-align:left;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.86 19.86 0 013.09 5.18 2 2 0 015.11 3h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 11.91a16 16 0 006 6l2.27-2.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
