@@ -858,6 +858,172 @@ body {
   .lead-text { font-size: 17px; }
   body { padding-bottom: 70px; }
 }
+
+/* ===== PAIN CALCULATOR ===== */
+.calc-section {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 28px 24px;
+  margin: 32px 0;
+}
+
+.calc-title {
+  font-family: 'PT Serif', Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.calc-sub {
+  font-size: 14px;
+  color: var(--text-light);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.calc-step {
+  display: none;
+}
+
+.calc-step.active {
+  display: block;
+}
+
+.calc-question {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+}
+
+.calc-step-num {
+  font-size: 12px;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.calc-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calc-opt {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text-secondary);
+  background: var(--bg-light);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.calc-opt:hover {
+  border-color: var(--accent-light);
+  background: var(--source-bg);
+}
+
+.calc-progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.calc-progress-dot {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: background 0.3s;
+}
+
+.calc-progress-dot.done {
+  background: var(--accent);
+}
+
+.calc-result {
+  display: none;
+}
+
+.calc-result.visible {
+  display: block;
+}
+
+.calc-result-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+
+.calc-result-badge.light { background: #e6f5ec; color: #0f7b5f; }
+.calc-result-badge.medium { background: #fff3e0; color: #b45309; }
+.calc-result-badge.heavy { background: #fde8e8; color: #c53030; }
+
+.calc-result-title {
+  font-family: 'PT Serif', Georgia, serif;
+  font-size: 19px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  line-height: 1.35;
+}
+
+.calc-result-text {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin-bottom: 16px;
+}
+
+.calc-result-list {
+  list-style: none;
+  margin: 0 0 20px 0;
+  padding: 0;
+}
+
+.calc-result-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.calc-result-list li:last-child { border-bottom: none; }
+
+.calc-result-list li svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.calc-trust-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #f0f7f4;
+  border-radius: 8px;
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--trust-green);
+  line-height: 1.5;
+}
+
+.calc-trust-note svg { flex-shrink: 0; margin-top: 1px; }
 </style>
 </head>
 <body>
@@ -1172,6 +1338,76 @@ body {
 
   <div class="section-divider"></div>
 
+  <!-- PAIN CALCULATOR -->
+  <div class="calc-section" id="calcSection">
+    <div class="calc-title">Проверете какъв курс ви трябва</div>
+    <div class="calc-sub">4 кратки въпроса — отнема 30 секунди</div>
+
+    <div class="calc-progress" id="calcProgress">
+      <div class="calc-progress-dot" data-step="0"></div>
+      <div class="calc-progress-dot" data-step="1"></div>
+      <div class="calc-progress-dot" data-step="2"></div>
+      <div class="calc-progress-dot" data-step="3"></div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="calc-step active" data-step="0">
+      <div class="calc-step-num">Въпрос 1 от 4</div>
+      <div class="calc-question">Откога усещате болка в ставите?</div>
+      <div class="calc-options">
+        <button class="calc-opt" onclick="calcAnswer(0,1)">По-малко от 6 месеца</button>
+        <button class="calc-opt" onclick="calcAnswer(0,2)">6 месеца – 1 година</button>
+        <button class="calc-opt" onclick="calcAnswer(0,3)">1 – 3 години</button>
+        <button class="calc-opt" onclick="calcAnswer(0,4)">Повече от 3 години</button>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="calc-step" data-step="1">
+      <div class="calc-step-num">Въпрос 2 от 4</div>
+      <div class="calc-question">Имате ли сутрешна скованост?</div>
+      <div class="calc-options">
+        <button class="calc-opt" onclick="calcAnswer(1,1)">Не, движа се нормално</button>
+        <button class="calc-opt" onclick="calcAnswer(1,2)">Да, 10–15 минути докато се размърдам</button>
+        <button class="calc-opt" onclick="calcAnswer(1,3)">Да, 30+ минути, много трудно ставам</button>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="calc-step" data-step="2">
+      <div class="calc-step-num">Въпрос 3 от 4</div>
+      <div class="calc-question">Чувате ли хрущене или пукане в ставите?</div>
+      <div class="calc-options">
+        <button class="calc-opt" onclick="calcAnswer(2,1)">Не / много рядко</button>
+        <button class="calc-opt" onclick="calcAnswer(2,2)">Понякога, при определени движения</button>
+        <button class="calc-opt" onclick="calcAnswer(2,3)">Постоянно, при почти всяко движение</button>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="calc-step" data-step="3">
+      <div class="calc-step-num">Въпрос 4 от 4</div>
+      <div class="calc-question">Кога усещате най-силна болка?</div>
+      <div class="calc-options">
+        <button class="calc-opt" onclick="calcAnswer(3,1)">Само при тежко натоварване</button>
+        <button class="calc-opt" onclick="calcAnswer(3,2)">При ходене, стълби, навеждане</button>
+        <button class="calc-opt" onclick="calcAnswer(3,3)">Дори в покой и през нощта</button>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="calc-result" id="calcResult">
+      <div id="calcBadge" class="calc-result-badge"></div>
+      <div id="calcResultTitle" class="calc-result-title"></div>
+      <p id="calcResultText" class="calc-result-text"></p>
+      <ul class="calc-result-list" id="calcResultList"></ul>
+      <div class="calc-trust-note">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>След поръчката ще ви се обади консултант от редакцията на Здравен Хоризонт, за да потвърди адреса и да отговори на въпросите ви.</span>
+      </div>
+    </div>
+  </div>
+
   <!-- PRICE CONTRAST -->
   <div class="price-contrast">
     <div class="price-row grey">
@@ -1190,6 +1426,12 @@ body {
       <span class="price-label">Hondro Sol — пълен курс</span>
       <span class="price-amount">29 €</span>
     </div>
+  </div>
+
+  <!-- SCARCITY -->
+  <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 18px;background:#fef8ed;border:1px solid #e8c96d;border-radius:8px;margin:12px 0 16px;font-size:14px;color:#6b4e00;line-height:1.55;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    <span><strong>Ограничена наличност:</strong> За България са заделени <strong id="stockCount"></strong> опаковки на промоционална цена. След изчерпване — стандартната цена е 58 €.</span>
   </div>
 
   <!-- ORDER FORM -->
@@ -1213,6 +1455,10 @@ body {
       </div>
       <button type="submit" class="submit-btn">Поръчайте сега — 29 €</button>
       <div class="form-note">Безплатна доставка · Плащане при получаване · Без предплащане</div>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:12px 14px;background:#f0f7f4;border-radius:6px;font-size:12px;color:var(--trust-green);line-height:1.5;text-align:left;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.86 19.86 0 013.09 5.18 2 2 0 015.11 3h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 11.91a16 16 0 006 6l2.27-2.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        <span>След поръчката ще ви се обади консултант от Здравен Хоризонт за потвърждение на адреса.</span>
+      </div>
     </form>
   </div>
 
@@ -1319,11 +1565,105 @@ function scrollToForm() {
   orderSection.scrollIntoView({behavior: 'smooth', block: 'center'});
 }
 
+// Pain calculator
+var calcScores = [];
+
+function calcAnswer(step, score) {
+  calcScores[step] = score;
+
+  // Update progress dots
+  var dots = document.querySelectorAll('.calc-progress-dot');
+  for (var i = 0; i <= step; i++) dots[i].classList.add('done');
+
+  // Hide current step
+  var steps = document.querySelectorAll('.calc-step');
+  steps[step].classList.remove('active');
+
+  if (step < 3) {
+    steps[step + 1].classList.add('active');
+    return;
+  }
+
+  // Calculate result
+  var total = 0;
+  for (var j = 0; j < calcScores.length; j++) total += calcScores[j];
+  dots[3].classList.add('done');
+
+  var level, badge, title, text, items;
+
+  if (total <= 6) {
+    level = 'light';
+    badge = 'Начален стадий';
+    title = 'Препоръчителен курс: 1 месец';
+    text = 'Ставите ви са в ранен етап на износване. Ензимът 15-PGDH тепърва започва да блокира регенерацията. Едномесечен курс с Hondro Sol е достатъчен за видим резултат.';
+    items = [
+      'Сутрешната скованост ще изчезне през първите 2 седмици',
+      'Болката при натоварване ще намалее значително',
+      'Хрущялът ще получи сигнал за възстановяване'
+    ];
+  } else if (total <= 9) {
+    level = 'medium';
+    badge = 'Среден стадий';
+    title = 'Препоръчителен курс: 2 месеца';
+    text = 'Ензимът 15-PGDH вече активно блокира регенерацията на хрущяла. Нужен е по-продължителен курс, за да се потисне натрупването и да стартира възстановяването.';
+    items = [
+      'Първи 2 седмици — намаляване на възпалението и сковаността',
+      'Седмица 3–4 — хрущенето ще намалее, движенията стават по-плавни',
+      'Месец 2 — стълбите и разходките отново без болка'
+    ];
+  } else {
+    level = 'heavy';
+    badge = 'Напреднал стадий';
+    title = 'Препоръчителен курс: 3 месеца';
+    text = 'Нивото на ензима 15-PGDH във вашите стави е вероятно много високо. Хрущялът е сериозно засегнат. Тримесечен курс е необходим за пълно потискане на ензима и стартиране на дълбока регенерация.';
+    items = [
+      'Седмица 1–2 — болката в покой започва да отстъпва',
+      'Седмица 3–4 — сутрешната скованост намалява, връщате се към ежедневните дейности',
+      'Месец 2–3 — хрущялът получава шанс за реално възстановяване, нощната болка изчезва'
+    ];
+  }
+
+  var badgeEl = document.getElementById('calcBadge');
+  badgeEl.textContent = badge;
+  badgeEl.className = 'calc-result-badge ' + level;
+
+  document.getElementById('calcResultTitle').textContent = title;
+  document.getElementById('calcResultText').textContent = text;
+
+  var listEl = document.getElementById('calcResultList');
+  listEl.innerHTML = '';
+  for (var k = 0; k < items.length; k++) {
+    var li = document.createElement('li');
+    li.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg><span>' + items[k] + '</span>';
+    listEl.appendChild(li);
+  }
+
+  document.getElementById('calcResult').classList.add('visible');
+
+  // Scroll to result
+  setTimeout(function() {
+    document.getElementById('calcResult').scrollIntoView({behavior: 'smooth', block: 'center'});
+  }, 200);
+}
+
 // FB Lead event + submit
 function postLead() {
   try { fbq('track', 'Lead'); } catch(e) {}
   return true;
 }
+
+// Stock counter
+(function() {
+  var key = 'hs_stock';
+  var stock;
+  try { stock = parseInt(sessionStorage.getItem(key)); } catch(e) {}
+  if (!stock || isNaN(stock)) {
+    stock = Math.floor(Math.random() * 14) + 7;
+    try { sessionStorage.setItem(key, stock); } catch(e) {}
+  }
+  var el = document.getElementById('stockCount');
+  if (el) el.textContent = stock;
+})();
 
 // Dynamic dates
 (function() {
