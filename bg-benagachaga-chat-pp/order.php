@@ -27,8 +27,8 @@ $order = [
     'phone' => (!empty($_POST['phone']) ? $_POST['phone'] : (!empty($_GET['phone']) ? $_GET['phone'] : '')),
     'countryCode' => (!empty($_POST['country']) ? $_POST['country'] : (!empty($_GET['country']) ? $_GET['country'] : 'BG')),
     'comment' => (!empty($_POST['comment']) ? $_POST['comment'] : (!empty($_GET['comment']) ? $_GET['comment'] : '')),
-    'sub1' => (!empty($_POST['sub1']) ? $_POST['sub1'] : (!empty($_GET['sub1']) ? $_GET['sub1'] : '')),
-    'sub2' => (!empty($_POST['sub2']) ? $_POST['sub2'] : (!empty($_GET['sub2']) ? $_GET['sub2'] : '')),
+    'sub1' => (!empty($_POST['subid']) ? $_POST['subid'] : (!empty($_POST['sub1']) ? $_POST['sub1'] : (!empty($_GET['sub1']) ? $_GET['sub1'] : ''))),
+    'sub2' => (!empty($_POST['subid2']) ? $_POST['subid2'] : (!empty($_POST['sub2']) ? $_POST['sub2'] : (!empty($_GET['sub2']) ? $_GET['sub2'] : ''))),
     'sub3' => (!empty($_POST['sub3']) ? $_POST['sub3'] : (!empty($_GET['sub3']) ? $_GET['sub3'] : '')),
     'sub4' => (!empty($_POST['sub4']) ? $_POST['sub4'] : (!empty($_GET['sub4']) ? $_GET['sub4'] : '')),
 ];
