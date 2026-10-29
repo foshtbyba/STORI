@@ -1024,6 +1024,108 @@ body {
 }
 
 .calc-trust-note svg { flex-shrink: 0; margin-top: 1px; }
+
+/* ===== COMMENTS SECTION ===== */
+.comments-section {
+  margin: 32px 0;
+}
+
+.comments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.comments-title {
+  font-family: 'PT Serif', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.comments-count {
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.comment {
+  padding: 16px 0;
+  border-top: 1px solid var(--border-light);
+}
+
+.comment:first-of-type {
+  border-top: none;
+}
+
+.comment-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.comment-ava {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.comment-author {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.comment-time {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+.comment-body {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-left: 46px;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 16px;
+  margin-left: 46px;
+  margin-top: 8px;
+}
+
+.comment-action {
+  font-size: 12px;
+  color: var(--text-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+
+.comment-reply {
+  margin-left: 46px;
+  padding: 12px 0 0;
+}
+
+.comment-reply .comment-body {
+  margin-left: 46px;
+}
+
+.comment-reply .comment-actions {
+  margin-left: 46px;
+}
 </style>
 </head>
 <body>
@@ -1402,6 +1504,161 @@ body {
 
   <div class="section-divider"></div>
 
+  <!-- COMMENTS -->
+  <div class="comments-section">
+    <div class="comments-header">
+      <div class="comments-title">Коментари</div>
+      <div class="comments-count">47 коментара</div>
+    </div>
+
+    <!-- Comment 1: Скептик -->
+    <div class="comment">
+      <div class="comment-head">
+        <div class="comment-ava" style="background:#7c8ba1;">ПН</div>
+        <div>
+          <div class="comment-author">Пламен Николов</div>
+          <div class="comment-time comment-time-dynamic" data-hours="4"></div>
+        </div>
+      </div>
+      <div class="comment-body">Четох и за ARPA-H и за Станфорд, това е вярно. Но как точно един спрей прави същото като инжекция за $33 милиона? Малко ми звучи прекалено хубаво. Някой реално го е пробвал?</div>
+      <div class="comment-actions">
+        <button class="comment-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-6 0v4H5l7-7 7 7h-5zm-4 6v4a3 3 0 006 0v-4h3l-7 7-7-7h5z"/></svg> 12</button>
+        <button class="comment-action">Отговор</button>
+      </div>
+
+      <!-- Reply to skeptic -->
+      <div class="comment-reply">
+        <div class="comment-head">
+          <div class="comment-ava" style="background:#6a9a7d;">ВС</div>
+          <div>
+            <div class="comment-author">Виолета Стоянова</div>
+            <div class="comment-time comment-time-dynamic" data-hours="3"></div>
+          </div>
+        </div>
+        <div class="comment-body">Пламене, аз бях същият скептик. Купих го повече за майка ми отколкото за себе си. Тя от 4 години не можеше да слиза по стълбите нормално. На втората седмица каза: "Виолета, нещо е различно." Не знам дали е ензимът или не, но знам какво виждам.</div>
+        <div class="comment-actions">
+          <button class="comment-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-6 0v4H5l7-7 7 7h-5zm-4 6v4a3 3 0 006 0v-4h3l-7 7-7-7h5z"/></svg> 31</button>
+          <button class="comment-action">Отговор</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comment 2: Емоционална история -->
+    <div class="comment">
+      <div class="comment-head">
+        <div class="comment-ava" style="background:#a0785a;">ИП</div>
+        <div>
+          <div class="comment-author">Иван Петров</div>
+          <div class="comment-time comment-time-dynamic" data-hours="8"></div>
+        </div>
+      </div>
+      <div class="comment-body">Баща ми е на 71. Миналата година почна да отказва да излиза от вкъщи. Казваше "не мога" и спираше дотам. Лекарят каза — операция. Прочетохме за тази операция тук — плацебо. Рискнахме с Hondro Sol. На 3-тата седмица отиде до магазина сам. За първи път от година и половина. Не знам как да ви благодаря.</div>
+      <div class="comment-actions">
+        <button class="comment-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-6 0v4H5l7-7 7 7h-5zm-4 6v4a3 3 0 006 0v-4h3l-7 7-7-7h5z"/></svg> 58</button>
+        <button class="comment-action">Отговор</button>
+      </div>
+    </div>
+
+    <!-- Comment 3: Практичный вопрос -->
+    <div class="comment">
+      <div class="comment-head">
+        <div class="comment-ava" style="background:#8a6bab;">ДК</div>
+        <div>
+          <div class="comment-author">Дарина Костова</div>
+          <div class="comment-time comment-time-dynamic" data-hours="6"></div>
+        </div>
+      </div>
+      <div class="comment-body">Един въпрос — може ли да се ползва заедно с диклофенак? Взимам го от 2 години и не мога просто да спра, но стомахът ми вече е зле от него.</div>
+      <div class="comment-actions">
+        <button class="comment-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-6 0v4H5l7-7 7 7h-5zm-4 6v4a3 3 0 006 0v-4h3l-7 7-7-7h5z"/></svg> 7</button>
+        <button class="comment-action">Отговор</button>
+      </div>
+
+      <!-- Reply -->
+      <div class="comment-reply">
+        <div class="comment-head">
+          <div class="comment-ava" style="background:#5a8fa0;">СМ</div>
+          <div>
+            <div class="comment-author">Стефка Маринова</div>
+            <div class="comment-time comment-time-dynamic" data-hours="5"></div>
+          </div>
+        </div>
+        <div class="comment-body">Дарина, аз бях в същата ситуация. Ползвах диклофенак и ибупрофен на ротация. Започнах спрея, на 10-тия ден намалих хапчетата наполовина. Сега на третата седмица не съм пила нито едно. И стомахът ми е по-добре от месеци.</div>
+        <div class="comment-actions">
+          <button class="comment-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-6 0v4H5l7-7 7 7h-5zm-4 6v4a3 3 0 006 0v-4h3l-7 7-7-7h5z"/></svg> 19</button>
+          <button class="comment-action">Отговор</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comment 4: Лёгкий скептик который попробовал -->
+    <div class="comment">
+      <div class="comment-head">
+        <div class="comment-ava" style="background:#b07a5a;">ТВ</div>
+        <div>
+          <div class="comment-author">Тодор Василев</div>
+          <div class="comment-time comment-time-dynamic" data-hours="12"></div>
+        </div>
+      </div>
+      <div class="comment-body">Честно ще кажа — поръчах го без особена надежда. Пробвал съм всичко — гелове, таблетки, физиотерапия. Нищо не помагаше за повече от ден-два. С това нещо на 5-тия ден колената ми спряха да хрущят. Звучи дребно, но за мен беше шок. Сега съм на 12-ти ден и чакам да видя какво ще стане по-нататък.</div>
+      <div class="comment-actions">
+        <button class="comment-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-6 0v4H5l7-7 7 7h-5zm-4 6v4a3 3 0 006 0v-4h3l-7 7-7-7h5z"/></svg> 24</button>
+        <button class="comment-action">Отговор</button>
+      </div>
+    </div>
+
+    <!-- Comment 5: Жена за мужа -->
+    <div class="comment">
+      <div class="comment-head">
+        <div class="comment-ava" style="background:#6a8a5a;">РГ</div>
+        <div>
+          <div class="comment-author">Росица Георгиева</div>
+          <div class="comment-time comment-time-dynamic" data-hours="18"></div>
+        </div>
+      </div>
+      <div class="comment-body">Мъжът ми е шофьор на камион. Колената му са унищожени. Лекарят каза — спри работа или операция. А как да спре, на 56 е, кой ще ни храни? Поръчах Hondro Sol без да му казвам. Каза му че е нов крем от аптеката. На третата седмица ми каза: "Росице, тоя крем е нещо друго." Сега е 2-ри месец и кара без болка. Благодаря ви от сърце.</div>
+      <div class="comment-actions">
+        <button class="comment-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-6 0v4H5l7-7 7 7h-5zm-4 6v4a3 3 0 006 0v-4h3l-7 7-7-7h5z"/></svg> 43</button>
+        <button class="comment-action">Отговор</button>
+      </div>
+    </div>
+
+    <!-- Comment 6: Чистый скептик -->
+    <div class="comment">
+      <div class="comment-head">
+        <div class="comment-ava" style="background:#8a8a8a;">АД</div>
+        <div>
+          <div class="comment-author">Атанас Димов</div>
+          <div class="comment-time comment-time-dynamic" data-hours="22"></div>
+        </div>
+      </div>
+      <div class="comment-body">Все още не съм сигурен. Звучи добре, но толкова неща съм пробвал... Ще поръчам, щото 29€ не е много и плащам при доставката. Ако не стане — нищо. Ще пиша пак след 2 седмици.</div>
+      <div class="comment-actions">
+        <button class="comment-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-6 0v4H5l7-7 7 7h-5zm-4 6v4a3 3 0 006 0v-4h3l-7 7-7-7h5z"/></svg> 15</button>
+        <button class="comment-action">Отговор</button>
+      </div>
+
+      <!-- Reply -->
+      <div class="comment-reply">
+        <div class="comment-head">
+          <div class="comment-ava" style="background:#5a7a9a;">КБ</div>
+          <div>
+            <div class="comment-author">Красимир Борисов</div>
+            <div class="comment-time comment-time-dynamic" data-hours="20"></div>
+          </div>
+        </div>
+        <div class="comment-body">Атанасе, бях точно като теб. Поръчах си преди месец с нулеви очаквания. На 8-мия ден се усмихнах за пръв път от години когато ставах сутрин. Не от радост — а защото НЕ ме заболя. Дай му шанс.</div>
+        <div class="comment-actions">
+          <button class="comment-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-6 0v4H5l7-7 7 7h-5zm-4 6v4a3 3 0 006 0v-4h3l-7 7-7-7h5z"/></svg> 37</button>
+          <button class="comment-action">Отговор</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-divider"></div>
+
   <!-- PRICE CONTRAST -->
   <div class="price-contrast">
     <div class="price-row grey">
@@ -1685,6 +1942,17 @@ function postLead() {
     var daysAgo = parseInt(revDates[i].getAttribute('data-days')) || 7;
     var d = new Date(now - daysAgo * 86400000);
     revDates[i].textContent = d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  var comTimes = document.querySelectorAll('.comment-time-dynamic');
+  for (var j = 0; j < comTimes.length; j++) {
+    var hrs = parseInt(comTimes[j].getAttribute('data-hours')) || 1;
+    if (hrs < 24) {
+      comTimes[j].textContent = 'преди ' + hrs + (hrs === 1 ? ' час' : ' часа');
+    } else {
+      var dAgo = Math.floor(hrs / 24);
+      comTimes[j].textContent = 'преди ' + dAgo + (dAgo === 1 ? ' ден' : ' дни');
+    }
   }
 })();
 </script>
