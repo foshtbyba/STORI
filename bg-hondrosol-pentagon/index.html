@@ -20,24 +20,25 @@ fbq('track', 'PageView');
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --text-primary: #1a1a2e;
-  --text-secondary: #4a4a5a;
+  --text-primary: #232323;
+  --text-secondary: #3d3d4a;
   --text-light: #6b7280;
-  --accent: #0c5da5;
-  --accent-hover: #094a84;
+  --accent: #15375e;
+  --accent-light: #1a5da5;
+  --accent-hover: #0e2a4a;
   --trust-green: #0f7b5f;
   --bg-white: #ffffff;
-  --bg-light: #f4f6f8;
+  --bg-light: #f5f6f8;
   --bg-warm: #faf8f5;
   --border: #e2e5e9;
   --border-light: #eef0f3;
-  --source-bg: #eef4fb;
-  --warning-bg: #fef3e2;
-  --warning-border: #f0c36d;
-  --cta-primary: #d64a1b;
-  --cta-hover: #b83d15;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --source-bg: #edf2f8;
+  --warning-bg: #fef8ed;
+  --warning-border: #e8c96d;
+  --cta-primary: #c7461a;
+  --cta-hover: #a83b15;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 3px 10px rgba(0,0,0,0.06);
 }
 
 body {
@@ -72,10 +73,10 @@ body {
 }
 
 .logo-icon {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   background: var(--accent);
-  border-radius: 6px;
+  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -123,8 +124,8 @@ body {
 }
 
 .header-nav a.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
+  color: var(--accent-light);
+  border-bottom-color: var(--accent-light);
 }
 
 /* ===== ARTICLE CONTAINER ===== */
@@ -153,11 +154,11 @@ body {
 /* ===== ARTICLE META ===== */
 .article-category {
   display: inline-block;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--accent);
+  letter-spacing: 0.8px;
+  color: var(--accent-light);
   background: var(--source-bg);
   padding: 4px 10px;
   border-radius: 3px;
@@ -167,14 +168,15 @@ body {
 .article-title {
   font-family: 'PT Serif', Georgia, serif;
   font-size: 26px;
-  line-height: 1.35;
+  line-height: 1.3;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  letter-spacing: -0.4px;
 }
 
 @media (min-width: 640px) {
-  .article-title { font-size: 32px; }
+  .article-title { font-size: 34px; letter-spacing: -0.5px; }
 }
 
 .article-meta {
@@ -215,6 +217,24 @@ body {
   color: var(--text-light);
 }
 
+/* ===== MEDICAL REVIEW BADGE ===== */
+.review-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #f0f7f4;
+  border-radius: 6px;
+  margin-bottom: 24px;
+  font-size: 12px;
+  color: var(--trust-green);
+  line-height: 1.4;
+}
+
+.review-badge svg {
+  flex-shrink: 0;
+}
+
 /* ===== ARTICLE CONTENT ===== */
 .article-body p {
   font-size: 17px;
@@ -244,24 +264,25 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
-  color: var(--accent);
+  font-size: 12px;
+  color: var(--accent-light);
   text-decoration: none;
   background: var(--source-bg);
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 3px;
   transition: background 0.2s;
   word-break: break-word;
+  margin-top: 8px;
 }
 
 .source-link:hover {
-  background: #dce8f5;
+  background: #dde6f0;
 }
 
 .source-link svg {
-  width: 12px;
-  height: 12px;
-  fill: var(--accent);
+  width: 11px;
+  height: 11px;
+  fill: var(--accent-light);
   flex-shrink: 0;
 }
 
@@ -332,8 +353,8 @@ body {
 }
 
 .joint-point circle {
-  fill: var(--accent);
-  opacity: 0.25;
+  fill: var(--accent-light);
+  opacity: 0.2;
   transition: opacity 0.2s, r 0.2s;
 }
 
@@ -344,7 +365,7 @@ body {
 
 .joint-label {
   font-size: 11px;
-  fill: var(--accent);
+  fill: var(--accent-light);
   font-weight: 600;
   pointer-events: none;
 }
@@ -431,7 +452,7 @@ body {
 .timeline-period {
   font-size: 13px;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-light);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   margin-bottom: 4px;
@@ -713,7 +734,7 @@ body {
 
 .sources-list a {
   font-size: 13px;
-  color: var(--accent);
+  color: var(--accent-light);
   text-decoration: none;
   line-height: 1.5;
   display: inline;
@@ -887,9 +908,14 @@ body {
   <div class="article-meta">
     <div class="author-avatar">ДП</div>
     <div class="author-info">
-      <span class="author-name">Д-р Десислава Петкова</span>
+      <span class="author-name">Десислава Петкова</span>
       <span class="article-date">28 октомври 2026 · 8 мин. четене</span>
     </div>
+  </div>
+
+  <div class="review-badge">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+    <span>Медицински преглед: д-р Николай Георгиев, ортопед · Актуализирано: 28.10.2026</span>
   </div>
 
   <!-- INTRO -->
