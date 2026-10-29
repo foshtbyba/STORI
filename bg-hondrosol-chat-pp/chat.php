@@ -234,11 +234,42 @@ if ($hasQuestionRequest && $step >= 2) {
     exit;
 }
 
+$lastBotMsg = !empty($botMsgs) ? end($botMsgs) : '';
+$lastBotAskedNamePre = (mb_strpos($lastBotMsg, 'как ви е името') !== false || mb_strpos($lastBotMsg, 'Как ви е името') !== false || mb_strpos($lastBotMsg, 'как се казвате') !== false || mb_strpos($lastBotMsg, 'Как се казвате') !== false);
+$lastBotAskedPhonePre = (mb_strpos($lastBotMsg, 'телефон') !== false || mb_strpos($lastBotMsg, 'мобилен') !== false || mb_strpos($lastBotMsg, '+359') !== false);
+
+if ($lastBotAskedPhonePre && $step >= 3) {
+    $phoneEarly = extractPhone($last);
+    if (isValidBGPhone($phoneEarly)) {
+        $name = $hasName ? $patientName : findNameInHistory($history);
+        echo json_encode([
+            'ok' => true,
+            'messages' => ["Записах ви, $name! ✅ Консултант от програмата ще ви се обади в следващите 10-15 минути, за да потвърди адреса и да организира доставката.\n\nДръжте телефона наблизо! Бъдете здрави! 🙏"],
+            'quick_replies' => [],
+            'lead' => ['name' => $name, 'phone' => $phoneEarly],
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+if ($lastBotAskedNamePre && looksLikeName($last) && $step >= 3) {
+    $patientName = mb_convert_case($last, MB_CASE_TITLE, 'UTF-8');
+    $hasName = true;
+    $nameAddr = ", $patientName";
+    echo json_encode([
+        'ok' => true,
+        'messages' => ["Приятно ми е, $patientName! Моля, напишете телефонния си номер — български мобилен (08... или +359), за да ви се обади консултант."],
+        'quick_replies' => [],
+        'lead' => null,
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $stepReask = [
     1 => ['q' => 'На колко години сте?', 'ctx' => 'Пациентът описа проблема. Ти го попита за възраст.'],
-    2 => ['q' => 'От колко време ви безпокои тази болка?', 'ctx' => 'Знаеш оплакването и възрастта. Следващият въпрос е продължителност.'],
-    3 => ['q' => 'Какво приемате за болката — хапчета, мазила, или нищо?', 'ctx' => 'Знаеш оплакването, възрастта и продължителността. Следва — какво приема.'],
-    4 => ['q' => 'Да ви разкажа повече за спрея?', 'ctx' => 'Дал си диагноза и разказал за Hondro Sol. Пациентът се колебае.'],
+    2 => ['q' => 'На колко години сте?', 'ctx' => 'Попита за възраст, но пациентът не отговори. Питай ОТНОВО за възрастта.'],
+    3 => ['q' => 'От колко време ви безпокои тази болка?', 'ctx' => 'Знаеш оплакването и възрастта. Следващият въпрос е продължителност.'],
+    4 => ['q' => 'Какво приемате за болката — хапчета, мазила, или нищо?', 'ctx' => 'Знаеш оплакването, възрастта и продължителността. Следва — какво приема.'],
 ];
 
 $doubtHandled = false;
@@ -483,6 +514,15 @@ INS;
 
 ВАЖНО: Пиши САМО на БЪЛГАРСКИ! НИКОГА на руски!
 INS;
+            break;
+        }
+
+        if ($asksOrder) {
+            if (!$hasName) {
+                $instruction = "Пациентът иска да се запише! Каза: \"$last\". Потвърди решението (1 изречение) и попитай САМО за име: \"Чудесно! За да ви запиша — как ви е името?\" НЕ питай за телефон! ВАЖНО: Пиши САМО на БЪЛГАРСКИ!";
+            } else {
+                $instruction = "Пациентът иска да се запише! Каза: \"$last\". Потвърди решението (1 изречение) и поискай телефон: \"Чудесно{$nameAddr}! Моля, напишете телефонния си номер — български мобилен (08... или +359).\" ВАЖНО: Пиши САМО на БЪЛГАРСКИ!";
+            }
             break;
         }
 
