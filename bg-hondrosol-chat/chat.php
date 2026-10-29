@@ -238,7 +238,7 @@ $lastBotMsg = !empty($botMsgs) ? end($botMsgs) : '';
 $lastBotAskedNamePre = (mb_strpos($lastBotMsg, 'как ви е името') !== false || mb_strpos($lastBotMsg, 'Как ви е името') !== false || mb_strpos($lastBotMsg, 'как се казвате') !== false || mb_strpos($lastBotMsg, 'Как се казвате') !== false);
 $lastBotAskedPhonePre = (mb_strpos($lastBotMsg, 'телефон') !== false || mb_strpos($lastBotMsg, 'мобилен') !== false || mb_strpos($lastBotMsg, '+359') !== false);
 
-if ($lastBotAskedPhonePre && $step >= 5) {
+if ($lastBotAskedPhonePre && $step >= 3) {
     $phoneEarly = extractPhone($last);
     if (isValidBGPhone($phoneEarly)) {
         $name = $hasName ? $patientName : findNameInHistory($history);
@@ -252,7 +252,7 @@ if ($lastBotAskedPhonePre && $step >= 5) {
     }
 }
 
-if ($lastBotAskedNamePre && looksLikeName($last) && $step >= 5) {
+if ($lastBotAskedNamePre && looksLikeName($last) && $step >= 3) {
     $patientName = mb_convert_case($last, MB_CASE_TITLE, 'UTF-8');
     $hasName = true;
     $nameAddr = ", $patientName";
@@ -298,6 +298,17 @@ if (isDoubt($last) && isset($stepReask[$step])) {
 ПРАВИЛНО: Аз, работя, правя, добре, разбирам, разбира се, радвам се, нека.
 INS;
     $doubtHandled = true;
+}
+
+if (!$doubtHandled && $step >= 2 && $step <= 6) {
+    $lbm = !empty($botMsgs) ? end($botMsgs) : '';
+    if (preg_match('/колко години/iu', $lbm) && !preg_match('/колко време/iu', $lbm)) {
+        $step = 2;
+    } elseif (preg_match('/колко време.*безпокои|от кога|отдавна/iu', $lbm)) {
+        $step = 3;
+    } elseif (preg_match('/приемате|хапчета.*мазила/iu', $lbm)) {
+        $step = 4;
+    }
 }
 
 if (!$doubtHandled) {
