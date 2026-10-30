@@ -8,7 +8,7 @@ $(document).ready(function () {
     vid.pause();
     vid.muted = true;
     vid.style.filter = "brightness(0.5)";
-    vid.style.objectFit = "cover";
+    vid.style.objectFit = "contain";
   }
 
   function showPlayBtn() {
