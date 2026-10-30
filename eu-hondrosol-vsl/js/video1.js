@@ -13,9 +13,12 @@ $(document).ready(function () {
   $("#popup").on("click", showOrder);
 
   $("#close").on("click", function () {
+    $("#video")[0].pause();
+    $("#video").prop("muted", true);
     $("#container_video").removeClass("fullscreen");
     $("body").removeClass("noscroll");
     $("#close").fadeOut();
+    $("#play").fadeIn();
   });
 
   function showOrder() {
