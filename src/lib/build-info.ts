@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'page-switch-queue · 31.10 01:08';
+export const BUILD_INFO = 'locale-serial-cache · 31.10 02:58';

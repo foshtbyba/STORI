@@ -1165,13 +1165,26 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
         const withVideo = pack.filter((lp) => (lp.videoData && lp.videoData.length) || lp.videoUrl);
         for (const lp of pack) if (!((lp.videoData && lp.videoData.length) || lp.videoUrl)) append(`⚠ ${lp.locale}: нет видео — пропускаю`);
         if (withVideo.length) {
-          // Ролики языков грузим ВСЕ СРАЗУ (параллельно), а не по одному — это
-          // была основная задержка залива. Разные видео на один каб FB тянет
-          // спокойно; ошибка одного не рушит остальные (allSettled).
           await stage(`Готовлю ролики языков (${withVideo.length})…`);
-          const ups = await Promise.allSettled(withVideo.map(async (lp) => {
+          // Сначала locale'ы — ПОСЛЕДОВАТЕЛЬНО и ДО заливки роликов. Раньше их
+          // резолвили внутри параллельной заливки: бурст /search дрался за канал
+          // с загрузкой видео и ловил троттлинг — язык молча отваливался «нет
+          // locale ID». Теперь /search идёт спокойно (и с кэшем в resolveLocaleId
+          // второй заход вообще без сети), а роликами грузим только то, что с
+          // определившимся locale.
+          const ready: typeof withVideo = [];
+          const lpLocale = new Map<(typeof withVideo)[number], number>();
+          for (const lp of withVideo) {
             const localeId = await resolveLocaleId(token, localeName(lp.locale), net);
-            if (!localeId) throw new FbError('нет locale ID у FB');
+            if (!localeId) { append(`⚠ ${lp.locale}: FB не отдал locale — пропускаю язык`); continue; }
+            lpLocale.set(lp, localeId);
+            ready.push(lp);
+          }
+          // Ролики языков грузим ВСЕ СРАЗУ (параллельно) — это ускоряет залив.
+          // Разные видео на один каб FB тянет спокойно; ошибка одного не рушит
+          // остальные (allSettled).
+          const ups = await Promise.allSettled(ready.map(async (lp) => {
+            const localeId = lpLocale.get(lp)!;
             // Хэш содержимого языкового ролика — по байтам, либо по URL.
             const hash = lp.videoData && lp.videoData.length
               ? sha256(Buffer.from(lp.videoData))
@@ -1184,7 +1197,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
             return { lvid, localeId, hash, cached: false };
           }));
           ups.forEach((r, i) => {
-            const lp = withVideo[i];
+            const lp = ready[i];
             if (r.status === 'fulfilled') {
               langUps.push({ locale: lp.locale, localeId: r.value.localeId, videoId: r.value.lvid, message: lp.primaryText || message, headline: lp.headline || undefined, description: lp.description || undefined, link: lp.link || undefined });
               if (r.value.cached) {

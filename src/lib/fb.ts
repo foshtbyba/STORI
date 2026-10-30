@@ -1810,10 +1810,19 @@ export async function videoThumbnailUrl(token: string, videoId: string, net: FbN
 
 /** FB locale ID по названию языка. customization_spec.locales требует числовой
  *  ID (не код), берём его поиском /search?type=adlocale. Не нашли — 0. */
+// Ключи adlocale у FB ГЛОБАЛЬНЫ и стабильны (Welsh всегда 3 и т.д.), поэтому
+// кэшируем имя→ключ на весь процесс: при заливе несколько языков резолвятся
+// параллельно с заливкой роликов, и бурст /search ловил троттлинг (все ретраи
+// впустую → язык молча отваливался). С кэшем второй и последующие заливы берут
+// ключ мгновенно, без сети. Кэшируем только положительные ответы.
+const ADLOCALE_CACHE = new Map<string, number>();
+
 export async function resolveLocaleId(token: string, name: string, net: FbNet = {}): Promise<number> {
   const full = (name || '').trim();
   if (!full) return 0;
   const fullL = full.toLowerCase();
+  const cached = ADLOCALE_CACHE.get(fullL);
+  if (cached) return cached;
   // FB-поиск adlocale давится скобками: по «Spanish (Latin America)» он часто
   // возвращает пусто, и язык гео молча не определялся (а залив сваливался в
   // одноязычный). Ищем по БАЗОВОМУ слову (до скобки), а нужный вариант
@@ -1839,7 +1848,7 @@ export async function resolveLocaleId(token: string, name: string, net: FbNet = 
         data.find((d) => nm(d).startsWith(baseL)) ??
         (baseL === fullL ? data[0] : undefined);
       const key = Number(pick?.key ?? 0) || 0;
-      if (key) return key;
+      if (key) { ADLOCALE_CACHE.set(fullL, key); return key; }
       if (data.length) return 0; // поиск отработал, но подходящего нет — не долбим
     } catch {
       /* транзиентный сбой — ретраим ниже */
