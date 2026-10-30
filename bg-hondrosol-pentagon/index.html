@@ -623,6 +623,15 @@ body {
   border-radius: 10px;
   padding: 28px 24px;
   margin: 12px 0 32px;
+  display: none;
+}
+.order-section.visible {
+  display: block;
+  animation: fadeSlideIn 0.5s ease;
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .order-title {
@@ -1998,8 +2007,13 @@ function checkSticky() {
 window.addEventListener('scroll', checkSticky, {passive: true});
 checkSticky();
 
+var quizDone = false;
 function scrollToForm() {
-  orderSection.scrollIntoView({behavior: 'smooth', block: 'center'});
+  if (quizDone) {
+    orderSection.scrollIntoView({behavior: 'smooth', block: 'center'});
+  } else {
+    document.getElementById('calcSection').scrollIntoView({behavior: 'smooth', block: 'start'});
+  }
 }
 
 // Pain calculator
@@ -2076,6 +2090,11 @@ function calcAnswer(step, score) {
   }
 
   document.getElementById('calcResult').classList.add('visible');
+
+  quizDone = true;
+  setTimeout(function() {
+    orderSection.classList.add('visible');
+  }, 400);
 
   setTimeout(function() {
     document.getElementById('calcResult').scrollIntoView({behavior: 'smooth', block: 'start'});
