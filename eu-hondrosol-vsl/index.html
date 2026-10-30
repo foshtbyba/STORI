@@ -238,22 +238,24 @@
                         </div>
 
                         <label>
-                            <span class="text_form">Ваша страна:</span>
+                            <span class="text_form">Выберите страну:</span>
                             <select class="country_select" id="country" name="country"></select>
                         </label>
-                        <label>
-                            <span class="text_form">Ваше имя:</span>
-                            <input class="lv-input-fio" maxlength="255" name="name" value="" type="text" required="">
-                        </label>
-                        <label>
-                            <span class="text_form">Ваш телефон:</span>
-                            <input class="lv-input-phone only_number" name="phone" value="" type="tel"
-                                inputmode="numeric" autocomplete="tel" required="">
-                            <span class="phone_helper"></span>
-                        </label>
-                        <button class="botBut js_pre_toform button__text" style="cursor: pointer;" type="submit">
-                            Записать меня
-                        </button>
+                        <div id="form-fields" style="display:none;">
+                            <label>
+                                <span class="text_form">Ваше имя:</span>
+                                <input class="lv-input-fio" maxlength="255" name="name" value="" type="text" required="">
+                            </label>
+                            <label>
+                                <span class="text_form">Ваш телефон:</span>
+                                <input class="lv-input-phone only_number" name="phone" value="" type="tel"
+                                    inputmode="numeric" autocomplete="tel" required="">
+                                <span class="phone_helper"></span>
+                            </label>
+                            <button class="botBut js_pre_toform button__text" style="cursor: pointer;" type="submit">
+                                Записать меня
+                            </button>
+                        </div>
                         <div class="toform"></div>
                         <div style="text-align: center;">
                             <small class="small_text"> Осталось <span style="color: red;" id="stockCount">17</span> мест в списке ожидания</small>
@@ -625,6 +627,37 @@
     </main>
 
     <script src="js/video1.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var params = new URLSearchParams(window.location.search);
+        var fromUrl = params.get('c') || params.get('country') || '';
+        var selects = document.querySelectorAll('.country_select');
+
+        if (!fromUrl) {
+            var placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = '-- Выберите страну --';
+            placeholder.disabled = true;
+            placeholder.selected = true;
+            for (var i = 0; i < selects.length; i++) {
+                selects[i].insertBefore(placeholder.cloneNode(true), selects[i].firstChild);
+                selects[i].value = '';
+            }
+        } else {
+            var allFields = document.querySelectorAll('#form-fields');
+            for (var j = 0; j < allFields.length; j++) allFields[j].style.display = '';
+        }
+
+        for (var k = 0; k < selects.length; k++) {
+            selects[k].addEventListener('change', function() {
+                if (this.value) {
+                    var allF = document.querySelectorAll('#form-fields');
+                    for (var n = 0; n < allF.length; n++) allF[n].style.display = '';
+                }
+            });
+        }
+    });
+    </script>
 </body>
 
 </html>
