@@ -8,6 +8,7 @@ $(document).ready(function () {
     vid.pause();
     vid.muted = true;
     vid.style.filter = "brightness(0.5)";
+    vid.style.objectFit = "cover";
   }
 
   function showPlayBtn() {
@@ -26,6 +27,7 @@ $(document).ready(function () {
     window.scrollTo(0, 0);
     $play.hide();
     vid.style.filter = "";
+    vid.style.objectFit = "contain";
     vid.muted = false;
     vid.play();
     $container.addClass("fullscreen");
