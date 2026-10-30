@@ -1610,6 +1610,10 @@ body {
       <p id="calcResultText" class="calc-result-text"></p>
       <ul class="calc-result-list" id="calcResultList"></ul>
       <div class="calc-order-form" id="orderForm">
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 18px;background:#fef8ed;border:1px solid #e8c96d;border-radius:8px;margin:0 0 20px;font-size:14px;color:#6b4e00;line-height:1.55;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span><strong>Ограничена наличност:</strong> За България са заделени <strong id="stockCount"></strong> опаковки на промоционална цена. След изчерпване — стандартната цена е 50 €.</span>
+        </div>
         <div class="calc-order-title">Поръчайте Hondro Sol с безплатна доставка</div>
         <form action="order.php" method="POST" id="mainForm" onsubmit="return postLead()">
           <input type="hidden" name="subid" value="{subid}">
@@ -1869,12 +1873,8 @@ body {
       <span class="price-amount">25 €</span>
     </div>
   </div>
+  <p style="font-size:14px;color:var(--text-secondary);line-height:1.6;margin-top:12px;">Повечето хора харчат 80–200 лв. <strong>всеки месец</strong> за хапчета, мазила и прегледи, които само маскират болката. Hondro Sol струва по-малко от едномесечните ви разходи за аптека — и действа върху причината, не върху симптомите.</p>
 
-  <!-- SCARCITY -->
-  <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 18px;background:#fef8ed;border:1px solid #e8c96d;border-radius:8px;margin:12px 0 16px;font-size:14px;color:#6b4e00;line-height:1.55;">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-    <span><strong>Ограничена наличност:</strong> За България са заделени <strong id="stockCount"></strong> опаковки на промоционална цена. След изчерпване — стандартната цена е 50 €.</span>
-  </div>
 
 
   <!-- SOURCES -->
