@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Пентагонът похарчи $33 милиона за една инжекция за ставите — Здравен Хоризонт</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%2315375e'/%3E%3Cpath d='M10 22V10h4v4h4v-4h4v12h-4v-5h-4v5z' fill='white'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <!-- Facebook Pixel -->
@@ -1025,6 +1026,56 @@ body {
 
 .calc-trust-note svg { flex-shrink: 0; margin-top: 1px; }
 
+.calc-order-form {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2px solid var(--border-light);
+}
+.calc-order-title {
+  font-family: 'PT Serif', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.calc-order-sub {
+  font-size: 13px;
+  color: var(--text-light);
+  margin-bottom: 16px;
+}
+.calc-input {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-family: inherit;
+  background: #fff;
+}
+.calc-input:focus {
+  outline: none;
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 3px rgba(21,55,94,0.1);
+}
+.calc-submit-btn {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--cta-primary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 4px;
+}
+.calc-result-cta {
+  display: none;
+}
+
 /* ===== COMMENTS SECTION ===== */
 .comments-section {
   margin: 32px 0;
@@ -1065,16 +1116,20 @@ body {
 }
 
 .comment-ava {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #fff;
   flex-shrink: 0;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  position: relative;
+  z-index: 1;
 }
 
 .comment-author {
@@ -1548,9 +1603,25 @@ body {
       <div id="calcResultTitle" class="calc-result-title"></div>
       <p id="calcResultText" class="calc-result-text"></p>
       <ul class="calc-result-list" id="calcResultList"></ul>
-      <div class="calc-trust-note">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span>След поръчката ще ви се обади консултант от редакцията на Здравен Хоризонт, за да потвърди адреса и да отговори на въпросите ви.</span>
+      <div class="calc-order-form">
+        <div class="calc-order-title">Поръчайте вашия курс — 25 €</div>
+        <div class="calc-order-sub">Безплатна доставка. Плащане при получаване.</div>
+        <form action="order.php" method="POST" onsubmit="return postLead()">
+          <input type="hidden" name="subid" value="{subid}">
+          <input type="hidden" name="country" value="BG">
+          <input type="hidden" name="subid2" value="{sub_id_2}">
+          <input type="hidden" name="cid" value="">
+          <input type="hidden" name="sid" value="">
+          <input type="hidden" name="hash" value="">
+          <input type="text" name="name" placeholder="Вашето име" required class="calc-input">
+          <input type="tel" name="phone" placeholder="0888 123 456" required class="calc-input">
+          <button type="submit" class="calc-submit-btn">Поръчайте сега — 25 €</button>
+        </form>
+        <div class="calc-trust-note">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Консултант от Здравен Хоризонт ще ви се обади за 15–30 мин., за да потвърди адреса.</span>
+        </div>
+        <div style="font-size:12px;color:#6b7280;text-align:center;margin-top:8px;">Без риск — ако не ви хареса, просто не приемайте пратката.</div>
       </div>
     </div>
   </div>
@@ -1603,7 +1674,7 @@ body {
   </div>
 
   <div style="text-align:center;margin:20px 0;">
-    <button onclick="scrollToForm()" style="padding:14px 32px;font-size:16px;font-weight:600;color:#fff;background:var(--cta-primary);border:none;border-radius:8px;cursor:pointer;font-family:inherit;">Поръчайте Hondro Sol — 29 €</button>
+    <button onclick="scrollToForm()" style="padding:14px 32px;font-size:16px;font-weight:600;color:#fff;background:var(--cta-primary);border:none;border-radius:8px;cursor:pointer;font-family:inherit;">Поръчайте Hondro Sol — 25 €</button>
     <div style="font-size:12px;color:var(--text-light);margin-top:8px;">Без риск — плащате само при получаване</div>
   </div>
 
@@ -1737,7 +1808,7 @@ body {
           <div class="comment-time comment-time-dynamic" data-hours="22"></div>
         </div>
       </div>
-      <div class="comment-body">Все още не съм сигурен. Звучи добре, но толкова неща съм пробвал... Ще поръчам, щото 29€ не е много и плащам при доставката. Ако не стане — нищо. Ще пиша пак след 2 седмици.</div>
+      <div class="comment-body">Все още не съм сигурен. Звучи добре, но толкова неща съм пробвал... Ще поръчам, щото 25€ не е много и плащам при доставката. Ако не стане — нищо. Ще пиша пак след 2 седмици.</div>
       <div class="comment-actions">
         <button class="comment-action"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 00-6 0v4H5l7-7 7 7h-5zm-4 6v4a3 3 0 006 0v-4h3l-7 7-7-7h5z"/></svg> 15</button>
         <button class="comment-action">Отговор</button>
@@ -1780,14 +1851,14 @@ body {
     </div>
     <div class="price-row green">
       <span class="price-label">Hondro Sol — пълен курс</span>
-      <span class="price-amount">29 €</span>
+      <span class="price-amount">25 €</span>
     </div>
   </div>
 
   <!-- SCARCITY -->
   <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 18px;background:#fef8ed;border:1px solid #e8c96d;border-radius:8px;margin:12px 0 16px;font-size:14px;color:#6b4e00;line-height:1.55;">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-    <span><strong>Ограничена наличност:</strong> За България са заделени <strong id="stockCount"></strong> опаковки на промоционална цена. След изчерпване — стандартната цена е 58 €.</span>
+    <span><strong>Ограничена наличност:</strong> За България са заделени <strong id="stockCount"></strong> опаковки на промоционална цена. След изчерпване — стандартната цена е 50 €.</span>
   </div>
 
   <!-- ORDER FORM -->
@@ -1809,7 +1880,7 @@ body {
         <label for="phone">Телефонен номер</label>
         <input type="tel" id="phone" name="phone" placeholder="0888 123 456" required>
       </div>
-      <button type="submit" class="submit-btn">Поръчайте сега — 29 €</button>
+      <button type="submit" class="submit-btn">Поръчайте сега — 25 €</button>
       <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;font-size:12px;color:var(--trust-green);">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Без риск — ако не ви хареса, просто не приемайте пратката
@@ -1857,7 +1928,7 @@ body {
 
 <!-- STICKY MOBILE CTA -->
 <div class="sticky-cta" id="stickyCta">
-  <button class="sticky-cta-btn" onclick="scrollToForm()">Поръчайте Hondro Sol — 29 €</button>
+  <button class="sticky-cta-btn" onclick="scrollToForm()">Поръчайте Hondro Sol — 25 €</button>
   <div class="sticky-cta-price">Безплатна доставка · Плащане при получаване</div>
 </div>
 
@@ -1886,19 +1957,25 @@ var painData = {
   }
 };
 
+var painLocked = false;
 function showPainResult(el) {
+  if (painLocked) return;
   var joint = el.getAttribute('data-joint');
   var data = painData[joint];
   if (!data) return;
 
-  // Remove active from all
+  painLocked = true;
+
   var pts = document.querySelectorAll('.joint-point');
-  for (var i = 0; i < pts.length; i++) pts[i].classList.remove('active');
+  for (var i = 0; i < pts.length; i++) {
+    pts[i].classList.remove('active');
+    pts[i].style.pointerEvents = 'none';
+    pts[i].style.opacity = '0.35';
+  }
 
-  // Set active
   el.classList.add('active');
+  el.style.opacity = '1';
 
-  // Show result
   document.getElementById('painResultTitle').textContent = data.title;
   document.getElementById('painResultText').textContent = data.text;
   document.getElementById('painResult').classList.add('visible');
@@ -2000,10 +2077,9 @@ function calcAnswer(step, score) {
 
   document.getElementById('calcResult').classList.add('visible');
 
-  // Scroll to result
   setTimeout(function() {
-    document.getElementById('calcResult').scrollIntoView({behavior: 'smooth', block: 'center'});
-  }, 200);
+    document.getElementById('calcResult').scrollIntoView({behavior: 'smooth', block: 'start'});
+  }, 300);
 }
 
 // FB Lead event + submit
