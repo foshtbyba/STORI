@@ -1,0 +1,77 @@
+.form_wrapper {
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+.order-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.order-form input[type="text"],
+.order-form input[type="tel"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+}
+.order-form input:focus {
+    border-color: #4a90d9;
+}
+.order-form select.country_select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    outline: none;
+    appearance: auto;
+}
+.botBut {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    background: #e8432a;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    transition: background .2s;
+}
+.botBut:hover { background: #c93820; }
+
+.phone_helper {
+    font-size: 13px;
+    color: #888;
+    margin-top: -4px;
+}
+.price_block_form {
+    text-align: center;
+    margin: 10px 0;
+}
+.price_block_form .price_old {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 16px;
+    margin-right: 8px;
+}
+.price_block_form .price_main {
+    font-size: 22px;
+    font-weight: 700;
+    color: #e8432a;
+}
+.timer_block {
+    text-align: center;
+    font-size: 14px;
+    color: #e8432a;
+    margin-top: 6px;
+}

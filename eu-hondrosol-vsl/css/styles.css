@@ -1,0 +1,903 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #fff;
+}
+
+body.video-modal-open {
+    overflow: hidden;
+}
+
+/* Overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 99;
+}
+
+.overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Header */
+.header {
+    padding: 15px;
+    background: #f8f8f8;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 98;
+}
+
+.header nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Main content */
+.main {
+    margin-top: 60px;
+    padding: 15px;
+}
+
+/* Video container */
+.video-container {
+    width: 90%;
+    max-width: 400px;
+    margin: 0 auto;
+    position: relative;
+    aspect-ratio: 3/4;
+    background: #000;
+    margin-bottom: 20px;
+    border: 2px solid #333;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.video-container.enlarged {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    aspect-ratio: auto;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    z-index: 1000;
+    background: #000;
+}
+
+.video-container.enlarged video {
+    object-fit: contain;
+}
+
+.video-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Play button */
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    background: #ff0000;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 2;
+    animation: playPulse 1.5s infinite;
+}
+
+.play-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 55%;
+    transform: translate(-50%, -50%);
+    border-left: 25px solid #fff;
+    border-top: 18px solid transparent;
+    border-bottom: 18px solid transparent;
+}
+
+/* Video */
+video {
+    width: 100%;
+    height: 100%;
+
+}
+
+/* Control buttons */
+.exit-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.72);
+    border: none;
+    color: white;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1001;
+    display: none;
+    font-size: 34px;
+    line-height: 42px;
+    font-weight: 400;
+}
+
+.video-container.enlarged .exit-btn {
+    display: block;
+}
+
+.resume-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #f32121;
+    border: none;
+    color: white;
+    width: min(88%, 430px);
+    padding: 18px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 1001;
+    display: none;
+    animation: pulse 1.5s infinite;
+    font-weight: bold;
+    font-size: 18px;
+    line-height: 1.25;
+    box-shadow: 0 0 20px rgba(243, 33, 33, 0.45);
+}
+
+.offer-cta {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1003;
+    display: none;
+    width: min(90%, 460px);
+    padding: 20px 22px;
+    border: 2px solid #fff;
+    border-radius: 12px;
+    background: #d91515;
+    color: #fff;
+    cursor: pointer;
+    text-align: center;
+    box-shadow: 0 0 28px rgba(255, 0, 0, 0.65);
+    animation: ctaPulse 1.35s infinite;
+}
+
+.offer-cta strong,
+.offer-cta span {
+    display: block;
+}
+
+.offer-cta strong {
+    margin-bottom: 7px;
+    font-size: 24px;
+}
+
+.offer-cta span {
+    font-size: 17px;
+    line-height: 1.25;
+}
+
+@keyframes ctaPulse {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+    }
+}
+
+/* Animations */
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 20px rgba(33, 150, 243, 0.4);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+        box-shadow: 0 0 30px rgba(33, 150, 243, 0.6);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 20px rgba(33, 150, 243, 0.4);
+    }
+}
+
+@keyframes playPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+    }
+}
+
+/* Other elements */
+.watch-notice {
+    text-align: center;
+    margin: 10px 0;
+    color: #666;
+    font-weight: bold;
+}
+
+.product-section {
+    display: none;
+    margin-top: 20px;
+}
+
+.product-card {
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.comments-section {
+
+    margin-top: 20px;
+}
+
+.comment {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* Video controls */
+.restart-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f32121;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 1001;
+}
+
+.custom-video-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.video-container.enlarged.playing .custom-video-controls {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.play-pause-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+}
+
+.video-progress {
+    flex-grow: 1;
+    height: 5px;
+    background: #444;
+    cursor: pointer;
+    position: relative;
+}
+
+.video-progress-filled {
+    background: #f00;
+    height: 100%;
+    width: 0%;
+}
+
+.volume-control {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+}
+
+.volume-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+
+
+
+
+
+
+
+
+.comments-section {
+    margin-top: 40px;
+}
+
+.comments-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.comment-item {
+    border-bottom: 1px solid #eee;
+    padding: 20px 0;
+}
+
+.comment-item:first-child {
+    padding-top: 0;
+}
+
+.comment-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+}
+
+.comment-meta {
+    flex: 1;
+}
+
+.commenter-name {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 2px;
+}
+
+.comment-time {
+    font-size: 12px;
+    color: #718096;
+}
+
+.comment-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #4a5568;
+    margin-bottom: 12px;
+}
+
+.comment-image {
+    margin-top: 12px;
+}
+
+.review-image {
+    max-width: 200px;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.comment-reply {
+    margin-left: 40px;
+    margin-top: 16px;
+    padding: 16px;
+    background: #f7fafc;
+    border-radius: 8px;
+}
+
+.doctor-reply {
+    background: #ebf8ff;
+    border-left: 3px solid #4299e1;
+}
+
+.doctor-reply .commenter-name {
+    color: #2b6cb0;
+}
+
+@media (max-width: 480px) {
+    .comments-container {
+        padding: 16px;
+    }
+
+    .comment-reply {
+        margin-left: 20px;
+    }
+
+    .review-image {
+        max-width: 100%;
+    }
+}
+
+
+
+
+
+
+
+
+.comment-reactions {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.reaction-btn {
+    background: none;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #718096;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.reaction-btn:hover {
+    background-color: #f1f5f9;
+}
+
+.like-btn {
+    color: #4a5568;
+}
+
+.reaction-icon {
+    font-size: 16px;
+}
+
+.reaction-count {
+    font-weight: 500;
+}
+
+.reaction-separator {
+    color: #cbd5e0;
+}
+
+.likes-info {
+    font-size: 13px;
+    color: #718096;
+}
+
+.reply-btn {
+    color: #4a5568;
+    font-weight: 500;
+}
+
+@media (max-width: 480px) {
+    .likes-info {
+        display: none;
+    }
+}
+
+
+
+
+
+
+.zyx_wrapper {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 15px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.zyx_header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.zyx_main_title {
+    font-size: 24px;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+    line-height: 1.3;
+}
+
+.zyx_doctor_block {
+    margin-bottom: 25px;
+}
+
+.zyx_doctor_photo {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.zyx_photo_caption {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0;
+}
+
+.zyx_section_title {
+    font-size: 20px;
+    color: #2c3e50;
+    margin: 25px 0 15px;
+    text-align: center;
+}
+
+.zyx_features {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.zyx_feature {
+    padding: 10px 0;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.zyx_feature:last-child {
+    border-bottom: none;
+}
+
+.zyx_timeline {
+    margin: 25px 0;
+}
+
+.zyx_timeline_item {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.zyx_timeline_title {
+    font-size: 18px;
+    color: #34495e;
+    margin-bottom: 10px;
+}
+
+.zyx_timeline_list {
+    list-style: none;
+    padding-left: 20px;
+}
+
+.zyx_timeline_list li {
+    position: relative;
+    padding: 5px 0;
+    padding-left: 15px;
+}
+
+.zyx_timeline_list li:before {
+    content: "•";
+    color: #3498db;
+    position: absolute;
+    left: 0;
+}
+
+.zyx_certificate {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.zyx_cert_img {
+    width: 100%;
+    max-width: 280px;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.zyx_ingredients {
+    padding: 20px 0;
+}
+
+.zyx_ingredient {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.zyx_ingredient_title {
+    font-size: 18px;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.zyx_ingredient_list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.zyx_ingredient_list li {
+    position: relative;
+    padding: 8px 0 8px 25px;
+    line-height: 1.4;
+}
+
+.zyx_ingredient_list li:before {
+    content: "✓";
+    color: #27ae60;
+    position: absolute;
+    left: 0;
+}
+
+.zyx_ingredient_note {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    margin: 20px 0;
+}
+
+.zyx_testimonials {
+    background: #f8f9fa;
+    padding: 30px 15px;
+    margin: 30px -15px;
+}
+
+.zyx_testimonial {
+    margin-bottom: 25px;
+}
+
+.zyx_quote {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.zyx_quote cite {
+    display: block;
+    margin-top: 10px;
+    color: #666;
+    font-size: 14px;
+    font-style: normal;
+}
+
+.zyx_family_photo {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.zyx_photo {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.zyx_attention {
+    background: #fff3cd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.zyx_attention_points p {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.zyx_price_block {
+    background: #e8f4fd;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 25px 0;
+}
+
+.zyx_price {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.zyx_old_price {
+    color: #666;
+    text-decoration: line-through;
+    font-size: 18px;
+}
+
+.zyx_new_price {
+    color: #e74c3c;
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.zyx_benefits {
+    margin: 20px 0;
+}
+
+.zyx_benefit {
+    padding: 10px 0 10px 25px;
+    position: relative;
+}
+
+.zyx_benefit:before {
+    content: "✨";
+    position: absolute;
+    left: 0;
+}
+
+.zyx_timer {
+    text-align: center;
+    color: #e74c3c;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+.zyx_note {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    margin: 15px 0;
+}
+
+.zyx_steps {
+    margin: 30px 0;
+}
+
+.zyx_steps_list {
+    padding-left: 25px;
+}
+
+.zyx_steps_list li {
+    margin: 15px 0;
+    line-height: 1.4;
+}
+
+.zyx_warning {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.zyx_warning_img {
+    max-width: 300px;
+    width: 100%;
+    border-radius: 8px;
+}
+
+.zyx_quality {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 25px 0;
+}
+
+.zyx_quality_points p {
+    margin: 10px 0;
+    padding-left: 25px;
+    position: relative;
+}
+
+.zyx_final_cta {
+    background: #e8f4fd;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 25px 0;
+}
+
+.zyx_final_points p {
+    margin: 10px 0;
+    padding-left: 20px;
+    position: relative;
+}
+
+.zyx_final_note {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    margin: 20px 0;
+}
+
+.zyx_product_photo {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.zyx_product_img {
+    max-width: 300px;
+    width: 70%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 767px) {
+    .zyx_wrapper {
+        padding: 10px;
+    }
+
+    .zyx_main_title {
+        font-size: 22px;
+    }
+
+    .zyx_section_title {
+        font-size: 18px;
+    }
+
+    .zyx_feature {
+        font-size: 15px;
+    }
+
+    .zyx_timeline_title {
+        font-size: 16px;
+    }
+
+    .zyx_ingredient_title {
+        font-size: 16px;
+    }
+
+    .zyx_price_block {
+        padding: 15px;
+    }
+
+    .zyx_old_price {
+        font-size: 16px;
+    }
+
+    .zyx_new_price {
+        font-size: 20px;
+    }
+}

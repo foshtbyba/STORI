@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Портал здоровья</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/comments.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        referrerpolicy="no-referrer"></script>
+    <link media="all" href="css/form.css" type="text/css" rel="stylesheet">
+    <link media="all" href="css/form1.css" type="text/css" rel="stylesheet">
+    <style>
+        @media (min-width: 768px) {
+            .main {
+                max-width: 620px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+    </style>
+
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+(function () {
+  var PID = '';
+  var u = new URLSearchParams(location.search).get('fbpx');
+  if (u) PID = u;
+  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }
+  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }
+  if (PID) {
+    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}
+    fbq('init', PID);
+    fbq('track', 'PageView');
+  }
+})();
+</script>
+<!-- End Meta Pixel -->
+
+</head>
+
+<body>
+    <div class="overlay"></div>
+    <header class="header">
+        <nav>
+            <div class="logo"><b>Портал здоровья</b></div>
+            <div class="menu">&#9776;</div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <h2 style="text-align: center; margin-top: -25px">Гороскоп для женщин старше 50 лет: ноябрь принесёт
+            облегчение суставам. Посмотрите видео &#9660;</h2>
+        <br>
+        <div class="container-video" id="container_video">
+
+            <div id="close" style="font-size: 30px;color: white;">X</div>
+
+            <div id="popup">
+                <div>
+                    <h2>Осталось всего 17 упаковок Hondro Sol.</h2>
+                    <h2>Закажите сейчас!</h2>
+                </div>
+            </div>
+            <div id="play" style="display: flex; max-width: 300px; opacity: 0.5; cursor: pointer">
+                <img src="images/Youtube_logo.png" alt="" class="player-logo" width="400" height="276"
+                    style="height: auto; max-width: 100%; object-fit: contain" loading="lazy">
+            </div>
+            <video id="video" autoplay="autoplay" muted="" playsinline="" preload="metadata">
+                <source src="media/1.mp4" type="video/mp4">
+            </video>
+
+        </div>
+
+        <p class="watch-notice">Посмотрите видео до конца</p>
+        <div id="oneform"></div>
+
+        <section id="order" class="product-section">
+
+            <div class="zyx_wrapper">
+                <header class="zyx_header">
+                    <h1 class="zyx_main_title">Hondro Sol — спрей нового поколения для восстановления суставов
+                    </h1>
+
+                    <div class="zyx_doctor_block">
+                        <img src="images/f1.jpg" alt="Д-р Елена Воронова" class="zyx_doctor_photo">
+                        <p class="zyx_photo_caption">Д-р Елена Воронова — ревматолог с 20-летним стажем, представившая
+                            этот спрей</p>
+                    </div>
+                </header>
+
+                <section class="zyx_intro">
+                    <h2 class="zyx_section_title">От лабораторной разработки к готовому решению</h2>
+                    <div class="zyx_features">
+                        <div class="zyx_feature">Основан на открытии фермента 15-PGDH, блокирующего регенерацию хрящей</div>
+                        <div class="zyx_feature">Спрей подавляет этот фермент и запускает естественное восстановление</div>
+                        <div class="zyx_feature">Помог тысячам людей в Европе вернуться к активной жизни</div>
+                    </div>
+                </section>
+
+                <section class="zyx_effects">
+                    <h2 class="zyx_section_title">Как действует спрей Hondro Sol?</h2>
+                    <div class="zyx_timeline">
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Первые 30 минут после нанесения</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Активные компоненты проникают через кожу к суставу</li>
+                                <li>Боль начинает ослабевать</li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Через 3 дня использования</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Утренняя скованность значительно уменьшается</li>
+                                <li>Подвижность суставов заметно улучшается</li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Эффект через 2 недели</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Фермент 15-PGDH подавлен, хрящ начинает восстанавливаться</li>
+                                <li>Вы снова можете двигаться без ограничений</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="zyx_certificate">
+                    <img src="images/ART.webp" alt="Hondro Sol" class="zyx_cert_img">
+                    <p class="zyx_photo_caption">Каждая партия проходит контроль качества</p>
+                </div>
+
+                <section class="zyx_ingredients">
+                    <h2 class="zyx_section_title">Уникальный состав спрея, основанный на научных исследованиях</h2>
+
+                    <div class="zyx_ingredient_grid">
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Ингибитор 15-PGDH</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Ключевой компонент — блокирует фермент, мешающий регенерации</li>
+                                <li>Запускает естественное восстановление хрящевой ткани</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Хондроитин</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Строительный материал для хряща</li>
+                                <li>Укрепляет суставную ткань изнутри</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Глюкозамин</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Стимулирует выработку синовиальной жидкости</li>
+                                <li>Обеспечивает подвижность и смазку сустава</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Природные экстракты</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Снимают воспаление и отёк</li>
+                                <li>Усиливают проникновение активных компонентов</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="zyx_ingredient_note">Состав разработан в сотрудничестве с европейскими исследовательскими лабораториями</p>
+                </section>
+
+                <section class="zyx_testimonials">
+                    <div class="zyx_family_photo">
+                        <img src="images/f3.jpg" alt="Люди возвращаются к активной жизни" class="zyx_photo">
+                        <p class="zyx_photo_caption">Тысячи людей по всей Европе уже вернулись к активной жизни</p>
+                    </div>
+                </section>
+
+                <section class="zyx_attention">
+                    <h2 class="zyx_section_title">Важная информация!</h2>
+                    <div class="zyx_attention_points">
+                        <p>&#8226; Спрос растёт быстрее, чем мы можем производить</p>
+                        <p>&#8226; Текущие партии уже зарезервированы</p>
+                        <p>&#8226; Тысячи людей уже в списке ожидания</p>
+                    </div>
+                </section>
+
+                <section class="zyx_steps">
+                    <h2 class="zyx_section_title">Как записаться в список ожидания?</h2>
+                    <ol class="zyx_steps_list">
+                        <li>Выберите страну и введите имя и номер телефона, затем нажмите «Записать меня»</li>
+                        <li>Включите звук на телефоне — консультант позвонит только один раз</li>
+                        <li>Если не ответите, окажетесь в конце списка</li>
+                        <li>Если ответите, получите Hondro Sol по самой низкой цене</li>
+                    </ol>
+                </section>
+
+                <div class="zyx_warning">
+                    <img src="images/ART.webp" alt="Hondro Sol" class="zyx_warning_img">
+                    <p class="zyx_photo_caption">Покупайте только у официальных представителей Hondro Sol</p>
+                </div>
+
+                <section class="zyx_quality">
+                    <h2 class="zyx_section_title">Гарантия качества</h2>
+                    <div class="zyx_quality_points">
+                        <p>&#10003; Каждая партия проходит 12 этапов контроля качества</p>
+                        <p>&#10003; Сертифицировано для применения в Европе</p>
+                        <p>&#10003; Те же строгие стандарты, что и при первых испытаниях</p>
+                        <p>&#10003; Цена покрывает только себестоимость производства</p>
+                    </div>
+                </section>
+
+                <section class="zyx_final_cta">
+                    <p class="zyx_final_note">Запишитесь сейчас в список ожидания — как только появится возможность,
+                        мы поможем вам забыть о боли в суставах!</p>
+
+                    <div class="zyx_product_photo">
+                        <img src="images/ART.webp" alt="Hondro Sol" class="zyx_product_img">
+                        <p class="zyx_photo_caption">Hondro Sol — спрей нового поколения для восстановления суставов</p>
+                    </div>
+                </section>
+            </div>
+
+            <!--FORM-BLOCK-->
+            <center>
+                <h3 id="order-form" style="font-size: 24px;"> Запишитесь в список ожидания </h3>
+                <div class="form_wrapper">
+                    <form action="order.php" method="post" class="order-form order_form" id="form" style="margin-top: 10px;">
+                        <input type="hidden" name="subid" value="{subid}">
+                        <input type="hidden" name="subid2" value="{sub_id_2}">
+                        <input type="hidden" name="cid" value="{campaign_id}">
+                        <input type="hidden" name="sid" value="">
+                        <input type="hidden" name="hash" value="{hash}">
+                        <div class="price">
+                            <p class="new_price">Специальная цена — <b class="price_main"><span class="price_main_value">25</span> <span class="price_main_currency">EUR</span></b></p>
+                            <p class="old_price price_old" style="text-decoration:line-through;color:#999;font-size:14px;"><span class="price_main_value">50</span> <span class="price_main_currency">EUR</span></p>
+                        </div>
+
+                        <label>
+                            <span class="text_form">Ваша страна:</span>
+                            <select class="country_select" id="country" name="country"></select>
+                        </label>
+                        <label>
+                            <span class="text_form">Ваше имя:</span>
+                            <input class="lv-input-fio" maxlength="255" name="name" value="" type="text" required="">
+                        </label>
+                        <label>
+                            <span class="text_form">Ваш телефон:</span>
+                            <input class="lv-input-phone only_number" name="phone" value="" type="tel"
+                                inputmode="numeric" autocomplete="tel" placeholder="123 456 7890" required="">
+                        </label>
+                        <button class="botBut js_pre_toform button__text" style="cursor: pointer;" type="submit">
+                            Записать меня
+                        </button>
+                        <div class="toform"></div>
+                        <div style="text-align: center;">
+                            <small class="small_text"> Осталось <span style="color: red;" id="stockCount">17</span> мест в списке ожидания</small>
+                        </div>
+
+                    </form>
+                </div>
+
+            </center>
+        </section>
+
+        <section class="comments-section">
+            <div class="f-comments-container">
+
+                <div class="f-comments-header">
+                    <div class="f-share-count">Поделились 63 раза</div>
+                    <div class="f-sort">Сначала новые</div>
+                </div>
+
+                <div class="f-comments-list">
+                    <div class="f-comment">
+                        <img src="images/z1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Светлана Михайлова</div>
+                                <div class="f-text">Наконец-то нашла то, что действительно помогает! Живу в Германии, заказала
+                                    и начала пользоваться сразу. Уже на третий день заметила — колени стали меньше
+                                    болеть при подъёме по лестнице.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 дня назад</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">47</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Андрей Козлов</div>
+                                <div class="f-text">Врачи говорили, что поможет только операция. Решил попробовать
+                                    Hondro Sol как последний шанс. Брызгаю уже неделю — боль значительно
+                                    уменьшилась. Сам не верю!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 дня назад</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">99</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">д-р Елена Воронова</div>
+                                            <div class="f-text">Андрей, рада, что Hondro Sol вам помогает! Пожалуйста,
+                                                продолжайте курс согласно инструкции — эффект накопительный.
+                                            </div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">2 дня назад</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">Нравится</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Ответить</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">67</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Марина Петрова</div>
+                                <div class="f-text">Большое спасибо за этот спрей! Сначала думала, что дороговато,
+                                    но теперь вижу — стоит своих денег. Суставы больше не хрустят, утренняя
+                                    скованность исчезла.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 дня назад</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">85</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Виктор Савченко</div>
+                                <div class="f-text">Кто-нибудь заказывал повторно? Мой первый флакон заканчивается,
+                                    хочу купить следующий. Боюсь, что акция закончится.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">4 дня назад</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">116</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/z3.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Елена Кузнецова</div>
+                                            <div class="f-text">Заказывала уже три раза, каждый раз посылка
+                                                приходила быстро. Стоит заказать, пока есть в наличии.
+                                            </div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">4 дня назад</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">Нравится</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Ответить</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">193</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Ольга Новикова</div>
+                                <div class="f-text">Заказала для мамы, ей 72 года. Говорит, что впервые за много лет
+                                    сама дошла до магазина без остановок на отдых! Живём в Австрии, доставка была быстрая.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">5 дней назад</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">188</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m3.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Игорь Белов</div>
+                                <div class="f-text">После травмы колена мучился 5 лет. Перепробовал все аптечные
+                                    средства — ничего не помогло. А этот спрей действительно работает! Уже неделю хожу
+                                    почти без боли.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">5 дней назад</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">212</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Наталья Соколова</div>
+                                <div class="f-text">Можно ли его использовать при артрите? Очень болят пальцы...</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">6 дней назад</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">154</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">д-р Елена Воронова</div>
+                                            <div class="f-text">Наталья, да, Hondro Sol применяется при различных
+                                                заболеваниях суставов, включая артрит. Многие пациенты
+                                                отмечают значительное улучшение состояния суставов пальцев.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">6 дней назад</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">Нравится</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Ответить</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">271</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Дмитрий Волков</div>
+                                <div class="f-text">Отличный спрей! Вот что я получил по почте — упаковка качественная, инструкция понятная. Пользуюсь третью неделю, результат отличный.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">неделю назад</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Татьяна Лебедева</div>
+                                <div class="f-text">Начала пользоваться неделю назад. Эффект потрясающий! Боль
+                                    в колене уменьшилась, скованность прошла. Мой муж тоже заметил разницу!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">неделю назад</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">328</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Сергей Морозов</div>
+                                <div class="f-text">Сначала думал, что это очередной обман, но решил попробовать.
+                                    И не зря! Через неделю использования забыл, что такое боль в суставах.
+                                    Рекомендую всем!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">неделю назад</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Алексей Попов</div>
+                                <div class="f-text">Поможет ли при боли в шее? Уже не могу терпеть...</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">неделю назад</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Нравится</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Ответить</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">356</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">д-р Елена Воронова</div>
+                                            <div class="f-text">Алексей, Hondro Sol помогает и при проблемах
+                                                с шейным отделом. Многие пациенты замечают улучшение уже в первую
+                                                неделю применения.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">неделю назад</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">Нравится</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Ответить</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">384</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="js/countrieslist.js"></script>
+    <script src="js/countries.js"></script>
+    <script src="js/video1.js"></script>
+</body>
+
+</html>
