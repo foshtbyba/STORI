@@ -30,7 +30,7 @@
         .country-confirm__btn--yes{background:#4caf50;color:#fff}
         .country-confirm__btn--no{background:#eee;color:#333}
         .country-confirm__btn:active{transform:scale(.96)}
-        .country-select-manual{display:block}
+        .country-select-manual{display:none}
     </style>
 
 <!-- Meta Pixel -->
@@ -668,33 +668,42 @@
         };
 
         var detectedCode = '';
+        var answered = false;
 
-        function showFormFields() {
+        function showFormFields(code) {
+            if (code) {
+                var sel = document.getElementById('country');
+                if (sel) sel.value = code;
+            }
+            selectManual.style.display = 'block';
             formFields.style.display = '';
         }
 
         window.onCountryConfirmed = function(code) {
             detectedCode = code;
-            var name = countryNames[code] || countries[code] || code.toUpperCase();
-            confirmName.textContent = name;
-            confirmBlock.style.display = '';
+            var n = countryNames[code] || (countries[code] && countries[code].name) || code.toUpperCase();
+            confirmName.textContent = n;
+            confirmBlock.style.display = 'block';
         };
 
         window.onCountryDetected = function(code) {
             detectedCode = code;
-            var name = countryNames[code] || countries[code] || code.toUpperCase();
-            confirmName.textContent = name;
-            confirmBlock.style.display = '';
+            var n = countryNames[code] || (countries[code] && countries[code].name) || code.toUpperCase();
+            confirmName.textContent = n;
+            confirmBlock.style.display = 'block';
         };
 
         btnYes.addEventListener('click', function(){
+            answered = true;
             confirmBlock.style.display = 'none';
-            showFormFields();
+            showFormFields(detectedCode);
         });
 
         btnNo.addEventListener('click', function(){
+            answered = true;
             confirmBlock.style.display = 'none';
             formFields.style.display = 'none';
+            selectManual.style.display = 'block';
             var placeholder = document.createElement('option');
             placeholder.value = '';
             placeholder.textContent = '-- Выберите страну --';
@@ -708,17 +717,16 @@
 
         for (var k = 0; k < selects.length; k++) {
             selects[k].addEventListener('change', function() {
-                if (this.value) showFormFields();
+                if (!this.value) return;
+                if (answered) {
+                    showFormFields(this.value);
+                    return;
+                }
+                detectedCode = this.value;
+                var n = countryNames[this.value] || (countries[this.value] && countries[this.value].name) || this.value.toUpperCase();
+                confirmName.textContent = n;
+                confirmBlock.style.display = 'block';
             });
-        }
-
-        var params = new URLSearchParams(window.location.search);
-        var urlCode = (params.get('c') || params.get('country') || '').toLowerCase();
-        if (urlCode && countries[urlCode]) {
-            detectedCode = urlCode;
-            var name = countryNames[urlCode] || countries[urlCode] || urlCode.toUpperCase();
-            confirmName.textContent = name;
-            confirmBlock.style.display = '';
         }
     });
     </script>

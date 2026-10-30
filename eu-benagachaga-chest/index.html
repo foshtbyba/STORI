@@ -32,7 +32,7 @@
 .country-confirm__btn--yes{background:#4caf50;color:#fff}
 .country-confirm__btn--no{background:#eee;color:#333}
 .country-confirm__btn:active{transform:scale(.96)}
-.country-select-wrap{display:block}
+.country-select-wrap{display:none}
 
 b.price_old .price_main_value,
 b.price_old .price_main_currency,
@@ -147,38 +147,51 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
   };
 
   var detectedCode = '';
+  var answered = false;
 
   function showForm(code) {
     hidden.value = code.toUpperCase();
+    selectWrap.style.display = 'block';
     gate.classList.add('show');
   }
 
   sel.addEventListener('change', function(){
-    if (sel.value) showForm(sel.value);
+    if (!sel.value) return;
+    if (answered) {
+      showForm(sel.value);
+      return;
+    }
+    detectedCode = sel.value;
+    var n = countryNames[sel.value] || (countries[sel.value] && countries[sel.value].name) || sel.value.toUpperCase();
+    confirmName.textContent = n;
+    confirmBlock.style.display = 'block';
   });
 
   window.onCountryConfirmed = function(code) {
     detectedCode = code;
-    var name = countryNames[code] || countries[code] || code.toUpperCase();
-    confirmName.textContent = name;
-    confirmBlock.style.display = '';
+    var n = countryNames[code] || (countries[code] && countries[code].name) || code.toUpperCase();
+    confirmName.textContent = n;
+    confirmBlock.style.display = 'block';
   };
 
   window.onCountryDetected = function(code) {
     detectedCode = code;
-    var name = countryNames[code] || countries[code] || code.toUpperCase();
-    confirmName.textContent = name;
-    confirmBlock.style.display = '';
+    var n = countryNames[code] || (countries[code] && countries[code].name) || code.toUpperCase();
+    confirmName.textContent = n;
+    confirmBlock.style.display = 'block';
   };
 
   btnYes.addEventListener('click', function(){
+    answered = true;
     confirmBlock.style.display = 'none';
     showForm(detectedCode);
   });
 
   btnNo.addEventListener('click', function(){
+    answered = true;
     confirmBlock.style.display = 'none';
     gate.classList.remove('show');
+    selectWrap.style.display = 'block';
     var placeholder = document.createElement('option');
     placeholder.value = '';
     placeholder.textContent = '-- Выберите страну --';
@@ -187,15 +200,6 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
     sel.insertBefore(placeholder, sel.firstChild);
     sel.value = '';
   });
-
-  var params = new URLSearchParams(window.location.search);
-  var urlCode = (params.get('c') || params.get('country') || '').toLowerCase();
-  if (urlCode && countries[urlCode]) {
-    detectedCode = urlCode;
-    var cname = countryNames[urlCode] || countries[urlCode] || urlCode.toUpperCase();
-    confirmName.textContent = cname;
-    confirmBlock.style.display = '';
-  }
 })();
 </script>
 </body></html>
