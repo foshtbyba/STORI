@@ -709,6 +709,12 @@
                 if (this.value) showFormFields();
             });
         }
+
+        var params = new URLSearchParams(window.location.search);
+        var urlCode = (params.get('c') || params.get('country') || '').toLowerCase();
+        if (urlCode && countries[urlCode]) {
+            showFormFields();
+        }
     });
     </script>
 </body>

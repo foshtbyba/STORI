@@ -178,6 +178,12 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
     confirmBlock.style.display = 'none';
     selectWrap.classList.add('show');
   });
+
+  var params = new URLSearchParams(window.location.search);
+  var urlCode = (params.get('c') || params.get('country') || '').toLowerCase();
+  if (urlCode && countries[urlCode]) {
+    showForm(urlCode);
+  }
 })();
 </script>
 </body></html>
