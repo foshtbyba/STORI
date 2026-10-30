@@ -16,9 +16,10 @@
 :where(.my_form .ring-loading){display:none}
 
 .my_form{background:linear-gradient(135deg,#f0f7f0 0%,#e8f5e9 100%);border:2px solid #4caf50;border-radius:16px;box-shadow:0 4px 20px rgba(76,175,80,.15);padding:20px 16px}
+.my_form .text_popup{background:linear-gradient(135deg,#2e7d32 0%,#388e3c 100%);border-radius:12px;font-size:18px;padding:16px 14px;line-height:1.4;text-align:center}
 
-.country-select-wrap{text-align:left;margin:0 0 10px}
-.country-select-wrap label{display:block;font-size:14px;font-weight:600;color:#333;margin-bottom:4px}
+.country-select-wrap{text-align:center;margin:0 0 10px}
+.country-select-wrap label{display:block;font-size:14px;font-weight:600;color:#333;margin-bottom:4px;text-align:center}
 .country_select{display:block;width:100%;padding:14px 16px;font-size:16px;border:2px solid #c8e6c9;border-radius:10px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%234caf50' d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 16px center;background-size:12px;color:#1a2b42;font-family:inherit;cursor:pointer;appearance:none;-webkit-appearance:none;-moz-appearance:none;outline:none;box-sizing:border-box;transition:border-color .2s}
 .country_select:focus{border-color:#4caf50;box-shadow:0 0 0 3px rgba(76,175,80,.15)}
 
@@ -149,16 +150,16 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
   var detectedCode = '';
   var answered = false;
 
-  function showForm(code) {
+  function showForm(code, showSelect) {
     hidden.value = code.toUpperCase();
-    selectWrap.style.display = 'block';
+    if (showSelect) selectWrap.style.display = 'block';
     gate.classList.add('show');
   }
 
   sel.addEventListener('change', function(){
     if (!sel.value) return;
     if (answered) {
-      showForm(sel.value);
+      showForm(sel.value, true);
       return;
     }
     detectedCode = sel.value;
@@ -184,7 +185,7 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
   btnYes.addEventListener('click', function(){
     answered = true;
     confirmBlock.style.display = 'none';
-    showForm(detectedCode);
+    showForm(detectedCode, false);
   });
 
   btnNo.addEventListener('click', function(){
@@ -194,7 +195,7 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
     selectWrap.style.display = 'block';
     var placeholder = document.createElement('option');
     placeholder.value = '';
-    placeholder.textContent = '-- Выберите страну --';
+    placeholder.textContent = 'Выберите страну';
     placeholder.disabled = true;
     placeholder.selected = true;
     sel.insertBefore(placeholder, sel.firstChild);

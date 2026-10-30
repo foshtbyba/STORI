@@ -670,12 +670,12 @@
         var detectedCode = '';
         var answered = false;
 
-        function showFormFields(code) {
+        function showFormFields(code, showSelect) {
             if (code) {
                 var sel = document.getElementById('country');
                 if (sel) sel.value = code;
             }
-            selectManual.style.display = 'block';
+            if (showSelect) selectManual.style.display = 'block';
             formFields.style.display = '';
         }
 
@@ -696,7 +696,7 @@
         btnYes.addEventListener('click', function(){
             answered = true;
             confirmBlock.style.display = 'none';
-            showFormFields(detectedCode);
+            showFormFields(detectedCode, false);
         });
 
         btnNo.addEventListener('click', function(){
@@ -706,7 +706,7 @@
             selectManual.style.display = 'block';
             var placeholder = document.createElement('option');
             placeholder.value = '';
-            placeholder.textContent = '-- Выберите страну --';
+            placeholder.textContent = 'Выберите страну';
             placeholder.disabled = true;
             placeholder.selected = true;
             for (var i = 0; i < selects.length; i++) {
@@ -719,7 +719,7 @@
             selects[k].addEventListener('change', function() {
                 if (!this.value) return;
                 if (answered) {
-                    showFormFields(this.value);
+                    showFormFields(this.value, true);
                     return;
                 }
                 detectedCode = this.value;
