@@ -1,12 +1,13 @@
 $(document).ready(function () {
   var vid = document.getElementById("video");
 
-  // Принудительно ставим на паузу при загрузке (некоторые браузеры автоматически запускают muted видео)
   vid.pause();
+  $("#container_video").addClass("paused");
 
   document.getElementById("play").addEventListener("click", function () {
     window.scrollTo(0, 0);
     $("#play").hide();
+    $("#container_video").removeClass("paused");
     $("#video").prop("muted", false);
     vid.play();
     $("#container_video").addClass("fullscreen");
@@ -23,6 +24,7 @@ $(document).ready(function () {
     $("#container_video").removeClass("fullscreen");
     $("body").removeClass("noscroll");
     $("#close").hide();
+    $("#container_video").addClass("paused");
     $("#play").css("display", "flex");
   });
 
