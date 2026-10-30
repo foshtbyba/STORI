@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'agents-per-percent · 23.10 20:43';
+export const BUILD_INFO = 'threads-strip-i18n · 31.10 00:42';

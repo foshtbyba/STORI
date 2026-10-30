@@ -925,9 +925,17 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           return asid;
         } catch (e) {
           const msg = (e as Error).message;
-          const m = msg.match(/Invalid value (\S+?)[.,\s]*for the placement field/i);
+          // Значение плохого плейсмента ищем И в человеческом сообщении (может
+          // быть локализовано — «Недействительное значение threads_home в поле…»),
+          // И в техническом raw (там английский «Invalid value X for the placement
+          // field»). Раньше смотрели только англ. .message — на русском ответе FB
+          // лечение не срабатывало и ошибка вылетала наружу (код 2490491).
+          const raw = (e instanceof FbError ? e.raw : undefined) || '';
+          const hay = `${raw}\n${msg}`;
+          const m = hay.match(/Invalid value (\S+?)[.,\s]*for the placement field/i)
+            || hay.match(/Недействительн\S*\s+значение\s+["']?(\S+?)["']?\s+(?:в поле|для поля)/i);
           if (m && placements.length) {
-            const badVal = m[1];
+            const badVal = m[1].replace(/["'.,]+$/, '');
             const next = stripPlacementValue(placements, badVal);
             if (next.length < placements.length) { append(`⚠ Плейсмент «${badVal}» кабинет не принял — убрал и повторяю`); placements = next; await sleep(400); continue; }
           }
