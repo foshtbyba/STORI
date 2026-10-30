@@ -22,7 +22,14 @@
 .f-avatar {
     width: 32px;
     height: 32px;
+    min-width: 32px;
     border-radius: 50%;
+    object-fit: cover;
+}
+.f-replies .f-avatar {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
 }
 
 .f-comment-wrap {
@@ -68,8 +75,9 @@
 }
 
 .f-replies {
-    margin-left: 32px;
-    padding-left: 12px;
+    margin-left: 40px;
+    padding-left: 16px;
+    margin-top: 8px;
     position: relative;
 }
 
@@ -151,8 +159,8 @@
 
 @media (max-width: 480px) {
     .f-replies {
-        margin-left: 24px;
-        padding-left: 8px;
+        margin-left: 32px;
+        padding-left: 12px;
     }
 }
 
