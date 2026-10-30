@@ -60,7 +60,7 @@ body.video-modal-open {
     max-width: 400px;
     margin: 0 auto;
     position: relative;
-    aspect-ratio: 3/4;
+    aspect-ratio: 1/1;
     background: #000;
     margin-bottom: 20px;
     border: 2px solid #333;
