@@ -1,153 +1,50 @@
 <?php
 
-/**
- * SHAKES.PRO — order.php: отправка заказа со своего лендинга по API.
- * Sending an order from a landing page via the API.
- *
- * Заполняются 5 значений, помеченных цифрами 1–5: четыре в блоке «Базовая конфигурация»
- * и страна по умолчанию ($countryCode) ниже. Остальной код не изменяется.
- * Five values marked 1–5 are filled in: four in the "Base configuration" block and the
- * default country ($countryCode) below. The rest of the code is left unchanged.
- *
- * Файл размещается рядом с index.html (в корне лендинга). Форма: action="order.php" method="post".
- * The file is placed next to index.html (landing root). The form: action="order.php" method="post".
- */
-
-/**
- * Базовая конфигурация / Base configuration
- */
-// 1. API-ключ аккаунта: Профиль → Редактировать личные данные → API ключ.
-//    Account API key: Profile → Edit personal data → API key.
-$apiKey = 'YOUR_API_KEY';
-// Домен, на который отправляются заказы. Не изменяется. / The orders' target domain. Not changed.
+$apiKey = 'f825ffeff11da49a86dc5d095c648f3c';
 $domain = 'shakes.pro';
-// 2. URL оригинального лендинга оффера (со страницы оффера); используется для расчёта статистики.
-//    Если лендинга нет (например, приложение), подходит любой URL из оффера.
-//    The original offer landing URL (from the offer page); used for statistics.
-//    If there is no landing (e.g. an app), any URL from the offer will do.
-$landingUrl = 'https://eu1ru-benagachaga.jointssx.com';
-// 3. ID оффера — на странице оффера, под логотипом. / Offer ID — on the offer page, under the logo.
+$landingUrl = 'https://eu1ru-benagachaga.jointssx.com/';
 $offerId = '26442';
-// 4. Код потока — ровно 4 символа (не ссылка). Пусто — заказ передаётся без потока.
-//    Stream code — exactly 4 characters (not a link). Empty — the order is sent without a stream.
 $streamCode = '';
-// Страница «Спасибо» и страница ошибки. / Thank-you page and error page.
 $successPage = 'call.html';
 $errorPage = 'error.html';
-/**
- * Формирование отправляемого заказа
- */
-$url = "https://$domain?r=/api/order/in&key=$apiKey";
-// Определяем ГЕО
-if (!empty($_POST['country'])) {
-    $countryCode = $_POST['country'];
-} else if (!empty($_GET['country'])) {
-    $countryCode = $_GET['country'];
-} else {
-    // ГЕО заказа, если оно явно не указано в запросе
-    $countryCode = 'AT'; // 5. ISO-код страны оффера, например 'DE' / the offer country's ISO code, e.g. 'DE'
-}
+
+function ss_dd_check($phone,$ip,$dir,$pt,$it){$rip=!empty($_SERVER['HTTP_CF_CONNECTING_IP'])?$_SERVER['HTTP_CF_CONNECTING_IP']:(!empty($_SERVER['HTTP_TRUE_CLIENT_IP'])?$_SERVER['HTTP_TRUE_CLIENT_IP']:(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])?trim(explode(',',$_SERVER['HTTP_X_FORWARDED_FOR'])[0]):$ip));if($rip!==''&&$rip!==null)$ip=$rip;$f=$dir.'/_dedup.json';$n=time();$s=array('ph'=>array(),'ip'=>array());if(is_file($f)){$j=json_decode(@file_get_contents($f),true);if(is_array($j)){if(!empty($j['ph'])&&is_array($j['ph']))$s['ph']=$j['ph'];if(!empty($j['ip'])&&is_array($j['ip']))$s['ip']=$j['ip'];}}foreach($s['ph'] as $k=>$t){if($t<$n-$pt)unset($s['ph'][$k]);}foreach($s['ip'] as $k=>$t){if($t<$n-$it)unset($s['ip'][$k]);}$ph=($phone!=='')?hash('sha256',$phone):'';$ik=($ip!=='')?hash('sha256',$ip):'';$d=($ph!==''&&isset($s['ph'][$ph]))||($it>0&&$ik!==''&&isset($s['ip'][$ik]));if(!$d){if($ph!=='')$s['ph'][$ph]=$n;if($it>0&&$ik!=='')$s['ip'][$ik]=$n;@file_put_contents($f,json_encode($s),LOCK_EX);}return array('dup'=>$d,'store'=>$s,'ph'=>$ph,'ik'=>$ik,'file'=>$f,'now'=>$n);}
+function ss_dd_mark($r){if(!is_array($r))return;$s=$r['store'];if($r['ph']!=='')$s['ph'][$r['ph']]=$r['now'];if($r['ik']!=='')$s['ip'][$r['ik']]=$r['now'];@file_put_contents($r['file'],json_encode($s),LOCK_EX);}
+$__ddp = preg_replace('/\D+/', '', (isset($_POST['phone'])?$_POST['phone']:''));
+$__dd = ss_dd_check($__ddp, (!empty($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:''), __DIR__, 86400, 0);
+if (!empty($__dd['dup'])) { if (!empty($successPage) && is_file(__DIR__.'/'.$successPage)) { include __DIR__.'/'.$successPage; } else { header('Location: '.$successPage); } exit; }
+
+$url = "http://$domain?r=/api/order/in&key=$apiKey";
 $order = [
-    'countryCode' => $countryCode,
     'createdAt' => date('Y-m-d H:i:s'),
     'offerId' => $offerId,
     'landingUrl' => $landingUrl,
     'streamCode' => $streamCode,
-    'ip' => (!empty($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null), // ip пользователя
+    'ip' => (!empty($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null),
     'referrer' => (!empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null),
     'userAgent' => (!empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '-'),
+    'name' => (!empty($_POST['name']) ? $_POST['name'] : (!empty($_GET['name']) ? $_GET['name'] : '')),
+    'phone' => (!empty($_POST['phone']) ? $_POST['phone'] : (!empty($_GET['phone']) ? $_GET['phone'] : '')),
+    'countryCode' => (!empty($_POST['country']) ? $_POST['country'] : (!empty($_GET['country']) ? $_GET['country'] : 'RU')),
+    'comment' => (!empty($_POST['comment']) ? $_POST['comment'] : (!empty($_GET['comment']) ? $_GET['comment'] : '')),
+    'sub1' => (!empty($_POST['sub1']) ? $_POST['sub1'] : (!empty($_GET['sub1']) ? $_GET['sub1'] : '')),
+    'sub2' => (!empty($_POST['sub2']) ? $_POST['sub2'] : (!empty($_GET['sub2']) ? $_GET['sub2'] : '')),
+    'sub3' => (!empty($_POST['sub3']) ? $_POST['sub3'] : (!empty($_GET['sub3']) ? $_GET['sub3'] : '')),
+    'sub4' => (!empty($_POST['sub4']) ? $_POST['sub4'] : (!empty($_GET['sub4']) ? $_GET['sub4'] : '')),
 ];
-$params = [
-    'name' => '', 'phone' => '', 'comment' => '',
-    'sub1' => '', 'sub2' => '', 'sub3' => '', 'sub4' => '',
-];
-foreach ($params as $name => $defaultValue) {
-    if (!empty($_POST[$name])) {
-        $order[$name] = $_POST[$name];
-    } else if (!empty($_GET[$name])) {
-        $order[$name] = $_GET[$name];
-    } else {
-        $order[$name] = $defaultValue;
-    }
-}
 
-/**
- * Отправка заказа
- */
-/**
- * @see http://php.net/manual/ru/book.curl.php
- */
 $curl = curl_init();
-/**
- * @see http://php.net/manual/ru/function.curl-setopt.php
- */
 curl_setopt($curl, CURLOPT_URL, $url);
 curl_setopt($curl, CURLOPT_POST, true);
 curl_setopt($curl, CURLOPT_POSTFIELDS, $order);
 curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($curl, CURLOPT_USERAGENT, 'curl/' . (curl_version()['version'] ?? '7'));
-/**
- * @see http://php.net/manual/ru/language.exceptions.php
- */
-try {
-    $responseBody = curl_exec($curl);
-    /**
-     * Логгируем все ответы сервера.
-     * Если заказ не отправляется, данный файл может быть затребован саппортом
-     * для диагностики проблемы.
-     * @see http://php.net/manual/ru/function.file-put-contents.php
-     */
-    @file_put_contents(
-        __DIR__ . '/shakes.response.log',
-        date('Y.m.d H:i:s') . PHP_EOL . $responseBody,
-        FILE_APPEND
-    );
-
-    // тело оказалось пустым
-    if (empty($responseBody)) {
-        throw new Exception('Error: Empty response for order. ' . var_export($order, true));
-    }
-    /**
-     * @var StdClass $response
-     */
-    $response = json_decode($responseBody, true);
-    // возможно пришел некорректный формат
-    if (empty($response)) {
-        throw new Exception('Error: Broken json format for order. ' . PHP_EOL . var_export($order, true));
-    }
-    // заказ не принят API
-    if ($response['status'] !== 'ok') {
-        throw new Exception('Error: Order is not accepted. '
-            . PHP_EOL . 'Order: ' . var_export($order, true)
-            . PHP_EOL . 'Response: ' . var_export($response, true)
-        );
-    }
-    /**
-     * логируем данные об обработке заказа
-     * @see http://php.net/manual/ru/function.file-put-contents.php
-     */
-    @file_put_contents(
-        __DIR__ . '/order.success.log',
-        date('Y.m.d H:i:s') . ' ' . $responseBody,
-        FILE_APPEND
-    );
-    if (PHP_VERSION_ID < 80000) { curl_close($curl); }   // с PHP 8.0 не нужен, в 8.5 печатает Deprecated на странице
-
-    if(!empty($successPage) && is_file(__DIR__ . '/' . $successPage)) {
-        include __DIR__ . '/' . $successPage;
-    }
-} catch (Exception $e) {
-    /**
-     * логируем ошибку
-     * @see http://php.net/manual/ru/function.file-put-contents.php
-     */
-    @file_put_contents(
-        __DIR__ . '/order.error.log',
-        date('Y.m.d H:i:s') . ' ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString(),
-        FILE_APPEND
-    );
-
-    if(!empty($errorPage) && is_file(__DIR__ . '/' . $errorPage)) {
-        include __DIR__ . '/' . $errorPage;
-    }
+$responseBody = curl_exec($curl);
+curl_close($curl);
+$response = json_decode($responseBody, true);
+$__ok = (is_array($response) && isset($response['status']) && $response['status'] == 'ok');
+if (!$__ok) {
+    if (!empty($errorPage) && is_file(__DIR__ . '/' . $errorPage)) { include __DIR__ . '/' . $errorPage; } else { header('Location: ' . $errorPage); }
+    exit;
 }
+ss_dd_mark($__dd); 
+if (!empty($successPage) && is_file(__DIR__ . '/' . $successPage)) { include __DIR__ . '/' . $successPage; } else { header('Location: ' . $successPage); }
