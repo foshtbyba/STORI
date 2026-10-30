@@ -842,16 +842,33 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     // запуске). Поэтому выбранную баером Страницу заранее НЕ трогаем: список
     // разрешённых держим для РЕАКТИВНОГО отката — переключимся, только если креатив
     // реально отобьёт 1815645.
-    const promotable = await listPromotePages(token, ctx.acc.externalId, net);
-    let pageSwitched = false;
+    // Кандидаты на замену Страницы при 1815645. Два источника, порядок важен:
+    //  1) страницы из УЖЕ существующих креативов кабинета — на них тут уже
+    //     крутили, значит они проходят проверку «та, что указана при создании
+    //     аккаунта» (promote_pages у рент-кабинетов часто пустой);
+    //  2) promote_pages — заявленный список разрешённых.
+    // Перебираем по очереди, пока какая-то не зайдёт; текущую исключаем.
+    const [promotable, creativePageIds] = await Promise.all([
+      listPromotePages(token, ctx.acc.externalId, net),
+      listAdAccountCreativePageIds(token, ctx.acc.externalId, net),
+    ]);
+    const pageQueue: { id: string; name: string }[] = [];
+    const seenPage = new Set<string>([pageId]);
+    for (const id of creativePageIds) if (!seenPage.has(id)) { seenPage.add(id); pageQueue.push({ id, name: id }); }
+    for (const p of promotable) if (!seenPage.has(p.id)) { seenPage.add(p.id); pageQueue.push(p); }
     const switchPageOnMismatch = (err: unknown): boolean => {
       const msg = err instanceof Error ? err.message : String(err);
-      if (!/1815645|isn'?t allowed|not allowed to (?:promote|advertise)/i.test(msg)) return false;
-      const pick = promotable.find((p) => p.id !== pageId) || promotable[0];
-      if (!pick || pick.id === pageId || pageSwitched) return false;
-      append(`⚠ Кабинет не принял выбранную Страницу (1815645) — переключаюсь на разрешённую «${pick.name}» (${pick.id}) и повторяю.`);
+      const raw = (err instanceof FbError ? err.raw : undefined) || '';
+      // Код есть в .message; текст может быть локализован («не совпадают…»),
+      // английский вариант ловим в raw.
+      if (!/1815645|isn'?t allowed|not allowed to (?:promote|advertise)|не совпада/i.test(`${msg}\n${raw}`)) return false;
+      const pick = pageQueue.shift();
+      if (!pick) {
+        append('⚠ Кабинет привязан к другой Странице (1815645), а подобрать замену не из чего — выбери в форме Страницу, разрешённую этому кабинету.');
+        return false;
+      }
+      append(`⚠ Кабинет не принял выбранную Страницу (1815645) — переключаюсь на «${pick.name}» (${pick.id}) и повторяю.`);
       pageId = pick.id;
-      pageSwitched = true;
       return true;
     };
 
@@ -1082,7 +1099,10 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
 
       // Создание креатива с подрезкой неподдержанных ключей улучшений.
       const buildCreativeWithRetry = async (build: () => Promise<string>): Promise<string> => {
-        for (let a = 0; a < optOut.length + 4; a += 1) {
+        // Бюджет попыток: подрезка ключей улучшений + перебор страниц (1815645)
+        // + смена IG-идентичности + запас. Иначе на кабинете с кучей ключей
+        // не осталось бы попыток на переключение Страницы.
+        for (let a = 0; a < optOut.length + pageQueue.length + 6; a += 1) {
           try { return await build(); }
           catch (e) {
             const m = (e as Error).message.match(/Param key '([^']+)' in degrees_of_freedom_spec/i);

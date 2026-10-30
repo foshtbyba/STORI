@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'threads-strip-i18n · 31.10 00:42';
+export const BUILD_INFO = 'page-switch-queue · 31.10 01:08';
