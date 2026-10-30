@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Грешка — Здравен Хоризонт</title>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f5f6f8;
+  color: #232323;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+  max-width: 480px;
+  width: 100%;
+  padding: 40px 28px;
+  text-align: center;
+}
+.icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #fde8e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+h1 {
+  font-family: 'PT Serif', Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+p {
+  font-size: 16px;
+  color: #3d3d4a;
+  line-height: 1.65;
+  margin-bottom: 16px;
+}
+.btn {
+  display: inline-block;
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: #c7461a;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  margin-top: 12px;
+  font-family: inherit;
+}
+.footer {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 28px;
+}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c53030" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+  </div>
+  <h1>Нещо се обърка</h1>
+  <p>Заявката не можа да бъде обработена. Моля, опитайте отново или проверете въведените данни.</p>
+  <a href="index.html#orderForm" class="btn">Опитайте отново</a>
+  <div class="footer">Здравен Хоризонт · Независимо здравно издание</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Поръчката е приета — Здравен Хоризонт</title>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f5f6f8;
+  color: #232323;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+  max-width: 480px;
+  width: 100%;
+  padding: 40px 28px;
+  text-align: center;
+}
+.icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #e6f5ec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+h1 {
+  font-family: 'PT Serif', Georgia, serif;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+p {
+  font-size: 16px;
+  color: #3d3d4a;
+  line-height: 1.65;
+  margin-bottom: 16px;
+}
+.highlight {
+  background: #f0f7f4;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 20px 0;
+  font-size: 15px;
+  color: #0f7b5f;
+  line-height: 1.55;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+}
+.highlight svg { flex-shrink: 0; margin-top: 2px; }
+.steps {
+  text-align: left;
+  margin: 24px 0;
+}
+.step {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 15px;
+  color: #3d3d4a;
+  line-height: 1.5;
+}
+.step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #15375e;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.footer {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 24px;
+}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-5"/></svg>
+  </div>
+  <h1>Поръчката ви е приета</h1>
+  <p>Благодарим ви! Заявката за Hondro Sol е регистрирана успешно.</p>
+
+  <div class="highlight">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.86 19.86 0 013.09 5.18 2 2 0 015.11 3h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 11.91a16 16 0 006 6l2.27-2.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+    <span>Консултант от Здравен Хоризонт ще ви се обади в рамките на 15–30 минути, за да потвърди адреса за доставка.</span>
+  </div>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><span>Консултантът ще ви се обади за потвърждение</span></div>
+    <div class="step"><div class="step-num">2</div><span>Доставката пристига за 2–4 работни дни</span></div>
+    <div class="step"><div class="step-num">3</div><span>Плащате при получаване на куриера</span></div>
+  </div>
+
+  <p style="font-size:14px;color:#6b7280;">Моля, дръжте телефона си включен. Ако не отговорите, ще опитаме отново до 2 часа.</p>
+
+  <div class="footer">Здравен Хоризонт · Независимо здравно издание</div>
+</div>
+</body>
+</html>
