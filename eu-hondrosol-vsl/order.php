@@ -4,9 +4,9 @@
  * Multi-geo version — no per-country phone normalization
  */
 
-$API_ID     = '';
-$OFFER      = '';
-$FLOW       = '';
+$API_ID     = '3341-18c968ac07328013f25e34ebca663059';
+$OFFER      = '1187';
+$FLOW       = '44054';
 $THANK_PAGE = 'call.html';
 $ERROR_PAGE = 'error.html';
 $DEBUG_LOG  = false;
