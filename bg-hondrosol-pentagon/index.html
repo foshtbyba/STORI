@@ -617,18 +617,6 @@ body {
 }
 
 /* ===== ORDER FORM ===== */
-.order-section {
-  background: var(--bg-white);
-  border: 2px solid var(--trust-green);
-  border-radius: 10px;
-  padding: 28px 24px;
-  margin: 12px 0 32px;
-  display: none;
-}
-.order-section.visible {
-  display: block;
-  animation: fadeSlideIn 0.5s ease;
-}
 @keyframes fadeSlideIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -1037,19 +1025,28 @@ body {
 
 .calc-order-form {
   margin-top: 24px;
-  padding-top: 24px;
-  border-top: 2px solid var(--border-light);
+  padding: 28px 24px;
+  border: 2px solid var(--trust-green);
+  border-radius: 10px;
+  background: var(--bg-white);
+  animation: fadeSlideIn 0.5s ease;
 }
 .calc-order-title {
   font-family: 'PT Serif', Georgia, serif;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  margin-bottom: 4px;
+  text-align: center;
+  margin-bottom: 20px;
 }
-.calc-order-sub {
-  font-size: 13px;
-  color: var(--text-light);
-  margin-bottom: 16px;
+.calc-order-form .form-field {
+  margin-bottom: 14px;
+}
+.calc-order-form .form-field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--text-primary);
 }
 .calc-input {
   display: block;
@@ -1612,25 +1609,34 @@ body {
       <div id="calcResultTitle" class="calc-result-title"></div>
       <p id="calcResultText" class="calc-result-text"></p>
       <ul class="calc-result-list" id="calcResultList"></ul>
-      <div class="calc-order-form">
-        <div class="calc-order-title">Поръчайте вашия курс — 25 €</div>
-        <div class="calc-order-sub">Безплатна доставка. Плащане при получаване.</div>
-        <form action="order.php" method="POST" onsubmit="return postLead()">
+      <div class="calc-order-form" id="orderForm">
+        <div class="calc-order-title">Поръчайте Hondro Sol с безплатна доставка</div>
+        <form action="order.php" method="POST" id="mainForm" onsubmit="return postLead()">
           <input type="hidden" name="subid" value="{subid}">
           <input type="hidden" name="country" value="BG">
           <input type="hidden" name="subid2" value="{sub_id_2}">
-          <input type="hidden" name="cid" value="">
+          <input type="hidden" name="cid" value="{campaign_id}">
           <input type="hidden" name="sid" value="">
-          <input type="hidden" name="hash" value="">
-          <input type="text" name="name" placeholder="Вашето име" required class="calc-input">
-          <input type="tel" name="phone" placeholder="0888 123 456" required class="calc-input">
+          <input type="hidden" name="hash" value="{hash}">
+          <div class="form-field">
+            <label for="calcName">Вашето име</label>
+            <input type="text" id="calcName" name="name" placeholder="Напр. Мария Иванова" required class="calc-input">
+          </div>
+          <div class="form-field">
+            <label for="calcPhone">Телефонен номер</label>
+            <input type="tel" id="calcPhone" name="phone" placeholder="0888 123 456" required class="calc-input">
+          </div>
           <button type="submit" class="calc-submit-btn">Поръчайте сега — 25 €</button>
+          <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;font-size:12px;color:var(--trust-green);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Без риск — ако не ви хареса, просто не приемайте пратката
+          </div>
+          <div style="font-size:12px;color:#6b7280;text-align:center;margin-top:8px;">Безплатна доставка · Плащане при получаване · Без предплащане</div>
         </form>
         <div class="calc-trust-note">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <span>Консултант от Здравен Хоризонт ще ви се обади за 15–30 мин., за да потвърди адреса.</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.86 19.86 0 013.09 5.18 2 2 0 015.11 3h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 11.91a16 16 0 006 6l2.27-2.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          <span>След поръчката ще ви се обади консултант от Здравен Хоризонт за потвърждение на адреса.</span>
         </div>
-        <div style="font-size:12px;color:#6b7280;text-align:center;margin-top:8px;">Без риск — ако не ви хареса, просто не приемайте пратката.</div>
       </div>
     </div>
   </div>
@@ -1870,37 +1876,6 @@ body {
     <span><strong>Ограничена наличност:</strong> За България са заделени <strong id="stockCount"></strong> опаковки на промоционална цена. След изчерпване — стандартната цена е 50 €.</span>
   </div>
 
-  <!-- ORDER FORM -->
-  <div class="order-section" id="orderForm">
-    <div class="order-title">Поръчайте Hondro Sol с безплатна доставка</div>
-    <form action="order.php" method="POST" id="mainForm" onsubmit="return postLead()">
-      <input type="hidden" name="subid" value="{subid}">
-      <input type="hidden" name="country" value="BG">
-      <input type="hidden" name="subid2" value="{sub_id_2}">
-      <input type="hidden" name="cid" value="{campaign_id}">
-      <input type="hidden" name="sid" value="">
-      <input type="hidden" name="hash" value="{hash}">
-
-      <div class="form-field">
-        <label for="name">Вашето име</label>
-        <input type="text" id="name" name="name" placeholder="Напр. Мария Иванова" required>
-      </div>
-      <div class="form-field">
-        <label for="phone">Телефонен номер</label>
-        <input type="tel" id="phone" name="phone" placeholder="0888 123 456" required>
-      </div>
-      <button type="submit" class="submit-btn">Поръчайте сега — 25 €</button>
-      <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;font-size:12px;color:var(--trust-green);">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        Без риск — ако не ви хареса, просто не приемайте пратката
-      </div>
-      <div class="form-note">Безплатна доставка · Плащане при получаване · Без предплащане</div>
-      <div style="display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:12px 14px;background:#f0f7f4;border-radius:6px;font-size:12px;color:var(--trust-green);line-height:1.5;text-align:left;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0f7b5f" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.86 19.86 0 013.09 5.18 2 2 0 015.11 3h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 11.91a16 16 0 006 6l2.27-2.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-        <span>След поръчката ще ви се обади консултант от Здравен Хоризонт за потвърждение на адреса.</span>
-      </div>
-    </form>
-  </div>
 
   <!-- SOURCES -->
   <div class="sources-block">
@@ -1991,7 +1966,7 @@ function showPainResult(el) {
 }
 
 // Sticky CTA
-var orderSection = document.getElementById('orderForm');
+var orderSection = document.getElementById('calcSection');
 
 function checkSticky() {
   if (!orderSection) return;
@@ -2010,7 +1985,7 @@ checkSticky();
 var quizDone = false;
 function scrollToForm() {
   if (quizDone) {
-    orderSection.scrollIntoView({behavior: 'smooth', block: 'center'});
+    document.getElementById('orderForm').scrollIntoView({behavior: 'smooth', block: 'center'});
   } else {
     document.getElementById('calcSection').scrollIntoView({behavior: 'smooth', block: 'start'});
   }
@@ -2092,9 +2067,6 @@ function calcAnswer(step, score) {
   document.getElementById('calcResult').classList.add('visible');
 
   quizDone = true;
-  setTimeout(function() {
-    orderSection.classList.add('visible');
-  }, 400);
 
   setTimeout(function() {
     document.getElementById('calcResult').scrollIntoView({behavior: 'smooth', block: 'start'});
