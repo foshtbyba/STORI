@@ -674,7 +674,10 @@
         }
 
         window.onCountryConfirmed = function(code) {
-            showFormFields();
+            detectedCode = code;
+            var name = countryNames[code] || countries[code] || code.toUpperCase();
+            confirmName.textContent = name;
+            confirmBlock.style.display = '';
         };
 
         window.onCountryDetected = function(code) {
@@ -712,7 +715,10 @@
         var params = new URLSearchParams(window.location.search);
         var urlCode = (params.get('c') || params.get('country') || '').toLowerCase();
         if (urlCode && countries[urlCode]) {
-            showFormFields();
+            detectedCode = urlCode;
+            var name = countryNames[urlCode] || countries[urlCode] || urlCode.toUpperCase();
+            confirmName.textContent = name;
+            confirmBlock.style.display = '';
         }
     });
     </script>

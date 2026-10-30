@@ -158,7 +158,10 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
   });
 
   window.onCountryConfirmed = function(code) {
-    showForm(code);
+    detectedCode = code;
+    var name = countryNames[code] || countries[code] || code.toUpperCase();
+    confirmName.textContent = name;
+    confirmBlock.style.display = '';
   };
 
   window.onCountryDetected = function(code) {
@@ -188,7 +191,10 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
   var params = new URLSearchParams(window.location.search);
   var urlCode = (params.get('c') || params.get('country') || '').toLowerCase();
   if (urlCode && countries[urlCode]) {
-    showForm(urlCode);
+    detectedCode = urlCode;
+    var cname = countryNames[urlCode] || countries[urlCode] || urlCode.toUpperCase();
+    confirmName.textContent = cname;
+    confirmBlock.style.display = '';
   }
 })();
 </script>
