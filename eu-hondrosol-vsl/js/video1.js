@@ -1,30 +1,37 @@
 $(document).ready(function () {
-  document.getElementById("play").addEventListener("click", () => {
+  var vid = document.getElementById("video");
+
+  // Принудительно ставим на паузу при загрузке (некоторые браузеры автоматически запускают muted видео)
+  vid.pause();
+
+  document.getElementById("play").addEventListener("click", function () {
     window.scrollTo(0, 0);
-    $("#play").fadeOut("fast", function () {
-      $("#video").prop("muted", false).trigger("play");
-      $("#container_video").addClass("fullscreen");
-      $("body").addClass("noscroll");
-      $("#close").fadeIn();
-    });
+    $("#play").hide();
+    $("#video").prop("muted", false);
+    vid.play();
+    $("#container_video").addClass("fullscreen");
+    $("body").addClass("noscroll");
+    $("#close").show();
   });
 
   $("#video").on("ended", showOrder);
   $("#popup").on("click", showOrder);
 
   $("#close").on("click", function () {
-    $("#video")[0].pause();
-    $("#video").prop("muted", true);
+    vid.pause();
+    vid.muted = true;
     $("#container_video").removeClass("fullscreen");
     $("body").removeClass("noscroll");
-    $("#close").fadeOut();
-    $("#play").fadeIn();
+    $("#close").hide();
+    $("#play").css("display", "flex");
   });
 
   function showOrder() {
+    vid.pause();
+    vid.muted = true;
     $("#container_video").removeClass("fullscreen");
     $("body").removeClass("noscroll");
-    $("#close").fadeOut();
+    $("#close").hide();
     $("#container_video").fadeOut("fast", function () {
       $("#order").fadeIn("fast", function () {
         $("html, body").animate(
