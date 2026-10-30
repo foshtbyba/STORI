@@ -2,12 +2,12 @@ $(document).ready(function () {
   var vid = document.getElementById("video");
 
   vid.pause();
-  $("#container_video").addClass("paused");
+  vid.style.filter = "brightness(0.5)";
 
   document.getElementById("play").addEventListener("click", function () {
     window.scrollTo(0, 0);
     $("#play").hide();
-    $("#container_video").removeClass("paused");
+    vid.style.filter = "";
     $("#video").prop("muted", false);
     vid.play();
     $("#container_video").addClass("fullscreen");
@@ -21,10 +21,10 @@ $(document).ready(function () {
   $("#close").on("click", function () {
     vid.pause();
     vid.muted = true;
+    vid.style.filter = "brightness(0.5)";
     $("#container_video").removeClass("fullscreen");
     $("body").removeClass("noscroll");
     $("#close").hide();
-    $("#container_video").addClass("paused");
     $("#play").css("display", "flex");
   });
 
