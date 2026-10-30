@@ -30,8 +30,7 @@
         .country-confirm__btn--yes{background:#4caf50;color:#fff}
         .country-confirm__btn--no{background:#eee;color:#333}
         .country-confirm__btn:active{transform:scale(.96)}
-        .country-select-manual{display:none}
-        .country-select-manual.show{display:block}
+        .country-select-manual{display:block}
     </style>
 
 <!-- Meta Pixel -->
@@ -692,7 +691,7 @@
 
         btnNo.addEventListener('click', function(){
             confirmBlock.style.display = 'none';
-            selectManual.classList.add('show');
+            formFields.style.display = 'none';
             var placeholder = document.createElement('option');
             placeholder.value = '';
             placeholder.textContent = '-- Выберите страну --';

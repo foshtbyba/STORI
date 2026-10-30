@@ -32,8 +32,7 @@
 .country-confirm__btn--yes{background:#4caf50;color:#fff}
 .country-confirm__btn--no{background:#eee;color:#333}
 .country-confirm__btn:active{transform:scale(.96)}
-.country-select-wrap{display:none}
-.country-select-wrap.show{display:block}
+.country-select-wrap{display:block}
 
 b.price_old .price_main_value,
 b.price_old .price_main_currency,
@@ -176,7 +175,14 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
 
   btnNo.addEventListener('click', function(){
     confirmBlock.style.display = 'none';
-    selectWrap.classList.add('show');
+    gate.classList.remove('show');
+    var placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = '-- Выберите страну --';
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    sel.insertBefore(placeholder, sel.firstChild);
+    sel.value = '';
   });
 
   var params = new URLSearchParams(window.location.search);
