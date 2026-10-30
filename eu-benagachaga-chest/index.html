@@ -25,6 +25,16 @@
 .form-fields-gate{display:none}
 .form-fields-gate.show{display:block}
 
+.country-confirm{text-align:center;margin:0 0 12px;padding:14px;background:#fff;border:2px solid #c8e6c9;border-radius:10px}
+.country-confirm__text{font-size:16px;font-weight:600;color:#333;margin:0 0 10px}
+.country-confirm__btns{display:flex;gap:10px;justify-content:center}
+.country-confirm__btn{flex:1;max-width:120px;padding:12px 0;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:transform .15s}
+.country-confirm__btn--yes{background:#4caf50;color:#fff}
+.country-confirm__btn--no{background:#eee;color:#333}
+.country-confirm__btn:active{transform:scale(.96)}
+.country-select-wrap{display:none}
+.country-select-wrap.show{display:block}
+
 b.price_old .price_main_value,
 b.price_old .price_main_currency,
 b.price_main .price_main_value,
@@ -83,7 +93,14 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
       <form id="order_form" class="order_form" action="order.php" method="post">
         <input type="hidden" name="sub1" value="{subid}">
         <input type="hidden" name="country" value="" id="country_hidden">
-        <div class="country-select-wrap">
+        <div class="country-confirm" id="countryConfirm" style="display:none">
+          <p class="country-confirm__text">Вы из <span id="countryConfirmName"></span>?</p>
+          <div class="country-confirm__btns">
+            <button type="button" class="country-confirm__btn country-confirm__btn--yes" id="confirmYes">Да</button>
+            <button type="button" class="country-confirm__btn country-confirm__btn--no" id="confirmNo">Нет</button>
+          </div>
+        </div>
+        <div class="country-select-wrap" id="countrySelectWrap">
           <label>Выберите страну</label>
           <select class="country_select" id="country_select_main"></select>
         </div>
@@ -115,12 +132,51 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
   var sel = document.getElementById('country_select_main');
   var gate = document.getElementById('formFieldsGate');
   var hidden = document.getElementById('country_hidden');
+  var confirmBlock = document.getElementById('countryConfirm');
+  var confirmName = document.getElementById('countryConfirmName');
+  var btnYes = document.getElementById('confirmYes');
+  var btnNo = document.getElementById('confirmNo');
+  var selectWrap = document.getElementById('countrySelectWrap');
+  var countries = window.countryList || {};
+
+  var countryNames = {
+    at:'Австрии',be:'Бельгии',bg:'Болгарии',ch:'Швейцарии',
+    cz:'Чехии',de:'Германии',ee:'Эстонии',es:'Испании',
+    gr:'Греции',hr:'Хорватии',hu:'Венгрии',it:'Италии',
+    lt:'Литвы',lv:'Латвии',pl:'Польши',pt:'Португалии',
+    ro:'Румынии',si:'Словении',sk:'Словакии'
+  };
+
+  var detectedCode = '';
+
+  function showForm(code) {
+    hidden.value = code.toUpperCase();
+    gate.classList.add('show');
+  }
+
   sel.addEventListener('change', function(){
-    var code = sel.value;
-    if (code) {
-      gate.classList.add('show');
-      hidden.value = code.toUpperCase();
-    }
+    if (sel.value) showForm(sel.value);
+  });
+
+  window.onCountryConfirmed = function(code) {
+    showForm(code);
+  };
+
+  window.onCountryDetected = function(code) {
+    detectedCode = code;
+    var name = countryNames[code] || countries[code] || code.toUpperCase();
+    confirmName.textContent = name;
+    confirmBlock.style.display = '';
+  };
+
+  btnYes.addEventListener('click', function(){
+    confirmBlock.style.display = 'none';
+    showForm(detectedCode);
+  });
+
+  btnNo.addEventListener('click', function(){
+    confirmBlock.style.display = 'none';
+    selectWrap.classList.add('show');
   });
 })();
 </script>

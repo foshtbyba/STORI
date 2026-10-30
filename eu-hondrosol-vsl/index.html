@@ -23,6 +23,15 @@
                 margin-right: auto;
             }
         }
+        .country-confirm{text-align:center;margin:0 0 12px;padding:14px;background:#fff;border:2px solid #c8e6c9;border-radius:10px}
+        .country-confirm__text{font-size:16px;font-weight:600;color:#333;margin:0 0 10px}
+        .country-confirm__btns{display:flex;gap:10px;justify-content:center}
+        .country-confirm__btn{flex:1;max-width:120px;padding:12px 0;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:transform .15s}
+        .country-confirm__btn--yes{background:#4caf50;color:#fff}
+        .country-confirm__btn--no{background:#eee;color:#333}
+        .country-confirm__btn:active{transform:scale(.96)}
+        .country-select-manual{display:none}
+        .country-select-manual.show{display:block}
     </style>
 
 <!-- Meta Pixel -->
@@ -244,7 +253,14 @@
                             <p class="price-block__new"><span class="price_main">49 EUR</span></p>
                         </div>
 
-                        <label>
+                        <div class="country-confirm" id="countryConfirm" style="display:none">
+                            <p class="country-confirm__text">Вы из <span id="countryConfirmName"></span>?</p>
+                            <div class="country-confirm__btns">
+                                <button type="button" class="country-confirm__btn country-confirm__btn--yes" id="confirmYes">Да</button>
+                                <button type="button" class="country-confirm__btn country-confirm__btn--no" id="confirmNo">Нет</button>
+                            </div>
+                        </div>
+                        <label class="country-select-manual" id="countrySelectManual">
                             <span class="text_form">Выберите страну:</span>
                             <select class="country_select" id="country" name="country"></select>
                         </label>
@@ -635,11 +651,48 @@
     <script src="js/video1.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var params = new URLSearchParams(window.location.search);
-        var fromUrl = params.get('c') || params.get('country') || '';
+        var confirmBlock = document.getElementById('countryConfirm');
+        var confirmName = document.getElementById('countryConfirmName');
+        var btnYes = document.getElementById('confirmYes');
+        var btnNo = document.getElementById('confirmNo');
+        var selectManual = document.getElementById('countrySelectManual');
+        var formFields = document.getElementById('form-fields');
         var selects = document.querySelectorAll('.country_select');
+        var countries = window.countryList || {};
 
-        if (!fromUrl) {
+        var countryNames = {
+            at:'Австрии',be:'Бельгии',bg:'Болгарии',ch:'Швейцарии',
+            cz:'Чехии',de:'Германии',ee:'Эстонии',es:'Испании',
+            gr:'Греции',hr:'Хорватии',hu:'Венгрии',it:'Италии',
+            lt:'Литвы',lv:'Латвии',pl:'Польши',pt:'Португалии',
+            ro:'Румынии',si:'Словении',sk:'Словакии'
+        };
+
+        var detectedCode = '';
+
+        function showFormFields() {
+            formFields.style.display = '';
+        }
+
+        window.onCountryConfirmed = function(code) {
+            showFormFields();
+        };
+
+        window.onCountryDetected = function(code) {
+            detectedCode = code;
+            var name = countryNames[code] || countries[code] || code.toUpperCase();
+            confirmName.textContent = name;
+            confirmBlock.style.display = '';
+        };
+
+        btnYes.addEventListener('click', function(){
+            confirmBlock.style.display = 'none';
+            showFormFields();
+        });
+
+        btnNo.addEventListener('click', function(){
+            confirmBlock.style.display = 'none';
+            selectManual.classList.add('show');
             var placeholder = document.createElement('option');
             placeholder.value = '';
             placeholder.textContent = '-- Выберите страну --';
@@ -649,17 +702,11 @@
                 selects[i].insertBefore(placeholder.cloneNode(true), selects[i].firstChild);
                 selects[i].value = '';
             }
-        } else {
-            var allFields = document.querySelectorAll('#form-fields');
-            for (var j = 0; j < allFields.length; j++) allFields[j].style.display = '';
-        }
+        });
 
         for (var k = 0; k < selects.length; k++) {
             selects[k].addEventListener('change', function() {
-                if (this.value) {
-                    var allF = document.querySelectorAll('#form-fields');
-                    for (var n = 0; n < allF.length; n++) allF[n].style.display = '';
-                }
+                if (this.value) showFormFields();
             });
         }
     });
