@@ -11,6 +11,9 @@
         referrerpolicy="no-referrer"></script>
     <link media="all" href="css/form.css" type="text/css" rel="stylesheet">
     <link media="all" href="css/form1.css" type="text/css" rel="stylesheet">
+    <script src="countrieslist.js"></script>
+    <script src="countries.js"></script>
+    <script src="country_sync.js"></script>
     <style>
         @media (min-width: 768px) {
             .main {
@@ -228,14 +231,10 @@
                 <h3 id="order-form" style="font-size: 24px;"> Запишитесь в список ожидания </h3>
                 <div class="form_wrapper">
                     <form action="order.php" method="post" class="order-form order_form" id="form" style="margin-top: 10px;">
-                        <input type="hidden" name="subid" value="{subid}">
-                        <input type="hidden" name="subid2" value="{sub_id_2}">
-                        <input type="hidden" name="cid" value="{campaign_id}">
-                        <input type="hidden" name="sid" value="">
-                        <input type="hidden" name="hash" value="{hash}">
+                        <input type="hidden" name="sub1" value="{subid}">
                         <div class="price">
-                            <p class="new_price">Специальная цена — <b class="price_main"><span class="price_main_value">25</span> <span class="price_main_currency">EUR</span></b></p>
-                            <p class="old_price price_old" style="text-decoration:line-through;color:#999;font-size:14px;"><span class="price_old_value">50</span> <span class="price_old_currency">EUR</span></p>
+                            <p class="new_price">Специальная цена — <b><span class="price_main">49 EUR</span></b></p>
+                            <p class="old_price" style="text-decoration:line-through;color:#999;font-size:14px;"><span class="price_old">98 EUR</span></p>
                         </div>
 
                         <label>
@@ -249,7 +248,8 @@
                         <label>
                             <span class="text_form">Ваш телефон:</span>
                             <input class="lv-input-phone only_number" name="phone" value="" type="tel"
-                                inputmode="numeric" autocomplete="tel" placeholder="123 456 7890" required="">
+                                inputmode="numeric" autocomplete="tel" required="">
+                            <span class="phone_helper"></span>
                         </label>
                         <button class="botBut js_pre_toform button__text" style="cursor: pointer;" type="submit">
                             Записать меня
@@ -624,8 +624,6 @@
 
     </main>
 
-    <script src="js/countrieslist.js"></script>
-    <script src="js/countries.js"></script>
     <script src="js/video1.js"></script>
 </body>
 
