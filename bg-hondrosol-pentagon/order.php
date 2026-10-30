@@ -19,6 +19,8 @@ $name  = isset($_POST['name'])  ? trim($_POST['name'])  : '';
 $phone = isset($_POST['phone']) ? trim($_POST['phone']) : '';
 $subid = isset($_POST['subid']) ? trim($_POST['subid']) : '';
 if (strpos($subid, '{') !== false) { $subid = ''; }
+$subid2 = isset($_POST['subid2']) ? trim($_POST['subid2']) : '';
+if (strpos($subid2, '{') !== false) { $subid2 = ''; }
 $country = (isset($_POST['country']) && $_POST['country'] !== '') ? trim($_POST['country']) : $DEF_COUNTRY;
 
 // SkyLead требует телефон в международном формате (с кодом страны). Нормализуем.
@@ -45,6 +47,7 @@ $data = array(
 );
 if ($country !== '') { $data['country'] = $country; }
 if ($subid !== '')   { $data['subid']   = $subid; }
+if ($subid2 !== '')  { $data['subid2']  = $subid2; }
 // UTM-метки (в т.ч. метка баера в utm_content) — форвардим в SkyLead для статистики
 foreach (array('utm_source','utm_campaign','utm_content','utm_term','utm_medium') as $u) {
     if (isset($_POST[$u]) && $_POST[$u] !== '') { $data[$u] = trim($_POST[$u]); }
