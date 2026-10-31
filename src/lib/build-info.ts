@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'locale-serial-cache · 31.10 02:58';
+export const BUILD_INFO = 'locale-seed-and-diag · 31.10 03:27';

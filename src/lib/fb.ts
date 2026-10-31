@@ -1815,9 +1815,19 @@ export async function videoThumbnailUrl(token: string, videoId: string, net: FbN
 // параллельно с заливкой роликов, и бурст /search ловил троттлинг (все ретраи
 // впустую → язык молча отваливался). С кэшем второй и последующие заливы берут
 // ключ мгновенно, без сети. Кэшируем только положительные ответы.
-const ADLOCALE_CACHE = new Map<string, number>();
+const ADLOCALE_CACHE = new Map<string, number>([
+  // Предзаполнено ПОДТВЕРЖДЁННЫМИ ключами (из логов /search этого же приложения):
+  // пак языков (Welsh/Basque/Frisian) и частые гео IT/PL резолвятся БЕЗ сети —
+  // на кабинетах, где /search отваливается, мультиязычное всё равно соберётся.
+  ['welsh', 3], ['basque', 59], ['frisian', 63], ['italian', 10], ['polish', 15],
+]);
 
-export async function resolveLocaleId(token: string, name: string, net: FbNet = {}): Promise<number> {
+export async function resolveLocaleId(
+  token: string,
+  name: string,
+  net: FbNet = {},
+  onWarn?: (s: string) => void,
+): Promise<number> {
   const full = (name || '').trim();
   if (!full) return 0;
   const fullL = full.toLowerCase();
@@ -1829,6 +1839,7 @@ export async function resolveLocaleId(token: string, name: string, net: FbNet = 
   // выбираем среди результатов по полному имени. Для простых имён («Welsh»)
   // поведение прежнее. Плюс пара ретраев на транзиентный сбой сети/троттлинг.
   const base = full.replace(/\s*\(.*$/, '').trim() || full;
+  let lastErr = '';
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const body = await call('/search', token, { type: 'adlocale', q: base, limit: '100' }, net);
@@ -1849,12 +1860,16 @@ export async function resolveLocaleId(token: string, name: string, net: FbNet = 
         (baseL === fullL ? data[0] : undefined);
       const key = Number(pick?.key ?? 0) || 0;
       if (key) { ADLOCALE_CACHE.set(fullL, key); return key; }
-      if (data.length) return 0; // поиск отработал, но подходящего нет — не долбим
-    } catch {
-      /* транзиентный сбой — ретраим ниже */
+      if (data.length) { onWarn?.(`/search '${base}': ${data.length} результатов, но «${base}» среди них нет`); return 0; }
+      lastErr = 'пустой ответ';
+    } catch (e) {
+      lastErr = (e as Error).message || 'сбой запроса';
     }
     if (attempt < 3) await sleep(600 * attempt);
   }
+  // Все попытки впустую — сообщаем причину наверх (видно в логе залива), чтобы не
+  // гадать, почему язык не определился (троттлинг, права токена, прокси и т.п.).
+  onWarn?.(`/search '${base}' не ответил (${lastErr})`);
   return 0;
 }
 
