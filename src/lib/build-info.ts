@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'locale-cross-token · 31.10 03:47';
+export const BUILD_INFO = 'account-agent-label · 01.11 01:39';

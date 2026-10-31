@@ -5,8 +5,10 @@ import { Avatar, Sub } from './ui';
 import TokenLabel from './TokenLabel';
 import ConfirmSubmit from './ConfirmSubmit';
 import ReplaceToken from './ReplaceToken';
-import { toggleAgency, toggleToken, deleteToken, deleteMyToken } from '@/app/actions/integrations';
+import { toggleAgency, toggleToken, deleteToken, deleteMyToken, setAccountAgent } from '@/app/actions/integrations';
 import type { StatusTone } from '@/lib/fb-status';
+
+export type AgentOpt = { id: string; name: string; commissionBps: number };
 
 export type AccountRow = {
   id: string;
@@ -15,6 +17,8 @@ export type AccountRow = {
   currency: string;
   enabled: boolean;
   agency: boolean;
+  /** Назначенный агент (для агентских кабинетов) — его процент берётся автоматом. */
+  agentId: string | null;
   duplicate: boolean;
   spend: string;
   /** «Остаток открута»: подпись (напр. «$180» или «—») + флаг «мало» (<200). */
@@ -39,7 +43,11 @@ export type Group = {
   /** Полное управление — у админа; свой кабинет баер только снимает. */
   admin: boolean;
   own: boolean;
+  /** Справочник агентов — для выпадашки на агентских кабинетах. */
+  agents: AgentOpt[];
 };
+
+const pctLabel = (bps: number) => (bps / 100).toString().replace('.', ',');
 
 const TONE: Record<StatusTone, string> = {
   ok: 'bg-sage-t text-sage',
@@ -92,6 +100,14 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
         {acc.agency ? (
           <span className="shrink-0 rounded-full bg-teal-t px-2 py-0.5 text-[10px] text-teal">агентский</span>
         ) : null}
+        {acc.agency && acc.agentId ? (() => {
+          const ag = group.agents.find((a) => a.id === acc.agentId);
+          return ag ? (
+            <span className="shrink-0 rounded-full bg-steel-t px-2 py-0.5 text-[10px] text-steel" title="Агент кабинета и его процент">
+              {ag.name} · {pctLabel(ag.commissionBps)}%
+            </span>
+          ) : null;
+        })() : null}
         {acc.duplicate ? (
           <span className="shrink-0 rounded-full bg-sub px-2 py-0.5 text-[10px] text-dim" title="Тот же act_ID виден под другим профилем">
             дубль
@@ -135,6 +151,29 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
               {acc.agency ? '★ агентский' : 'в агентский'}
             </button>
           </form>
+          {/* Агент кабинета: только для агентских. Выбор агента = его процент.
+              Меняется сразу (сабмит формы на change). */}
+          {acc.agency ? (
+            <form action={setAccountAgent}>
+              <input type="hidden" name="id" value={acc.id} />
+              <select
+                name="agentId"
+                defaultValue={acc.agentId ?? ''}
+                onChange={(e) => e.currentTarget.form?.requestSubmit()}
+                title="Агент этого кабинета — его процент берётся автоматически"
+                className={`rounded-full border px-2 py-1 text-[10.5px] outline-none transition ${
+                  acc.agentId ? 'border-teal/40 bg-teal-t text-teal' : 'border-line bg-raise text-soft'
+                }`}
+              >
+                <option value="">— агент —</option>
+                {group.agents.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name} · {pctLabel(a.commissionBps)}%
+                  </option>
+                ))}
+              </select>
+            </form>
+          ) : null}
           <span className="n ml-auto text-[10px] text-dim" title={`ID кабинета в Facebook: ${acc.externalId}`}>
             {acc.externalId.replace(/^act_/, '')}
           </span>

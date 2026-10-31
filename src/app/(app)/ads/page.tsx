@@ -44,7 +44,7 @@ export default async function AdsOverviewPage() {
   const admin = role === 'ADMIN';
   const scoped = scopeBuyerId(user);
 
-  const [tokens, buyers] = await Promise.all([
+  const [tokens, buyers, agents] = await Promise.all([
     prisma.adToken.findMany({
       where: team ? {} : { buyerId: scoped ?? '__none__' },
       include: {
@@ -62,6 +62,8 @@ export default async function AdsOverviewPage() {
           orderBy: { handle: 'asc' },
         })
       : Promise.resolve([]),
+    // Справочник агентов — для выпадашки «агент кабинета» на агентских.
+    prisma.agent.findMany({ where: { archived: false }, orderBy: [{ sort: 'asc' }, { name: 'asc' }], select: { id: true, name: true, commissionBps: true } }),
   ]);
 
   // Справочный расход за текущую неделю по кабинетам.
@@ -92,6 +94,7 @@ export default async function AdsOverviewPage() {
     updated: t.lastSyncAt ? fmtWhen(t.lastSyncAt) : null,
     admin,
     own: Boolean(user.buyer && t.buyerId === user.buyer.id),
+    agents,
     accounts: t.accounts.map((a) => ({
       id: a.id,
       externalId: a.externalId,
@@ -99,6 +102,7 @@ export default async function AdsOverviewPage() {
       currency: a.currency,
       enabled: a.enabled,
       agency: a.agency,
+      agentId: a.agentId ?? null,
       duplicate: (seen.get(a.externalId) ?? 0) > 1,
       spend:
         a.currency === 'USD'

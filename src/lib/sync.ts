@@ -165,9 +165,13 @@ async function canonicalAccountIds(now: Date): Promise<Set<string>> {
  * строку трогали (её spendNetCents ≠ тому, что синк писал в прошлый раз, либо
  * строка вообще ручная — synced пусто, а сумма стоит), не перезаписываем.
  */
-async function writeAgencyDay(buyerId: string, iso: string, netCents: number, result: SyncResult) {
+async function writeAgencyDay(buyerId: string, iso: string, netCents: number, grossCents: number, result: SyncResult) {
   const date = atMidnight(iso);
   const net = ceilDollars(netCents);
+  // Gross уже посчитан по кабинетам (своя ставка у каждого). Не даём ему уйти
+  // ниже net (на всякий случай), а эффективную ставку выводим для снапшота.
+  const grossFromAccounts = Math.max(grossCents, net);
+  const effBps = net > 0 ? Math.round(((grossFromAccounts / net) - 1) * 10000) : AGENCY_COMMISSION_BPS;
   const existing = await prisma.dayReport.findFirst({
     where: { buyerId, date, offerId: null, source: AGENCY_SOURCE },
   });
@@ -182,10 +186,9 @@ async function writeAgencyDay(buyerId: string, iso: string, netCents: number, re
         source: AGENCY_SOURCE,
         revenueCents: 0,
         spendNetCents: net,
-        // Автострока агента не знает — ставим дефолтные 6%. Человек потом
-        // выберет агента в «Доп. расходах», и его процент встанет снапшотом.
-        commissionBps: AGENCY_COMMISSION_BPS,
-        spendGrossCents: grossUp(net, AGENCY_COMMISSION_BPS),
+        // Ставка — эффективная по агентам кабинетов (у разных агентов свой %).
+        commissionBps: effBps,
+        spendGrossCents: grossFromAccounts,
         spendSyncedCents: net,
         revenueSyncedCents: null,
         syncedAt: new Date(),
@@ -209,20 +212,21 @@ async function writeAgencyDay(buyerId: string, iso: string, netCents: number, re
     await prisma.dayReport.delete({ where: { id: existing.id } });
     return;
   }
-  // Если человек уже назначил этой строке агента — СОХРАНЯЕМ его процент, а не
-  // сбрасываем на 6%: иначе синк затирал бы ручной выбор агента. Обновляем
-  // только сумму, комиссию берём из назначенного агента (или 6%, если его нет).
-  let bps = AGENCY_COMMISSION_BPS;
+  // Если человек явно назначил ЭТОЙ строке агента в «Доп. расходах» — его % в
+  // приоритете (ручной выбор не затираем). Иначе берём эффективную ставку по
+  // агентам кабинетов.
+  let bps = effBps;
+  let gross = grossFromAccounts;
   if (existing.agentId) {
     const agent = await prisma.agent.findUnique({ where: { id: existing.agentId }, select: { commissionBps: true } });
-    if (agent) bps = agent.commissionBps;
+    if (agent) { bps = agent.commissionBps; gross = grossUp(net, bps); }
   }
   await prisma.dayReport.update({
     where: { id: existing.id },
     data: {
       spendNetCents: net,
       commissionBps: bps,
-      spendGrossCents: grossUp(net, bps),
+      spendGrossCents: gross,
       spendSyncedCents: net,
       syncedAt: new Date(),
     },
@@ -1344,19 +1348,31 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
     select: {
       date: true,
       spendCents: true,
-      ad: { select: { adAccount: { select: { adToken: { select: { buyerId: true } } } } } },
+      // Процент берём с АГЕНТА кабинета (у разных агентов свой). Нет агента —
+      // дефолт 6%. Так расход каждого кабинета грейсапится своей ставкой.
+      ad: { select: { adAccount: { select: {
+        agent: { select: { commissionBps: true } },
+        adToken: { select: { buyerId: true } },
+      } } } },
     },
   });
-  const agencyByBuyerDay = new Map<string, number>();
+  // На баера за день суммируем net и gross: gross считаем ПО КАЖДОМУ кабинету его
+  // ставкой (разные агенты — разные %), поэтому строка дня несёт суммарный gross,
+  // а не «один процент на всё».
+  const agencyByBuyerDay = new Map<string, { net: number; gross: number }>();
   for (const r of agencyRows) {
     const buyerId = r.ad.adAccount.adToken.buyerId;
     if (!buyerId) continue;
+    const bps = r.ad.adAccount.agent?.commissionBps ?? AGENCY_COMMISSION_BPS;
     const k = `${buyerId}|${dayKey(r.date)}`;
-    agencyByBuyerDay.set(k, (agencyByBuyerDay.get(k) ?? 0) + r.spendCents);
+    const cur = agencyByBuyerDay.get(k) ?? { net: 0, gross: 0 };
+    cur.net += r.spendCents;
+    cur.gross += grossUp(r.spendCents, bps);
+    agencyByBuyerDay.set(k, cur);
   }
-  for (const [key, cents] of agencyByBuyerDay) {
+  for (const [key, sums] of agencyByBuyerDay) {
     const [buyerId, iso] = key.split('|');
-    await writeAgencyDay(buyerId, iso, cents, result);
+    await writeAgencyDay(buyerId, iso, sums.net, sums.gross, result);
   }
 
   // Витрину расхода обновляем УСТОЙЧИВО к неполному заходу. Было: стирали всё

@@ -614,6 +614,24 @@ export async function toggleAgency(form: FormData) {
   revalidatePath('/admin');
 }
 
+/** Назначить агента агентскому кабинету (или снять — пустой agentId). Процент
+ *  агента дальше используется для авторасхода синка и как дефолт в «Доп.
+ *  расходах». */
+export async function setAccountAgent(form: FormData) {
+  await requireAdmin();
+  const id = String(form.get('id') ?? '');
+  const agentId = String(form.get('agentId') ?? '').trim() || null;
+  if (!id) return;
+  // Защита от мусора: назначаем только существующего агента.
+  if (agentId) {
+    const ok = await prisma.agent.findUnique({ where: { id: agentId }, select: { id: true } });
+    if (!ok) return;
+  }
+  await prisma.adAccount.update({ where: { id }, data: { agentId } });
+  revalidatePath('/ads');
+  revalidatePath('/admin');
+}
+
 const TrackerInput = z.object({
   baseUrl: z.string().trim().url('Адрес трекера должен быть полным: https://…'),
   apiKey: z.string().trim().min(8, 'Ключ слишком короткий'),

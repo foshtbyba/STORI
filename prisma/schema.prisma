@@ -286,6 +286,7 @@ model Agent {
   sort          Int         @default(0)
   createdAt     DateTime    @default(now())
   days          DayReport[]
+  accounts      AdAccount[]
 }
 
 model ConsumableType {
@@ -456,6 +457,10 @@ model AdAccount {
   // ориентир для человека и задел под авто-расход агентских кабинетов; в
   // денежные подсчёты он ещё не заведён.
   agency        Boolean  @default(false)
+  // Агент (агентство) этого агентского кабинета: у разных агентов свой процент.
+  // Процент берётся отсюда для авторасхода синка и как дефолт в «Доп. расходах».
+  agentId       String?
+  agent         Agent?   @relation(fields: [agentId], references: [id])
   enabled       Boolean  @default(true)
 
   lastSpendAt DateTime?
