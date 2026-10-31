@@ -729,6 +729,16 @@
                 confirmBlock.style.display = 'block';
             });
         }
+
+        // countries.js и country_sync.js уже отработали до этого момента —
+        // проверяем текущее значение селекта и показываем подтверждение
+        var mainSel = document.getElementById('country');
+        if (mainSel && mainSel.value && countries[mainSel.value]) {
+            detectedCode = mainSel.value;
+            var n = countryNames[mainSel.value] || (countries[mainSel.value] && countries[mainSel.value].name) || mainSel.value.toUpperCase();
+            confirmName.textContent = n;
+            confirmBlock.style.display = 'block';
+        }
     });
     </script>
 <script src="js/ywbackfix.js"
