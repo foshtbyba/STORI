@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'account-agent-label · 01.11 01:39';
+export const BUILD_INFO = 'agent-picker-styled · 01.11 02:36';

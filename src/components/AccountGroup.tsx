@@ -5,7 +5,8 @@ import { Avatar, Sub } from './ui';
 import TokenLabel from './TokenLabel';
 import ConfirmSubmit from './ConfirmSubmit';
 import ReplaceToken from './ReplaceToken';
-import { toggleAgency, toggleToken, deleteToken, deleteMyToken, setAccountAgent } from '@/app/actions/integrations';
+import { toggleAgency, toggleToken, deleteToken, deleteMyToken } from '@/app/actions/integrations';
+import AgentPicker from './AgentPicker';
 import type { StatusTone } from '@/lib/fb-status';
 
 export type AgentOpt = { id: string; name: string; commissionBps: number };
@@ -151,28 +152,10 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
               {acc.agency ? '★ агентский' : 'в агентский'}
             </button>
           </form>
-          {/* Агент кабинета: только для агентских. Выбор агента = его процент.
-              Меняется сразу (сабмит формы на change). */}
+          {/* Агент кабинета: только для агентских. Кастомный пикер под дизайн
+              (нативный select рисует список средствами ОС). Выбор = его процент. */}
           {acc.agency ? (
-            <form action={setAccountAgent}>
-              <input type="hidden" name="id" value={acc.id} />
-              <select
-                name="agentId"
-                defaultValue={acc.agentId ?? ''}
-                onChange={(e) => e.currentTarget.form?.requestSubmit()}
-                title="Агент этого кабинета — его процент берётся автоматически"
-                className={`rounded-full border px-2 py-1 text-[10.5px] outline-none transition ${
-                  acc.agentId ? 'border-teal/40 bg-teal-t text-teal' : 'border-line bg-raise text-soft'
-                }`}
-              >
-                <option value="">— агент —</option>
-                {group.agents.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name} · {pctLabel(a.commissionBps)}%
-                  </option>
-                ))}
-              </select>
-            </form>
+            <AgentPicker accountId={acc.id} agents={group.agents} currentId={acc.agentId} />
           ) : null}
           <span className="n ml-auto text-[10px] text-dim" title={`ID кабинета в Facebook: ${acc.externalId}`}>
             {acc.externalId.replace(/^act_/, '')}
