@@ -779,6 +779,34 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
   const token = ctx.token;
   const net: FbNet = ctx.net;
 
+  // Резолв FB-локали устойчиво к «мёртвому» /search. У части антидетект-токенов
+  // /search?type=adlocale отдаёт ПУСТО (видео при этом грузятся) — локаль
+  // молча не находилась, и мультиязычное не собиралось. Ключи локалей у FB
+  // ГЛОБАЛЬНЫ, поэтому: сначала пробуем текущим токеном, а если пусто — токенами
+  // ДРУГИХ кабинетов, пока какой-то не отдаст. Положительный ответ кэшируется в
+  // resolveLocaleId на весь процесс, так что перебор идёт максимум один раз.
+  let otherTokensCache: { token: string; cookiesJson: string | null; proxyUrl: string | null }[] | null = null;
+  const resolveLocaleRobust = async (name: string, tag: string): Promise<number> => {
+    let id = await resolveLocaleId(token, name, net, (w) => append(`  · ${tag}: ${w}`));
+    if (id) return id;
+    if (otherTokensCache === null) {
+      otherTokensCache = await prisma.adToken.findMany({
+        where: { id: { not: ctx.tok.id }, enabled: true },
+        select: { token: true, cookiesJson: true, proxyUrl: true },
+        take: 15,
+      });
+    }
+    for (const o of otherTokensCache) {
+      if (!o.token) continue;
+      try {
+        const a = fbAccess(o.token, { cookiesJson: o.cookiesJson, proxyUrl: o.proxyUrl });
+        id = await resolveLocaleId(a.token, name, a.net);
+        if (id) { append(`  · ${tag}: locale ${id} подобран через другой кабинет`); return id; }
+      } catch { /* этот токен не подошёл — пробуем следующий */ }
+    }
+    return 0;
+  };
+
   try {
     append(`Кабинет: ${ctx.acc.name || ext}`);
     append(`Гео: ${countries.join(', ')}${excludedCountries.length ? ` (искл. страны ${excludedCountries.join(', ')})` : ''} · возраст ${tpl.ageMin}-${tpl.ageMax}`);
@@ -1175,7 +1203,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
           const ready: typeof withVideo = [];
           const lpLocale = new Map<(typeof withVideo)[number], number>();
           for (const lp of withVideo) {
-            const localeId = await resolveLocaleId(token, localeName(lp.locale), net, (w) => append(`  · ${lp.locale}: ${w}`));
+            const localeId = await resolveLocaleRobust(localeName(lp.locale), lp.locale);
             if (!localeId) { append(`⚠ ${lp.locale}: FB не отдал locale — пропускаю язык`); continue; }
             lpLocale.set(lp, localeId);
             ready.push(lp);
@@ -1260,7 +1288,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
       let mainLocaleId = 0;
       const geoCode = geoDefaultLocale(countries[0] || '');
       if (geoCode) {
-        mainLocaleId = await resolveLocaleId(token, localeName(geoCode), net, (w) => append(`  · гео ${geoCode}: ${w}`));
+        mainLocaleId = await resolveLocaleRobust(localeName(geoCode), `гео ${geoCode}`);
         if (mainLocaleId) append(`Язык целевого гео по шаблону (${countries[0]}): ${localeName(geoCode)} → FB locale ${mainLocaleId}`);
         else append(`⚠ FB не отдал locale для языка гео (${localeName(geoCode)}) — повтори залив; если повторяется, скажи, проверю карту языков`);
       } else if (countries[0]) {

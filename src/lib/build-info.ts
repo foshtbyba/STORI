@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'locale-seed-and-diag · 31.10 03:27';
+export const BUILD_INFO = 'locale-cross-token · 31.10 03:47';
