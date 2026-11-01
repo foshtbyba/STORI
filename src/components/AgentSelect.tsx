@@ -33,18 +33,38 @@ export default function AgentSelect({
   placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
+  // Координаты попапа (position: fixed): попап рисуем ВНЕ потока, чтобы его не
+  // обрезали контейнеры с overflow-hidden (анимация сворачивания профиля) или
+  // overflow-x-auto (таблица «Доп. расходов»).
+  const [pos, setPos] = useState<{ top: number; left: number; width: number } | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
   const current = agents.find((a) => a.id === value) ?? null;
+
+  const place = () => {
+    const r = btnRef.current?.getBoundingClientRect();
+    if (r) setPos({ top: r.bottom + 6, left: r.left, width: r.width });
+  };
 
   useEffect(() => {
     if (!open) return;
+    place();
     const onDoc = (e: MouseEvent) => {
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    // При скролле/ресайзе проще закрыть — не ловим «висящий» попап не на месте.
+    const onMove = () => setOpen(false);
     document.addEventListener('mousedown', onDoc);
     document.addEventListener('keydown', onKey);
-    return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey); };
+    window.addEventListener('scroll', onMove, true);
+    window.addEventListener('resize', onMove);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('scroll', onMove, true);
+      window.removeEventListener('resize', onMove);
+    };
   }, [open]);
 
   const choose = (id: string) => { setOpen(false); if (id !== value) onChange(id); };
@@ -65,17 +85,17 @@ export default function AgentSelect({
 
   return (
     <div ref={wrapRef} className="relative">
-      <button type="button" onClick={() => setOpen((v) => !v)} disabled={disabled} className={btn}>
+      <button ref={btnRef} type="button" onClick={() => setOpen((v) => !v)} disabled={disabled} className={btn}>
         <span className={size === 'md' ? 'truncate' : 'max-w-[120px] truncate'}>
           {current ? `${current.name} · ${pct(current.commissionBps)}%` : placeholder}
         </span>
         <svg width={size === 'md' ? 14 : 10} height={size === 'md' ? 14 : 10} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}><path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
       </button>
 
-      {open ? (
+      {open && pos ? (
         <div
-          className="absolute left-0 top-[calc(100%+6px)] z-30 min-w-[180px] max-w-[260px] rounded-2xl border border-line p-1.5"
-          style={{ background: 'var(--color-panel)', boxShadow: '0 12px 32px -8px rgba(0,0,0,.55)' }}
+          className="fixed z-50 min-w-[180px] max-w-[260px] rounded-2xl border border-line p-1.5"
+          style={{ top: pos.top, left: pos.left, minWidth: Math.max(pos.width, 180), background: 'var(--color-panel)', boxShadow: '0 12px 32px -8px rgba(0,0,0,.55)' }}
         >
           <button type="button" onClick={() => choose('')} className={itemCls(!value)}>
             <span>— без агента —</span>
