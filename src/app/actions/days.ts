@@ -8,7 +8,7 @@ import { grossUp, DEFAULT_COMMISSION_BPS } from '@/lib/money';
 import { periodKeyOf, isEditable } from '@/lib/period';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { GRID_CONSUMABLE_NOTE } from '@/lib/consumables';
-import { AGENCY_SOURCE } from '@/lib/extra-spend';
+import { AGENCY_SOURCE, AGENCY_COMMISSION_BPS } from '@/lib/extra-spend';
 
 const DayInput = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -275,13 +275,10 @@ export async function saveExtraSpend(
     });
 
     if (row.spendNetCents > 0) {
-      // Процент обязателен и берётся из агента — без выбранного агента строку
-      // не сохраняем (у разных агентов разные ставки, угадывать нельзя).
-      const agentId = row.agentId || null;
-      const commissionBps = agentId ? bpsByAgent.get(agentId) : undefined;
-      if (commissionBps == null) {
-        return { ok: false, error: 'У строки с агентским расходом выбери агента — без него не сохранить.' };
-      }
+      // Процент берётся из выбранного агента; агент не выбран → базовая ставка
+      // агентки 6% (AGENCY_COMMISSION_BPS).
+      const agentId = row.agentId && bpsByAgent.has(row.agentId) ? row.agentId : null;
+      const commissionBps = agentId ? bpsByAgent.get(agentId)! : AGENCY_COMMISSION_BPS;
       const data = {
         date: when,
         buyerId: row.buyerId,

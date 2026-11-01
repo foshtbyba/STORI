@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { grossUp, usd } from '@/lib/money';
+import { AGENCY_COMMISSION_BPS } from '@/lib/extra-spend';
 import { fmtDay, weekdayShort } from '@/lib/period';
 import { saveExtraSpend } from '@/app/actions/days';
 import { saveAgent, archiveAgent } from '@/app/actions/agents';
@@ -76,14 +77,12 @@ export default function ExtraSpend({
     () =>
       rows.map((r) => {
         const spendNetCents = toCents(r.spend);
-        const bps = bpsByAgent.get(r.agentId);
+        // Агент не выбран → базовая ставка 6% (AGENCY_COMMISSION_BPS).
+        const bps = bpsByAgent.get(r.agentId) ?? AGENCY_COMMISSION_BPS;
         return {
           ...r,
           spendNetCents,
-          // Без выбранного агента ставки нет — гросс не считаем (и строку не
-          // дадим сохранить). Это заставляет всегда указывать процент явно.
-          spendGrossCents: bps != null ? grossUp(spendNetCents, bps) : 0,
-          hasAgent: bps != null,
+          spendGrossCents: grossUp(spendNetCents, bps),
           touched: spendNetCents > 0,
         };
       }),
@@ -112,16 +111,10 @@ export default function ExtraSpend({
   // удалит прежнюю запись. Кнопка при этом гаснет, только если сохранять
   // действительно нечего и раньше ничего не было.
   const hadSaved = seed.some((s) => toCents(s.spend) > 0);
-  // Строка с суммой, но без агента — сохранять нельзя (процент обязателен).
-  const missingAgent = calc.some((r) => r.touched && !r.hasAgent);
 
   function submit() {
     setError(null);
     setNote(null);
-    if (missingAgent) {
-      setError('У строки с суммой выбери агента — без него процент не задан.');
-      return;
-    }
     start(async () => {
       const res = await saveExtraSpend(
         date,
@@ -150,7 +143,7 @@ export default function ExtraSpend({
         title="Доп. расходы"
         aside={
           <span className="text-[12.5px] text-mute">
-            агентские · процент берётся из агента
+            агентские · процент из агента, без агента — базовая 6%
           </span>
         }
         right={
@@ -187,7 +180,7 @@ export default function ExtraSpend({
         на <span className="text-soft">{dayLabel(date)}</span> — тот же день, что и в отчёте выше,
         он выбирается календарём в его шапке. Синхронизация эти строки не трогает: они целиком
         ручные. В профит, ROI и зарплату попадают наравне с обычным расходом, а комиссия — по
-        проценту выбранного агента (у разных агентов он разный).
+        проценту выбранного агента (у разных агентов он разный); агент не выбран — базовая 6%.
       </p>
 
       <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-visible sm:px-0">
@@ -201,7 +194,6 @@ export default function ExtraSpend({
 
         {calc.map((r) => {
           const buyer = buyers.find((b) => b.id === r.buyerId)!;
-          const needAgent = r.touched && !r.hasAgent;
           return (
             <div key={r.buyerId} className={`${cols} border-t border-line py-2.5`}>
               <span className="flex items-center gap-2.5">
@@ -216,8 +208,8 @@ export default function ExtraSpend({
                 agents={agents}
                 onChange={(id) => patch(r.buyerId, 'agentId', id)}
                 disabled={locked}
-                invalid={needAgent}
                 size="md"
+                placeholder="базовая 6%"
               />
               <input
                 value={r.spend}
@@ -228,7 +220,7 @@ export default function ExtraSpend({
                 className={cell}
               />
               <span className="n text-right text-[13.5px] text-amber">
-                {r.touched ? (r.hasAgent ? usd(r.spendGrossCents) : '— агент') : '—'}
+                {r.touched ? usd(r.spendGrossCents) : '—'}
               </span>
               <input
                 value={r.note}

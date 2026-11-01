@@ -19,6 +19,7 @@ export default function AgentSelect({
   disabled = false,
   invalid = false,
   size = 'sm',
+  placeholder = '— агент —',
 }: {
   value: string;
   agents: AgentOpt[];
@@ -28,6 +29,8 @@ export default function AgentSelect({
   invalid?: boolean;
   /** 'sm' — пилюля (кабинет), 'md' — поле в строке таблицы. */
   size?: 'sm' | 'md';
+  /** Текст кнопки, когда агент не выбран. */
+  placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -64,7 +67,7 @@ export default function AgentSelect({
     <div ref={wrapRef} className="relative">
       <button type="button" onClick={() => setOpen((v) => !v)} disabled={disabled} className={btn}>
         <span className={size === 'md' ? 'truncate' : 'max-w-[120px] truncate'}>
-          {current ? `${current.name} · ${pct(current.commissionBps)}%` : '— агент —'}
+          {current ? `${current.name} · ${pct(current.commissionBps)}%` : placeholder}
         </span>
         <svg width={size === 'md' ? 14 : 10} height={size === 'md' ? 14 : 10} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}><path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
       </button>
