@@ -7,6 +7,7 @@ import { fmtDay, weekdayShort } from '@/lib/period';
 import { saveExtraSpend } from '@/app/actions/days';
 import { saveAgent, archiveAgent } from '@/app/actions/agents';
 import { Panel, PanelHead, Avatar } from './ui';
+import AgentSelect from './AgentSelect';
 import { IconTag, IconCalendar } from './icons';
 
 export type ExtraBuyer = { id: string; handle: string; initials: string; color: string; owner?: boolean };
@@ -18,7 +19,6 @@ const toCents = (v: string) => {
   return Number.isFinite(n) ? Math.round(n * 100) : 0;
 };
 
-const pctLabel = (bps: number) => (bps / 100).toString().replace('.', ',');
 
 /**
  * «31.08, пн» — день, в который уедет цифра. Календарь стоит наверху страницы,
@@ -211,21 +211,14 @@ export default function ExtraSpend({
                   <span className="rounded-full bg-sage-t px-2 py-0.5 text-[10px] text-sage">овнер</span>
                 ) : null}
               </span>
-              <select
+              <AgentSelect
                 value={r.agentId}
-                onChange={(e) => patch(r.buyerId, 'agentId', e.target.value)}
+                agents={agents}
+                onChange={(id) => patch(r.buyerId, 'agentId', id)}
                 disabled={locked}
-                className={`h-10 w-full rounded-lg border bg-sub px-2.5 text-[13px] outline-none transition focus:border-sage ${
-                  needAgent ? 'border-rust text-rust' : 'border-line'
-                }`}
-              >
-                <option value="">— агент —</option>
-                {agents.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name} · {pctLabel(a.commissionBps)}%
-                  </option>
-                ))}
-              </select>
+                invalid={needAgent}
+                size="md"
+              />
               <input
                 value={r.spend}
                 onChange={(e) => patch(r.buyerId, 'spend', e.target.value)}

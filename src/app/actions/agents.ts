@@ -49,6 +49,7 @@ export async function saveAgent(input: unknown): Promise<ActionResult> {
     await prisma.agent.create({ data: { name, commissionBps, sort: count } });
   }
   revalidatePath('/days/new');
+  revalidatePath('/ads'); // чтобы на кабинетах (Интеграции) сразу появились в выборе
   return { ok: true };
 }
 
@@ -59,5 +60,6 @@ export async function archiveAgent(id: string, archived: boolean): Promise<Actio
   if (!id) return { ok: false, error: 'Нет агента.' };
   await prisma.agent.update({ where: { id }, data: { archived } });
   revalidatePath('/days/new');
+  revalidatePath('/ads');
   return { ok: true };
 }
