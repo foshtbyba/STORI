@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="hu" dir="ltr">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Egészségportál</title>
+    <link rel="icon" type="image/png" href="images/ART.png">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/comments.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        referrerpolicy="no-referrer"></script>
+    <link media="all" href="css/form.css" type="text/css" rel="stylesheet">
+    <link media="all" href="css/form1.css" type="text/css" rel="stylesheet">
+    <script src="countrieslist.js"></script>
+    <script src="countries.js"></script>
+    <script src="country_sync.js"></script>
+    <style>
+        @media (min-width: 768px) {
+            .main {
+                max-width: 620px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+        .country-confirm{text-align:center;margin:0 0 12px;padding:14px;background:#fff;border:2px solid #c8e6c9;border-radius:10px}
+        .country-confirm__text{font-size:16px;font-weight:600;color:#333;margin:0 0 10px}
+        .country-confirm__btns{display:flex;gap:10px;justify-content:center}
+        .country-confirm__btn{flex:1;max-width:120px;padding:12px 0;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:transform .15s}
+        .country-confirm__btn--yes{background:#4caf50;color:#fff}
+        .country-confirm__btn--no{background:#eee;color:#333}
+        .country-confirm__btn:active{transform:scale(.96)}
+        .country-select-manual{display:none}
+    </style>
+
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+(function () {
+  var PID = '';
+  var u = new URLSearchParams(location.search).get('fbpx');
+  if (u) PID = u;
+  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }
+  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }
+  if (PID) {
+    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}
+    fbq('init', PID);
+    fbq('track', 'PageView');
+  }
+})();
+</script>
+<!-- End Meta Pixel -->
+
+</head>
+
+<body>
+    <div class="overlay"></div>
+    <header class="header">
+        <nav>
+            <div class="logo"><b>Egészségportál</b></div>
+            <div class="menu">&#9776;</div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <h2 style="text-align: center; margin-top: -25px">Horoszkóp az 50 év feletti nők számára: a november enyhülést hoz az ízületeinek. Nézze meg a videót &#9660;</h2>
+        <br>
+        <div class="video-container" id="container_video">
+
+            <div id="close" style="display:none;position:absolute;top:12px;right:12px;width:44px;height:44px;background:rgba(0,0,0,0.7);border-radius:50%;cursor:pointer;z-index:10001;line-height:44px;text-align:center;font-size:22px;color:#fff;font-weight:bold;">&#10005;</div>
+
+            <div id="popup">
+                <div>
+                    <h2>Már csak 17 csomag Benaga Chaga maradt.</h2>
+                    <h2>Rendelje meg most!</h2>
+                </div>
+            </div>
+            <div id="play" style="display: flex; max-width: 300px; opacity: 0.5; cursor: pointer; position: absolute; top: 50%; left: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%); z-index: 2; margin: 0;">
+                <img src="images/Youtube_logo.png" alt="" class="player-logo" width="400" height="276"
+                    style="height: auto; max-width: 100%; object-fit: contain" loading="lazy">
+            </div>
+            <video id="video" muted="" playsinline="" preload="metadata" style="width:100%;height:100%;object-fit:contain;display:block;">
+                <source src="media/1.mp4" type="video/mp4">
+            </video>
+
+        </div>
+
+        <p class="watch-notice">Nézze meg a videót a végéig</p>
+        <div id="oneform"></div>
+
+        <section id="order" class="product-section">
+
+            <div class="zyx_wrapper">
+                <header class="zyx_header">
+                    <h1 class="zyx_main_title">Benaga Chaga – ízülettámogató kapszulák, amelyeket Dr. Szabó Katalin mutatott be
+                    </h1>
+
+                    <div class="zyx_doctor_block">
+                        <img src="images/f1.jpg" alt="Dr. Szabó Katalin" class="zyx_doctor_photo">
+                        <p class="zyx_photo_caption">Dr. Szabó Katalin – állatorvos, aki a lóversenypályán dolgozott, és aki bemutatta ezeket a kapszulákat</p>
+                    </div>
+                </header>
+
+                <section class="zyx_intro">
+                    <h2 class="zyx_section_title">A lógyógyszertől az emberek megoldásáig</h2>
+                    <div class="zyx_features">
+                        <div class="zyx_feature">Az ihlet egy elit versenylovaknak szánt állatorvosi készítményből származik</div>
+                        <div class="zyx_feature">Dr. Szabó Katalin adaptálta emberi felhasználásra</div>
+                        <div class="zyx_feature">Európában több ezer embernek segített visszatérni a mindennapokhoz</div>
+                    </div>
+                </section>
+
+                <section class="zyx_effects">
+                    <h2 class="zyx_section_title">Hogyan hatnak a Dr. Szabó Katalin által bemutatott Benaga Chaga kapszulák?</h2>
+
+                    <div class="zyx_timeline">
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Az első 30 perc a bevétel után</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Kellemes melegség érzet jelenik meg az ízületekben</li>
+                                <li>A fájdalom enyhülni kezd, akárcsak Dr. Szabó Katalin esetében</li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">3 nap használat után</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>A reggeli merevség jelentősen csökken</li>
+                                <li>A lépcsőn felmenni 3 percet vesz igénybe 15 helyett</li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Egy hét után tapasztalható hatás</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Visszatér az ízületek teljes mozgékonysága</li>
+                                <li>Újra korlátozás nélkül csinálhatja azt, amit szeret</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="zyx_certificate">
+                    <img src="images/ART.png" alt="Benaga Chaga" class="zyx_cert_img">
+                    <p class="zyx_photo_caption">Minden tétel minőségellenőrzésen esik át</p>
+                </div>
+
+                <section class="zyx_ingredients">
+                    <h2 class="zyx_section_title">Egyedülálló kapszula-összetétel, emberek számára adaptálva</h2>
+
+                    <div class="zyx_ingredient_grid">
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Fekete nadálytő</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>A szervezet támogatására válogatták ki</li>
+                                <li>Segít fenntartani az ízületi szöveteket</li>
+                                <li>Támogatja a porcszövetet, akárcsak a versenylovaknál</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Vadgesztenye</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Emberi felhasználás figyelembevételével került be</li>
+                                <li>Segít csökkenteni a gyulladást és a duzzanatot</li>
+                                <li>Segít meghosszabbítani a kapszulák hatását</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Aktív összetevők</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Koncentrációjuk felére csökkentve az emberek biztonsága érdekében</li>
+                                <li>Segítenek gyorsan enyhíteni az akut fájdalmat</li>
+                                <li>Segítenek helyreállítani az ízületek mozgékonyságát</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Építő fehérje</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Az ízületi porc egyik alkotóeleme</li>
+                                <li>Segít gyorsan és biztonságosan helyreállítani az ízületeket</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="zyx_ingredient_note">A kapszulák Dr. Szabó Katalin laboratóriumában több száz teszten estek át</p>
+                </section>
+
+                <section class="zyx_testimonials">
+                    <div class="zyx_family_photo">
+                        <img src="images/f3.jpg" alt="Az emberek visszatérnek az aktív élethez" class="zyx_photo">
+                        <p class="zyx_photo_caption">47 ember az első hónapban, ezrek az évek során – mindannyian visszatértek a mindennapjaikhoz</p>
+                    </div>
+                </section>
+
+                <section class="zyx_attention">
+                    <h2 class="zyx_section_title">Fontos információ!</h2>
+                    <div class="zyx_attention_points">
+                        <p>&#8226; A kereslet gyorsabban nő, mint amennyit gyártani tudunk</p>
+                        <p>&#8226; Az összes jelenlegi tétel már lefoglalva</p>
+                        <p>&#8226; Több ezer ember már a várólistán van</p>
+                    </div>
+                </section>
+
+                <section class="zyx_steps">
+                    <h2 class="zyx_section_title">Hogyan iratkozhat fel a várólistára?</h2>
+                    <ol class="zyx_steps_list">
+                        <li>Válassza ki az országot, adja meg a nevét és telefonszámát, majd nyomja meg a „Feliratkozás" gombot</li>
+                        <li>Kapcsolja be a telefon csengőhangját – a tanácsadó csak egyszer hív</li>
+                        <li>Ha nem veszi fel, a lista végére kerül</li>
+                        <li>Ha felveszi, lehetősége lesz a Benaga Chaga-t a legalacsonyabb áron megrendelni</li>
+                    </ol>
+                </section>
+
+                <div class="zyx_warning">
+                    <img src="images/ART.png" alt="Benaga Chaga" class="zyx_warning_img">
+                    <p class="zyx_photo_caption">Csak a Benaga Chaga hivatalos képviselőitől vásároljon</p>
+                </div>
+
+                <section class="zyx_quality">
+                    <h2 class="zyx_section_title">Minőségi garancia</h2>
+                    <div class="zyx_quality_points">
+                        <p>&#10003; Minden tétel 12 minőségellenőrzési lépésen megy keresztül</p>
+                        <p>&#10003; Minden tizedik csomag további ellenőrzésen esik át</p>
+                        <p>&#10003; Ugyanazok a szigorú szabványok, mint a kapszulák első tesztelésénél</p>
+                        <p>&#10003; Az ár csak a gyártási önköltséget fedezi</p>
+                    </div>
+                </section>
+
+                <section class="zyx_final_cta">
+                    <p class="zyx_final_note">Iratkozzon fel most a várólistára – amint lehetőség nyílik,
+                        segítünk Önnek megszabadulni az ízületi fájdalomtól!</p>
+
+                    <div class="zyx_product_photo">
+                        <img src="images/ART.png" alt="Benaga Chaga" class="zyx_product_img">
+                        <p class="zyx_photo_caption">Benaga Chaga – az állatorvosi készítménytől a versenylovak számára az emberek ízülettámogatásáig</p>
+                    </div>
+                </section>
+            </div>
+
+            <!--FORM-BLOCK-->
+            <div class="form-card">
+                <h3 class="form-card__title">Iratkozzon fel a várólistára</h3>
+                <div class="form_wrapper">
+                    <form action="order.php" method="post" class="order-form order_form" id="form">
+                        <input type="hidden" name="sub1" value="{subid}">
+                        <input type="hidden" name="sub2" value="{sub_id_2}">
+                        <div class="price-block">
+                            <p class="price-block__old"><span class="price_old">98 EUR</span></p>
+                            <p class="price-block__new"><span class="price_main">49 EUR</span></p>
+                        </div>
+
+                        <div class="country-confirm" id="countryConfirm" style="display:none">
+                            <p class="country-confirm__text">Az Ön országa: <span id="countryConfirmName"></span>?</p>
+                            <div class="country-confirm__btns">
+                                <button type="button" class="country-confirm__btn country-confirm__btn--yes" id="confirmYes">Igen</button>
+                                <button type="button" class="country-confirm__btn country-confirm__btn--no" id="confirmNo">Nem</button>
+                            </div>
+                        </div>
+                        <label class="country-select-manual" id="countrySelectManual">
+                            <span class="text_form">Válassza ki az országot:</span>
+                            <select class="country_select" id="country" name="country"></select>
+                        </label>
+                        <div id="form-fields" style="display:none;">
+                            <label>
+                                <span class="text_form">Az Ön neve:</span>
+                                <input class="lv-input-fio" maxlength="255" name="name" value="" type="text" placeholder="Adja meg a nevét" required="">
+                            </label>
+                            <label>
+                                <span class="text_form">Az Ön telefonszáma:</span>
+                                <input class="lv-input-phone only_number" name="phone" value="" type="tel"
+                                    inputmode="numeric" autocomplete="tel" placeholder="06 30 123 4567" required="">
+                                <span class="phone_helper"></span>
+                            </label>
+                            <button class="botBut js_pre_toform button__text" type="submit">
+                                Feliratkozás
+                            </button>
+                        </div>
+                        <div class="toform"></div>
+                        <div class="form-card__stock">
+                            Már csak <span id="stockCount">17</span> hely maradt a várólistán
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="comments-section">
+            <div class="f-comments-container">
+
+                <div class="f-comments-header">
+                    <div class="f-share-count">63 alkalommal megosztva</div>
+                    <div class="f-sort">Legújabbak elöl</div>
+                </div>
+
+                <div class="f-comments-list">
+                    <div class="f-comment">
+                        <img src="images/z1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Kovács Katalin</div>
+                                <div class="f-text">Végre találtam valamit, ami tényleg segít! Budapesten élek, megrendeltem
+                                    és azonnal elkezdtem használni. Már a harmadik napon észrevettem – a térdeim kevésbé
+                                    fájnak lépcsőzéskor.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 napja</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Tetszik</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Válasz</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">47</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Nagy István</div>
+                                <div class="f-text">Az orvosok azt mondták, hogy csak a műtét segíthet. Úgy döntöttem, megpróbálom
+                                    a Benaga Chaga-t, mint utolsó esélyt. Már egy hete szedem – a fájdalom jelentősen
+                                    csökkent. Magam sem hiszem el!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">2 napja</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Tetszik</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Válasz</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">99</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Dr. Szabó Katalin</div>
+                                            <div class="f-text">István, örülök, hogy a Benaga Chaga segít Önnek! Kérem,
+                                                folytassa a kúrát az utasítások szerint – a hatás halmozódó.
+                                            </div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">2 napja</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">Tetszik</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Válasz</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">67</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Tóth Mária</div>
+                                <div class="f-text">Nagyon köszönöm ezt a terméket! Először azt hittem, hogy drága,
+                                    de most látom – megéri az árát. Az ízületeim már nem ropognak, a reggeli
+                                    merevség eltűnt.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">3 napja</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Tetszik</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Válasz</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">85</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Szabó Ferenc</div>
+                                <div class="f-text">Rendelt már valaki másodszor is? Az első csomagom kifogyóban van,
+                                    szeretnék újat venni. Félek, hogy az akció véget ér.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">4 napja</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Tetszik</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Válasz</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">116</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/z3.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Kiss Erzsébet</div>
+                                            <div class="f-text">Már háromszor rendeltem, minden alkalommal gyorsan
+                                                érkezett a csomag. Érdemes rendelni, amíg van készleten.
+                                            </div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">4 napja</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">Tetszik</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Válasz</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">193</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Horváth Judit</div>
+                                <div class="f-text">Az anyámnak rendeltem, 72 éves. Azt mondja, évek óta először
+                                    ment el egyedül a boltba megállás nélkül! Debrecenben élünk, a szállítás gyors volt.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">5 napja</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Tetszik</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Válasz</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">188</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m3.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Varga László</div>
+                                <div class="f-text">A térdsérülésem után 5 évig szenvedtem. Minden patikai
+                                    szert kipróbáltam – semmi sem segített. Ez a termék viszont tényleg működik! Már egy hete
+                                    szinte fájdalom nélkül járok.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">5 napja</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Tetszik</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Válasz</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">212</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Molnár Anna</div>
+                                <div class="f-text">Lehet használni ízületi gyulladásnál is? Nagyon fájnak az ujjaim...</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">6 napja</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Tetszik</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Válasz</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">154</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Dr. Szabó Katalin</div>
+                                            <div class="f-text">Anna, igen, a Benaga Chaga különböző ízületi
+                                                betegségeknél alkalmazható, beleértve az ízületi gyulladást is. Sok páciens
+                                                jelentős javulást tapasztal az ujjízületeknél.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">6 napja</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">Tetszik</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Válasz</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">271</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Farkas Péter</div>
+                                <div class="f-text">Kiváló termék! Íme, amit postán kaptam – a csomagolás minőségi, az utasítás érthető. Három hete használom, az eredmény kiváló.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">egy hete</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Tetszik</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Válasz</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Németh Éva</div>
+                                <div class="f-text">Egy hete kezdtem el használni. A hatás lenyűgöző! A
+                                    térdfájdalmam csökkent, a merevség elmúlt. A férjem is észrevette a különbséget!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">egy hete</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Tetszik</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Válasz</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">328</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Balogh Zoltán</div>
+                                <div class="f-text">Először azt hittem, hogy ez is csak átverés, de úgy döntöttem, megpróbálom.
+                                    És nem bántam meg! Egy hét használat után elfelejtettem, mi az ízületi fájdalom.
+                                    Mindenkinek ajánlom!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">egy hete</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Tetszik</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Válasz</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Takács Gábor</div>
+                                <div class="f-text">Segít a nyakfájásnál is? Már nem bírom tovább...</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">egy hete</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Tetszik</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Válasz</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">356</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Dr. Szabó Katalin</div>
+                                            <div class="f-text">Gábor, a Benaga Chaga a nyaki problémáknál is
+                                                segít. Sok páciens már az első
+                                                héten javulást tapasztal.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">egy hete</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">Tetszik</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Válasz</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">384</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="js/video1.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var confirmBlock = document.getElementById('countryConfirm');
+        var confirmName = document.getElementById('countryConfirmName');
+        var btnYes = document.getElementById('confirmYes');
+        var btnNo = document.getElementById('confirmNo');
+        var selectManual = document.getElementById('countrySelectManual');
+        var formFields = document.getElementById('form-fields');
+        var selects = document.querySelectorAll('.country_select');
+        var countries = window.countryList || {};
+
+        var countryNames = {
+            at:'Ausztria',be:'Belgium',bg:'Bulgária',ch:'Svájc',
+            cz:'Csehország',de:'Németország',ee:'Észtország',es:'Spanyolország',
+            gr:'Görögország',hr:'Horvátország',hu:'Magyarország',it:'Olaszország',
+            lt:'Litvánia',lv:'Lettország',pl:'Lengyelország',pt:'Portugália',
+            ro:'Románia',si:'Szlovénia',sk:'Szlovákia'
+        };
+
+        var detectedCode = '';
+        var answered = false;
+
+        function showFormFields(code, showSelect) {
+            if (code) {
+                var sel = document.getElementById('country');
+                if (sel) sel.value = code;
+            }
+            if (showSelect) selectManual.style.display = 'block';
+            formFields.style.display = '';
+        }
+
+        window.onCountryConfirmed = function(code) {
+            detectedCode = code;
+            var n = countryNames[code] || (countries[code] && countries[code].name) || code.toUpperCase();
+            confirmName.textContent = n;
+            confirmBlock.style.display = 'block';
+        };
+
+        window.onCountryDetected = function(code) {
+            detectedCode = code;
+            var n = countryNames[code] || (countries[code] && countries[code].name) || code.toUpperCase();
+            confirmName.textContent = n;
+            confirmBlock.style.display = 'block';
+        };
+
+        btnYes.addEventListener('click', function(){
+            answered = true;
+            confirmBlock.style.display = 'none';
+            showFormFields(detectedCode, false);
+        });
+
+        btnNo.addEventListener('click', function(){
+            answered = true;
+            confirmBlock.style.display = 'none';
+            formFields.style.display = 'none';
+            selectManual.style.display = 'block';
+            var placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Válassza ki az országot';
+            placeholder.disabled = true;
+            placeholder.selected = true;
+            for (var i = 0; i < selects.length; i++) {
+                selects[i].insertBefore(placeholder.cloneNode(true), selects[i].firstChild);
+                selects[i].value = '';
+            }
+        });
+
+        for (var k = 0; k < selects.length; k++) {
+            selects[k].addEventListener('change', function() {
+                if (!this.value) return;
+                if (answered) {
+                    showFormFields(this.value, true);
+                    return;
+                }
+                detectedCode = this.value;
+                var n = countryNames[this.value] || (countries[this.value] && countries[this.value].name) || this.value.toUpperCase();
+                confirmName.textContent = n;
+                confirmBlock.style.display = 'block';
+            });
+        }
+
+        var mainSel = document.getElementById('country');
+        if (mainSel && mainSel.value && countries[mainSel.value]) {
+            detectedCode = mainSel.value;
+            var n = countryNames[mainSel.value] || (countries[mainSel.value] && countries[mainSel.value].name) || mainSel.value.toUpperCase();
+            confirmName.textContent = n;
+            confirmBlock.style.display = 'block';
+        }
+    });
+    </script>
+<script src="js/ywbackfix.js"
+        data-redirect="true"
+        data-links='["https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}"]'>
+</script>
+</body>
+
+</html>
