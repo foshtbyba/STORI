@@ -104,6 +104,9 @@
 </script>
 <script>
 (function(){
+  var _st=document.createElement('style');
+  _st.textContent='#order_form{display:none!important}#order_form.--show{display:block!important}';
+  document.head.appendChild(_st);
   function initConfirm(confirmId, nameId, yesId, noId, wrapId, selectId, formId){
     var box=document.getElementById(confirmId);
     var nm=document.getElementById(nameId);
@@ -122,7 +125,7 @@
       var entry=list[code.toLowerCase()]||{};
       nm.textContent=entry.name||code.toUpperCase();
     }
-    function showForm(){if(frm)frm.style.display='';}
+    function showForm(){if(frm){frm.classList.add('--show');frm.style.display='block';}}
     upd();
     document.querySelectorAll('.country_select').forEach(function(s){s.addEventListener('change',upd);});
     yes.addEventListener('click',function(){box.style.display='none';showForm();});
