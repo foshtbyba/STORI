@@ -2,8 +2,8 @@
 
 $apiKey = 'f825ffeff11da49a86dc5d095c648f3c';
 $domain = 'shakes.pro';
-$landingUrl = 'https://eu1hu-cordycepspulse.jointssx.com/';
-$offerId = '25726';
+$landingUrl = 'https://eu1ru-benagachaga.jointssx.com/';
+$offerId = '26442';
 $streamCode = '';
 $successPage = 'call.html';
 $errorPage = 'error.html';
@@ -25,7 +25,7 @@ $order = [
     'userAgent' => (!empty($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '-'),
     'name' => (!empty($_POST['name']) ? $_POST['name'] : (!empty($_GET['name']) ? $_GET['name'] : '')),
     'phone' => (!empty($_POST['phone']) ? $_POST['phone'] : (!empty($_GET['phone']) ? $_GET['phone'] : '')),
-    'countryCode' => (!empty($_POST['country']) ? $_POST['country'] : (!empty($_GET['country']) ? $_GET['country'] : 'HU')),
+    'countryCode' => strtoupper(!empty($_POST['country']) ? $_POST['country'] : (!empty($_GET['country']) ? $_GET['country'] : '')),
     'comment' => (!empty($_POST['comment']) ? $_POST['comment'] : (!empty($_GET['comment']) ? $_GET['comment'] : '')),
     'sub1' => (!empty($_POST['sub1']) ? $_POST['sub1'] : (!empty($_GET['sub1']) ? $_GET['sub1'] : '')),
     'sub2' => (!empty($_POST['sub2']) ? $_POST['sub2'] : (!empty($_GET['sub2']) ? $_GET['sub2'] : '')),
@@ -46,5 +46,5 @@ if (!$__ok) {
     if (!empty($errorPage) && is_file(__DIR__ . '/' . $errorPage)) { include __DIR__ . '/' . $errorPage; } else { header('Location: ' . $errorPage); }
     exit;
 }
-ss_dd_mark($__dd); 
+ss_dd_mark($__dd);
 if (!empty($successPage) && is_file(__DIR__ . '/' . $successPage)) { include __DIR__ . '/' . $successPage; } else { header('Location: ' . $successPage); }
