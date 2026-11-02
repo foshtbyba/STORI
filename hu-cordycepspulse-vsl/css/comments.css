@@ -1,0 +1,256 @@
+.f-comments-container {
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 12px;
+    font-size: 13px;
+}
+
+.f-comments-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    color: #65676B;
+}
+
+.f-comment {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.f-avatar {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.f-replies .f-avatar {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+}
+
+.f-comment-wrap {
+    flex: 1;
+}
+
+.f-comment-bubble {
+    background: #F0F2F5;
+    border-radius: 18px;
+    padding: 8px 12px;
+    display: inline-block;
+}
+
+.f-author {
+    font-weight: 600;
+    color: #050505;
+    margin-bottom: 2px;
+}
+
+.f-comment-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    padding-left: 12px;
+    font-size: 12px;
+    color: #65676B;
+}
+
+.f-action-link {
+    background: none;
+    border: none;
+    color: #65676B;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    font-size: inherit;
+}
+
+.f-dot {
+    font-size: 3px;
+    vertical-align: middle;
+}
+
+.f-replies {
+    margin-left: 40px;
+    padding-left: 16px;
+    margin-top: 8px;
+    position: relative;
+}
+
+.f-reply-line {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #CED0D4;
+}
+
+.f-new-comment,
+.f-reply-form {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.f-input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.f-comment-input,
+.f-reply-input {
+    width: 100%;
+    border: none;
+    background: #F0F2F5;
+    border-radius: 20px;
+    padding: 8px 12px;
+    padding-right: 40px;
+    font-size: 13px;
+    outline: none;
+}
+
+.f-send-button {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.f-send-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.f-comment-input:not(:placeholder-shown) + .f-send-button,
+.f-reply-input:not(:placeholder-shown) + .f-send-button {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.f-likes-count {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    background: #FFFFFF;
+    border: 1px solid #E4E6EB;
+    border-radius: 10px;
+    padding: 0 8px;
+    height: 18px;
+    font-size: 12px;
+    color: #65676B;
+    gap: 4px;
+}
+
+.f-text {
+    word-break: break-word;
+}
+
+@media (max-width: 480px) {
+    .f-replies {
+        margin-left: 32px;
+        padding-left: 12px;
+    }
+}
+
+
+
+
+
+.f-comment-image {
+    margin-top: 8px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.f-comment-image img {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Для нескольких изображений */
+.f-comment-images {
+    margin-top: 8px;
+    margin-bottom: 4px;
+    display: grid;
+    grid-gap: 4px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Сетка для 2 изображений */
+.f-comment-images.grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* Сетка для 3 и более изображений */
+.f-comment-images.grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.f-comment-images img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 480px) {
+    .f-comment-image img {
+      
+    }
+    
+    .f-comment-images.grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .f-comment-images img {
+        height: 120px;
+    }
+}
+
+
+
+
+
+
+
+
+.f-comment-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    padding-left: 12px;
+    font-size: 12px;
+    color: #65676B;
+    flex-wrap: wrap; /* Добавляем перенос элементов */
+    width: 100%; /* Гарантируем, что контейнер займет всю доступную ширину */
+}
+
+.f-time {
+    word-break: break-word; /* Разрешаем перенос слов */
+    max-width: 100%; /* Максимальная ширина для временной метки */
+}
+
+.f-comment-wrap {
+    flex: 1;
+    min-width: 0; /* Важно для корректной работы flex-контейнера */
+    max-width: 100%; /* Ограничиваем максимальную ширину */
+}

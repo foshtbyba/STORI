@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="HU">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A rendelés sikertelen</title><!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+(function () {
+  var PID = '';
+  var u = new URLSearchParams(location.search).get('fbpx');
+  if (u) PID = u;
+  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }
+  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }
+  if (PID) {
+    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}
+    fbq('init', PID);
+    fbq('track', 'PageView');
+  }
+})();
+</script>
+
+<!-- End Meta Pixel -->
+<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1a2b42;background:radial-gradient(1200px 600px at 50% -10%,#e8f2fa,#f5f8fb 55%)}.card{background:#fff;max-width:460px;width:100%;padding:38px 30px 30px;border-radius:22px;text-align:center;box-shadow:0 24px 60px rgba(10,40,80,.13);animation:pop .45s cubic-bezier(.2,.8,.2,1)}@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}.ic{width:92px;height:92px;margin:0 auto 12px}.ic svg{width:100%;height:100%;fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.ic.ok circle{fill:#eafaf1;stroke:#cdeede}.ic.ok path{stroke:#1e8449;stroke-dasharray:44;stroke-dashoffset:44;animation:draw .55s .2s forwards}.ic.wait circle{fill:#eef4fb;stroke:#d7e6f5}.ic.wait path{stroke:#0a5c9e}@keyframes draw{to{stroke-dashoffset:0}}.prod{max-width:160px;width:62%;height:auto;display:block;margin:8px auto 2px}h1{font-size:25px;line-height:1.25;margin:10px 0 8px;color:#1e8449}.card.err h1{color:#c0392b}.ic.err circle{fill:#fdecea;stroke:#f3ccc6}.ic.err path{stroke:#c0392b}.retry{display:inline-block;margin-top:18px;background:#0a5c9e;color:#fff;border:0;border-radius:12px;padding:13px 24px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;box-shadow:0 6px 18px rgba(10,92,158,.25)}.retry:hover{background:#084678}p{font-size:16px;line-height:1.6;margin:6px 0}.muted{color:#6b7a8f;font-size:14px}.oid{margin-top:16px;font-size:13px;color:#4a5a70;background:#f1f6fb;border:1px solid #e4ecf4;border-radius:30px;padding:7px 16px;display:inline-block}.trust{margin-top:18px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:12px;color:#8a93a3}.trust span{display:inline-flex;align-items:center;gap:5px}</style><link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+<div class="card err">
+  <div class="ic err"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M26 15v16"/><path d="M26 37l.02 0"/></svg></div>
+  <img class="prod" src="images/inline_2.png" alt="Cordyceps pulse" loading="lazy">
+  <h1>A rendelés sikertelen</h1>
+  <p>Lehetséges, hogy az adatok hibásan lettek megadva, vagy hiba történt a küldés során.</p>
+  <p class="muted">Kérjük, térjen vissza és adja le a rendelést újra.</p>
+  <button class="retry" onclick="history.back()">Újra megrendelés</button>
+</div>
+
+</body></html>

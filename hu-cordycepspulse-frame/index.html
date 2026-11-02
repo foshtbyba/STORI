@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pénztár</title>
+<link rel="stylesheet" type="text/css" media="screen" href="./assets/css/style.css">
+<link href="./assets/saleicon.webp" rel="icon" type="image/x-icon"/>
+
+    <script type="text/javascript" src="./countrieslist.js"></script>
+    <script type="text/javascript" src="./assets/cdn/js/countries.js"></script>
+    <script type="text/javascript" src="./assets/cdn/js/jquery.js"></script>
+
+</head>
+<body>
+<div class="block1">
+	<div class="un-wrapper"><center><span style="font-size: 19px;">KAP "Cordyceps Pulse" per <b style="color: #f1840e;" class="price_main">kedvezményes ár</b></span></center>
+		<form  method="POST" class="order_form" id="order_form" action="order.php">
+            <div>
+				<label><strong>Országod:</strong> </label>
+				<select name="country" id="country" class="country_select input"></select>
+			</div>
+			<div>
+				<label><strong>A neved:</strong> </label>
+				<input name="name" type="text" class="input" required>
+			</div>
+			<div>
+				<label><strong>Telefon:</strong> </label>
+				<input name="phone" type="text" class="input" required>
+			</div>
+			<button class="submitc green" type="submit">Kap</button>
+		<input type="hidden" name="sub1" value="{subid}" />
+		</form>
+	</div>
+</div>
+</body>
+</html>
