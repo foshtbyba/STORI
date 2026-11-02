@@ -102,11 +102,11 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
             <button type="button" class="country-confirm__btn country-confirm__btn--no" id="confirmNo">Нет</button>
           </div>
         </div>
-        <div class="country-select-wrap" id="countrySelectWrap">
+        <div class="country-select-wrap" id="countrySelectWrap" style="display:none">
           <label>Выберите страну</label>
           <select class="country_select" id="country_select_main"></select>
         </div>
-        <div class="form-fields-gate" id="formFieldsGate">
+        <div class="form-fields-gate" id="formFieldsGate" style="display:none">
           <input type="text" minlength="2" class="input-roulette" name="name" id="input-name" placeholder="Введите ваше имя" autocomplete="name" required>
           <input maxlength="18" minlength="8" type="tel" class="input-roulette" name="phone" id="input-phone" placeholder="123456789" autocomplete="tel" required>
           <input type="submit" class="submit-roulette" value="Получить"><div class="ring-loading"></div>
@@ -155,7 +155,7 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
   function showForm(code, showSelect) {
     hidden.value = code.toUpperCase();
     if (showSelect) selectWrap.style.display = 'block';
-    gate.classList.add('show');
+    gate.style.display='block';
   }
 
   sel.addEventListener('change', function(){
@@ -193,7 +193,7 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
   btnNo.addEventListener('click', function(){
     answered = true;
     confirmBlock.style.display = 'none';
-    gate.classList.remove('show');
+    gate.style.display='none';
     selectWrap.style.display = 'block';
     var placeholder = document.createElement('option');
     placeholder.value = '';
