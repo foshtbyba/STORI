@@ -17,6 +17,7 @@
 .country-confirm__btn--no{background:#eee;color:#333}
 .country-confirm__btn:active{transform:scale(.96)}
 .country-select-manual{display:none}
+.price_old span,.price_main span{display:inline!important}
 </style>
 <!-- Meta Pixel -->
 <script>
@@ -42,7 +43,8 @@
 <div class="container">
   <div class="chest"><div class="top_block">
     <h1>Ön a kampány résztvevője lett «<span class="productName">Cordyceps pulse</span>»!</h1>
-    <p class="vis_big"><span style="font-weight:500">Minden résztvevő természetes és hatékony terméket kaphat ezen az áron: <b style="text-decoration:line-through;color:#999" class="price_old">78.00 EUR</b> — <b class="new_price_val price_main" style="color:#e53935;font-weight:800">39.00 EUR</b>!</span></p>
+    <p class="vis_big"><span style="font-weight:500">Minden résztvevő természetes és hatékony terméket kaphat ezen az áron:</span></p>
+    <div style="text-align:center;font-size:18px;margin:5px 0;font-family:sans-serif"><b style="text-decoration:line-through;color:#999" class="price_old">78.00 EUR</b> — <b class="price_main" style="color:#e53935;font-weight:800">39.00 EUR</b>!</div>
   </div></div>
   <div class="select_block">
     <h2 class="select_block__title"><span style="color:red">Figyelem:</span> a nagy kereslet miatt nem tudjuk minden kérést feldolgozni.</h2>
@@ -86,29 +88,6 @@
     </div></div>
   </div>
 </div>
-<div class="formSect" style="max-width:440px;margin:28px auto 0;padding:0 12px">
-  <div class="country-confirm" id="countryConfirm2">
-    <div class="country-confirm__text">Az Ön országa: <span id="confirmCountryName2">—</span>?</div>
-    <div class="country-confirm__btns">
-      <button type="button" class="country-confirm__btn country-confirm__btn--yes" id="btnConfirmYes2">Igen</button>
-      <button type="button" class="country-confirm__btn country-confirm__btn--no" id="btnConfirmNo2">Nem</button>
-    </div>
-  </div>
-  <div class="country-select-manual" id="manualCountryWrap2">
-    <select class="country_select input-roulette" name="country" id="manualCountrySelect2"></select>
-  </div>
-  <form id="order_form2" class="order_form" action="order.php" method="post">
-    <input type="hidden" name="sub1" value="{subid}">
-    <input type="hidden" name="country" class="country_select" value="HU">
-    <div style="text-align:center;margin:0 0 12px">
-      <span style="font-size:15px;color:#999;text-decoration:line-through" class="price_old">78.00 EUR</span>
-      <span style="font-size:22px;font-weight:800;color:#e53935;margin-left:8px" class="price_main">39.00 EUR</span>
-    </div>
-    <input type="text" minlength="2" class="input-roulette" name="name" placeholder="Adja meg a nevét" autocomplete="name" required>
-    <input maxlength="18" minlength="8" type="tel" class="input-roulette" name="phone" placeholder="Adja meg a telefonszámát" autocomplete="tel" required>
-    <input type="submit" class="submit-roulette" value="Rendelés"><div class="ring-loading"></div>
-  </form>
-</div>
 <script src="js/bounce.js"></script>
 <script>
 (function () {
@@ -150,7 +129,6 @@
   }
   document.addEventListener('DOMContentLoaded',function(){
     initConfirm('countryConfirm','confirmCountryName','btnConfirmYes','btnConfirmNo','manualCountryWrap','manualCountrySelect');
-    initConfirm('countryConfirm2','confirmCountryName2','btnConfirmYes2','btnConfirmNo2','manualCountryWrap2','manualCountrySelect2');
   });
 })();
 </script>
