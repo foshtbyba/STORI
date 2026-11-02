@@ -78,7 +78,7 @@
       <div class="country-select-manual" id="manualCountryWrap">
         <select class="country_select input-roulette" name="country" id="manualCountrySelect"></select>
       </div>
-      <form id="order_form" class="order_form" action="order.php" method="post">
+      <form id="order_form" class="order_form" action="order.php" method="post" style="display:none">
         <input type="hidden" name="sub1" value="{subid}">
         <input type="hidden" name="country" class="country_select" value="HU">
         <input type="text" minlength="2" class="input-roulette" name="name" id="input-name" placeholder="Adja meg a nevét" autocomplete="name" required>
@@ -104,13 +104,14 @@
 </script>
 <script>
 (function(){
-  function initConfirm(confirmId, nameId, yesId, noId, wrapId, selectId){
+  function initConfirm(confirmId, nameId, yesId, noId, wrapId, selectId, formId){
     var box=document.getElementById(confirmId);
     var nm=document.getElementById(nameId);
     var yes=document.getElementById(yesId);
     var no=document.getElementById(noId);
     var wrap=document.getElementById(wrapId);
     var sel=document.getElementById(selectId);
+    var frm=document.getElementById(formId);
     if(!box||!nm||!yes||!no)return;
     function upd(){
       var list=window.countryList||{};
@@ -121,14 +122,15 @@
       var entry=list[code.toLowerCase()]||{};
       nm.textContent=entry.name||code.toUpperCase();
     }
+    function showForm(){if(frm)frm.style.display='';}
     upd();
     document.querySelectorAll('.country_select').forEach(function(s){s.addEventListener('change',upd);});
-    yes.addEventListener('click',function(){box.style.display='none';});
+    yes.addEventListener('click',function(){box.style.display='none';showForm();});
     no.addEventListener('click',function(){box.style.display='none';if(wrap)wrap.style.display='block';});
-    if(sel){sel.addEventListener('change',function(){if(wrap)wrap.style.display='none';});}
+    if(sel){sel.addEventListener('change',function(){if(wrap)wrap.style.display='none';showForm();});}
   }
   document.addEventListener('DOMContentLoaded',function(){
-    initConfirm('countryConfirm','confirmCountryName','btnConfirmYes','btnConfirmNo','manualCountryWrap','manualCountrySelect');
+    initConfirm('countryConfirm','confirmCountryName','btnConfirmYes','btnConfirmNo','manualCountryWrap','manualCountrySelect','order_form');
   });
 })();
 </script>
