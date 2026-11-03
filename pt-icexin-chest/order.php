@@ -2,8 +2,8 @@
 
 $apiKey = 'f825ffeff11da49a86dc5d095c648f3c';
 $domain = 'shakes.pro';
-$landingUrl = 'https://eu1ru-benagachaga.jointssx.com/';
-$offerId = '26442';
+$landingUrl = 'https://eu1pt-icexin.jointssx.com/';
+$offerId = '26282';
 $streamCode = '';
 $successPage = 'call.html';
 $errorPage = 'error.html';

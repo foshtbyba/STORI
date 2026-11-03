@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="RU">
+<html lang="PT">
 <head><meta charset="UTF-8"><meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
-<title>Специальная акция</title>
+<title>Promoção especial</title>
 <script src="countrieslist.js"></script>
 <script src="countries.js"></script>
 <script src="country_sync.js"></script>
@@ -82,18 +82,18 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
 <body>
 <div class="container">
   <div class="chest"><div class="top_block">
-    <h1>Вы стали участником акции «<span class="productName">Benaga Chaga</span>»!</h1>
-    <p class="vis_big"><span style="font-weight:500">Каждый участник может получить натуральное и эффективное средство по цене:</span><br><span class="price-line"><b class="price_old" style="text-decoration:line-through;color:#999">0 EUR</b> — <b class="price_main new_price_val" style="color:#e53935;font-weight:800">0 EUR</b> !</span></p>
+    <h1>Tornou-se participante da promoção «<span class="productName">Icexin</span>»!</h1>
+    <p class="vis_big"><span style="font-weight:500">Cada participante pode obter um produto natural e eficaz pelo preço:</span><br><span class="price-line"><b class="price_old" style="text-decoration:line-through;color:#999">0 EUR</b> — <b class="price_main new_price_val" style="color:#e53935;font-weight:800">0 EUR</b> !</span></p>
   </div></div>
   <div class="select_block">
-    <h2 class="select_block__title"><span style="color:red">Внимание:</span> из-за высокого спроса мы не можем обработать все заявки.</h2>
-    <p class="text_big">Поэтому мы запустили розыгрыш: каждый раз выбирается победитель, который получает возможность приобрести <span class="productName">Benaga Chaga</span> — по эксклюзивной цене.</p>
+    <h2 class="select_block__title"><span style="color:red">Atenção:</span> devido à elevada procura, não conseguimos processar todos os pedidos.</h2>
+    <p class="text_big">Por isso, lançámos um sorteio: de cada vez é escolhido um vencedor que tem a oportunidade de adquirir <span class="productName">Icexin</span> — a um preço exclusivo.</p>
   </div>
   <div class="chest__img_pack" id="chestImg">
-    <div class="chest__title_wrap"><h3 class="chest__title">Испытайте удачу!</h3>
-      <h3 class="chest__subtitle">Нажмите на сундук и заберите свою <span class="danger-text">награду</span>!</h3></div>
+    <div class="chest__title_wrap"><h3 class="chest__title">Tente a sua sorte!</h3>
+      <h3 class="chest__subtitle">Clique no baú e receba o seu <span class="danger-text">prémio</span>!</h3></div>
     <div class="chest__button"><picture>
-      <img src="images/chest.webp" alt="" class="saleBox"></picture><button id="pushChest">Открыть</button></div>
+      <img src="images/chest.webp" alt="" class="saleBox"></picture><button id="pushChest">ABRIR</button></div>
     <div class="chest__img--dinamic chest__img"><picture>
       <img src="images/chest_animation.webp" alt="" style="max-width:350px;width:100%"></picture></div>
     <div class="chest__coins"><picture class="chest__img chest__img--opened">
@@ -104,27 +104,27 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
       </div></div>
     <div class="chest__order"><div class="my_form">
       <img src="images/inline_2.png" alt="" class="prodImg" style="max-width:240px">
-      <div class="text_popup"><span style="display:block">Поздравляем!!!</span> Вы только что выиграли возможность купить упаковку <span class="productName">Benaga Chaga</span> всего за <b class="price_old" style="text-decoration:line-through;color:#999">0 EUR</b> <b class="price_main new_price_val" style="color:#e53935">0 EUR</b>!</div>
-      <p style="text-align:center;font-size:15px;color:#444;margin:0 0 2px">Чтобы получить препарат по скидке — впишите имя и телефон и нажмите «Заказать».</p>
+      <div class="text_popup"><span style="display:block">Parabéns!!!</span> Acabou de ganhar a oportunidade de comprar uma embalagem de <span class="productName">Icexin</span> por apenas <b class="price_old" style="text-decoration:line-through;color:#999">0 EUR</b> <b class="price_main new_price_val" style="color:#e53935">0 EUR</b>!</div>
+      <p style="text-align:center;font-size:15px;color:#444;margin:0 0 2px">Para receber o produto com desconto — introduza o seu nome e telefone e clique em «Encomendar».</p>
       <span id="oneform"></span>
       <form id="order_form" class="order_form" action="order.php" method="post">
         <input type="hidden" name="sub1" value="{subid}">
         <input type="hidden" name="country" value="" id="country_hidden">
         <div class="country-confirm" id="countryConfirm" style="display:none">
-          <p class="country-confirm__text">Вы из <span id="countryConfirmName"></span>?</p>
+          <p class="country-confirm__text">O seu país é <span id="countryConfirmName"></span>?</p>
           <div class="country-confirm__btns">
-            <button type="button" class="country-confirm__btn country-confirm__btn--yes" id="confirmYes">Да</button>
-            <button type="button" class="country-confirm__btn country-confirm__btn--no" id="confirmNo">Нет</button>
+            <button type="button" class="country-confirm__btn country-confirm__btn--yes" id="confirmYes">Sim</button>
+            <button type="button" class="country-confirm__btn country-confirm__btn--no" id="confirmNo">Não</button>
           </div>
         </div>
         <div class="country-select-wrap" id="countrySelectWrap">
-          <label>Выберите страну</label>
+          <label>Selecione o país</label>
           <select class="country_select" id="country_select_main"></select>
         </div>
         <div class="form-fields-gate" id="formFieldsGate">
-          <input type="text" minlength="2" class="input-roulette" name="name" id="input-name" placeholder="Введите ваше имя" autocomplete="name" required>
+          <input type="text" minlength="2" class="input-roulette" name="name" id="input-name" placeholder="Introduza o seu nome" autocomplete="name" required>
           <input maxlength="18" minlength="8" type="tel" class="input-roulette" name="phone" id="input-phone" placeholder="123456789" autocomplete="tel" required>
-          <input type="submit" class="submit-roulette" value="Получить"><div class="ring-loading"></div>
+          <input type="submit" class="submit-roulette" value="Encomendar"><div class="ring-loading"></div>
         </div>
       </form>
     </div></div>
@@ -157,11 +157,11 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
   var countries = window.countryList || {};
 
   var countryNames = {
-    at:'Австрии',be:'Бельгии',bg:'Болгарии',ch:'Швейцарии',
-    cz:'Чехии',de:'Германии',ee:'Эстонии',es:'Испании',
-    gr:'Греции',hr:'Хорватии',hu:'Венгрии',it:'Италии',
-    lt:'Литвы',lv:'Латвии',pl:'Польши',pt:'Португалии',
-    ro:'Румынии',si:'Словении',sk:'Словакии'
+    at:'Áustria',be:'Bélgica',bg:'Bulgária',ch:'Suíça',
+    cz:'Chéquia',de:'Alemanha',ee:'Estónia',es:'Espanha',
+    gr:'Grécia',hr:'Croácia',hu:'Hungria',it:'Itália',
+    lt:'Lituânia',lv:'Letónia',pl:'Polónia',pt:'Portugal',
+    ro:'Roménia',si:'Eslovénia',sk:'Eslováquia'
   };
 
   var detectedCode = '';
@@ -212,7 +212,7 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
     selectWrap.style.display = 'block';
     var placeholder = document.createElement('option');
     placeholder.value = '';
-    placeholder.textContent = 'Выберите страну';
+    placeholder.textContent = 'Selecione o país';
     placeholder.disabled = true;
     placeholder.selected = true;
     sel.insertBefore(placeholder, sel.firstChild);
