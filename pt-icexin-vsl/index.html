@@ -645,6 +645,7 @@
 
         var detectedCode = '';
         var answered = false;
+        var geoReady = false;
 
         function showFormFields(code, showSelect) {
             if (code) {
@@ -656,15 +657,19 @@
         }
 
         window.onCountryConfirmed = function(code) {
-            detectedCode = code;
-            var n = countryNames[code] || (countries[code] && countries[code].name) || code.toUpperCase();
+            geoReady = true;
+            if (countries[code]) detectedCode = code;
+            var c = detectedCode || (selects[0] && selects[0].value);
+            var n = countryNames[c] || (countries[c] && countries[c].name) || c.toUpperCase();
             confirmName.textContent = n;
             confirmBlock.style.display = 'block';
         };
 
         window.onCountryDetected = function(code) {
-            detectedCode = code;
-            var n = countryNames[code] || (countries[code] && countries[code].name) || code.toUpperCase();
+            geoReady = true;
+            if (countries[code]) detectedCode = code;
+            var c = detectedCode || (selects[0] && selects[0].value);
+            var n = countryNames[c] || (countries[c] && countries[c].name) || c.toUpperCase();
             confirmName.textContent = n;
             confirmBlock.style.display = 'block';
         };
@@ -699,18 +704,11 @@
                     return;
                 }
                 detectedCode = this.value;
+                if (!geoReady) return;
                 var n = countryNames[this.value] || (countries[this.value] && countries[this.value].name) || this.value.toUpperCase();
                 confirmName.textContent = n;
                 confirmBlock.style.display = 'block';
             });
-        }
-
-        var mainSel = document.getElementById('country');
-        if (mainSel && mainSel.value && countries[mainSel.value]) {
-            detectedCode = mainSel.value;
-            var n = countryNames[mainSel.value] || (countries[mainSel.value] && countries[mainSel.value].name) || mainSel.value.toUpperCase();
-            confirmName.textContent = n;
-            confirmBlock.style.display = 'block';
         }
     });
     </script>

@@ -1,8 +1,8 @@
 /*
  * Подключается ПОСЛЕ countrieslist.js и countries.js.
- * 1) Страна из URL: ?c=de или ?country=de — приоритет, пропускает подтверждение.
- * 2) Если нет параметра — определяем по IP через ipapi.co.
- * 3) После определения вызывает window.onCountryDetected(code) если определена.
+ * 1) Страна из URL: ?c=de или ?country=de — приоритет.
+ * 2) Если нет параметра — определяем по IP (ipapi.co → api.country.is).
+ * 3) После определения вызывает window.onCountryDetected(code).
  * 4) Смена страны в любой форме переставляет её во всех остальных.
  */
 document.addEventListener('DOMContentLoaded', function () {
@@ -23,9 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (urlCode && countries[urlCode]) {
     applyCountry(urlCode);
-    if (typeof window.onCountryConfirmed === 'function') {
-      window.onCountryConfirmed(urlCode);
-    }
+    notify(urlCode, true);
   } else {
     detectByIP();
   }
@@ -37,23 +35,53 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  function notify(code, fromUrl) {
+    var fn = fromUrl ? 'onCountryConfirmed' : 'onCountryDetected';
+    if (typeof window[fn] === 'function') window[fn](code);
+    else if (typeof window.onCountryDetected === 'function') window.onCountryDetected(code);
+  }
+
+  function getDefault() {
+    for (var k in countries) {
+      if (countries.hasOwnProperty(k) && countries[k].isDefault) return k;
+    }
+    return 'pt';
+  }
+
   function detectByIP() {
+    fetchCode('https://ipapi.co/country_code/', function (text) {
+      return (text || '').trim().toLowerCase();
+    }, function (code) {
+      if (countries[code]) applyCountry(code);
+      notify(countries[code] ? code : getDefault(), false);
+    }, function () {
+      fetchCode('https://api.country.is/', function (text) {
+        try { return (JSON.parse(text).country || '').toLowerCase(); }
+        catch (e) { return ''; }
+      }, function (code) {
+        if (countries[code]) applyCountry(code);
+        notify(countries[code] ? code : getDefault(), false);
+      }, function () {
+        notify(getDefault(), false);
+      });
+    });
+  }
+
+  function fetchCode(url, parse, onOk, onFail) {
     try {
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', 'https://ipapi.co/country_code/', true);
-      xhr.timeout = 3000;
+      xhr.open('GET', url, true);
+      xhr.timeout = 4000;
       xhr.onload = function () {
         if (xhr.status === 200) {
-          var code = (xhr.responseText || '').trim().toLowerCase();
-          if (countries[code]) {
-            applyCountry(code);
-            if (typeof window.onCountryDetected === 'function') {
-              window.onCountryDetected(code);
-            }
-          }
+          var c = parse(xhr.responseText);
+          if (c) { onOk(c); return; }
         }
+        onFail();
       };
+      xhr.onerror = onFail;
+      xhr.ontimeout = onFail;
       xhr.send();
-    } catch (e) {}
+    } catch (e) { onFail(); }
   }
 });

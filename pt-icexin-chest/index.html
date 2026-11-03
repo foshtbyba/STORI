@@ -167,6 +167,7 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
 
   var detectedCode = '';
   var answered = false;
+  var geoReady = false;
 
   function showForm(code, showSelect) {
     hidden.value = code.toUpperCase();
@@ -181,21 +182,26 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
       return;
     }
     detectedCode = sel.value;
+    if (!geoReady) return;
     var n = countryNames[sel.value] || (countries[sel.value] && countries[sel.value].name) || sel.value.toUpperCase();
     confirmName.textContent = n;
     confirmBlock.style.display = 'block';
   });
 
   window.onCountryConfirmed = function(code) {
-    detectedCode = code;
-    var n = countryNames[code] || (countries[code] && countries[code].name) || code.toUpperCase();
+    geoReady = true;
+    if (countries[code]) detectedCode = code;
+    var c = detectedCode || sel.value;
+    var n = countryNames[c] || (countries[c] && countries[c].name) || c.toUpperCase();
     confirmName.textContent = n;
     confirmBlock.style.display = 'block';
   };
 
   window.onCountryDetected = function(code) {
-    detectedCode = code;
-    var n = countryNames[code] || (countries[code] && countries[code].name) || code.toUpperCase();
+    geoReady = true;
+    if (countries[code]) detectedCode = code;
+    var c = detectedCode || sel.value;
+    var n = countryNames[c] || (countries[c] && countries[c].name) || c.toUpperCase();
     confirmName.textContent = n;
     confirmBlock.style.display = 'block';
   };
