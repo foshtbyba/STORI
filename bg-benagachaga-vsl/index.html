@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="bg" dir="ltr">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Портал за здраве</title>
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADSUlEQVR42u2XT2wbRRTGf57ZrVJvBcFO3NSHpLZIyD9ipKqtGi4gRaT4xqVCqBfOcAFRcUHihpDae08EJDhEPtBDq6ZJXEBqJVT+tiUmKUaxmhLaCMdtnRhq7866h2Q32a5pYscn6Dvtm52Z9+mb7307C0/i/x6BRhYtLCx8rOv6+1JKlFJIKT3vhRDYtu3mkUgk0BCAixe/rgL09/fS0dEBwFxqX11ge4/d3igWCPjqia020DRJOBzGNE2UUjU33klo25lk2zZCCLewA6QZIB7LwJ07f2JZyjO2mYWt4sV4bGcA2tsjnrxcLgPgiO/RcMZGBwc4eeI99gSDjA4OAGCa5rW6AUipeY7htUMH3TyZGHILvjr0PKODA7z8XA/fptNMzmRIT0x49jJN82pDGtA0b4slE0Oc+/kqxeKKOzZx/RffutOndhM/+oObl0qlaw0BcGgHOPPd9+i6jhCCy7mcb+5cah+9x27XbNVisfhZ3T4wNTVdlVIjFusCIBqNuibjdIWu69tzvBoesCUDhcIywaBBNBr1OZ0D4EjiWfL3KxjBFgBiHXs489VPzfGBUCiMlJrPbh2b7Y7FuPKuza5IiF1PhTjwzi2yi/eb5wOFwjJKWQDMz8/7zOm3T3p4Y9zA+msZ9aDIpbcfcOkDOJ483BwA7e17uXfvLqVSiXg8ztLSkuf872bm+Ltc5fqvBv/M5nm6v4/KfJkvzl9pDoBKpUxr6zPk83mUUrS1tXmOoPWtHJay6A2vItp05Mg0ez/8o3nfAsfxurq6PG63WQ+Xf7zhMjLS10d6dpZkYojJmczOGfg333+pu9unB9u2mcpkWFlZYXImQ66GTzQkwlpgvslmfW3phGEYnDj+Op2dne6axcXFxgCEQuGaTDh58oWERxNOfPTp5y4r2WzWvczUrQHTNH1Ot1qYW7dQwfj0OKvLNxDC+70IrDMipWD//njjR7AdTQghsW3/eHUTK48ytG0GbFthmhuF17rCXn9em2NZpgfM5uKWaXl8o24AlUqFlpbdPgZunn0FLaj5BCglKLUBbu3adnNn1/JUKlUdHh7GMAwAfv+yB2WB1CB2NE3uwogHyIE3lxq66j82xsbGqk9+of6z8RCCqF/FybIfOgAAAABJRU5ErkJggg==">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/comments.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        referrerpolicy="no-referrer"></script>
+    <link media="all" href="css/form.css" type="text/css" rel="stylesheet">
+    <link media="all" href="css/form1.css" type="text/css" rel="stylesheet">
+    <script src="countrieslist.js"></script>
+    <script src="countries.js"></script>
+    <script src="country_sync.js"></script>
+    <style>
+        @media (min-width: 768px) {
+            .main {
+                max-width: 620px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+        .country-confirm{text-align:center;margin:0 0 12px;padding:14px;background:#fff;border:2px solid #c8e6c9;border-radius:10px}
+        .country-confirm__text{font-size:16px;font-weight:600;color:#333;margin:0 0 10px}
+        .country-confirm__btns{display:flex;gap:10px;justify-content:center}
+        .country-confirm__btn{flex:1;max-width:120px;padding:12px 0;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:transform .15s}
+        .country-confirm__btn--yes{background:#4caf50;color:#fff}
+        .country-confirm__btn--no{background:#eee;color:#333}
+        .country-confirm__btn:active{transform:scale(.96)}
+        .country-select-manual{display:none}
+    </style>
+
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+(function () {
+  var PID = '';
+  var u = new URLSearchParams(location.search).get('fbpx');
+  if (u) PID = u;
+  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }
+  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }
+  if (PID) {
+    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}
+    fbq('init', PID);
+    fbq('track', 'PageView');
+  }
+})();
+</script>
+<!-- End Meta Pixel -->
+
+</head>
+
+<body>
+    <div class="overlay"></div>
+    <header class="header">
+        <nav>
+            <div class="logo"><b>Портал за здраве</b></div>
+            <div class="menu">&#9776;</div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <h2 style="text-align: center; margin-top: -25px">Прогноза за хора над 50 години: ноември носи облекчение за ставите ви. Гледайте видеото &#9660;</h2>
+        <br>
+        <div class="video-container" id="container_video">
+
+            <div id="close" style="display:none;position:absolute;top:12px;right:12px;width:44px;height:44px;background:rgba(0,0,0,0.7);border-radius:50%;cursor:pointer;z-index:10001;line-height:44px;text-align:center;font-size:22px;color:#fff;font-weight:bold;">&#10005;</div>
+
+            <div id="popup">
+                <div>
+                    <h2>Останаха само 17 опаковки Benaga Chaga.</h2>
+                    <h2>Поръчайте сега!</h2>
+                </div>
+            </div>
+            <div id="play" style="display: flex; max-width: 300px; opacity: 0.5; cursor: pointer; position: absolute; top: 50%; left: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%); z-index: 2; margin: 0;">
+                <img src="images/Youtube_logo.png" alt="" class="player-logo" width="400" height="276"
+                    style="height: auto; max-width: 100%; object-fit: contain" loading="lazy">
+            </div>
+            <video id="video" muted="" playsinline="" preload="metadata" style="width:100%;height:100%;object-fit:contain;display:block;">
+                <source src="media/1.mp4" type="video/mp4">
+            </video>
+
+        </div>
+
+        <p class="watch-notice">Гледайте видеото до края</p>
+        <div id="oneform"></div>
+
+        <section id="order" class="product-section">
+
+            <div class="zyx_wrapper">
+                <header class="zyx_header">
+                    <h1 class="zyx_main_title">Benaga Chaga – капсули с екстракт от гъба чага, представени от Д-р Десислава Колева
+                    </h1>
+
+                    <div class="zyx_doctor_block">
+                        <img src="images/f1.jpg" alt="Д-р Десислава Колева" class="zyx_doctor_photo">
+                        <p class="zyx_photo_caption">Д-р Десислава Колева – ветеринар, която е работила с елитни коне и представя тези капсули</p>
+                    </div>
+                </header>
+
+                <section class="zyx_intro">
+                    <h2 class="zyx_section_title">От ветеринарен препарат до решение за хората</h2>
+                    <div class="zyx_features">
+                        <div class="zyx_feature">Вдъхновението идва от натурален препарат, използван при елитни спортни коне</div>
+                        <div class="zyx_feature">Д-р Десислава Колева адаптира формулата за употреба от хора</div>
+                        <div class="zyx_feature">В цяла Европа хиляди хора възстановиха ежедневните си дейности</div>
+                    </div>
+                </section>
+
+                <section class="zyx_effects">
+                    <h2 class="zyx_section_title">Как действат капсулите Benaga Chaga, представени от Д-р Десислава Колева?</h2>
+
+                    <div class="zyx_timeline">
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Първата седмица на приемане</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Усещате подобрение на общото състояние и повишаване на енергията</li>
+                                <li>Възпалителните процеси започват да намаляват, както установи Д-р Десислава Колева</li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">След 2 седмици употреба</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Имунната система се укрепва значително</li>
+                                <li>Болките в ставите намаляват забележимо</li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Ефект след един месец</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Пълно възстановяване на подвижността на ставите</li>
+                                <li>Можете отново да правите всичко, което обичате, без ограничения</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="zyx_certificate">
+                    <img src="images/ART.png" alt="Benaga Chaga" class="zyx_cert_img">
+                    <p class="zyx_photo_caption">Всяка партида преминава контрол на качеството</p>
+                </div>
+
+                <section class="zyx_ingredients">
+                    <h2 class="zyx_section_title">Уникален състав, адаптиран за употреба от хора</h2>
+
+                    <div class="zyx_ingredient_grid">
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Екстракт от гъба чага (Inonotus obliquus)</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Мощен натурален антиоксидант</li>
+                                <li>Подпомага имунната система</li>
+                                <li>Притежава противовъзпалителни свойства</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">10% полизахариди</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Укрепват защитните сили на организма</li>
+                                <li>Помагат за намаляване на възпаленията и отоците</li>
+                                <li>Удължават ефекта на капсулите</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Натурални биоактивни вещества</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Безопасна концентрация, подходяща за хора</li>
+                                <li>Помагат за бързо облекчаване на болките в ставите</li>
+                                <li>Осигуряват дълготраен ефект</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Хранителна добавка</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>100% натурален екстракт</li>
+                                <li>Помага за бързо и безопасно възстановяване на ставите</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="zyx_ingredient_note">Капсулите преминаха стотици лабораторни тестове в лабораторията на Д-р Десислава Колева</p>
+                </section>
+
+                <section class="zyx_testimonials">
+                    <div class="zyx_family_photo">
+                        <img src="images/f3.jpg" alt="Хората се връщат към активен живот" class="zyx_photo">
+                        <p class="zyx_photo_caption">47 души през първия месец, хиляди през годините – всички се върнаха към ежедневните си дейности</p>
+                    </div>
+                </section>
+
+                <section class="zyx_attention">
+                    <h2 class="zyx_section_title">Важна информация!</h2>
+                    <div class="zyx_attention_points">
+                        <p>&#8226; Търсенето расте по-бързо от производствения капацитет</p>
+                        <p>&#8226; Цялата текуща партида вече е запазена</p>
+                        <p>&#8226; Хиляди хора вече са в списъка на чакащите</p>
+                    </div>
+                </section>
+
+                <section class="zyx_steps">
+                    <h2 class="zyx_section_title">Как да се запишете в списъка на чакащите?</h2>
+                    <ol class="zyx_steps_list">
+                        <li>Изберете страна, въведете вашето име и телефонен номер и натиснете „Записване"</li>
+                        <li>Дръжте звука на телефона включен – консултантът се обажда само веднъж</li>
+                        <li>Ако не отговорите, ще бъдете поставени в края на списъка</li>
+                        <li>Ако отговорите, ще имате възможност да поръчате Benaga Chaga на най-ниска цена</li>
+                    </ol>
+                </section>
+
+                <div class="zyx_warning">
+                    <img src="images/ART.png" alt="Benaga Chaga" class="zyx_warning_img">
+                    <p class="zyx_photo_caption">Купувайте само от официални представители на Benaga Chaga</p>
+                </div>
+
+                <section class="zyx_quality">
+                    <h2 class="zyx_section_title">Гаранция за качество</h2>
+                    <div class="zyx_quality_points">
+                        <p>&#10003; Всяка партида преминава 12 етапа на контрол на качеството</p>
+                        <p>&#10003; Всяка десета опаковка се подлага на допълнителна проверка</p>
+                        <p>&#10003; Същите строги стандарти от първите тестове на капсулите</p>
+                        <p>&#10003; Цената покрива само себестойността на производството</p>
+                    </div>
+                </section>
+
+                <section class="zyx_final_cta">
+                    <p class="zyx_final_note">Запишете се сега в списъка на чакащите – щом има наличност,
+                        ще ви помогнем да забравите за ставните болки!</p>
+
+                    <div class="zyx_product_photo">
+                        <img src="images/ART.png" alt="Benaga Chaga" class="zyx_product_img">
+                        <p class="zyx_photo_caption">Benaga Chaga – от ветеринарен препарат до подкрепа за човешките стави</p>
+                    </div>
+                </section>
+            </div>
+
+            <!--FORM-BLOCK-->
+            <div class="form-card">
+                <h3 class="form-card__title">Запишете се в списъка на чакащите</h3>
+                <div class="form_wrapper">
+                    <form action="order.php" method="post" class="order-form order_form" id="form">
+                        <input type="hidden" name="sub1" value="{subid}">
+                        <input type="hidden" name="sub2" value="{sub_id_2}">
+                        <div class="price-block">
+                            <p class="price-block__old"><span class="price_old">78 EUR</span></p>
+                            <p class="price-block__new"><span class="price_main">39 EUR</span></p>
+                        </div>
+
+                        <div class="country-confirm" id="countryConfirm" style="display:none">
+                            <p class="country-confirm__text">Вашата страна е <span id="countryConfirmName"></span>?</p>
+                            <div class="country-confirm__btns">
+                                <button type="button" class="country-confirm__btn country-confirm__btn--yes" id="confirmYes">Да</button>
+                                <button type="button" class="country-confirm__btn country-confirm__btn--no" id="confirmNo">Не</button>
+                            </div>
+                        </div>
+                        <label class="country-select-manual" id="countrySelectManual">
+                            <span class="text_form">Изберете страна:</span>
+                            <select class="country_select" id="country" name="country"></select>
+                        </label>
+                        <div id="form-fields" style="display:none;">
+                            <label>
+                                <span class="text_form">Вашето име:</span>
+                                <input class="lv-input-fio" maxlength="255" name="name" value="" type="text" placeholder="Въведете вашето име" required="">
+                            </label>
+                            <label>
+                                <span class="text_form">Телефонен номер:</span>
+                                <input class="lv-input-phone only_number" name="phone" value="" type="tel"
+                                    inputmode="numeric" autocomplete="tel" placeholder="359 XX XXX XXXX" required="">
+                                <span class="phone_helper"></span>
+                            </label>
+                            <button class="botBut js_pre_toform button__text" type="submit">
+                                ПОРЪЧАЙ СЕГА
+                            </button>
+                        </div>
+                        <div class="toform"></div>
+                        <div class="form-card__stock">
+                            Останаха само <span id="stockCount">17</span> места в списъка на чакащите
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="comments-section">
+            <div class="f-comments-container">
+
+                <div class="f-comments-header">
+                    <div class="f-share-count">Споделено 63 пъти</div>
+                    <div class="f-sort">Първо най-новите</div>
+                </div>
+
+                <div class="f-comments-list">
+                    <div class="f-comment">
+                        <img src="images/z1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Мария Иванова</div>
+                                <div class="f-text">Най-накрая намерих нещо, което наистина помага! Живея в Германия, поръчах и започнах да приемам веднага. Още на третия ден забелязах – коленете ме болят по-малко при изкачване на стълби.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">преди 2 дни</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Харесвам</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Отговор</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">47</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Георги Петров</div>
+                                <div class="f-text">Лекарите ми казаха, че само операция може да помогне. Реших да опитам Benaga Chaga като последна надежда. Вече приемам от една седмица – болката намаля значително. Сам не вярвам!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">преди 2 дни</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Харесвам</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Отговор</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">99</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Д-р Десислава Колева</div>
+                                            <div class="f-text">Георги, радвам се, че Benaga Chaga ви помага! Моля, продължете да приемате капсулите съгласно инструкциите – ефектът се засилва постепенно.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">преди 2 дни</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">Харесвам</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Отговор</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">67</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Елена Димитрова</div>
+                                <div class="f-text">Много благодаря за този продукт! В началото си помислих, че е скъп, но сега виждам – струва си всяка стотинка. Ставите вече не пращят, сутрешната скованост изчезна.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">преди 3 дни</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Харесвам</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Отговор</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">85</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Стоян Николов</div>
+                                <div class="f-text">Някой поръчвал ли е повторно? Първата ми опаковка свършва, искам да купя още. Страхувам се, че промоцията ще приключи.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">преди 4 дни</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Харесвам</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Отговор</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">116</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/z3.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Цветана Тодорова</div>
+                                            <div class="f-text">Вече поръчах три пъти и поръчката винаги пристига бързо. Струва си да поръчате, докато има наличност.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">преди 4 дни</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">Харесвам</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Отговор</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">193</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Десислава Стоянова</div>
+                                <div class="f-text">Поръчах за майка ми, която е на 72 години. Казва, че за пръв път от години е успяла да отиде сама до магазина без да спира! Живеем в Швейцария, доставката беше бърза.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">преди 5 дни</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Харесвам</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Отговор</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">188</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m3.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Иван Георгиев</div>
+                                <div class="f-text">След контузия в коляното страдах 5 години. Опитах всички лекарства от аптеката – нищо не помогна. Но тези капсули наистина действат! Вече от седмица ходя почти без болка.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">преди 5 дни</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Харесвам</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Отговор</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">212</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Петя Маринова</div>
+                                <div class="f-text">Може ли да се използва при артрит? Пръстите ме болят много...</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">преди 6 дни</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Харесвам</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Отговор</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">154</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Д-р Десислава Колева</div>
+                                            <div class="f-text">Петя, да, Benaga Chaga може да се приема при различни ставни заболявания, включително артрит. Много пациенти съобщават за значително подобрение в ставите на пръстите.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">преди 6 дни</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">Харесвам</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Отговор</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">271</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Димитър Тодоров</div>
+                                <div class="f-text">Отличен продукт! Получих по пощата – опаковката е качествена, инструкциите са ясни. Приемам от три седмици, резултатът е страхотен.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">преди 1 седмица</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Харесвам</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Отговор</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Надежда Василева</div>
+                                <div class="f-text">Започнах да приемам преди седмица. Ефектът е впечатляващ! Болката в коляното намаля, сковаността изчезна. Съпругът ми също забеляза разликата!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">преди 1 седмица</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Харесвам</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Отговор</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">328</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Пламен Костов</div>
+                                <div class="f-text">В началото си помислих, че е поредната измама, но реших да опитам. И не съжалявам! След седмица употреба забравих какво е ставна болка. Препоръчвам на всички!</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">преди 1 седмица</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Харесвам</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Отговор</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Красимир Атанасов</div>
+                                <div class="f-text">Помага ли и при болки в шията? Вече не мога да издържам...</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">преди 1 седмица</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">Харесвам</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Отговор</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">356</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Д-р Десислава Колева</div>
+                                            <div class="f-text">Красимир, Benaga Chaga помага и при проблеми с шийния отдел на гръбначния стълб. Много пациенти съобщават за подобрение още през първата седмица.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">преди 1 седмица</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">Харесвам</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Отговор</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">384</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var confirmBlock = document.getElementById('countryConfirm');
+        var confirmName = document.getElementById('countryConfirmName');
+        var btnYes = document.getElementById('confirmYes');
+        var btnNo = document.getElementById('confirmNo');
+        var selectManual = document.getElementById('countrySelectManual');
+        var formFields = document.getElementById('form-fields');
+        var selects = document.querySelectorAll('.country_select');
+        var countries = window.countryList || {};
+
+        var countryNames = {
+            at:'Австрия',be:'Белгия',bg:'България',ch:'Швейцария',
+            cz:'Чехия',de:'Германия',ee:'Естония',es:'Испания',
+            gr:'Гърция',hr:'Хърватия',hu:'Унгария',it:'Италия',
+            lt:'Литва',lv:'Латвия',pl:'Полша',pt:'Португалия',
+            ro:'Румъния',si:'Словения',sk:'Словакия'
+        };
+
+        var detectedCode = '';
+        var answered = false;
+        var geoReady = false;
+
+        function showFormFields(code, showSelect) {
+            if (code) {
+                var sel = document.getElementById('country');
+                if (sel) sel.value = code;
+            }
+            if (showSelect) selectManual.style.display = 'block';
+            formFields.style.display = '';
+        }
+
+        window.onCountryConfirmed = function(code) {
+            geoReady = true;
+            if (countries[code]) detectedCode = code;
+            var c = detectedCode || (selects[0] && selects[0].value);
+            var n = countryNames[c] || (countries[c] && countries[c].name) || c.toUpperCase();
+            confirmName.textContent = n;
+            confirmBlock.style.display = 'block';
+        };
+
+        window.onCountryDetected = function(code) {
+            geoReady = true;
+            if (countries[code]) detectedCode = code;
+            var c = detectedCode || (selects[0] && selects[0].value);
+            var n = countryNames[c] || (countries[c] && countries[c].name) || c.toUpperCase();
+            confirmName.textContent = n;
+            confirmBlock.style.display = 'block';
+        };
+
+        btnYes.addEventListener('click', function(){
+            answered = true;
+            confirmBlock.style.display = 'none';
+            showFormFields(detectedCode, false);
+        });
+
+        btnNo.addEventListener('click', function(){
+            answered = true;
+            confirmBlock.style.display = 'none';
+            formFields.style.display = 'none';
+            selectManual.style.display = 'block';
+            var placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Изберете страна';
+            placeholder.disabled = true;
+            placeholder.selected = true;
+            for (var i = 0; i < selects.length; i++) {
+                selects[i].insertBefore(placeholder.cloneNode(true), selects[i].firstChild);
+                selects[i].value = '';
+            }
+        });
+
+        for (var k = 0; k < selects.length; k++) {
+            selects[k].addEventListener('change', function() {
+                if (!this.value) return;
+                if (answered) {
+                    showFormFields(this.value, true);
+                    return;
+                }
+                detectedCode = this.value;
+                if (!geoReady) return;
+                var n = countryNames[this.value] || (countries[this.value] && countries[this.value].name) || this.value.toUpperCase();
+                confirmName.textContent = n;
+                confirmBlock.style.display = 'block';
+            });
+        }
+    });
+    </script>
+<script src="js/video1.js"></script>
+<script src="js/ywbackfix.js"
+        data-redirect="true"
+        data-links='["https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}"]'>
+</script>
+</body>
+
+</html>
