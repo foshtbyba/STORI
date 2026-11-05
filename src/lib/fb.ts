@@ -354,6 +354,11 @@ function fbHint(code: number, subcode: number | undefined, why: string): string 
   if (code === 4 || code === 17 || code === 32 || code === 613) {
     return 'Facebook временно режет частые запросы. Подожди пару минут и попробуй снова.';
   }
+  // Ограничение/бан БИЗНЕС-аккаунта за нарушение рекламных политик (не токен!).
+  // Приходит как код 10 с субкодом 2446325 или текстом про Advertising Policies.
+  if (subcode === 2446325 || w.includes('advertising policies') || w.includes("didn't comply") || w.includes('did not comply')) {
+    return 'бизнес-аккаунт (BM) ограничен Facebook за нарушение рекламных политик — реклама с него не идёт, пока ограничение не снимут. Это НЕ про токен: подай апелляцию в Business Manager (Account Quality / Качество аккаунта) или заливай с другого BM/кабинета.';
+  }
   // Нет прав на рекламные кабинеты под этим токеном.
   if (code === 10 || code === 200 || code === 803) {
     return 'у токена не хватает прав на рекламные кабинеты. Добавь доступ и выпусти новый.';

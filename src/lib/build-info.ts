@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'agent-popover-fixed · 01.11 16:17';
+export const BUILD_INFO = 'fb-hint-bm-restricted · 05.11 19:39';
