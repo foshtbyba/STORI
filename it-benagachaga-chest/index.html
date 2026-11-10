@@ -94,7 +94,7 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
     <div class="chest__title_wrap"><h3 class="chest__title">Tenta la fortuna!</h3>
       <h3 class="chest__subtitle">Clicca sul forziere e ricevi il tuo <span class="danger-text">premio</span>!</h3></div>
     <div class="chest__button"><picture>
-      <img src="images/chest.webp" alt="" class="saleBox"></picture><button id="pushChest">ОТВОРИ</button></div>
+      <img src="images/chest.webp" alt="" class="saleBox"></picture><button id="pushChest">APRI</button></div>
     <div class="chest__img--dinamic chest__img"><picture>
       <img src="images/chest_animation.webp" alt="" style="max-width:350px;width:100%"></picture></div>
     <div class="chest__coins"><picture class="chest__img chest__img--opened">
@@ -105,27 +105,27 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
       </div></div>
     <div class="chest__order"><div class="my_form">
       <img src="images/inline_2.png" alt="Benaga Chaga" class="prodImg" style="max-width:240px">
-      <div class="text_popup"><span style="display:block">Поздравления!</span> Спечелихте възможността да закупите опаковка <span class="productName">Benaga Chaga</span> само за <b class="price_old" style="text-decoration:line-through;color:#999">0 EUR</b> <b class="price_main new_price_val" style="color:#e53935">0 EUR</b>!</div>
-      <p style="text-align:center;font-size:15px;color:#444;margin:0 0 2px">За да получите продукта с отстъпка — въведете вашето име и телефон и натиснете «Поръчай».</p>
+      <div class="text_popup"><span style="display:block">Congratulazioni!</span> Hai vinto la possibilità di acquistare una confezione di <span class="productName">Benaga Chaga</span> solo per <b class="price_old" style="text-decoration:line-through;color:#999">0 EUR</b> <b class="price_main new_price_val" style="color:#e53935">0 EUR</b>!</div>
+      <p style="text-align:center;font-size:15px;color:#444;margin:0 0 2px">Per ricevere il prodotto con lo sconto — inserisci il tuo nome e telefono e premi «Ordina».</p>
       <span id="oneform"></span>
       <form id="order_form" class="order_form" action="order.php" method="post">
         <input type="hidden" name="sub1" value="{subid}">
         <input type="hidden" name="country" value="" id="country_hidden">
         <div class="country-confirm" id="countryConfirm" style="display:none">
-          <p class="country-confirm__text">Вашата страна е <span id="countryConfirmName"></span>?</p>
+          <p class="country-confirm__text">Sei di <span id="countryConfirmName"></span>?</p>
           <div class="country-confirm__btns">
-            <button type="button" class="country-confirm__btn country-confirm__btn--yes" id="confirmYes">Да</button>
-            <button type="button" class="country-confirm__btn country-confirm__btn--no" id="confirmNo">Не</button>
+            <button type="button" class="country-confirm__btn country-confirm__btn--yes" id="confirmYes">Sì</button>
+            <button type="button" class="country-confirm__btn country-confirm__btn--no" id="confirmNo">No, da un altro paese</button>
           </div>
         </div>
         <div class="country-select-wrap" id="countrySelectWrap">
-          <label>Изберете страна</label>
+          <label>Seleziona il paese</label>
           <select class="country_select" id="country_select_main"></select>
         </div>
         <div class="form-fields-gate" id="formFieldsGate">
-          <input type="text" minlength="2" class="input-roulette" name="name" id="input-name" placeholder="Въведете вашето име" autocomplete="name" required>
+          <input type="text" minlength="2" class="input-roulette" name="name" id="input-name" placeholder="Inserisci il tuo nome" autocomplete="name" required>
           <input maxlength="18" minlength="8" type="tel" class="input-roulette" name="phone" id="input-phone" placeholder="123456789" autocomplete="tel" required>
-          <input type="submit" class="submit-roulette" value="ПОРЪЧАЙ СЕГА"><div class="ring-loading"></div>
+          <input type="submit" class="submit-roulette" value="ORDINA CON LO SCONTO"><div class="ring-loading"></div>
         </div>
       </form>
     </div></div>
@@ -158,11 +158,11 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
   var countries = window.countryList || {};
 
   var countryNames = {
-    at:'Австрия',be:'Белгия',bg:'България',ch:'Швейцария',
-    cz:'Чехия',de:'Германия',ee:'Естония',es:'Испания',
-    gr:'Гърция',hr:'Хърватия',hu:'Унгария',it:'Италия',
-    lt:'Литва',lv:'Латвия',pl:'Полша',pt:'Португалия',
-    ro:'Румъния',si:'Словения',sk:'Словакия'
+    at:'Austria',be:'Belgio',bg:'Bulgaria',ch:'Svizzera',
+    cz:'Cechia',de:'Germania',ee:'Estonia',es:'Spagna',
+    gr:'Grecia',hr:'Croazia',hu:'Ungheria',it:'Italia',
+    lt:'Lituania',lv:'Lettonia',pl:'Polonia',pt:'Portogallo',
+    ro:'Romania',si:'Slovenia',sk:'Slovacchia'
   };
 
   var detectedCode = '';
@@ -219,7 +219,7 @@ b.price_old,b.price_main,.new_price_val{white-space:nowrap}
     selectWrap.style.display = 'block';
     var placeholder = document.createElement('option');
     placeholder.value = '';
-    placeholder.textContent = 'Изберете страна';
+    placeholder.textContent = 'Seleziona il paese';
     placeholder.disabled = true;
     placeholder.selected = true;
     sel.insertBefore(placeholder, sel.firstChild);
