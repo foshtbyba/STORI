@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="it">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grazie per l'ordine!</title><!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+(function () {
+  var PID = '';
+  var u = new URLSearchParams(location.search).get('fbpx');
+  if (u) PID = u;
+  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }
+  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }
+  if (PID) {
+    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}
+    fbq('init', PID);
+    fbq('track', 'PageView'); fbq('track','Lead');
+  }
+})();
+</script>
+
+<!-- End Meta Pixel -->
+<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1a2b42;background:radial-gradient(1200px 600px at 50% -10%,#e8f2fa,#f5f8fb 55%)}.card{background:#fff;max-width:460px;width:100%;padding:38px 30px 30px;border-radius:22px;text-align:center;box-shadow:0 24px 60px rgba(10,40,80,.13);animation:pop .45s cubic-bezier(.2,.8,.2,1)}@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}.ic{width:92px;height:92px;margin:0 auto 12px}.ic svg{width:100%;height:100%;fill:none;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.ic.ok circle{fill:#eafaf1;stroke:#cdeede}.ic.ok path{stroke:#1e8449;stroke-dasharray:44;stroke-dashoffset:44;animation:draw .55s .2s forwards}.ic.wait circle{fill:#eef4fb;stroke:#d7e6f5}.ic.wait path{stroke:#0a5c9e}@keyframes draw{to{stroke-dashoffset:0}}.prod{max-width:160px;width:62%;height:auto;display:block;margin:8px auto 2px}h1{font-size:25px;line-height:1.25;margin:10px 0 8px;color:#1e8449}.card.err h1{color:#c0392b}.ic.err circle{fill:#fdecea;stroke:#f3ccc6}.ic.err path{stroke:#c0392b}.retry{display:inline-block;margin-top:18px;background:#0a5c9e;color:#fff;border:0;border-radius:12px;padding:13px 24px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;box-shadow:0 6px 18px rgba(10,92,158,.25)}.retry:hover{background:#084678}p{font-size:16px;line-height:1.6;margin:6px 0}.muted{color:#6b7a8f;font-size:14px}.oid{margin-top:16px;font-size:13px;color:#4a5a70;background:#f1f6fb;border:1px solid #e4ecf4;border-radius:30px;padding:7px 16px;display:inline-block}.trust{margin-top:18px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:12px;color:#8a93a3}.trust span{display:inline-flex;align-items:center;gap:5px}</style><link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADSUlEQVR42u2XT2wbRRTGf57ZrVJvBcFO3NSHpLZIyD9ipKqtGi4gRaT4xqVCqBfOcAFRcUHihpDae08EJDhEPtBDq6ZJXEBqJVT+tiUmKUaxmhLaCMdtnRhq7866h2Q32a5pYscn6Dvtm52Z9+mb7307C0/i/x6BRhYtLCx8rOv6+1JKlFJIKT3vhRDYtu3mkUgk0BCAixe/rgL09/fS0dEBwFxqX11ge4/d3igWCPjqia020DRJOBzGNE2UUjU33klo25lk2zZCCLewA6QZIB7LwJ07f2JZyjO2mYWt4sV4bGcA2tsjnrxcLgPgiO/RcMZGBwc4eeI99gSDjA4OAGCa5rW6AUipeY7htUMH3TyZGHILvjr0PKODA7z8XA/fptNMzmRIT0x49jJN82pDGtA0b4slE0Oc+/kqxeKKOzZx/RffutOndhM/+oObl0qlaw0BcGgHOPPd9+i6jhCCy7mcb+5cah+9x27XbNVisfhZ3T4wNTVdlVIjFusCIBqNuibjdIWu69tzvBoesCUDhcIywaBBNBr1OZ0D4EjiWfL3KxjBFgBiHXs489VPzfGBUCiMlJrPbh2b7Y7FuPKuza5IiF1PhTjwzi2yi/eb5wOFwjJKWQDMz8/7zOm3T3p4Y9zA+msZ9aDIpbcfcOkDOJ483BwA7e17uXfvLqVSiXg8ztLSkuf872bm+Ltc5fqvBv/M5nm6v4/KfJkvzl9pDoBKpUxr6zPk83mUUrS1tXmOoPWtHJay6A2vItp05Mg0ez/8o3nfAsfxurq6PG63WQ+Xf7zhMjLS10d6dpZkYojJmczOGfg333+pu9unB9u2mcpkWFlZYXImQ66GTzQkwlpgvslmfW3phGEYnDj+Op2dne6axcXFxgCEQuGaTDh58oWERxNOfPTp5y4r2WzWvczUrQHTNH1Ot1qYW7dQwfj0OKvLNxDC+70IrDMipWD//njjR7AdTQghsW3/eHUTK48ytG0GbFthmhuF17rCXn9em2NZpgfM5uKWaXl8o24AlUqFlpbdPgZunn0FLaj5BCglKLUBbu3adnNn1/JUKlUdHh7GMAwAfv+yB2WB1CB2NE3uwogHyIE3lxq66j82xsbGqk9+of6z8RCCqF/FybIfOgAAAABJRU5ErkJggg==">
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+<div class="card">
+  <div class="ic ok"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l7.5 7.5L38 18"/></svg></div>
+  <img class="prod" src="images/inline_2.png" alt="Benaga Chaga" loading="lazy">
+  <h1>Grazie per l'ordine!</h1>
+  <p>Il Suo ordine è stato accettato.</p>
+  <p class="muted">Il nostro consulente La contatterà a breve per confermare la consegna.</p>
+  <div class="oid" id="order-id" style="display:none"></div>
+</div>
+<script>(function(){var id=new URLSearchParams(location.search).get('order_id');if(id){var e=document.getElementById('order-id');if(e){e.textContent='Numero ordine: '+id;e.style.display='';}}})();</script>
+</body></html>
