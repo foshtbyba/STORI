@@ -12,10 +12,13 @@ import Tip from './Tip';
  * агентского кабинета. Заход тяжёлый и идёт в фоне: опрашиваем общий статус
  * синка, по завершении обновляем страницу, чтобы сверить кассу.
  */
+const DEPTHS = [14, 30, 60] as const;
+
 export default function RecomputeSpend() {
   const router = useRouter();
   const [status, setStatus] = useState<AdsSyncStatus | null>(null);
   const [busy, setBusy] = useState(false);
+  const [days, setDays] = useState<number>(14);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wasRunning = useRef(false);
 
@@ -50,7 +53,7 @@ export default function RecomputeSpend() {
     setBusy(true);
     wasRunning.current = true;
     try {
-      await runAdsSyncDeep();
+      await runAdsSyncDeep(days);
     } catch {
       /* запуск лёгкий; статус ниже покажет, идёт ли */
     }
@@ -62,7 +65,23 @@ export default function RecomputeSpend() {
 
   return (
     <div className="flex flex-wrap items-center gap-2.5">
-      <Tip label="Перетягивает расход по объявлениям за 14 дней и заново считает «Агентку». Нужно, когда расход пропал (напр. после отвязки/возврата агентского кабинета) — обычное «Обновить стату» тянет только 3 дня. Идёт в фоне пару минут; по завершении цифры кассы обновятся.">
+      {/* Глубина пересчёта: 14 по умолчанию, глубже — если дыра в расходе старше. */}
+      <div className="flex items-center gap-1 rounded-full bg-sub p-0.5">
+        {DEPTHS.map((d) => (
+          <button
+            key={d}
+            type="button"
+            disabled={busy}
+            onClick={() => setDays(d)}
+            className={`rounded-full px-2.5 py-1 text-[11.5px] transition ${
+              days === d ? 'bg-sage-t text-sage' : 'text-mute hover:text-soft'
+            } ${busy ? 'opacity-60' : ''}`}
+          >
+            {d} дн
+          </button>
+        ))}
+      </div>
+      <Tip label="Перетягивает расход по объявлениям за выбранное число дней и заново считает «Агентку». Нужно, когда расход пропал (напр. после отвязки/возврата агентского кабинета) — обычное «Обновить стату» тянет только 3 дня. Чем глубже окно, тем дольше заход. Идёт в фоне; по завершении цифры кассы обновятся.">
         <button
           type="button"
           disabled={busy}
@@ -71,7 +90,7 @@ export default function RecomputeSpend() {
             busy ? 'cursor-progress opacity-60' : ''
           }`}
         >
-          {busy ? 'Пересчитываю… (14 дн)' : 'Пересчитать расход · 14 дн'}
+          {busy ? `Пересчитываю… (${days} дн)` : `Пересчитать расход · ${days} дн`}
         </button>
       </Tip>
       {busy ? (

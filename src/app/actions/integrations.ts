@@ -919,8 +919,11 @@ export async function runAdsSync(): Promise<{ started: boolean; running: boolean
  * что касса/доли сходятся. Долгий — уносим в after() и опрашиваем статусом, как
  * обычный заход.
  */
-export async function runAdsSyncDeep(): Promise<{ started: boolean; running: boolean }> {
+export async function runAdsSyncDeep(days = SYNC_DAYS): Promise<{ started: boolean; running: boolean }> {
   await requireAdmin();
+  // Окно пересчёта ограничиваем разумным диапазоном: глубже 60 дней заход по
+  // всем кабинетам с паузами слишком долгий и рискует чекпоинтом.
+  const window = Math.min(60, Math.max(SYNC_DAYS, Math.round(days) || SYNC_DAYS));
 
   const prev = await readAdsStatus();
   const stale = prev.startedAt ? Date.now() - prev.startedAt > ADS_SYNC_STALE_MS : true;
@@ -931,7 +934,7 @@ export async function runAdsSyncDeep(): Promise<{ started: boolean; running: boo
   after(async () => {
     let result;
     try {
-      result = await syncFacebookAds(SYNC_DAYS, { allAds: true });
+      result = await syncFacebookAds(window, { allAds: true });
     } catch (e) {
       result = { touched: 0, skipped: 0, problems: [`Сбой глубокого пересчёта: ${(e as Error).message}`], info: [], orphanCents: 0 };
     }
