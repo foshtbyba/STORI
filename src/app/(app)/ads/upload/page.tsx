@@ -20,7 +20,7 @@ export default async function AdsUploadPage() {
 
   const [tokens, templatesRaw] = await Promise.all([
     prisma.adToken.findMany({
-      where: team ? { buyer: { owner: true } } : { buyerId },
+      where: team ? { archived: false, buyer: { owner: true } } : { archived: false, buyerId },
       include: {
         buyer: { select: { handle: true, owner: true } },
         accounts: { where: { enabled: true }, orderBy: { name: 'asc' } },

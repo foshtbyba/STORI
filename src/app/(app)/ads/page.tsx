@@ -46,7 +46,8 @@ export default async function AdsOverviewPage() {
 
   const [tokens, buyers, agents] = await Promise.all([
     prisma.adToken.findMany({
-      where: team ? {} : { buyerId: scoped ?? '__none__' },
+      // archived — отвязанные токены: в активном списке их не показываем.
+      where: team ? { archived: false } : { archived: false, buyerId: scoped ?? '__none__' },
       include: {
         buyer: { select: { id: true, handle: true, initials: true, color: true, owner: true } },
         accounts: { orderBy: { name: 'asc' } },

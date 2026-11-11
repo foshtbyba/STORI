@@ -791,7 +791,7 @@ export async function runAutoupload(form: FormData): Promise<UploadResult> {
     if (id) return id;
     if (otherTokensCache === null) {
       otherTokensCache = await prisma.adToken.findMany({
-        where: { id: { not: ctx.tok.id }, enabled: true },
+        where: { id: { not: ctx.tok.id }, enabled: true, archived: false },
         select: { token: true, cookiesJson: true, proxyUrl: true },
         take: 15,
       });

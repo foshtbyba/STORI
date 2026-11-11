@@ -257,9 +257,10 @@ export async function deleteMyToken(form: FormData) {
   const user = await requireUser();
   const id = String(form.get('id') ?? '');
   const token = id ? await prisma.adToken.findUnique({ where: { id } }) : null;
-  // Чужой токен не трогаем: удалять можно только то, что привязано к себе.
+  // Чужой токен не трогаем: отвязать можно только своё. АРХИВИРУЕМ, а не удаляем:
+  // кабинеты и FbAdDay остаются, чтобы исторический расход не пропал задним числом.
   if (token && user.buyer && token.buyerId === user.buyer.id) {
-    await prisma.adToken.delete({ where: { id } });
+    await prisma.adToken.update({ where: { id }, data: { archived: true, enabled: false } });
   }
   revalidatePath('/ads');
 }
@@ -267,7 +268,10 @@ export async function deleteMyToken(form: FormData) {
 export async function deleteToken(form: FormData) {
   await requireAdmin();
   const id = String(form.get('id') ?? '');
-  if (id) await prisma.adToken.delete({ where: { id } });
+  // Отвязка = АРХИВ (не удаление): токен уходит из активных списков и синка, но
+  // его кабинеты/расход сохраняются — иначе удаление переписывало историю
+  // «Агентки» меньшим расходом (расход «пропадал» за прошлые дни).
+  if (id) await prisma.adToken.update({ where: { id }, data: { archived: true, enabled: false } });
   revalidatePath('/admin');
   revalidatePath('/ads');
 }

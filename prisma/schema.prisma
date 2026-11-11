@@ -418,6 +418,11 @@ model AdToken {
   proxyUrl    String?  // http://login:pass@ip:port
 
   enabled     Boolean  @default(true)
+  // Отвязанный токен: убран из активных списков и синка, но НЕ удалён — его
+  // кабинеты и FbAdDay остаются, чтобы исторический расход не пропал задним
+  // числом (строка «Агентка» в отчётах дня суммирует расход по кабинетам, и
+  // удаление кабинета перезаписывало историю меньшим расходом).
+  archived    Boolean  @default(false)
   status      String   @default("ACTIVE") // ACTIVE, TOKEN_EXPIRED, PROXY_ERROR
   lastSyncAt  DateTime?
   lastError   String   @default("")

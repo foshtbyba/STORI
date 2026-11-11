@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'treasury-recompute-14d · 11.11 17:39';
+export const BUILD_INFO = 'untie-archives-token · 11.11 17:50';

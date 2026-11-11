@@ -342,7 +342,7 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
   // Пропускаем токены на кулдауне: после троттлинга или «подозрительной
   // активности» аккаунт должен остыть, а не получать запросы по расписанию.
   const all = await prisma.adToken.findMany({
-    where: { enabled: true },
+    where: { enabled: true, archived: false },
     include: { accounts: true, buyer: { select: { handle: true, userId: true } } },
   });
   const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
@@ -805,7 +805,7 @@ export async function syncFacebookCampaigns(): Promise<SyncResult> {
   const result = emptyResult();
   const now = new Date();
   const all = await prisma.adToken.findMany({
-    where: { enabled: true },
+    where: { enabled: true, archived: false },
     include: { accounts: true, buyer: { select: { handle: true, userId: true } } },
   });
   const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
@@ -1029,7 +1029,7 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
   // объявления идёт в его кампанию целиком (как в дешборде).
 
   const all = await prisma.adToken.findMany({
-    where: { enabled: true },
+    where: { enabled: true, archived: false },
     include: { accounts: true, buyer: { select: { handle: true, userId: true } } },
   });
   const tokens = shuffle(all.filter((t) => !t.pausedUntil || t.pausedUntil <= now));
