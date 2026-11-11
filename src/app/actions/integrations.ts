@@ -13,7 +13,7 @@ import { checkBrocard, probeBalances, listAccounts, createTransfer, BrocardError
 import { BROCARD_OVERHEAD, MY_TOPUP_MAX_CENTS } from '@/lib/brocard-const';
 import { usd } from '@/lib/money';
 import { logActivity } from '@/lib/activity';
-import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies } from '@/lib/sync';
+import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies, SYNC_DAYS } from '@/lib/sync';
 
 /**
  * Настройка интеграций. Всё здесь — только для админа: под этими ключами
@@ -901,6 +901,51 @@ export async function runAdsSync(): Promise<{ started: boolean; running: boolean
       info: result.info,
     });
     revalidatePath('/ads/campaigns');
+  });
+
+  return { started: true, running: true };
+}
+
+/**
+ * ГЛУБОКИЙ пересчёт расхода за 14 дней (ad-level, с `allAds`). Нужен, когда
+ * исторический расход «пропал» — напр. после отвязки/возврата агентского
+ * кабинета: отвязка удаляет его FbAdDay каскадом, а обычное «Обновить стату»
+ * тянет только 3 последних дня, поэтому старые дни не восстанавливаются. Этот
+ * заход перетягивает 14 дней и заново считает строки «Агентка» по ad-level, так
+ * что касса/доли сходятся. Долгий — уносим в after() и опрашиваем статусом, как
+ * обычный заход.
+ */
+export async function runAdsSyncDeep(): Promise<{ started: boolean; running: boolean }> {
+  await requireAdmin();
+
+  const prev = await readAdsStatus();
+  const stale = prev.startedAt ? Date.now() - prev.startedAt > ADS_SYNC_STALE_MS : true;
+  if (prev.running && !stale) return { started: false, running: true };
+
+  await writeAdsStatus({ ...emptyAdsStatus(), running: true, startedAt: Date.now() });
+
+  after(async () => {
+    let result;
+    try {
+      result = await syncFacebookAds(SYNC_DAYS, { allAds: true });
+    } catch (e) {
+      result = { touched: 0, skipped: 0, problems: [`Сбой глубокого пересчёта: ${(e as Error).message}`], info: [], orphanCents: 0 };
+    }
+    await writeAdsStatus({
+      running: false,
+      startedAt: prev.startedAt ?? Date.now(),
+      finishedAt: Date.now(),
+      touched: result.touched,
+      skipped: result.skipped,
+      problems: result.problems,
+      info: result.info,
+    });
+    // Пересчёт влияет на расход/профит везде — освежаем все витрины денег.
+    revalidatePath('/ads/campaigns');
+    revalidatePath('/treasury');
+    revalidatePath('/dashboard');
+    revalidatePath('/days');
+    revalidatePath('/payroll');
   });
 
   return { started: true, running: true };

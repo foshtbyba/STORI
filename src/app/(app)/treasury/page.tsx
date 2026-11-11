@@ -6,6 +6,7 @@ import { periodTitle } from '@/lib/period';
 import { Panel, PanelHead, Sub, Empty, Avatar, Big } from '@/components/ui';
 import { IconWallet } from '@/components/icons';
 import SubmitButton from '@/components/SubmitButton';
+import RecomputeSpend from '@/components/RecomputeSpend';
 import { addFundWithdrawal, deleteFundWithdrawal } from '@/app/actions/fund';
 import {
   addOwnerWithdrawal,
@@ -38,7 +39,7 @@ export default async function TreasuryPage() {
     <div className="flex flex-col gap-3.5">
       {/* Сверка: ожидается (дашборд) против факта (снимок) */}
       <Panel className="p-4 sm:p-6">
-        <PanelHead icon={<IconWallet color="#b4c68c" />} tint="bg-sage-t" title="Касса — сверка" />
+        <PanelHead icon={<IconWallet color="#b4c68c" />} tint="bg-sage-t" title="Касса — сверка" right={<RecomputeSpend />} />
         <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
           <Sub className="px-4 py-3.5">
             <div className="text-[11.5px] text-mute">Ожидается (доли + фонд)</div>
