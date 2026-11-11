@@ -1456,15 +1456,37 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
     );
   }
 
-  // Собираем записи заливки ПО КАМПАНИИ И ДНЮ прямо из витрины `cost`: у каждой
-  // кампании за день — вся её сумма расхода (как в дешборде). Заливаем на
-  // campaign_id без фильтра — КТ проставит этот расход кампании за день.
+  // Записи заливки в КТ строим из ДОЛГОВЕЧНОЙ витрины KtCostDay за окно, а НЕ из
+  // текущего `cost` (возможного неполного захода). Заливка покампанийно ОЧИЩАЕТ
+  // окно кампании и заливает заново то, что дали, — поэтому неполный пересчёт
+  // (слетевшие токены, слабый матчинг старых дней) очищал и недоливал, и cost в
+  // КТ проседал. Витрина upsert'ится и хранит накопленную картину по дням
+  // (у слетевших токенов дни остаются от прошлых заходов), поэтому из неё КТ
+  // получает ВЕСЬ известный расход, а не только собранный сейчас.
   const pushByCamp = new Map<string, CostEntry[]>();
-  for (const [key, b] of cost) {
-    const date = key.split('|')[1];
-    const arr = pushByCamp.get(b.campId) ?? [];
-    arr.push({ start_date: `${date} 00:00:00`, end_date: `${date} 23:59:59`, cost: b.cents / 100 });
-    pushByCamp.set(b.campId, arr);
+  if (tracker) {
+    try {
+      const vitrina = await prisma.ktCostDay.findMany({
+        where: { date: { gte: atMidnight(from), lte: atMidnight(to) }, spendCents: { gt: 0 } },
+        select: { ktCampaignId: true, date: true, spendCents: true },
+      });
+      // Суммируем по (кампания, день): у одной кампании КТ бывает несколько
+      // токенов, а в КТ расход ставим на campaign_id целиком.
+      const byCampDay = new Map<string, number>();
+      for (const r of vitrina) {
+        if (!r.ktCampaignId) continue;
+        const k = `${r.ktCampaignId}|${dayKey(r.date)}`;
+        byCampDay.set(k, (byCampDay.get(k) ?? 0) + r.spendCents);
+      }
+      for (const [k, cents] of byCampDay) {
+        const [campId, date] = k.split('|');
+        const arr = pushByCamp.get(campId) ?? [];
+        arr.push({ start_date: `${date} 00:00:00`, end_date: `${date} 23:59:59`, cost: cents / 100 });
+        pushByCamp.set(campId, arr);
+      }
+    } catch (e) {
+      result.problems.push(`Сбор витрины для заливки в КТ: ${(e as Error).message}`);
+    }
   }
 
   // Заливаем посчитанный расход в сам Keitaro — чтобы cost встал рядом с

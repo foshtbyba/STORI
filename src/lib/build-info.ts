@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'agency-counted-this-month · 11.11 18:35';
+export const BUILD_INFO = 'kt-cost-from-vitrina · 12.11 00:42';
