@@ -20,6 +20,10 @@ export type AccountRow = {
   agency: boolean;
   /** Назначенный агент (для агентских кабинетов) — его процент берётся автоматом. */
   agentId: string | null;
+  /** Учтённый расход за 30 дней (с комиссией) — сколько реально посчитано. */
+  counted?: string;
+  /** Учтённый расход за 30 дней равен нулю (подсветка «почему $0»). */
+  countedZero?: boolean;
   duplicate: boolean;
   spend: string;
   /** «Остаток открута»: подпись (напр. «$180» или «—») + флаг «мало» (<200). */
@@ -101,13 +105,18 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
         {acc.agency ? (
           <span className="shrink-0 rounded-full bg-teal-t px-2 py-0.5 text-[10px] text-teal">агентский</span>
         ) : null}
-        {acc.agency && acc.agentId ? (() => {
-          const ag = group.agents.find((a) => a.id === acc.agentId);
+        {acc.agency ? (() => {
+          const ag = acc.agentId ? group.agents.find((a) => a.id === acc.agentId) : null;
+          // Процент, по которому считается расход кабинета: агент или базовая 6%.
           return ag ? (
-            <span className="shrink-0 rounded-full bg-steel-t px-2 py-0.5 text-[10px] text-steel" title="Агент кабинета и его процент">
+            <span className="shrink-0 rounded-full bg-steel-t px-2 py-0.5 text-[10px] text-steel" title="Агент кабинета и его процент — по нему считается расход">
               {ag.name} · {pctLabel(ag.commissionBps)}%
             </span>
-          ) : null;
+          ) : (
+            <span className="shrink-0 rounded-full bg-sub px-2 py-0.5 text-[10px] text-dim" title="Агент не назначен — расход считается по базовой ставке 6%">
+              базовая 6%
+            </span>
+          );
         })() : null}
         {acc.duplicate ? (
           <span className="shrink-0 rounded-full bg-sub px-2 py-0.5 text-[10px] text-dim" title="Тот же act_ID виден под другим профилем">
@@ -129,11 +138,22 @@ export default function AccountGroup({ group, defaultOpen = false }: { group: Gr
             ост. —
           </span>
         ) : null}
-        <span className="ml-auto flex shrink-0 items-baseline gap-1" title="Справочный расход кабинета из Facebook за текущую неделю (Пн–Вс). В зарплату/кассу не идёт — настоящий расход берём из Brocard.">
-          <span className="text-[9.5px] uppercase tracking-wide text-dim">за неделю</span>
-          <span className="n text-[12.5px] text-mute">
-            {acc.spend}
-            {acc.currency !== 'USD' ? <span className="ml-1 text-rust">{acc.currency}</span> : null}
+        <span className="ml-auto flex shrink-0 items-center gap-3">
+          {acc.counted !== undefined ? (
+            <span
+              className="flex items-baseline gap-1"
+              title="Учтённый расход этого кабинета за текущий месяц (1-е — последнее число, ad-level, с комиссией агента) — ровно то, что пошло в кассу. Если тут $0, а кабинет крутил — FB не отдал инсайты (напр. бан), заведи расход руками."
+            >
+              <span className="text-[9.5px] uppercase tracking-wide text-dim">учтено за месяц</span>
+              <span className={`n text-[12.5px] ${acc.countedZero ? 'text-rust' : 'text-sage'}`}>{acc.counted}</span>
+            </span>
+          ) : null}
+          <span className="flex items-baseline gap-1" title="Справочный расход кабинета из Facebook за текущую неделю (Пн–Вс). В зарплату/кассу не идёт — настоящий расход берём из Brocard.">
+            <span className="text-[9.5px] uppercase tracking-wide text-dim">за неделю</span>
+            <span className="n text-[12.5px] text-mute">
+              {acc.spend}
+              {acc.currency !== 'USD' ? <span className="ml-1 text-rust">{acc.currency}</span> : null}
+            </span>
           </span>
         </span>
       </div>

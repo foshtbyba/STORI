@@ -2,6 +2,79 @@ import 'server-only';
 import { prisma } from './db';
 import { fundState } from './fund';
 import { grossUp, DEFAULT_COMMISSION_BPS } from './money';
+import { AGENCY_COMMISSION_BPS } from './extra-spend';
+import { isDeadAccount } from './fb-status';
+
+export type AgencyAccountSpend = {
+  id: string;
+  name: string;
+  buyer: string;
+  dead: boolean;
+  currency: string;
+  agentName: string | null;
+  commissionBps: number;
+  /** Нетто расход за окно из FbAdDay (минорные единицы валюты кабинета). */
+  netCents: number;
+  /** С комиссией агента (для USD-кабинетов). */
+  grossCents: number;
+};
+
+/**
+ * Разбивка агентского расхода ПО КАБИНЕТАМ за ТЕКУЩИЙ МЕСЯЦ (из FbAdDay). Нужна,
+ * чтобы глазами увидеть, считается ли расход забаненных кабинетов: если у
+ * «мёртвого» каба $0 там, где должен быть открут, — FB не отдаёт по нему инсайты
+ * и расход надо завести руками. Показывает ВСЕ агентские кабинеты (в т.ч. с $0),
+ * статус и ставку агента.
+ */
+export async function agencySpendByAccount(): Promise<AgencyAccountSpend[]> {
+  const now = new Date();
+  const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+
+  const accounts = await prisma.adAccount.findMany({
+    where: { agency: true },
+    select: {
+      id: true,
+      name: true,
+      externalId: true,
+      currency: true,
+      accountStatus: true,
+      disableReason: true,
+      agent: { select: { name: true, commissionBps: true } },
+      adToken: { select: { archived: true, buyer: { select: { handle: true } } } },
+    },
+  });
+
+  // Нетто расход по кабинету за окно: суммируем FbAdDay через привязку объявления.
+  const rows = await prisma.fbAdDay.findMany({
+    where: { date: { gte: from, lt: to }, ad: { adAccount: { agency: true } } },
+    select: { spendCents: true, ad: { select: { adAccountId: true } } },
+  });
+  const netByAcc = new Map<string, number>();
+  for (const r of rows) {
+    const id = r.ad.adAccountId;
+    netByAcc.set(id, (netByAcc.get(id) ?? 0) + r.spendCents);
+  }
+
+  const out = accounts.map((a) => {
+    const bps = a.agent?.commissionBps ?? AGENCY_COMMISSION_BPS;
+    const netCents = netByAcc.get(a.id) ?? 0;
+    return {
+      id: a.id,
+      name: a.name || a.externalId.replace(/^act_/, ''),
+      buyer: a.adToken.buyer.handle,
+      dead: isDeadAccount(a.accountStatus, a.disableReason),
+      currency: a.currency,
+      agentName: a.agent?.name ?? null,
+      commissionBps: bps,
+      netCents,
+      grossCents: a.currency === 'USD' ? grossUp(netCents, bps) : netCents,
+    };
+  });
+  // Сортировка: сначала с расходом (больше сверху), потом пустые.
+  out.sort((x, y) => y.netCents - x.netCents);
+  return out;
+}
 
 /**
  * Касса — сведение реальных денег проекта с тем, что насчитал дашборд.

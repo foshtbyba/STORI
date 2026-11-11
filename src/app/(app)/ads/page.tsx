@@ -2,7 +2,8 @@ import { requireUser, scopeBuyerId } from '@/lib/auth';
 import { canSeeTeam, type Role } from '@/lib/roles';
 import { prisma } from '@/lib/db';
 import { fmtWhen, weekBounds, weekKey } from '@/lib/period';
-import { usd } from '@/lib/money';
+import { usd, grossUp } from '@/lib/money';
+import { AGENCY_COMMISSION_BPS } from '@/lib/extra-spend';
 import { accountBadge } from '@/lib/fb-status';
 import { Panel, PanelHead, Empty } from '@/components/ui';
 import { MyTokenForm, TokenForm } from '@/components/IntegrationForms';
@@ -76,6 +77,23 @@ export default async function AdsOverviewPage() {
   });
   const spendByAccount = new Map(spend.map((s) => [s.accountId, s._sum.spendCents ?? 0]));
 
+  // УЧТЁННЫЙ расход агентских кабинетов за ТЕКУЩИЙ МЕСЯЦ из FbAdDay (ad-level) —
+  // ровно то, что идёт в профит/кассу. Нужен в плитке, чтобы глазами сравнить,
+  // сколько за кабинетом посчитано (и заметить забаненный с $0, где был открут).
+  const bpsByAgent = new Map(agents.map((a) => [a.id, a.commissionBps]));
+  const nowD = new Date();
+  const countedFrom = new Date(Date.UTC(nowD.getUTCFullYear(), nowD.getUTCMonth(), 1));
+  const countedTo = new Date(Date.UTC(nowD.getUTCFullYear(), nowD.getUTCMonth() + 1, 1));
+  const agencyAdDays = await prisma.fbAdDay.findMany({
+    where: { date: { gte: countedFrom, lt: countedTo }, ad: { adAccount: { agency: true } } },
+    select: { spendCents: true, ad: { select: { adAccountId: true } } },
+  });
+  const countedNetByAccount = new Map<string, number>();
+  for (const r of agencyAdDays) {
+    const id = r.ad.adAccountId;
+    countedNetByAccount.set(id, (countedNetByAccount.get(id) ?? 0) + r.spendCents);
+  }
+
   // Дубли: один act_ID виден под несколькими профилями. Считаем, сколько раз
   // встречается каждый externalId по всем видимым токенам.
   const seen = new Map<string, number>();
@@ -104,6 +122,12 @@ export default async function AdsOverviewPage() {
       enabled: a.enabled,
       agency: a.agency,
       agentId: a.agentId ?? null,
+      // Учтённый расход за текущий месяц (с комиссией агента) — агентские USD-кабы.
+      counted:
+        a.agency && a.currency === 'USD'
+          ? usd(grossUp(countedNetByAccount.get(a.id) ?? 0, (a.agentId && bpsByAgent.get(a.agentId)) || AGENCY_COMMISSION_BPS))
+          : undefined,
+      countedZero: a.agency && a.currency === 'USD' ? (countedNetByAccount.get(a.id) ?? 0) === 0 : undefined,
       duplicate: (seen.get(a.externalId) ?? 0) > 1,
       spend:
         a.currency === 'USD'

@@ -1,6 +1,6 @@
 import { requireUser } from '@/lib/auth';
 import { type Role } from '@/lib/roles';
-import { treasuryState } from '@/lib/treasury';
+import { treasuryState, agencySpendByAccount } from '@/lib/treasury';
 import { usd } from '@/lib/money';
 import { periodTitle } from '@/lib/period';
 import { Panel, PanelHead, Sub, Empty, Avatar, Big } from '@/components/ui';
@@ -27,6 +27,9 @@ export default async function TreasuryPage() {
   }
 
   const t = await treasuryState();
+  const agency = await agencySpendByAccount();
+  const agencyTotalGross = agency.reduce((s, a) => s + (a.currency === 'USD' ? a.grossCents : 0), 0);
+  const deadWithSpend = agency.filter((a) => a.dead && a.netCents > 0).length;
   const total = t.expectedCents;
   const pct = (c: number) => (total > 0 ? Math.round((c / total) * 100) : 0);
 
@@ -101,6 +104,62 @@ export default async function TreasuryPage() {
             </span>
           </div>
         </div>
+      </Panel>
+
+      {/* Диагностика: агентский расход по кабинетам за текущий месяц. Видно, считается
+          ли открут забаненных — если у «мёртвого» каба $0 там, где должен быть
+          расход, FB не отдаёт по нему инсайты и сумму надо завести руками. */}
+      <Panel className="p-4 sm:p-6">
+        <details>
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+            <span className="flex items-center gap-2.5">
+              <span className="lab text-text">Агентский расход по кабинетам · текущий месяц</span>
+              <span className="n rounded-full bg-sage-t px-2 py-0.5 text-[11px] text-sage">{usd(agencyTotalGross)}</span>
+              {deadWithSpend ? (
+                <span className="rounded-full bg-amber-t px-2 py-0.5 text-[10.5px] text-amber">забаненных с расходом: {deadWithSpend}</span>
+              ) : null}
+            </span>
+            <span className="text-[11.5px] text-mute">раскрыть</span>
+          </summary>
+
+          <div className="mt-3 text-[11.5px] leading-relaxed text-mute">
+            Открут берётся из FbAdDay (ad-level), с комиссией агента (или 6% без агента). Если у
+            забаненного кабинета тут <span className="text-soft">$0</span>, а ты знаешь, что он
+            крутил — FB не отдал по нему инсайты: заведи этот расход руками в «Доп. расходах».
+          </div>
+
+          <div className="mt-3 flex flex-col">
+            <div className="grid grid-cols-[1.4fr_1fr_0.9fr_0.9fr] items-center gap-2 pb-2 text-[10.5px] uppercase tracking-wide text-dim">
+              <span>Кабинет</span>
+              <span>Агент</span>
+              <span className="text-right">Нетто</span>
+              <span className="text-right">С комиссией</span>
+            </div>
+            {agency.length === 0 ? (
+              <Empty>Агентских кабинетов нет.</Empty>
+            ) : (
+              agency.map((a) => (
+                <div key={a.id} className={`grid grid-cols-[1.4fr_1fr_0.9fr_0.9fr] items-center gap-2 border-t border-line py-2 text-[12.5px] ${a.dead ? 'opacity-70' : ''}`}>
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="truncate text-soft">{a.name}</span>
+                    <span className="shrink-0 text-[10px] text-dim">{a.buyer}</span>
+                    {a.dead ? <span className="shrink-0 rounded-full bg-rust-t px-1.5 py-0.5 text-[9.5px] text-rust">бан</span> : null}
+                    {a.currency !== 'USD' ? <span className="shrink-0 rounded-full bg-sub px-1.5 py-0.5 text-[9.5px] text-amber">{a.currency}</span> : null}
+                  </span>
+                  <span className="truncate text-[11.5px] text-mute">
+                    {a.agentName ? `${a.agentName} · ${(a.commissionBps / 100).toString().replace('.', ',')}%` : 'базовая 6%'}
+                  </span>
+                  <span className={`n text-right ${a.netCents === 0 ? 'text-dim' : 'text-mid'}`}>
+                    {a.currency === 'USD' ? usd(a.netCents) : `${Math.round(a.netCents / 100).toLocaleString('ru-RU')} ${a.currency}`}
+                  </span>
+                  <span className={`n text-right ${a.netCents === 0 ? 'text-dim' : 'text-amber'}`}>
+                    {a.currency === 'USD' ? usd(a.grossCents) : '—'}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </details>
       </Panel>
 
       {/* Три доли: овнеры + общий капитал баеров (фонд) */}
