@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'readd-ignores-archived · 12.11 18:41';
+export const BUILD_INFO = 'freeze-then-delete-account · 12.11 18:55';

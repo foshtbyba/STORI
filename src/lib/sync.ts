@@ -156,6 +156,47 @@ async function canonicalAccountIds(now: Date): Promise<Set<string>> {
  * Само правило «не спорить с человеком» живёт в sync-rule.ts — отдельно от
  * базы и чужих API, чтобы его можно было прогнать проверкой.
  */
+/** Сколько дней назад ещё пересчитывается строка «Агентка» (слепок снимаем на
+ *  эту глубину — дальше строки дня уже заморожены). */
+const FREEZE_DAYS = 60;
+
+/**
+ * ЗАМОРОЗКА агентского расхода токена перед полным удалением аккаунта. Снимаем
+ * слепок открута его агентских кабинетов по дням (нетто + с комиссией агента) в
+ * AgencyFrozenDay, чтобы строка «Агентка» не просела, когда FbAdDay уедет
+ * каскадом. Ключ по externalId: добавят кабинет заново — живой расход заменит
+ * слепок (в агрегации слепок по живым externalId не берём). Вызывать ДО delete.
+ */
+export async function freezeAgencySpend(tokenId: string): Promise<void> {
+  const tok = await prisma.adToken.findUnique({ where: { id: tokenId }, select: { buyerId: true } });
+  if (!tok) return;
+  const accs = await prisma.adAccount.findMany({
+    where: { tokenId, agency: true, currency: 'USD' },
+    select: { id: true, externalId: true, agent: { select: { commissionBps: true } } },
+  });
+  if (!accs.length) return;
+  const from = new Date();
+  from.setUTCHours(0, 0, 0, 0);
+  from.setUTCDate(from.getUTCDate() - FREEZE_DAYS);
+  for (const acc of accs) {
+    const bps = acc.agent?.commissionBps ?? AGENCY_COMMISSION_BPS;
+    const byDay = await prisma.fbAdDay.groupBy({
+      by: ['date'],
+      where: { date: { gte: from }, ad: { adAccountId: acc.id } },
+      _sum: { spendCents: true },
+    });
+    for (const d of byDay) {
+      const net = d._sum.spendCents ?? 0;
+      if (net <= 0) continue;
+      await prisma.agencyFrozenDay.upsert({
+        where: { externalId_date: { externalId: acc.externalId, date: d.date } },
+        update: { buyerId: tok.buyerId, netCents: net, grossCents: grossUp(net, bps) },
+        create: { buyerId: tok.buyerId, externalId: acc.externalId, date: d.date, netCents: net, grossCents: grossUp(net, bps) },
+      }).catch(ignoreMissing);
+    }
+  }
+}
+
 /**
  * Автозапись агентского расхода в отчёт дня (строка «Агентка»).
  *
@@ -338,6 +379,14 @@ export async function syncFacebook(days = SYNC_DAYS): Promise<SyncResult> {
   const result = emptyResult();
   const { from, to } = daysBack(days);
   const now = new Date();
+
+  // Дренаж старого архива: токены, отвязанные до перехода на заморозку, —
+  // снимаем слепок агентского расхода и сносим ПОЛНОСТЬЮ (архив не держим).
+  const archivedToks = await prisma.adToken.findMany({ where: { archived: true }, select: { id: true } });
+  for (const at of archivedToks) {
+    try { await freezeAgencySpend(at.id); await prisma.adToken.delete({ where: { id: at.id } }); }
+    catch (e) { ignoreMissing(e); }
+  }
 
   // Пропускаем токены на кулдауне: после троттлинга или «подозрительной
   // активности» аккаунт должен остыть, а не получать запросы по расписанию.
@@ -1369,6 +1418,30 @@ export async function syncFacebookAds(days = 7, opts: { allAds?: boolean } = {})
     cur.net += r.spendCents;
     cur.gross += grossUp(r.spendCents, bps);
     agencyByBuyerDay.set(k, cur);
+  }
+  // Замороженный расход удалённых агентских кабинетов — добавляем к живому. Если
+  // externalId слепка снова живой (кабинет добавили заново), слепок игнорируем:
+  // его покрывает живой FbAdDay. Такие слепки заодно подчищаем.
+  const frozen = await prisma.agencyFrozenDay.findMany({
+    where: { date: { gte: atMidnight(recWindow.from), lte: atMidnight(recWindow.to) } },
+    select: { buyerId: true, externalId: true, date: true, netCents: true, grossCents: true },
+  });
+  if (frozen.length) {
+    const liveExt = new Set(
+      (await prisma.adAccount.findMany({ where: { agency: true }, select: { externalId: true } })).map((a) => a.externalId),
+    );
+    const staleExt = new Set<string>();
+    for (const f of frozen) {
+      if (liveExt.has(f.externalId)) { staleExt.add(f.externalId); continue; }
+      const k = `${f.buyerId}|${dayKey(f.date)}`;
+      const cur = agencyByBuyerDay.get(k) ?? { net: 0, gross: 0 };
+      cur.net += f.netCents;
+      cur.gross += f.grossCents;
+      agencyByBuyerDay.set(k, cur);
+    }
+    if (staleExt.size) {
+      await prisma.agencyFrozenDay.deleteMany({ where: { externalId: { in: [...staleExt] } } }).catch(ignoreMissing);
+    }
   }
   for (const [key, sums] of agencyByBuyerDay) {
     const [buyerId, iso] = key.split('|');

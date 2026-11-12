@@ -71,6 +71,42 @@ export async function agencySpendByAccount(): Promise<AgencyAccountSpend[]> {
       grossCents: a.currency === 'USD' ? grossUp(netCents, bps) : netCents,
     };
   });
+  // Замороженный расход УДАЛЁННЫХ кабинетов (их уже нет среди AdAccount, но их
+  // открут посчитан через слепок). Показываем отдельными строками, чтобы сумма
+  // разбивки сходилась с кассой. Живые externalId пропускаем (их покрыл FbAdDay).
+  const liveExt = new Set(accounts.map((a) => a.externalId));
+  const frozen = await prisma.agencyFrozenDay.findMany({
+    where: { date: { gte: from, lt: to } },
+    select: { buyerId: true, externalId: true, netCents: true, grossCents: true },
+  });
+  const frozenByExt = new Map<string, { buyerId: string; net: number; gross: number }>();
+  for (const f of frozen) {
+    if (liveExt.has(f.externalId)) continue;
+    const cur = frozenByExt.get(f.externalId) ?? { buyerId: f.buyerId, net: 0, gross: 0 };
+    cur.net += f.netCents;
+    cur.gross += f.grossCents;
+    frozenByExt.set(f.externalId, cur);
+  }
+  if (frozenByExt.size) {
+    const buyers = await prisma.buyer.findMany({
+      where: { id: { in: [...new Set([...frozenByExt.values()].map((v) => v.buyerId))] } },
+      select: { id: true, handle: true },
+    });
+    const handleOf = new Map(buyers.map((b) => [b.id, b.handle]));
+    for (const [ext, v] of frozenByExt) {
+      out.push({
+        id: `frozen:${ext}`,
+        name: `${ext.replace(/^act_/, '')} (удалён)`,
+        buyer: handleOf.get(v.buyerId) ?? '—',
+        dead: true,
+        currency: 'USD',
+        agentName: null,
+        commissionBps: v.net > 0 ? Math.round(((v.gross / v.net) - 1) * 10000) : AGENCY_COMMISSION_BPS,
+        netCents: v.net,
+        grossCents: v.gross,
+      });
+    }
+  }
   // Сортировка: сначала с расходом (больше сверху), потом пустые.
   out.sort((x, y) => y.netCents - x.netCents);
   return out;

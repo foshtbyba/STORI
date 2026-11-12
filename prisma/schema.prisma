@@ -289,6 +289,25 @@ model Agent {
   accounts      AdAccount[]
 }
 
+/// Замороженный агентский расход УДАЛЁННОГО кабинета. При удалении токена
+/// снимаем слепок открута его агентских кабинетов по дням (нетто + с комиссией
+/// агента), чтобы строка «Агентка» не просела после полного сноса аккаунта.
+/// Касса/синк считают: живой FbAdDay + это. Ключ по externalId — чтобы не
+/// задвоить, если тот же кабинет добавят заново (тогда живой расход его заменит).
+model AgencyFrozenDay {
+  id         String   @id @default(cuid())
+  buyerId    String
+  externalId String // act_... удалённого кабинета
+  date       DateTime
+  netCents   Int
+  grossCents Int
+  createdAt  DateTime @default(now())
+
+  @@unique([externalId, date])
+  @@index([buyerId, date])
+  @@index([date])
+}
+
 model ConsumableType {
   id      String            @id @default(cuid())
   name    String            @unique
@@ -422,6 +441,8 @@ model AdToken {
   // кабинеты и FbAdDay остаются, чтобы исторический расход не пропал задним
   // числом (строка «Агентка» в отчётах дня суммирует расход по кабинетам, и
   // удаление кабинета перезаписывало историю меньшим расходом).
+  // Оставлен для совместимости; новые удаления сносят токен сразу (стата при
+  // этом замораживается в AgencyFrozenDay), архив больше не копим.
   archived    Boolean  @default(false)
   status      String   @default("ACTIVE") // ACTIVE, TOKEN_EXPIRED, PROXY_ERROR
   lastSyncAt  DateTime?

@@ -13,7 +13,7 @@ import { checkBrocard, probeBalances, listAccounts, createTransfer, BrocardError
 import { BROCARD_OVERHEAD, MY_TOPUP_MAX_CENTS } from '@/lib/brocard-const';
 import { usd } from '@/lib/money';
 import { logActivity } from '@/lib/activity';
-import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies, SYNC_DAYS } from '@/lib/sync';
+import { syncAll, syncFacebookCampaigns, syncFacebookAds, refreshTokenFromCookies, freezeAgencySpend, SYNC_DAYS } from '@/lib/sync';
 
 /**
  * Настройка интеграций. Всё здесь — только для админа: под этими ключами
@@ -259,10 +259,12 @@ export async function deleteMyToken(form: FormData) {
   const user = await requireUser();
   const id = String(form.get('id') ?? '');
   const token = id ? await prisma.adToken.findUnique({ where: { id } }) : null;
-  // Чужой токен не трогаем: отвязать можно только своё. АРХИВИРУЕМ, а не удаляем:
-  // кабинеты и FbAdDay остаются, чтобы исторический расход не пропал задним числом.
+  // Чужой токен не трогаем. Перед сносом ЗАМОРАЖИВАЕМ агентский расход (слепок в
+  // AgencyFrozenDay — «Агентка» не просядет) и удаляем аккаунт ПОЛНОСТЬЮ: стата
+  // записана, кабинет больше не нужен, архив не копим.
   if (token && user.buyer && token.buyerId === user.buyer.id) {
-    await prisma.adToken.update({ where: { id }, data: { archived: true, enabled: false } });
+    await freezeAgencySpend(id);
+    await prisma.adToken.delete({ where: { id } });
   }
   revalidatePath('/ads');
 }
@@ -270,10 +272,13 @@ export async function deleteMyToken(form: FormData) {
 export async function deleteToken(form: FormData) {
   await requireAdmin();
   const id = String(form.get('id') ?? '');
-  // Отвязка = АРХИВ (не удаление): токен уходит из активных списков и синка, но
-  // его кабинеты/расход сохраняются — иначе удаление переписывало историю
-  // «Агентки» меньшим расходом (расход «пропадал» за прошлые дни).
-  if (id) await prisma.adToken.update({ where: { id }, data: { archived: true, enabled: false } });
+  // Снос полный: сперва замораживаем агентский расход (слепок в AgencyFrozenDay),
+  // потом удаляем токен с кабинетами. Архив не копим: стата записана — аккаунт
+  // не нужен, FbAdDay снесётся каскадом, а «Агентка» держится слепком.
+  if (id) {
+    await freezeAgencySpend(id);
+    await prisma.adToken.delete({ where: { id } });
+  }
   revalidatePath('/admin');
   revalidatePath('/ads');
 }
