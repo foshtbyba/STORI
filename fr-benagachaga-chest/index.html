@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta content="initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+<title>Promotion «Benaga Chaga»</title>
+<script src="countrieslist.js"></script>
+<script src="countries.js"></script>
+<script src="country_sync.js"></script>
+<link href="css/styles.css" media="all" rel="stylesheet"><link href="css/css.css" media="all" rel="stylesheet">
+<style>
+:where(.my_form .prodImg){max-width:220px;height:auto}
+:where(.my_form .input-roulette){display:block;width:100%;margin:10px 0;padding:14px 16px;font-size:16px;border:2px solid #c8e6c9;border-radius:10px;background:#fff;color:#1a2b42;font-family:inherit;box-sizing:border-box;outline:none;transition:border-color .2s}
+:where(.my_form .input-roulette:focus){border-color:#4caf50;box-shadow:0 0 0 3px rgba(76,175,80,.15)}
+:where(.my_form .submit-roulette){display:block;width:100%;margin-top:10px;padding:16px;border:0;border-radius:10px;background:linear-gradient(180deg,#e8432a 0%,#c62828 100%);color:#fff;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit;text-transform:uppercase;letter-spacing:.5px;box-shadow:0 4px 12px rgba(232,67,42,.35);transition:transform .15s,box-shadow .15s}
+:where(.my_form .submit-roulette:hover){transform:translateY(-1px);box-shadow:0 6px 16px rgba(232,67,42,.45)}
+:where(.my_form .submit-roulette:active){transform:translateY(1px);box-shadow:0 2px 6px rgba(232,67,42,.3)}
+:where(.my_form .ring-loading){display:none}
+
+.chest__img_pack{width:90% !important;max-width:500px !important}
+.my_form{background:linear-gradient(135deg,#f0f7f0 0%,#e8f5e9 100%);border:2px solid #4caf50;border-radius:16px;box-shadow:0 4px 20px rgba(76,175,80,.15);padding:20px 16px;max-width:400px !important;overflow:hidden !important;margin-left:auto !important;margin-right:auto !important;box-sizing:border-box}
+.my_form .text_popup{background:linear-gradient(135deg,#2e7d32 0%,#388e3c 100%);border-radius:12px;font-size:18px;padding:16px 14px;line-height:1.4;text-align:center;box-sizing:border-box;width:100%;max-width:100%}
+
+.order_form{width:100% !important;box-sizing:border-box}
+.country-select-wrap{text-align:center;margin:0 0 10px}
+.country-select-wrap label{display:block;font-size:14px;font-weight:600;color:#333;margin-bottom:4px;text-align:center}
+.country_select{display:block;width:100%;padding:10px 28px 10px 10px;font-size:13px;border:2px solid #c8e6c9;border-radius:10px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%234caf50' d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 12px center;background-size:12px;color:#1a2b42;font-family:Arial,Helvetica,sans-serif;cursor:pointer;appearance:none;-webkit-appearance:none;-moz-appearance:none;outline:none;box-sizing:border-box;transition:border-color .2s;text-align:center;text-align-last:center}
+.country_select:focus{border-color:#4caf50;box-shadow:0 0 0 3px rgba(76,175,80,.15)}
+
+.form-fields-gate{display:none}
+.form-fields-gate.show{display:block}
+
+.country-confirm{text-align:center;margin:0 0 12px;padding:14px;background:#fff;border:2px solid #c8e6c9;border-radius:10px}
+.country-confirm__text{font-size:16px;font-weight:600;color:#333;margin:0 0 10px}
+.country-confirm__btns{display:flex;gap:10px;justify-content:center}
+.country-confirm__btn{flex:1;max-width:120px;padding:12px 0;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:transform .15s}
+.country-confirm__btn--yes{background:#4caf50;color:#fff}
+.country-confirm__btn--no{background:#eee;color:#333}
+.country-confirm__btn:active{transform:scale(.96)}
+.country-select-wrap{display:none}
+.chest__button button{font-size:13px;width:100px;height:100px;line-height:1.2;padding:5px;overflow-wrap:break-word}
+
+.price_main_value,.price_main_currency{display:inline!important}
+.vis_big{font-size:15px;line-height:1.5;text-align:center}
+.price-line{display:block;font-size:18px;font-weight:600;margin-top:4px;white-space:nowrap}
+.price-line .price_old,.price-line .price_main{word-spacing:-2px}
+.price-line .price_main_value,.price-line .price_main_currency{margin:0;padding:0}
+@media(max-width:480px){
+.top_block h1{font-size:18px!important;line-height:22px!important}
+.vis_big{font-size:13px}
+.price-line{font-size:16px}
+}
+
+b.price_old .price_main_value,
+b.price_old .price_main_currency,
+b.price_main .price_main_value,
+b.price_main .price_main_currency,
+.new_price_val .price_main_value,
+.new_price_val .price_main_currency{display:inline !important}
+b.price_old,b.price_main,.new_price_val{white-space:nowrap}
+</style>
+<script>
+(function(){var s=document.createElement('style');s.textContent='#formFieldsGate{display:none!important}#formFieldsGate.show{display:block!important}';document.head.appendChild(s)})();
+</script>
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+(function () {
+  var PID = '';
+  var u = new URLSearchParams(location.search).get('fbpx');
+  if (u) PID = u;
+  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }
+  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }
+  if (PID) {
+    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}
+    fbq('init', PID);
+    fbq('track', 'PageView');
+  }
+})();
+</script>
+<!-- End Meta Pixel -->
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADSUlEQVR42u2XT2wbRRTGf57ZrVJvBcFO3NSHpLZIyD9ipKqtGi4gRaT4xqVCqBfOcAFRcUHihpDae08EJDhEPtBDq6ZJXEBqJVT+tiUmKUaxmhLaCMdtnRhq7866h2Q32a5pYscn6Dvtm52Z9+mb7307C0/i/x6BRhYtLCx8rOv6+1JKlFJIKT3vhRDYtu3mkUgk0BCAixe/rgL09/fS0dEBwFxqX11ge4/d3igWCPjqia020DRJOBzGNE2UUjU33klo25lk2zZCCLewA6QZIB7LwJ07f2JZyjO2mYWt4sV4bGcA2tsjnrxcLgPgiO/RcMZGBwc4eeI99gSDjA4OAGCa5rW6AUipeY7htUMH3TyZGHILvjr0PKODA7z8XA/fptNMzmRIT0x49jJN82pDGtA0b4slE0Oc+/kqxeKKOzZx/RffutOndhM/+oObl0qlaw0BcGgHOPPd9+i6jhCCy7mcb+5cah+9x27XbNVisfhZ3T4wNTVdlVIjFusCIBqNuibjdIWu69tzvBoesCUDhcIywaBBNBr1OZ0D4EjiWfL3KxjBFgBiHXs489VPzfGBUCiMlJrPbh2b7Y7FuPKuza5IiF1PhTjwzi2yi/eb5wOFwjJKWQDMz8/7zOm3T3p4Y9zA+msZ9aDIpbcfcOkDOJ483BwA7e17uXfvLqVSiXg8ztLSkuf872bm+Ltc5fqvBv/M5nm6v4/KfJkvzl9pDoBKpUxr6zPk83mUUrS1tXmOoPWtHJay6A2vItp05Mg0ez/8o3nfAsfxurq6PG63WQ+Xf7zhMjLS10d6dpZkYojJmczOGfg333+pu9unB9u2mcpkWFlZYXImQ66GTzQkwlpgvslmfW3phGEYnDj+Op2dne6axcXFxgCEQuGaTDh58oWERxNOfPTp5y4r2WzWvczUrQHTNH1Ot1qYW7dQwfj0OKvLNxDC+70IrDMipWD//njjR7AdTQghsW3/eHUTK48ytG0GbFthmhuF17rCXn9em2NZpgfM5uKWaXl8o24AlUqFlpbdPgZunn0FLaj5BCglKLUBbu3adnNn1/JUKlUdHh7GMAwAfv+yB2WB1CB2NE3uwogHyIE3lxq66j82xsbGqk9+of6z8RCCqF/FybIfOgAAAABJRU5ErkJggg==">
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+<div class="container">
+  <div class="chest"><div class="top_block">
+    <h1>Vous participez à la promotion «<span class="productName">Benaga Chaga</span>» !</h1>
+    <p class="vis_big"><span style="font-weight:500">Chaque participant peut obtenir un produit naturel et efficace au prix de :</span><br><span class="price-line"><b class="price_old" style="text-decoration:line-through;color:#999">0 EUR</b> — <b class="price_main new_price_val" style="color:#e53935;font-weight:800">0 EUR</b> !</span></p>
+  </div></div>
+  <div class="select_block">
+    <h2 class="select_block__title"><span style="color:red">Attention :</span> en raison de la forte demande, nous ne pouvons pas traiter toutes les commandes.</h2>
+    <p class="text_big">C'est pourquoi nous avons lancé un tirage au sort : à chaque fois, un gagnant est sélectionné et a la possibilité d'acheter <span class="productName">Benaga Chaga</span> — à un prix exclusif.</p>
+  </div>
+  <div class="chest__img_pack" id="chestImg">
+    <div class="chest__title_wrap"><h3 class="chest__title">Tentez votre chance !</h3>
+      <h3 class="chest__subtitle">Cliquez sur le coffre et recevez votre <span class="danger-text">récompense</span> !</h3></div>
+    <div class="chest__button"><picture>
+      <img src="images/chest.webp" alt="" class="saleBox"></picture><button id="pushChest">OUVRIR</button></div>
+    <div class="chest__img--dinamic chest__img"><picture>
+      <img src="images/chest_animation.webp" alt="" style="max-width:350px;width:100%"></picture></div>
+    <div class="chest__coins"><picture class="chest__img chest__img--opened">
+      <img src="images/chest_opened.webp" alt="" style="max-width:350px;width:100%"></picture>
+      <div class="chest__rotate">
+        <picture class="back"><img src="images/coin2.webp" alt="" style="max-width:350px;width:100%"></picture>
+        <picture class="front"><img src="images/coin2.webp" alt="" style="max-width:350px;width:100%"></picture>
+      </div></div>
+    <div class="chest__order"><div class="my_form">
+      <img src="images/inline_2.png" alt="Benaga Chaga" class="prodImg" style="max-width:240px">
+      <div class="text_popup"><span style="display:block">Félicitations !</span> Vous avez gagné la possibilité d'acheter un paquet de <span class="productName">Benaga Chaga</span> pour seulement <b class="price_old" style="text-decoration:line-through;color:#999">0 EUR</b> <b class="price_main new_price_val" style="color:#e53935">0 EUR</b> !</div>
+      <p style="text-align:center;font-size:15px;color:#444;margin:0 0 2px">Pour recevoir le produit à prix réduit, entrez votre nom et numéro de téléphone, puis cliquez sur « Commander ».</p>
+      <span id="oneform"></span>
+      <form id="order_form" class="order_form" action="order.php" method="post">
+        <input type="hidden" name="sub1" value="{subid}">
+        <input type="hidden" name="country" value="" id="country_hidden">
+        <div class="country-confirm" id="countryConfirm" style="display:none">
+          <p class="country-confirm__text">Votre pays est <span id="countryConfirmName"></span> ?</p>
+          <div class="country-confirm__btns">
+            <button type="button" class="country-confirm__btn country-confirm__btn--yes" id="confirmYes">Oui</button>
+            <button type="button" class="country-confirm__btn country-confirm__btn--no" id="confirmNo">Non</button>
+          </div>
+        </div>
+        <div class="country-select-wrap" id="countrySelectWrap">
+          <label>Sélectionnez votre pays</label>
+          <select class="country_select" id="country_select_main"></select>
+        </div>
+        <div class="form-fields-gate" id="formFieldsGate">
+          <input type="text" minlength="2" class="input-roulette" name="name" id="input-name" placeholder="Entrez votre nom" autocomplete="name" required>
+          <input maxlength="18" minlength="8" type="tel" class="input-roulette" name="phone" id="input-phone" placeholder="123456789" autocomplete="tel" required>
+          <input type="submit" class="submit-roulette" value="COMMANDER MAINTENANT"><div class="ring-loading"></div>
+        </div>
+      </form>
+    </div></div>
+  </div>
+</div>
+<script src="js/bounce.js"></script>
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var ks = (typeof keitaro_subid !== "undefined" && String(keitaro_subid).indexOf("{") === -1) ? keitaro_subid : "";
+    var s = q.get("clickid") || q.get("s") || q.get("subid") || ks || "";
+    document.querySelectorAll('input[name="sub1"]').forEach(function (el) {
+      if (s) el.value = s;
+      else if (String(el.value).indexOf("{") !== -1) el.value = "";
+    });
+  } catch (e) {}
+})();
+</script>
+<script>
+(function(){
+  var sel = document.getElementById('country_select_main');
+  var gate = document.getElementById('formFieldsGate');
+  var hidden = document.getElementById('country_hidden');
+  var confirmBlock = document.getElementById('countryConfirm');
+  var confirmName = document.getElementById('countryConfirmName');
+  var btnYes = document.getElementById('confirmYes');
+  var btnNo = document.getElementById('confirmNo');
+  var selectWrap = document.getElementById('countrySelectWrap');
+  var countries = window.countryList || {};
+
+  var countryNames = {
+    at:'Autriche',be:'Belgique',bg:'Bulgarie',ch:'Suisse',
+    cz:'Tchéquie',de:'Allemagne',ee:'Estonie',es:'Espagne',
+    gr:'Grèce',hr:'Croatie',hu:'Hongrie',it:'Italie',
+    lt:'Lituanie',lv:'Lettonie',pl:'Pologne',pt:'Portugal',
+    ro:'Roumanie',si:'Slovénie',sk:'Slovaquie'
+  };
+
+  var detectedCode = '';
+  var answered = false;
+  var geoReady = false;
+
+  function showForm(code, showSelect) {
+    hidden.value = code.toUpperCase();
+    if (showSelect) selectWrap.style.display = 'block';
+    gate.classList.add('show');
+  }
+
+  sel.addEventListener('change', function(){
+    if (!sel.value) return;
+    if (answered) {
+      showForm(sel.value, true);
+      return;
+    }
+    detectedCode = sel.value;
+    if (!geoReady) return;
+    var n = countryNames[sel.value] || (countries[sel.value] && countries[sel.value].name) || sel.value.toUpperCase();
+    confirmName.textContent = n;
+    confirmBlock.style.display = 'block';
+  });
+
+  window.onCountryConfirmed = function(code) {
+    geoReady = true;
+    if (countries[code]) detectedCode = code;
+    var c = detectedCode || sel.value;
+    var n = countryNames[c] || (countries[c] && countries[c].name) || c.toUpperCase();
+    confirmName.textContent = n;
+    confirmBlock.style.display = 'block';
+  };
+
+  window.onCountryDetected = function(code) {
+    geoReady = true;
+    if (countries[code]) detectedCode = code;
+    var c = detectedCode || sel.value;
+    var n = countryNames[c] || (countries[c] && countries[c].name) || c.toUpperCase();
+    confirmName.textContent = n;
+    confirmBlock.style.display = 'block';
+  };
+
+  window.onGeoFailed = function() {
+    geoReady = true;
+    answered = true;
+    confirmBlock.style.display = 'none';
+    gate.classList.remove('show');
+    selectWrap.style.display = 'block';
+    var placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Sélectionnez votre pays';
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    sel.insertBefore(placeholder, sel.firstChild);
+    sel.value = '';
+  };
+
+  btnYes.addEventListener('click', function(){
+    answered = true;
+    confirmBlock.style.display = 'none';
+    showForm(detectedCode, false);
+  });
+
+  btnNo.addEventListener('click', function(){
+    answered = true;
+    confirmBlock.style.display = 'none';
+    gate.classList.remove('show');
+    selectWrap.style.display = 'block';
+    var placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Sélectionnez votre pays';
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    sel.insertBefore(placeholder, sel.firstChild);
+    sel.value = '';
+  });
+})();
+</script>
+</body></html>

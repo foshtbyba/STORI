@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Santé</title>
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAADSUlEQVR42u2XT2wbRRTGf57ZrVJvBcFO3NSHpLZIyD9ipKqtGi4gRaT4xqVCqBfOcAFRcUHihpDae08EJDhEPtBDq6ZJXEBqJVT+tiUmKUaxmhLaCMdtnRhq7866h2Q32a5pYscn6Dvtm52Z9+mb7307C0/i/x6BRhYtLCx8rOv6+1JKlFJIKT3vhRDYtu3mkUgk0BCAixe/rgL09/fS0dEBwFxqX11ge4/d3igWCPjqia020DRJOBzGNE2UUjU33klo25lk2zZCCLewA6QZIB7LwJ07f2JZyjO2mYWt4sV4bGcA2tsjnrxcLgPgiO/RcMZGBwc4eeI99gSDjA4OAGCa5rW6AUipeY7htUMH3TyZGHILvjr0PKODA7z8XA/fptNMzmRIT0x49jJN82pDGtA0b4slE0Oc+/kqxeKKOzZx/RffutOndhM/+oObl0qlaw0BcGgHOPPd9+i6jhCCy7mcb+5cah+9x27XbNVisfhZ3T4wNTVdlVIjFusCIBqNuibjdIWu69tzvBoesCUDhcIywaBBNBr1OZ0D4EjiWfL3KxjBFgBiHXs489VPzfGBUCiMlJrPbh2b7Y7FuPKuza5IiF1PhTjwzi2yi/eb5wOFwjJKWQDMz8/7zOm3T3p4Y9zA+msZ9aDIpbcfcOkDOJ483BwA7e17uXfvLqVSiXg8ztLSkuf872bm+Ltc5fqvBv/M5nm6v4/KfJkvzl9pDoBKpUxr6zPk83mUUrS1tXmOoPWtHJay6A2vItp05Mg0ez/8o3nfAsfxurq6PG63WQ+Xf7zhMjLS10d6dpZkYojJmczOGfg333+pu9unB9u2mcpkWFlZYXImQ66GTzQkwlpgvslmfW3phGEYnDj+Op2dne6axcXFxgCEQuGaTDh58oWERxNOfPTp5y4r2WzWvczUrQHTNH1Ot1qYW7dQwfj0OKvLNxDC+70IrDMipWD//njjR7AdTQghsW3/eHUTK48ytG0GbFthmhuF17rCXn9em2NZpgfM5uKWaXl8o24AlUqFlpbdPgZunn0FLaj5BCglKLUBbu3adnNn1/JUKlUdHh7GMAwAfv+yB2WB1CB2NE3uwogHyIE3lxq66j82xsbGqk9+of6z8RCCqF/FybIfOgAAAABJRU5ErkJggg==">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/comments.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        referrerpolicy="no-referrer"></script>
+    <link media="all" href="css/form.css" type="text/css" rel="stylesheet">
+    <link media="all" href="css/form1.css" type="text/css" rel="stylesheet">
+    <script src="countrieslist.js"></script>
+    <script src="countries.js"></script>
+    <script src="country_sync.js"></script>
+    <style>
+        @media (min-width: 768px) {
+            .main {
+                max-width: 620px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+        .country-confirm{text-align:center;margin:0 0 12px;padding:14px;background:#fff;border:2px solid #c8e6c9;border-radius:10px}
+        .country-confirm__text{font-size:16px;font-weight:600;color:#333;margin:0 0 10px}
+        .country-confirm__btns{display:flex;gap:10px;justify-content:center}
+        .country-confirm__btn{flex:1;max-width:120px;padding:12px 0;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:transform .15s}
+        .country-confirm__btn--yes{background:#4caf50;color:#fff}
+        .country-confirm__btn--no{background:#eee;color:#333}
+        .country-confirm__btn:active{transform:scale(.96)}
+        .country-select-manual{display:none}
+    </style>
+
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+(function () {
+  var PID = '';
+  var u = new URLSearchParams(location.search).get('fbpx');
+  if (u) PID = u;
+  else { var m = '{fbpx}'; if (m.indexOf('{') === -1 && m) PID = m; }
+  if (!PID) { try { PID = localStorage.getItem('fb_pixel') || ''; } catch (e) {} }
+  if (PID) {
+    try { localStorage.setItem('fb_pixel', PID); } catch (e) {}
+    fbq('init', PID);
+    fbq('track', 'PageView');
+  }
+})();
+</script>
+<!-- End Meta Pixel -->
+
+</head>
+
+<body>
+    <div class="overlay"></div>
+    <header class="header">
+        <nav>
+            <div class="logo"><b>Portail Santé</b></div>
+            <div class="menu">&#9776;</div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <h2 style="text-align: center; margin-top: -25px">Prévisions pour les personnes de plus de 50 ans : novembre apporte un soulagement pour vos articulations. Regardez la vidéo &#9660;</h2>
+        <br>
+        <div class="video-container" id="container_video">
+
+            <div id="close" style="display:none;position:absolute;top:12px;right:12px;width:44px;height:44px;background:rgba(0,0,0,0.7);border-radius:50%;cursor:pointer;z-index:10001;line-height:44px;text-align:center;font-size:22px;color:#fff;font-weight:bold;">&#10005;</div>
+
+            <div id="popup">
+                <div>
+                    <h2>Il ne reste que 17 paquets de Benaga Chaga.</h2>
+                    <h2>Commandez maintenant !</h2>
+                </div>
+            </div>
+            <div id="play" style="display: flex; max-width: 300px; opacity: 0.5; cursor: pointer; position: absolute; top: 50%; left: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%); z-index: 2; margin: 0;">
+                <img src="images/Youtube_logo.png" alt="" class="player-logo" width="400" height="276"
+                    style="height: auto; max-width: 100%; object-fit: contain" loading="lazy">
+            </div>
+            <video id="video" muted="" playsinline="" preload="metadata" style="width:100%;height:100%;object-fit:contain;display:block;">
+                <source src="media/1.mp4" type="video/mp4">
+            </video>
+
+        </div>
+
+        <p class="watch-notice">Regardez la vidéo jusqu'à la fin</p>
+        <div id="oneform"></div>
+
+        <section id="order" class="product-section">
+
+            <div class="zyx_wrapper">
+                <header class="zyx_header">
+                    <h1 class="zyx_main_title">Benaga Chaga – capsules à base d'extrait de champignon chaga, présentées par Dr. Isabelle Moreau
+                    </h1>
+
+                    <div class="zyx_doctor_block">
+                        <img src="images/f1.jpg" alt="Dr. Isabelle Moreau" class="zyx_doctor_photo">
+                        <p class="zyx_photo_caption">Dr. Isabelle Moreau – vétérinaire, qui a travaillé avec des chevaux d'élite et présente ces capsules</p>
+                    </div>
+                </header>
+
+                <section class="zyx_intro">
+                    <h2 class="zyx_section_title">D'un traitement vétérinaire à une solution pour les humains</h2>
+                    <div class="zyx_features">
+                        <div class="zyx_feature">L'inspiration vient d'un traitement naturel utilisé pour les chevaux de sport d'élite</div>
+                        <div class="zyx_feature">Dr. Isabelle Moreau a adapté la formule pour une utilisation humaine</div>
+                        <div class="zyx_feature">Dans toute l'Europe, des milliers de personnes ont retrouvé leurs activités quotidiennes</div>
+                    </div>
+                </section>
+
+                <section class="zyx_effects">
+                    <h2 class="zyx_section_title">Comment agissent les capsules Benaga Chaga, présentées par Dr. Isabelle Moreau ?</h2>
+
+                    <div class="zyx_timeline">
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">La première semaine de prise</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Vous ressentez une amélioration de l'état général et un regain d'énergie</li>
+                                <li>Les processus inflammatoires commencent à diminuer, comme l'a constaté Dr. Isabelle Moreau</li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Après 2 semaines d'utilisation</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Le système immunitaire se renforce considérablement</li>
+                                <li>Les douleurs articulaires diminuent sensiblement</li>
+                            </ul>
+                        </div>
+                        <div class="zyx_timeline_item">
+                            <h3 class="zyx_timeline_title">Effet après un mois</h3>
+                            <ul class="zyx_timeline_list">
+                                <li>Récupération complète de la mobilité articulaire</li>
+                                <li>Vous pouvez à nouveau faire tout ce que vous aimez, sans restriction</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="zyx_certificate">
+                    <img src="images/ART.png" alt="Benaga Chaga" class="zyx_cert_img">
+                    <p class="zyx_photo_caption">Chaque lot passe un contrôle qualité</p>
+                </div>
+
+                <section class="zyx_ingredients">
+                    <h2 class="zyx_section_title">Composition unique, adaptée à l'usage humain</h2>
+
+                    <div class="zyx_ingredient_grid">
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Extrait de champignon chaga (Inonotus obliquus)</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Puissant antioxydant naturel</li>
+                                <li>Soutient le système immunitaire</li>
+                                <li>Possède des propriétés anti-inflammatoires</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">10% de polysaccharides</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Renforcent les défenses de l'organisme</li>
+                                <li>Aident à réduire les inflammations et les gonflements</li>
+                                <li>Prolongent l'effet des capsules</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Substances bioactives naturelles</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Concentration sûre, adaptée aux humains</li>
+                                <li>Aident à soulager rapidement les douleurs articulaires</li>
+                                <li>Assurent un effet durable</li>
+                            </ul>
+                        </div>
+
+                        <div class="zyx_ingredient">
+                            <h3 class="zyx_ingredient_title">Complément alimentaire</h3>
+                            <ul class="zyx_ingredient_list">
+                                <li>Extrait 100% naturel</li>
+                                <li>Aide à la récupération rapide et sûre des articulations</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="zyx_ingredient_note">Les capsules ont passé des centaines de tests en laboratoire dans le laboratoire de Dr. Isabelle Moreau</p>
+                </section>
+
+                <section class="zyx_testimonials">
+                    <div class="zyx_family_photo">
+                        <img src="images/f3.jpg" alt="Les gens retrouvent une vie active" class="zyx_photo">
+                        <p class="zyx_photo_caption">47 personnes le premier mois, des milliers au fil des années – tous ont retrouvé leurs activités quotidiennes</p>
+                    </div>
+                </section>
+
+                <section class="zyx_attention">
+                    <h2 class="zyx_section_title">Information importante !</h2>
+                    <div class="zyx_attention_points">
+                        <p>&#8226; La demande augmente plus vite que la capacité de production</p>
+                        <p>&#8226; Tout le lot actuel est déjà réservé</p>
+                        <p>&#8226; Des milliers de personnes sont déjà sur la liste d'attente</p>
+                    </div>
+                </section>
+
+                <section class="zyx_steps">
+                    <h2 class="zyx_section_title">Comment s'inscrire sur la liste d'attente ?</h2>
+                    <ol class="zyx_steps_list">
+                        <li>Sélectionnez votre pays, entrez votre nom et numéro de téléphone, puis cliquez sur « S'inscrire »</li>
+                        <li>Gardez la sonnerie de votre téléphone activée – le consultant n'appelle qu'une seule fois</li>
+                        <li>Si vous ne répondez pas, vous serez placé en fin de liste</li>
+                        <li>Si vous répondez, vous aurez la possibilité de commander Benaga Chaga au meilleur prix</li>
+                    </ol>
+                </section>
+
+                <div class="zyx_warning">
+                    <img src="images/ART.png" alt="Benaga Chaga" class="zyx_warning_img">
+                    <p class="zyx_photo_caption">Achetez uniquement auprès des représentants officiels de Benaga Chaga</p>
+                </div>
+
+                <section class="zyx_quality">
+                    <h2 class="zyx_section_title">Garantie de qualité</h2>
+                    <div class="zyx_quality_points">
+                        <p>&#10003; Chaque lot passe 12 étapes de contrôle qualité</p>
+                        <p>&#10003; Un paquet sur dix fait l'objet d'une vérification supplémentaire</p>
+                        <p>&#10003; Les mêmes normes strictes que lors des premiers tests des capsules</p>
+                        <p>&#10003; Le prix ne couvre que le coût de production</p>
+                    </div>
+                </section>
+
+                <section class="zyx_final_cta">
+                    <p class="zyx_final_note">Inscrivez-vous dès maintenant sur la liste d'attente – dès qu'il y aura du stock,
+                        nous vous aiderons à oublier les douleurs articulaires !</p>
+
+                    <div class="zyx_product_photo">
+                        <img src="images/ART.png" alt="Benaga Chaga" class="zyx_product_img">
+                        <p class="zyx_photo_caption">Benaga Chaga – d'un traitement vétérinaire au soutien des articulations humaines</p>
+                    </div>
+                </section>
+            </div>
+
+            <!--FORM-BLOCK-->
+            <div class="form-card">
+                <h3 class="form-card__title">Inscrivez-vous sur la liste d'attente</h3>
+                <div class="form_wrapper">
+                    <form action="order.php" method="post" class="order-form order_form" id="form">
+                        <input type="hidden" name="sub1" value="{subid}">
+                        <input type="hidden" name="sub2" value="{sub_id_2}">
+                        <div class="price-block">
+                            <p class="price-block__old"><span class="price_old">78 EUR</span></p>
+                            <p class="price-block__new"><span class="price_main">39 EUR</span></p>
+                        </div>
+
+                        <div class="country-confirm" id="countryConfirm" style="display:none">
+                            <p class="country-confirm__text">Votre pays est <span id="countryConfirmName"></span> ?</p>
+                            <div class="country-confirm__btns">
+                                <button type="button" class="country-confirm__btn country-confirm__btn--yes" id="confirmYes">Oui</button>
+                                <button type="button" class="country-confirm__btn country-confirm__btn--no" id="confirmNo">Non</button>
+                            </div>
+                        </div>
+                        <label class="country-select-manual" id="countrySelectManual">
+                            <span class="text_form">Sélectionnez votre pays :</span>
+                            <select class="country_select" id="country" name="country"></select>
+                        </label>
+                        <div id="form-fields" style="display:none;">
+                            <label>
+                                <span class="text_form">Votre nom :</span>
+                                <input class="lv-input-fio" maxlength="255" name="name" value="" type="text" placeholder="Entrez votre nom" required="">
+                            </label>
+                            <label>
+                                <span class="text_form">Numéro de téléphone :</span>
+                                <input class="lv-input-phone only_number" name="phone" value="" type="tel"
+                                    inputmode="numeric" autocomplete="tel" placeholder="33 X XX XX XX XX" required="">
+                                <span class="phone_helper"></span>
+                            </label>
+                            <button class="botBut js_pre_toform button__text" type="submit">
+                                COMMANDER MAINTENANT
+                            </button>
+                        </div>
+                        <div class="toform"></div>
+                        <div class="form-card__stock">
+                            Il ne reste que <span id="stockCount">17</span> places sur la liste d'attente
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="comments-section">
+            <div class="f-comments-container">
+
+                <div class="f-comments-header">
+                    <div class="f-share-count">Partagé 63 fois</div>
+                    <div class="f-sort">Les plus récents d'abord</div>
+                </div>
+
+                <div class="f-comments-list">
+                    <div class="f-comment">
+                        <img src="images/z1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Marie Dupont</div>
+                                <div class="f-text">J'ai enfin trouvé quelque chose qui aide vraiment ! Je vis en Allemagne, j'ai commandé et commencé à prendre tout de suite. Dès le troisième jour, j'ai remarqué – mes genoux me faisaient moins mal en montant les escaliers.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">il y a 2 jours</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">J'aime</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Répondre</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">47</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m1.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Jean-Pierre Martin</div>
+                                <div class="f-text">Les médecins m'ont dit que seule une opération pouvait m'aider. J'ai décidé d'essayer Benaga Chaga comme dernier espoir. Cela fait déjà une semaine que je le prends – la douleur a considérablement diminué. Je n'en reviens pas !</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">il y a 2 jours</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">J'aime</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Répondre</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">99</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Dr. Isabelle Moreau</div>
+                                            <div class="f-text">Jean-Pierre, je suis ravie que Benaga Chaga vous aide ! Veuillez continuer à prendre les capsules selon les instructions – l'effet se renforce progressivement.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">il y a 2 jours</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">J'aime</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Répondre</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">67</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Sophie Bernard</div>
+                                <div class="f-text">Merci beaucoup pour ce produit ! Au début, je pensais que c'était cher, mais maintenant je vois – cela vaut chaque centime. Les articulations ne craquent plus, la raideur matinale a disparu.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">il y a 3 jours</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">J'aime</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Répondre</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">85</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m2.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Philippe Leroy</div>
+                                <div class="f-text">Quelqu'un a-t-il déjà recommandé ? Mon premier paquet se termine, je veux en acheter encore. J'ai peur que la promotion se termine.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">il y a 4 jours</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">J'aime</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Répondre</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">116</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/z3.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Catherine Dubois</div>
+                                            <div class="f-text">J'ai déjà commandé trois fois et la livraison arrive toujours rapidement. Cela vaut la peine de commander tant qu'il y a du stock.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">il y a 4 jours</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">J'aime</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Répondre</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">193</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Isabelle Petit</div>
+                                <div class="f-text">J'ai commandé pour ma mère qui a 72 ans. Elle dit que pour la première fois depuis des années, elle a pu aller au magasin toute seule sans s'arrêter ! Nous vivons en Suisse, la livraison a été rapide.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">il y a 5 jours</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">J'aime</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Répondre</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">188</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m3.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Michel Roux</div>
+                                <div class="f-text">Après une blessure au genou, j'ai souffert pendant 5 ans. J'ai essayé tous les médicaments de la pharmacie – rien n'a aidé. Mais ces capsules fonctionnent vraiment ! Cela fait déjà une semaine que je marche presque sans douleur.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">il y a 5 jours</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">J'aime</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Répondre</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">212</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Nathalie Laurent</div>
+                                <div class="f-text">Est-ce que cela peut être utilisé pour l'arthrite ? J'ai très mal aux doigts...</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">il y a 6 jours</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">J'aime</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Répondre</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">154</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Dr. Isabelle Moreau</div>
+                                            <div class="f-text">Nathalie, oui, Benaga Chaga peut être pris pour différentes maladies articulaires, y compris l'arthrite. Beaucoup de patients signalent une amélioration significative des articulations des doigts.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">il y a 6 jours</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">J'aime</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Répondre</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">271</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m4.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">François Moreau</div>
+                                <div class="f-text">Excellent produit ! Je l'ai reçu par courrier – l'emballage est de qualité, les instructions sont claires. Je le prends depuis trois semaines, le résultat est formidable.</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">il y a 1 semaine</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">J'aime</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Répondre</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/z6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Christine Garnier</div>
+                                <div class="f-text">J'ai commencé à prendre il y a une semaine. L'effet est impressionnant ! La douleur au genou a diminué, la raideur a disparu. Mon mari a aussi remarqué la différence !</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">il y a 1 semaine</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">J'aime</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Répondre</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">328</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m5.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Alain Mercier</div>
+                                <div class="f-text">Au début, je pensais que c'était encore une arnaque, mais j'ai décidé d'essayer. Et je ne le regrette pas ! Après une semaine d'utilisation, j'ai oublié ce qu'est la douleur articulaire. Je le recommande à tous !</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">il y a 1 semaine</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">J'aime</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Répondre</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">311</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="f-comment">
+                        <img src="images/m6.jpg" class="f-avatar">
+                        <div class="f-comment-wrap">
+                            <div class="f-comment-bubble">
+                                <div class="f-author">Patrick Boyer</div>
+                                <div class="f-text">Est-ce que cela aide aussi pour les douleurs au cou ? Je n'en peux plus...</div>
+                            </div>
+                            <div class="f-comment-meta">
+                                <span class="f-time">il y a 1 semaine</span>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link" data-liked="false">J'aime</button>
+                                <span class="f-dot">&bull;</span>
+                                <button class="f-action-link">Répondre</button>
+                                <div class="f-likes-count" style="display: flex;">
+                                    <span class="f-count">356</span>
+                                    <span class="f-emoji">&#128077;</span>
+                                </div>
+                            </div>
+                            <div class="f-replies">
+                                <div class="f-reply-line"></div>
+                                <div class="f-comment">
+                                    <img src="images/doc.jpg" class="f-avatar">
+                                    <div class="f-comment-wrap">
+                                        <div class="f-comment-bubble">
+                                            <div class="f-author">Dr. Isabelle Moreau</div>
+                                            <div class="f-text">Patrick, Benaga Chaga aide aussi pour les problèmes de la colonne cervicale. Beaucoup de patients signalent une amélioration dès la première semaine.</div>
+                                        </div>
+                                        <div class="f-comment-meta">
+                                            <span class="f-time">il y a 1 semaine</span>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link" data-liked="false">J'aime</button>
+                                            <span class="f-dot">&bull;</span>
+                                            <button class="f-action-link">Répondre</button>
+                                            <div class="f-likes-count" style="display: flex;">
+                                                <span class="f-count">384</span>
+                                                <span class="f-emoji">&#128077;</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var confirmBlock = document.getElementById('countryConfirm');
+        var confirmName = document.getElementById('countryConfirmName');
+        var btnYes = document.getElementById('confirmYes');
+        var btnNo = document.getElementById('confirmNo');
+        var selectManual = document.getElementById('countrySelectManual');
+        var formFields = document.getElementById('form-fields');
+        var selects = document.querySelectorAll('.country_select');
+        var countries = window.countryList || {};
+
+        var countryNames = {
+            at:'Autriche',be:'Belgique',bg:'Bulgarie',ch:'Suisse',
+            cz:'Tchéquie',de:'Allemagne',ee:'Estonie',es:'Espagne',
+            gr:'Grèce',hr:'Croatie',hu:'Hongrie',it:'Italie',
+            lt:'Lituanie',lv:'Lettonie',pl:'Pologne',pt:'Portugal',
+            ro:'Roumanie',si:'Slovénie',sk:'Slovaquie'
+        };
+
+        var detectedCode = '';
+        var answered = false;
+        var geoReady = false;
+
+        function showFormFields(code, showSelect) {
+            if (code) {
+                var sel = document.getElementById('country');
+                if (sel) sel.value = code;
+            }
+            if (showSelect) selectManual.style.display = 'block';
+            formFields.style.display = '';
+        }
+
+        window.onCountryConfirmed = function(code) {
+            geoReady = true;
+            if (countries[code]) detectedCode = code;
+            var c = detectedCode || (selects[0] && selects[0].value);
+            var n = countryNames[c] || (countries[c] && countries[c].name) || c.toUpperCase();
+            confirmName.textContent = n;
+            confirmBlock.style.display = 'block';
+        };
+
+        window.onCountryDetected = function(code) {
+            geoReady = true;
+            if (countries[code]) detectedCode = code;
+            var c = detectedCode || (selects[0] && selects[0].value);
+            var n = countryNames[c] || (countries[c] && countries[c].name) || c.toUpperCase();
+            confirmName.textContent = n;
+            confirmBlock.style.display = 'block';
+        };
+
+        window.onGeoFailed = function() {
+            geoReady = true;
+            answered = true;
+            confirmBlock.style.display = 'none';
+            formFields.style.display = 'none';
+            selectManual.style.display = 'block';
+            var placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Sélectionnez votre pays';
+            placeholder.disabled = true;
+            placeholder.selected = true;
+            for (var i = 0; i < selects.length; i++) {
+                selects[i].insertBefore(placeholder.cloneNode(true), selects[i].firstChild);
+                selects[i].value = '';
+            }
+        };
+
+        btnYes.addEventListener('click', function(){
+            answered = true;
+            confirmBlock.style.display = 'none';
+            showFormFields(detectedCode, false);
+        });
+
+        btnNo.addEventListener('click', function(){
+            answered = true;
+            confirmBlock.style.display = 'none';
+            formFields.style.display = 'none';
+            selectManual.style.display = 'block';
+            var placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Sélectionnez votre pays';
+            placeholder.disabled = true;
+            placeholder.selected = true;
+            for (var i = 0; i < selects.length; i++) {
+                selects[i].insertBefore(placeholder.cloneNode(true), selects[i].firstChild);
+                selects[i].value = '';
+            }
+        });
+
+        for (var k = 0; k < selects.length; k++) {
+            selects[k].addEventListener('change', function() {
+                if (!this.value) return;
+                if (answered) {
+                    showFormFields(this.value, true);
+                    return;
+                }
+                detectedCode = this.value;
+                if (!geoReady) return;
+                var n = countryNames[this.value] || (countries[this.value] && countries[this.value].name) || this.value.toUpperCase();
+                confirmName.textContent = n;
+                confirmBlock.style.display = 'block';
+            });
+        }
+    });
+    </script>
+<script src="js/video1.js"></script>
+<script src="js/ywbackfix.js"
+        data-redirect="true"
+        data-links='["https://{sub_id_29}/{sub_id_30}?sun={campaign_alias}"]'>
+</script>
+</body>
+
+</html>
