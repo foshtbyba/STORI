@@ -44,7 +44,9 @@ async function connectedNames(buyerId: string, externalIds: string[]): Promise<{
   const ids = [...new Set(externalIds)];
   if (!ids.length) return { matched: new Set(), names: [] };
   const rows = await prisma.adAccount.findMany({
-    where: { externalId: { in: ids }, adToken: { buyerId } },
+    // archived — отвязанные токены: их кабинеты не блокируют повторное
+    // добавление (в списке их нет, а история расхода хранится отдельно).
+    where: { externalId: { in: ids }, adToken: { buyerId, archived: false } },
     select: { externalId: true, name: true },
   });
   const byId = new Map(rows.map((r) => [r.externalId, r.name] as const));

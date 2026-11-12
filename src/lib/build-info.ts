@@ -1,1 +1,1 @@
-export const BUILD_INFO = 'kt-cost-from-vitrina · 12.11 00:42';
+export const BUILD_INFO = 'readd-ignores-archived · 12.11 18:41';
